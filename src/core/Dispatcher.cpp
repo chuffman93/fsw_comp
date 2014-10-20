@@ -1,0 +1,1139 @@
+/*! \file Dispatcher.cpp
+ *  \brief Implementation File for the Dispatcher Class
+ *
+ *  This file contains the implementation of the Dispatcher class, which acts
+ *  as the Packet-routing entity in the Phoenix architecture.
+ */
+
+#include <utility>
+
+#include "core/Dispatcher.h"
+#include "core/Factory.h"
+#include "core/ErrorMessage.h"
+#include "core/Singleton.h"
+#include "core/WatchdogManager.h"
+
+#include <iostream>
+//#include "util/crc.h"
+#include "core/CommandMessage.h"
+#include "POSIX.h"
+
+//#include "boards/backplane/dbg_led.h"
+
+#ifndef WIN32
+//extern "C"
+//{
+//#include "utils/debug/print_funcs.h"
+//#include "util/delay.h"
+//#include "drivers/cycle_counter.h"
+//#include "drivers/gpio.h"
+
+//#define PROFILING_PIN AVR32_PIN_PA25
+//#define CLR_PROF_PIN() gpio_local_clr_gpio_pin(PROFILING_PIN);
+//#define TGL_PROF_PIN() gpio_local_tgl_gpio_pin(PROFILING_PIN);
+//}
+//#else
+//#define CLR_PROF_PIN()
+#endif // WIN32
+
+using namespace std;
+//using namespace Phoenix::HAL;
+
+#define DISPATCHER_DEBUG			0
+
+#if DISPATCHER_DEBUG
+#include <iostream>
+#define DEBUG_PRINT(m, p) cout << m << "S: " << p->GetSource() \
+        << ", D: " << p->GetDestination() \
+        << ", N: " << p->GetNumber() \
+        << ", R: " << (p->GetMessagePtr() ? p->GetMessagePtr()->IsResponse() : false) \
+		<< ", T: " << ((int)p->GetMessagePtr()->GetType()) \
+		<< ", O: " << ((int)p->GetMessagePtr()->GetOpcode()) \
+        << ", P: " << p << endl;
+#define DEBUG_COUT(m) cout << m << endl;
+#else
+#define DEBUG_COUT(m)
+#define DEBUG_PRINT(m, p)
+#endif // DEBUG
+
+//#ifndef WIN32
+//// ISR functions must be in the global namespace due to FreeRTOS dependency.
+//__attribute__((__noinline__))
+//static portBASE_TYPE subsystemInterruptHandler_Body(void)
+//{
+//    portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
+//    uint8 pin;
+//    uint32 time;
+//
+//    // Get the current seconds count.  This is the time reference for the packet.
+//    RTCGetTime(&time, NULL);
+//
+//    // Clear the interrupt flag
+//    // TODO: This should figure out which pin caused the interrupt and
+//    // clear that flag instead.
+//    pin = FindInterruptedPinAndClearFlag();
+//
+//    // Signal the task
+//    Phoenix::Core::Dispatcher::EnqueueSubsystemIntFromISR(pin, time, &xHigherPriorityTaskWoken);
+//
+//    return xHigherPriorityTaskWoken;
+//}
+//
+//__attribute__((__naked__))
+//static void subsystemInterruptHandler(void)
+//{
+//    // This ISR can cause a context switch, so the first statement must be a
+//    // call to the portENTER_SWITCHING_ISR() macro.  This must be BEFORE any
+//    // variable declarations.
+//    portENTER_SWITCHING_ISR();
+//    subsystemInterruptHandler_Body();
+//    portEXIT_SWITCHING_ISR();
+//}
+//#endif // WIN32
+
+namespace Phoenix
+{
+    namespace Core
+    {
+        // Instantiate static members
+    	char * Dispatcher::subsystemQueueName = "/subsystemQueueHandle";
+    	char * Dispatcher::queueName = "/queueHandle";
+//
+//    	char * Dispatcher::getQueueName()
+//    	{
+//    		return subsystemQueueName;
+//    	}
+//
+//    	mqd_t * Dispatcher::getQueueHandle()
+//    	{
+//    		return &subsystemQueueHandle;
+//    	}
+//
+//    	struct mq_attr * Dispatcher::getQueueAttr()
+//    	{
+//    		return &subsystemQueueAttr;
+//    	}
+
+        void Dispatcher::Initialize(void)
+        {
+            // Create the mutex and queue through the operating system.
+//    		char * name = getQueueName();
+//            subQinit = mqCreate(getQueueHandle(), getQueueAttr(), name);
+
+
+            //TODO:HARDWARE DISPATCH
+/*
+#ifndef WIN32
+            // Register subsystem interrupts
+            // TODO: Add other subsystems
+            IntInit();
+            IntInitPinInterrupt(INTERRUPT_PIN_PLD, &subsystemInterruptHandler, INTERRUPT_LEVEL_0, INTERRUPT_PULL_DOWN);
+            IntInitPinInterrupt(INTERRUPT_PIN_ACS, &subsystemInterruptHandler, INTERRUPT_LEVEL_0, INTERRUPT_PULL_DOWN);
+            IntInitPinInterrupt(INTERRUPT_PIN_EPS, &subsystemInterruptHandler, INTERRUPT_LEVEL_0, INTERRUPT_PULL_DOWN);
+            IntInitPinInterrupt(INTERRUPT_PIN_COM, &subsystemInterruptHandler, INTERRUPT_LEVEL_0, INTERRUPT_PULL_DOWN);
+            CREATE_TASK(DispatcherTask,
+                    (const signed char* const)"Dispatcher",
+                    1500,
+                    NULL,
+                    configMAX_PRIORITIES - 2,
+                    NULL);
+#endif // WIN32
+*/
+//        	pthread_t SocksThread;
+//        	pthread_create(&SocksThread, NULL, &socksServer, NULL);
+        }
+		
+		bool Dispatcher::IsFullyInitialized(void)
+		{
+			return(Singleton::IsFullyInitialized() && (subQinit == 0) && (qInit == 0));
+		}
+
+/*        void Dispatcher::EnqueueSubsystemIntFromISR(uint8 pin, uint32 time, portBASE_TYPE * woken)
+        {
+            DispatcherInterruptAlertType alert;
+            alert.pin = pin;
+            alert.time = time;
+            portENTER_CRITICAL();
+            xQueueSendFromISR(subsystemQueueHandle, &alert, woken);
+            portEXIT_CRITICAL();
+        }*/
+
+        void Dispatcher::DispatcherTask(void * params)
+        {
+/*
+#ifndef WIN32
+            Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
+            //TODO: check these speeds with all servers running.
+            SPIInit(SUBSYSTEM_SPI, 0, true);
+            SPIChipInit(SUBSYSTEM_SPI, SPI_CHIP_SUBSYSTEM4, SPILowToHigh, SPILeadingEdge, 1000000, 0, 0, true); //EPS
+            SPIChipInit(SUBSYSTEM_SPI, SPI_CHIP_SUBSYSTEM2, SPILowToHigh, SPILeadingEdge, 1000000, 0, 0, true); //ACS
+            SPIChipInit(SUBSYSTEM_SPI, SPI_CHIP_SUBSYSTEM3, SPILowToHigh, SPILeadingEdge, 1000000, 0, 0, true); //COM
+
+            SPIInit(PAYLOAD_SPI, 0, true);
+            SPIChipInit(PAYLOAD_SPI, SPI_CHIP_PAYLOAD, SPILowToHigh, SPILeadingEdge, 5000000, 0, 0, true); //THEIA
+            delay_init(CPU_PBACLK_FREQ_HZ);
+
+            while (1)
+            {
+                DispatcherInterruptAlertType alert;
+				//wdm->Kick();
+                if (pdTRUE == xQueueReceive(subsystemQueueHandle, &alert, portMAX_DELAY))
+                {
+                    uint32_t ret;
+                    uint8 pin = alert.pin;
+                    uint32 time = alert.time;
+
+                    SPIDeviceEnum dev;
+                    uint8_t chip;
+                    Packet packet;
+                    LocationIDType temp;
+                    ReturnMessage retMsg;
+                    uint8 out;
+                    HardwareLocationIDEnum loc;
+					int i;
+
+                    gpio_local_init();
+                    gpio_local_enable_pin_output_driver(PROFILING_PIN);
+                    CLR_PROF_PIN();
+
+                    //TGL_PROF_PIN();
+
+                    if (!ConvertInterruptEnumToHardwareLocation(pin, loc))
+                    {
+                        continue;
+                    }
+
+                    if (!dispatcher->GetHardwareDeviceFromLocation(loc, dev, chip))
+                    {
+                        continue;
+                    }
+
+                    if (!SPIOpen(dev, chip))
+                    {
+                        continue;
+                    }
+
+                    // Wait for the subsystem to be ready by sending a header
+                    // with a frame number of 0.
+                    out = 0;
+					 i = 0;
+                    while (out != 1)
+                    {
+                        out = 0;
+                        if (!SPIWrite(dev, &out, 1))
+                        {
+                            SPIClose(dev);
+                            break;
+                        }
+
+                        cpu_delay_us(PROTOCOL_SPI_DELAY, CPU_PBACLK_FREQ_HZ);
+                        if (!SPIRead(dev, &out, 1))
+                        {
+                            SPIClose(dev);
+                            break;
+                        }
+						
+						if(i == MAX_DISPATCHER_LOOP)
+						{
+							break;
+						}
+						i++;
+                        cpu_delay_us(PROTOCOL_SPI_DELAY, CPU_PBACLK_FREQ_HZ);
+                    }
+					
+                    if (out != 1)
+                    {
+                        continue;
+                    }
+					
+                    ret = dispatcher->GetPacketFromHardware(dev, packet);
+                    if (0 != ret)
+                    {
+                        SPIClose(dev);
+                        continue;
+                    }
+					
+                    //TGL_PROF_PIN();
+
+                    if (!dispatcher->Dispatch(packet))
+                    {
+                        SPIClose(dev);
+                        continue;
+                    }
+                    //TGL_PROF_PIN();
+
+                    if (DISPATCHER_STATUS_OK != dispatcher->WaitForDispatchResponse(packet, retMsg))
+                    {
+                        SPIClose(dev);
+                        continue;
+                    }
+
+                    //TGL_PROF_PIN();
+                    temp = packet.GetDestination();
+                    packet.SetDestination(packet.GetSource());
+                    packet.SetSource(temp);
+                    packet.SetTimestamp(time);
+                    packet.SetMessage(&retMsg);
+
+                    if (0 != dispatcher->SendPacketToHardware(dev, packet))
+                    {
+                        SPIClose(dev);
+                        continue;
+                    }
+                    SPIClose(dev);
+                    //TGL_PROF_PIN();
+                }
+            }
+#endif // WIN32
+*/
+        }
+
+
+        bool Dispatcher::AddRegistry(LocationIDType serverID,
+                MessageHandlerRegistry * registry, Arbitrator * arby)
+        {
+            pair<IteratorType, bool> ret;
+
+            if (NULL == registry || NULL == arby)
+            {
+                return false;
+            }
+
+            // Get the semaphore.
+            if (true == this->TakeLock(MAX_BLOCK_TIME))
+            {
+                // Insert the registry into the map with serverID as the key.
+                DispatcherHandlerType * handlerStruct =
+                        new DispatcherHandlerType(registry, arby);
+                ret = registryMap.insert(make_pair(serverID, handlerStruct));
+                if (!ret.second)
+                {
+                	delete handlerStruct;
+                }
+                this->GiveLock();
+                return ret.second;
+            }
+            else
+            {
+
+            	return false;
+            }
+        }
+
+        bool Dispatcher::Dispatch(const Packet & packet)
+        {
+#ifdef HARDWARE
+            if (packet.GetDestination() >= HARDWARE_LOCATION_MIN && packet.GetDestination() < HARDWARE_LOCATION_MAX)
+            {
+            	uint32_t ret;
+            	//TODO::FIXME:THISHERE
+            	//ret=DispatchToHardware((HardwareLocationIDEnum)packet.GetDestination(), packet);
+                return (0 == ret);
+            }
+            else
+#endif // HARDWARE
+            {
+                Packet * tmpPacket;
+				
+				
+                try
+                {
+                    tmpPacket = new Packet(packet);
+                }
+                catch (bad_alloc & e)
+                {
+                    return false;
+                }
+
+
+
+                if (true == this->TakeLock(MAX_BLOCK_TIME))
+                {
+                    size_t numPackets = mq_size(queueHandle, queueAttr);
+
+                    if (numPackets < DISPATCHER_QUEUE_LENGTH)
+                    {
+                        // Send the message via the message queue.
+                        bool ret = mq_timed_send(queueName, (&tmpPacket), MAX_BLOCK_TIME, 0);
+                        numPackets = mq_size(queueHandle, queueAttr);
+                        this->GiveLock();
+                        return ret;
+                    }
+                    else
+                    {
+                        delete tmpPacket;
+                        this->GiveLock();
+                        return false;
+                    }
+                    return false;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        DispatcherStatusEnum Dispatcher::WaitForDispatchResponse(
+                const Packet & packet, ReturnMessage & returnMessage)
+        {
+            Packet * ret;
+            ReturnMessage * retMsg;
+            size_t i;
+			DEBUG_COUT("   Dispatcher: WaitForDispatchResponse() called");
+            for (i = 0; i < DISPATCHER_MAX_RESPONSE_TRIES; ++i)
+            {
+                if (CheckQueueForMatchingPacket(packet, ret,
+                        &Dispatcher::IsPacketMatchingResponse))
+                {
+                    // Returned packet is a response to our command, so
+                    // return the result.
+					DEBUG_COUT("   Dispatcher: WaitForDispatchResponse(): Matching Packet found.");
+                    retMsg = dynamic_cast<ReturnMessage *> (ret->GetMessagePtr( ));
+                    returnMessage = (NULL == retMsg ? ReturnMessage( ) : *retMsg);
+                    delete ret;
+                    return DISPATCHER_STATUS_OK;
+                }
+                usleep(DISPATCHER_WAIT_TIME);
+
+            }
+            // At this point, see if the command we sent has been received at least.
+			DEBUG_COUT("   Dispatch:  See if the packet we sent has been received.");
+			//debug_led_set_led(6, LED_ON);
+			
+            if (CheckQueueForMatchingPacket(packet, ret,
+                    &Dispatcher::IsPacketSame))
+            {
+                // The command was not received, so it has been removed from the queue.
+                delete ret;
+                return DISPATCHER_STATUS_MSG_NOT_RCVD;
+            }
+            // The command was received, but no response has been placed in
+            // the queue, so return that the operation failed.
+            return DISPATCHER_STATUS_MSG_RCVD_NO_RESP_SENT;
+        }
+
+
+        bool Dispatcher::Listen(LocationIDType serverID)
+        {
+            Packet * packet, tmpPacket;
+            IteratorType it;
+			
+			DEBUG_COUT("Dispatcher: Listen() called with serverID: " << serverID);
+
+            // Create a packet that can be compared with the incoming packets
+            // to check if any are addressed to the desired server.
+
+            tmpPacket.SetSource(serverID);
+
+            if (!CheckQueueForMatchingPacket(tmpPacket, packet,
+                    &Dispatcher::IsPacketDestMatchingSource))
+            {
+				DEBUG_COUT("   Dispatcher: Listen(): No packets have been sent to this server.");
+                return false;
+            }
+			DEBUG_COUT(" Dispatcher: Listen(): Found a packet, looking for a handler.");
+
+			
+            // A packet has been found, so try to find the handler in the
+            // registry list.
+            if (true == this->TakeLock(MAX_BLOCK_TIME))
+            {
+            	DEBUG_COUT("   Dispatcher: searching registry map for handler.");
+                it = registryMap.find(serverID);
+                this->GiveLock();
+            }
+            else
+            {
+                return false;
+            }
+
+            if (registryMap.end( ) == it)
+            {
+				DEBUG_COUT("   Dispatcher: Listen(): Didn't find a handler.");
+                if (SendErrorResponse(ERROR_OPCODE_SERVER_NOT_REGISTERED,
+                        packet, VariableTypeData( )))
+                {
+                }
+                return false;
+            }
+            // A handler exists, so check the permissions
+			DEBUG_COUT("   Dispatcher: Listen(): Handler exists, checking permissions.");
+			
+            ArbitratorAuthStatusEnum arbyRet;
+            if (ARBITRATOR_AUTH_STATUS_PERMISSION != (arbyRet
+                    = it->second->arby->Authenticate(*packet)))
+            {
+				DEBUG_COUT("   Dispatcher: Listen(): Don't have permissions, reject packet.");
+				DEBUG_COUT("   Dispatcher: Listen(): Authenticate returned: " << arbyRet);
+                if (SendErrorResponse(ERROR_OPCODE_PACKET_NOT_ALLOWED, packet,
+                        (uint32) arbyRet))
+                {
+                }
+                return false;
+            }
+            // Permissions are correct, so invoke it and obtain the resulting message.
+			DEBUG_COUT("   Dispatcher: Listen(): Permissions are correct, invoke the handler, and obtain the resulting message.");
+			
+
+            DispatcherTaskParameter parameters;
+            parameters.registry = it->second->registry;
+            parameters.packet = packet;
+            pthread_t TaskHandle;
+            sem_init(&parameters.syncSem, SHARE_TO_THREADS, 1);
+            sem_init(&parameters.doneSem, SHARE_TO_THREADS, 1);
+
+            xSemaphoreTake(&parameters.syncSem, MAX_BLOCK_TIME, 0);
+            pthread_attr_t TaskAttr;
+            pthread_attr_init(&TaskAttr);
+            struct sched_param schedParam;
+            schedParam.__sched_priority = getpriority(PRIO_PROCESS, getpid())+1; //get priority of calling process and make this scheduler prio one lower
+            pthread_attr_setschedparam(&TaskAttr,&schedParam);
+            pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+            pthread_create(&TaskHandle,&TaskAttr, &InvokeHandler, &parameters);
+
+            xSemaphoreTake(&(parameters.syncSem), MAX_BLOCK_TIME, 0);
+            usleep(1000);
+
+            if (true
+                    != xSemaphoreTake(&(parameters.doneSem), 1, 0))
+            {
+                if (SendErrorResponse(ERROR_OPCODE_HANDLER_TIMED_OUT, packet,
+                        VariableTypeData( )))
+                {
+
+                }
+
+                DEBUG_COUT("HANDLER TIMED OUT");
+
+                pthread_cancel(TaskHandle);
+                sem_destroy(&(parameters.syncSem));
+                sem_destroy(&(parameters.doneSem));
+                return false;
+            }
+            pthread_join(TaskHandle, NULL);
+            sem_destroy(&(parameters.syncSem));
+            sem_destroy(&(parameters.doneSem));
+
+            // Create a packet from the response.
+            try
+            {
+                LocationIDType src = packet->GetSource( );
+                packet->SetSource(packet->GetDestination( ));
+                packet->SetDestination(src);
+                packet->SetMessage(parameters.retMsg);
+				delete parameters.retMsg;
+            }
+            catch (bad_alloc & e)
+            {
+                while (!mq_timed_send(queueName, &packet, MAX_BLOCK_TIME, 0));
+                return false;
+            }
+
+            // Send the response back to the server that dispatched the
+            // original message.
+            while (!mq_timed_send(queueName, &packet, MAX_BLOCK_TIME, 0));
+            return true;
+        }
+
+        bool Dispatcher::IsPacketMatchingResponse(const Packet & packetIn,
+                const Packet & packetOut) const
+        {
+        	DEBUG_COUT("IsPacketMatchingRespone called");
+			DEBUG_PRINT("Original Packet - ", (&packetIn));
+			DEBUG_PRINT("Queue Packet    - ", (&packetOut));
+			//debug_led_set_led(5, LED_ON);
+            // Return true if *packetOut is a response to *packetIn.
+            return ((packetOut.GetMessagePtr( )->IsResponse( ))
+                    && (packetOut.GetDestination( ) == packetIn.GetSource( ))
+                    && (packetOut.GetNumber( ) == packetIn.GetNumber( )));
+        }
+
+        bool Dispatcher::IsPacketDestMatchingSource(const Packet & packetIn,
+                const Packet & packetOut) const
+        {
+            // Return true if *packetOut is being sent to the server in
+            // packetIn->GetSource().
+        	DEBUG_COUT("IsPacketDestMatchingSource called");
+            return ((!packetOut.GetMessagePtr( )->IsResponse( ))
+                    && (packetOut.GetDestination( ) == packetIn.GetSource( )));
+        }
+
+        bool Dispatcher::IsPacketSame(const Packet & packetIn,
+                const Packet & packetOut) const
+        {
+            // Return true if packetIn and packetOut are equivalent.
+        	DEBUG_COUT("IsPacketSame called");
+            return packetIn == packetOut;
+        }
+
+        bool Dispatcher::CheckQueueForMatchingPacket(const Packet & packetIn,
+                Packet * &packetOut, PacketCheckFunctionType Check)
+        {
+            size_t numPackets, i;
+            Packet * tmpPacket;
+
+            // Get the semaphore
+            if (true == this->TakeLock(MAX_BLOCK_TIME))
+            {
+                // Check for the first message in the queue
+
+                if (mq_timed_receive(queueName, &packetOut, 0, DISPATCHER_MAX_DELAY) == false)
+                {
+                    this->GiveLock();
+                    return false;
+                }
+                else
+                {
+					//debug_led_set_led(2, LED_ON);
+                    // There's at least one packet, so check if it matches packetIn.
+
+					if(packetOut == NULL)
+					{
+						this->GiveLock();
+						return false;
+					}
+
+                    if ((this->*Check)(packetIn, *packetOut))
+                    {
+						//debug_led_set_led(3, LED_ON);
+                        DEBUG_PRINT("Match 1 - ", packetOut);
+                        this->GiveLock();
+                        return true;
+                    }
+                    else
+                    {
+                        // Check the number of packets waiting in the queue.
+                    	DEBUG_COUT("checking more packets");
+                        numPackets = mq_size(queueHandle, queueAttr);
+
+                        // Get each packet and check it against packetIn.
+                        for (i = 0; i < numPackets; ++i)
+                        {
+                            // Get the next packet.
+                        	//mqd_t tmpqueueHandle = open(queueName, O_RDONLY);
+                            if (mq_timed_receive(queueName, &tmpPacket, 0, 0)
+                                    == false)
+                            {
+								//debug_led_set_led(4, LED_ON);
+                                // Error: There should have been a packet in
+                                // the queue, but there wasn't, so put
+                                // packetOut back.
+                                if (mq_timed_send(queueName, &packetOut, 1, 0)
+                                        == false)
+                                {
+                                    // Error: This is really bad because we
+                                    // can't even preserve the state of
+                                    // the queue.
+                                    this->GiveLock();
+                                    throw(0);
+                                    break;
+                                }
+                                this->GiveLock();
+                                throw(1);
+                                break;
+                            }
+                            // Put packetOut back on the queue since it didn't
+                            // match packetIn.
+                            if (mq_timed_send(queueName, &packetOut, 1, 0)
+                                    == false)
+                            {
+                                // Error
+                                this->GiveLock();
+                                throw(2);
+                                break;
+                            }
+                            packetOut = tmpPacket;
+                            DEBUG_PRINT("Loop - ", packetOut);
+
+                            // Check if packetOut matches packetIn
+                            if ((this->*Check)(packetIn, *packetOut))
+                            {
+								//debug_led_set_led(6, LED_ON);
+                                // Found one!  Time to return!
+                                DEBUG_PRINT("Match 2 - ", packetOut);
+                                this->GiveLock();
+                                return true;
+                            }
+
+                        }
+                        // No packets were found, so put the last packet
+                        // back on the queue.
+                        if (mq_timed_send(queueName, &packetOut, 1, 0) == false)
+                        {
+                            // Error: This is really bad because we
+                            // can't even preserve the state of
+                            // the queue.
+                            this->GiveLock();
+                            throw(3);
+                        }
+                        this->GiveLock();
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                DEBUG_PRINT("Sem Failed - ", packetOut);
+                return false;
+            }
+        }
+
+        bool Dispatcher::SendErrorResponse(ErrorOpcodeEnum errorCode,
+                Packet * packet, VariableTypeData data)
+        {
+            ErrorMessage error(errorCode, data);
+            ReturnMessage * ret;
+            LocationIDType src;
+            try
+            {
+                ret = new ReturnMessage(&error, false);
+            }
+            catch (bad_alloc & e)
+            {
+
+                while (!mq_timed_send(queueName, &packet, MAX_BLOCK_TIME, 0));
+                return false;
+            }
+            src = packet->GetSource( );
+            packet->SetSource(packet->GetDestination( ));
+            packet->SetDestination(src);
+            packet->SetMessage(ret);
+			delete ret;
+            while (!mq_timed_send(queueName, &packet, MAX_BLOCK_TIME, 0));
+            return true;
+        }
+
+        void * Dispatcher::InvokeHandler(void * parameters)
+        {
+            DispatcherTaskParameter * parms =
+                    (DispatcherTaskParameter *) parameters;
+
+			xSemaphoreTake(&(parms->doneSem), MAX_BLOCK_TIME, 0);
+			sem_post(&(parms->syncSem));
+
+            parms->retMsg = parms->registry->Invoke(*(parms->packet));
+
+            //        	unsigned long uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
+            //
+            //#ifndef WIN32
+            //        	print_dbg_ulong(uxHighWaterMark);
+            //#endif // WIN32
+
+            sem_post(&(parms->doneSem));
+
+            pthread_exit(0);
+        }
+
+        //TODO:FIXME:Figure out hardware dispatching
+/*#ifndef WIN32
+        uint32_t Dispatcher::DispatchToHardware(HardwareLocationIDEnum loc, const Packet & packet)
+        {
+            SPIDeviceEnum dev;
+            uint8_t chip;
+            Packet * packetOut;
+            uint8 out;
+			int i;
+            Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+			
+            uint32_t ret;
+			//debug_led_set_value(~0);
+
+            if (!GetHardwareDeviceFromLocation(loc, dev, chip))
+            {
+			//	debug_led_set_led(7, LED_ON);
+                return __LINE__;
+            }
+
+            SPIOpen(dev, chip);
+			//debug_led_set_led(1, LED_ON);
+
+            if (0 != SendPacketToHardware(dev, packet))
+            {
+			//	debug_led_set_led(7, LED_ON);
+                SPIClose(dev);
+                return __LINE__;
+            }
+			//debug_led_set_led(2, LED_ON);
+
+            // Wait for the subsystem to finish processing the packet
+            out = 0;
+			i = 0;
+            while (out != 1)
+            {
+                if (!SPIRead(dev, &out, 1))
+                {
+				//	debug_led_set_led(7, LED_ON);
+                    SPIClose(dev);
+                    return __LINE__;
+                }
+				if(i == MAX_DISPATCHER_LOOP)
+				{
+				//	debug_led_set_led(6, LED_ON);
+					SPIClose(dev);
+					return __LINE__;
+				}
+                cpu_delay_us(PROTOCOL_SPI_DELAY*100, CPU_PBACLK_FREQ_HZ);
+				cpu_delay_us(PROTOCOL_SPI_DELAY*100, CPU_PBACLK_FREQ_HZ);
+				i++;
+            }
+			//debug_led_set_led(3, LED_ON);
+
+            packetOut = new Packet();
+
+            if (0 != (ret = dispatcher->GetPacketFromHardware(dev, *packetOut)))
+            {
+			//	debug_led_set_led(7, LED_ON);
+                delete packetOut;
+                SPIClose(dev);
+                return __LINE__;
+            }
+			//debug_led_set_led(4, LED_ON);
+
+            while (!xQueueSend(queueHandle, (void *)&packetOut, portMAX_DELAY));
+
+            SPIClose(dev);
+			//debug_led_set_led(0, LED_ON);
+
+            return 0;
+        }*/
+
+       /* bool Dispatcher::GetHardwareDeviceFromLocation(HardwareLocationIDEnum loc, SPIDeviceEnum & dev, uint8_t & chip)
+        {
+
+            switch (loc)
+            {
+            case HARDWARE_LOCATION_COM:
+                dev = SUBSYSTEM_SPI;
+                chip = SPI_CHIP_SUBSYSTEM3;
+                break;
+            case HARDWARE_LOCATION_EPS:
+                dev = SUBSYSTEM_SPI;
+                chip = SPI_CHIP_SUBSYSTEM4;
+                break;
+            case HARDWARE_LOCATION_ACS:
+                dev = SUBSYSTEM_SPI;
+                chip = SPI_CHIP_SUBSYSTEM2;
+                break;
+            case HARDWARE_LOCATION_PROP:
+                dev = SUBSYSTEM_SPI;
+                chip = SPI_CHIP_SUBSYSTEM1;
+                break;
+            case HARDWARE_LOCATION_PLD:
+                dev = PAYLOAD_SPI;
+                chip = SPI_CHIP_PAYLOAD;
+                break;
+            default:
+                return false;
+            }
+
+            return true;
+        }*/
+
+        /*uint32_t Dispatcher::SendPacketToHardware(SPIDeviceEnum dev, const Packet & packet)
+        {
+            ReturnMessage retMsg;
+            vector<uint8> messageBuffer;
+            size_t numFrames;
+            unsigned char out = 0;
+            uint8 * buf;
+			int i;
+
+			if(packet.GetFlattenSize() >= MAX_NUMBER_FRAMES*MAX_FRAME_LENGTH)
+			{
+				//debug_led_set_led(7, LED_ON);
+				return __LINE__;
+			}
+
+            buf = new uint8[packet.GetFlattenSize()];
+            if (packet.GetFlattenSize() != packet.Flatten(buf, packet.GetFlattenSize()))
+            {
+				//debug_led_set_led(7, LED_ON);
+                delete buf;
+                return __LINE__;
+            }
+
+            if (packet.GetFlattenSize() == 0)
+            {
+                numFrames = 1;
+            }
+            else
+            {
+                numFrames = ((packet.GetFlattenSize()-1) / MAX_FRAME_LENGTH) + 1;
+            }
+
+            for (size_t frameNum = 0; frameNum < numFrames; ++frameNum)
+            {
+                uint8 pSize;
+                if (frameNum == numFrames - 1)
+                {
+                    pSize = packet.GetFlattenSize() % MAX_FRAME_LENGTH;
+                }
+                else
+                {
+                    pSize = MAX_FRAME_LENGTH;
+                }
+                out = 0;
+				i = 0;
+                while (out != 1)
+                {
+					if(i == MAX_DISPATCHER_LOOP)
+					{
+						//debug_led_set_led(7, LED_ON);
+						delete buf;
+						return __LINE__;
+					}
+                    if (frameNum == 0)
+                    {
+                        out = numFrames;
+                    }
+                    else
+                    {
+                        out = 0x40 | frameNum;
+                    }
+                    if (!SPIWrite(dev, &out, 1))
+                    {
+						//debug_led_set_led(7, LED_ON);
+                        delete buf;
+                        return __LINE__;
+                    }
+
+                    cpu_delay_us(PROTOCOL_SPI_DELAY*100, CPU_PBACLK_FREQ_HZ);
+					cpu_delay_us(PROTOCOL_SPI_DELAY*100, CPU_PBACLK_FREQ_HZ);
+                    if (!SPIRead(dev, &out, 1))
+                    {
+						//debug_led_set_led(7, LED_ON);
+                        delete buf;
+                        return __LINE__;
+                    }
+
+                    cpu_delay_us(PROTOCOL_SPI_DELAY*100, CPU_PBACLK_FREQ_HZ);
+                    cpu_delay_us(PROTOCOL_SPI_DELAY*100, CPU_PBACLK_FREQ_HZ);					
+					i++;
+                }
+				//debug_led_set_led(0, LED_ON);
+
+                // Send packet size
+                if (!SPIWrite(dev, &pSize, 1))
+                {
+					//debug_led_set_led(7, LED_ON);
+                    delete buf;
+                    return __LINE__;
+                }
+
+                cpu_delay_us(PROTOCOL_SPI_DELAY, CPU_PBACLK_FREQ_HZ);
+                cpu_delay_us(PROTOCOL_SPI_DELAY, CPU_PBACLK_FREQ_HZ);
+				
+                for (size_t i = 0; i < pSize; ++i)
+                {
+                    if (!SPIWrite(dev, &buf[MAX_FRAME_LENGTH*frameNum+i], 1))
+                    {
+						//debug_led_set_led(7, LED_ON);
+                        delete buf;
+                        return __LINE__;
+                    }
+
+                    cpu_delay_us(PROTOCOL_SPI_DELAY, CPU_PBACLK_FREQ_HZ);
+					cpu_delay_us(PROTOCOL_SPI_DELAY, CPU_PBACLK_FREQ_HZ);
+                }
+            }
+            delete buf;
+
+            return 0;
+        }*/
+
+       /* uint32_t Dispatcher::GetPacketFromHardware(SPIDeviceEnum dev, Packet & packet)
+        {
+            vector<uint8> messageBuffer;
+            crc_t crc;
+            size_t numPackets;
+            unsigned char out = 0;
+            unsigned char length;
+            uint8 packetNum;
+            crc_t recCrc;
+
+            numPackets = 1;
+
+            packetNum = 0;
+            crc = INITIAL_REMAINDER;
+
+            while (packetNum != numPackets)
+            {
+                if (!SPIRead(dev, &out, 1))
+                {
+					debug_led_set_led(7, LED_ON);
+                    return __LINE__;
+                }
+				//debug_led_set_value(~out);
+				//debug_led_set_value(~0);
+                if ((out & 0x40) == 0)
+                {
+                    numPackets = out & 0x3f;
+                    packetNum = 0;
+                }
+                else
+                {
+                    if (packetNum != (out & 0x3f))
+                    {
+						debug_led_set_led(7, LED_ON);
+                        return __LINE__;
+                    }
+                }
+
+                cpu_delay_us(PROTOCOL_SPI_DELAY, CPU_PBACLK_FREQ_HZ);
+                cpu_delay_us(PROTOCOL_SPI_DELAY, CPU_PBACLK_FREQ_HZ);				
+
+                if (!SPIRead(dev, &length, 1))
+                {
+					debug_led_set_led(7, LED_ON);
+                    return __LINE__;
+                }
+
+                cpu_delay_us(PROTOCOL_SPI_DELAY, CPU_PBACLK_FREQ_HZ);
+                cpu_delay_265us(PROTOCOL_SPI_DELAY, CPU_PBACLK_FREQ_HZ);
+
+                if (length < PACKET_OVERHEAD_SIZE)
+                {
+					
+					debug_led_set_value(~length);
+					debug_led_set_value(~0);
+					debug_led_set_led(7, LED_ON);
+                    return __LINE__;
+                }
+
+
+                for (size_t i = 0; i < length; ++i)
+                {
+                    size_t comp;
+                    if (!SPIRead(dev, &out, 1))
+                    {
+						debug_led_set_led(7, LED_ON);
+                        return __LINE__;
+                    }
+
+                    cpu_delay_us(PROTOCOL_SPI_DELAY, CPU_PBACLK_FREQ_HZ);
+                    cpu_delay_us(PROTOCOL_SPI_DELAY, CPU_PBACLK_FREQ_HZ);					
+
+                    uint8 temp = out & 0xff;
+
+                    if (packetNum != 0)
+                    {
+                        comp = i + 100;
+                    }
+                    else
+                    {
+                        comp = i;
+                    }
+
+                    switch (comp)
+                    {
+                    case 0:
+                        packet.SetSource((out << 8) & 0xff00);
+                        break;
+                    case 1:
+                        packet.SetSource(packet.GetSource() | (out & 0xff));
+                        break;
+                    case 2:
+                        packet.SetDestination((out << 8) & 0xff00);
+                        break;
+                    case 3:
+                        packet.SetDestination(packet.GetDestination() | (out & 0xff));
+                        break;
+                    case 4:
+                        packet.SetNumber((out << 8) & 0xff00);
+                        break;
+                    case 5:
+                        packet.SetNumber(packet.GetNumber() | (out & 0xff));
+                        break;
+                    case 6:
+                        packet.SetTimestamp(((uint32)out << 24) & 0xff000000);
+                        break;
+                    case 7:
+                        packet.SetTimestamp(packet.GetTimestamp() | (((uint32)out << 16) & 0x00ff0000));
+                        break;
+                    case 8:
+                        packet.SetTimestamp(packet.GetTimestamp() | (((uint32)out << 8)  & 0x0000ff00));
+                        break;
+                    case 9:
+                        packet.SetTimestamp(packet.GetTimestamp() | (out & 0xff));
+                        messageBuffer.clear();
+                        break;
+                    default:
+                        messageBuffer.push_back(out);
+                        break;
+                    }
+
+                    if ((packetNum < (numPackets - 1)) || ((packetNum == (numPackets - 1)) && i < length - 2))
+                    {
+                        crc = crcFast(&temp, 1, crc);
+                    }
+                }
+                ++packetNum;
+            }
+			//debug_led_set_led(3, LED_ON);
+            recCrc = messageBuffer.back() & 0xff;
+            messageBuffer.pop_back();
+            recCrc |= (messageBuffer.back() << 8) & 0xff00;
+            messageBuffer.pop_back();
+
+            if (recCrc != crc)
+            {
+				debug_led_set_led(7, LED_ON);
+                return __LINE__;
+            }
+
+            packet.SetMessage(NULL);
+            Message * msg = Message::CreateMessage(messageBuffer.data(), messageBuffer.size());
+            packet.SetMessage(msg);
+			delete msg;
+
+            return 0;
+        }
+#endif // WIN32*/
+
+		Dispatcher::Dispatcher(void) 
+				: Singleton(), registryMap()
+		{
+			mq_unlink(subsystemQueueName);
+			mq_unlink(queueName);
+			subQinit = mqCreate(&subsystemQueueHandle, &subsystemQueueAttr, subsystemQueueName);
+
+			qInit = mqCreate(&queueHandle, &queueAttr, queueName);
+		}
+
+		Dispatcher::Dispatcher(const Dispatcher & source)
+		{
+			// Left Intentionally Empty
+		}
+
+#ifdef HOST
+		void Dispatcher::Destroy(void)
+		{
+			mq_unlink(subsystemQueueName);
+			mq_unlink(queueName);
+		}
+#endif
+
+		Dispatcher::~Dispatcher(void)
+		{
+			while (!registryMap.empty( ))
+			{
+				IteratorType it = registryMap.begin( );
+				delete it->second;
+				registryMap.erase(it);
+			}
+			registryMap.clear( );
+			mq_unlink(subsystemQueueName);
+			mq_unlink(queueName);
+		}
+
+		Dispatcher & Dispatcher::operator=(const Dispatcher & source)
+		{
+			return *this;
+		}
+
+    }
+}
+
+
