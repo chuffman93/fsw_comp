@@ -10,13 +10,16 @@
 
 #if VERBOSE
 #include <iostream>
-#endif // VERBOSE
+#include <pthread.h>
+#include <errno.h>
+#include <time.h>
+#endif // VERBOSE#include "core/WatchdogManager.h"#include "core/Factory.h"
+#include "core/Singleton.h"
+using namespace std;
+using namespace Phoenix::Core;
 
-#include "core/WatchdogManager.h"
-#include "core/Factory.h"
-
-
-using namespace std;
+#define WATCHDOG_MANAGER_DELAY	10000 // milliseconds
+#define WATCHDOG_MANAGER_TASK_RESET_TICKS  30000// milliseconds
 
 #if VERBOSE
 #define PRINT_ACTION(m) cout << m
@@ -24,159 +27,102 @@ using namespace std;
 #define PRINT_ACTION(m)
 #endif // VERBOSE
 
-namespace Phoenix
-{
-    namespace Core
-    {
-#ifdef WIN32
-		xSemaphoreHandle WatchdogManager::staticLockHandle = 0;
-		
-        void WatchdogManager::Initialize(void)
-        {
-			staticLockHandle = xSemaphoreCreateMutex( );
-// #ifndef WIN32
-// 			CREATE_TASK(WatchdogManagerTask,
-// 				(const signed char* const)"WatchdogManager",
-// 				1500,
-// 				NULL,
-// 				configMAX_PRIORITIES - 2,
-// 				NULL);
-// #endif
+#ifdef HOST
+#define DEBUG_PRINT(m) cout << m << endl
+#else
+#define DEBUG_PRINT(m)
+#endif // HOST
+namespace Phoenix{	namespace Core	{
 
-        }
-		
- 		void WatchdogManager::Destroy(void )
- 		{
- 			vQueueDelete(staticLockHandle);
- 		}
+		void WatchdogManager::Destroy(void )
+		{
+//			vQueueDelete(staticLockHandle);
+//			sem_t *staticLockHandle;
+			DEBUG_PRINT("In Destroy");
+			return;
+		}
+
+		void WatchdogManager::Initialize()
+		{
+			DEBUG_PRINT("In initialize");
+			return;
+		}
 
 		bool WatchdogManager::IsFullyInitialized(void)
 		{
-			return (Singleton::IsFullyInitialized() && (staticLockHandle != 0));
+//			static sem_t *staticLockHandle;
+			return (Singleton::IsFullyInitialized()); // && (staticLockHandle != 0));
 		}
-        
-        void WatchdogManager::CreateTask(pdTASK_CODE taskFunction,
-										 const signed char * const name,
-										 unsigned short stackDepth,
-										 void *parameters,
-										 unsigned long priority,
-										 xTaskHandle *taskHandle)
-        {
-        	xTaskHandle handle, thisTask;
-			
-			WatchdogManager * watchdogManager = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
-        	thisTask = xTaskGetCurrentTaskHandle();
+		PThread* WatchdogManager::CreateTask(const pthread_attr_t *at, void *(*ro)(void*), void *ar, const bool startNow)
+		{
+			PThread *pThread = new PThread(at, ro, ar, startNow);
 
-        	if (thisTask != 0)
-        	{
-        		if (pdTRUE != xSemaphoreTake(staticLockHandle, portMAX_DELAY))
-        		{
-        			return;
-        		}
-        	}
-
-			xTaskCreate( taskFunction, name, stackDepth, parameters, priority, &handle);
-
-			if (taskHandle != NULL)
+			if (pThread->tid == 0) // Unsuccessful thread start
 			{
-				*taskHandle = handle;
+				return NULL;
 			}
 
-			watchdogManager->ActivateTask(handle);
-
-			if (thisTask != 0)
-			{
-				xSemaphoreGive(staticLockHandle);
-        	}
-        }
-
-        void WatchdogManager::DeleteTask(xTaskHandle taskHandle)
-        {
-        	xTaskHandle thisTask;
-			
 			WatchdogManager * watchdogManager = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
-			thisTask = xTaskGetCurrentTaskHandle();
-
-			if (thisTask != 0)
+			if (startNow)
 			{
-				if (pdTRUE != xSemaphoreTake(staticLockHandle, portMAX_DELAY))
+				watchdogManager->AddTask(pThread, TASK_RUNSTATE_RUNNING);
+			}
+			else
+			{
+				watchdogManager->AddTask(pThread, TASK_RUNSTATE_NOT_RUNNING);
+			}
+
+			return pThread;
+		}
+
+		bool WatchdogManager::DeleteTask(PThread *&pThread)
+		{
+			WatchdogManager * watchdogManager = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
+
+			IteratorType it;
+
+			if (watchdogManager->TakeLock(MAX_BLOCK_TIME) == true)
+			{
+				if (pThread == NULL)
 				{
-					return;
+					watchdogManager->GiveLock();
+					return true;
 				}
-			}
 
-        	watchdogManager->RemoveTask(taskHandle);
-        	vTaskDelete(taskHandle);
-
-        	if (thisTask != 0)
-			{
-				xSemaphoreGive(staticLockHandle);
-			}
-        }
-
-        void WatchdogManager::ResumeTask(xTaskHandle taskHandle)
-        {
-        	xTaskHandle thisTask;
-			
-			WatchdogManager * watchdogManager = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-
-			thisTask = xTaskGetCurrentTaskHandle();
-
-			if (thisTask != 0)
-			{
-				if (pdTRUE != xSemaphoreTake(staticLockHandle, portMAX_DELAY))
+				it = watchdogManager->taskMap.find(pThread);
+				if (it != watchdogManager->taskMap.end())
 				{
-					return;
+					if (pThread->isRunning)
+					{
+						pThread->stop();
+					}
+					delete pThread;
+					pThread = NULL;
+					delete it->second;
+					watchdogManager->taskMap.erase(it);
 				}
+
+				watchdogManager->GiveLock();
+				return true;
+
 			}
-
-			watchdogManager->ActivateTask(taskHandle);
-			vTaskResume(taskHandle);
-
-			if (thisTask != 0)
+			else
 			{
-				xSemaphoreGive(staticLockHandle);
+				return false;
 			}
-        }
+		}
 
-        void WatchdogManager::SuspendTask(xTaskHandle taskHandle)
-        {
-        	xTaskHandle thisTask;
-			
+		void * WatchdogManager::WatchdogManagerTask(void * parameters)
+		{
+			clock_t startTime = getTimeInMilis();
+			clock_t lastWakeTime = startTime;
+
 			WatchdogManager * watchdogManager = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
-			thisTask = xTaskGetCurrentTaskHandle();
+			waitUntil(lastWakeTime, WATCHDOG_MANAGER_DELAY);
 
-			if (thisTask != 0)
-			{
-				if (pdTRUE != xSemaphoreTake(staticLockHandle, portMAX_DELAY))
-				{
-					return;
-				}
-			}
-
-			watchdogManager->DeactivateTask(taskHandle);
-			vTaskSuspend(taskHandle);
-
-			if (thisTask != 0)
-			{
-				xSemaphoreGive(staticLockHandle);
-			}
-        }
-
-        void WatchdogManager::WatchdogManagerTask(void * paramters)
-        {
-        	portTickType xLastWakeTime;
-			const portTickType xFrequency = WATCHDOG_MANAGER_FREQUENCY;
-			
-			WatchdogManager * watchdogManager = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-			
-			vTaskDelay(xFrequency);
-
-			// Initialize the xLastWakeTime variable with the current time.
-			xLastWakeTime = xTaskGetTickCount();
 			while (1)
 			{
 				watchdogManager->Kick();
@@ -187,60 +133,83 @@ namespace Phoenix
 				else
 				{
 					PRINT_ACTION("WDM: Not Kicked By All Tasks!" << endl);
+
+					// Reset a task if it has exceeded the time limit
+					if (watchdogManager->TakeLock(MAX_BLOCK_TIME) == true)
+					{
+						watchdogManager->Kick();
+						for (IteratorType it = watchdogManager->taskMap.begin(); it != watchdogManager->taskMap.end(); ++it)
+						{
+							DEBUG_PRINT("In WatchdogManagerTask for-loop");
+							TaskState * state = it->second;
+							if (state->GetTaskState() == TASK_RUNSTATE_RUNNING && !state->GetKickState())
+							{
+								// Restart the task
+								DEBUG_PRINT("Inactive task found. Restarting thread.");
+								it->first->stop();
+								DEBUG_PRINT("Stopped the thread.");
+								it->first->start();
+								DEBUG_PRINT("Restarted the thread.");
+							}
+						}
+					}
+					DEBUG_PRINT("WatchdogManagerTask calling GiveLock()");
+					bool gaveLock = watchdogManager->GiveLock();
+					DEBUG_PRINT("WatchdogManagerTask called GiveLock()");
+					cout << "GiveLock return value: " << gaveLock << endl;
 				}
 
-				if (xLastWakeTime + xFrequency <= xTaskGetTickCount())
+				if ((lastWakeTime + WATCHDOG_MANAGER_DELAY) <= (getTimeInMilis() - startTime))
 				{
-					xLastWakeTime = xTaskGetTickCount();
+					lastWakeTime = getTimeInMilis();
 				}
-				vTaskDelayUntil( &xLastWakeTime, xFrequency );
+				waitUntil( lastWakeTime, WATCHDOG_MANAGER_DELAY);
 			}
-        }
 
-        bool WatchdogManager::AddTask(xTaskHandle handle, TaskRunStateEnum taskState)
-        {
-        	pair<IteratorType, bool> ret;
-			
-			WatchdogManager * watchdogManager = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-			
-			// Get the semaphore.
-			if (pdTRUE == watchdogManager->TakeLock(portMAX_DELAY))
-			{
-				// Insert the registry into the map with serverID as the key.
-				TaskState * newState = new TaskState(taskState, true);
-				ret = taskMap.insert(PairType(handle, newState));
-				if (!ret.second)
-				{
-					delete newState;
-				}
-				watchdogManager->GiveLock();
-				return ret.second;
-			}
-			else
-			{
-				return false;
-			}
-        }
+			void * ret;
+			return ret;
+		}
 
-		bool WatchdogManager::RemoveTask(xTaskHandle task)
+		bool WatchdogManager::AddTask(PThread *pThread, TaskRunStateEnum taskState)
 		{
-			IteratorType it;
-			
+			pair<IteratorType, bool> ret;
+
 			WatchdogManager * watchdogManager = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
 			// Get the semaphore.
-			if (pdTRUE == watchdogManager->TakeLock(portMAX_DELAY))
+			if (watchdogManager->TakeLock(MAX_BLOCK_TIME) == true)
 			{
-				it = taskMap.find(task);
-				if (it == taskMap.end())
+				bool kickState;
+				if (taskState == TASK_RUNSTATE_RUNNING)
 				{
+					kickState = true;
+				}
+				else
+				{
+					kickState = false;
+				}
+
+				TaskState * newState = new TaskState(taskState, kickState);
+
+				IteratorType it;
+				it = watchdogManager->taskMap.find(pThread);
+
+				if (it == watchdogManager->taskMap.end())
+				{
+					// pThread is not there. Add the pair
+					ret = watchdogManager->taskMap.insert(PairType(pThread, newState));
+					if (!ret.second)
+					{
+						DEBUG_PRINT("ret.second is false in AddTask");
+						delete newState;
+					}
 					watchdogManager->GiveLock();
-					return false;
+					return ret.second;
 				}
 				else
 				{
 					delete it->second;
-					taskMap.erase(it);
+					it->second = newState;
 					watchdogManager->GiveLock();
 					return true;
 				}
@@ -251,183 +220,170 @@ namespace Phoenix
 			}
 		}
 
-        void WatchdogManager::Kick(void)
-        {
-        	xTaskHandle handle;
-        	IteratorType it;
-			
+		void WatchdogManager::Kick(void)
+		{
+//			DEBUG_PRINT("Inside Kick method");
 			WatchdogManager * watchdogManager = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
-        	// Get the semaphore.
-			if (pdTRUE == watchdogManager->TakeLock(portMAX_DELAY))
+			// Get the semaphore.
+			if (watchdogManager->TakeLock(MAX_BLOCK_TIME) == true)
 			{
-				handle = xTaskGetCurrentTaskHandle();
-				it = taskMap.find(handle);
+				pthread_t tid;
+				tid = pthread_self();
 
-				if (taskMap.end( ) == it)
+				// Find the PThread with the correct tid
+				for (ConstIteratorType it = watchdogManager->taskMap.begin(); it != watchdogManager->taskMap.end(); ++it)
 				{
-					// The task has not yet been registered, so add it to the
-					// map and kick it.
-					taskMap.insert(PairType(handle, new TaskState(TASK_RUNSTATE_RUNNING, true)));
+					if (it->first->tid == tid)
+					{
+						it->first->lastKickTime = getTimeInMilis();
+						it->second->SetTaskState(TASK_RUNSTATE_RUNNING);
+						it->second->SetKickState(true);
+					}
 				}
-				else
-				{
-					it->second->SetKickState(true);
-				}
+
 				watchdogManager->GiveLock();
+				return;
 			}
 			else
 			{
 				return;
 			}
-        }
-        
-        bool WatchdogManager::AllRunningTasksActive(void) const
-        {
-        	bool ret = true;
-			
+		}
+
+		bool WatchdogManager::AllRunningTasksActive(void)
+		{
 			WatchdogManager * watchdogManager = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
-        	// Get the semaphores.
-        	if (pdTRUE == xSemaphoreTake(staticLockHandle, portMAX_DELAY))
-        	{
-				if (pdTRUE == watchdogManager->TakeLock(portMAX_DELAY))
+			if (watchdogManager->TakeLock(MAX_BLOCK_TIME) == true)
+			{
+				for (ConstIteratorType it = watchdogManager->taskMap.begin(); it != watchdogManager->taskMap.end(); ++it)
 				{
-					// Add one to the list of registered tasks for the IDLE task.
-					if (uxTaskGetNumberOfTasks() != taskMap.size() + 1)
+					TaskState * state = it->second;
+					if (state->GetTaskState() == TASK_RUNSTATE_RUNNING && !state->GetKickState())
 					{
 						watchdogManager->GiveLock();
-						xSemaphoreGive(staticLockHandle);
 						return false;
 					}
 
-					for (ConstIteratorType it = taskMap.begin(); it != taskMap.end(); ++it)
-					{
-						TaskState * state = it->second;
-						if ((xTaskIsTaskSuspended(it->first) && state->GetTaskState() == TASK_RUNSTATE_RUNNING) ||
-							(!xTaskIsTaskSuspended(it->first) && state->GetTaskState() == TASK_RUNSTATE_NOT_RUNNING))
-						{
-							ret = false;
-						}
-
-						else if (state->GetTaskState() == TASK_RUNSTATE_RUNNING && !state->GetKickState())
-						{
-							ret = false;
-						}
-
-						it->second->SetKickState(false);
-					}
-
-					watchdogManager->GiveLock();
-					xSemaphoreGive(staticLockHandle);
-					return ret;
+					it->second->SetKickState(false);
 				}
-				else
-				{
-					xSemaphoreGive(staticLockHandle);
-					return false;
-				}
-        	}
+
+				watchdogManager->GiveLock();
+				return true;
+			}
 			else
 			{
 				return false;
 			}
-        }
-        
-        void WatchdogManager::ActivateTask(xTaskHandle task)
-        {
-        	IteratorType it;
-			
+		}
+
+		void WatchdogManager::ActivateTask(PThread *pThread)
+		{
+			IteratorType it;
+
 			WatchdogManager * watchdogManager = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
-        	// Get the semaphore.
-			if (pdTRUE == watchdogManager->TakeLock(portMAX_DELAY))
+			if (watchdogManager->TakeLock(MAX_BLOCK_TIME) == true)
 			{
-				it = taskMap.find(task);
+				it = watchdogManager->taskMap.find(pThread);
 
-				if (taskMap.end( ) == it)
+				if (it == watchdogManager->taskMap.end())
 				{
-					// The task has not yet been registered, so add it to the
-					// map.
-					taskMap.insert(PairType(task, new TaskState(TASK_RUNSTATE_RUNNING, true)));
+					// the task has not yet been registered. Add it to the map
+					watchdogManager->taskMap.insert(PairType(pThread, new TaskState(TASK_RUNSTATE_RUNNING, true)));
 				}
 				else
 				{
 					it->second->SetTaskState(TASK_RUNSTATE_RUNNING);
 					it->second->SetKickState(true);
 				}
+
+				// Prevent an inactive task from reporting that it is active
+				if (!pThread->isRunning)
+				{
+					pThread->start();
+				}
+
 				watchdogManager->GiveLock();
 			}
-			else
-			{
-				return;
-			}
-        }
-        
-        void WatchdogManager::DeactivateTask(xTaskHandle task)
-        {
-        	IteratorType it;
-			
-			WatchdogManager * watchdogManager = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
-			// Get the semaphore.
-			if (pdTRUE == watchdogManager->TakeLock(portMAX_DELAY))
-			{
-				it = taskMap.find(task);
+			return;
+		}
 
-				if (taskMap.end( ) == it)
+		void WatchdogManager::DeactivateTask(PThread *pThread)
+		{
+			IteratorType it;
+
+			WatchdogManager *watchdogManager = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
+
+			// Get the semaphore
+			if (watchdogManager->TakeLock(MAX_BLOCK_TIME) == true)
+			{
+				it = watchdogManager->taskMap.find(pThread);
+
+				if (it == watchdogManager->taskMap.end())
 				{
-					// The task has not yet been registered, so add it to the
-					// map.
-					taskMap.insert(PairType(task, new TaskState(TASK_RUNSTATE_NOT_RUNNING, true)));
+					// The task has not been registered. Add it
+					watchdogManager->taskMap.insert(PairType(pThread, new TaskState(TASK_RUNSTATE_NOT_RUNNING, false)));
 				}
 				else
 				{
 					it->second->SetTaskState(TASK_RUNSTATE_NOT_RUNNING);
-					it->second->SetKickState(true);
+					it->second->SetKickState(false);
 				}
+
+				// Prevent an active task from reporting that it is inactive
+				if (pThread->isRunning)
+				{
+					pThread->stop();
+				}
+
 				watchdogManager->GiveLock();
 			}
 			else
 			{
 				return;
 			}
-        }
-        
-        std::size_t WatchdogManager::GetNumberOfTasks(void) const
-        {
-        	return taskMap.size();
-        }
+		}
 
-        bool WatchdogManager::GetTaskState(xTaskHandle task, TaskState & state) const
-        {
-        	ConstIteratorType it = taskMap.find(task);
-
-        	if (it == taskMap.end())
-        	{
-        		return false;
-        	}
-        	else
-        	{
-        		state = *(it->second);
-        		return true;
-        	}
-        }
-
-        WatchdogManager::WatchdogManager(void)
-                        : Singleton(), taskMap( )
-        {
-			
-        }
-        
-        WatchdogManager::WatchdogManager(const WatchdogManager & source)
-        {
-
-        }
-
-        WatchdogManager::~WatchdogManager(void )
+		std::size_t WatchdogManager::GetNumberOfTasks(void) const
 		{
-        	while (!taskMap.empty())
+			WatchdogManager *watchdogManager = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
+			return watchdogManager->taskMap.size();
+		}
+
+		bool WatchdogManager::GetTaskState(PThread *pThread, TaskState & state)
+		{
+			WatchdogManager *watchdogManager = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
+			ConstIteratorType it = watchdogManager->taskMap.find(pThread);
+
+			if (it == watchdogManager->taskMap.end())
+			{
+				// task does not exist in taskMap
+				return false;
+			}
+			else
+			{
+				state = *(it->second);
+				return true;
+			}
+		}
+
+		WatchdogManager::WatchdogManager(void)
+		: Singleton(), taskMap( )
+		{
+
+		}
+
+		WatchdogManager::WatchdogManager(const WatchdogManager & source)
+		{
+
+		}
+
+		WatchdogManager::~WatchdogManager(void )
+		{
+			while (!taskMap.empty())
 			{
 				IteratorType it = taskMap.begin();
 				delete it->second;
@@ -436,10 +392,37 @@ namespace Phoenix
 			taskMap.clear();
 		}
 
-        WatchdogManager & WatchdogManager::operator=(const WatchdogManager & source)
-        {
-        	return *this;
-        }
-#endif
-    }
+		WatchdogManager & WatchdogManager::operator=(const WatchdogManager & source)
+		{
+			return *this;
+		}
+
+		//		void WatchdogManager::ResumeTask(PThread *pThread)
+		//		{
+		//			pThread->resume();
+		//
+		//			WatchdogManager * watchdogManager = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
+		//
+		//			watchdogManager->ActivateTask(pThread);
+		//			watchdogManager->TakeLock(MAX_BLOCK_TIME);
+		//
+		//			pThread->resume();
+		//			watchdogManager->GiveLock();
+		//		}
+
+		//		void WatchdogManager::SuspendTask(PThread *pThread)
+		//		{
+		//			WatchdogManager * watchdogManager = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
+		//
+		//			if (watchdogManager->TakeLock(MAX_BLOCK_TIME) == false)
+		//			{
+		//				return;
+		//			}
+		//
+		//			watchdogManager->DeactivateTask(pThread);
+		//			watchdogManager->GiveLock();
+		//
+		//			pThread->suspend();
+		//		}
+	}
 }
