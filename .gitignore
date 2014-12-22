@@ -7,7 +7,7 @@ src/HAL/AVR32/
 src/HAL/WIN32/
 old_tests/
 .old_svn/
-.settings/
+#.settings/
 .svn/
 
 /HOST
