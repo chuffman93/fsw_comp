@@ -16,7 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef HOST
+#ifdef TEST
 #include "TestMode.h"
 #endif
 
@@ -58,7 +58,7 @@ namespace Phoenix
 			modeList[MODE_PLD_PRIORITY] = PayloadPriorityMode::GetInstance();
 			modeList[MODE_ERROR] = ErrorMode::GetInstance();
 			modeList[MODE_COM] = ComMode::GetInstance();
-#ifdef HOST
+#ifdef TEST
 			modeList[MODE_TEST] = TestMode::GetInstance(0);
 			modeList[MODE_TEST2] = TestMode::GetInstance(1);
 #endif
@@ -76,7 +76,7 @@ namespace Phoenix
 			return isInit;
 		}
 		
-#ifdef HOST
+#ifdef TEST
 		void ModeManager::Destroy(void)
 		{
 			SystemMode::Destroy();

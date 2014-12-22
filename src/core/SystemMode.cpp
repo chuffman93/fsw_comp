@@ -15,7 +15,7 @@
 #include "core/ErrorMode.h"
 #include "core/ComMode.h"
 
-#ifdef HOST
+#ifdef TEST
 #include "TestMode.h"
 #endif
 
@@ -50,12 +50,12 @@ namespace Phoenix
 				return false;
 			}
 
-			#ifdef HOST
+			#ifdef TEST
         	if(!TestMode::Initialize())
 			{
 				return false;
 			}
-			#endif //HOST
+			#endif //TEST
 
             return true;
         }
@@ -79,7 +79,7 @@ namespace Phoenix
             // Left Intentionally Blank.
         }
 
-#ifdef HOST
+#ifdef TEST
         void SystemMode::Destroy(void)
         {
         	AccessMode::DestroySubclass();
@@ -88,7 +88,7 @@ namespace Phoenix
 			PayloadPriorityMode::DestroySubclass();
 			ErrorMode::DestroySubclass();
 			ComMode::DestroySubclass();
-#ifdef HOST
+#ifdef TEST
 			TestMode::DestroySubclass();
 #endif
         }

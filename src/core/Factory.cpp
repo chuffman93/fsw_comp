@@ -192,7 +192,7 @@ namespace Phoenix
 			}
 		} */
 		
-#ifdef HOST
+#ifdef TEST
 	 void Factory::Destroy(SingletonType type)
 		{
 			switch (type)
@@ -271,6 +271,6 @@ namespace Phoenix
 				isInitialized[type] = false;
 			}
 		}
-#endif // HOST
+#endif // TEST
 	}
 }
