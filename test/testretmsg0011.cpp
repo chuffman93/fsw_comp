@@ -34,7 +34,7 @@ TEST(TestReturnMessage, FlattenWithNullPointer) {
 
 	// Make sure that a null pointer returns 0
 	if (numCopied != 0) {
-		cout << "Flatten method did return 0 when the pointer was null."
+		cout << "Flatten method didn't return 0 when the pointer was null."
 				<< endl;
 
 		ASSERT_TRUE(false);
