@@ -32,7 +32,7 @@ namespace Phoenix
 		//FIXME
 		#define MAX_BLOCK_TIME 7
 		#define QUEUE_LENGTH 10
-		#define MAX_MESSAGE_SIZE sizeof(Phoenix::Core::Packet *)
+		#define MAX_MESSAGE_SIZE sizeof(Phoenix::Core::FSWPacket *)
 		#define QUEUE_PERMISSIONS 0644
 		#define MSG_PRIO 0
 		//TODO: find good replacement for usleep I think
@@ -47,10 +47,10 @@ namespace Phoenix
 
 		size_t mq_size(mqd_t queueHandle, struct mq_attr queueAttr);
 
-		bool mq_timed_send(char * queueName, Packet ** inPacket, size_t sec, uint64_t nSec);
+		bool mq_timed_send(char * queueName, FSWPacket ** inPacket, size_t sec, uint64_t nSec);
 
 
-		bool mq_timed_receive(char * queueName, Packet ** packetOut, size_t sec, uint64_t nSec);
+		bool mq_timed_receive(char * queueName, FSWPacket ** packetOut, size_t sec, uint64_t nSec);
 
 		bool xSemaphoreTake(sem_t *sem);
 

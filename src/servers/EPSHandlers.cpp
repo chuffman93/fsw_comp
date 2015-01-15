@@ -13,7 +13,7 @@
 
 #include "core/StdTypes.h"
 #include "core/ReturnMessage.h"
-#include "core/Packet.h"
+#include "core/FSWPacket.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
 #include "core/Dispatcher.h"
@@ -25,32 +25,32 @@ using namespace Phoenix::Servers;
 
 uint32 EPSPowerHandler::enumArray[] = {VAR_TYPE_ENUM_UNSIGNED_INT, VAR_TYPE_ENUM_UNSIGNED_INT, VAR_TYPE_ENUM_BOOL};
 
-ReturnMessage * EPSHSHandler::Handle(const Packet & packet)
+ReturnMessage * EPSHSHandler::Handle(const FSWPacket & packet)
 {
 	return(EPSHealthStat());
 }
 
-ReturnMessage * EPSStateofChargeHandler::Handle(const Packet & packet)
+ReturnMessage * EPSStateofChargeHandler::Handle(const FSWPacket & packet)
 {
 	return(EPSStateOfCharge());
 }
 
-ReturnMessage * EPSPowerCycleHandler::Handle(const Packet & packet)
+ReturnMessage * EPSPowerCycleHandler::Handle(const FSWPacket & packet)
 {
 	return(EPSPowerCycle());
 }
 
-ReturnMessage * EPSDisableOCHandler::Handle(const Packet & packet)
+ReturnMessage * EPSDisableOCHandler::Handle(const FSWPacket & packet)
 {
 	return(EPSDisableOCProt());
 }
 
-ReturnMessage * EPSEnableOCHandler::Handle(const Packet & packet)
+ReturnMessage * EPSEnableOCHandler::Handle(const FSWPacket & packet)
 {
 	return(EPSEnableOCProt());
 }
 
-ReturnMessage * EPSErrorHandler::Handle(const Packet & packet)
+ReturnMessage * EPSErrorHandler::Handle(const FSWPacket & packet)
 {
 	//grab dispatcher instance, if it fails return DISPATCHER_NO_INSTANCE
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
@@ -60,7 +60,7 @@ ReturnMessage * EPSErrorHandler::Handle(const Packet & packet)
 			ReturnMessage * eRet = new ReturnMessage(&err, false);
 			return eRet;
 	}
-	Packet * forward = new Packet(packet);
+	FSWPacket * forward = new FSWPacket(packet);
 
 	//forward error message to Error Octopus
 	forward->SetDestination(SERVER_LOCATION_ERR);
@@ -93,7 +93,7 @@ ReturnMessage * EPSErrorHandler::Handle(const Packet & packet)
 	return ret;
 }
 
-ReturnMessage * EPSPowerHandler::Handle(const Packet & packet)
+ReturnMessage * EPSPowerHandler::Handle(const FSWPacket & packet)
 {
 	void * outputArray[numParams] = {NULL};
 	if(ExtractParameters(packet, enumArray, numParams, outputArray))

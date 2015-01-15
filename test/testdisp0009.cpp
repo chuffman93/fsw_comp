@@ -19,10 +19,10 @@ using namespace Phoenix::Core;
 class Test0009MessageHandler : public MessageHandler
 {
 public:
-    ReturnMessage * Handle(const Packet & packet);
+    ReturnMessage * Handle(const FSWPacket & packet);
 } testHandler9;
 
-ReturnMessage * Test0009MessageHandler::Handle(const Packet & packet)
+ReturnMessage * Test0009MessageHandler::Handle(const FSWPacket & packet)
 {
     CommandMessage msg(packet.GetMessagePtr( )->GetOpcode( ) + 10);
     ReturnMessage * ret = new ReturnMessage(&msg, true);
@@ -37,7 +37,7 @@ static void * taskTest1(void * parameters)
         Dispatcher * dispatcher;
         MessageHandlerRegistry reg;
         Arbitrator arby(1);
-        Packet * packet;
+        FSWPacket * packet;
         ReturnMessage retMsg;
         size_t i;
         bool ret;
@@ -62,7 +62,7 @@ static void * taskTest1(void * parameters)
         }
 
         CommandMessage * cmd = new CommandMessage(2);
-        packet = new Packet(1, 2, 0, 0, cmd);
+        packet = new FSWPacket(1, 2, 0, 0, cmd);
         delete cmd;
 
         cout << "Task 1 Waiting for Synchronization" << endl;
@@ -134,7 +134,7 @@ static void * taskTest2(void * parameters)
         Dispatcher * dispatcher;
         MessageHandlerRegistry reg;
         Arbitrator arby(2);
-        Packet * packet;
+        FSWPacket * packet;
         ReturnMessage retMsg;
         size_t i;
         bool ret;
@@ -159,7 +159,7 @@ static void * taskTest2(void * parameters)
         }
 
         CommandMessage * cmd = new CommandMessage(3);
-        packet = new Packet(2, 3, 1, 0, cmd);
+        packet = new FSWPacket(2, 3, 1, 0, cmd);
         delete cmd;
 
         cout << "Task 2 Waiting for Synchronization" << endl;
@@ -223,7 +223,7 @@ static void * taskTest3(void * parameters)
         Dispatcher * dispatcher;
         MessageHandlerRegistry reg;
         Arbitrator arby(3);
-        Packet * packet;
+        FSWPacket * packet;
         ReturnMessage retMsg;
         size_t i;
         bool ret;
@@ -248,7 +248,7 @@ static void * taskTest3(void * parameters)
         }
 
         CommandMessage * cmd = new CommandMessage(1);
-        packet = new Packet(3, 1, 2, 0, cmd);
+        packet = new FSWPacket(3, 1, 2, 0, cmd);
         delete cmd;
 
         cout << "Task 3 Waiting for Synchronization" << endl;

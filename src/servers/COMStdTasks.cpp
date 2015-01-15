@@ -420,7 +420,7 @@ namespace Phoenix
 			
 			msg->SetParameters(parameters);
 			
-			VariableTypeData packet_hold(Packet(SERVER_LOCATION_COM, SERVER_LOCATION_GND, 0, 1, msg));
+			VariableTypeData packet_hold(FSWPacket(SERVER_LOCATION_COM, SERVER_LOCATION_GND, 0, 1, msg));
 			delete msg;
 			ReturnMessage * retMsg =  DispatchPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, 0, 1, MESSAGE_TYPE_COMMAND, 
 					COM_DATA_SEND_CMD, packet_hold);
@@ -473,13 +473,13 @@ namespace Phoenix
 			uint8 * buffer = GetCurrentBuffer(inBuf);
 			
 			// Parse data, look for ground command.
-			Packet gndCmd(buffer, inBuf->used);
+			FSWPacket gndCmd(buffer, inBuf->used);
 			free(buffer);
 			
 			if((SERVER_LOCATION_GND == gndCmd.GetSource()) && (SERVER_LOCATION_COM == gndCmd.GetDestination()) 
 					&& (gndCmd.GetMessagePtr() != NULL))
 			{
-				DEBUG_COUT("ParseGndCommand: Packet format correct...")
+				DEBUG_COUT("ParseGndCommand: FSWPacket format correct...")
 				MultiDataMessage * gndMsg = dynamic_cast<MultiDataMessage *> (gndCmd.GetMessagePtr());
 				if(gndMsg == NULL)
 				{

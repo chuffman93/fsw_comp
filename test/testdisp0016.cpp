@@ -19,21 +19,21 @@ using namespace Phoenix::Core;
 class Test0016MessageHandler : public MessageHandler
 {
 public:
-	ReturnMessage * Handle(const Packet & packet);
+	ReturnMessage * Handle(const FSWPacket & packet);
 } testHandler16;
 
 class ResponseMessageHandler : public MessageHandler
 {
 public:
-	ReturnMessage * Handle(const Packet & packet);
+	ReturnMessage * Handle(const FSWPacket & packet);
 } respHandler;
 
-ReturnMessage * Test0016MessageHandler::Handle(const Packet & packet)
+ReturnMessage * Test0016MessageHandler::Handle(const FSWPacket & packet)
 {
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 	DispatcherStatusEnum status;
 	CommandMessage * cmd = new CommandMessage(1);
-	Packet * outPacket = new Packet(2, 1, 0, 0, cmd);
+	FSWPacket * outPacket = new FSWPacket(2, 1, 0, 0, cmd);
 	ReturnMessage retMsg;
 	delete cmd;
 
@@ -66,7 +66,7 @@ ReturnMessage * Test0016MessageHandler::Handle(const Packet & packet)
 	return ret;
 }
 
-ReturnMessage * ResponseMessageHandler::Handle(const Packet & packet)
+ReturnMessage * ResponseMessageHandler::Handle(const FSWPacket & packet)
 {
 	cout << "Response Message!" << endl;
 	CommandMessage msg(packet.GetMessagePtr()->GetOpcode()+10);
@@ -82,7 +82,7 @@ static void * taskTest1(void * parameters)
 		Dispatcher * dispatcher;
 		MessageHandlerRegistry reg;
 		Arbitrator arby(1);
-		Packet * packet;
+		FSWPacket * packet;
 		ReturnMessage retMsg;
 		size_t i;
 		bool ret;
@@ -105,7 +105,7 @@ static void * taskTest1(void * parameters)
 		}
 
 		CommandMessage * cmd = new CommandMessage(2);
-		packet = new Packet(1, 2, 0, 0, cmd);
+		packet = new FSWPacket(1, 2, 0, 0, cmd);
 		delete cmd;
 
 		cout << "Task 1 Waiting for Synchronization" << endl;

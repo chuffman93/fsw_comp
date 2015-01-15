@@ -244,7 +244,7 @@ namespace Phoenix
 			/*// Test code creates a packet that gets handled by acsSlewHandler
 			ACSSlewHandler * acsSlewHandler = new ACSSlewHandler();
 			CommandMessage pktCmd;
-			Packet * packet = new Packet(NULL, SERVER_LOCATION_ACS, 1, 0, &pktCmd);
+			FSWPacket * packet = new FSWPacket(NULL, SERVER_LOCATION_ACS, 1, 0, &pktCmd);
 			acsSlewHandler->Handle(*packet);
 			delete packet;
 			delete acsSlewHandler;

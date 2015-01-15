@@ -27,23 +27,23 @@ uint32 PLDSetChunkSizeHandler::enumArray[] = {VAR_TYPE_ENUM_UNSIGNED_INT};
 uint32 PLDSetGainHandler::enumArray[] = {VAR_TYPE_ENUM_UNSIGNED_INT};
 uint32 PLDSetExpTimeHandler::enumArray[] = {VAR_TYPE_ENUM_UNSIGNED_INT};
 
-ReturnMessage * PLDHSHandler::Handle(const Packet & packet)
+ReturnMessage * PLDHSHandler::Handle(const FSWPacket & packet)
 {
 	return (PLDHealthStatus());
 }
 
-ReturnMessage * PLDPictureTakeHandler::Handle(const Packet & packet)
+ReturnMessage * PLDPictureTakeHandler::Handle(const FSWPacket & packet)
 {
 	return (PLDPicture());
 }
 
-ReturnMessage * PLDGetPictureHandler::Handle(const Packet & packet)
+ReturnMessage * PLDGetPictureHandler::Handle(const FSWPacket & packet)
 {
 	return (PLDGetPicture());
 }
 
 
-ReturnMessage * PLDDataHandler::Handle(const Packet & packet)
+ReturnMessage * PLDDataHandler::Handle(const FSWPacket & packet)
 {
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
@@ -58,7 +58,7 @@ ReturnMessage * PLDDataHandler::Handle(const Packet & packet)
 	return (PLDDataRequest(ChunkNum));
 }
 
-ReturnMessage * PLDResSetHandler::Handle(const Packet & packet)
+ReturnMessage * PLDResSetHandler::Handle(const FSWPacket & packet)
 {
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
@@ -74,7 +74,7 @@ ReturnMessage * PLDResSetHandler::Handle(const Packet & packet)
 	return (PLDResSet(ResX, ResY));
 }
 
-ReturnMessage * PLDSetChunkSizeHandler::Handle(const Packet & packet)
+ReturnMessage * PLDSetChunkSizeHandler::Handle(const FSWPacket & packet)
 {
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
@@ -91,7 +91,7 @@ ReturnMessage * PLDSetChunkSizeHandler::Handle(const Packet & packet)
 
 
 
-ReturnMessage * PLDSetGainHandler::Handle(const Packet & packet)
+ReturnMessage * PLDSetGainHandler::Handle(const FSWPacket & packet)
 {
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
@@ -108,7 +108,7 @@ ReturnMessage * PLDSetGainHandler::Handle(const Packet & packet)
 
 
 
-ReturnMessage * PLDSetExpTimeHandler::Handle(const Packet & packet)
+ReturnMessage * PLDSetExpTimeHandler::Handle(const FSWPacket & packet)
 {	
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
@@ -124,12 +124,12 @@ ReturnMessage * PLDSetExpTimeHandler::Handle(const Packet & packet)
 }
 
 
-ReturnMessage * PLDResetHandler::Handle(const Packet & packet)
+ReturnMessage * PLDResetHandler::Handle(const FSWPacket & packet)
 {
 	return (PLDReset());
 }
 
-ReturnMessage * PLDErrorHandler::Handle(const Packet & packet)
+ReturnMessage * PLDErrorHandler::Handle(const FSWPacket & packet)
 {
 	//grab dispatcher instance, if it fails return DISPATCHER_NO_INSTANCE
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
@@ -139,7 +139,7 @@ ReturnMessage * PLDErrorHandler::Handle(const Packet & packet)
 			ReturnMessage * eRet = new ReturnMessage(&err, false);
 			return eRet;
 	}
-	Packet * forward = new Packet(packet);
+	FSWPacket * forward = new FSWPacket(packet);
 
 	//forward error message to Error Octopus
 	forward->SetDestination(SERVER_LOCATION_ERR);

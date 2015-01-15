@@ -209,7 +209,7 @@ namespace Phoenix
 
 			//Wrap packet opcode => command message => packet
 			CommandMessage cmd(PLD_RESET_CMD);
-			Packet * query = new Packet(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, 1, 0, &cmd);
+			FSWPacket * query = new FSWPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, 1, 0, &cmd);
 
 			//Dispatch packet, if it fails return DISPATCH_FAILED
 			if(!dispatcher->Dispatch(*query))

@@ -11,7 +11,7 @@
 
 #include "core/Datatype.h"
 #include "core/VariableTypeEnum.h"
-#include "core/Packet.h"
+#include "core/FSWPacket.h"
 #include "core/StdTypes.h"
 
 #include <string>
@@ -83,11 +83,11 @@ namespace Phoenix
 
         	VariableTypeData(const std::vector<uint8> & dataIn);
 			
-			/*! \brief Constructor for VariableTypeData from a Packet.
+			/*! \brief Constructor for VariableTypeData from a FSWPacket.
 			 *
-			 *  \param dataIn Packet data.
+			 *  \param dataIn FSWPacket data.
 			 */
-        	VariableTypeData(Packet dataIn);
+        	VariableTypeData(FSWPacket dataIn);
 
         	/*! \brief Constructor for VariableTypeData from a Buffer.
         	 *

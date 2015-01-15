@@ -11,37 +11,37 @@
 
 #include "core/StdTypes.h"
 #include "core/Datatype.h"
-#include "core/Packet.h"
+#include "core/FSWPacket.h"
 
 namespace Phoenix
 {
 	namespace Core
 	{
-		/*! \brief Wrapper for a Packet
+		/*! \brief Wrapper for a FSWPacket
 		 *
-		 *  This class wraps a Packet and
+		 *  This class wraps a FSWPacket and
 		 *  adheres to the interface set by the Datatype class.
 		 */
 		class PacketDatatype: public Datatype
 		{
 		public:
-			/*! \brief Constructor for Packet.
+			/*! \brief Constructor for FSWPacket.
 			 *
-			 *  Sets the data to the default constructor for a Packet.
+			 *  Sets the data to the default constructor for a FSWPacket.
 			 */
 			PacketDatatype(void );
 
-			/*! \brief Constructor for Packet
+			/*! \brief Constructor for FSWPacket
 			 *
 			 *  Sets the data to a copy of dataIn.
 			 *
 			 *  \param dataIn Data to be copied.
 			 */
-			PacketDatatype(Packet dataIn);
+			PacketDatatype(FSWPacket dataIn);
 
-			/*! \brief Constructor for Packet
+			/*! \brief Constructor for FSWPacket
 			 *
-			 *  Unpacks the Packet data from a buffer.  Creates a packet
+			 *  Unpacks the FSWPacket data from a buffer.  Creates a packet
 			 *  object from the given buffer as specified in the 
 			 *  xxx Specification.
 			 *
@@ -72,7 +72,7 @@ namespace Phoenix
 			virtual std::size_t Flatten(uint8 * buffer, std::size_t size) const;
 
 		private:
-			Packet * data;
+			FSWPacket * data;
 		};
 	}
 }

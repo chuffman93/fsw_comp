@@ -105,7 +105,7 @@ namespace Phoenix
 			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
 			//Check if there are errors in the queue.
-			Packet * tmpPacket;
+			FSWPacket * tmpPacket;
 			size_t num = 0;
 			uint64_t LastWakeTime = 0;
 			while(1)

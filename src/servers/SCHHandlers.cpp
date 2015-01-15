@@ -28,7 +28,7 @@ uint32 SCHScheduleHandler::enumArray[] = {VAR_TYPE_ENUM_STRING};
 uint32 SCHPldScheduleHandler::enumArray[] = {VAR_TYPE_ENUM_STRING};
 uint32 SCHDefaultRangeHandler::enumArray[] = {VAR_TYPE_ENUM_FLOAT};
 
-ReturnMessage * SCHScheduleHandler::Handle(const Packet & packet)
+ReturnMessage * SCHScheduleHandler::Handle(const FSWPacket & packet)
 {
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
@@ -43,7 +43,7 @@ ReturnMessage * SCHScheduleHandler::Handle(const Packet & packet)
 	return(BuildSchedule(file));
 }
 
-ReturnMessage * SCHPldScheduleHandler::Handle(const Packet & packet)
+ReturnMessage * SCHPldScheduleHandler::Handle(const FSWPacket & packet)
 {
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
@@ -58,12 +58,12 @@ ReturnMessage * SCHPldScheduleHandler::Handle(const Packet & packet)
 	return(BuildPLDSchedule(file));
 }
 
-ReturnMessage * SCHRunScheduleHandler::Handle(const Packet & packet)
+ReturnMessage * SCHRunScheduleHandler::Handle(const FSWPacket & packet)
 {
 	return(RunSchedule());
 }
 
-ReturnMessage * SCHDefaultRangeHandler::Handle(const Packet & packet)
+ReturnMessage * SCHDefaultRangeHandler::Handle(const FSWPacket & packet)
 {
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))

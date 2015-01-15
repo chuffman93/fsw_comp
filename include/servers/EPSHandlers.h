@@ -18,10 +18,10 @@ class EPSHSHandler : public Phoenix::Core::MessageHandler
 public:
     /*! \brief Handle a request for power data.
         *
-        *  \param packet Packet containing the message.
+        *  \param packet FSWPacket containing the message.
         *  \return ReturnMessage that serves as a response.
         */
-    Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::Packet & packet);
+    Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class EPSStateofChargeHandler : public Phoenix::Core::MessageHandler
@@ -29,11 +29,11 @@ class EPSStateofChargeHandler : public Phoenix::Core::MessageHandler
 public:
 	/* \brief Handle a request for state of charge data
 	 *
-	 * \param packet Packet containing the message
+	 * \param packet FSWPacket containing the message
 	 * \return ReturnMessage that serves as a response
 	 */
 
-	Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::Packet & packet);
+	Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class EPSPowerCycleHandler : public Phoenix::Core::MessageHandler
@@ -41,10 +41,10 @@ class EPSPowerCycleHandler : public Phoenix::Core::MessageHandler
 public:
         /*! \brief Handle the power cycle command.
          *
-         *  \param packet Packet containing the message.
+         *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::Packet & packet);
+        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class EPSDisableOCHandler : public Phoenix::Core::MessageHandler
@@ -52,10 +52,10 @@ class EPSDisableOCHandler : public Phoenix::Core::MessageHandler
 public:
         /*! \brief Handle a disable overcurrent protection command.
          *
-         *  \param packet Packet containing the message.
+         *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::Packet & packet);
+        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class EPSEnableOCHandler : public Phoenix::Core::MessageHandler
@@ -63,10 +63,10 @@ class EPSEnableOCHandler : public Phoenix::Core::MessageHandler
 public:
         /*! \brief Handle a enable overcurrent protection command.
          *
-         *  \param packet Packet containing the message.
+         *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::Packet & packet);
+        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class EPSErrorHandler : public Phoenix::Core::MessageHandler
@@ -74,10 +74,10 @@ class EPSErrorHandler : public Phoenix::Core::MessageHandler
 public:
         /*! \brief Handle an error generated on EPS.
          *
-         *  \param packet Packet containing the message.
+         *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::Packet & packet);
+        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class EPSPowerHandler : public Phoenix::Core::MessageHandler
@@ -85,10 +85,10 @@ class EPSPowerHandler : public Phoenix::Core::MessageHandler
 public:
 	/*! \brief Handle a subsystem power off request
 	 *
-	 * \param packet Packet containing a message
+	 * \param packet FSWPacket containing a message
 	 * \return ReturnMessage that serves as a respone
 	 */
-	Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::Packet & packet);
+	Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 	const static uint32 numParams = 3;
 	static uint32 enumArray[numParams];

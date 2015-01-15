@@ -8,7 +8,7 @@
 #ifndef ERRORQUEUE_H_
 #define ERRORQUEUE_H_
 
-#include "core/Packet.h"
+#include "core/FSWPacket.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
 
@@ -38,7 +38,7 @@ namespace Phoenix
 			 *      function can be called.
 			 */
 
-			 bool EnqueueError(Phoenix::Core::Packet * packet);
+			 bool EnqueueError(Phoenix::Core::FSWPacket * packet);
 
 			/*! \brief Returns the number of packets in the error queue.
 			 *
@@ -53,7 +53,7 @@ namespace Phoenix
 			 *  \note error queue must be initialized before this
 			 *      function can be called.
 			 */
-			 Phoenix::Core::Packet * GetNextError(void);
+			 Phoenix::Core::FSWPacket * GetNextError(void);
 
 		private:
 			 /*! \brief Initialize the ErrorQueue Class

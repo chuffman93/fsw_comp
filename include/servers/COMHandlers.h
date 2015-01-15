@@ -22,10 +22,10 @@ class COMHSHandler : public Phoenix::Core::MessageHandler
 public:
         /* \brief Handle a health and status request.
          *
-         *  \param packet Packet containing the command.
+         *  \param packet FSWPacket containing the command.
          *  \return ReturnMessage from COM hardware.
          */
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::Packet & packet);
+		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class COMBeaconHandler : public Phoenix::Core::MessageHandler
@@ -33,10 +33,10 @@ class COMBeaconHandler : public Phoenix::Core::MessageHandler
 public:
         /* \brief Handle a beacon command.
          *
-         *  \param packet Packet containing the command.
+         *  \param packet FSWPacket containing the command.
          *  \return ReturnMessage from COM hardware.
          */
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::Packet & packet);
+		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 
@@ -45,10 +45,10 @@ class COMDataSendHandler : public Phoenix::Core::MessageHandler
 public:
         /* \brief Handle a packet send request.
          *
-         *  \param packet Packet containing the command.
+         *  \param packet FSWPacket containing the command.
          *  \return ReturnMessage from COM hardware.
          */
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::Packet & packet);
+		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 1;
 		static uint32 enumArray[numParams];
@@ -59,10 +59,10 @@ class COMLoginHandler : public Phoenix::Core::MessageHandler
 public:
         /* \brief Handle a login command.
          *
-         *  \param packet Packet containing the command.
+         *  \param packet FSWPacket containing the command.
          *  \return ReturnMessage from COM hardware.
          */
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::Packet & packet);
+		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class COMLogoutHandler : public Phoenix::Core::MessageHandler
@@ -70,10 +70,10 @@ class COMLogoutHandler : public Phoenix::Core::MessageHandler
 public:
         /* \brief Handle a logout command.
          *
-         *  \param packet Packet containing the command.
+         *  \param packet FSWPacket containing the command.
          *  \return ReturnMessage from COM hardware.
          */
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::Packet & packet);
+		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class COMResetHandler : public Phoenix::Core::MessageHandler
@@ -81,10 +81,10 @@ class COMResetHandler : public Phoenix::Core::MessageHandler
 public:
         /* \brief Handle a reset command.
          *
-         *  \param packet Packet containing the command.
+         *  \param packet FSWPacket containing the command.
          *  \return ReturnMessage from COM hardware.
          */
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::Packet & packet);
+		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class COMDataReceiveHandler : public Phoenix::Core::MessageHandler
@@ -92,10 +92,10 @@ class COMDataReceiveHandler : public Phoenix::Core::MessageHandler
 public:
         /* \brief Handle a reset command.
          *
-         *  \param packet Packet containing the command.
+         *  \param packet FSWPacket containing the command.
          *  \return ReturnMessage from COM hardware.
          */
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::Packet & packet);
+		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 1;
 		static uint32 enumArray[numParams];
@@ -106,10 +106,10 @@ class COMErrorHandler : public Phoenix::Core::MessageHandler
 public:
         /* \brief Handle an error.
          *
-         *  \param packet Packet containing the command.
+         *  \param packet FSWPacket containing the command.
          *  \return ReturnMessage from COM hardware.
          */
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::Packet & packet);
+		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 #endif  //COMHANDLERS_H_

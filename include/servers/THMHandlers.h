@@ -17,10 +17,10 @@ class THMDataHandler : public Phoenix::Core::MessageHandler
 public:
 		/* \breif Handle a data request.
 		 *
-		 *	\param packet Packet containing the command.
+		 *	\param packet FSWPacket containing the command.
 		 *	\return ReturnMessage from THM hardware.
 		 */	
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::Packet & packet);
+		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 			const static uint32 numParams = 1;
 			static uint32 enumArray[numParams];

@@ -2,7 +2,7 @@
  *  * Created on: Jul 9, 2014
  *    Author: fsw
  *
- *  \brief Test 1 of the Packet Class.
+ *  \brief Test 1 of the FSWPacket Class.
  *
  *  This test verifies that the default constructor correctly sets the type
  *  of the data to Void and the pointer to NULL.
@@ -12,7 +12,7 @@
 #include "POSIX.h"
 #include "gtest/gtest.h"
 
-#include "core/Packet.h"
+#include "core/FSWPacket.h"
 
 using namespace std;
 using namespace Phoenix::Core;
@@ -20,9 +20,9 @@ using namespace Phoenix::Core;
 #define LOCATION_ID_MAX 5
 
 TEST(TestPacket, DefaultConstructor) {
-	cout << "Starting Packet Test" << endl;
+	cout << "Starting FSWPacket Test" << endl;
 
-	Packet* pkt = new Packet();
+	FSWPacket* pkt = new FSWPacket();
 
 	if (pkt->GetSource() != LOCATION_ID_INVALID) {
 		ASSERT_TRUE(false);

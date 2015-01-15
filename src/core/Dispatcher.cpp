@@ -2,7 +2,7 @@
  *  \brief Implementation File for the Dispatcher Class
  *
  *  This file contains the implementation of the Dispatcher class, which acts
- *  as the Packet-routing entity in the Phoenix architecture.
+ *  as the FSWPacket-routing entity in the Phoenix architecture.
  */
 
 #include <utility>
@@ -14,6 +14,8 @@
 #include "core/WatchdogManager.h"
 
 #include <iostream>
+#include <signal.h>
+#include <fcntl.h>
 //#include "util/crc.h"
 #include "core/CommandMessage.h"
 #include "POSIX.h"
@@ -56,40 +58,7 @@ using namespace std;
 #define DEBUG_PRINT(m, p)
 #endif // DEBUG
 
-//#ifndef WIN32
-//// ISR functions must be in the global namespace due to FreeRTOS dependency.
-//__attribute__((__noinline__))
-//static portBASE_TYPE subsystemInterruptHandler_Body(void)
-//{
-//    portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
-//    uint8 pin;
-//    uint32 time;
-//
-//    // Get the current seconds count.  This is the time reference for the packet.
-//    RTCGetTime(&time, NULL);
-//
-//    // Clear the interrupt flag
-//    // TODO: This should figure out which pin caused the interrupt and
-//    // clear that flag instead.
-//    pin = FindInterruptedPinAndClearFlag();
-//
-//    // Signal the task
-//    Phoenix::Core::Dispatcher::EnqueueSubsystemIntFromISR(pin, time, &xHigherPriorityTaskWoken);
-//
-//    return xHigherPriorityTaskWoken;
-//}
-//
-//__attribute__((__naked__))
-//static void subsystemInterruptHandler(void)
-//{
-//    // This ISR can cause a context switch, so the first statement must be a
-//    // call to the portENTER_SWITCHING_ISR() macro.  This must be BEFORE any
-//    // variable declarations.
-//    portENTER_SWITCHING_ISR();
-//    subsystemInterruptHandler_Body();
-//    portEXIT_SWITCHING_ISR();
-//}
-//#endif // WIN32
+
 
 namespace Phoenix
 {
@@ -98,6 +67,12 @@ namespace Phoenix
         // Instantiate static members
     	char * Dispatcher::subsystemQueueName = "/subsystemQueueHandle";
     	char * Dispatcher::queueName = "/queueHandle";
+    	const char * spiFiePath = "/dev/phoenix_spi";
+    	int spiFileDescriptor = 0;
+
+    	static bool sentPacket = false;
+    	static uint8_t transFlag = 0;
+    	static uint8_t recvFlag = 0;
 //
 //    	char * Dispatcher::getQueueName()
 //    	{
@@ -121,7 +96,21 @@ namespace Phoenix
 //            subQinit = mqCreate(getQueueHandle(), getQueueAttr(), name);
 
 
-            //TODO:HARDWARE DISPATCH
+            // HARDWARE INIT: Open up the /dev/phoenix_spi file and init signals
+        	spiFileDescriptor = open(spiFiePath, O_RDWR);
+        	//TODO: Error handling
+        	if(spiFileDescriptor < 0)
+        	{
+        		//error
+        	}
+        	if(signal(SENT_COMPLETE_SIG,sendComplete) == SIG_ERR)
+        	{
+        		//error
+        	}
+        	if(signal(RECEIVED_PACKET_SIG,receivedPacket) == SIG_ERR)
+        	{
+        		//error
+        	}
 /*
 #ifndef WIN32
             // Register subsystem interrupts
@@ -139,154 +128,87 @@ namespace Phoenix
                     NULL);
 #endif // WIN32
 */
-//        	pthread_t SocksThread;
-//        	pthread_create(&SocksThread, NULL, &socksServer, NULL);
         }
-		
+    	void spiReset(void)
+    	{
+    			write(spiFileDescriptor,&option,1); //write one byte that will reset the state machine & clear the buffers
+    	}
 		bool Dispatcher::IsFullyInitialized(void)
 		{
 			return(Singleton::IsFullyInitialized() && (subQinit == 0) && (qInit == 0));
 		}
 
-/*        void Dispatcher::EnqueueSubsystemIntFromISR(uint8 pin, uint32 time, portBASE_TYPE * woken)
-        {
-            DispatcherInterruptAlertType alert;
-            alert.pin = pin;
-            alert.time = time;
-            portENTER_CRITICAL();
-            xQueueSendFromISR(subsystemQueueHandle, &alert, woken);
-            portEXIT_CRITICAL();
-        }*/
+		FSWPacket * convertPacket(Packet * packet)
+		{
+
+		}
+
+		void receivedPacket(int signum)
+		{
+			int packetSize;
+			uint8_t * buffer;
+			FSWPacket * packet;
+
+			//driver returns packet size when reading only 1 byte
+			packetSize = read(spiDeviceFd,buffer,1);
+
+			buffer = (uint8_t*) malloc(packetSize);
+			if(read(spiDeviceFd,buffer,packetSize) != packetSize)
+			{
+				cout << "Error reading packet" << endl;
+				//return err? What Error?
+			}
+
+			packet = packetExpand(buffer);
+
+            if (!dispatcher->Dispatch(packet))
+            {
+                SPIClose(dev);
+                continue;
+            }
+
+            if (DISPATCHER_STATUS_OK != dispatcher->WaitForDispatchResponse(packet, retMsg))
+            {
+                SPIClose(dev);
+                continue;
+            }
+
+            temp = packet.GetDestination();
+            packet.SetDestination(packet.GetSource());
+            packet.SetSource(temp);
+            packet.SetTimestamp(time);
+            packet.SetMessage(&retMsg);
+
+            if (0 != dispatcher->SendPacketToHardware(dev, packet))
+            {
+                SPIClose(dev);
+                continue;
+            }
+
+			free(buffer);
+			return;
+		}
 
         void Dispatcher::DispatcherTask(void * params)
         {
-/*
-#ifndef WIN32
-            Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-            //TODO: check these speeds with all servers running.
-            SPIInit(SUBSYSTEM_SPI, 0, true);
-            SPIChipInit(SUBSYSTEM_SPI, SPI_CHIP_SUBSYSTEM4, SPILowToHigh, SPILeadingEdge, 1000000, 0, 0, true); //EPS
-            SPIChipInit(SUBSYSTEM_SPI, SPI_CHIP_SUBSYSTEM2, SPILowToHigh, SPILeadingEdge, 1000000, 0, 0, true); //ACS
-            SPIChipInit(SUBSYSTEM_SPI, SPI_CHIP_SUBSYSTEM3, SPILowToHigh, SPILeadingEdge, 1000000, 0, 0, true); //COM
 
-            SPIInit(PAYLOAD_SPI, 0, true);
-            SPIChipInit(PAYLOAD_SPI, SPI_CHIP_PAYLOAD, SPILowToHigh, SPILeadingEdge, 5000000, 0, 0, true); //THEIA
-            delay_init(CPU_PBACLK_FREQ_HZ);
+#ifndef HOST
+            Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+			WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
             while (1)
             {
+            	uint64_t LastWakeTime = getTimeInMilis();
+
                 DispatcherInterruptAlertType alert;
-				//wdm->Kick();
-                if (pdTRUE == xQueueReceive(subsystemQueueHandle, &alert, portMAX_DELAY))
-                {
-                    uint32_t ret;
-                    uint8 pin = alert.pin;
-                    uint32 time = alert.time;
 
-                    SPIDeviceEnum dev;
-                    uint8_t chip;
-                    Packet packet;
-                    LocationIDType temp;
-                    ReturnMessage retMsg;
-                    uint8 out;
-                    HardwareLocationIDEnum loc;
-					int i;
+				wdm->Kick();
 
-                    gpio_local_init();
-                    gpio_local_enable_pin_output_driver(PROFILING_PIN);
-                    CLR_PROF_PIN();
+				updateTimer();
 
-                    //TGL_PROF_PIN();
-
-                    if (!ConvertInterruptEnumToHardwareLocation(pin, loc))
-                    {
-                        continue;
-                    }
-
-                    if (!dispatcher->GetHardwareDeviceFromLocation(loc, dev, chip))
-                    {
-                        continue;
-                    }
-
-                    if (!SPIOpen(dev, chip))
-                    {
-                        continue;
-                    }
-
-                    // Wait for the subsystem to be ready by sending a header
-                    // with a frame number of 0.
-                    out = 0;
-					 i = 0;
-                    while (out != 1)
-                    {
-                        out = 0;
-                        if (!SPIWrite(dev, &out, 1))
-                        {
-                            SPIClose(dev);
-                            break;
-                        }
-
-                        cpu_delay_us(PROTOCOL_SPI_DELAY, CPU_PBACLK_FREQ_HZ);
-                        if (!SPIRead(dev, &out, 1))
-                        {
-                            SPIClose(dev);
-                            break;
-                        }
-						
-						if(i == MAX_DISPATCHER_LOOP)
-						{
-							break;
-						}
-						i++;
-                        cpu_delay_us(PROTOCOL_SPI_DELAY, CPU_PBACLK_FREQ_HZ);
-                    }
-					
-                    if (out != 1)
-                    {
-                        continue;
-                    }
-					
-                    ret = dispatcher->GetPacketFromHardware(dev, packet);
-                    if (0 != ret)
-                    {
-                        SPIClose(dev);
-                        continue;
-                    }
-					
-                    //TGL_PROF_PIN();
-
-                    if (!dispatcher->Dispatch(packet))
-                    {
-                        SPIClose(dev);
-                        continue;
-                    }
-                    //TGL_PROF_PIN();
-
-                    if (DISPATCHER_STATUS_OK != dispatcher->WaitForDispatchResponse(packet, retMsg))
-                    {
-                        SPIClose(dev);
-                        continue;
-                    }
-
-                    //TGL_PROF_PIN();
-                    temp = packet.GetDestination();
-                    packet.SetDestination(packet.GetSource());
-                    packet.SetSource(temp);
-                    packet.SetTimestamp(time);
-                    packet.SetMessage(&retMsg);
-
-                    if (0 != dispatcher->SendPacketToHardware(dev, packet))
-                    {
-                        SPIClose(dev);
-                        continue;
-                    }
-                    SPIClose(dev);
-                    //TGL_PROF_PIN();
-                }
+                waitUntil(LastWakeTime, 1000);
             }
 #endif // WIN32
-*/
         }
 
 
@@ -321,7 +243,7 @@ namespace Phoenix
             }
         }
 
-        bool Dispatcher::Dispatch(const Packet & packet)
+        bool Dispatcher::Dispatch(const FSWPacket & packet)
         {
 #ifdef HARDWARE
             if (packet.GetDestination() >= HARDWARE_LOCATION_MIN && packet.GetDestination() < HARDWARE_LOCATION_MAX)
@@ -334,12 +256,12 @@ namespace Phoenix
             else
 #endif // HARDWARE
             {
-                Packet * tmpPacket;
+                FSWPacket * tmpPacket;
 				
 				
                 try
                 {
-                    tmpPacket = new Packet(packet);
+                    tmpPacket = new FSWPacket(packet);
                 }
                 catch (bad_alloc & e)
                 {
@@ -376,9 +298,9 @@ namespace Phoenix
         }
 
         DispatcherStatusEnum Dispatcher::WaitForDispatchResponse(
-                const Packet & packet, ReturnMessage & returnMessage)
+                const FSWPacket & packet, ReturnMessage & returnMessage)
         {
-            Packet * ret;
+            FSWPacket * ret;
             ReturnMessage * retMsg;
             size_t i;
 			DEBUG_COUT("   Dispatcher: WaitForDispatchResponse() called");
@@ -389,7 +311,7 @@ namespace Phoenix
                 {
                     // Returned packet is a response to our command, so
                     // return the result.
-					DEBUG_COUT("   Dispatcher: WaitForDispatchResponse(): Matching Packet found.");
+					DEBUG_COUT("   Dispatcher: WaitForDispatchResponse(): Matching FSWPacket found.");
                     retMsg = dynamic_cast<ReturnMessage *> (ret->GetMessagePtr( ));
                     returnMessage = (NULL == retMsg ? ReturnMessage( ) : *retMsg);
                     delete ret;
@@ -417,7 +339,7 @@ namespace Phoenix
 
         bool Dispatcher::Listen(LocationIDType serverID)
         {
-            Packet * packet, tmpPacket;
+            FSWPacket * packet, tmpPacket;
             IteratorType it;
 			
 			DEBUG_COUT("Dispatcher: Listen() called with serverID: " << serverID);
@@ -537,12 +459,12 @@ namespace Phoenix
             return true;
         }
 
-        bool Dispatcher::IsPacketMatchingResponse(const Packet & packetIn,
-                const Packet & packetOut) const
+        bool Dispatcher::IsPacketMatchingResponse(const FSWPacket & packetIn,
+                const FSWPacket & packetOut) const
         {
         	DEBUG_COUT("IsPacketMatchingRespone called");
-			DEBUG_PRINT("Original Packet - ", (&packetIn));
-			DEBUG_PRINT("Queue Packet    - ", (&packetOut));
+			DEBUG_PRINT("Original FSWPacket - ", (&packetIn));
+			DEBUG_PRINT("Queue FSWPacket    - ", (&packetOut));
 			//debug_led_set_led(5, LED_ON);
             // Return true if *packetOut is a response to *packetIn.
             return ((packetOut.GetMessagePtr( )->IsResponse( ))
@@ -550,8 +472,8 @@ namespace Phoenix
                     && (packetOut.GetNumber( ) == packetIn.GetNumber( )));
         }
 
-        bool Dispatcher::IsPacketDestMatchingSource(const Packet & packetIn,
-                const Packet & packetOut) const
+        bool Dispatcher::IsPacketDestMatchingSource(const FSWPacket & packetIn,
+                const FSWPacket & packetOut) const
         {
             // Return true if *packetOut is being sent to the server in
             // packetIn->GetSource().
@@ -560,19 +482,19 @@ namespace Phoenix
                     && (packetOut.GetDestination( ) == packetIn.GetSource( )));
         }
 
-        bool Dispatcher::IsPacketSame(const Packet & packetIn,
-                const Packet & packetOut) const
+        bool Dispatcher::IsPacketSame(const FSWPacket & packetIn,
+                const FSWPacket & packetOut) const
         {
             // Return true if packetIn and packetOut are equivalent.
         	DEBUG_COUT("IsPacketSame called");
             return packetIn == packetOut;
         }
 
-        bool Dispatcher::CheckQueueForMatchingPacket(const Packet & packetIn,
-                Packet * &packetOut, PacketCheckFunctionType Check)
+        bool Dispatcher::CheckQueueForMatchingPacket(const FSWPacket & packetIn,
+                FSWPacket * &packetOut, PacketCheckFunctionType Check)
         {
             size_t numPackets, i;
-            Packet * tmpPacket;
+            FSWPacket * tmpPacket;
 
             // Get the semaphore
             if (true == this->TakeLock(MAX_BLOCK_TIME))
@@ -681,7 +603,7 @@ namespace Phoenix
         }
 
         bool Dispatcher::SendErrorResponse(ErrorOpcodeEnum errorCode,
-                Packet * packet, VariableTypeData data)
+                FSWPacket * packet, VariableTypeData data)
         {
             ErrorMessage error(errorCode, data);
             ReturnMessage * ret;
@@ -715,11 +637,6 @@ namespace Phoenix
 
             parms->retMsg = parms->registry->Invoke(*(parms->packet));
 
-            //        	unsigned long uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
-            //
-            //#ifndef WIN32
-            //        	print_dbg_ulong(uxHighWaterMark);
-            //#endif // WIN32
 
             sem_post(&(parms->doneSem));
 
@@ -727,12 +644,87 @@ namespace Phoenix
         }
 
         //TODO:FIXME:Figure out hardware dispatching
+
+        uint32_t Dispatcher::DispatchToHardware(HardwareLocationIDEnum loc, const FSWPacket & packet)
+        {
+        	//todo: add semaphores for locking & real error values
+        	ssize_t packetLength;
+        	uint8_t * packetBuffer;
+        	ssize_t bytesCopied;
+        	size_t iterations;
+        	bool timedOut;
+
+        	if(transFlag == 1)
+        	{
+        		return -EBUSY;
+        	}
+        	else
+        	{
+        		transFlag = 1;
+        	}
+
+        	packetLength = packet.GetFlattenSize();
+        	if(packetLength >= MAX_PACKET_SIZE)
+        	{
+        		//packet is too large
+        		return -1;
+        	}
+
+        	packetBuffer = (uint8_t *) malloc(packetLength);
+
+        	//check if whole packet was copied
+        	if(packet.Flatten(packetBuffer,packetLength) != packetLength)
+        	{
+        		//failed to flatten packet
+        		return -2;
+        	}
+
+        	//write packet to /dev/phoenix_spi
+        	bytesCopied = write(spiFileDescriptor,packetBuffer,packetLength);
+        	if(bytesCopied != packetLength)
+        	{
+        		//failed to copy packet into device file
+        		return -3;
+        	}
+        	sentPacket = false;
+
+        	uint64_t startTime = getTimeInMilis();
+
+			uint64_t lastWakeTime = startTime;
+
+
+        	while(!sentPacket)
+        	{
+        		waitUntil(lastWakeTime, 50);
+        		if(timedOut)
+        		{
+        			spiReset();
+        			return -1;
+        		}
+        		lastWakeTime = getTimeInMilis();
+        		if(100 ==(iterations++) ){ timedOut = true; }
+        	}
+        	sentPacket = false;
+        	transFlag = 0;
+
+        	return 0;
+        }
+        void Dispatcher::sendComplete(int signum)
+        {
+        	if(sentPacket || transFlag == 0)
+        	{
+        		//thats weird
+        	}
+        	sentPacket = true;
+        }
+
+
 /*#ifndef WIN32
-        uint32_t Dispatcher::DispatchToHardware(HardwareLocationIDEnum loc, const Packet & packet)
+        uint32_t Dispatcher::DispatchToHardware(HardwareLocationIDEnum loc, const FSWPacket & packet)
         {
             SPIDeviceEnum dev;
             uint8_t chip;
-            Packet * packetOut;
+            FSWPacket * packetOut;
             uint8 out;
 			int i;
             Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
@@ -780,7 +772,7 @@ namespace Phoenix
             }
 			//debug_led_set_led(3, LED_ON);
 
-            packetOut = new Packet();
+            packetOut = new FSWPacket();
 
             if (0 != (ret = dispatcher->GetPacketFromHardware(dev, *packetOut)))
             {
@@ -831,7 +823,7 @@ namespace Phoenix
             return true;
         }*/
 
-        /*uint32_t Dispatcher::SendPacketToHardware(SPIDeviceEnum dev, const Packet & packet)
+        /*uint32_t Dispatcher::SendPacketToHardware(SPIDeviceEnum dev, const FSWPacket & packet)
         {
             ReturnMessage retMsg;
             vector<uint8> messageBuffer;
@@ -943,7 +935,7 @@ namespace Phoenix
             return 0;
         }*/
 
-       /* uint32_t Dispatcher::GetPacketFromHardware(SPIDeviceEnum dev, Packet & packet)
+       /* uint32_t Dispatcher::GetPacketFromHardware(SPIDeviceEnum dev, FSWPacket & packet)
         {
             vector<uint8> messageBuffer;
             crc_t crc;
@@ -1100,6 +1092,8 @@ namespace Phoenix
 			subQinit = mqCreate(&subsystemQueueHandle, &subsystemQueueAttr, subsystemQueueName);
 
 			qInit = mqCreate(&queueHandle, &queueAttr, queueName);
+
+
 		}
 
 		Dispatcher::Dispatcher(const Dispatcher & source)

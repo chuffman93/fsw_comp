@@ -65,27 +65,27 @@ uint32 ACSUpdateGNDCoordsHandler::enumArray[] = {VAR_TYPE_ENUM_FLOAT, VAR_TYPE_E
 uint32 ACSUseGyroBiasHandler::enumArray[] = {VAR_TYPE_ENUM_UNSIGNED_INT};
 
 
-ReturnMessage * ACSMeasurementHandler::Handle(const Packet & packet)
+ReturnMessage * ACSMeasurementHandler::Handle(const FSWPacket & packet)
 {
 	return (ACSHealthStatus());
 }
 
-ReturnMessage * ACSStateHandler::Handle(const Packet & packet)
+ReturnMessage * ACSStateHandler::Handle(const FSWPacket & packet)
 {
 	return (ACSState());
 }
 
-ReturnMessage * ACSRawADCHandler::Handle(const Packet & packet)
+ReturnMessage * ACSRawADCHandler::Handle(const FSWPacket & packet)
 {
 	return (ACSRawADC());
 }
 
-ReturnMessage * ACSAttitudeErrorHandler::Handle(const Packet & packet)
+ReturnMessage * ACSAttitudeErrorHandler::Handle(const FSWPacket & packet)
 {
 	return (ACSAttitudeError());
 }
 
-ReturnMessage * ACSPointGNDHandler::Handle(const Packet & packet)
+ReturnMessage * ACSPointGNDHandler::Handle(const FSWPacket & packet)
 {
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
@@ -103,7 +103,7 @@ ReturnMessage * ACSPointGNDHandler::Handle(const Packet & packet)
 	return (ACSPointGND(x, y, z, ((ACSSystemPointEnum)system)));
 }
 
-ReturnMessage * ACSPointMRPHandler::Handle(const Packet & packet)
+ReturnMessage * ACSPointMRPHandler::Handle(const FSWPacket & packet)
 {
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
@@ -120,22 +120,22 @@ ReturnMessage * ACSPointMRPHandler::Handle(const Packet & packet)
 	return (ACSPointMRP(x, y, z));
 }
 
-ReturnMessage * ACSRequestGNDHandler::Handle(const Packet & packet)
+ReturnMessage * ACSRequestGNDHandler::Handle(const FSWPacket & packet)
 {
 	return (ACSRequestGND());
 }
 
-ReturnMessage * ACSRequestMRPHandler::Handle(const Packet & packet)
+ReturnMessage * ACSRequestMRPHandler::Handle(const FSWPacket & packet)
 {
 	return (ACSRequestMRP());
 }
 
-ReturnMessage * ACSSunsoakHandler::Handle(const Packet & packet)
+ReturnMessage * ACSSunsoakHandler::Handle(const FSWPacket & packet)
 {
 	return (ACSSunSoak());
 }
 
-ReturnMessage * ACSPointNadirHandler::Handle(const Packet & packet)
+ReturnMessage * ACSPointNadirHandler::Handle(const FSWPacket & packet)
 {
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
@@ -162,7 +162,7 @@ ReturnMessage * ACSPointNadirHandler::Handle(const Packet & packet)
 }
 
 /*
-ReturnMessage * ACSSetTargetHandler::Handle(const Packet & packet)
+ReturnMessage * ACSSetTargetHandler::Handle(const FSWPacket & packet)
 {
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
@@ -190,7 +190,7 @@ ReturnMessage * ACSSetTargetHandler::Handle(const Packet & packet)
 	}
 }
 
-ReturnMessage * ACSRangeHandler::Handle(const Packet & packet)
+ReturnMessage * ACSRangeHandler::Handle(const FSWPacket & packet)
 {
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
@@ -218,22 +218,22 @@ ReturnMessage * ACSRangeHandler::Handle(const Packet & packet)
 }
 */
 
-ReturnMessage * ACSHoldHandler::Handle(const Packet & packet)
+ReturnMessage * ACSHoldHandler::Handle(const FSWPacket & packet)
 {
 	return (ACSHold());
 }
 
-ReturnMessage * ACSDisableHandler::Handle(const Packet & packet)
+ReturnMessage * ACSDisableHandler::Handle(const FSWPacket & packet)
 {
 	return (ACSDisable());
 }
 
-ReturnMessage * ACSResetHandler::Handle(const Packet & packet)
+ReturnMessage * ACSResetHandler::Handle(const FSWPacket & packet)
 {
 	return (ACSReset());
 }
 
-ReturnMessage * ACSGPSHandler::Handle(const Packet & packet)
+ReturnMessage * ACSGPSHandler::Handle(const FSWPacket & packet)
 {
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
@@ -255,19 +255,19 @@ ReturnMessage * ACSGPSHandler::Handle(const Packet & packet)
 	return (ACSSendGPS(posX, posY, posZ, velX, velY, velZ, sec, week));
 }
 
-ReturnMessage * ACSStarCameraHSHandler::Handle(const Packet & packet)
+ReturnMessage * ACSStarCameraHSHandler::Handle(const FSWPacket & packet)
 {
 
 	return (ACSStarCameraHS());
 }
 
 
-ReturnMessage * ACSPointComGndHandler::Handle(const Packet & packet)
+ReturnMessage * ACSPointComGndHandler::Handle(const FSWPacket & packet)
 {
 	return (ACSPointComGnd());
 }
 
-// ReturnMessage * ACSFunctionalTestHandler::Handle(const Packet & packet)
+// ReturnMessage * ACSFunctionalTestHandler::Handle(const FSWPacket & packet)
 // {
 // 	void * outputArray[numParams] = {NULL};
 // 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
@@ -282,13 +282,13 @@ ReturnMessage * ACSPointComGndHandler::Handle(const Packet & packet)
 // 	return (ACSFunctionalTest(testNum));
 // }
 // 
-// ReturnMessage * ACSFunctionalTestCompleteHandler::Handle(const Packet & packet)
+// ReturnMessage * ACSFunctionalTestCompleteHandler::Handle(const FSWPacket & packet)
 // {
 // 	return (ACSFunctionalTestComplete());
 // }
 
 
-ReturnMessage * ACSControlOrientationsHandler::Handle(const Packet & packet)
+ReturnMessage * ACSControlOrientationsHandler::Handle(const FSWPacket & packet)
 {
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
@@ -312,7 +312,7 @@ ReturnMessage * ACSControlOrientationsHandler::Handle(const Packet & packet)
 	return(ACSControlOrientations(selection, x1, x2, x3, y1, y2, y3, z1, z2, z3));
 }
 
-ReturnMessage * ACSMOIWheelsHandler::Handle(const Packet & packet)
+ReturnMessage * ACSMOIWheelsHandler::Handle(const FSWPacket & packet)
 {
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
@@ -329,7 +329,7 @@ ReturnMessage * ACSMOIWheelsHandler::Handle(const Packet & packet)
 	return(ACSMOIWheels(motorX, motorY, motorZ));
 }
 
-// ReturnMessage * ACSMOISatelliteHandler::Handle(const Packet & packet)
+// ReturnMessage * ACSMOISatelliteHandler::Handle(const FSWPacket & packet)
 // {
 // 	void * outputArray[numParams] = {NULL};
 // 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
@@ -349,7 +349,7 @@ ReturnMessage * ACSMOIWheelsHandler::Handle(const Packet & packet)
 // 	return(ACSMOISatellite(I_11, I_12, I_13, I_22, I_23, I_33));
 // }
 
-ReturnMessage * ACSTorqCoeffHandler::Handle(const Packet & packet)
+ReturnMessage * ACSTorqCoeffHandler::Handle(const FSWPacket & packet)
 {
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
@@ -371,7 +371,7 @@ ReturnMessage * ACSTorqCoeffHandler::Handle(const Packet & packet)
 	return(ACSTorqCoeff(rodNum, p1, p2, p3, p4, p5, p6, p7));
 }
 
-ReturnMessage * ACSOrbitEphemHandler::Handle(const Packet & packet)
+ReturnMessage * ACSOrbitEphemHandler::Handle(const FSWPacket & packet)
 {
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
@@ -390,7 +390,7 @@ ReturnMessage * ACSOrbitEphemHandler::Handle(const Packet & packet)
 	return(ACSOrbitEphem(a, e, i, Omega, omega));
 }
 
-ReturnMessage * ACSControllerGainsHandler::Handle(const Packet & packet)
+ReturnMessage * ACSControllerGainsHandler::Handle(const FSWPacket & packet)
 {
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
@@ -415,7 +415,7 @@ ReturnMessage * ACSControllerGainsHandler::Handle(const Packet & packet)
 	return(ACSControllerGains(K, Px, Py, Pz, Kix, Kiy, Kiz, Kmx, Kmy, Kmz, Kw));
 }
 
-ReturnMessage * ACSContolFreqHandler::Handle(const Packet & packet)
+ReturnMessage * ACSContolFreqHandler::Handle(const FSWPacket & packet)
 {
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
@@ -438,7 +438,7 @@ ReturnMessage * ACSContolFreqHandler::Handle(const Packet & packet)
 	return(ACSContolFreq(motor, gyro, magnetorquer, starCamera, magnetometerRate, magnetometerSamples, loopFreq, maxPWMTorq, maxPWMWheels));
 }
 
-ReturnMessage * ACSStarCameraSettingsHandler::Handle(const Packet & packet)
+ReturnMessage * ACSStarCameraSettingsHandler::Handle(const FSWPacket & packet)
 {
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
@@ -459,7 +459,7 @@ ReturnMessage * ACSStarCameraSettingsHandler::Handle(const Packet & packet)
 	return(ACSStarCameraSettings(digGain, angGain, exp, thres, maxBright, normalErr, largeAngErr));
 }
 
-ReturnMessage * ACSRotationModeHandler::Handle(const Packet & packet)
+ReturnMessage * ACSRotationModeHandler::Handle(const FSWPacket & packet)
 {
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
@@ -477,7 +477,7 @@ ReturnMessage * ACSRotationModeHandler::Handle(const Packet & packet)
 	return(ACSSetRot(rot180, rot45, rotNeg90, rot90));
 }
 
-ReturnMessage * ACSUpdateNotchFilterHandler::Handle(const Packet & packet)
+ReturnMessage * ACSUpdateNotchFilterHandler::Handle(const FSWPacket & packet)
 {
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
@@ -495,7 +495,7 @@ ReturnMessage * ACSUpdateNotchFilterHandler::Handle(const Packet & packet)
 	return(ACSUpdateNotch(magSampleRate, bandwidth1, bandwidth2, bandwidth3));
 }
 
-ReturnMessage * ACSUpdateLeapSecondHandler::Handle(const Packet & packet)
+ReturnMessage * ACSUpdateLeapSecondHandler::Handle(const FSWPacket & packet)
 {
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
@@ -510,7 +510,7 @@ ReturnMessage * ACSUpdateLeapSecondHandler::Handle(const Packet & packet)
 	return(ACSUpdateLeap(leapSec));
 }
 
-ReturnMessage * ACSGyroZRVHandler::Handle(const Packet & packet)
+ReturnMessage * ACSGyroZRVHandler::Handle(const FSWPacket & packet)
 {
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
@@ -528,7 +528,7 @@ ReturnMessage * ACSGyroZRVHandler::Handle(const Packet & packet)
 	return(ACSGyroZRV(x, y, z, noise));
 }
 
-ReturnMessage * ACSDeguassProfileHandler::Handle(const Packet & packet)
+ReturnMessage * ACSDeguassProfileHandler::Handle(const FSWPacket & packet)
 {
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
@@ -553,7 +553,7 @@ ReturnMessage * ACSDeguassProfileHandler::Handle(const Packet & packet)
 	return(ACSDeguassProfile(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, ms));
 }
 
-ReturnMessage * ACSUpdateGNDCoordsHandler::Handle(const Packet & packet)
+ReturnMessage * ACSUpdateGNDCoordsHandler::Handle(const FSWPacket & packet)
 {
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
@@ -570,7 +570,7 @@ ReturnMessage * ACSUpdateGNDCoordsHandler::Handle(const Packet & packet)
 	return(ACSUpdateGNDCorrds(x, y, z));
 }
 
-ReturnMessage * ACSUseGyroBiasHandler::Handle(const Packet & packet)
+ReturnMessage * ACSUseGyroBiasHandler::Handle(const FSWPacket & packet)
 {
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
@@ -585,12 +585,12 @@ ReturnMessage * ACSUseGyroBiasHandler::Handle(const Packet & packet)
 	return(ACSUseGyroBias(bias));
 }
 
-ReturnMessage * ACSErrorHandler::Handle(const Packet & packet)
+ReturnMessage * ACSErrorHandler::Handle(const FSWPacket & packet)
 {
 	//grab dispatcher instance, if it fails return DISPATCHER_NO_INSTANCE
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 
-	Packet * forward = new Packet(packet);
+	FSWPacket * forward = new FSWPacket(packet);
 
 	//forward error message to Error Octopus
 	forward->SetDestination(SERVER_LOCATION_ERR);

@@ -2,13 +2,13 @@
  *  \brief Header File for the Dispatcher Class
  *
  *  This file contains the definition of the Dispatcher class, which acts
- *  as the Packet-routing entity in the Phoenix architecture.
+ *  as the FSWPacket-routing entity in the Phoenix architecture.
  */
 
 #ifndef _DISPATCHER_H
 #define _DISPATCHER_H
 
-#include "core/Packet.h"
+#include "core/FSWPacket.h"
 #include "core/ErrorMessage.h"
 #include "core/Arbitrator.h"
 #include "core/Singleton.h"
@@ -69,6 +69,13 @@ namespace Phoenix
 		/*! \brief Dispatcher delay loop */
 		#define	MAX_DISPATCHER_LOOP		500
 
+    	/*! \brief Max packet size in bytes */
+		#define MAX_PACKET_SIZE			65551
+
+    	/* \brief Signals used for SPI communication*/
+		#define SENT_COMPLETE_SIG		SIGUSR1
+		#define RECEIVED_PACKET_SIG		SIGUSR2
+
         /*! \brief Dispatcher Status Enumeration
          *
          *  Enumerates the possible return values from the
@@ -78,9 +85,9 @@ namespace Phoenix
         {
                 /*! \brief Response Receive Successful */
                 DISPATCHER_STATUS_OK = 0,
-                /*! \brief Dispatched Packet Not Received by Destination*/
+                /*! \brief Dispatched FSWPacket Not Received by Destination*/
                 DISPATCHER_STATUS_MSG_NOT_RCVD,
-                /*! \brief Dispatched Packet Received But No Response Received */
+                /*! \brief Dispatched FSWPacket Received But No Response Received */
                 DISPATCHER_STATUS_MSG_RCVD_NO_RESP_SENT,
                 /*! \brief Maximum Return Value */
                 DISPATCHER_STATUS_MAX
@@ -153,12 +160,12 @@ namespace Phoenix
              */
             bool AddRegistry(LocationIDType serverID, MessageHandlerRegistry * registry, Arbitrator * arby);
 
-            /*! \brief Dispatches a Packet to its Destination Location
+            /*! \brief Dispatches a FSWPacket to its Destination Location
              *
              *  Dispatches the given packet to the destination contained in
              *  the packet's destination field.
              *
-             *  \param packet Packet to be dispatched.
+             *  \param packet FSWPacket to be dispatched.
              *  \return true if the operation was successful and
              *  false otherwise.
              *
@@ -169,9 +176,9 @@ namespace Phoenix
              *  have a chance to Listen for a message before looking for
              *  the response to the Dispatched message.
              */
-            bool Dispatch(const Packet & packet);
+            bool Dispatch(const FSWPacket & packet);
 
-            /*! \brief Waits for a Response after a Packet Has Been Dispatched
+            /*! \brief Waits for a Response after a FSWPacket Has Been Dispatched
              *
              *  Waits for the response to packet, which should have been
              *  previously sent to another server by calling Dispatch.
@@ -179,7 +186,7 @@ namespace Phoenix
              *  queue and returned in returnMessage.  Otherwise, if the initial
              *  packet is still in the queue, it is removed.
              *
-             *  \param packet Packet sent via Dispatch.
+             *  \param packet FSWPacket sent via Dispatch.
              *  \param returnMessage Output variable that is set to the
              *  response, if the operation was successful.
              *  \return \ref DISPATCHER_STATUS_OK if a response was
@@ -197,11 +204,11 @@ namespace Phoenix
              *  packet was not received, it removes that packet from
              *  the internal message queue.
              */
-            DispatcherStatusEnum WaitForDispatchResponse(const Packet & packet, ReturnMessage & returnMessage);
+            DispatcherStatusEnum WaitForDispatchResponse(const FSWPacket & packet, ReturnMessage & returnMessage);
 
             void printString(const uint8 * str);
 
-            /*! \brief Checks for a Packet Addressed to a Given Server
+            /*! \brief Checks for a FSWPacket Addressed to a Given Server
              *
              *  Checks the message queue for a message for the given server.
              *  If there is a message, then the corresponding message handler
@@ -242,8 +249,8 @@ namespace Phoenix
             /*! \brief Typedef for the Iterator Type of the Registry Map */
             typedef std::map<LocationIDType, DispatcherHandlerType *>::iterator IteratorType;
 
-            /*! \brief Typedef for a Packet Comparison Function */
-            typedef bool (Dispatcher::* PacketCheckFunctionType)(const Packet & packetIn, const Packet & packetOut) const;
+            /*! \brief Typedef for a FSWPacket Comparison Function */
+            typedef bool (Dispatcher::* PacketCheckFunctionType)(const FSWPacket & packetIn, const FSWPacket & packetOut) const;
 
             /*! \brief Struct for Passing Parameters to InvokeHandler */
             struct DispatcherTaskParameter
@@ -251,8 +258,8 @@ namespace Phoenix
             	/*! \brief Registry from which to Invoke Handler */
             	MessageHandlerRegistry * registry;
 
-            	/*! \brief Packet to Pass to the MessageHandler */
-            	Packet * packet;
+            	/*! \brief FSWPacket to Pass to the MessageHandler */
+            	FSWPacket * packet;
 
             	/*! \brief Return Value of the MessageHandler */
             	ReturnMessage * retMsg;
@@ -306,49 +313,49 @@ namespace Phoenix
              */
 			bool IsFullyInitialized(void);
 
-            /*! \brief Checks if a Packet is a Response to Another Packet
+            /*! \brief Checks if a FSWPacket is a Response to Another FSWPacket
              *
              *  Checks if packetOut is a response to the message sent in
              *  packetIn.
              *
-             *  \param packetIn Packet that was sent.
-             *  \param packetOut Packet to check against packetIn.
+             *  \param packetIn FSWPacket that was sent.
+             *  \param packetOut FSWPacket to check against packetIn.
              *  \return true if packetOut is a response to packetIn and false
              *  otherwise.
              */
-            inline bool IsPacketMatchingResponse(const Packet & packetIn, const Packet & packetOut) const;
+            inline bool IsPacketMatchingResponse(const FSWPacket & packetIn, const FSWPacket & packetOut) const;
 
-            /*! \brief Checks if a Packet's Destination Matches Another's Source
+            /*! \brief Checks if a FSWPacket's Destination Matches Another's Source
              *
              *  Checks if packetOut's destination is the same as packetIn's
              *  source.
              *
-             *  \param packetIn Packet to check source in.
-             *  \param packetOut Packet to check destination in.
+             *  \param packetIn FSWPacket to check source in.
+             *  \param packetOut FSWPacket to check destination in.
              *  \return true if packetOut's destination equals packetIn's
              *  source and false otherwise.
              */
-            inline bool IsPacketDestMatchingSource(const Packet & packetIn, const Packet & packetOut) const;
+            inline bool IsPacketDestMatchingSource(const FSWPacket & packetIn, const FSWPacket & packetOut) const;
 
             /*! \brief Checks if Two Packets Are Equivalent
              *
              *  Checks if packetOut is equivalent to packetIn.
              *
-             *  \param packetIn Packet #1
-             *  \param packetOut Packet #2
+             *  \param packetIn FSWPacket #1
+             *  \param packetOut FSWPacket #2
              *  \return true if packetOut is equivalent to packetIn and false
              *  otherwise.
              */
-            inline bool IsPacketSame(const Packet & packetIn, const Packet & packetOut) const;
+            inline bool IsPacketSame(const FSWPacket & packetIn, const FSWPacket & packetOut) const;
 
-            /*! \brief Checks the Message Queue for a Matching Packet
+            /*! \brief Checks the Message Queue for a Matching FSWPacket
              *
              *  Checks the internal message queue for a packet that matches
              *  packetIn using the comparison function given by Check.  If
              *  a matching packet is found, a pointer to the packet is
              *  returned in packetOut.
              *
-             *  \param packetIn Packet to compare other packets with.
+             *  \param packetIn FSWPacket to compare other packets with.
              *  \param packetOut Returns a pointer to the matching packet.
              *  \param Check Comparison function used to compare packetIn
              *  and the other packets in the internal message queue.
@@ -358,18 +365,18 @@ namespace Phoenix
              *  \note packetOut is only guaranteed to point to a valid
              *  packet if this function returns true.
              */
-            bool CheckQueueForMatchingPacket(const Packet & packetIn,
-            		                         Packet * &packetOut,
+            bool CheckQueueForMatchingPacket(const FSWPacket & packetIn,
+            		                         FSWPacket * &packetOut,
             		                         PacketCheckFunctionType Check);
 
-            /*! \brief Sends an Error Response to a Packet
+            /*! \brief Sends an Error Response to a FSWPacket
              *
              *  Sends a response packet to the source field in the given
              *  packet.  The message in the packet is a ReturnMessage
              *  that wraps an ErrorMessage with the given opcode.
              *
              *  \param errorCode ErrorMessage opcode.
-             *  \param packet Packet that is being responded to.
+             *  \param packet FSWPacket that is being responded to.
              *
              *  \return true if the response was sent successfully and false
              *  otherwise.
@@ -377,7 +384,7 @@ namespace Phoenix
              *  \note If the response fails, then the original packet is put
              *  back on the message queue so that it can be handled again.
              */
-            bool SendErrorResponse(ErrorOpcodeEnum errorCode, Packet * packet,VariableTypeData data);
+            bool SendErrorResponse(ErrorOpcodeEnum errorCode, FSWPacket * packet,VariableTypeData data);
 
             /*! \brief Invokes a MessageHandler in a New Task
              *
@@ -389,6 +396,21 @@ namespace Phoenix
             static void * InvokeHandler(void * parameters);
 
 #ifndef WIN32
+            /*! \brief Handles SIGUSR1 when send is complete
+             *
+             *	Changes value of sent to true to indicate that a packet has been
+             *	sent so that DispatchToHardware can return
+             *
+             */
+            void sendComplete(int signum);
+
+            /*! \brief Signal handler that Places packet from hardware on queue
+             *
+             *	Copies message that was received over SPI onto the dispatcherQueue
+             *
+             */
+            void receivedPacket(int signum);
+
             /*! \brief Dispatch a Message to Hardware
              *
              *  Sends a message to a hardware location and then receives the
@@ -396,7 +418,8 @@ namespace Phoenix
              *  can be handled by the appropriate server.
              *
              */
-            uint32_t DispatchToHardware(HardwareLocationIDEnum loc, const Packet & packet);
+
+            uint32_t DispatchToHardware(HardwareLocationIDEnum loc, const FSWPacket & packet);
 
             /*! \brief Returns the Device and Chip for a Hardware Location
              *
@@ -408,22 +431,22 @@ namespace Phoenix
              */
            // bool GetHardwareDeviceFromLocation(HardwareLocationIDEnum loc, SPIDeviceEnum & dev, uint8_t & chip);
 
-            /*! \brief Sends a Packet to the Specified Hardware.
+            /*! \brief Sends a FSWPacket to the Specified Hardware.
              *
              *  \param loc Hardware Location to Write to.
-             *  \param packet Packet to Send.
+             *  \param packet FSWPacket to Send.
              *
              *  \return 0 if successful and the line number of failure otherwise.
              */
-           // uint32_t SendPacketToHardware(SPIDeviceEnum dev, const Packet & packet);
+           // uint32_t SendPacketToHardware(SPIDeviceEnum dev, const FSWPacket & packet);
 
-            /*! \brief Receives a Packet from Hardware and Dispatches it.
+            /*! \brief Receives a FSWPacket from Hardware and Dispatches it.
              *
              *  \param loc Hardware Location to Read From.
              *
              *  \return 0 if successful and the line number of failure otherwise.
              */
-           // uint32_t GetPacketFromHardware(SPIDeviceEnum dev, Packet & packetOut);
+           // uint32_t GetPacketFromHardware(SPIDeviceEnum dev, FSWPacket & packetOut);
 
 
 

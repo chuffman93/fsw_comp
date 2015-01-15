@@ -23,27 +23,27 @@ using namespace Phoenix::Servers;
 using namespace Phoenix::Core;
 
 
-ReturnMessage * GPSHealthAndStatusHandler::Handle(const Packet & packet)
+ReturnMessage * GPSHealthAndStatusHandler::Handle(const FSWPacket & packet)
 {
 	return (GPSHealthStatus());
 }
 
-ReturnMessage * GPSTimeHandler::Handle(const Packet & packet)
+ReturnMessage * GPSTimeHandler::Handle(const FSWPacket & packet)
 {
 	return (GPSTime());
 }
 
-ReturnMessage * GPSPositionHandler::Handle(const Packet & packet)
+ReturnMessage * GPSPositionHandler::Handle(const FSWPacket & packet)
 {
 	return (GPSPostion());
 }
 
-ReturnMessage * GPSResetHandler::Handle(const Packet & packet)
+ReturnMessage * GPSResetHandler::Handle(const FSWPacket & packet)
 {
 	return (GPSReset());
 }
 
-ReturnMessage * GPSErrorHandler::Handle(const Packet & packet)
+ReturnMessage * GPSErrorHandler::Handle(const FSWPacket & packet)
 {
 	//grab dispatcher instance, if it fails return DISPATCHER_NO_INSTANCE
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
@@ -53,7 +53,7 @@ ReturnMessage * GPSErrorHandler::Handle(const Packet & packet)
 			ReturnMessage * eRet = new ReturnMessage(&err, false);
 			return eRet;
 	}
-	Packet * forward = new Packet(packet);
+	FSWPacket * forward = new FSWPacket(packet);
 
 	//forward error message to Error Octopus
 	forward->SetDestination(SERVER_LOCATION_ERR);

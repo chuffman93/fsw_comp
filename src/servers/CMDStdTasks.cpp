@@ -40,7 +40,7 @@ namespace Phoenix
 			while(6 < bufferSize)
 			{
 				//wdm->Kick();
-				Packet * packet = new Packet((uint8 *) readBuffer, bufferSize);
+				FSWPacket * packet = new FSWPacket((uint8 *) readBuffer, bufferSize);
 				readBuffer += packet->GetFlattenSize();
 				bufferSize -= packet->GetFlattenSize();
 				LocationIDType packetDest = packet->GetDestination();

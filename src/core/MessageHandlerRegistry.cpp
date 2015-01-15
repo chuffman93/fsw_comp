@@ -48,7 +48,7 @@ namespace Phoenix
         	return true;
         }
 
-        ReturnMessage * MessageHandlerRegistry::Invoke(const Packet & packet)
+        ReturnMessage * MessageHandlerRegistry::Invoke(const FSWPacket & packet)
         {
         	Message * msg = packet.GetMessagePtr();
         	std::map<MessageIdentifierType, MessageHandler*>::iterator it =

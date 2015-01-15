@@ -6,7 +6,7 @@
  */ 
 
 #include "core/PacketDatatype.h"
-#include "core/Packet.h"
+#include "core/FSWPacket.h"
 
 using namespace std;
 
@@ -15,13 +15,13 @@ namespace Phoenix
 	namespace Core
 	{
 		PacketDatatype::PacketDatatype(void )
-		: data(new Packet())
+		: data(new FSWPacket())
 		{
 			// Left Intentionally Empty
 		}
 
-		PacketDatatype::PacketDatatype(Packet dataIn)
-		: data(new Packet(dataIn))
+		PacketDatatype::PacketDatatype(FSWPacket dataIn)
+		: data(new FSWPacket(dataIn))
 		{
 			// Left Intentionally Empty
 		}
@@ -36,7 +36,7 @@ namespace Phoenix
 				return;
 			}
 
-			data = new Packet(buffer, size);
+			data = new FSWPacket(buffer, size);
 			
 			if(data == NULL || data->GetSource() == LOCATION_ID_INVALID || data->GetDestination() == LOCATION_ID_INVALID || data->GetMessagePtr() == NULL)
 			{
@@ -50,7 +50,7 @@ namespace Phoenix
 
 		PacketDatatype::PacketDatatype(const PacketDatatype & source)
 		{
-			data = new Packet(*source.data);
+			data = new FSWPacket(*source.data);
 		}
 
 		PacketDatatype::~PacketDatatype(void )
@@ -61,7 +61,7 @@ namespace Phoenix
 		PacketDatatype & PacketDatatype::operator =(const PacketDatatype & source)
 		{
 			delete data;
-			data = new Packet(*source.data);
+			data = new FSWPacket(*source.data);
 			return *this;
 		}
 

@@ -77,7 +77,7 @@ namespace Phoenix
 			data = new ArrayDatatype(dataIn);
 		}
 		
-		VariableTypeData::VariableTypeData(Packet dataIn)
+		VariableTypeData::VariableTypeData(FSWPacket dataIn)
 						 : type(VAR_TYPE_ENUM_PACKET)
 		{
 			data = new PacketDatatype(dataIn);

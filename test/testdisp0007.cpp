@@ -25,10 +25,10 @@ using namespace Phoenix::Core;
 class TestMessageHandler : public MessageHandler
 {
 public:
-	ReturnMessage * Handle(const Packet & packet);
+	ReturnMessage * Handle(const FSWPacket & packet);
 } testHandler7;
 
-//ReturnMessage * TestMessageHandler::Handle(const Packet & packet)
+//ReturnMessage * TestMessageHandler::Handle(const FSWPacket & packet)
 //{
 //	CommandMessage msg(0);
 //	ReturnMessage *ret = new ReturnMessage(&msg, true);
@@ -41,7 +41,7 @@ static void * taskTest1(void * parameters)
 {
 	{
 		Dispatcher * dispatcher;
-		Packet * packet;
+		FSWPacket * packet;
 		ReturnMessage retMsg;
 		size_t i;
 		DispatcherStatusEnum status;
@@ -60,7 +60,7 @@ static void * taskTest1(void * parameters)
 		for (i = 0; i < DISPATCHER_QUEUE_LENGTH; ++i)
 		{
 			cout << "placing packet with numberIn: " << i << endl;
-			packet = new Packet(1, 2, i, 0, cmd);
+			packet = new FSWPacket(1, 2, i, 0, cmd);
 			if (!dispatcher->Dispatch(*packet))
 			{
 				ADD_FAILURE();
@@ -69,7 +69,7 @@ static void * taskTest1(void * parameters)
 			delete packet;
 		}
 
-		packet = new Packet(1, 2, DISPATCHER_QUEUE_LENGTH, 0, cmd);
+		packet = new FSWPacket(1, 2, DISPATCHER_QUEUE_LENGTH, 0, cmd);
 		if (dispatcher->Dispatch(*packet))
 		{
 			ADD_FAILURE();
@@ -87,7 +87,7 @@ static void * taskTest1(void * parameters)
 
 		usleep(100000);
 
-		packet = new Packet(1, 2, DISPATCHER_QUEUE_LENGTH, 0, cmd);
+		packet = new FSWPacket(1, 2, DISPATCHER_QUEUE_LENGTH, 0, cmd);
 		if (dispatcher->Dispatch(*packet))
 		{
 			ADD_FAILURE();
@@ -95,7 +95,7 @@ static void * taskTest1(void * parameters)
 		}
 		delete packet;
 
-		packet = new Packet(1, 2, 0, 0, cmd);
+		packet = new FSWPacket(1, 2, 0, 0, cmd);
 
 		for (i = 0; i < DISPATCHER_QUEUE_LENGTH; ++i)
 		{

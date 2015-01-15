@@ -37,7 +37,7 @@ namespace Phoenix
 		*	and the response message if dispatched successfully.
 		*/
 		
-		Phoenix::Core::ReturnMessage * DispatchPacket(Phoenix::Core::Packet * packet);
+		Phoenix::Core::ReturnMessage * DispatchPacket(Phoenix::Core::FSWPacket * packet);
 		
 		/*!	\brief Dispatches a message with no parameters.
 		*
@@ -98,7 +98,7 @@ namespace Phoenix
 		*		Otherwise returns true if all parameters are extracted correctly and stored
 		*		in outputParameters.
 		*/
-		bool ExtractParameters(const Phoenix::Core::Packet & packet, uint32 * inputParameters,
+		bool ExtractParameters(const Phoenix::Core::FSWPacket & packet, uint32 * inputParameters,
 				uint32 numParams, void ** outputParameters);
 				
 		/*!	\brief Extracts parameters from a return message.

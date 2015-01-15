@@ -21,9 +21,9 @@ using namespace std;
 using namespace Phoenix::Servers;
 using namespace Phoenix::Core;
 
-ReturnMessage * ErrorOctopusHandler::Handle(const Packet & packet)
+ReturnMessage * ErrorOctopusHandler::Handle(const FSWPacket & packet)
 {
-	Packet * quePacket = new Packet(packet);
+	FSWPacket * quePacket = new FSWPacket(packet);
 	//Enqueue the packet
 	ErrorQueue * que = dynamic_cast<ErrorQueue *>(Factory::GetInstance(ERROR_QUEUE_SINGLETON));
 	

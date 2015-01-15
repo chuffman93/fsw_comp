@@ -14,7 +14,7 @@
 #define _MESSAGEHANDLER_H
 
 #include "core/StdTypes.h"
-#include "core/Packet.h"
+#include "core/FSWPacket.h"
 #include "core/ReturnMessage.h"
 
 #include <string>
@@ -35,7 +35,7 @@ namespace Phoenix
             MessageHandler & operator=(const MessageHandler & source);
             std::string GetName() const;
             void SetName(std::string newName);
-            virtual ReturnMessage * Handle(const Packet & packet) = 0;
+            virtual ReturnMessage * Handle(const FSWPacket & packet) = 0;
         private:
             std::string name;
         };

@@ -12,7 +12,7 @@
 #include "POSIX.h"
 #include "gtest/gtest.h"
 #include "core/CommandMessage.h"
-#include "core/Packet.h"
+#include "core/FSWPacket.h"
 
 #include "core/VariableTypeData.h"
 using namespace std;
@@ -27,7 +27,7 @@ TEST(TestVariableTypeData, CopyAndAssignment) {
 	vec.push_back(5);
 
 	CommandMessage cmd(1);
-	Packet p1(1, 2, 0, 0, &cmd);
+	FSWPacket p1(1, 2, 0, 0, &cmd);
 
 	vin[VAR_TYPE_ENUM_INT] = new VariableTypeData((int32) -10);
 	vin[VAR_TYPE_ENUM_UNSIGNED_INT] = new VariableTypeData((uint32) 10);

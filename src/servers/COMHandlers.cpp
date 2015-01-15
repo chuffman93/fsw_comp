@@ -29,18 +29,18 @@ using namespace Phoenix::Servers;
 uint32 COMDataSendHandler::enumArray[] = {VAR_TYPE_ENUM_ARRAY};
 uint32 COMDataReceiveHandler::enumArray[] = {VAR_TYPE_ENUM_ARRAY};
 
-ReturnMessage * COMHSHandler::Handle(const Packet & packet)
+ReturnMessage * COMHSHandler::Handle(const FSWPacket & packet)
 {
 	return (COMHealthStatus());
 }
 
-ReturnMessage * COMBeaconHandler::Handle(const Packet & packet)
+ReturnMessage * COMBeaconHandler::Handle(const FSWPacket & packet)
 {
 	DEBUG_COUT("		In COMBeaconHandler, calling COMBeacon...")
 	//return (COMBeacon());
 }
 
-ReturnMessage * COMDataSendHandler::Handle(const Packet & packet)
+ReturnMessage * COMDataSendHandler::Handle(const FSWPacket & packet)
 {
 	DEBUG_COUT("		COMDataSendHandler:: handle caled...");
 	void * outputArray[numParams] = {NULL};
@@ -55,23 +55,23 @@ ReturnMessage * COMDataSendHandler::Handle(const Packet & packet)
 	//return (COMDataSend(data, packet.GetDestination()));
 }
 
-ReturnMessage * COMLoginHandler::Handle(const Packet & packet)
+ReturnMessage * COMLoginHandler::Handle(const FSWPacket & packet)
 {	
 	DEBUG_COUT("		COMLoginHandler:: logging in...");
 	//return (COMLogin(packet.GetDestination()));
 }
 
-ReturnMessage * COMLogoutHandler::Handle(const Packet & packet)
+ReturnMessage * COMLogoutHandler::Handle(const FSWPacket & packet)
 {
 	//return (COMLogout(packet.GetDestination(), packet.GetMessagePtr()->GetOpcode()));
 }
 
-ReturnMessage * COMResetHandler::Handle(const Packet & packet)
+ReturnMessage * COMResetHandler::Handle(const FSWPacket & packet)
 {	
 	//return (COMReset());
 }
 
-ReturnMessage * COMDataReceiveHandler::Handle(const Packet & packet)
+ReturnMessage * COMDataReceiveHandler::Handle(const FSWPacket & packet)
 {	
 	//DEBUG_COUT("		COMDataReceiveHandler:: handle called...");
 	void * outputArray[numParams] = {NULL};
@@ -88,11 +88,11 @@ ReturnMessage * COMDataReceiveHandler::Handle(const Packet & packet)
 	//return (COMDataReceive(data, packet.GetDestination()));
 }
 
-ReturnMessage * COMErrorHandler::Handle(const Packet & packet)
+ReturnMessage * COMErrorHandler::Handle(const FSWPacket & packet)
 {
 	//grab dispatcher instance, if it fails return DISPATCHER_NO_INSTANCE
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-	Packet * forward = new Packet(packet);
+	FSWPacket * forward = new FSWPacket(packet);
 
 	//forward error message to Error Octopus
 	forward->SetDestination(SERVER_LOCATION_ERR);

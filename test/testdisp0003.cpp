@@ -23,10 +23,10 @@ using namespace Phoenix::Core;
 class TestMessageHandler : public MessageHandler
 {
 public:
-    ReturnMessage * Handle(const Packet & packet);
+    ReturnMessage * Handle(const FSWPacket & packet);
 } testHandler3;
 
-ReturnMessage * TestMessageHandler::Handle(const Packet & packet)
+ReturnMessage * TestMessageHandler::Handle(const FSWPacket & packet)
 {
     CommandMessage msg(0);
     ReturnMessage * ret = new ReturnMessage(&msg, true);
@@ -37,7 +37,7 @@ static void * taskTest1(void * parameters)
 {
     {
         Dispatcher * dispatcher;
-        Packet * packet;
+        FSWPacket * packet;
         ReturnMessage retMsg;
         DispatcherStatusEnum status;
 
@@ -51,7 +51,7 @@ static void * taskTest1(void * parameters)
 
 
         CommandMessage * cmd = new CommandMessage(0);
-        packet = new Packet(1, 2, 0, 0, cmd);
+        packet = new FSWPacket(1, 2, 0, 0, cmd);
         delete cmd;
 
         if (!dispatcher->Dispatch(*packet))

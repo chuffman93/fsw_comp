@@ -16,10 +16,10 @@ class SCHScheduleHandler: public Phoenix::Core::MessageHandler
 public:
 		/* \breif Handle a build schedule request.
 		 *
-		 *	\param packet Packet containing the command.
+		 *	\param packet FSWPacket containing the command.
 		 *	\return ReturnMessage from SCH Hardware.
 		 */	
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::Packet & packet);
+		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 1;
 		static uint32 enumArray[numParams];
@@ -30,10 +30,10 @@ class SCHPldScheduleHandler: public Phoenix::Core::MessageHandler
 public:
 		/* \breif Handle a build PLD schedule request.
 		 *
-		 *	\param packet Packet containing the command.
+		 *	\param packet FSWPacket containing the command.
 		 *	\return ReturnMessage from SCH Hardware.
 		 */	
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::Packet & packet);
+		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
 private:		
 		const static uint32 numParams = 1;
 		static uint32 enumArray[numParams];
@@ -44,10 +44,10 @@ class SCHRunScheduleHandler: public Phoenix::Core::MessageHandler
 public:
 		/* \breif Handle a run schedule request.
 		 *
-		 *	\param packet Packet containing the command.
+		 *	\param packet FSWPacket containing the command.
 		 *	\return ReturnMessage from SCH Hardware.
 		 */	
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::Packet & packet);
+		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class SCHDefaultRangeHandler: public Phoenix::Core::MessageHandler
@@ -55,10 +55,10 @@ class SCHDefaultRangeHandler: public Phoenix::Core::MessageHandler
 public:
 		/* \breif Handle a new default range to ground station.
 		 *
-		 *	\param packet Packet containing the command.
+		 *	\param packet FSWPacket containing the command.
 		 *	\return ReturnMessage from SCH Hardware.
 		 */	
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::Packet & packet);
+		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 1;
 		static uint32 enumArray[numParams];

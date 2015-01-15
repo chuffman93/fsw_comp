@@ -30,7 +30,7 @@ typedef uint16 LocationIDType;
 /*! \brief Minimum Message Size */
 #define MESSAGE_OVERHEAD_SIZE   (5)
 
-/*! \brief Minimum Packet Size */
+/*! \brief Minimum FSWPacket Size */
 #define PACKET_OVERHEAD_SIZE    (12 + MESSAGE_OVERHEAD_SIZE)
 
 /*! \brief Maximum Frame length */

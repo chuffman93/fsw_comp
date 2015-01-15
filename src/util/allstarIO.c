@@ -206,15 +206,15 @@ int readpkt(struct k_data * k, UCHAR * p, int len)
 	switch(k->server)
 	{
 		case 9:
-			DEBUG_PRINTF_INT("	SPACE KERMIT: Read Packet, bytes in buffer: ", inBuf->used)
-			DEBUG_PRINTF("	SPACE KERMIT: Read Packet input buffer: ")
+			DEBUG_PRINTF_INT("	SPACE KERMIT: Read FSWPacket, bytes in buffer: ", inBuf->used)
+			DEBUG_PRINTF("	SPACE KERMIT: Read FSWPacket input buffer: ")
 			break;
 		case 20:
-			DEBUG_PRINTF_INT("	GROUND KERMIT: Read Packet, bytes in buffer: ", inBuf->used)
-			DEBUG_PRINTF("	GROUND KERMIT: Read Packet input buffer: ")
+			DEBUG_PRINTF_INT("	GROUND KERMIT: Read FSWPacket, bytes in buffer: ", inBuf->used)
+			DEBUG_PRINTF("	GROUND KERMIT: Read FSWPacket input buffer: ")
 			break;
 		default:
-			DEBUG_PRINTF_INT("	KERMIT: Read Packet, bytes in buffer: ", inBuf->used)
+			DEBUG_PRINTF_INT("	KERMIT: Read FSWPacket, bytes in buffer: ", inBuf->used)
 	}
 	temp = GetCurrentBuffer(inBuf);
 	if(temp != NULL)
@@ -276,7 +276,7 @@ int readpkt(struct k_data * k, UCHAR * p, int len)
 			}
 			continue;                   /* But discard. */
 		}
-		else if (c == k->r_eom	/* Packet terminator */
+		else if (c == k->r_eom	/* FSWPacket terminator */
 		|| c == '\012'	/* 1.3: For HyperTerminal */
 		)
 		{

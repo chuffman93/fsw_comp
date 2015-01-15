@@ -45,7 +45,7 @@ namespace Phoenix
 			return (size_t)queueAttr.mq_curmsgs;
 		}
 
-		bool mq_timed_send(char * queueName, Packet ** inPacket, size_t sec, uint64_t nSec)
+		bool mq_timed_send(char * queueName, FSWPacket ** inPacket, size_t sec, uint64_t nSec)
 		{
 			struct timespec ts;
 			semWaitDelay(&ts, sec, nSec);
@@ -64,7 +64,7 @@ namespace Phoenix
 			return true;
 		}
 
-		bool mq_timed_receive(char * queueName, Packet ** packetOut, size_t sec, uint64_t nSec)
+		bool mq_timed_receive(char * queueName, FSWPacket ** packetOut, size_t sec, uint64_t nSec)
 		{
 			struct timespec ts;
 			semWaitDelay(&ts, sec, nSec);

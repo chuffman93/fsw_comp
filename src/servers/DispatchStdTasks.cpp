@@ -27,7 +27,7 @@ namespace Phoenix
 {
 	namespace Servers
 	{
-		ReturnMessage * DispatchPacket(Packet * packet)
+		ReturnMessage * DispatchPacket(FSWPacket * packet)
 		{
 			//check inputs
 			LocationIDType source = packet->GetSource();
@@ -114,8 +114,8 @@ namespace Phoenix
 					return eRet;
 			}
 			
-			//create Packet based on parameters and the created message
-			Packet * query = new Packet(source, destination, number, timestamp, msg);
+			//create FSWPacket based on parameters and the created message
+			FSWPacket * query = new FSWPacket(source, destination, number, timestamp, msg);
 			//delete message, packet has duplicated it.
 			delete msg;
 			
@@ -159,8 +159,8 @@ namespace Phoenix
 					return eRet;
 			}
 			
-			//create Packet based on parameters and the created message
-			Packet * query = new Packet(source, destination, number, timestamp, msg);
+			//create FSWPacket based on parameters and the created message
+			FSWPacket * query = new FSWPacket(source, destination, number, timestamp, msg);
 			//delete message, packet has duplicated it.
 			delete msg;
 			
@@ -202,15 +202,15 @@ namespace Phoenix
 					return eRet;
 			}
 			
-			//create Packet based on parameters and the created message
-			Packet * query = new Packet(source, destination, number, timestamp, msg);
+			//create FSWPacket based on parameters and the created message
+			FSWPacket * query = new FSWPacket(source, destination, number, timestamp, msg);
 			//delete message, packet has duplicated it.
 			delete msg;
 			
 			return(DispatchPacket(query));
 		}
 		
-		bool ExtractParameters(const Packet & packet, uint32 * inputParameters, uint32 numParams, void ** outputParameters)
+		bool ExtractParameters(const FSWPacket & packet, uint32 * inputParameters, uint32 numParams, void ** outputParameters)
 		{
 			MultiDataMessage * dataMessage = (dynamic_cast<MultiDataMessage *>(packet.GetMessagePtr()));
 			if(dataMessage == NULL)
@@ -290,7 +290,7 @@ namespace Phoenix
 				{ //Non dispatcher error message, send it to the octopus!
 					Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 					
-					Packet * query = new Packet(id, SERVER_LOCATION_ERR, 1, 0, dataMessage);
+					FSWPacket * query = new FSWPacket(id, SERVER_LOCATION_ERR, 1, 0, dataMessage);
 
 					//Dispatch packet, if it fails return DISPATCH_FAILED
 					if(!dispatcher->Dispatch(*query)) {

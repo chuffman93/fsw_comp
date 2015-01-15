@@ -32,7 +32,7 @@ namespace Phoenix
             virtual ~MessageHandlerRegistry(void);
             MessageHandlerRegistry & operator=(const MessageHandlerRegistry source);
             bool RegisterHandler(const MessageIdentifierType & key, MessageHandler * handler);
-            ReturnMessage * Invoke(const Packet & packet);
+            ReturnMessage * Invoke(const FSWPacket & packet);
         private:
             std::map<MessageIdentifierType, MessageHandler *> handlerMap;
         };

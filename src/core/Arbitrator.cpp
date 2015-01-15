@@ -73,7 +73,7 @@ namespace Phoenix
         	}
         }
         
-        ArbitratorAuthStatusEnum Arbitrator::Authenticate(const Packet & packet) const
+        ArbitratorAuthStatusEnum Arbitrator::Authenticate(const FSWPacket & packet) const
         {
         	Message * msg;
         	ConstIteratorType it;

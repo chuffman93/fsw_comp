@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "core/Packet.h"
+#include "core/FSWPacket.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
 
@@ -31,7 +31,7 @@ namespace Phoenix
 			size_t waiting = mq_size(errQueueHandle, errQueueAttr);
 			for (size_t i = 0; i < waiting; ++i)
 			{
-				Packet * packet;
+				FSWPacket * packet;
 				mq_timed_receive(errQueueName, &packet, MAX_BLOCK_TIME, 0);
 				delete packet;
 			}
@@ -62,7 +62,7 @@ namespace Phoenix
 		}
 
 
-		bool ErrorQueue::EnqueueError(Packet * packet)
+		bool ErrorQueue::EnqueueError(FSWPacket * packet)
 		{
 			// Error queue is not initialized!
 			size_t numPackets = mq_size(errQueueHandle, errQueueAttr);
@@ -80,9 +80,9 @@ namespace Phoenix
 			return rv;
 		}
 
-		Packet * ErrorQueue::GetNextError()
+		FSWPacket * ErrorQueue::GetNextError()
 		{
-			Packet * packetOut = NULL;
+			FSWPacket * packetOut = NULL;
 			// Get the next packet.
 			size_t rv = (size_t) mq_size(errQueueHandle, errQueueAttr);
 			if(rv > 0)
@@ -93,7 +93,7 @@ namespace Phoenix
 					packetOut = NULL;
 					return packetOut;
 				}
-				//Packet dequeued successfully
+				//FSWPacket dequeued successfully
 				return packetOut;
 			}
 			// No packets available to dequeue

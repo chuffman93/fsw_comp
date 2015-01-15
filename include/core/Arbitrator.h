@@ -10,7 +10,7 @@
 
 #include "core/Arbitrator.h"
 #include "core/Permission.h"
-#include "core/Packet.h"
+#include "core/FSWPacket.h"
 #include "core/StdTypes.h"
 
 #include <map>
@@ -26,17 +26,17 @@ namespace Phoenix
 		 */
 		enum ArbitratorAuthStatusEnum
 		{
-			/*! \brief Packet Has Permission */
+			/*! \brief FSWPacket Has Permission */
 			ARBITRATOR_AUTH_STATUS_PERMISSION = 0,
-			/*! \brief Packet Does Not Have Permission */
+			/*! \brief FSWPacket Does Not Have Permission */
 			ARBITRATOR_AUTH_STATUS_NO_PERMISSION,
-			/*! \brief Packet Does Not Match Server */
+			/*! \brief FSWPacket Does Not Match Server */
 			ARBITRATOR_AUTH_STATUS_WRONG_SERVER,
 			/*! \brief Maximum Return Value */
 			ARBITRATOR_AUTH_STATUS_MAX
 		};
 
-		/*! \brief Class that Checks Packet Permissions for a Server
+		/*! \brief Class that Checks FSWPacket Permissions for a Server
 		 *
 		 *  This class checks if a packet sent from one Phoenix server
 		 *  to another meets the permissions defined for the destination
@@ -85,12 +85,12 @@ namespace Phoenix
              */
             bool GetPermission(const MessageIdentifierType & id, Permission & permissionOut) const;
 
-            /*! \brief Authenticate a Packet
+            /*! \brief Authenticate a FSWPacket
              *
              *  Checks if the server sending the given packet has the correct
              *  permissions to send the packet to the Arbitrator's server.
              *
-             *  \param packet Packet to be checked.
+             *  \param packet FSWPacket to be checked.
              *
              *  \return \ref ARBITRATOR_AUTH_STATUS_PERMISSION if the sending
              *  server has permission,<br>
@@ -100,7 +100,7 @@ namespace Phoenix
              *  \ref ARBITRATOR_AUTH_STATUS_WRONG_SERVER if the destination
              *  server in the packet does not match serverID.
              */
-            ArbitratorAuthStatusEnum Authenticate(const Packet & packet) const;
+            ArbitratorAuthStatusEnum Authenticate(const FSWPacket & packet) const;
 
             /*! \brief Modify the Permission Associated with a Message
              *  Identifier
