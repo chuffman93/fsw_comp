@@ -66,12 +66,10 @@ namespace Phoenix
 						ModeManager::Initialize( );
 						instance = new ModeManager( );
 						break;
-//#ifdef DEBUG
-//					case WATCHDOG_MANAGER_SINGLETON:
-//						WatchdogManager::Initialize( );
-//						instance = new WatchdogManager( );
-//						break;
-//#endif
+					case WATCHDOG_MANAGER_SINGLETON:
+						WatchdogManager::Initialize( );
+						instance = new WatchdogManager( );
+						break;
 					case ERROR_QUEUE_SINGLETON:
 						ErrorQueue::Initialize( );
 						instance = new ErrorQueue( );

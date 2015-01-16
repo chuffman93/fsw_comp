@@ -19,6 +19,7 @@
 #include "core/StdTypes.h"
 #include "core/ComMode.h"
 #include "core/SystemMode.h"
+#include "POSIX.h"
 
 #include "util/FileHandler.h"
 

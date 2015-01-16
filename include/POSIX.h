@@ -6,6 +6,8 @@
 #include <semaphore.h>
 #include <mqueue.h>
 #include <pthread.h>
+#include <unistd.h>
+#include <signal.h>
 
 #include <stdio.h>
 #include <stdlib.h>
