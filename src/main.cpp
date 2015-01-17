@@ -543,6 +543,7 @@ int main(int argc, char * argv[])
 	RTCSetTime(0);
 */
 
+	system("~/kernelmod.sh");
 	mq_unlink("/subsystemQueueHandle");
 	mq_unlink("/queueHandle");
 	mq_unlink("/errQueueHandle");
@@ -587,7 +588,7 @@ int main(int argc, char * argv[])
 
 	//CREATE_TASK(taskRunEPS, (const signed char* const)"EPS task", 2000, NULL, 0, NULL);
 	pthread_t EPSThread;
-	//threadCreated = pthread_create(&EPSThread, NULL, &taskRunEPS, NULL);
+	threadCreated = pthread_create(&EPSThread, NULL, &taskRunEPS, NULL);
 #ifdef DEBUG
 	if(!threadCreated)
 	{
@@ -603,7 +604,7 @@ int main(int argc, char * argv[])
 	//CREATE_TASK(taskRunPLD, (const signed char* const)"PLD task", 2000, NULL, 0, NULL);
 
 	pthread_t PLDThread;
-	threadCreated = pthread_create(&PLDThread, NULL, &taskRunPLD, NULL);
+	//threadCreated = pthread_create(&PLDThread, NULL, &taskRunPLD, NULL);
 #ifdef DEBUG
 	if(!threadCreated)
 	{
@@ -649,9 +650,9 @@ int main(int argc, char * argv[])
 	//portDBG_TRACE("FreeRTOS returned.");
 
 	//pthread_join(ACSThread, NULL);
-	//pthread_join(EPSThread, NULL);
+	pthread_join(EPSThread, NULL);
 	//pthread_join(ERRThread, NULL);
 	//pthread_join(THMThread, NULL);
-	pthread_join(PLDThread, NULL);
+	//pthread_join(PLDThread, NULL);
 	return 42;
 }

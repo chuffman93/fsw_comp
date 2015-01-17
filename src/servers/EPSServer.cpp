@@ -215,6 +215,7 @@ namespace Phoenix
 				//wdm->Kick();
 				usleep(1000000);
 			}
+
 #ifdef HARDWARE
 			EPSPowerSubsystems(POWER_SUBSYSTEM_ACS, true, 0);
 			EPSPowerSubsystems(POWER_SUBSYSTEM_GPS, true, 0);
@@ -235,7 +236,7 @@ namespace Phoenix
 
 				// Check current mode
 				currentMode = modeManager->GetMode();
-#ifdef HARDWARE
+
 				if ((seconds % 10) == 0 )
 				{
 					
@@ -243,8 +244,8 @@ namespace Phoenix
 					HSRet = EPSHealthStat();
 					MessageProcess(SERVER_LOCATION_EPS, HSRet);
 
-					SOCRet = EPSStateOfCharge();
-					MessageProcess(SERVER_LOCATION_EPS, SOCRet);
+					//SOCRet = EPSStateOfCharge();
+					//MessageProcess(SERVER_LOCATION_EPS, SOCRet);
 					
 				}
 
@@ -254,7 +255,7 @@ namespace Phoenix
 					//MessageProcess(SERVER_LOCATION_EPS, RstRet);
 					seconds = 0;
 				}
-#endif //HARDWARE
+
 				//SattyResetTimer();
 				// Delay
 				waitUntil(LastWakeTime, 1000);
