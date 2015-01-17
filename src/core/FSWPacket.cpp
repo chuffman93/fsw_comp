@@ -300,11 +300,11 @@ namespace Phoenix
             numCopied += messageCopied;
             buffer += messageCopied;
 
-           // crc = crcFast(bufferStart, numCopied, INITIAL_REMAINDER);
-            for (size_t i = 0; i < sizeof(crc); ++i)
-            {
-                *(buffer++) = (crc >> (8*(sizeof(crc)-i-1))) & 0xff;
-            }
+           crc = crcSlow(bufferStart, numCopied);
+           for (size_t i = 0; i < sizeof(crc); ++i)
+           {
+               *(buffer++) = (crc >> (8*(sizeof(crc)-i-1))) & 0xff;
+           }
             numCopied += sizeof(crc);
 
             return numCopied;
