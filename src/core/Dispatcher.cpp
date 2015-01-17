@@ -69,7 +69,8 @@ namespace Phoenix
     	char * Dispatcher::queueName = "/queueHandle";
     	const char * spiFiePath = "/dev/phoenix_spi";
     	int spiFileDescriptor = 0;
-
+    	bool receiving = false;
+    	size_t timer;
     	static bool sentPacket = false;
     	static uint8_t transFlag = 0;
     	static uint8_t recvFlag = 0;
@@ -97,6 +98,11 @@ void sendComplete(int signum)
 	sentPacket = true;
 }
 
+void recieving(int signum)
+{
+	receiving = true;
+}
+
 void receivedComplete(int signum)
 {
 	int packetSize;
@@ -105,6 +111,7 @@ void receivedComplete(int signum)
 	ReturnMessage retMsg;
 	LocationIDType temp;
 	uint32 time;
+	receiving = false;
 
 	//driver returns packet size when reading only 1 byte
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
@@ -196,7 +203,6 @@ void receivedComplete(int signum)
         {
             Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 			WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-
 			if(signal(SENT_COMPLETE_SIG,sendComplete) == SIG_ERR)
 			{
 				//error
@@ -213,6 +219,17 @@ void receivedComplete(int signum)
                 DispatcherInterruptAlertType alert;
 
 				wdm->Kick();
+
+				if(receiving)
+				{
+					timer++;
+					if(timer == 10)
+					{
+						spiReset();
+						timer = 0;
+						receiving = false;
+					}
+				}
 
                 waitUntil(LastWakeTime, 1000);
             }
@@ -703,10 +720,11 @@ void receivedComplete(int signum)
         		if(timedOut)
         		{
         			spiReset();
+        			timedOut = false;
         			return -1;
         		}
         		lastWakeTime = getTimeInMilis();
-        		if(100 ==(iterations++) ){ timedOut = true; }
+        		if(200 ==(iterations++) ){ timedOut = true; }
         	}
         	sentPacket = false;
         	transFlag = 0;

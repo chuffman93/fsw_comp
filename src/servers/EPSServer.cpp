@@ -241,7 +241,9 @@ namespace Phoenix
 				{
 					
 					// Functions
+					printf("Calling EPS Health and Status Function\n");
 					HSRet = EPSHealthStat();
+					printf("Calling Message process on the ret message!\n");
 					MessageProcess(SERVER_LOCATION_EPS, HSRet);
 
 					//SOCRet = EPSStateOfCharge();

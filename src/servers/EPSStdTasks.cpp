@@ -33,19 +33,19 @@ namespace Phoenix
 		ReturnMessage * EPSHealthStat()
 		{
 			ReturnMessage * HSRet = DispatchPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, 1, 0, MESSAGE_TYPE_COMMAND, EPS_HS_CMD);
-			
+			printf("packet dispatched, HSRet acquired\n");
 			
 			// Translate H&S into beacon form
-			COMServer * comServer = dynamic_cast<COMServer *> (Factory::GetInstance(COM_SERVER_SINGLETON));
-			void * outputArray[11] = {NULL};
-			uint32 enumArray[11] = {	
+			//COMServer * comServer = dynamic_cast<COMServer *> (Factory::GetInstance(COM_SERVER_SINGLETON));
+			void * outputArray[10] = {NULL};
+			uint32 enumArray[10] = {
 				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
 				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
 				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
-				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT
+				VAR_TYPE_ENUM_UNSIGNED_INT
 				};
 
-			if(!ExtractParameters(*HSRet,enumArray,11,outputArray))
+			if(!ExtractParameters(*HSRet,enumArray,10,outputArray))
 			{
 				// Error
 			}
