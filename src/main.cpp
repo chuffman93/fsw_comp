@@ -551,7 +551,7 @@ int main(int argc, char * argv[])
 	//Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON);
 	Dispatcher * disp = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 	printf("HERE!\n");
-	//Factory::GetInstance(FILE_HANDLER_SINGLETON);
+	Factory::GetInstance(FILE_HANDLER_SINGLETON);
 	//Factory::GetInstance(ERROR_QUEUE_SINGLETON);
 	//debug_led_set_value(~0);
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));

@@ -269,13 +269,13 @@ void receivedComplete(int signum)
 
         bool Dispatcher::Dispatch(const FSWPacket & packet)
         {
-/*            if (packet.GetDestination() >= HARDWARE_LOCATION_MIN && packet.GetDestination() < HARDWARE_LOCATION_MAX)
+           if (packet.GetDestination() >= HARDWARE_LOCATION_MIN && packet.GetDestination() < HARDWARE_LOCATION_MAX)
             {
             	uint32_t ret;
             	ret=DispatchToHardware(packet);
                 return (0 == ret);
             }
-            else*/
+            else
             {
                 FSWPacket * tmpPacket;
 				
