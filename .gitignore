@@ -12,3 +12,5 @@ old_tests/
 
 /HOST
 /ARM
+/ARM-DEBUG/
+/HOST-TEST/

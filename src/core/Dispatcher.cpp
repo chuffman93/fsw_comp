@@ -131,9 +131,9 @@ void receivedComplete(int signum)
 
 	}
 
+
 	/*if (DISPATCHER_STATUS_OK != dispatcher->WaitForDispatchResponse(*packet, retMsg))
 	{
-
 	}
 
 	temp = packet->GetDestination();
@@ -145,7 +145,9 @@ void receivedComplete(int signum)
 	if (0 != dispatcher->DispatchToHardware(*packet))
 	{
 
+
 	}*/
+
 	delete packet;
 	free(buffer);
 	return;
@@ -163,10 +165,12 @@ void receivedComplete(int signum)
             // HARDWARE INIT: Open up the /dev/phoenix_spi file and init signals
         	//spiFileDescriptor = open(spiFiePath, O_RDWR);
         	//TODO: Error handling
-        	//if(spiFileDescriptor < 0)
-        	//{
+
+        	if(spiFileDescriptor < 0)
+        	{
         		//error
-        	//}
+        	}
+
 
 /*
 #ifndef WIN32
@@ -202,6 +206,7 @@ void receivedComplete(int signum)
         void Dispatcher::DispatcherTask(void * params)
         {
             Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+
 			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 			/*if(signal(SENT_COMPLETE_SIG,sendComplete) == SIG_ERR)
 			{
@@ -210,7 +215,9 @@ void receivedComplete(int signum)
 			if(signal(RECEIVED_PACKET_SIG,receivedComplete) == SIG_ERR)
 			{
 				//error
+
 			}*/
+
 
             while (1)
             {
@@ -730,6 +737,7 @@ void receivedComplete(int signum)
         			//printf("Timeout YAYA!\n");
         			spiReset();
         			transFlag = 0;
+
         			timedOut = false;
         			return -1;
         		}

@@ -218,11 +218,12 @@ namespace Phoenix
 			}
 
 
-			//EPSPowerSubsystems(POWER_SUBSYSTEM_ACS, true, 0);
-//			EPSPowerSubsystems(POWER_SUBSYSTEM_GPS, true, 0);
-			usleep(1000000);
-			//EPSPowerSubsystems(POWER_SUBSYSTEM_COM, true, 0);
-//			EPSPowerSubsystems(POWER_SUBSYSTEM_PLD, true, 0);
+#ifdef HARDWARE
+			EPSPowerSubsystems(POWER_SUBSYSTEM_ACS, true, 0);
+			EPSPowerSubsystems(POWER_SUBSYSTEM_GPS, true, 0);
+			EPSPowerSubsystems(POWER_SUBSYSTEM_COM, true, 0);
+			EPSPowerSubsystems(POWER_SUBSYSTEM_PLD, true, 0);
+#endif //HARDWARE
 
 			
 			while(mode == currentMode)
@@ -237,6 +238,7 @@ namespace Phoenix
 
 				// Check current mode
 				currentMode = modeManager->GetMode();
+
 
 			/*	if ((seconds % 10) == 0 )
 				{
@@ -258,7 +260,9 @@ namespace Phoenix
 					//MessageProcess(SERVER_LOCATION_EPS, RstRet);
 					seconds = 0;
 				}
+
 				CheckPowerTimers();
+
 				//SattyResetTimer();
 				// Delay
 				waitUntil(LastWakeTime, 1000);

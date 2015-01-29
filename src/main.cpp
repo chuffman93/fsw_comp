@@ -543,7 +543,8 @@ int main(int argc, char * argv[])
 	RTCSetTime(0);
 */
 
-	//system("~/kernelmod.sh");
+	system("~/kernelmod.sh");
+
 	mq_unlink("/subsystemQueueHandle");
 	mq_unlink("/queueHandle");
 	mq_unlink("/errQueueHandle");
@@ -551,9 +552,9 @@ int main(int argc, char * argv[])
 	//Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON);
 	Dispatcher * disp = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 
+
 	Factory::GetInstance(FILE_HANDLER_SINGLETON);
 	Factory::GetInstance(ERROR_QUEUE_SINGLETON);
-
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
 	uint8 input = 1;
@@ -590,8 +591,9 @@ int main(int argc, char * argv[])
 	//CREATE_TASK(taskRunEPS, (const signed char* const)"EPS task", 2000, NULL, 0, NULL);
 	pthread_t EPSThread;
 	threadCreated = pthread_create(&EPSThread, NULL, &taskRunEPS, NULL);
+
 //#ifdef DEBUG
-	if(!threadCreated)
+ 	if(!threadCreated)
 	{
 		printf("EPS Server Thread Creation Success\n");
 	}
@@ -652,8 +654,8 @@ int main(int argc, char * argv[])
 
 	//pthread_join(ACSThread, NULL);
 	pthread_join(EPSThread, NULL);
-	pthread_join(ERRThread, NULL);
-	pthread_join(THMThread, NULL);
+	//pthread_join(ERRThread, NULL);
+	//pthread_join(THMThread, NULL);
 	//pthread_join(PLDThread, NULL);
 	return 42;
 }
