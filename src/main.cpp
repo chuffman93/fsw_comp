@@ -93,7 +93,7 @@
 * <A href="http://www.atmel.com/products/AVR32/">Atmel AVR32</A>.\n
 * Support and FAQ: http://support.atmel.no/
 */
-
+#include "POSIX.h"
 #include <string>
 #include <vector>
 #include <map>
@@ -533,227 +533,29 @@ static volatile unsigned char * tBW2 = (unsigned char *)(0xd0000000);*/
 /*! \brief This is an example demonstrating the USART RS232 TX and RX
 *         functionalities using the USART driver.
 */
+
+
+
 int main(int argc, char * argv[])
 {
-	// ADD IN ALL OTHER PIN DEFNITION MAPS HERE
-	// BE SURE TO INCLUDE THE "STATIC CONST" AND "GPIO_MAP_T" BEFORE THE NEW STRUCT MAP
-	// THESE ARE ORDERED BY APPEARANCE IN "user_board.h"
-	/*static const gpio_map_t SD_SLOT_0_GPIO_MAP =
-	{
-		{SD_SLOT_0_CLK_PIN, SD_SLOT_0_CLK_FUNCTION},
-		{SD_SLOT_0_CMD_PIN, SD_SLOT_0_CMD_FUNCTION},
-		{SD_SLOT_0_DATA0_PIN, SD_SLOT_0_DATA0_FUNCTION},
-		{SD_SLOT_0_DATA1_PIN, SD_SLOT_0_DATA1_FUNCTION},
-		{SD_SLOT_0_DATA2_PIN, SD_SLOT_0_DATA2_FUNCTION},
-		{SD_SLOT_0_DATA3_PIN, SD_SLOT_0_DATA3_FUNCTION}
-	};
-
-	static const gpio_map_t SD_SLOT_1_GPIO_MAP =
-	{
-		{SD_SLOT_1_CLK_PIN, SD_SLOT_1_CLK_FUNCTION},
-		{SD_SLOT_1_CMD_PIN, SD_SLOT_1_CMD_FUNCTION},
-		{SD_SLOT_1_DATA0_PIN, SD_SLOT_1_DATA0_FUNCTION},
-		{SD_SLOT_1_DATA1_PIN, SD_SLOT_1_DATA1_FUNCTION},
-		{SD_SLOT_1_DATA2_PIN, SD_SLOT_1_DATA2_FUNCTION},
-		{SD_SLOT_1_DATA3_PIN, SD_SLOT_1_DATA3_FUNCTION}
-	};*/
-
-	/*	static const gpio_map_t USART_GPIO_MAP =
-	{
-	{UART_0_RX_PIN, UART_0_RX_FUNCTION},
-	{UART_0_TX_PIN, UART_0_TX_FUNCTION}
-	}; */
-
-	/*static const gpio_map_t SPI_0_GPIO_MAP =
-	{
-		{SPI_0_MISO_PIN, SPI_0_MISO_FUNCTION},
-		{SPI_0_MOSI_PIN, SPI_0_MOSI_FUNCTION},
-		{SPI_0_SCK_PIN, SPI_0_SCK_FUNCTION},
-		{SPI_0_NPCS_0_PIN, SPI_0_NPCS_0_FUNCTION},
-		{SPI_0_NPCS_1_PIN, SPI_0_NPCS_1_FUNCTION},
-		{SPI_0_NPCS_2_PIN, SPI_0_NPCS_2_FUNCTION},
-		{SPI_0_NPCS_3_PIN, SPI_0_NPCS_3_FUNCTION}
-	};
-
-	static const gpio_map_t SPI_1_GPIO_MAP =
-	{
-		{SPI_1_MISO_PIN, SPI_1_MISO_FUNCTION},
-		{SPI_1_MOSI_PIN, SPI_1_MOSI_FUNCTION},
-		{SPI_1_SCK_PIN, SPI_1_SCK_FUNCTION},
-		{SPI_1_NPCS_0_PIN, SPI_1_NPCS_0_FUNCTION}
-	};
-
-	static const gpio_map_t SPI_2_GPIO_MAP =
-	{
-		{SPI_2_MISO_PIN, SPI_2_MISO_FUNCTION},
-		{SPI_2_MOSI_PIN, SPI_2_MOSI_FUNCTION},
-		{SPI_2_SCK_PIN, SPI_2_SCK_FUNCTION}
-	};
-*/
-	/*static const gpio_map_t TWI_0_GPIO_MAP =
-	{
-	{TWI_0_SCK_PIN, TWI_0_SCK_FUNCTION},
-	{TWI_0_SDA_PIN, TWI_0_SDA_FUNCTION},
-	};*/
-
-	/*static const gpio_map_t TWI_1_GPIO_MAP =
-	{
-		{TWI_1_SCK_PIN, TWI_1_SCK_FUNCTION},
-		{TWI_1_SDA_PIN, TWI_1_SDA_FUNCTION},
-	};
-*/
-	// USART options.
-	/*	static const usart_options_t USART_OPTIONS =
-	{
-	UART_0_BAUDRATE,
-	8,
-	USART_NO_PARITY,
-	USART_1_STOPBIT,
-	USART_NORMAL_CHMODE
-	}; */
-
-	//        asm(" lda.w   sp, _e_mram_stack");
-	//disable_mpu();
-
-
-	// Configure Osc0 in crystal mode (i.e. use of an external crystal source, with
-	// frequency FOSC0) with an appropriate startup time then switch the main clock
-	// source to Osc0.
-	//pcl_switch_to_osc(PCL_OSC0, FOSC0, OSC0_STARTUP);
-	/*pm_freq_param_t clock_params =
-	{
-		CPU_PBACLK_FREQ_HZ,
-		CPU_PBACLK_FREQ_HZ,
-		FOSC0,
-		OSC0_STARTUP
-	};
-	pm_configure_clocks(&clock_params);
-
-	// Init Hmatrix bus
-	init_hmatrix();
-
-	// Initialize USB clock.
-	pcl_configure_usb_clock();
-	gpio_local_init();
-	gpio_local_enable_pin_output_driver(AVR32_PIN_PA16);
-	gpio_local_clr_gpio_pin(AVR32_PIN_PA16);
-	gpio_local_enable_pin_output_driver(AVR32_PIN_PA20);
-	gpio_local_clr_gpio_pin(AVR32_PIN_PA20);
-
-	// Assign GPIO to USART.
-	// TODO: Clean this up with the HAL
-	// PUT ALL GPIO_ENABLE_MODULES INTO ONE FUNCTION HERE. DO ONE FOR EACH OF THE DIFFERENT
-	// THESE ARE ORDERED BY APPEARANCE IN "user_board.h"
-	gpio_enable_module(SD_SLOT_0_GPIO_MAP, MAP_SIZE(SD_SLOT_0_GPIO_MAP));
-	gpio_enable_module(SD_SLOT_1_GPIO_MAP, MAP_SIZE(SD_SLOT_1_GPIO_MAP));
-	//	gpio_enable_module(USART_GPIO_MAP, MAP_SIZE(USART_GPIO_MAP));
-	gpio_enable_module(SPI_0_GPIO_MAP, MAP_SIZE(SPI_0_GPIO_MAP));
-	gpio_enable_module(SPI_1_GPIO_MAP, MAP_SIZE(SPI_1_GPIO_MAP));
-	gpio_enable_module(SPI_2_GPIO_MAP, MAP_SIZE(SPI_2_GPIO_MAP));
-	//	gpio_enable_module(TWI_0_GPIO_MAP, MAP_SIZE(TWI_0_GPIO_MAP));
-	gpio_enable_module(TWI_1_GPIO_MAP, MAP_SIZE(TWI_1_GPIO_MAP));
-	//	gpio_enable_module(DBG_USART_GPIO_MAP, MAP_SIZE(DBG_USART_GPIO_MAP));
-
-	// Initialize USART in RS232 mode.
-	//usart_init_rs232(UART_0, &USART_OPTIONS, CPU_PBACLK_FREQ_HZ);
-
-	const usart_spi_options_t SPI_2_OPTIONS =
-	{
-		1000000,
-		8,
-		1,
-		USART_NORMAL_CHMODE
-	};
-
-	usart_init_spi_master(SPI_2, &SPI_2_OPTIONS, CPU_PBACLK_FREQ_HZ);
-
-	HALInit();
-	RTCInit();
-
-	//Pull reset lines high to keep subsystems from being reset.
-	ExpanderInit();
-	ResetInit();
-	debug_led_init();
-
-
-	mci_options_t MCI_OPTIONS_0 = {
-		25000000, // Card Speed = 10 MHz
-		SD_SLOT_0,        // Slot = 1
-		SD_BUS_4_BIT
-	};
-
-	mci_options_t MCI_OPTIONS_1 = {
-		25000000, // Card Speed = 10 MHz
-		SD_SLOT_1,        // Slot = 1
-		SD_BUS_1_BIT
-	};
-
-	for (size_t i = 0; i < 0x80000; ++i)
-	{
-	mram_data[i] = 3;
-	}
-
-	static volatile size_t errors = 0;
-
-	for (size_t i = 0; i < 0x80000; ++i)
-	{
-	if (mram_data[i] != 3)
-	{
-	++errors;
-	}
-	}
-
-	errors = errors;
-
-	// Initialize SD/MMC driver with MCI clock (PBB).
-	sd_mmc_mci_init(&MCI_OPTIONS_0, clock_params.pba_f, clock_params.cpu_f);
-	sd_mmc_mci_init(&MCI_OPTIONS_1, clock_params.pba_f, clock_params.cpu_f);
-
-	//	while (sd_mmc_mci_mem_check(SD_SLOT_0) != OK)
-	//	{
-
-	//	}
-
-	if (!b_fsaccess_init())
-	{
-		//usart_write_line(UART_0, "Error initializing file system\n");
-		while (1);
-	}
-
-	if (!ctrl_access_init())
-	{
-		//usart_write_line(UART_0, "Error initializing file system\n");
-		while (1);
-	}
-
-	int card = 0;
-	if (!nav_drive_set(card))
-	{
-		//usart_write_line(UART_0, "Error selecting the drive\n");
-		while (1);
-	}
-
-	usb_task_init();
-#if USB_DEVICE_FEATURE == ENABLED
-	device_cdc_task_init();
-	device_mass_storage_task_init();
-#endif
-
+/*
 	PowerInit();
 	RTCSetTime(0);
 */
+
+	//system("~/kernelmod.sh");
 	mq_unlink("/subsystemQueueHandle");
 	mq_unlink("/queueHandle");
 	mq_unlink("/errQueueHandle");
 	//watchdog manager must be called first
 	//Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON);
 	Dispatcher * disp = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-	printf("HERE!\n");
-	//Factory::GetInstance(FILE_HANDLER_SINGLETON);
-	//Factory::GetInstance(ERROR_QUEUE_SINGLETON);
-	//debug_led_set_value(~0);
+
+	Factory::GetInstance(FILE_HANDLER_SINGLETON);
+	Factory::GetInstance(ERROR_QUEUE_SINGLETON);
+
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-	
+
 	uint8 input = 1;
 	//GetPin(EGSE_PRESENT, PIN_TYPE_GPIO, &input);
 	if(input == 1)
@@ -768,6 +570,7 @@ int main(int argc, char * argv[])
 		modeManager->SetMode(MODE_STARTUP, LOCATION_ID_INVALID);
 
 	}
+	printf("Flight Software Initialization Complete!\n");
 //
 	bool threadCreated;
 	//CREATE_TASK(taskRunACS, (const signed char* const)"ACS task", 2000, NULL, 0, NULL);
@@ -786,8 +589,8 @@ int main(int argc, char * argv[])
 
 	//CREATE_TASK(taskRunEPS, (const signed char* const)"EPS task", 2000, NULL, 0, NULL);
 	pthread_t EPSThread;
-	//threadCreated = pthread_create(&EPSThread, NULL, &taskRunEPS, NULL);
-#ifdef DEBUG
+	threadCreated = pthread_create(&EPSThread, NULL, &taskRunEPS, NULL);
+//#ifdef DEBUG
 	if(!threadCreated)
 	{
 		printf("EPS Server Thread Creation Success\n");
@@ -796,13 +599,13 @@ int main(int argc, char * argv[])
 	{
 		printf("EPS Server Thread Creation Failed\n");
 	}
-#endif //DEBUG
+//#endif //DEBUG
 
 	//CREATE_TASK(taskRunCOM, (const signed char* const)"COM task", 5000, NULL, 0, NULL);
 	//CREATE_TASK(taskRunPLD, (const signed char* const)"PLD task", 2000, NULL, 0, NULL);
 
 	pthread_t PLDThread;
-	threadCreated = pthread_create(&PLDThread, NULL, &taskRunPLD, NULL);
+	//threadCreated = pthread_create(&PLDThread, NULL, &taskRunPLD, NULL);
 #ifdef DEBUG
 	if(!threadCreated)
 	{
@@ -815,8 +618,8 @@ int main(int argc, char * argv[])
 #endif //DEBUG
 	//CREATE_TASK(taskRunERR, (const signed char* const)"ERR task", 2000, NULL, 0, NULL);
 	pthread_t ERRThread;
-	//threadCreated = pthread_create(&ERRThread, NULL, &taskRunERR, NULL);
-#ifdef DEBUG
+	threadCreated = pthread_create(&ERRThread, NULL, &taskRunERR, NULL);
+//#ifdef DEBUG
 	if(!threadCreated)
 	{
 		printf("ERR Server Thread Creation Success\n");
@@ -825,12 +628,12 @@ int main(int argc, char * argv[])
 	{
 		printf("ERR Server Thread Creation Failed\n");
 	}
-#endif //DEBUG
+//#endif //DEBUG
 	//CREATE_TASK(taskRunGPS, (const signed char* const)"GPS task", 5000, NULL, 0, NULL);
 	//CREATE_TASK(taskRunTHM, (const signed char* const)"THM task", 2000, NULL, 0, NULL);
 	pthread_t THMThread;
-	//threadCreated = pthread_create(&THMThread ,NULL,&taskRunTHM, NULL );
-#ifdef DEBUG
+	threadCreated = pthread_create(&THMThread ,NULL,&taskRunTHM, NULL );
+//#ifdef DEBUG
 	if(!threadCreated)
 	{
 		printf("THM Server Thread Creation Success\n");
@@ -839,7 +642,7 @@ int main(int argc, char * argv[])
 	{
 		printf("THM Server Thread Creation Failed\n");
 	}
-#endif //DEBUG
+//#endif //DEBUG
 
 	//CREATE_TASK(taskRunSCH, (const signed char* const)"SCH task", 5000, NULL, 0, NULL);
 	//CREATE_TASK(taskRunCMD, (const signed char* const)"CMD task", 5000, NULL, 0, NULL);
@@ -848,9 +651,9 @@ int main(int argc, char * argv[])
 	//portDBG_TRACE("FreeRTOS returned.");
 
 	//pthread_join(ACSThread, NULL);
-	//pthread_join(EPSThread, NULL);
-	//pthread_join(ERRThread, NULL);
-	//pthread_join(THMThread, NULL);
-	pthread_join(PLDThread, NULL);
+	pthread_join(EPSThread, NULL);
+	pthread_join(ERRThread, NULL);
+	pthread_join(THMThread, NULL);
+	//pthread_join(PLDThread, NULL);
 	return 42;
 }

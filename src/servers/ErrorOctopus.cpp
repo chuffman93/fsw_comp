@@ -117,6 +117,7 @@ namespace Phoenix
 				num = que->ErrorsWaiting();
 				while(num > 0)
 				{
+					printf("ErrorOctopus Errors Received!\n");
 					//add error event logger here
 					tmpPacket = que->GetNextError();
 					LocationIDType source = tmpPacket->GetSource();
@@ -162,6 +163,7 @@ namespace Phoenix
 							GPSError(opcode, Msg);
 							break;
 						case SERVER_LOCATION_THM:
+							printf("Thermal Error!\n");
 							THMError(opcode, Msg);
 							break;
 						case SERVER_LOCATION_SCH:

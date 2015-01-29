@@ -13,6 +13,7 @@
 #include "core/MessageHandlerRegistry.h"
 #include "core/ReturnMessage.h"
 #include "core/ErrorMessage.h"
+#include <cstdio>
 
 //#include "boards/backplane/dbg_led.h"
 

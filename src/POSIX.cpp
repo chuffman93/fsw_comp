@@ -78,7 +78,7 @@ namespace Phoenix
 			if((msg_len = mq_timedreceive(queueHandle,(char *) packetOut, (queueAttr.mq_msgsize), MSG_PRIO, &ts)) < 0)
 			{
 
-				printf("mq_timed_recieve failed with ERRORNO = %s\n", strerror(errno));
+				//printf("mq_timed_recieve failed with ERRORNO = %s\n", strerror(errno));
 				mq_close(queueHandle);
 				return false;
 			}

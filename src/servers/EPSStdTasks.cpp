@@ -33,19 +33,19 @@ namespace Phoenix
 		ReturnMessage * EPSHealthStat()
 		{
 			ReturnMessage * HSRet = DispatchPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, 1, 0, MESSAGE_TYPE_COMMAND, EPS_HS_CMD);
-			
+			printf("packet dispatched, HSRet acquired\n");
 			
 			// Translate H&S into beacon form
-			COMServer * comServer = dynamic_cast<COMServer *> (Factory::GetInstance(COM_SERVER_SINGLETON));
-			void * outputArray[11] = {NULL};
-			uint32 enumArray[11] = {	
+			//COMServer * comServer = dynamic_cast<COMServer *> (Factory::GetInstance(COM_SERVER_SINGLETON));
+			void * outputArray[10] = {NULL};
+			uint32 enumArray[10] = {
 				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
 				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
 				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
-				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT
+				VAR_TYPE_ENUM_UNSIGNED_INT
 				};
 
-			if(!ExtractParameters(*HSRet,enumArray,11,outputArray))
+			if(!ExtractParameters(*HSRet,enumArray,10,outputArray))
 			{
 				// Error
 			}
@@ -94,117 +94,7 @@ namespace Phoenix
 
 			switch(subsystem)
 			{
-				case POWER_SUBSYSTEM_PLD:
-					if(onOff)
-					{
-						if(!epsServer->getPowerSate(subsystem))
-						{
-							//turn on pld
-							//PowerSet(POWER_SUBSYSTEM_PLD, false);
-							usleep(500000);
 
-							disRet = EPSDisableOCProt();
-							//PowerSet(POWER_SUBSYSTEM_PLD, true);
-							enRet = EPSEnableOCProt();
-			
-							MessageProcess(SERVER_LOCATION_EPS, enRet);
-							MessageProcess(SERVER_LOCATION_EPS, disRet);
-
-							//EnablePinInterrupt(INTERRUPT_PIN_PLD, INTERRUPT_EDGE_RISING);
-							epsServer->setPowerOffTimer(subsystem, 0);
-							epsServer->setPowerState(subsystem, true);
-							usleep(5000000);
-							DataMessage msg(EPS_POWER_SUB_SUCCESS);
-							ReturnMessage * ret = new ReturnMessage(&msg, true);
-							return ret;
-						}
-						ErrorMessage err(EPS_POWER_SUB_FAILURE);
-						ReturnMessage * ret = new ReturnMessage(&err, false);
-						return ret;
-					}
-					else
-					{
-						if(epsServer->getPowerSate(subsystem))
-						{
-							//DisablePinInterrupt(INTERRUPT_PIN_PLD);
-							//turn off pld
-//							PowerSet(POWER_SUBSYSTEM_PLD, false);
-							epsServer->setPowerOffTimer(subsystem, time);
-							epsServer->setPowerState(subsystem, false);
-							usleep(1000000);
-
-							DataMessage msg(EPS_POWER_SUB_SUCCESS);
-							ReturnMessage * ret = new ReturnMessage(&msg, true);
-							return ret;
-						}
-						else
-						{
-							epsServer->setPowerOffTimer(subsystem, time + epsServer->getPowerOffTimer(subsystem));
-							
-							DataMessage msg(EPS_POWER_SUB_SUCCESS);
-							ReturnMessage * ret = new ReturnMessage(&msg, true);
-							return ret;
-						}
-						ErrorMessage err(EPS_POWER_SUB_FAILURE);
-						ReturnMessage * ret = new ReturnMessage(&err, false);
-						return ret;
-						
-					}
-
-				case POWER_SUBSYSTEM_GPS:
-					if(onOff)
-					{
-						if(!epsServer->getPowerSate(subsystem))
-						{
-							//turn on gps
-							//TODO:TURNTHINGSONANDOFF
-							//PowerSet(POWER_SUBSYSTEM_GPS, false);
-							usleep(500000);
-
-							disRet = EPSDisableOCProt();
-							//PowerSet(POWER_SUBSYSTEM_GPS, true);
-							enRet = EPSEnableOCProt();
-						
-							MessageProcess(SERVER_LOCATION_EPS, enRet);
-							MessageProcess(SERVER_LOCATION_EPS, disRet);
-							epsServer->setPowerOffTimer(subsystem, 0);
-							epsServer->setPowerState(subsystem, true);
-							usleep(5000000);
-							DataMessage msg(EPS_POWER_SUB_SUCCESS);
-							ReturnMessage * ret = new ReturnMessage(&msg, true);
-							return ret;
-						}
-						ErrorMessage err(EPS_POWER_SUB_FAILURE);
-						ReturnMessage * ret = new ReturnMessage(&err, false);
-						return ret;
-					}
-					else
-					{
-						if(epsServer->getPowerSate(subsystem))
-						{
-							//turn off gps
-//							PowerSet(POWER_SUBSYSTEM_GPS, false);
-							epsServer->setPowerOffTimer(subsystem, time);
-							epsServer->setPowerState(subsystem, false);
-							usleep(1000000);
-							
-							DataMessage msg(EPS_POWER_SUB_SUCCESS);
-							ReturnMessage * ret = new ReturnMessage(&msg, true);
-							return ret;
-						}
-						else
-						{
-							epsServer->setPowerOffTimer(subsystem, time + epsServer->getPowerOffTimer(subsystem));
-							
-							DataMessage msg(EPS_POWER_SUB_SUCCESS);
-							ReturnMessage * ret = new ReturnMessage(&msg, true);
-							return ret;
-						}
-						ErrorMessage err(EPS_POWER_SUB_FAILURE);
-						ReturnMessage * ret = new ReturnMessage(&err, false);
-						return ret;
-					}
-			
 				case POWER_SUBSYSTEM_ACS:
 					if(onOff)
 					{
@@ -212,19 +102,20 @@ namespace Phoenix
 						{
 							//turn on acs
 	//						PowerSet(POWER_SUBSYSTEM_ACS, false);
-							usleep(500000);
-
-							disRet = EPSDisableOCProt();
+							//usleep(500000);
+							printf("EPS Server Powering On ACS\n");
+							//disRet = EPSDisableOCProt();
 //							PowerSet(POWER_SUBSYSTEM_ACS, true);
-							enRet = EPSEnableOCProt();
+							//enRet = EPSEnableOCProt();
 						
-							MessageProcess(SERVER_LOCATION_EPS, enRet);
-							MessageProcess(SERVER_LOCATION_EPS, disRet);
+							//MessageProcess(SERVER_LOCATION_EPS, enRet);
+							//MessageProcess(SERVER_LOCATION_EPS, disRet);
 						
 							//EnablePinInterrupt(INTERRUPT_PIN_ACS, INTERRUPT_EDGE_RISING);
 							epsServer->setPowerOffTimer(subsystem, 0);
 							epsServer->setPowerState(subsystem, true);
-							usleep(5000000);
+							system("/home/root/acsOn.sh");
+							//usleep(5000000);
 							DataMessage msg(EPS_POWER_SUB_SUCCESS);
 							ReturnMessage * ret = new ReturnMessage(&msg, true);
 							return ret;
@@ -240,15 +131,18 @@ namespace Phoenix
 							//DisablePinInterrupt(INTERRUPT_PIN_ACS);
 							//turn off acs
 //							PowerSet(POWER_SUBSYSTEM_ACS, false);
+							printf("EPS Server Powering Off ACS for %i seconds\n", time/1000);
 							epsServer->setPowerOffTimer(subsystem, time);
 							epsServer->setPowerState(subsystem, false);
-							usleep(1000000);
+							system("/home/root/acsOff.sh");
+							//usleep(1000000);
 							DataMessage msg(EPS_POWER_SUB_SUCCESS);
 							ReturnMessage * ret = new ReturnMessage(&msg, true);
 							return ret;
 						}
 						else
 						{
+							printf("EPS Server Incrementing ACS Powering Off timer for %i seconds\n", time/1000);
 							epsServer->setPowerOffTimer(subsystem, time + epsServer->getPowerOffTimer(subsystem));
 							
 							DataMessage msg(EPS_POWER_SUB_SUCCESS);
@@ -269,19 +163,20 @@ namespace Phoenix
 							//turn on com
 							
 							//PowerSet(POWER_SUBSYSTEM_COM, false);
-							usleep(500000);
+							//usleep(500000);
 
-							disRet = EPSDisableOCProt();
+							//disRet = EPSDisableOCProt();
 //							PowerSet(POWER_SUBSYSTEM_COM, true);
-							enRet = EPSEnableOCProt();
+							//enRet = EPSEnableOCProt();
 						
-							MessageProcess(SERVER_LOCATION_EPS, enRet);
-							MessageProcess(SERVER_LOCATION_EPS, disRet);
-						
+							//MessageProcess(SERVER_LOCATION_EPS, enRet);
+							//MessageProcess(SERVER_LOCATION_EPS, disRet);
+							printf("EPS Server Powering On COM\n");
 //							EnablePinInterrupt(INTERRUPT_PIN_COM, INTERRUPT_EDGE_RISING);
 							epsServer->setPowerOffTimer(subsystem, 0);
 							epsServer->setPowerState(subsystem, true);
-							usleep(5000000);
+							system("/home/root/comOn.sh");
+							//usleep(5000000);
 							DataMessage msg(EPS_POWER_SUB_SUCCESS);
 							ReturnMessage * ret = new ReturnMessage(&msg, true);
 							return ret;
@@ -298,15 +193,18 @@ namespace Phoenix
 							//turn off com
 							
 //							PowerSet(POWER_SUBSYSTEM_COM, false);
+							printf("EPS Server Powering Off COM for %i seconds\n", time/1000);
 							epsServer->setPowerOffTimer(subsystem, time);
 							epsServer->setPowerState(subsystem, false);
-							usleep(1000000);
+							system("/home/root/comOff.sh");
+							//usleep(1000000);
 							DataMessage msg(EPS_POWER_SUB_SUCCESS);
 							ReturnMessage * ret = new ReturnMessage(&msg, true);
 							return ret;
 						}
 						else
 						{
+							printf("EPS Server Incrementing COM Powering Off timer for %i seconds\n", time/1000);
 							epsServer->setPowerOffTimer(subsystem, time + epsServer->getPowerOffTimer(subsystem));
 							
 							DataMessage msg(EPS_POWER_SUB_SUCCESS);

@@ -66,19 +66,17 @@ namespace Phoenix
 						ModeManager::Initialize( );
 						instance = new ModeManager( );
 						break;
-//#ifdef DEBUG
-//					case WATCHDOG_MANAGER_SINGLETON:
-//						WatchdogManager::Initialize( );
-//						instance = new WatchdogManager( );
-//						break;
-//#endif
+					case WATCHDOG_MANAGER_SINGLETON:
+						//WatchdogManager::Initialize( );
+						//instance = new WatchdogManager( );
+						break;
 					case ERROR_QUEUE_SINGLETON:
 						ErrorQueue::Initialize( );
 						instance = new ErrorQueue( );
 						break;
 					case FILE_HANDLER_SINGLETON:
-						//FileHandler::Initialize( );
-						//instance = new FileHandler( );
+						FileHandler::Initialize( );
+						instance = new FileHandler( );
 						break;
 					case ACS_SERVER_SINGLETON:
 						ACSServer::Initialize( );
@@ -209,9 +207,9 @@ namespace Phoenix
 				case ERROR_QUEUE_SINGLETON:
 					ErrorQueue::Destroy( );
 					break;
-//				case FILE_HANDLER_SINGLETON:
-//					FileHandler::Destroy( );
-//					break;
+				case FILE_HANDLER_SINGLETON:
+					//FileHandler::Destroy( );
+					break;
 				case ACS_SERVER_SINGLETON:
 					ACSServer::Destroy( );
 					break;

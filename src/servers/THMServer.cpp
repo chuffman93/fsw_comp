@@ -15,6 +15,7 @@
 
 #include "servers/THMServer.h"
 #include "servers/THMStdTasks.h"
+#include "servers/DispatchStdTasks.h"
 
 #include "util/FileHandler.h"
 
@@ -82,21 +83,47 @@ namespace Phoenix
 
 		void THMServer::SubsystemLoop(void)
 		{	
-			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+			//ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 			uint8 seconds = 0;
-			
+			for(size_t i = 0; i < 10; i++)
+			{
+				//wdm->Kick();
+				usleep(1000000);
+			}
+			printf("Thermal Server Entered Subsystem Loop\n");
+
 			while(1)
 			{
-#ifdef DEBUG
-				printf("IMRUNNING!\n");
-#endif
 				uint64_t LastTickTime = getTimeInMilis();
 
 				//wdm->Kick();
 				while(dispatcher->Listen(id));
-#ifdef HARDWARE
+
+				if(seconds == 7)
+				{
+					list<VariableTypeData *> params;
+					VariableTypeData sensor_hold((uint32) 7);
+					VariableTypeData temp_hold((uint32) 255);
+					VariableTypeData cold_hold((bool) THM_HOT);
+					params.push_back(&sensor_hold);
+					params.push_back(&temp_hold);
+					params.push_back(&cold_hold);
+					DispatchPacket(SERVER_LOCATION_THM, SERVER_LOCATION_ERR, 0, 0, MESSAGE_TYPE_ERROR, THM_HS_FAILURE, params);
+				}
+				if(seconds  == 15)
+				{
+					list<VariableTypeData *> params;
+					VariableTypeData sensor_hold((uint32) 6);
+					VariableTypeData temp_hold((uint32) 1023);
+					VariableTypeData cold_hold((bool) THM_HOT);
+					params.push_back(&sensor_hold);
+					params.push_back(&temp_hold);
+					params.push_back(&cold_hold);
+					DispatchPacket(SERVER_LOCATION_THM, SERVER_LOCATION_ERR, 0, 0, MESSAGE_TYPE_ERROR, THM_HS_FAILURE, params);
+				}
+/*#ifdef HARDWARE
 				if(seconds % 5 == 0)
 				{
 					DataCollect(0);
@@ -109,10 +136,10 @@ namespace Phoenix
 						IsDark();
 					}
 				}
-#endif
+#endif*/
 								
 				seconds++;
-				printf("%d\n", seconds);
+				//printf("%d\n", seconds);
 				// Delay
 				waitUntil(LastTickTime, 1000);
 			}

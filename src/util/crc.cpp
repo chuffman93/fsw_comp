@@ -263,3 +263,5 @@ crc_t crcFast(unsigned char const message[], int nBytes, crc_t initialRemainder)
     return (REFLECT_REMAINDER(remainder) ^ FINAL_XOR_VALUE);
 
 }   /* crcFast() */
+
+

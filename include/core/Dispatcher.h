@@ -225,6 +225,16 @@ namespace Phoenix
              */
             bool Listen(LocationIDType serverID);
 
+            /*! \brief Dispatch a Message to Hardware
+             *
+             *  Sends a message to a hardware location and then receives the
+             *  response and inserts it into the Dispatcher queue so that it
+             *  can be handled by the appropriate server.
+             *
+             */
+
+            uint32_t DispatchToHardware(const FSWPacket & packet);
+
 
         private:
             /*! \brief Struct for Holding Server Message Handler Information */
@@ -402,24 +412,16 @@ namespace Phoenix
              *	sent so that DispatchToHardware can return
              *
              */
-            void sendComplete(int signum);
+          //  void sendComplete(int signum);
 
             /*! \brief Signal handler that Places packet from hardware on queue
              *
              *	Copies message that was received over SPI onto the dispatcherQueue
              *
              */
-            void receivedPacket(int signum);
+            //void receivedPacket(int signum);
 
-            /*! \brief Dispatch a Message to Hardware
-             *
-             *  Sends a message to a hardware location and then receives the
-             *  response and inserts it into the Dispatcher queue so that it
-             *  can be handled by the appropriate server.
-             *
-             */
 
-            uint32_t DispatchToHardware(HardwareLocationIDEnum loc, const FSWPacket & packet);
 
             /*! \brief Returns the Device and Chip for a Hardware Location
              *

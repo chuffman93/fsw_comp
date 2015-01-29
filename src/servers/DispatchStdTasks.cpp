@@ -125,6 +125,7 @@ namespace Phoenix
 		Phoenix::Core::ReturnMessage * DispatchPacket(LocationIDType source, LocationIDType destination, uint16 number,
 				uint32 timestamp, MessageTypeEnum type, MessageCodeType opCode, const Phoenix::Core::VariableTypeData & parameterIn)
 		{
+
 			//check inputs
 			if(source < HARDWARE_LOCATION_MIN || source >= SERVER_LOCATION_MAX
 					|| destination < HARDWARE_LOCATION_MIN || destination >= SERVER_LOCATION_MAX)
@@ -170,6 +171,7 @@ namespace Phoenix
 		Phoenix::Core::ReturnMessage * DispatchPacket(LocationIDType source, LocationIDType destination, uint16 number,
 				uint32 timestamp, MessageTypeEnum type, MessageCodeType opCode, const std::list<Phoenix::Core::VariableTypeData*> & parametersIn)
 		{
+
 			//check inputs
 			if(source < HARDWARE_LOCATION_MIN || source >= SERVER_LOCATION_MAX
 			|| destination < HARDWARE_LOCATION_MIN || destination >= SERVER_LOCATION_MAX)
@@ -215,6 +217,7 @@ namespace Phoenix
 			MultiDataMessage * dataMessage = (dynamic_cast<MultiDataMessage *>(packet.GetMessagePtr()));
 			if(dataMessage == NULL)
 			{
+				printf("dataMessage is null?!\n");
 				outputParameters = NULL;
 				return false;
 			}
@@ -239,6 +242,8 @@ namespace Phoenix
 			std::list<VariableTypeData*> params = dataMessage.GetParameters();
 			if(numParams != params.size())
 			{
+				printf("numParams is %d : params.size() is %d\n", numParams, params.size());
+				printf("num params is wrong!\n");
 				outputParameters = NULL;
 				return false;
 			}
@@ -251,6 +256,7 @@ namespace Phoenix
 				
 				if(((VariableTypeEnum) inputParameters[i]) != temp->GetType())
 				{
+					printf("the type is wrong!\n");
 					outputParameters = NULL;
 					return false;
 				}				

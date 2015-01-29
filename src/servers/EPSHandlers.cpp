@@ -23,7 +23,7 @@
 using namespace Phoenix::Core;
 using namespace Phoenix::Servers;
 
-uint32 EPSPowerHandler::enumArray[] = {VAR_TYPE_ENUM_UNSIGNED_INT, VAR_TYPE_ENUM_UNSIGNED_INT, VAR_TYPE_ENUM_BOOL};
+uint32 EPSPowerHandler::enumArray[] = {VAR_TYPE_ENUM_UNSIGNED_INT, VAR_TYPE_ENUM_BOOL, VAR_TYPE_ENUM_UNSIGNED_INT};
 
 ReturnMessage * EPSHSHandler::Handle(const FSWPacket & packet)
 {
@@ -96,18 +96,18 @@ ReturnMessage * EPSErrorHandler::Handle(const FSWPacket & packet)
 ReturnMessage * EPSPowerHandler::Handle(const FSWPacket & packet)
 {
 	void * outputArray[numParams] = {NULL};
-	if(ExtractParameters(packet, enumArray, numParams, outputArray))
+	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
 	{
 		ErrorMessage err(EPS_POWER_SUB_FAILURE);
 		ReturnMessage * ret = new ReturnMessage(&err, false);
 		return ret;
 	}
 	
-	uint32 time = *(uint32 *) outputArray[0];
-	uint32 subsystem_hold = *(uint32 *) outputArray[1];
-	bool onOff = *(bool *) outputArray[2];
+	uint32 time = *(uint32 *) outputArray[2];
+	uint32 subsystem_hold = *(uint32 *) outputArray[0];
+	bool onOff = *(bool *) outputArray[1];
 	PowerSubsystemEnum subsystem = static_cast<PowerSubsystemEnum>(subsystem_hold);
-	
+
 	return(EPSPowerSubsystems(subsystem, onOff, time));
 }
 

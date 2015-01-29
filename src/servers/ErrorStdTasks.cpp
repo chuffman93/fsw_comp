@@ -481,10 +481,10 @@ namespace Phoenix
 
 		void THMError(int opcode, MultiDataMessage * dataMessage)
 		{
-			uint32 enumArray[] = {VAR_TYPE_ENUM_UNSIGNED_INT, VAR_TYPE_ENUM_UNSIGNED_INT, VAR_TYPE_ENUM_UNSIGNED_INT};
+			uint32 enumArray[] = {VAR_TYPE_ENUM_UNSIGNED_INT, VAR_TYPE_ENUM_UNSIGNED_INT, VAR_TYPE_ENUM_BOOL};
 			uint32 sensor;
 			uint32 temp;
-			uint32 time = 60000;
+			uint32 time = 15000;
 			uint8 hotOrNot;
 			void * outputArray[3] = {NULL};
 			// File handler error
@@ -500,13 +500,16 @@ namespace Phoenix
 			case THM_HS_FAILURE: //Thermal measurement failure
 				if(!fileHandler->Append(SUBSYSTEM_THM, opcode, (* dataMessage)))
 				{
+					printf("filehandler failed\n");
 					// write to error log
 				}
-				
+
 				if(!ExtractParameters(* dataMessage, enumArray, 3, outputArray))
 				{
+					printf("extract parameters failed?");
 					return;
 				}
+
 				
 				sensor = * (uint32 *) outputArray[0];
 				temp = * (uint32 *) outputArray[1];
@@ -516,12 +519,14 @@ namespace Phoenix
 				if(hotOrNot == 1)
 				{
 					//THMPowerReset(/*whichpowersub?*/);
+
 					if(sensor > 15)
 					{
 						return;
 					}
 					if(sensor == 7 || sensor == 12 || sensor == 13 || sensor == 14)
 					{
+
 						//THMPowerReset(POWER_SUBSYSTEM_ACS);
 						uint32 sub = (uint32) POWER_SUBSYSTEM_ACS;
 						
@@ -533,7 +538,8 @@ namespace Phoenix
 						params.push_back(&subsystem_hold);
 						params.push_back(&off_hold);
 						params.push_back(&time_hold);
-						DispatchPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, 1, 0, MESSAGE_TYPE_COMMAND, EPS_POWER_SUB_CMD, params);
+						printf("ACS Overheating!\n");
+						DispatchPacket(SERVER_LOCATION_ERR, SERVER_LOCATION_EPS, 1, 0, MESSAGE_TYPE_COMMAND, EPS_POWER_SUB_CMD, params);
 					}
 					if(sensor == 6 || sensor == 8 || sensor == 11)
 					{
@@ -548,7 +554,8 @@ namespace Phoenix
 						params.push_back(&subsystem_hold);
 						params.push_back(&off_hold);
 						params.push_back(&time_hold);
-						DispatchPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, 1, 0, MESSAGE_TYPE_COMMAND, EPS_POWER_SUB_CMD, params);
+						printf("COM Overheating!\n");
+						DispatchPacket(SERVER_LOCATION_ERR, SERVER_LOCATION_EPS, 1, 0, MESSAGE_TYPE_COMMAND, EPS_POWER_SUB_CMD, params);
 					}
 					
 				}

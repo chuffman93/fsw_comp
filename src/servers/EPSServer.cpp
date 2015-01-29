@@ -209,23 +209,25 @@ namespace Phoenix
 			ReturnMessage * HSRet;
 			ReturnMessage * SOCRet;
 			ReturnMessage * rstRet;
-			
+			printf("EPS successfully entered Access Mode\n");
+
 			for(i = 0; i < 5; i++)
 			{
 				//wdm->Kick();
 				usleep(1000000);
 			}
-#ifdef HARDWARE
-			EPSPowerSubsystems(POWER_SUBSYSTEM_ACS, true, 0);
-			EPSPowerSubsystems(POWER_SUBSYSTEM_GPS, true, 0);
-			EPSPowerSubsystems(POWER_SUBSYSTEM_COM, true, 0);
-			EPSPowerSubsystems(POWER_SUBSYSTEM_PLD, true, 0);
-#endif //HARDWARE
+
+
+			//EPSPowerSubsystems(POWER_SUBSYSTEM_ACS, true, 0);
+//			EPSPowerSubsystems(POWER_SUBSYSTEM_GPS, true, 0);
+			usleep(1000000);
+			//EPSPowerSubsystems(POWER_SUBSYSTEM_COM, true, 0);
+//			EPSPowerSubsystems(POWER_SUBSYSTEM_PLD, true, 0);
+
 			
 			while(mode == currentMode)
 			{
 				LastWakeTime = getTimeInMilis();
-				
 				//wdm->Kick();
 				
 				while(dispatcher->Listen(id));
@@ -235,18 +237,20 @@ namespace Phoenix
 
 				// Check current mode
 				currentMode = modeManager->GetMode();
-#ifdef HARDWARE
-				if ((seconds % 10) == 0 )
+
+			/*	if ((seconds % 10) == 0 )
 				{
 					
 					// Functions
+					printf("Calling EPS Health and Status Function\n");
 					HSRet = EPSHealthStat();
+					printf("Calling Message process on the ret message!\n");
 					MessageProcess(SERVER_LOCATION_EPS, HSRet);
 
-					SOCRet = EPSStateOfCharge();
-					MessageProcess(SERVER_LOCATION_EPS, SOCRet);
+					//SOCRet = EPSStateOfCharge();
+					//MessageProcess(SERVER_LOCATION_EPS, SOCRet);
 					
-				}
+				}*/
 
 				if((seconds % 60) == 0)
 				{
@@ -254,7 +258,7 @@ namespace Phoenix
 					//MessageProcess(SERVER_LOCATION_EPS, RstRet);
 					seconds = 0;
 				}
-#endif //HARDWARE
+				CheckPowerTimers();
 				//SattyResetTimer();
 				// Delay
 				waitUntil(LastWakeTime, 1000);
