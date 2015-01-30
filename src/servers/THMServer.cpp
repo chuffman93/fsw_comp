@@ -101,29 +101,7 @@ namespace Phoenix
 				//wdm->Kick();
 				while(dispatcher->Listen(id));
 
-				if(seconds == 7)
-				{
-					list<VariableTypeData *> params;
-					VariableTypeData sensor_hold((uint32) 7);
-					VariableTypeData temp_hold((uint32) 255);
-					VariableTypeData cold_hold((bool) THM_HOT);
-					params.push_back(&sensor_hold);
-					params.push_back(&temp_hold);
-					params.push_back(&cold_hold);
-					DispatchPacket(SERVER_LOCATION_THM, SERVER_LOCATION_ERR, 0, 0, MESSAGE_TYPE_ERROR, THM_HS_FAILURE, params);
-				}
-				if(seconds  == 15)
-				{
-					list<VariableTypeData *> params;
-					VariableTypeData sensor_hold((uint32) 6);
-					VariableTypeData temp_hold((uint32) 1023);
-					VariableTypeData cold_hold((bool) THM_HOT);
-					params.push_back(&sensor_hold);
-					params.push_back(&temp_hold);
-					params.push_back(&cold_hold);
-					DispatchPacket(SERVER_LOCATION_THM, SERVER_LOCATION_ERR, 0, 0, MESSAGE_TYPE_ERROR, THM_HS_FAILURE, params);
-				}
-/*#ifdef HARDWARE
+#ifdef HARDWARE
 				if(seconds % 5 == 0)
 				{
 					DataCollect(0);
@@ -136,10 +114,9 @@ namespace Phoenix
 						IsDark();
 					}
 				}
-#endif*/
+#endif
 								
 				seconds++;
-				//printf("%d\n", seconds);
 				// Delay
 				waitUntil(LastTickTime, 1000);
 			}

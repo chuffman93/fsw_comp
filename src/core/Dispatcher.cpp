@@ -232,11 +232,13 @@ void receivedComplete(int signum)
 					timer++;
 					if(timer == 10)
 					{
-						spiReset();
+
 						timer = 0;
 						receiving = false;
+						spiReset();
 					}
 				}
+				//TODO:ADD THREAD HANDLING and REMOVE RECIEVE COMPLETE STUFF and SIG_ACTION
 
                 waitUntil(LastWakeTime, 1000);
             }
