@@ -131,7 +131,6 @@ void receivedComplete(int signum)
 
 	}
 
-
 	/*if (DISPATCHER_STATUS_OK != dispatcher->WaitForDispatchResponse(*packet, retMsg))
 	{
 	}
@@ -457,7 +456,7 @@ void receivedComplete(int signum)
                 {
 
                 }
-
+                spiReset
                 DEBUG_COUT("HANDLER TIMED OUT");
 
                 pthread_cancel(TaskHandle);

@@ -108,7 +108,7 @@ namespace Phoenix
 				uint8 transmitPower	    = * (uint8 *) outputArray[28];	// check
 				uint8 RXIFDetect		= * (uint8 *) outputArray[29];	// check
 				uint8 RXGain			= * (uint8 *) outputArray[30];	// check
-				uint8 currentSense	    = * (uint8 *) outputArray[31];	// check
+				uint8 currentSensCOMHealthStatue	    = * (uint8 *) outputArray[31];	// check
 				uint8 voltageSense	    = * (uint8 *) outputArray[32];	// check
 				
 				/*comServer->UpdateCOMHS(lwipPacketsTx,lwipPacketsRx,lwipPacketsDrop,lwipPacketsErrors,lwipEtharpTx, lwipEtharpRx,lwipEtharpDrop,lwipEtharpErrors,
@@ -121,7 +121,7 @@ namespace Phoenix
 			//return(DispatchPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, 1, 0, MESSAGE_TYPE_COMMAND, COM_HS_CMD));
 		}
 
-/*
+/*COMHealthStatu
 		ReturnMessage * COMBeacon(void)
 		{
 			COMServer * comServer = dynamic_cast<COMServer *>(Factory::GetInstance(COM_SERVER_SINGLETON));

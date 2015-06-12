@@ -176,6 +176,9 @@ using namespace Phoenix::Core;
 //using namespace Phoenix::HAL;
 using namespace Phoenix::Servers;
 
+
+#define DEBUG
+
 /*! \name USART Settings
 */
 //! @{
