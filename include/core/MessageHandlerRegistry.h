@@ -34,7 +34,7 @@ namespace Phoenix
             bool RegisterHandler(const MessageIdentifierType & key, MessageHandler * handler);
             ReturnMessage * Invoke(const FSWPacket & packet);
         private:
-            std::map<MessageIdentifierType, MessageHandler *> handlerMap;
+            std::map<MessageIdentifierType, MessageHandler *> handlerMap; // Local Mapping
         };
     }
 }

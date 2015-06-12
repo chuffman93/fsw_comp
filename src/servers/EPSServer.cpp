@@ -163,6 +163,8 @@ namespace Phoenix
 			*/
 		}
 
+
+		// Creates Register handler entried for the local register reg - UP
 		bool EPSServer::RegisterHandlers()
 		{
 			bool success = true;

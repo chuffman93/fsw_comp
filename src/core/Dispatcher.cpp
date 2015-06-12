@@ -244,6 +244,9 @@ void receivedComplete(int signum)
         }
 
 
+
+        	// Adding the local register to the global registry map. This will require some kind of Mutex Protection so that multiple server threads don't mess up the Global
+        	// Registry Map - Umang
         bool Dispatcher::AddRegistry(LocationIDType serverID,
                 MessageHandlerRegistry * registry, Arbitrator * arby)
         {
@@ -389,7 +392,7 @@ void receivedComplete(int signum)
 
 			
             // A packet has been found, so try to find the handler in the
-            // registry list.
+            // global registry list.- Umang
             if (true == this->TakeLock(MAX_BLOCK_TIME))
             {
             	DEBUG_COUT("   Dispatcher: searching registry map for handler.");
