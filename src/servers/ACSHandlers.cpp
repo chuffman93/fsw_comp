@@ -267,6 +267,13 @@ ReturnMessage * ACSPointComGndHandler::Handle(const FSWPacket & packet)
 	return (ACSPointComGnd());
 }
 
+
+ReturnMessage * ACSHelloWorldTestHandler::Handle(const FSWPacket & packet)
+{
+
+	return (ACSHelloworld(packet));
+}
+
 // ReturnMessage * ACSFunctionalTestHandler::Handle(const FSWPacket & packet)
 // {
 // 	void * outputArray[numParams] = {NULL};

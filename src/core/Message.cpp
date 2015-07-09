@@ -13,6 +13,7 @@
 #include "core/ErrorMessage.h"
 #include "core/ConfigMessage.h"
 #include "core/ReturnMessage.h"
+#include <stdio.h>
 
 using namespace std;
 
@@ -64,6 +65,7 @@ namespace Phoenix
         	{
 				case MESSAGE_TYPE_COMMAND:
 					ret = new CommandMessage(opCode);
+					printf("\r\nCommand Message generated\r\n");
 					rv = ((CommandMessage *)ret)->SetParameters(buffer,size);
 					break;
 				case MESSAGE_TYPE_DATA:

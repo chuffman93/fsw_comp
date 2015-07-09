@@ -204,6 +204,29 @@ namespace Phoenix
 			return(DispatchPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, 1, 0, MESSAGE_TYPE_COMMAND, ACS_POINT_COM_GND_CMD));
 		}
 		
+		ReturnMessage * ACSHelloworld(const Phoenix::Core::FSWPacket & packet)
+		{
+			//grab dispatcher instance, if it fails return DISPATCHER_NO_INSTANCE
+			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+
+			FSWPacket * forward = new FSWPacket(packet);
+
+			//forward error message to Error Octopus
+			forward->SetDestination(HARDWARE_LOCATION_ACS);
+			forward->SetSource(SERVER_LOCATION_ACS);
+
+			//Dispatch packet, if it fails return DISPATCH_FAILED
+			if(!dispatcher->Dispatch(*forward))
+			{
+					ErrorMessage err(DISPATCH_FAILED);
+					ReturnMessage * eRet = new ReturnMessage(&err, false);
+					delete forward;
+					return eRet;
+			}
+			printf("\r\nACS Helloworld message sent\n\r");
+		}
+
+
  		ReturnMessage * ACSFunctionalTest(const int32 & testNum)
  		{
  			VariableTypeData test_hold(testNum);

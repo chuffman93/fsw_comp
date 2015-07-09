@@ -47,6 +47,7 @@ namespace Phoenix
 							
 		Phoenix::Core::ReturnMessage * ACSStarCameraHS(void);
 		Phoenix::Core::ReturnMessage * ACSPointComGnd(void);
+		Phoenix::Core::ReturnMessage * ACSHelloworld(const Phoenix::Core::FSWPacket & packet);
 // 		Phoenix::Core::ReturnMessage * ACSFunctionalTest(const int32 & testNum);
 // 		Phoenix::Core::ReturnMessage * ACSFunctionalTestComplete(void);
 		

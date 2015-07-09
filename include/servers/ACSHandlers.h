@@ -236,6 +236,18 @@ public:
         Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
+class ACSHelloWorldTestHandler : public Phoenix::Core::MessageHandler
+{
+public:
+        /*! \brief Handle a request for power data.
+         *
+         *  \param packet FSWPacket containing the message.
+         *  \return ReturnMessage that serves as a response.
+         */
+        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+
+};
+
 // class ACSFunctionalTestHandler : public Phoenix::Core::MessageHandler
 // {
 // public:

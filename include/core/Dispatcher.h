@@ -19,6 +19,7 @@
 
 #include <stdint.h>
 #include <map>
+#include <stdio.h>
 
 namespace Phoenix
 {
@@ -176,7 +177,7 @@ namespace Phoenix
              *  have a chance to Listen for a message before looking for
              *  the response to the Dispatched message.
              */
-            bool Dispatch(const FSWPacket & packet);
+            bool Dispatch(FSWPacket & packet);
 
             /*! \brief Waits for a Response after a FSWPacket Has Been Dispatched
              *
@@ -233,7 +234,7 @@ namespace Phoenix
              *
              */
 
-            uint32_t DispatchToHardware(const FSWPacket & packet);
+            uint32_t DispatchToHardware(FSWPacket & packet);
 
 
         private:

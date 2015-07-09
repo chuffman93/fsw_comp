@@ -7,6 +7,7 @@
 #include <cstring>
 
 #include "core/StringDatatype.h"
+#include "stdio.h"
 using namespace std;
 
 namespace Phoenix
@@ -54,6 +55,8 @@ namespace Phoenix
 			{
 				// Construct a string from the buffer.
 				data = new string((char *)buffer, dataSize);
+
+				//printf("\r\n String Constructed of size %d\r\n",data->size());
 			}
 	    }
 
@@ -122,6 +125,10 @@ namespace Phoenix
 
 				// Copy the data.
 	    		memcpy(buffer, data->c_str( ), dataSize);
+
+	    		printf("\r\nPrinting the String packet \r\n");
+	    		for (int pq =0 ;pq<dataSize;pq++)
+	    			printf("\r\n %d",buffer[pq]);
 				return data->size( )+sizeof(uint32);
 	    	}
 	    }

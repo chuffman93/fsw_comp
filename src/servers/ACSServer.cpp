@@ -75,6 +75,7 @@ namespace Phoenix
 		static ACSGPSHandler * acsGpsHandler;
 		static ACSStarCameraHSHandler * acsLastLockHandler;
 		static ACSPointComGndHandler * acsPointComGndHandler;
+		static ACSHelloWorldTestHandler * acsHelloWorldTestHandler;
 		//static ACSFunctionalTestHandler * acsFunctionalTestHandler;
 		//static ACSFunctionalTestCompleteHandler * acsFunctionalTestCompleteHandler;
 		
@@ -141,6 +142,7 @@ namespace Phoenix
 			acsGpsHandler = new ACSGPSHandler();
 			acsLastLockHandler = new ACSStarCameraHSHandler();
 			acsPointComGndHandler = new ACSPointComGndHandler();
+			acsHelloWorldTestHandler = new ACSHelloWorldTestHandler();
 			//acsFunctionalTestHandler = new ACSFunctionalTestHandler();
 			//acsFunctionalTestCompleteHandler = new ACSFunctionalTestCompleteHandler();
 			acsControlOrientHandler = new ACSControlOrientationsHandler();
@@ -277,7 +279,8 @@ namespace Phoenix
 			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, ACS_RESET_CMD), acsRstHandler);
 			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, ACS_STARCAMERA_HS_CMD), acsLastLockHandler);
 			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, ACS_POINT_COM_GND_CMD), acsPointComGndHandler);
-// 			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, ACS_FUNCTIONAL_TEST_CMD), acsFunctionalTestHandler);
+			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, ACS_HELLO_WORLD_TEST_CMD), acsHelloWorldTestHandler);
+ //			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, ACS_FUNCTIONAL_TEST_CMD), acsFunctionalTestHandler);
 // 			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, ACS_FUNCTIONAL_TEST_COMPLETE_CMD), acsFunctionalTestCompleteHandler);
 			
 			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_CONFIG, ACS_CTRL_ORIENT_CONFIG), acsControlOrientHandler);

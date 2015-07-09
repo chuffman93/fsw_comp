@@ -17,6 +17,7 @@
 #include "core/WatchdogManager.h"
 
 #include "util/FileHandler.h"
+#include <cstdio>
 
 //#include "boards/backplane/dbg_led.h"
 
@@ -73,6 +74,10 @@ namespace Phoenix
 				Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 
 				//Dispatch packet, if it fails return DISPATCH_FAILED
+
+				printf("\r\nCMDParse:: Dispatching the packet to destination %d\r\n",packet->GetDestination());
+				printf("\r\nCMDParse:: Dispatching the packet to source %d\r\n",packet->GetSource());
+
 				if(!dispatcher->Dispatch(*packet))
 				{
 					delete packet;

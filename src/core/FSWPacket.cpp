@@ -11,6 +11,7 @@
 
 #include "core/FSWPacket.h"
 #include "util/crc.h"
+#include <stdio.h>
 
 //#include "boards/backplane/dbg_led.h"
 
@@ -100,10 +101,12 @@ namespace Phoenix
                 return;
             }
 
-			size -= messagePtr->GetFlattenSize();;
+            printf("Inside FSWPacket(): Message copied to string size %d %x",messagePtr->GetFlattenSize(),messagePtr);
+			size -= messagePtr->GetFlattenSize();
 			
 			if (size < 2)
 			{
+				printf("\r\nINVALID!! ");
 				source = LOCATION_ID_INVALID;
 				destination = LOCATION_ID_INVALID;
 				delete messagePtr;

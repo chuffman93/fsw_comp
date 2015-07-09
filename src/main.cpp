@@ -111,6 +111,7 @@
 #include "servers/PLDServer.h"
 #include "servers/ErrorOctopus.h"
 #include "servers/ErrorQueue.h"
+#include "HAL/Ethernet_Server.h"
 
 //extern "C"
 //{
@@ -494,7 +495,7 @@ void * taskRunSCH(void * params)
 	pthread_exit(NULL);
 }
 
-void taskRunCMD(void * params)
+void* taskRunCMD(void * params)
 {
 	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
@@ -502,16 +503,33 @@ void taskRunCMD(void * params)
 	
 	modeManager->Attach(*cmdServer);
 	
-	for(int i = 0; i < 40; i++)
+	for(int i = 0; i < 10; i++)
 	{
 		//wdm->Kick();
 		usleep(1000000);
 	}
 
+	printf("\r\nKicking off the CMD server\r\n");
+
 	cmdServer->SubsystemLoop();
 	pthread_exit(NULL);
 }
 
+
+
+void* StartETH_HAL(void * params)
+{
+	ETH_HALServer * cmd_Server = dynamic_cast<ETH_HALServer *> (Factory::GetInstance(ETH_HALSERVER_SINGLETON));
+
+	for(int i = 0; i < 10; i++)
+	{
+		//wdm->Kick();
+		usleep(100000);
+	}
+	printf("\r\nKicking off the Ethernet HAL server\r\n");
+	cmd_Server->ETH_HALServerLoop();
+	pthread_exit(NULL);
+}
 
 /*! \name Hmatrix bus configuration*/
 
@@ -575,11 +593,11 @@ int main(int argc, char * argv[])
 
 	}
 	printf("Flight Software Initialization Complete!\n");
-//
+
 	bool threadCreated;
-	//CREATE_TASK(taskRunACS, (const signed char* const)"ACS task", 2000, NULL, 0, NULL);
+
 	pthread_t ACSThread;
-	//threadCreated = pthread_create(&ACSThread, NULL, &taskRunACS, NULL);
+	threadCreated = pthread_create(&ACSThread, NULL, &taskRunACS, NULL);
 #ifdef DEBUG
 	if(!threadCreated)
 	{
@@ -591,7 +609,7 @@ int main(int argc, char * argv[])
 	}
 #endif //DEBUG
 
-	//CREATE_TASK(taskRunEPS, (const signed char* const)"EPS task", 2000, NULL, 0, NULL);
+
 	pthread_t EPSThread;
 	threadCreated = pthread_create(&EPSThread, NULL, &taskRunEPS, NULL);
 
@@ -606,8 +624,6 @@ int main(int argc, char * argv[])
 	}
 //#endif //DEBUG
 
-	//CREATE_TASK(taskRunCOM, (const signed char* const)"COM task", 5000, NULL, 0, NULL);
-	//CREATE_TASK(taskRunPLD, (const signed char* const)"PLD task", 2000, NULL, 0, NULL);
 
 	pthread_t PLDThread;
 	//threadCreated = pthread_create(&PLDThread, NULL, &taskRunPLD, NULL);
@@ -634,8 +650,7 @@ int main(int argc, char * argv[])
 		printf("ERR Server Thread Creation Failed\n");
 	}
 //#endif //DEBUG
-	//CREATE_TASK(taskRunGPS, (const signed char* const)"GPS task", 5000, NULL, 0, NULL);
-	//CREATE_TASK(taskRunTHM, (const signed char* const)"THM task", 2000, NULL, 0, NULL);
+
 	pthread_t THMThread;
 	threadCreated = pthread_create(&THMThread ,NULL,&taskRunTHM, NULL );
 //#ifdef DEBUG
@@ -647,6 +662,33 @@ int main(int argc, char * argv[])
 	{
 		printf("THM Server Thread Creation Failed\n");
 	}
+
+
+
+	pthread_t CMDThread;
+	threadCreated = pthread_create(&CMDThread ,NULL,&taskRunCMD, NULL );
+//#ifdef DEBUG
+	if(!threadCreated)
+	{
+		printf("CMD Server Thread Creation Success\n");
+	}
+	else
+	{
+		printf("CMD Server Thread Creation Failed\n");
+	}
+
+	pthread_t ETHThread;
+	threadCreated = pthread_create(&ETHThread ,NULL,&StartETH_HAL, NULL );
+//#ifdef DEBUG
+	if(!threadCreated)
+	{
+		printf("Ethernet HALServer Thread Creation Success\n");
+	}
+	else
+	{
+		printf("Ethernet HALServer Thread Creation Failed\n");
+	}
+
 //#endif //DEBUG
 
 	//CREATE_TASK(taskRunSCH, (const signed char* const)"SCH task", 5000, NULL, 0, NULL);

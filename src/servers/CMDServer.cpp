@@ -106,6 +106,17 @@ namespace Phoenix
 					{
 						//read the file into a buffer
 						readBuffer = fileHandler->ReadFile(CMDFiles[i], &readSize);
+
+//						if (i==0)
+//						{
+//							printf("\r\nPrinting the buffer read\r\n");
+//							// Check if the Read File worked it works- Umang
+//							for (int pq=0;pq<readSize;pq++)
+//								printf("\t %02x",readBuffer[pq]);
+//						}
+
+
+
 						//try to create packets from the buffer and send them
 						CMDBufferParse(((char *) readBuffer), readSize);
 						//fileHandler->DeleteFile(CMDFiles[i]);

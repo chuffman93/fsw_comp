@@ -80,7 +80,7 @@ typedef uint8 MessageCodeType;
 
 #define LOCATION_ID_INVALID		(0)
 
-enum HardwareLocationIDEnum
+typedef enum HardwareLocationIDEnum
 {
     HARDWARE_LOCATION_MIN = (LOCATION_ID_INVALID + 1),
 	// Space COM
@@ -97,7 +97,7 @@ enum HardwareLocationIDEnum
 	HARDWARE_LOCATION_GND_COM,
 #endif
     HARDWARE_LOCATION_MAX
-};
+}HardwareLocationIDType;
 
 enum ServerLocationIDEnum
 {
@@ -208,6 +208,7 @@ enum ACSCommandEnum
     ACS_GPS_CMD,
 	ACS_STARCAMERA_HS_CMD,
 	ACS_POINT_COM_GND_CMD,
+	ACS_HELLO_WORLD_TEST_CMD,
 	ACS_FUNCTIONAL_TEST_CMD,
 	ACS_FUNCTIONAL_TEST_COMPLETE_CMD,
 	ACS_CMD_MAX,

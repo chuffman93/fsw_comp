@@ -15,6 +15,8 @@
 #include "servers/SCHServer.h"
 #include "servers/THMServer.h"
 #include "servers/ErrorQueue.h"
+
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -31,6 +33,8 @@
 #include "core/ModeManager.h"
 #include "core/WatchdogManager.h"
 
+
+#include "../HAL/Ethernet_Server.h"
 #include "util/FileHandler.h"
 
 using namespace Phoenix::Servers;
@@ -113,6 +117,9 @@ namespace Phoenix
 					case THM_SERVER_SINGLETON:
 						THMServer::Initialize( );
 						instance = new THMServer("THM Server", SERVER_LOCATION_THM);
+						break;
+					case ETH_HALSERVER_SINGLETON:
+						instance = new ETH_HALServer();
 						break;
 #ifdef NOT
 					case RF_INTERFACE_SINGLETON:
