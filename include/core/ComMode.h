@@ -23,7 +23,7 @@ namespace Phoenix
 			void OnExit(void);
 
 			virtual ~ComMode( );
-#ifdef HOST
+#ifdef TEST
 			static void DestroySubclass(void);
 #endif
 

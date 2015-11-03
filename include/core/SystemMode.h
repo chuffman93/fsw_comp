@@ -36,7 +36,7 @@ namespace Phoenix
             bool CheckValidTransition(SystemModeEnum newMode, LocationIDType server) const;
 
             virtual ~SystemMode(void);
-#ifdef HOST
+#ifdef TEST
             static void Destroy(void);
 #endif
 

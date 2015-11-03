@@ -54,7 +54,7 @@ namespace Phoenix
 		{
 		}
 
-#ifdef HOST
+#ifdef TEST
 		void StartupMode::DestroySubclass(void)
 		{
 			delete instancePtr;

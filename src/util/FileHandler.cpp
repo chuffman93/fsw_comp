@@ -974,3 +974,81 @@ unsigned int FileHandler::folderSize(const char * path)
         }
         return size;
 }
+
+void FileHandler::makeCrcTable(uint32 crcTable[])
+{
+    uint32 POLYNOMIAL = 0xEDB88320; //0x04C11DB7 reversed
+    uint32 remainder;
+    unsigned char b = 0;
+    do{
+        // Start with the data byte
+        remainder = b;
+        for (unsigned short bit = 8; bit > 0; --bit)
+        {
+            if (remainder & 1)
+                remainder = (remainder >> 1) ^ POLYNOMIAL;
+            else
+                remainder = (remainder >> 1);
+        }
+        crcTable[(size_t)b] = remainder;
+    } while(0 != ++b);
+}
+
+unsigned int FileHandler::generateCrc(uint8 *p, size_t n, unsigned int crcTable[], unsigned int crc)
+{
+	size_t i;
+    for(i = 0; i < n; i++)
+        crc = crcTable[*p++ ^ (crc&0xff)] ^ (crc>>8);
+    return(~crc);
+}
+
+//CRC-32 (0x04C11DB7)
+uint32 FileHandler::crcCheck(const char * fileName)
+{
+		uint32 crc = 0x00000000ul;
+		uint32 crcTable[256];
+		makeCrcTable(crcTable);
+		uint32 bufferSize;
+		fstream file;
+		file.open(fileName);
+		uint8 * buffer;
+		if (true == TakeLock(MAX_BLOCK_TIME))
+				{
+						file.open(fileName, ios::in);
+						if (!file.is_open())
+						{
+								// error: failed to open the file
+								crc = NULL;
+								this->GiveLock();
+								return crc;
+						}
+
+						bufferSize = (size_t) this->fileSize(file);
+						buffer = new uint8[bufferSize];
+						file.read((char *) buffer, bufferSize);
+
+						for(uint8 i=0; i<bufferSize; i++){
+							crc = generateCrc((unsigned char *) buffer[i],1,(unsigned int *) crcTable, (unsigned int)~crc);
+						}
+
+						if (file.bad())
+						{
+								file.close();
+								delete buffer;
+								buffer = NULL;
+								this->GiveLock();
+								return crc;
+						}
+
+						delete buffer;
+						file.close();
+						if (file.is_open())
+						{
+								// error: couldn't close the file
+								this->GiveLock();
+						}
+						this->GiveLock();
+				}
+		return crc;
+}
+

@@ -185,6 +185,12 @@ public:
 
         unsigned int folderSize(const char * path);
 
+        void makeCrcTable(uint32 crcTable[]);
+
+        unsigned int generateCrc(uint8 *p, size_t n, unsigned int crcTable[], unsigned int crc);
+
+        uint32 crcCheck(const char * filename);
+
 private:
         /*! \brief Initialize the File Handler Class
          *

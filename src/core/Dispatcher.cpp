@@ -1172,7 +1172,7 @@ Dispatcher::Dispatcher(const Dispatcher & source)
 	// Left Intentionally Empty
 }
 
-#ifdef HOST
+#ifdef TEST
 void Dispatcher::Destroy(void)
 {
 	mq_unlink(subsystemQueueName);

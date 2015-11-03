@@ -97,7 +97,7 @@ namespace Phoenix
 			gpsErrorHandler = new GPSErrorHandler;
 		}
 		
-#ifdef HOST
+#ifdef TEST
 		void GPSServer::Destroy(void)
 		{
 			delete gpsHSHandler;

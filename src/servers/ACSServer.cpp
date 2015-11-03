@@ -163,7 +163,7 @@ namespace Phoenix
 			acsErrorHandler = new ACSErrorHandler();
 		}
 		
-#ifdef HOST
+#ifdef TEST
 		void ACSServer::Destroy(void)
 		{
 			//delete handlers

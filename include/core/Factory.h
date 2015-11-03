@@ -49,9 +49,9 @@ namespace Phoenix
 		public:
 			static Singleton * GetInstance(SingletonType type);
 			//static Singleton * GetInstanceFromLocation(LocationIDType loc);
-#ifdef HOST
+#ifdef TEST
 			static void Destroy(SingletonType type);
-#endif //HOST
+#endif //TEST
 			
 		private:
 			static bool Initialize(SingletonType type);
