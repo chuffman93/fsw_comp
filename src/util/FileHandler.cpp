@@ -1027,13 +1027,12 @@ uint32 FileHandler::crcCheck(const char * fileName)
 								return crc;
 						}
 						bufferSize = (uint32) this->fileSize(file);
-						//bufferSize = file.tellg();
-						printf("Buffer Size (unsigned): %u\n",bufferSize);
-						printf("Buffer Size (signed): %i\n",bufferSize);
-						buffer = new uint8[bufferSize-1];
-						file.read((char *) buffer, bufferSize-1);
+						//printf("Buffer Size: %i\n",bufferSize);
+						buffer = new uint8[bufferSize];
+						file.read((char *) buffer, bufferSize);
 
-						for(uint8 i=0; i<bufferSize-1; i++){
+						//Calculate CRC
+						for(uint8 i=0; i<bufferSize; i++){
 							crc = generateCrc(buffer +  i,1,(unsigned int *) crcTable, (unsigned int)~crc);
 						}
 
