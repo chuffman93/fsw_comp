@@ -14,6 +14,8 @@
 #include <time.h>
 #include <stdlib.h>
 
+#include <iostream>
+
 #include "servers/GPSServer.h"
 
 #include "util/FileHandler.h"
@@ -23,7 +25,7 @@
 
 //size in bytes that is required to compress the files
 const unsigned int sizeToZip = 10 * (1024);
-
+uint32 crcTable[256];
 
 
 
@@ -69,6 +71,7 @@ FileHandler::FileHandler(void)
 {
         // If the File Handler is initialized, run max data point reference initialize
         FileSizeReferenceCreate();
+        makeCrcTable(crcTable);
 }
 
 FileHandler::~FileHandler()
@@ -998,7 +1001,9 @@ unsigned int FileHandler::generateCrc(uint8 *p, size_t n, unsigned int crcTable[
 {
 	size_t i;
     for(i = 0; i < n; i++)
+    {
         crc = crcTable[*p++ ^ (crc&0xff)] ^ (crc>>8);
+    }
     return(~crc);
 }
 
@@ -1006,13 +1011,12 @@ unsigned int FileHandler::generateCrc(uint8 *p, size_t n, unsigned int crcTable[
 uint32 FileHandler::crcCheck(const char * fileName)
 {
 		uint32 crc = 0x00000000ul;
-		uint32 crcTable[256];
-		makeCrcTable(crcTable);
+		//uint32 crcTable[256];
+		//makeCrcTable(crcTable);
 		uint32 bufferSize;
 		fstream file;
-		file.open(fileName);
 		uint8 * buffer;
-		if (true == TakeLock(MAX_BLOCK_TIME))
+		if (true == this->TakeLock(MAX_BLOCK_TIME))
 				{
 						file.open(fileName, ios::in);
 						if (!file.is_open())
@@ -1022,13 +1026,15 @@ uint32 FileHandler::crcCheck(const char * fileName)
 								this->GiveLock();
 								return crc;
 						}
+						bufferSize = (uint32) this->fileSize(file);
+						//bufferSize = file.tellg();
+						printf("Buffer Size (unsigned): %u\n",bufferSize);
+						printf("Buffer Size (signed): %i\n",bufferSize);
+						buffer = new uint8[bufferSize-1];
+						file.read((char *) buffer, bufferSize-1);
 
-						bufferSize = (size_t) this->fileSize(file);
-						buffer = new uint8[bufferSize];
-						file.read((char *) buffer, bufferSize);
-
-						for(uint8 i=0; i<bufferSize; i++){
-							crc = generateCrc((unsigned char *) buffer[i],1,(unsigned int *) crcTable, (unsigned int)~crc);
+						for(uint8 i=0; i<bufferSize-1; i++){
+							crc = generateCrc(buffer +  i,1,(unsigned int *) crcTable, (unsigned int)~crc);
 						}
 
 						if (file.bad())

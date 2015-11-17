@@ -22,8 +22,9 @@
 							<tool id="cdt.managedbuild.tool.gnu.archiver.base.917157202" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.144183051" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
 								<option id="gnu.cpp.compiler.option.include.paths.978454928" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/FSW/include}&quot;"/>
 									<listOptionValue builtIn="false" value="/home/fsw-dev/CPP/cdh-fsw/testing_lib"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cdh-crc/testing_lib}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cdh-crc/include}&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.853834022" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="TEST"/>
@@ -33,13 +34,14 @@
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.base.112255088" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
 								<option id="gnu.c.compiler.option.include.paths.1562330669" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/FSW/include}&quot;"/>
 									<listOptionValue builtIn="false" value="/usr/arm-linux-gnueabihf/include/c++/4.8.2"/>
 									<listOptionValue builtIn="false" value="/usr/arm-linux-gnueabihf/include/c++/4.8.2/arm-linux-gnueabihf"/>
 									<listOptionValue builtIn="false" value="/usr/arm-linux-gnueabihf/include/c++/4.8.2/backward"/>
 									<listOptionValue builtIn="false" value="/usr/lib/gcc-cross/arm-linux-gnueabihf/4.8/include"/>
 									<listOptionValue builtIn="false" value="/usr/lib/gcc-cross/arm-linux-gnueabihf/4.8/include-fixed"/>
 									<listOptionValue builtIn="false" value="/usr/arm-linux-gnueabihf/include"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cdh-crc/testing_lib}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cdh-crc/include}&quot;"/>
 								</option>
 								<option id="gnu.c.compiler.option.misc.other.2079934221" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -D HOST -D TEST" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.512985647" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
