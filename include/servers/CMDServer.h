@@ -40,6 +40,8 @@ namespace Phoenix
 			bool RegisterHandlers();
 
 		private:
+			int subsystem_acp_protocol[HARDWARE_LOCATION_MAX];
+
 			/*! \brief Initialize the CMDServer Class
 			*
 			*  Initializes the operating system constructs needed for

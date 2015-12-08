@@ -6,6 +6,7 @@
 *  Modified by:
 */
 
+#include "servers/CMDHandlers.h"
 #include "servers/CMDServer.h"
 #include "servers/CMDStdTasks.h"
 #include "servers/DispatchStdTasks.h"
@@ -46,7 +47,13 @@ namespace Phoenix
 		
 		void CMDServer::Initialize(void)
 		{
-			
+			subsystem_acp_protocol[HARDWARE_LOCATION_COM] = ACP_PROTOCOL_SPI;
+			subsystem_acp_protocol[HARDWARE_LOCATION_EPS] = ACP_PROTOCOL_SPI;
+			subsystem_acp_protocol[HARDWARE_LOCATION_ACS] = ACP_PROTOCOL_SPI;
+			subsystem_acp_protocol[HARDWARE_LOCATION_PROP] = ACP_PROTOCOL_SPI;
+			subsystem_acp_protocol[HARDWARE_LOCATION_THM] = ACP_PROTOCOL_SPI;
+			subsystem_acp_protocol[HARDWARE_LOCATION_PLD] = ACP_PROTOCOL_SPI;
+			subsystem_acp_protocol[HARDWARE_LOCATION_GPS] = ACP_PROTOCOL_SPI;
 		}
 		
 #ifdef TEST
