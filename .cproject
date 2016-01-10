@@ -330,9 +330,8 @@
 							<tool id="cdt.managedbuild.tool.gnu.archiver.base.600769902" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
 							<tool command="arm-linux-gnueabihf-g++" id="cdt.managedbuild.tool.gnu.cpp.compiler.base.1972869977" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
 								<option id="gnu.cpp.compiler.option.include.paths.210463921" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/FSW/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cdh-crc/testing_lib}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cdh-crc/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cdh-fsw/testing_lib}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cdh-fsw/include}&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.other.other.1648331742" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -D ARM -D TEST" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1792568455" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
@@ -346,8 +345,8 @@
 									<listOptionValue builtIn="false" value="/usr/lib/gcc-cross/arm-linux-gnueabihf/4.8/include"/>
 									<listOptionValue builtIn="false" value="/usr/lib/gcc-cross/arm-linux-gnueabihf/4.8/include-fixed"/>
 									<listOptionValue builtIn="false" value="/usr/arm-linux-gnueabihf/include"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cdh-crc/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cdh-crc/testing_lib}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cdh-fsw/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cdh-fsw/testing_lib}&quot;"/>
 								</option>
 								<option id="gnu.c.compiler.option.misc.other.903735199" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -D ARM -D TEST" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1773398791" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>

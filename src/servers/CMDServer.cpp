@@ -15,13 +15,13 @@
 #include "core/ReturnMessage.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
-#include "core/WatchdogManager.h"
 #include "core/ErrorMessage.h"
 #include "core/StdTypes.h"
 #include "core/ComMode.h"
 #include "core/SystemMode.h"
 #include "POSIX.h"
 
+#include "core/WatchdogManager.h"
 #include "util/FileHandler.h"
 
 //#include "boards/backplane/dbg_led.h"
@@ -47,6 +47,7 @@ namespace Phoenix
 		
 		void CMDServer::Initialize(void)
 		{
+			int subsystem_acp_protocol[HARDWARE_LOCATION_MAX];
 			subsystem_acp_protocol[HARDWARE_LOCATION_COM] = ACP_PROTOCOL_SPI;
 			subsystem_acp_protocol[HARDWARE_LOCATION_EPS] = ACP_PROTOCOL_SPI;
 			subsystem_acp_protocol[HARDWARE_LOCATION_ACS] = ACP_PROTOCOL_SPI;

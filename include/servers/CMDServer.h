@@ -38,9 +38,9 @@ namespace Phoenix
 			void SubsystemLoop(void);
 			void Update(const Core::SystemMode * mode);
 			bool RegisterHandlers();
+			int subsystem_acp_protocol[HARDWARE_LOCATION_MAX];
 
 		private:
-			int subsystem_acp_protocol[HARDWARE_LOCATION_MAX];
 
 			/*! \brief Initialize the CMDServer Class
 			*
