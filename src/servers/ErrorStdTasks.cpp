@@ -608,6 +608,42 @@ namespace Phoenix
 			}
 		}
 
+		void CMDError(int opcode, MultiDataMessage * dataMessage)
+				{
+					// File handler error
+					if((opcode >= FILE_HANDLER_ERR_START) && (opcode <= FILE_HANDLER_ERR_END))
+					{
+						FileHandlerError(opcode, dataMessage);
+					}
+
+					FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
+
+					switch(opcode)
+					{
+						case CMD_ACP_SWITCH_BAD_SUBSYS: //Bad Subsystem Index, ACP Switch Failure
+							if(!fileHandler->Append(SUBSYSTEM_CMD, opcode, (* dataMessage)))
+							{
+								// write to error log
+							}
+
+							break;
+						case CMD_ACP_SWITCH_BAD_PROTOCOL: //Bad Protocol Index, ACP Switch Failure
+							if(!fileHandler->Append(SUBSYSTEM_CMD, opcode, (* dataMessage)))
+							{
+								// write to error log
+							}
+							break;
+						case CMD_ACP_SWITCH_FAILURE: //ACP Switch Failure upon packet extraction
+							if(!fileHandler->Append(SUBSYSTEM_CMD, opcode, (* dataMessage)))
+							{
+								// write to error log
+							}
+							break;
+						default:
+							break;
+					}
+				}
+
 		void FileHandlerError(int opcode, MultiDataMessage * retMsg)
 		{
 			// Don't write to error log

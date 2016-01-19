@@ -33,6 +33,8 @@ namespace Phoenix
 {
 	namespace Servers
 	{
+		//Message Handler for ACP Protocol Switches
+		static CMDSwitchProtocolHandler * cmdSwitchProtocolHandler;
 		
 		CMDServer::CMDServer(string nameIn, LocationIDType idIn)
 				: SubsystemServer(nameIn, idIn), Singleton(), arby(idIn)
@@ -47,6 +49,7 @@ namespace Phoenix
 		
 		void CMDServer::Initialize(void)
 		{
+			cmdSwitchProtocolHandler = new CMDSwitchProtocolHandler();
 			int subsystem_acp_protocol[HARDWARE_LOCATION_MAX];
 			subsystem_acp_protocol[HARDWARE_LOCATION_COM] = ACP_PROTOCOL_SPI;
 			subsystem_acp_protocol[HARDWARE_LOCATION_EPS] = ACP_PROTOCOL_SPI;
@@ -60,7 +63,7 @@ namespace Phoenix
 #ifdef TEST
 		void CMDServer::Destroy(void)
 		{
-			
+			delete cmdSwitchProtocolHandler;
 		}
 #endif
 		
@@ -168,18 +171,29 @@ namespace Phoenix
 
 		}
 
-
 		bool CMDServer::RegisterHandlers()
 		{
 			bool success = true;
 
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 
+			// CMD Command Opcode
+			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CMD_ACP_SWITCH), cmdSwitchProtocolHandler);
+			success &= arby.ModifyPermission(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CMD_ACP_SWITCH), true);
+
+			/*
+			for(int opcode = EPS_SUB_ERROR_MIN; opcode < EPS_SUB_ERROR_MAX; opcode++)
+			{
+				success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_ERROR, opcode), epsErrorHandler);
+				success &= arby.ModifyPermission(MessageIdentifierType(MESSAGE_TYPE_COMMAND, opcode), true);
+			}
+			*/
+
+
 			success &= dispatcher->AddRegistry(id, &reg, &arby);
 
 			return success;
 		}
-
 
 	} // End Namespace servers
 } // End Namespace Phoenix

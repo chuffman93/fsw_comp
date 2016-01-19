@@ -170,7 +170,7 @@ namespace Phoenix
 							SCHError(opcode, Msg);
 							break;
 						case SERVER_LOCATION_CMD:
-							//TODO: Errors undefined at this point.
+							CMDError(opcode, Msg);
 							break;
 						case SERVER_LOCATION_ERR:
 							//TODO: Error server throwing errors?
