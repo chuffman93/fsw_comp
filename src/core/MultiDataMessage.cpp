@@ -111,7 +111,7 @@ namespace Phoenix
             size_t parameterSize;
 
             // Variable to keep track of current length of message
-            size_t messageLength = sizeof(uint8);
+            size_t messageLength = 0;
 
             // Loop through the number of parameters in the buffer
             for (size_t i = 0; i < numParameters; i++)

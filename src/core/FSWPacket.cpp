@@ -74,6 +74,7 @@ namespace Phoenix
                 source = LOCATION_ID_INVALID;
                 destination = LOCATION_ID_INVALID;
                 messagePtr = NULL;
+                printf("FSWPacket: Null packet\n");
                 return;
             }
 
@@ -91,11 +92,14 @@ namespace Phoenix
             buffer += sizeof(uint32);
             size -= sizeof(uint32);
 
+            printf("Source %hu Dest %hu Num %hu Timestamp %x\n", source, destination, number, timestamp);
+
             messagePtr = Message::CreateMessage(buffer, size);
 
             // Check that the allocation worked correctly.
             if (NULL == messagePtr)
             {
+            	printf("FSW Packet NULL message pointer\n");
                 source = LOCATION_ID_INVALID;
                 destination = LOCATION_ID_INVALID;
                 return;
@@ -104,6 +108,9 @@ namespace Phoenix
             printf("Inside FSWPacket(): Message copied to string size %d %x",messagePtr->GetFlattenSize(),messagePtr);
 			size -= messagePtr->GetFlattenSize();
 			
+			//fixme add crc in soon
+			size += 2;
+
 			if (size < 2)
 			{
 				printf("\r\nINVALID!! ");

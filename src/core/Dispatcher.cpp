@@ -293,7 +293,7 @@ bool Dispatcher::Dispatch(FSWPacket & packet)
 	{
 
 
-		printf("Now sending the message to the queue");
+		printf("Now sending the message to the queue\n");
 		fflush(stdout);
 		FSWPacket * tmpPacket;
 
@@ -311,10 +311,12 @@ bool Dispatcher::Dispatch(FSWPacket & packet)
 
 		if (true == this->TakeLock(MAX_BLOCK_TIME))
 		{
+			printf("Dispatcher: Took lock\n");
 			size_t numPackets = mq_size(queueHandle, queueAttr);
 
 			if (numPackets < DISPATCHER_QUEUE_LENGTH)
 			{
+				printf("Dispatcher::Dispatch() Queue is not full\n");
 				// Send the message via the message queue.
 				bool ret = mq_timed_send(queueName, (&tmpPacket), MAX_BLOCK_TIME, 0);
 				numPackets = mq_size(queueHandle, queueAttr);
@@ -323,6 +325,7 @@ bool Dispatcher::Dispatch(FSWPacket & packet)
 			}
 			else
 			{
+				printf("Dispatcher::Dispatch() Queue is full\n");
 				delete tmpPacket;
 				this->GiveLock();
 				return false;
@@ -343,11 +346,13 @@ DispatcherStatusEnum Dispatcher::WaitForDispatchResponse(
 	ReturnMessage * retMsg;
 	size_t i;
 	DEBUG_COUT("   Dispatcher: WaitForDispatchResponse() called");
+	printf("Dispatcher: WaitForDispatchResponse() called\n");
 	for (i = 0; i < DISPATCHER_MAX_RESPONSE_TRIES; ++i)
 	{
 		if (CheckQueueForMatchingPacket(packet, ret,
 				&Dispatcher::IsPacketMatchingResponse))
 		{
+			printf("Dispatcher: WaitForDispatchResponse(): Matching FSWPacket found.\n");
 			// Returned packet is a response to our command, so
 			// return the result.
 			DEBUG_COUT("   Dispatcher: WaitForDispatchResponse(): Matching FSWPacket found.");
@@ -693,6 +698,7 @@ uint32_t Dispatcher::DispatchToHardware( FSWPacket & packet)
 	size_t iterations;
 	bool timedOut;
 
+	/*
 	if(transFlag == 1)
 	{
 		return -EBUSY;
@@ -701,6 +707,7 @@ uint32_t Dispatcher::DispatchToHardware( FSWPacket & packet)
 	{
 		transFlag = 1;
 	}
+	*/
 
 	packetLength = packet.GetFlattenSize();
 	printf("Hardware dispatch packet size %d",packet.GetFlattenSize());
@@ -728,7 +735,7 @@ uint32_t Dispatcher::DispatchToHardware( FSWPacket & packet)
 	//write packet to /dev/phoenix_spi
 
 	// Code for send the pheonix packet onto the SPI hardware
-	bytesCopied = write(spiFileDescriptor,packetBuffer,packetLength);
+	//bytesCopied = write(spiFileDescriptor,packetBuffer,packetLength);
 
 
 	// Get the instance for the Ethernet Server
@@ -750,7 +757,8 @@ uint32_t Dispatcher::DispatchToHardware( FSWPacket & packet)
 	printf("\r\n Dispatching to IP Address %s and port number %s",cmd_server->host[packet.GetDestination()],cmd_server->port_num_client[packet.GetDestination()]);
 
 
-
+	/*
+	 //fixme these are old SPI things
 	printf("write called in dispatch to hardware\n");
 	if(bytesCopied != packetLength)
 	{
@@ -784,6 +792,7 @@ uint32_t Dispatcher::DispatchToHardware( FSWPacket & packet)
 	//printf("send the packet?\n");
 	sentPacket = false;
 	transFlag = 0;
+	*/
 
 	return 0;
 }

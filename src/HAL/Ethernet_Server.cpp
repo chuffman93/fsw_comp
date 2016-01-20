@@ -86,24 +86,34 @@ void ETH_HALServer::ETH_HALServerLoop(void)
 //		FD_SET(pipe1[0],&afds);
 
 
-		buffer = (uint8_t*) malloc(sizeof(cmd));
-		memcpy((uint8_t *) buffer, cmd,sizeof(cmd));
+		buffer = (uint8_t*) malloc(numbytes);
+		memcpy((uint8_t *) buffer, cmd,numbytes);
 		printf("Converting a Pheonix Packet into a FSW packet\n");
 
-		packet =new FSWPacket(buffer, sizeof(cmd));
+		packet =new FSWPacket(buffer, numbytes);
 		printf("Now putting that FSW Packet into the message queue using Dispatch!\n");
 
 		//packet->SetDestination(SERVER_LOCATION_ACS);
 
-		if (!dispatcher->Dispatch(*packet))
+		if((packet->GetDestination() == LOCATION_ID_INVALID )|| (packet->GetSource() == LOCATION_ID_INVALID))
 		{
-			printf("\r\nError in dispatch\r\n");
+			printf("FSW Packet src or dest invalid. Not placing on queue\n");
+			printf("src %d dest %d\n", packet->GetDestination(), packet->GetSource());
+			//todo log error
+			delete packet;
+			free(buffer);
 		}
+		else{
+			if(!dispatcher->Dispatch(*packet))
+			{
+				printf("\r\nError in dispatch\r\n");
+			}
 
-		delete packet;
-		free(buffer);
+			printf("ETH_HAL Server: Dispatched packet successfully\n");
 
-
+			delete packet;
+			free(buffer);
+		}
 
 
 

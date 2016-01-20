@@ -83,7 +83,7 @@ class ETH_HALServer: public Phoenix::Core::Singleton
             // Initialize the host IP Addresses
             strcpy(&(host[HARDWARE_LOCATION_MIN][0]),"10.14.134.250");
             strcpy(&(host[HARDWARE_LOCATION_MIN+1][0]),"10.14.134.252");
-            strcpy(&(host[HARDWARE_LOCATION_MIN+2][0]),"10.14.134.251");
+            strcpy(&(host[HARDWARE_LOCATION_MIN+2][0]),"10.14.134.203");
             strcpy(&(host[HARDWARE_LOCATION_MIN+3][0]),"10.14.134.204");
             strcpy(&(host[HARDWARE_LOCATION_MIN+4][0]),"10.14.134.205");
             strcpy(&(host[HARDWARE_LOCATION_MIN+5][0]),"10.14.134.205");
