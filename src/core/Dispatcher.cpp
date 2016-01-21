@@ -68,13 +68,8 @@ namespace Phoenix
         // Instantiate static members
     	char * Dispatcher::subsystemQueueName = "/subsystemQueueHandle";
     	char * Dispatcher::queueName = "/queueHandle";
-    	const char * spiFiePath = "/dev/phoenix_spi";
-    	int spiFileDescriptor = 0;
-    	bool receiving = false;
     	size_t timer;
-    	static bool sentPacket = false;
-    	static uint8_t transFlag = 0;
-    	static uint8_t recvFlag = 0;
+
 //
 //    	char * Dispatcher::getQueueName()
 //    	{
@@ -90,86 +85,12 @@ namespace Phoenix
 //    	{
 //    		return &subsystemQueueAttr;
 //    	}
-void sendComplete(int signum)
-{
-	if(sentPacket || transFlag == 0)
-	{
-		//thats weird
-	}
-	sentPacket = true;
-}
-
-void recieving(int signum)
-{
-	receiving = true;
-}
-
-void receivedComplete(int signum)
-{
-	int packetSize;
-	uint8_t * buffer;
-	FSWPacket * packet;
-	ReturnMessage retMsg;
-	LocationIDType temp;
-	uint32 time;
-	receiving = false;
-
-	//driver returns packet size when reading only 1 byte
-	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-	packetSize = read(spiFileDescriptor,buffer,1);
-
-	buffer = (uint8_t*) malloc(packetSize);
-	if(read(spiFileDescriptor,buffer,packetSize) != packetSize)
-	{
-		cout << "Error reading packet" << endl;
-		//return err? What Error?
-	}
-
-	packet =new FSWPacket(buffer, packetSize);
-
-	if (!dispatcher->Dispatch(*packet))
-	{
-
-	}
-
-	/*if (DISPATCHER_STATUS_OK != dispatcher->WaitForDispatchResponse(*packet, retMsg))
-	{
-	}
-
-	temp = packet->GetDestination();
-	packet->SetDestination(packet->GetSource());
-	packet->SetSource(temp);
-	packet->SetTimestamp(time);
-	packet->SetMessage(&retMsg);
-
-	if (0 != dispatcher->DispatchToHardware(*packet))
-	{
-
-
-	}*/
-
-	delete packet;
-	free(buffer);
-	return;
-}
-
-
 
 void Dispatcher::Initialize(void)
 {
 	// Create the mutex and queue through the operating system.
 //    		char * name = getQueueName();
 //            subQinit = mqCreate(getQueueHandle(), getQueueAttr(), name);
-
-
-	// HARDWARE INIT: Open up the /dev/phoenix_spi file and init signals
-	//spiFileDescriptor = open(spiFiePath, O_RDWR);
-	//TODO: Error handling
-
-	if(spiFileDescriptor < 0)
-	{
-		//error
-	}
 
 
 /*
@@ -190,11 +111,7 @@ void Dispatcher::Initialize(void)
 #endif // WIN32
 */
 }
-void spiReset(void)
-{
-		char dummy = 'c';
-		write(spiFileDescriptor,&dummy,1); //write one byte that will reset the state machine & clear the buffers
-}
+
 
 bool Dispatcher::IsFullyInitialized(void)
 {
@@ -208,16 +125,6 @@ void Dispatcher::DispatcherTask(void * params)
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-	/*if(signal(SENT_COMPLETE_SIG,sendComplete) == SIG_ERR)
-	{
-		//error
-	}
-	if(signal(RECEIVED_PACKET_SIG,receivedComplete) == SIG_ERR)
-	{
-		//error
-
-	}*/
-
 
 	while (1)
 	{
@@ -227,17 +134,6 @@ void Dispatcher::DispatcherTask(void * params)
 
 		//wdm->Kick();
 
-		if(receiving)
-		{
-			timer++;
-			if(timer == 10)
-			{
-
-				timer = 0;
-				receiving = false;
-				spiReset();
-			}
-		}
 		//TODO:ADD THREAD HANDLING and REMOVE RECIEVE COMPLETE STUFF and SIG_ACTION
 
 		waitUntil(LastWakeTime, 1000);
@@ -471,7 +367,6 @@ bool Dispatcher::Listen(LocationIDType serverID)
 		{
 
 		}
-		spiReset
 		DEBUG_COUT("HANDLER TIMED OUT");
 
 		pthread_cancel(TaskHandle);
