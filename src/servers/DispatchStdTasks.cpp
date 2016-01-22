@@ -48,6 +48,7 @@ namespace Phoenix
 			//Dispatch packet, if it fails return DISPATCH_FAILED
 			if(!dispatcher->Dispatch(*packet))
 			{
+				printf("DispatchStdTaks: Failed to dispatch packet\n");
 				ErrorMessage err(DISPATCH_FAILED);
 				ReturnMessage * eRet = new ReturnMessage(&err, false);
 				delete packet;
@@ -58,14 +59,18 @@ namespace Phoenix
 			ReturnMessage retMsg;
 			DispatcherStatusEnum stat;
 			//Wait for return message, if it fails return status response from dispatcher
+			printf("DispatchStdTaks: Waiting for return message\n");
 			if(DISPATCHER_STATUS_OK != (stat = dispatcher->WaitForDispatchResponse(*packet, retMsg)))
 			{
+				printf("DispatchStdTaks: Did not receieve response\n");
 				//debug_led_set_led(7, LED_ON);
 				ErrorMessage err(DISPATCHER_STATUS_ERR);
 				ReturnMessage * eRet = new ReturnMessage(&err, false);
 				delete packet;
 				return eRet;
 			}
+
+			printf("DispatchStdTaks: Received return message\n");
 
 			delete packet;
 			//Send response message back to caller
@@ -362,11 +367,14 @@ namespace Phoenix
 					return;
 			}
 			
+			printf("DispatchStdTasks: Got successful return message!\n");
+
 			//If we get here that means it wasn't an error message.
 			//Log the success!
 			if(!fileHandler->Append(handlerID, retOpcode, (* dataMessage)))
 			{
 				// write to error log
+				printf("DispatchStdTasks: Failed to log message\n");
 			}
 
 			delete retMsg;

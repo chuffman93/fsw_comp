@@ -609,7 +609,7 @@ int main(int argc, char * argv[])
 	}
 #endif //DEBUG
 
-
+/*
 	pthread_t EPSThread;
 	threadCreated = pthread_create(&EPSThread, NULL, &taskRunEPS, NULL);
 
@@ -623,8 +623,8 @@ int main(int argc, char * argv[])
 		printf("EPS Server Thread Creation Failed\n");
 	}
 //#endif //DEBUG
-
-
+*/
+/*
 	pthread_t PLDThread;
 	//threadCreated = pthread_create(&PLDThread, NULL, &taskRunPLD, NULL);
 #ifdef DEBUG
@@ -637,6 +637,9 @@ int main(int argc, char * argv[])
 		printf("PLD Server Thread Creation Failed\n");
 	}
 #endif //DEBUG
+
+*/
+/*
 	//CREATE_TASK(taskRunERR, (const signed char* const)"ERR task", 2000, NULL, 0, NULL);
 	pthread_t ERRThread;
 	threadCreated = pthread_create(&ERRThread, NULL, &taskRunERR, NULL);
@@ -650,7 +653,8 @@ int main(int argc, char * argv[])
 		printf("ERR Server Thread Creation Failed\n");
 	}
 //#endif //DEBUG
-
+*/
+/*
 	pthread_t THMThread;
 	threadCreated = pthread_create(&THMThread ,NULL,&taskRunTHM, NULL );
 //#ifdef DEBUG
@@ -662,8 +666,7 @@ int main(int argc, char * argv[])
 	{
 		printf("THM Server Thread Creation Failed\n");
 	}
-
-
+*/
 
 	pthread_t CMDThread;
 	threadCreated = pthread_create(&CMDThread ,NULL,&taskRunCMD, NULL );
@@ -697,8 +700,8 @@ int main(int argc, char * argv[])
 	//vTaskStartScheduler();
 	//portDBG_TRACE("FreeRTOS returned.");
 
-	//pthread_join(ACSThread, NULL);
-	pthread_join(EPSThread, NULL);
+	pthread_join(ACSThread, NULL);
+	//pthread_join(EPSThread, NULL);
 	//pthread_join(ERRThread, NULL);
 	//pthread_join(THMThread, NULL);
 	//pthread_join(PLDThread, NULL);

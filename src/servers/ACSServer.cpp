@@ -34,6 +34,8 @@
 
 //#include "boards/backplane/dbg_led.h"
 
+#define HARDWARE
+
 using namespace std;
 using namespace Phoenix::Core;
 
@@ -349,6 +351,7 @@ namespace Phoenix
 				//wdm->Kick();
 				
 #ifdef HARDWARE
+				printf("ACSServer: Sending Health and Status\n");
 				HSRet = ACSHealthStatus();
 				MessageProcess(SERVER_LOCATION_ACS, HSRet);
 #endif //HARDWARE

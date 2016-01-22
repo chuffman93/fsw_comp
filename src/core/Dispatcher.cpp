@@ -68,13 +68,8 @@ namespace Phoenix
         // Instantiate static members
     	char * Dispatcher::subsystemQueueName = "/subsystemQueueHandle";
     	char * Dispatcher::queueName = "/queueHandle";
-    	const char * spiFiePath = "/dev/phoenix_spi";
-    	int spiFileDescriptor = 0;
-    	bool receiving = false;
     	size_t timer;
-    	static bool sentPacket = false;
-    	static uint8_t transFlag = 0;
-    	static uint8_t recvFlag = 0;
+
 //
 //    	char * Dispatcher::getQueueName()
 //    	{
@@ -90,86 +85,12 @@ namespace Phoenix
 //    	{
 //    		return &subsystemQueueAttr;
 //    	}
-void sendComplete(int signum)
-{
-	if(sentPacket || transFlag == 0)
-	{
-		//thats weird
-	}
-	sentPacket = true;
-}
-
-void recieving(int signum)
-{
-	receiving = true;
-}
-
-void receivedComplete(int signum)
-{
-	int packetSize;
-	uint8_t * buffer;
-	FSWPacket * packet;
-	ReturnMessage retMsg;
-	LocationIDType temp;
-	uint32 time;
-	receiving = false;
-
-	//driver returns packet size when reading only 1 byte
-	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-	packetSize = read(spiFileDescriptor,buffer,1);
-
-	buffer = (uint8_t*) malloc(packetSize);
-	if(read(spiFileDescriptor,buffer,packetSize) != packetSize)
-	{
-		cout << "Error reading packet" << endl;
-		//return err? What Error?
-	}
-
-	packet =new FSWPacket(buffer, packetSize);
-
-	if (!dispatcher->Dispatch(*packet))
-	{
-
-	}
-
-	/*if (DISPATCHER_STATUS_OK != dispatcher->WaitForDispatchResponse(*packet, retMsg))
-	{
-	}
-
-	temp = packet->GetDestination();
-	packet->SetDestination(packet->GetSource());
-	packet->SetSource(temp);
-	packet->SetTimestamp(time);
-	packet->SetMessage(&retMsg);
-
-	if (0 != dispatcher->DispatchToHardware(*packet))
-	{
-
-
-	}*/
-
-	delete packet;
-	free(buffer);
-	return;
-}
-
-
 
 void Dispatcher::Initialize(void)
 {
 	// Create the mutex and queue through the operating system.
 //    		char * name = getQueueName();
 //            subQinit = mqCreate(getQueueHandle(), getQueueAttr(), name);
-
-
-	// HARDWARE INIT: Open up the /dev/phoenix_spi file and init signals
-	//spiFileDescriptor = open(spiFiePath, O_RDWR);
-	//TODO: Error handling
-
-	if(spiFileDescriptor < 0)
-	{
-		//error
-	}
 
 
 /*
@@ -190,11 +111,7 @@ void Dispatcher::Initialize(void)
 #endif // WIN32
 */
 }
-void spiReset(void)
-{
-		char dummy = 'c';
-		write(spiFileDescriptor,&dummy,1); //write one byte that will reset the state machine & clear the buffers
-}
+
 
 bool Dispatcher::IsFullyInitialized(void)
 {
@@ -208,16 +125,6 @@ void Dispatcher::DispatcherTask(void * params)
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-	/*if(signal(SENT_COMPLETE_SIG,sendComplete) == SIG_ERR)
-	{
-		//error
-	}
-	if(signal(RECEIVED_PACKET_SIG,receivedComplete) == SIG_ERR)
-	{
-		//error
-
-	}*/
-
 
 	while (1)
 	{
@@ -227,17 +134,6 @@ void Dispatcher::DispatcherTask(void * params)
 
 		//wdm->Kick();
 
-		if(receiving)
-		{
-			timer++;
-			if(timer == 10)
-			{
-
-				timer = 0;
-				receiving = false;
-				spiReset();
-			}
-		}
 		//TODO:ADD THREAD HANDLING and REMOVE RECIEVE COMPLETE STUFF and SIG_ACTION
 
 		waitUntil(LastWakeTime, 1000);
@@ -293,7 +189,7 @@ bool Dispatcher::Dispatch(FSWPacket & packet)
 	{
 
 
-		printf("Now sending the message to the queue");
+		printf("Now sending the message to the queue\n");
 		fflush(stdout);
 		FSWPacket * tmpPacket;
 
@@ -311,10 +207,12 @@ bool Dispatcher::Dispatch(FSWPacket & packet)
 
 		if (true == this->TakeLock(MAX_BLOCK_TIME))
 		{
+			printf("Dispatcher: Took lock\n");
 			size_t numPackets = mq_size(queueHandle, queueAttr);
 
 			if (numPackets < DISPATCHER_QUEUE_LENGTH)
 			{
+				printf("Dispatcher::Dispatch() Queue is not full\n");
 				// Send the message via the message queue.
 				bool ret = mq_timed_send(queueName, (&tmpPacket), MAX_BLOCK_TIME, 0);
 				numPackets = mq_size(queueHandle, queueAttr);
@@ -323,6 +221,7 @@ bool Dispatcher::Dispatch(FSWPacket & packet)
 			}
 			else
 			{
+				printf("Dispatcher::Dispatch() Queue is full\n");
 				delete tmpPacket;
 				this->GiveLock();
 				return false;
@@ -343,11 +242,13 @@ DispatcherStatusEnum Dispatcher::WaitForDispatchResponse(
 	ReturnMessage * retMsg;
 	size_t i;
 	DEBUG_COUT("   Dispatcher: WaitForDispatchResponse() called");
+	printf("Dispatcher: WaitForDispatchResponse() called\n");
 	for (i = 0; i < DISPATCHER_MAX_RESPONSE_TRIES; ++i)
 	{
 		if (CheckQueueForMatchingPacket(packet, ret,
 				&Dispatcher::IsPacketMatchingResponse))
 		{
+			printf("Dispatcher: WaitForDispatchResponse(): Matching FSWPacket found.\n");
 			// Returned packet is a response to our command, so
 			// return the result.
 			DEBUG_COUT("   Dispatcher: WaitForDispatchResponse(): Matching FSWPacket found.");
@@ -466,7 +367,6 @@ bool Dispatcher::Listen(LocationIDType serverID)
 		{
 
 		}
-		spiReset
 		DEBUG_COUT("HANDLER TIMED OUT");
 
 		pthread_cancel(TaskHandle);
@@ -693,6 +593,7 @@ uint32_t Dispatcher::DispatchToHardware( FSWPacket & packet)
 	size_t iterations;
 	bool timedOut;
 
+	/*
 	if(transFlag == 1)
 	{
 		return -EBUSY;
@@ -701,6 +602,7 @@ uint32_t Dispatcher::DispatchToHardware( FSWPacket & packet)
 	{
 		transFlag = 1;
 	}
+	*/
 
 	packetLength = packet.GetFlattenSize();
 	printf("Hardware dispatch packet size %d",packet.GetFlattenSize());
@@ -728,7 +630,7 @@ uint32_t Dispatcher::DispatchToHardware( FSWPacket & packet)
 	//write packet to /dev/phoenix_spi
 
 	// Code for send the pheonix packet onto the SPI hardware
-	bytesCopied = write(spiFileDescriptor,packetBuffer,packetLength);
+	//bytesCopied = write(spiFileDescriptor,packetBuffer,packetLength);
 
 
 	// Get the instance for the Ethernet Server
@@ -750,7 +652,8 @@ uint32_t Dispatcher::DispatchToHardware( FSWPacket & packet)
 	printf("\r\n Dispatching to IP Address %s and port number %s",cmd_server->host[packet.GetDestination()],cmd_server->port_num_client[packet.GetDestination()]);
 
 
-
+	/*
+	 //fixme these are old SPI things
 	printf("write called in dispatch to hardware\n");
 	if(bytesCopied != packetLength)
 	{
@@ -784,6 +687,7 @@ uint32_t Dispatcher::DispatchToHardware( FSWPacket & packet)
 	//printf("send the packet?\n");
 	sentPacket = false;
 	transFlag = 0;
+	*/
 
 	return 0;
 }
