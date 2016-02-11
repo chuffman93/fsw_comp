@@ -101,7 +101,7 @@ public:
          *      Reads the entire file into a buffer, sets
          *      the buffer size based on the size of the read.
          *
-         *  \param fileName Name of the file to delete.
+         *  \param fileName Name of the file to read.
          *  \param bufferSize Location to store the size of the
          *      buffer read.
          *  \return If the read was successful returns a pointer

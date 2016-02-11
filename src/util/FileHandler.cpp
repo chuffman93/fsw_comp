@@ -273,7 +273,7 @@ bool FileHandler::LogAppend(FileHandlerIDEnum logType, MessageCodeType dataOne,
 bool FileHandler::Append(FileHandlerIDEnum subsystem, MessageCodeType opCode,
                 const MultiDataMessage & message)
 {
-        //#ifndef WIN32
+		//#ifndef WIN32
 //      Phoenix::Servers::GPSServer * gpsServer = dynamic_cast<Phoenix::Servers::GPSServer *>(Factory::GetInstance(GPS_SERVER_SINGLETON));
         string file;
         string filePath;
@@ -288,6 +288,7 @@ bool FileHandler::Append(FileHandlerIDEnum subsystem, MessageCodeType opCode,
         int week = 1;   // gpsData->GPSWeek;
 
         filePath = writeDir;
+        //string filePath;
 
         //Type of the files
         fileExtension = ".dat";
@@ -389,6 +390,7 @@ bool FileHandler::Append(FileHandlerIDEnum subsystem, MessageCodeType opCode,
 
                                 this->GiveLock();
                                 delete temp;
+                                cout<<"1"<<endl;
                                 return false;
                         }
 
@@ -408,28 +410,39 @@ bool FileHandler::Append(FileHandlerIDEnum subsystem, MessageCodeType opCode,
                         tempFile.append(file);
                         file = tempFile;
 
-                        // open the file.
-                        fd.open(file.c_str(), ios::out | ios::app);
+                        // open the file
+                        if(!FileExists(file.c_str()))
+                        {
+                        	cout<<"File doesn't exist"<<endl; //                                         <----------------------here
+                        	cout<<file.c_str()<<endl;
+
+                        }
+
+                        fd.open(file.c_str(), ios::out | ios::app | ios::trunc);
+
                         if (!fd.is_open())
                         {
 
                                 // error: failed to open the new file
                                 this->GiveLock();
                                 delete temp;
+                                cout<<"2"<<endl;
+                                cout<<FileExists(file.c_str())<<endl;
                                 return false;
                         }
                         fd.close();
                         if (fd.is_open())
                         {
                        ;
-                                // error: couldn't close the file
+                     secRef[subsystem][opCode] = seconds;
+                        weekRef[subsystem][opCode] = week;
+                                       // error: couldn't close the file
                                 this->GiveLock();
                                 delete temp;
+                                cout<<"3"<<endl;
                                 return false;
                         }
-                        secRef[subsystem][opCode] = seconds;
-                        weekRef[subsystem][opCode] = week;
-                        // Reset data point count
+                    // Reset data point count
                         numDataPoints[subsystem][opCode] = 0;
                 }
                 else
@@ -457,6 +470,7 @@ bool FileHandler::Append(FileHandlerIDEnum subsystem, MessageCodeType opCode,
                 		printf("failed to open 2\n");
                         // error: failed to open the new file
                         this->GiveLock();
+                        cout<<"4"<<endl;
                         return false;
                 }
                 //Get time stamp, both week and seconds, cast to variable type data//
@@ -498,6 +512,7 @@ bool FileHandler::Append(FileHandlerIDEnum subsystem, MessageCodeType opCode,
                         {
                                 delete buffer;
                                 this->GiveLock();
+                                cout<<"5"<<endl;
                                 return false;
                         }
 
@@ -532,6 +547,7 @@ bool FileHandler::Append(FileHandlerIDEnum subsystem, MessageCodeType opCode,
                         // error: failed to write correctly
                         fd.close();
                         this->GiveLock();
+                        cout<<"6"<<endl;
                         return false;
                 }
                 fd.close();
@@ -539,12 +555,14 @@ bool FileHandler::Append(FileHandlerIDEnum subsystem, MessageCodeType opCode,
                 {
                         // error: couldn't close the file
                         this->GiveLock();
+                        cout<<"7"<<endl;
                         return false;
                 }
                 this->GiveLock();
         }
         else
         {
+        	cout<<"8"<<endl;
                 return false;
         }
         // Increment Number of Data Points in File
