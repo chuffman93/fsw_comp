@@ -32,7 +32,7 @@ uint32 crcTable[256];
 #define FILE_HANDLER_DEBUG                      0
 
 
-const char * writeDir = "/home/root/filehandler/";
+const char * writeDir = "/media/sdMount/";
 const char * truDat = "/home/root/filehandler/tru.dat";
 
 #define DEBUG_VAL(m, val) cout << m << ": " << val << endl;
@@ -282,6 +282,7 @@ bool FileHandler::Append(FileHandlerIDEnum subsystem, MessageCodeType opCode,
         string zipSubSystem;
         char *temp = new char[25];
         fstream fd;
+        FILE *fp; // ADAM added this
         uint32 seconds;
         //TODO: add the GPS stuff back
 //      Phoenix::Servers::GPSData * gpsData = gpsServer->GetGPSDataPtr();
@@ -364,6 +365,13 @@ bool FileHandler::Append(FileHandlerIDEnum subsystem, MessageCodeType opCode,
         file.append(temp);
         file.append("_");
 
+
+
+
+
+
+
+
         if (true == TakeLock(MAX_BLOCK_TIME))
         {
                 // Check if the file is full or doesn't exist (data points == 0)
@@ -410,6 +418,11 @@ bool FileHandler::Append(FileHandlerIDEnum subsystem, MessageCodeType opCode,
                         tempFile.append(file);
                         file = tempFile;
 
+
+
+
+
+
                         // open the file
                         if(!FileExists(file.c_str()))
                         {
@@ -419,7 +432,7 @@ bool FileHandler::Append(FileHandlerIDEnum subsystem, MessageCodeType opCode,
                         }
 
                         fd.open(file.c_str(), ios::out | ios::app | ios::trunc);
-
+/*
                         if (!fd.is_open())
                         {
 
@@ -442,6 +455,7 @@ bool FileHandler::Append(FileHandlerIDEnum subsystem, MessageCodeType opCode,
                                 cout<<"3"<<endl;
                                 return false;
                         }
+  */
                     // Reset data point count
                         numDataPoints[subsystem][opCode] = 0;
                 }
@@ -461,10 +475,38 @@ bool FileHandler::Append(FileHandlerIDEnum subsystem, MessageCodeType opCode,
                         tempFile.append(file);
                         file = tempFile;
                 }
+
                 delete temp;
 
+                ///////ADAM////////////
+
+                fp = fopen(file.c_str(), "a");
+                if (!fp){
+                	cout<<"ADAM ERROR"<<endl;
+                }
+                else cout<<"ADAM SUCCESS"<<endl;
+
+                //fprintf(fp, file.c_str());
+
+
+
+
+
+
+                //////////////////
+
+
+
+
+                ///////////////////
+
+
+
+
                 // open the file.
-                fd.open(file.c_str(), ios::out | ios::app);
+               /*
+                *
+                * fd.open(file.c_str(), ios::out | ios::app);
                 if (!fd.is_open())
                 {
                 		printf("failed to open 2\n");
@@ -473,6 +515,8 @@ bool FileHandler::Append(FileHandlerIDEnum subsystem, MessageCodeType opCode,
                         cout<<"4"<<endl;
                         return false;
                 }
+                */
+
                 //Get time stamp, both week and seconds, cast to variable type data//
                 size_t size = 0;
 
@@ -541,7 +585,12 @@ bool FileHandler::Append(FileHandlerIDEnum subsystem, MessageCodeType opCode,
                 }
 
                 // Write into the file.
-                fd.write((char *) buffer, (long int) size);
+                //fd.write((char *) buffer, (long int) size);
+                if (fwrite((void *) buffer,1,(long int) size, fp) != (long int) size) cout<<"ADAM FALIURE TO WRITE"<<endl;
+
+
+                if(fclose(fp)) cout<<"ADAM FILE DOESNT EXIST"<<endl;
+
                 if (fd.bad())
                 {
                         // error: failed to write correctly
