@@ -653,17 +653,16 @@ bool FileHandler::DeleteFile(const char * fileName)
 {
         //
 
-        fstream file;
+        FILE* fp;
         if (true == TakeLock(MAX_BLOCK_TIME))
         {
-                file.open(fileName, ios::in);
-                if (!file.is_open())
+                fp = fopen(fileName, "r");
+                if (!fp)
                 {
                         this->GiveLock();
                         return false;
                 }
-                file.close();
-                if (file.is_open())
+                if (fclose(fp))
                 {
                         // error: couldn't close the file
                         this->GiveLock();
@@ -719,6 +718,8 @@ uint8 * FileHandler::ReadFile(const char * fileName, size_t * bufferSize)
         return buffer;
 }
 
+/*Believed to be useless. Remove at later time.*/
+/*
 uint32 FileHandler::FileOpens(const char * fileName)
 {
         fstream file;
@@ -748,6 +749,12 @@ uint32 FileHandler::FileOpens(const char * fileName)
         }
 }
 
+*/
+
+
+
+/*Believed to be usless. Remove at another time.*/
+/*
 bool FileHandler::FileExists(const string fileName)
 {
         fstream f;
@@ -776,7 +783,10 @@ bool FileHandler::FileExists(const string fileName)
                 return false;
         }
 }
+*/
 
+/*Believed to be useless. Remove at later time*/
+/*
 bool FileHandler::FileExistsInTruDat(string fileToFind)
 {
         ifstream f(truDat);
@@ -791,6 +801,10 @@ bool FileHandler::FileExistsInTruDat(string fileToFind)
 
         return false;
 }
+*/
+
+
+
 
 uint32 FileHandler::FileWrite(char * fileName, char * buffer, size_t numBytes)
 {
