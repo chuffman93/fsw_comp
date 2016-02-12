@@ -53,3 +53,9 @@ TEST(TestFileHandler, appendDebug) {
 	ASSERT_TRUE(fileHandler->Append(SUBSYSTEM_ACS, ACS_HS_FAILURE, (* dataMessage)));
 
 }
+
+TEST(TestFileHandler, debugFstreamOpen) {
+
+
+
+}
