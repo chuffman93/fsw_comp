@@ -107,6 +107,7 @@ bool FileHandler::LogAppend(FileHandlerIDEnum logType, MessageCodeType dataOne,
 
         mkdir(writeDir, 0777);
 
+
         if (!((this->FileExists(errLogFullPath)) && (logType) == LOG_ERROR)
                         || !((this->FileExists(modeLogFullPath)) && (logType) == LOG_MODE))
         {
@@ -281,8 +282,8 @@ bool FileHandler::Append(FileHandlerIDEnum subsystem, MessageCodeType opCode,
         string fileExtension;
         string zipSubSystem;
         char *temp = new char[25];
-        fstream fd;
-        FILE *fp; // ADAM added this
+        //fstream fd;
+        FILE *fp;
         uint32 seconds;
         //TODO: add the GPS stuff back
         //Phoenix::Servers::GPSData * gpsData = gpsServer->GetGPSDataPtr();
@@ -410,7 +411,7 @@ bool FileHandler::Append(FileHandlerIDEnum subsystem, MessageCodeType opCode,
                         tempFile.append(file);
                         file = tempFile;
 
-                        fd.open(file.c_str(), ios::out | ios::app | ios::trunc);
+                        //fd.open(file.c_str(), ios::out | ios::app | ios::trunc);
 /*
                         if (!fd.is_open())
                         {
@@ -457,16 +458,13 @@ bool FileHandler::Append(FileHandlerIDEnum subsystem, MessageCodeType opCode,
 
                 delete temp;
 
-                ///////ADAM/////////////
-                cout<<file.c_str()<<endl;
                 fp = fopen(file.c_str(), "a");
                 if (!fp){
-                	cout<<"ADAM ERROR"<<endl;
+                	cout<<"File not opened"<<endl;
+                	this->GiveLock();
+                	return false;
                 }
-                else cout<<"ADAM SUCCESS"<<endl;
 
-                //fprintf(fp, file.c_str());
-                ////////////////////////
 
                 // open the file.
                /*
@@ -474,10 +472,8 @@ bool FileHandler::Append(FileHandlerIDEnum subsystem, MessageCodeType opCode,
                 * fd.open(file.c_str(), ios::out | ios::app);
                 if (!fd.is_open())
                 {
-                		printf("failed to open 2\n");
                         // error: failed to open the new file
                         this->GiveLock();
-                        cout<<"4"<<endl;
                         return false;
                 }
                 */
@@ -555,6 +551,7 @@ bool FileHandler::Append(FileHandlerIDEnum subsystem, MessageCodeType opCode,
 
                 if(fclose(fp)) cout<<"ADAM FILE DOESNT EXIST"<<endl;
 
+                /*
                 if (fd.bad())
                 {
                         // error: failed to write correctly
@@ -569,6 +566,8 @@ bool FileHandler::Append(FileHandlerIDEnum subsystem, MessageCodeType opCode,
                         this->GiveLock();
                         return false;
                 }
+                */
+
                 this->GiveLock();
         }
         else
@@ -641,39 +640,48 @@ bool FileHandler::DeleteFile(const char * fileName)
         return true;
 }
 
+
+// known dependency: CMDServer subsystem loop
 uint8 * FileHandler::ReadFile(const char * fileName, size_t * bufferSize)
 {
         uint8 * buffer = NULL;
         //open file for read only
         fstream file;
+        FILE * fp;
+        uint8 result;
         if (true == TakeLock(MAX_BLOCK_TIME))
         {
-                file.open(fileName, ios::in);
-                if (!file.is_open())
+                //file.open(fileName, ios::in);
+                fp = fopen(fileName, "r");
+                if (!fp)
                 {
                         // error: failed to open the file
                         buffer = NULL;
                         this->GiveLock();
                         return buffer;
                 }
+
                 //length of the file
                 *bufferSize = (size_t) this->fileSize(file);
                 buffer = new uint8[(*bufferSize)];
-                file.read((char *) buffer, *bufferSize);
-                if (file.bad())
+                //file.read((char *) buffer, *bufferSize);
+                result = fread(buffer,1,*bufferSize,fp);
+                if (result != *bufferSize)
                 {
-                        file.close();
+                        fclose(fp);
                         delete buffer;
                         buffer = NULL;
                         this->GiveLock();
                         return buffer;
                 }
-                file.close();
+                fclose(fp);
+                /*
                 if (file.is_open())
                 {
                         // error: couldn't close the file
                         this->GiveLock();
                 }
+                */
                 this->GiveLock();
         }
         return buffer;
@@ -715,7 +723,6 @@ uint32 FileHandler::FileOpens(const char * fileName)
 
 
 /*Believed to be usless. Remove at another time.*/
-/*
 bool FileHandler::FileExists(const string fileName)
 {
         fstream f;
@@ -744,10 +751,10 @@ bool FileHandler::FileExists(const string fileName)
                 return false;
         }
 }
-*/
+
 
 /*Believed to be useless. Remove at later time*/
-/*
+// Used in FileHandler::LogAppend
 bool FileHandler::FileExistsInTruDat(string fileToFind)
 {
         ifstream f(truDat);
@@ -762,9 +769,6 @@ bool FileHandler::FileExistsInTruDat(string fileToFind)
 
         return false;
 }
-*/
-
-
 
 
 uint32 FileHandler::FileWrite(char * fileName, char * buffer, size_t numBytes)
