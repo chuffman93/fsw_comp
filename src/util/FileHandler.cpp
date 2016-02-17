@@ -663,18 +663,22 @@ uint8 * FileHandler::ReadFile(const char * fileName, size_t * bufferSize)
 
                 //length of the file
                 *bufferSize = (size_t) this->fileSize(file);
-                buffer = new uint8[(*bufferSize)];
+				cout<<"Buffer Size: "<<*bufferSize<<endl;
+				buffer = new uint8[((uint8) *bufferSize)];
                 //file.read((char *) buffer, *bufferSize);
                 result = fread(buffer,1,*bufferSize,fp);
+                /*
                 if (result != *bufferSize)
                 {
-                        fclose(fp);
+                		fclose(fp);
                         delete buffer;
                         buffer = NULL;
                         this->GiveLock();
                         return buffer;
                 }
+                */
                 fclose(fp);
+
                 /*
                 if (file.is_open())
                 {
@@ -1073,7 +1077,6 @@ uint32 FileHandler::crcCheck(const char * fileName)
 								return crc;
 						}
 						bufferSize = (uint32) this->fileSize(file);
-						//printf("Buffer Size: %i\n",bufferSize);
 						buffer = new uint8[bufferSize];
 						file.read((char *) buffer, bufferSize);
 

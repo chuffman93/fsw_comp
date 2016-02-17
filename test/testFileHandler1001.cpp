@@ -61,8 +61,13 @@ TEST(TestFileHandler, testRead) {
 
 	size_t readSize = 0;
 	uint8 * readBuffer;
+	char * testFile = (char *)"/media/sdMount/adam.txt";
 
-	readBuffer = fileHandler->ReadFile("/media/sdMount/adam.txt", &readSize);
+	readBuffer = fileHandler->ReadFile(testFile, &readSize);
 	ASSERT_TRUE(readBuffer != NULL);
 
+	cout<<readSize<<endl;
+	for(int i = 0; i<5; i++){
+		cout<<*readBuffer+i<<endl;
+	}
 }
