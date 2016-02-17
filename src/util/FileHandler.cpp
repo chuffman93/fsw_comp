@@ -83,7 +83,7 @@ FileHandler & FileHandler::operator=(const FileHandler & source)
 {
         return *this;
 }
-
+/*
 bool FileHandler::LogAppend(FileHandlerIDEnum logType, MessageCodeType dataOne,
                 MessageCodeType dataTwo)
 {
@@ -267,7 +267,7 @@ bool FileHandler::LogAppend(FileHandlerIDEnum logType, MessageCodeType dataOne,
         return true;
 
 }
-
+*/
 ///////////////////////////////////
 // Append to Data File
 ///////////////////////////////////
@@ -287,11 +287,10 @@ bool FileHandler::Append(FileHandlerIDEnum subsystem, MessageCodeType opCode,
         uint32 seconds;
         //TODO: add the GPS stuff back
         //Phoenix::Servers::GPSData * gpsData = gpsServer->GetGPSDataPtr();
+
+
         int week = 1;   // gpsData->GPSWeek;
-
         filePath = writeDir;
-        //string filePath;
-
         //Type of the files
         fileExtension = ".dat";
 
@@ -584,6 +583,7 @@ bool FileHandler::Append(FileHandlerIDEnum subsystem, MessageCodeType opCode,
         return true;
 }
 
+/*
 size_t removeSubstring(char * source, const char * toRemove,
                 size_t sourceLength)
 {
@@ -605,29 +605,17 @@ size_t removeSubstring(char * source, const char * toRemove,
         }
         return (sourceLength - strlen(toRemove));
 }
+*/
+
 
 ///////////////////////////////////
 // Delete Data File
 ///////////////////////////////////
 bool FileHandler::DeleteFile(const char * fileName)
 {
-        //
 
-        FILE* fp;
         if (true == TakeLock(MAX_BLOCK_TIME))
         {
-                fp = fopen(fileName, "r");
-                if (!fp)
-                {
-                        this->GiveLock();
-                        return false;
-                }
-                if (fclose(fp))
-                {
-                        // error: couldn't close the file
-                        this->GiveLock();
-                        return false;
-                }
                 if (remove(fileName) != 0)
                 {
                         // error: failed to delete the file
@@ -723,6 +711,7 @@ uint32 FileHandler::FileOpens(const char * fileName)
 
 
 /*Believed to be usless. Remove at another time.*/
+/*
 bool FileHandler::FileExists(const string fileName)
 {
         fstream f;
@@ -751,10 +740,11 @@ bool FileHandler::FileExists(const string fileName)
                 return false;
         }
 }
-
+*/
 
 /*Believed to be useless. Remove at later time*/
 // Used in FileHandler::LogAppend
+/*
 bool FileHandler::FileExistsInTruDat(string fileToFind)
 {
         ifstream f(truDat);
@@ -769,7 +759,7 @@ bool FileHandler::FileExistsInTruDat(string fileToFind)
 
         return false;
 }
-
+*/
 
 uint32 FileHandler::FileWrite(char * fileName, char * buffer, size_t numBytes)
 {
@@ -996,6 +986,7 @@ unsigned int FileHandler::folderSize(const char * path)
         unsigned int size;
         struct dirent *ep;
         struct stat sbuffer;
+
         dp = opendir(path);
         size = 0;
         if (dp != NULL)
