@@ -268,320 +268,216 @@ bool FileHandler::LogAppend(FileHandlerIDEnum logType, MessageCodeType dataOne,
 
 }
 */
+
+
+uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType opCode, string file, int week)
+{
+    string filePath;
+    string tempFile;
+    string fileExtension;
+    char *temp = new char[25];
+
+    filePath = writeDir;
+    fileExtension = ".dat"; //Type of the files
+
+	switch (subsystem)
+	        {
+	                case SUBSYSTEM_ACS:
+	                        filePath.append("ACS/");
+	                        file = "ACS_";
+	                        break;
+	                case SUBSYSTEM_COM:
+	                        filePath.append("COM/");
+	                        file = "COM_";
+	                        break;
+	                case SUBSYSTEM_EPS:
+	                        filePath.append("EPS/");
+	                        file = "EPS_";
+	                        break;
+	                case SUBSYSTEM_GPS:
+	                        filePath.append("GPS/");
+	                        file = "GPS_";
+	                        break;
+	                case SUBSYSTEM_PLD:
+	                        filePath.append("PLD/");
+	                        file = "PLD_";
+	                        break;
+	                case SUBSYSTEM_THM:
+	                        filePath.append("THM/");
+	                        file = "THM_";
+	                        break;
+	                case SUBSYSTEM_SCH:
+	                        filePath.append("SCH/");
+	                        file = "SCH_";
+	                        break;
+	                case SUBSYSTEM_STR:
+	                        filePath.append("STR/");
+	                        file = "STR_";
+	                        break;
+	                case SUBSYSTEM_CMD:
+	                        filePath.append("CMD/");
+	                        file = "CMD_";
+	                        break;
+	                case SYSTEM_CDH:
+	                        filePath.append("CDH/");
+	                        file = "CDH_";
+	                        break;
+	                default:
+	                        delete temp;
+	                        return -1;
+	        }
+
+	mkdir(filePath.c_str(), 0777);
+	        itoa(opCode, temp, 10);
+	        file.append(temp);
+	        file.append("_");
+
+	        itoa(epochNum, temp, 10);
+	        file.append(temp);
+	        file.append("_");
+
+
+
+            //seconds = secRef[subsystem][opCode];
+            week = weekRef[subsystem][opCode];
+
+            tempFile = file;
+
+            itoa(week, temp, 10);
+	        tempFile.append(temp);
+	        tempFile.append("_");
+
+            //itoa(seconds, temp, 10);
+            tempFile.append(temp);
+
+
+            delete temp;
+
+            if (fileSize(tempFile.c_str())>=MAXFILESIZE){
+            	//get current time in seconds and week
+            	//file.append(seconds);
+            	//file.append(week);
+                //secRef[subsystem][opCode] = seconds;
+                //weekRef[subsystem][opCode] = weeks;
+
+            }
+            else{
+            	file = tempFile;
+            }
+
+            file.append(fileExtension);
+
+            return 0;
+
+}
+
+
+
 ///////////////////////////////////
 // Append to Data File
 ///////////////////////////////////
 bool FileHandler::Append(FileHandlerIDEnum subsystem, MessageCodeType opCode,
                 const MultiDataMessage & message)
 {
-		//#ifndef WIN32
-		//Phoenix::Servers::GPSServer * gpsServer = dynamic_cast<Phoenix::Servers::GPSServer *>(Factory::GetInstance(GPS_SERVER_SINGLETON));
-        string file;
-        string filePath;
-        string tempFile;
-        string fileExtension;
-        string zipSubSystem;
-        char *temp = new char[25];
-        //fstream fd;
-        FILE *fp;
-        uint32 seconds;
-        //TODO: add the GPS stuff back
-        //Phoenix::Servers::GPSData * gpsData = gpsServer->GetGPSDataPtr();
+	string file;
 
 
-        int week = 1;   // gpsData->GPSWeek;
-        filePath = writeDir;
-        //Type of the files
-        fileExtension = ".dat";
 
-        // File name lookup
-        switch (subsystem)
-        {
-                case SUBSYSTEM_ACS:
-                        zipSubSystem = "ACS";
-                        filePath.append("ACS/");
-                        file = "ACS_";
-                        break;
-                case SUBSYSTEM_COM:
-                        zipSubSystem = "COM";
-                        filePath.append("COM/");
-                        file = "COM_";
-                        break;
-                case SUBSYSTEM_EPS:
-                        zipSubSystem = "EPS";
-                        filePath.append("EPS/");
-                        file = "EPS_";
-                        break;
-                case SUBSYSTEM_GPS:
-                        zipSubSystem = "GPS";
-                        filePath.append("GPS/");
-                        file = "GPS_";
-                        break;
-                case SUBSYSTEM_PLD:
-                        zipSubSystem = "PLD";
-                        filePath.append("PLD/");
-                        file = "PLD_";
-                        break;
-                case SUBSYSTEM_THM:
-                        zipSubSystem = "THM";
-                        filePath.append("THM/");
-                        file = "THM_";
-                        break;
-                case SUBSYSTEM_SCH:
-                        zipSubSystem = "SCH";
-                        filePath.append("SCH/");
-                        file = "SCH_";
-                        break;
-                case SUBSYSTEM_STR:
-                        zipSubSystem = "STR";
-                        filePath.append("STR/");
-                        file = "STR_";
-                        break;
-                case SUBSYSTEM_CMD:
-                        zipSubSystem = "CMD";
-                        filePath.append("CMD/");
-                        file = "CMD_";
-                        break;
-                case SYSTEM_CDH:
-                        zipSubSystem = "CDH";
-                        filePath.append("CDH/");
-                        file = "CDH_";
-                        break;
-                default:
-                        delete temp;
-                        return false;
-        }
-        mkdir(filePath.c_str(), 0777);
+	/*Fetch Time*/
 
-        itoa(opCode, temp, 10);
-        file.append(temp);
-        file.append("_");
-
-        itoa(epochNum, temp, 10);
-        file.append(temp);
-        file.append("_");
-
-        itoa(week, temp, 10);
-        file.append(temp);
-        file.append("_");
-
-        if (true == TakeLock(MAX_BLOCK_TIME))
-        {
-                // Check if the file is full or doesn't exist (data points == 0)
-                if ((numDataPoints[subsystem][opCode] == 0)
-                                || (numDataPoints[subsystem][opCode]
-                                                >= numDataPointsMax[subsystem][opCode]))
-                {
-
-                        if ((numDataPoints[subsystem][opCode]
-                                        >= numDataPointsMax[subsystem][opCode]))
-                        {
-                                tempFile = file;
-                                seconds = secRef[subsystem][opCode];
-                                itoa(seconds, temp, 10);
-                                file.append(temp);
-                                file.append(fileExtension);
-
-                                DeleteFile(file.c_str());
-                                file = tempFile;
-                        }
-                        //TODO: add the RTC back
-                        if (!(Phoenix::HAL::RTCGetTime(&seconds, NULL)))
-                        {
-
-                                this->GiveLock();
-                                delete temp;
-                                return false;
-                        }
-
-                        if (seconds > 999999)
-                        {
-                                RTCSetTime(0);
-                                seconds = 0;
-                        }
-
-                        itoa(seconds, temp, 10);
-                        file.append(temp);
-                        file.append(fileExtension);
-
-                        this->unzipFile(filePath.c_str(), file.c_str(),
-                                        zipSubSystem.c_str());
-                        tempFile = filePath;
-                        tempFile.append(file);
-                        file = tempFile;
-
-                        //fd.open(file.c_str(), ios::out | ios::app | ios::trunc);
-/*
-                        if (!fd.is_open())
-                        {
-
-                                // error: failed to open the new file
-                                this->GiveLock();
-                                delete temp;
-                                cout<<"2"<<endl;
-                                cout<<FileExists(file.c_str())<<endl;
-                                return false;
-                        }
-                        fd.close();
-                        if (fd.is_open())
-                        {
-                       ;
-                     secRef[subsystem][opCode] = seconds;
-                        weekRef[subsystem][opCode] = week;
-                                       // error: couldn't close the file
-                                this->GiveLock();
-                                delete temp;
-                                cout<<"3"<<endl;
-                                return false;
-                        }
-  */
-                        // Reset data point count
-                        numDataPoints[subsystem][opCode] = 0;
-                }
-                else
-                {
-                        seconds = secRef[subsystem][opCode];
-                        week = weekRef[subsystem][opCode];
-                        // Write file name
-
-                        itoa(seconds, temp, 10);
-                        file.append(temp);
-                        file.append(fileExtension);
-
-                        this->unzipFile(filePath.c_str(), file.c_str(),
-                                        zipSubSystem.c_str());
-                        tempFile = filePath;
-                        tempFile.append(file);
-                        file = tempFile;
-                }
-
-                delete temp;
-
-                fp = fopen(file.c_str(), "a");
-                if (!fp){
-                	cout<<"File not opened"<<endl;
-                	this->GiveLock();
-                	return false;
-                }
+	uint32 seconds;
+	//TODO: add the GPS stuff back
+	//Phoenix::Servers::GPSData * gpsData = gpsServer->GetGPSDataPtr();
+	//Phoenix::Servers::GPSServer * gpsServer = dynamic_cast<Phoenix::Servers::GPSServer *>(Factory::GetInstance(GPS_SERVER_SINGLETON));
+	int week = 1;   // gpsData->GPSWeek;
 
 
-                // open the file.
-               /*
-                *
-                * fd.open(file.c_str(), ios::out | ios::app);
-                if (!fd.is_open())
-                {
-                        // error: failed to open the new file
-                        this->GiveLock();
-                        return false;
-                }
-                */
 
-                //Get time stamp, both week and seconds, cast to variable type data//
-                size_t size = 0;
+	/*Create file name using subsystem, opcode, and time. If file exists and is full, create new file, else
+	 * append file.*/
 
-                if ((subsystem != SUBSYSTEM_PLD)
-                                || (subsystem == SUBSYSTEM_PLD && opCode != PLD_DATA_SUCCESS))
-                {
-                        size += 9;
-                }
-
-                //Size holds the size of the buffer we will be storing the data to write//
-
-                //Extract message from MultiDataMessage an place into list params//
-                list<VariableTypeData *> params;
-                params = message.GetParameters();
-                uint8 numParams = 0;
-                //Iterate through the params list and increment size for each value in params//
-                std::list<VariableTypeData *>::iterator it = params.begin();
-                for (; it != params.end(); it++)
-                {
-                        size += (*it)->GetFlattenSize();
-                        numParams += 1;
-                }
-
-                //buffer keeps pointer to the whole buffer, bufferPtr points to the next place to flattened data//
-                uint8 *buffer = new uint8[size];
-                uint8 *bufferPtr = buffer;
-
-                if ((subsystem != SUBSYSTEM_PLD)
-                                || (subsystem == SUBSYSTEM_PLD && opCode != PLD_DATA_SUCCESS))
-                {
-                        buffer[0] = (uint8) ((week >> 24) & 0xff);
-                        buffer[1] = (uint8) ((week >> 16) & 0xff);
-                        buffer[2] = (uint8) ((week >> 8) & 0xff);
-                        buffer[3] = (uint8) (week & 0xff);
-                        //TODO: add the RTC back
-                        if (!(Phoenix::HAL::RTCGetTime(&seconds, NULL)))
-                        {
-                                delete buffer;
-                                this->GiveLock();
-                                return false;
-                        }
-
-                        buffer[4] = (uint8) ((seconds >> 24) & 0xff);
-                        buffer[5] = (uint8) ((seconds >> 16) & 0xff);
-                        buffer[6] = (uint8) ((seconds >> 8) & 0xff);
-                        buffer[7] = (uint8) (seconds & 0xff);
-
-                        bufferPtr += 8;
-                }
-
-                buffer[8] = numParams;
-                bufferPtr += 1;
-
-                it = params.begin();
-                for (; it != params.end(); it++)
-                {
-                        bufferPtr += (*it)->Flatten(bufferPtr, (*it)->GetFlattenSize());
-                }
-
-                if ((subsystem == SUBSYSTEM_PLD) && (opCode == PLD_DATA_SUCCESS))
-                {
-                        size -= 5;
-                        bufferPtr = buffer + 5; //remove variable type data header
-                        memcpy(buffer, bufferPtr, size);
-                }
-
-                // Write into the file.
-                //fd.write((char *) buffer, (long int) size);
-                if (fwrite((void *) buffer,1,(long int) size, fp) != (long int) size) cout<<"ADAM FALIURE TO WRITE"<<endl;
+	FetchFileName(subsystem, opCode, file, week);
 
 
-                if(fclose(fp)) cout<<"ADAM FILE DOESNT EXIST"<<endl;
 
-                /*
-                if (fd.bad())
-                {
-                        // error: failed to write correctly
-                        fd.close();
-                        this->GiveLock();
-                        return false;
-                }
-                fd.close();
-                if (fd.is_open())
-                {
-                        // error: couldn't close the file
-                        this->GiveLock();
-                        return false;
-                }
-                */
 
-                this->GiveLock();
-        }
-        else
-        {
-                return false;
-        }
-        // Increment Number of Data Points in File
-        ++numDataPoints[subsystem][opCode];
 
-        //#endif //WIN32
-        // Success!
-        if (this->folderSize(filePath.c_str()) > sizeToZip)
-                this->zipFiles(filePath.c_str(), zipSubSystem.c_str());
-        return true;
+	/*Fill buffer with data to be written and write buffer to file*/
+
+	size_t size = 0;
+	uint8 *buffer = new uint8[size];
+	if ((subsystem != SUBSYSTEM_PLD) || (subsystem == SUBSYSTEM_PLD && opCode != PLD_DATA_SUCCESS))
+		{
+				size += 9;
+		}
+
+		//Size holds the size of the buffer we will be storing the data to write//
+		//Extract message from MultiDataMessage an place into list params//
+		list<VariableTypeData *> params;
+		params = message.GetParameters();
+		uint8 numParams = 0;
+		//Iterate through the params list and increment size for each value in params//
+		std::list<VariableTypeData *>::iterator it = params.begin();
+		for (; it != params.end(); it++)
+		{
+				size += (*it)->GetFlattenSize();
+				numParams += 1;
+		}
+
+		//buffer keeps pointer to the whole buffer, bufferPtr points to the next place to flattened data//
+
+		uint8 *bufferPtr = buffer;
+
+
+		if ((subsystem != SUBSYSTEM_PLD)
+						|| (subsystem == SUBSYSTEM_PLD && opCode != PLD_DATA_SUCCESS))
+		{
+				buffer[0] = (uint8) ((week >> 24) & 0xff);
+				buffer[1] = (uint8) ((week >> 16) & 0xff);
+				buffer[2] = (uint8) ((week >> 8) & 0xff);
+				buffer[3] = (uint8) (week & 0xff);
+				//TODO: add the RTC back
+				if (!(Phoenix::HAL::RTCGetTime(&seconds, NULL)))
+				{
+						delete buffer;
+						this->GiveLock();
+						return false;
+				}
+
+				buffer[4] = (uint8) ((seconds >> 24) & 0xff);
+				buffer[5] = (uint8) ((seconds >> 16) & 0xff);
+				buffer[6] = (uint8) ((seconds >> 8) & 0xff);
+				buffer[7] = (uint8) (seconds & 0xff);
+
+				bufferPtr += 8;
+		}
+
+		buffer[8] = numParams;
+		bufferPtr += 1;
+
+		it = params.begin();
+		for (; it != params.end(); it++)
+		{
+				bufferPtr += (*it)->Flatten(bufferPtr, (*it)->GetFlattenSize());
+		}
+
+		if ((subsystem == SUBSYSTEM_PLD) && (opCode == PLD_DATA_SUCCESS))
+		{
+				size -= 5;
+				bufferPtr = buffer + 5; //remove variable type data header
+				memcpy(buffer, bufferPtr, size);
+		}
+
+
+
+
+	// Write into the file.
+
+	FileWrite(file.c_str(), (char*) buffer, (long int) size);
+	return true;
 }
+
+
 
 /*
 size_t removeSubstring(char * source, const char * toRemove,
@@ -761,7 +657,9 @@ bool FileHandler::FileExistsInTruDat(string fileToFind)
 }
 */
 
-uint32 FileHandler::FileWrite(char * fileName, char * buffer, size_t numBytes)
+
+//Append instead of writing?
+uint32 FileHandler::FileWrite(const char * fileName, char * buffer, size_t numBytes)
 {
         uint32 rv = 0;
         //open file for write only
@@ -813,12 +711,15 @@ void FileHandler::FileSizeReferenceCreate()
         }
 }
 
+
 void FileHandler::FileSizePLDPicture(uint32 resolution, uint32 chunckSize)
 {
         numDataPointsMax[SUBSYSTEM_PLD][PLD_PIC_CMD] = resolution / chunckSize;
         numDataPoints[SUBSYSTEM_PLD][PLD_PIC_CMD] = 0;
 }
 
+
+//look at this one.
 bool FileHandler::InitEpoch()
 {
         fstream file;
@@ -897,6 +798,8 @@ uint16 FileHandler::GetEpoch()
  }
 */
 
+
+//Checkout if both needed
 int FileHandler::fileSize(fstream & file)
 {
         file.seekg(0, file.end);
@@ -905,7 +808,7 @@ int FileHandler::fileSize(fstream & file)
         return length;
 }
 
-uint32 FileHandler::fileSize(char * fileName)
+uint32 FileHandler::fileSize(const char * fileName)
 {
         uint32 rv = 0;
         //open file for read only
@@ -949,6 +852,10 @@ void FileHandler::zipFiles(const char * path, const char * zipName)
         system(cmd.c_str());
 }
 
+
+
+
+//Look at application and see if only one can be used
 void FileHandler::unzipFiles(const char * path, const char * zipName)
 {
         struct stat buffer;
@@ -980,6 +887,8 @@ void FileHandler::unzipFile(const char * path, const char * file,
         system(cmd.c_str());
 }
 
+
+//Work on this
 unsigned int FileHandler::folderSize(const char * path)
 {
         DIR *dp;

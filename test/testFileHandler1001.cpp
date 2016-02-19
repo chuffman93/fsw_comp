@@ -31,8 +31,8 @@ TEST(DISABLE_TestFileHandler, sdNavRead) {
 	FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
 
 	//ASSERT_TRUE(fileHandler->FileExists("/media/sdMount/test.c"));
-
-	uint32 size = fileHandler->fileSize("/media/sdMount/test.c");
+	string file = "/media/sdMount/test.c";
+	uint32_t size = fileHandler->fileSize(file.c_str());
 	cout << "File Size: " << size << endl;
 
 	ASSERT_EQ(size, 6);

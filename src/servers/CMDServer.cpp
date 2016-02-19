@@ -113,8 +113,8 @@ namespace Phoenix
 				for(int i = 0; i < 5; i++)
 				{
 					//check if file exists
-					if((fileHandler->FileExists(CMDFiles[i])) >= 0)
-					{
+					//if((fileHandler->FileExists(CMDFiles[i])) >= 0)
+					//{
 						//read the file into a buffer
 						readBuffer = fileHandler->ReadFile(CMDFiles[i], &readSize);
 
@@ -131,7 +131,8 @@ namespace Phoenix
 						//try to create packets from the buffer and send them
 						CMDBufferParse(((char *) readBuffer), readSize);
 						//fileHandler->DeleteFile(CMDFiles[i]);
-					}usleep(1000);
+					//}
+					usleep(1000);
 				}
 				
 				/*

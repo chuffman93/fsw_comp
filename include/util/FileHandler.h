@@ -35,6 +35,8 @@ using namespace std;
 /*! \brief Maximum number of opcodes per subsystem */
 const size_t MAX_OPCODES = 256;
 
+const size_t MAXFILESIZE = 500;
+
 /*! \brief Maximum number of data points per log file */
 const size_t MAX_DATA_POINTS = 1000;
 
@@ -154,7 +156,7 @@ public:
          *  \return the size of the file, -1 if it doesn't
          *  exist.
          */
-        uint32 FileWrite(char * fileName, char * buffer, size_t numBytes);
+        uint32 FileWrite(const char * fileName, char * buffer, size_t numBytes);
 
         void FileSizePLDPicture(uint32 resolution, uint32 chunckSize);
 
@@ -175,7 +177,7 @@ public:
 
         int fileSize(fstream & file);
 
-        uint32 fileSize(char * fileName);
+        uint32 fileSize(const char * fileName);
 
         void zipFiles(const char * path, const char * zipName);
 
@@ -220,6 +222,9 @@ private:
          *      maximum number of data points per opcode and error opcode.
          */
         void FileSizeReferenceCreate(void);
+
+        //Comment on how it works
+        uint8_t FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType opCode, string file, int week);
 
         // Subsystem file designator reference tables
         // Allows quick reference to most recent file.

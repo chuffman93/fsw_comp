@@ -376,7 +376,6 @@
 									<listOptionValue builtIn="false" value="/usr/lib/gcc-cross/arm-linux-gnueabihf/4.8/include"/>
 									<listOptionValue builtIn="false" value="/usr/lib/gcc-cross/arm-linux-gnueabihf/4.8/include-fixed"/>
 									<listOptionValue builtIn="false" value="/usr/arm-linux-gnueabihf/include"/>
-									<listOptionValue builtIn="false" value="/home/alex/Documents/eclipse_workspace/cdh-fsw/include"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cdh-fsw/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cdh-fsw/testing_lib}&quot;"/>
 								</option>
