@@ -15,7 +15,7 @@ using namespace rel_ops;
 //using namespace Phoenix::HAL;
 using namespace Phoenix::Core;
 
-TEST(DISABLE_TestFileHandler, exist) {
+TEST(DISABLED_TestFileHandler, exist) {
 
 	Factory::GetInstance(FILE_HANDLER_SINGLETON);
 	FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
@@ -25,7 +25,7 @@ TEST(DISABLE_TestFileHandler, exist) {
 	//EXPECT_EQ(fileHandler->fileSize("CMD_List_1.dat"),0);
 }
 
-TEST(DISABLE_TestFileHandler, sdNavRead) {
+TEST(DISABLED_TestFileHandler, sdNavRead) {
 
 	Factory::GetInstance(FILE_HANDLER_SINGLETON);
 	FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
@@ -66,8 +66,21 @@ TEST(TestFileHandler, testRead) {
 	readBuffer = fileHandler->ReadFile(testFile, &readSize);
 	ASSERT_TRUE(readBuffer != NULL);
 
-	cout<<readSize<<endl;
-	for(int i = 0; i<5; i++){
+	for(int i = 0; i<readSize; i++){
 		cout<<*readBuffer+i<<endl;
 	}
+
+}
+
+TEST(TestFileHandler, testFileSize) {
+
+	Factory::GetInstance(FILE_HANDLER_SINGLETON);
+	FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
+
+	uint32 size;
+	char * testFile = (char *)"/media/sdMount/adam.txt";
+
+	size = fileHandler->fileSize(testFile);
+	ASSERT_EQ(size,7);
+
 }

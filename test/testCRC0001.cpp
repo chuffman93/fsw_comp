@@ -13,7 +13,7 @@ using namespace Phoenix::Core;
 
 //ensure that the function correctly calculates the crc
 //the file "test1" should be in the home directory
-TEST(TestCRC, correctCRC) {
+TEST(DISABLED_TestCRC, correctCRC) {
 	char filename[] = "test1"; //File contains: "Test File Text7\n"
 
 	Factory::GetInstance(FILE_HANDLER_SINGLETON);
@@ -25,7 +25,7 @@ TEST(TestCRC, correctCRC) {
 
 //ensure that the function catches a corrupted file
 //the file "test2" should be in the home directory
-TEST(TestCRC, corruptedFile){
+TEST(DISABLED_TestCRC, corruptedFile){
 	char filename[] = "test2"; //File should contain: "Text for test file 2\n"
 	//File actually contains: "Text for test fjle 2\n"
 

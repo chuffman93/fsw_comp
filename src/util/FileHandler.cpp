@@ -546,7 +546,10 @@ uint8 * FileHandler::ReadFile(const char * fileName, size_t * bufferSize)
                 }
 
                 //length of the file
-                *bufferSize = (size_t) this->fileSize(file);
+                //*bufferSize = (size_t) this->fileSize(fileName);
+                fseek(fp, 0L, SEEK_END);
+                *bufferSize = (size_t) ftell(fp);
+                fseek(fp, 0L, SEEK_SET);
 				cout<<"Buffer Size: "<<*bufferSize<<endl;
 				buffer = new uint8[((uint8) *bufferSize)];
                 //file.read((char *) buffer, *bufferSize);
@@ -816,25 +819,23 @@ uint32 FileHandler::fileSize(const char * fileName)
 {
         uint32 rv = 0;
         //open file for read only
-        fstream file;
+        //fstream file;
+        FILE * fp;
         if (true == TakeLock(MAX_BLOCK_TIME))
         {
-                file.open(fileName, ios::in);
-                if (!file.is_open())
-                {
-                        // error: failed to open the file
-                        this->GiveLock();
-                        return -1;
-                }
-                //length of the file
-                rv = (uint32) this->fileSize(file);
-                file.close();
-                if (file.is_open())
-                {
-                        // error: couldn't close the file
-                        this->GiveLock();
-                        return -2;
-                }
+        		fp = fopen(fileName, "r");
+				if (!fp)
+				{
+						// error: failed to open the file
+						this->GiveLock();
+						return -1;
+				}
+
+				fseek(fp, 0L, SEEK_END);
+				rv = (uint32) ftell(fp);
+				fseek(fp, 0L, SEEK_SET);
+
+				fclose(fp);
                 this->GiveLock();
         }
         return rv;
