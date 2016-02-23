@@ -546,12 +546,11 @@ uint8 * FileHandler::ReadFile(const char * fileName, size_t * bufferSize)
                 }
 
                 //length of the file
-                //*bufferSize = (size_t) this->fileSize(fileName);
-                fseek(fp, 0L, SEEK_END);
-                *bufferSize = (size_t) ftell(fp);
-                fseek(fp, 0L, SEEK_SET);
+                *bufferSize = fileSize(fp);
 				cout<<"Buffer Size: "<<*bufferSize<<endl;
-				buffer = new uint8[((uint8) *bufferSize)];
+
+				//Create buffer
+				buffer = new uint8[*bufferSize];
                 //file.read((char *) buffer, *bufferSize);
                 result = fread(buffer,1,*bufferSize,fp);
                 /*
@@ -813,6 +812,14 @@ int FileHandler::fileSize(fstream & file)
         int length = file.tellg();
         file.seekg(0, file.beg);
         return length;
+}
+
+uint32 FileHandler::fileSize(FILE * fp)
+{
+	fseek(fp, 0L, SEEK_END);
+	uint32 size = (size_t) ftell(fp);
+	fseek(fp, 0L, SEEK_SET);
+	return size;
 }
 
 uint32 FileHandler::fileSize(const char * fileName)
