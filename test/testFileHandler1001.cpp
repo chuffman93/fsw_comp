@@ -67,9 +67,12 @@ TEST(TestFileHandler, testRead) {
 	ASSERT_TRUE(readBuffer != NULL);
 
 	for(int i = 0; i<readSize; i++){
-		cout<<*readBuffer+i<<endl;
+		cout<<"Char "<<i<<":"<<readBuffer[i]<<endl;
 	}
 
+	//cout<<readBuffer<<endl;
+
+	delete readBuffer;
 }
 
 TEST(TestFileHandler, testFileSize) {

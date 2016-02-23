@@ -529,13 +529,10 @@ bool FileHandler::DeleteFile(const char * fileName)
 uint8 * FileHandler::ReadFile(const char * fileName, size_t * bufferSize)
 {
         uint8 * buffer = NULL;
-        //open file for read only
-        fstream file;
         FILE * fp;
-        uint8 result;
+        size_t result;
         if (true == TakeLock(MAX_BLOCK_TIME))
         {
-                //file.open(fileName, ios::in);
                 fp = fopen(fileName, "r");
                 if (!fp)
                 {
@@ -545,15 +542,16 @@ uint8 * FileHandler::ReadFile(const char * fileName, size_t * bufferSize)
                         return buffer;
                 }
 
-                //length of the file
+                // Length of the file
                 *bufferSize = fileSize(fp);
 				cout<<"Buffer Size: "<<*bufferSize<<endl;
 
-				//Create buffer
+				// Create buffer
 				buffer = new uint8[*bufferSize];
-                //file.read((char *) buffer, *bufferSize);
                 result = fread(buffer,1,*bufferSize,fp);
-                /*
+                cout<<"Read: "<<result<<endl;
+
+                // Check for correct read
                 if (result != *bufferSize)
                 {
                 		fclose(fp);
@@ -562,16 +560,9 @@ uint8 * FileHandler::ReadFile(const char * fileName, size_t * bufferSize)
                         this->GiveLock();
                         return buffer;
                 }
-                */
-                fclose(fp);
 
-                /*
-                if (file.is_open())
-                {
-                        // error: couldn't close the file
-                        this->GiveLock();
-                }
-                */
+                // Cleanup
+                fclose(fp);
                 this->GiveLock();
         }
         return buffer;
