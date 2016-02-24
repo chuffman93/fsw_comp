@@ -298,8 +298,6 @@ bool FileHandler::Log(FileHandlerIDEnum subsystem, MessageCodeType opCode,
 {
 	string file;
 
-
-
 	/*Fetch Time*/
 
 	uint32 seconds;
@@ -308,17 +306,11 @@ bool FileHandler::Log(FileHandlerIDEnum subsystem, MessageCodeType opCode,
 	//Phoenix::Servers::GPSServer * gpsServer = dynamic_cast<Phoenix::Servers::GPSServer *>(Factory::GetInstance(GPS_SERVER_SINGLETON));
 	int week = 1;   // gpsData->GPSWeek;
 
-
-
 	/*Create file name using subsystem, opcode, and time. If file exists and is full, create new file, else
 	 * append file.*/
 
 	FetchFileName(subsystem, opCode, file, week);
-
-
-
-
-
+	cout<<"Filename: "<<file<<endl;
 	/*Fill buffer with data to be written and write buffer to file*/
 
 	size_t size = 0;
@@ -461,12 +453,10 @@ uint8 * FileHandler::ReadFile(const char * fileName, size_t * bufferSize)
 
                 // Length of the file
                 *bufferSize = fileSize(fp);
-				cout<<"Buffer Size: "<<*bufferSize<<endl;
 
 				// Create buffer
 				buffer = new uint8[*bufferSize];
                 result = fread(buffer,1,*bufferSize,fp);
-                cout<<"Read: "<<result<<endl;
 
                 // Check for correct read
                 if (result != *bufferSize)
@@ -578,30 +568,15 @@ uint32 FileHandler::FileWrite(const char * fileName, char * buffer, size_t numBy
         uint32 rv = 0;
         size_t result;
         //open file for write only
-        fstream file;
         FILE * fp;
         if (true == TakeLock(MAX_BLOCK_TIME))
         {
-                //file.open(fileName, ios::out | ios::app);
                 fp = fopen(fileName, "a");
-
                 if (!fp)
 				{
 						this->GiveLock();
 						return -1;
 				}
-
-                /*
-                if (!file.is_open())
-                {
-                        // error: failed to open the file
-                        this->GiveLock();
-                        return -1;
-                }
-                */
-
-                //length of the file
-                //file.write(buffer, numBytes);
 
                 result = fwrite(buffer,1,numBytes,fp);
 
@@ -611,29 +586,11 @@ uint32 FileHandler::FileWrite(const char * fileName, char * buffer, size_t numBy
                 	return -2;
                 }
 
-                /*
-                if (file.bad())
-                {
-                        file.close();
-                        this->GiveLock();
-                        return -2;
-                }
-                */
-
-                //rv = (uint32) this->fileSize(file);
                 rv = (uint32) this->fileSize(fp);
-                //file.close();
 
-                /*
-                if (file.is_open())
-                {
-                        // error: couldn't close the file
-                        this->GiveLock();
-                        return -3;
-                }
-                */
-                this->GiveLock();
+                fclose(fp);
         }
+        this->GiveLock();
         return rv;
 }
 
@@ -800,9 +757,6 @@ void FileHandler::zipFiles(const char * path, const char * zipName)
         cmd.append(" > /dev/null 2>&1");
         system(cmd.c_str());
 }
-
-
-
 
 //Look at application and see if only one can be used
 void FileHandler::unzipFiles(const char * path, const char * zipName)
