@@ -68,7 +68,7 @@ public:
          * and false otherwise
          *
          */
-        bool LogAppend(FileHandlerIDEnum logType, MessageCodeType dataOne, MessageCodeType dataTwo);
+        bool Log(FileHandlerIDEnum logType, MessageCodeType dataOne, MessageCodeType dataTwo);
 
         /*! \brief Adds the buffer to the file.
          *
@@ -84,7 +84,7 @@ public:
          *  \return true if the operation was successful and
          *  false otherwise.
          */
-        bool Append(FileHandlerIDEnum subsystem, MessageCodeType opCode,
+        bool Log(FileHandlerIDEnum subsystem, MessageCodeType opCode,
                         const Phoenix::Core::MultiDataMessage & message);
 
         /*! \brief Deletes the file from the SD card.
@@ -226,10 +226,13 @@ private:
         //Comment on how it works
         uint8_t FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType opCode, string file, int week);
 
+        uint8_t FetchFileName(FileHandlerIDEnum logType, string file, int week);
         // Subsystem file designator reference tables
         // Allows quick reference to most recent file.
         uint32 secRef[SYSTEM_MAX][MAX_OPCODES];
         uint32 weekRef[SYSTEM_MAX][MAX_OPCODES];
+        uint32 secRefLog[SYSTEM_MAX][MAX_OPCODES];
+        uint32 weekRefLog[SYSTEM_MAX][MAX_OPCODES];
 
         // Subsystem file data size reference tables
         uint32 numDataPoints[SYSTEM_MAX][MAX_OPCODES];

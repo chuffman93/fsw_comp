@@ -83,191 +83,108 @@ FileHandler & FileHandler::operator=(const FileHandler & source)
 {
         return *this;
 }
-/*
-bool FileHandler::LogAppend(FileHandlerIDEnum logType, MessageCodeType dataOne,
-                MessageCodeType dataTwo)
+
+bool FileHandler::Log(FileHandlerIDEnum logType, MessageCodeType dataOne, MessageCodeType dataTwo)
 {
         Phoenix::Servers::GPSServer * gpsServer =
                         dynamic_cast<Phoenix::Servers::GPSServer *>(Factory::GetInstance(
                                         GPS_SERVER_SINGLETON));
-
-        string file = writeDir;
-        string errLogFullPath = writeDir;
-        string modeLogFullPath = writeDir;
-
+        string file;
         uint32 seconds;
-        bool isMade = true;
-        ofstream f;
+
 
         Phoenix::Servers::GPSData * gpsData = gpsServer->GetGPSDataPtr();
         int week = gpsData->GPSWeek;
 
-        errLogFullPath.append(errLog);
-        modeLogFullPath.append(modeLog);
 
-        mkdir(writeDir, 0777);
+        FetchFileName(logType, file, week);
+
+		uint8 *buffer = new uint8[10];
+
+		buffer[0] = (uint8) ((week >> 24) & 0xff);
+		buffer[1] = (uint8) ((week >> 16) & 0xff);
+		buffer[2] = (uint8) ((week >> 8) & 0xff);
+		buffer[3] = (uint8) (week & 0xff);
+
+		if (!(Phoenix::HAL::RTCGetTime(&seconds, NULL)))
+		{
+				DEBUG_COUT("return false H");
+				delete buffer;
+				this->GiveLock();
+				return false;
+		}
+
+		buffer[4] = (uint8) ((seconds >> 24) & 0xff);
+		buffer[5] = (uint8) ((seconds >> 16) & 0xff);
+		buffer[6] = (uint8) ((seconds >> 8) & 0xff);
+		buffer[7] = (uint8) (seconds & 0xff);
+		buffer[8] = (uint8) dataOne;
+		buffer[9] = (uint8) dataTwo;
 
 
-        if (!((this->FileExists(errLogFullPath)) && (logType) == LOG_ERROR)
-                        || !((this->FileExists(modeLogFullPath)) && (logType) == LOG_MODE))
-        {
-                isMade = false;
-        }
 
-        if (TakeLock(MAX_BLOCK_TIME) == true)
-        {
-                if (logType == LOG_MODE)
-                {
-                        DEBUG_VAL("modeLog", modeLog);
-                        file.append(modeLog);
-                }
-                else
-                {
-                        DEBUG_VAL("errLog", errLog);
-                        file.append(errLog);
-                }
-
-                // If it's not made, make it. If it is made, jump straight to writing to it
-                if (!isMade)
-                {
-                        DEBUG_VAL("creating file", file.c_str());
-                        // create the file by opening it and flushing it
-                        f.open(file.c_str(), ios::out | ios::app | ios::ate);
-                        f << flush;
-                        if (!f.is_open())
-                        {
-                                // error: failed to open the new file
-                                DEBUG_COUT("return false A. May need to run as sudo");
-                                this->GiveLock();
-                                return false;
-                        }
-
-                        f.close();
-                        if (f.is_open())
-                        {
-                                // error: couldn't close the file
-                                DEBUG_COUT("return false B");
-                                this->GiveLock();
-                                return false;
-                        }
-
-                        // Append this new log file into the list of file names, if it isn't there
-                        if (!this->FileExistsInTruDat(file.c_str()))
-                        {
-                                DEBUG_VAL("File doesn't exist in tru.dat", file.c_str());
-                                f.open(truDat, ios::app);
-                                if (!f.is_open())
-                                {
-                                        // error: failed to open the new file
-                                        DEBUG_COUT("return false C");
-                                        this->GiveLock();
-                                        return false;
-                                }
-
-                                // Write into the file.
-                                DEBUG_VAL("file.c_str()", file.c_str());
-//                              DEBUG_VAL("strlen", strlen(file.c_str()));
-
-                                f.write(file.c_str(), strlen(file.c_str()));
-                                if (f.bad())
-                                {
-                                        // error: failed to write correctly
-                                        DEBUG_COUT("return false D");
-                                        f.close();
-                                        this->GiveLock();
-                                        return false;
-                                }
-                                // insert carriage return and new line feed
-                                char newLine[] =
-                                { 13, 10 };
-                                // Write into the file.
-
-                                f.write(newLine, 2);
-                                if (f.bad())
-                                {
-                                        // error: failed to write correctly
-                                        DEBUG_COUT("return false E");
-                                        f.close();
-                                        this->GiveLock();
-                                        return false;
-                                }
-                                f.close();
-                                if (f.is_open())
-                                {
-                                        // error: couldn't close the file
-                                        DEBUG_COUT("return false F");
-                                        this->GiveLock();
-                                        return false;
-                                }
-                        } // end (if !FileExistsInTruDat)
-                } // end (if !isMade)
-
-                // open the log file.
-                DEBUG_VAL("opening file", file);
-//              DEBUG_VAL("file string length", strlen(file.c_str()));
-                f.open(file.c_str(), ios::out | ios::app);
-                if (!f.is_open())
-                {
-                        // error: failed to open the new file
-                        this->GiveLock();
-                        DEBUG_COUT("return false G");
-                        return false;
-                }
-
-                uint8 *buffer = new uint8[10];
-
-                buffer[0] = (uint8) ((week >> 24) & 0xff);
-                buffer[1] = (uint8) ((week >> 16) & 0xff);
-                buffer[2] = (uint8) ((week >> 8) & 0xff);
-                buffer[3] = (uint8) (week & 0xff);
-
-                if (!(Phoenix::HAL::RTCGetTime(&seconds, NULL)))
-                {
-                        DEBUG_COUT("return false H");
-                        delete buffer;
-                        this->GiveLock();
-                        return false;
-                }
-
-                buffer[4] = (uint8) ((seconds >> 24) & 0xff);
-                buffer[5] = (uint8) ((seconds >> 16) & 0xff);
-                buffer[6] = (uint8) ((seconds >> 8) & 0xff);
-                buffer[7] = (uint8) (seconds & 0xff);
-                buffer[8] = (uint8) dataOne;
-                buffer[9] = (uint8) dataTwo;
-
-                // Write into the file.
-                f.write((char *) buffer, 10);
-                if (f.bad())
-                {
-                        // error: failed to write correctly
-                        DEBUG_COUT("return false I");
-                        f.close();
-                        this->GiveLock();
-                        return false;
-                }
-                f.close();
-                if (f.is_open())
-                {
-                        // error: couldn't close the file
-                        DEBUG_COUT("return false J");
-                        this->GiveLock();
-                        return false;
-                }
-                this->GiveLock();
-        }
-        else
-        {
-                DEBUG_COUT("return false K");
-                return false;
-        }
-
+    	FileWrite(file.c_str(), (char*) buffer, 10);
         // Success!
         DEBUG_COUT("LogAppend success!");
         return true;
 
 }
-*/
+
+
+uint8_t FileHandler::FetchFileName(FileHandlerIDEnum logType, string file, int week){
+	file = writeDir;
+	string tempFile;
+    char *temp = new char[25];
+	string fileExtension = ".dat";
+
+	if (logType == LOG_MODE)
+	{
+			DEBUG_VAL("modeLog", modeLog);
+			file.append(modeLog);
+	}
+	else
+	{
+			DEBUG_VAL("errLog", errLog);
+			file.append(errLog);
+	}
+	mkdir(writeDir, 0777);
+	file.append("_");
+
+	itoa(epochNum, temp, 10);
+	file.append(temp);
+	file.append("_");
+
+	//seconds = secRef[subsystem][opCode];
+	week = weekRefLog[1][2];
+
+	tempFile = file;
+
+	itoa(week, temp, 10);
+	tempFile.append(temp);
+	tempFile.append("_");
+
+	//itoa(seconds, temp, 10);
+	tempFile.append(temp);
+    delete temp;
+
+    if (fileSize(file.c_str())>=MAXFILESIZE){
+    	//get current time in seconds and week
+    	//file.append(seconds);
+    	//file.append(week);
+        //secRef[subsystem][opCode] = seconds;
+        //weekRef[subsystem][opCode] = weeks;
+
+    }
+    else{
+    	file = tempFile;
+    }
+
+    file.append(fileExtension);
+
+
+	return 0;
+}
+
 
 
 uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType opCode, string file, int week)
@@ -376,7 +293,7 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType 
 ///////////////////////////////////
 // Append to Data File
 ///////////////////////////////////
-bool FileHandler::Append(FileHandlerIDEnum subsystem, MessageCodeType opCode,
+bool FileHandler::Log(FileHandlerIDEnum subsystem, MessageCodeType opCode,
                 const MultiDataMessage & message)
 {
 	string file;
