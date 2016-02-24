@@ -659,33 +659,62 @@ bool FileHandler::FileExistsInTruDat(string fileToFind)
 uint32 FileHandler::FileWrite(const char * fileName, char * buffer, size_t numBytes)
 {
         uint32 rv = 0;
+        size_t result;
         //open file for write only
         fstream file;
+        FILE * fp;
         if (true == TakeLock(MAX_BLOCK_TIME))
         {
-                file.open(fileName, ios::out | ios::app);
+                //file.open(fileName, ios::out | ios::app);
+                fp = fopen(fileName, "a");
+
+                if (!fp)
+				{
+						this->GiveLock();
+						return -1;
+				}
+
+                /*
                 if (!file.is_open())
                 {
                         // error: failed to open the file
                         this->GiveLock();
                         return -1;
                 }
+                */
+
                 //length of the file
-                file.write(buffer, numBytes);
+                //file.write(buffer, numBytes);
+
+                result = fwrite(buffer,1,numBytes,fp);
+
+                if(result!=numBytes){
+                	fclose(fp);
+                	this->GiveLock();
+                	return -2;
+                }
+
+                /*
                 if (file.bad())
                 {
                         file.close();
                         this->GiveLock();
                         return -2;
                 }
-                rv = (uint32) this->fileSize(file);
-                file.close();
+                */
+
+                //rv = (uint32) this->fileSize(file);
+                rv = (uint32) this->fileSize(fp);
+                //file.close();
+
+                /*
                 if (file.is_open())
                 {
                         // error: couldn't close the file
                         this->GiveLock();
                         return -3;
                 }
+                */
                 this->GiveLock();
         }
         return rv;
