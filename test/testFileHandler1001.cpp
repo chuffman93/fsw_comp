@@ -37,6 +37,7 @@ TEST(TestFileHandler, testRead) {
 	uint8 * readBuffer;
 	char * testFile = (char *) "/media/sdMount/adam.txt";
 
+	// readBuffer returns num char read
 	readBuffer = fileHandler->ReadFile(testFile, &readSize);
 	ASSERT_TRUE(readBuffer != NULL);
 
