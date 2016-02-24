@@ -52,7 +52,7 @@ namespace Phoenix
 			{
 				case EPS_HS_FAILURE: //Health and Status request failure
 					//TODO::filehandler
-					if(!fileHandler->Append(SUBSYSTEM_EPS, opcode, (* dataMessage)))
+					if(!fileHandler->Log(SUBSYSTEM_EPS, opcode, (* dataMessage)))
 					{
 						// write to error log
 					}
@@ -60,7 +60,7 @@ namespace Phoenix
 					break;
 				case EPS_SOC_FAILURE: //State of Charge request failure
 					//TODO::filehandler
-					if(!fileHandler->Append(SUBSYSTEM_EPS, opcode, (* dataMessage)))
+					if(!fileHandler->Log(SUBSYSTEM_EPS, opcode, (* dataMessage)))
 					{
 						// write to error log
 					}
@@ -68,63 +68,63 @@ namespace Phoenix
 
 				case EPS_POWER_CYCLE_FAILURE: //power cycle request failure
 					//TODO::filehandler
-					if(!fileHandler->Append(SUBSYSTEM_EPS, opcode, (* dataMessage)))
+					if(!fileHandler->Log(SUBSYSTEM_EPS, opcode, (* dataMessage)))
 					{
 						// write to error log
 					}
 					break;
 				case EPS_DISABLE_OC_PROT_FAILURE: //Disable overcurrent protection failure
 					//TODO::filehandler
-					if(!fileHandler->Append(SUBSYSTEM_EPS, opcode, (* dataMessage)))
+					if(!fileHandler->Log(SUBSYSTEM_EPS, opcode, (* dataMessage)))
 					{
 						// write to error log
 					}
 					break;
 				case EPS_ENABLE_OC_PROT_FAILURE: //Enable overcurrent protection failure
 					//TODO::filehandler
-					if(!fileHandler->Append(SUBSYSTEM_EPS, opcode, (* dataMessage)))
+					if(!fileHandler->Log(SUBSYSTEM_EPS, opcode, (* dataMessage)))
 					{
 						// write to error log
 					}
 					break;
 				case EPS_OVERCURRENT_ERR: //Over-current rail trip
 					//TODO::filehandler
-					if(!fileHandler->Append(SUBSYSTEM_EPS, opcode, (* dataMessage)))
+					if(!fileHandler->Log(SUBSYSTEM_EPS, opcode, (* dataMessage)))
 					{
 						// write to error log
 					}
 					break;
 				case EPS_OVERVOLTAGE_ERR: //Over-voltage
 					//TODO::filehandler
-					if(!fileHandler->Append(SUBSYSTEM_EPS, opcode, (* dataMessage)))
+					if(!fileHandler->Log(SUBSYSTEM_EPS, opcode, (* dataMessage)))
 					{
 						// write to error log
 					}
 					break;
 				case EPS_LOW_VOLTAGE_ERR: //Low voltage
 					//TODO::filehandler
-					if(!fileHandler->Append(SUBSYSTEM_EPS, opcode, (* dataMessage)))
+					if(!fileHandler->Log(SUBSYSTEM_EPS, opcode, (* dataMessage)))
 					{
 						// write to error log
 					}
 					break;
 				case EPS_HIGH_TEMP_ERR: //High temperature
 					//TODO::filehandler
-					if(!fileHandler->Append(SUBSYSTEM_EPS, opcode, (* dataMessage)))
+					if(!fileHandler->Log(SUBSYSTEM_EPS, opcode, (* dataMessage)))
 					{
 						// write to error log
 					}
 					break;
 				case EPS_LOW_TEMP_ERR: //Low temperature
 					//TODO::filehandler
-					if(!fileHandler->Append(SUBSYSTEM_EPS, opcode, (* dataMessage)))
+					if(!fileHandler->Log(SUBSYSTEM_EPS, opcode, (* dataMessage)))
 					{
 						// write to error log
 					}
 					break;
 				case EPS_BATMAN_NO_ARRAY: //batshit
 					//TODO::filehandler
-					if(!fileHandler->Append(SUBSYSTEM_EPS, opcode, (* dataMessage)))
+					if(!fileHandler->Log(SUBSYSTEM_EPS, opcode, (* dataMessage)))
 					{
 						// write to error log
 					}
@@ -132,7 +132,7 @@ namespace Phoenix
 				default:
 					//PANIC!
 					//TODO::filehandler
-					if(!fileHandler->Append(SUBSYSTEM_EPS, opcode, (* dataMessage)))
+					if(!fileHandler->Log(SUBSYSTEM_EPS, opcode, (* dataMessage)))
 					{
 						// write to error log
 					}
@@ -155,42 +155,42 @@ namespace Phoenix
 			switch(opcode)
 			{
 				case COM_HS_FAILURE: //Health and Status request failure
-					if(!fileHandler->Append(SUBSYSTEM_COM, opcode, (* dataMessage)))
+					if(!fileHandler->Log(SUBSYSTEM_COM, opcode, (* dataMessage)))
 					{
 						// write to error log
 					}
 
 					break;
 				case COM_BEACON_FAILURE: //Beacon request failure
-					if(!fileHandler->Append(SUBSYSTEM_COM, opcode, (* dataMessage)))
+					if(!fileHandler->Log(SUBSYSTEM_COM, opcode, (* dataMessage)))
 					{
 						// write to error log
 					}
 
 					break;
 				case COM_DATA_SEND_FAILURE: //Beacon rate request failure
-					if(!fileHandler->Append(SUBSYSTEM_COM, opcode, (* dataMessage)))
+					if(!fileHandler->Log(SUBSYSTEM_COM, opcode, (* dataMessage)))
 					{
 						// write to error log
 					}
 
 					break;
 				case COM_LOGIN_FAILURE: //Kermit packet send request failure
-					if(!fileHandler->Append(SUBSYSTEM_COM, opcode, (* dataMessage)))
+					if(!fileHandler->Log(SUBSYSTEM_COM, opcode, (* dataMessage)))
 					{
 						// write to error log
 					}
 
 					break;
 				case COM_RESET_FAILURE: //File downlink command failure
-					if(!fileHandler->Append(SUBSYSTEM_COM, opcode, (* dataMessage)))
+					if(!fileHandler->Log(SUBSYSTEM_COM, opcode, (* dataMessage)))
 					{
 						// write to error log
 					}
 
 					break;
 				case COM_DATA_RECEIVE_FAILURE: //File uplink command failure
-					if(!fileHandler->Append(SUBSYSTEM_COM, opcode, (* dataMessage)))
+					if(!fileHandler->Log(SUBSYSTEM_COM, opcode, (* dataMessage)))
 					{
 						// write to error log
 					}
@@ -215,42 +215,42 @@ namespace Phoenix
 			switch(opcode)
 			{
 				case PLD_HS_FAILURE: //Health and Status request failure
-				if(!fileHandler->Append(SUBSYSTEM_PLD, opcode, (* dataMessage)))
+				if(!fileHandler->Log(SUBSYSTEM_PLD, opcode, (* dataMessage)))
 				{
 					// write to error log
 				}
 
 					break;
 				case PLD_PIC_FAILURE: //Picture command failure
-				if(!fileHandler->Append(SUBSYSTEM_PLD, opcode, (* dataMessage)))
+				if(!fileHandler->Log(SUBSYSTEM_PLD, opcode, (* dataMessage)))
 				{
 					// write to error log
 				}
 
 					break;
 				case PLD_DATA_FAILURE: //data request failure
-				if(!fileHandler->Append(SUBSYSTEM_PLD, opcode, (* dataMessage)))
+				if(!fileHandler->Log(SUBSYSTEM_PLD, opcode, (* dataMessage)))
 				{
 					// write to error log
 				}
 
 					break;
 				case PLD_RESET_FAILURE: //data request failure
-				if(!fileHandler->Append(SUBSYSTEM_PLD, opcode, (* dataMessage)))
+				if(!fileHandler->Log(SUBSYSTEM_PLD, opcode, (* dataMessage)))
 				{
 					// write to error log
 				}
 
 					break;
 				case PLD_CMOS_READ_FAILURE: //Failure to read CMOS
-				if(!fileHandler->Append(SUBSYSTEM_PLD, opcode, (* dataMessage)))
+				if(!fileHandler->Log(SUBSYSTEM_PLD, opcode, (* dataMessage)))
 				{
 					// write to error log
 				}
 
 					break;
 				case PLD_MEM_ERROR: //Local memory error
-				if(!fileHandler->Append(SUBSYSTEM_PLD, opcode, (* dataMessage)))
+				if(!fileHandler->Log(SUBSYSTEM_PLD, opcode, (* dataMessage)))
 				{
 					// write to error log
 				}
@@ -275,140 +275,140 @@ namespace Phoenix
 			switch(opcode)
 			{
 				case ACS_HS_FAILURE: //Health and Status request failure
-				if(!fileHandler->Append(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
 				{
 					// write to error log
 				}
 
 					break;
 				case ACS_STATE_FAILURE: //Current state request failure
-				if(!fileHandler->Append(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
 				{
 					// write to error log
 				}
 
 					break;
 				case ACS_RAW_ADC_FAILURE: //RAW ADC request failure
-				if(!fileHandler->Append(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
 				{
 					// write to error log
 				}
 
 					break;
 				case ACS_ATTITUDE_ERROR_REQUEST_FAILURE: //Distance from required attitude failure
-				if(!fileHandler->Append(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
 				{
 					// write to error log
 				}
 
 					break;
 				case ACS_POINT_MRP_VECTOR_FAILURE: //MRP point request failure
-				if(!fileHandler->Append(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
 				{
 					// write to error log
 				}
 
 					break;
 				case ACS_POINT_GND_VECTOR_FAILURE: //Ground station point request failure
-				if(!fileHandler->Append(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
 				{
 					// write to error log
 				}
 
 					break;
 				case ACS_REQUEST_MRP_VECTOR_FAILURE: //MRP point request failure
-				if(!fileHandler->Append(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
 				{
 					// write to error log
 				}
 
 					break;
 				case ACS_REQUEST_GND_VECTOR_FAILURE: //Ground station point request failure
-				if(!fileHandler->Append(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
 				{
 					// write to error log
 				}
 
 					break;
 				case ACS_SUNSOAK_FAILURE: //Sunsoak vector request failure
-				if(!fileHandler->Append(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
 				{
 					// write to error log
 				}
 
 					break;
 				case ACS_POINT_NADIR_FAILURE: //Point NADAR failure
-				if(!fileHandler->Append(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
 				{
 					// write to error log
 				}
 
 					break;
 				case ACS_RANGE_TO_TARGET_FAILURE: //Range request
-				if(!fileHandler->Append(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
 				{
 					// write to error log
 				}
 
 					break;
 				case ACS_HOLD_FAILURE: //Hold request failure
-				if(!fileHandler->Append(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
 				{
 					// write to error log
 				}
 
 					break;
 				case ACS_DISABLE_FAILURE: //MRP vector failure
-				if(!fileHandler->Append(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
 				{
 					// write to error log
 				}
 
 					break;
 				case ACS_RESET_FAILURE: //Ground vector failure
-				if(!fileHandler->Append(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
 				{
 					// write to error log
 				}
 
 					break;
 				case ACS_GPS_FAILURE: //GPS failure
-				if(!fileHandler->Append(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
 				{
 					// write to error log
 				}
 
 					break;
 				case ACS_GYRO_STUCK_ERR: //Gyroscope stuck
-				if(!fileHandler->Append(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
 				{
 					// write to error log
 				}
 
 					break;
 				case ACS_NO_MOTOR_RESP_ERR: //Motor not responding
-					if(!fileHandler->Append(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
 					{
 						// write to error log
 					}
 
 					break;
 				case ACS_CAMERA_SATURATED_ERR: //Starcamera saturation
-					if(!fileHandler->Append(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
 					{
 						// write to error log
 					}
 
 					break;
 				case ACS_MAG_STUCK_ERR: //Magnetometer stuck
-					if(!fileHandler->Append(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
 					{
 						// write to error log
 					}
 
 					break;
 				case ACS_ATTITUDE_NOT_CONVERGE_ERR: //Attitude not converging
-					if(!fileHandler->Append(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
 					{
 						// write to error log
 					}
@@ -432,42 +432,42 @@ namespace Phoenix
 			switch(opcode)
 			{
 				case GPS_HS_FAILURE: //Health and Status request failure
-					if(!fileHandler->Append(SUBSYSTEM_GPS, opcode, (* dataMessage)))
+					if(!fileHandler->Log(SUBSYSTEM_GPS, opcode, (* dataMessage)))
 					{
 						// write to error log
 					}
 
 					break;
 				case GPS_TIME_FAILURE: //Time request failure
-					if(!fileHandler->Append(SUBSYSTEM_GPS, opcode, (* dataMessage)))
+					if(!fileHandler->Log(SUBSYSTEM_GPS, opcode, (* dataMessage)))
 					{
 						// write to error log
 					}
 
 					break;
 				case GPS_POSITION_FAILURE: //Position request failure
-					if(!fileHandler->Append(SUBSYSTEM_GPS, opcode, (* dataMessage)))
+					if(!fileHandler->Log(SUBSYSTEM_GPS, opcode, (* dataMessage)))
 					{
 						// write to error log
 					}
 
 					break;
 				case GPS_RESET_FAILURE: //Position request failure
-					if(!fileHandler->Append(SUBSYSTEM_GPS, opcode, (* dataMessage)))
+					if(!fileHandler->Log(SUBSYSTEM_GPS, opcode, (* dataMessage)))
 					{
 						// write to error log
 					}
 
 					break;
 				case GPS_INSUFFICIENT_SATELLITES: //Insufficient satellites
-					if(!fileHandler->Append(SUBSYSTEM_GPS, opcode, (* dataMessage)))
+					if(!fileHandler->Log(SUBSYSTEM_GPS, opcode, (* dataMessage)))
 					{
 						// write to error log
 					}
 
 					break;
 				case GPS_INACURATE_DATA: //Inaccurate data
-					if(!fileHandler->Append(SUBSYSTEM_GPS, opcode, (* dataMessage)))
+					if(!fileHandler->Log(SUBSYSTEM_GPS, opcode, (* dataMessage)))
 					{
 						// write to error log
 					}
@@ -498,7 +498,7 @@ namespace Phoenix
 			switch(opcode)
 			{
 			case THM_HS_FAILURE: //Thermal measurement failure
-				if(!fileHandler->Append(SUBSYSTEM_THM, opcode, (* dataMessage)))
+				if(!fileHandler->Log(SUBSYSTEM_THM, opcode, (* dataMessage)))
 				{
 					printf("filehandler failed\n");
 					// write to error log
@@ -581,7 +581,7 @@ namespace Phoenix
 			switch(opcode)
 			{
 				case SCH_BUILD_SCHEDULE_FAILURE: //Health and Status request failure
-					if(!fileHandler->Append(SUBSYSTEM_SCH, opcode, (* dataMessage)))
+					if(!fileHandler->Log(SUBSYSTEM_SCH, opcode, (* dataMessage)))
 					{
 						// write to error log
 					}
@@ -589,7 +589,7 @@ namespace Phoenix
 					break;
 				
 				case SCH_BUILD_PLD_SCHEDULE_FAILURE: //Health and Status request failure
-					if(!fileHandler->Append(SUBSYSTEM_SCH, opcode, (* dataMessage)))
+					if(!fileHandler->Log(SUBSYSTEM_SCH, opcode, (* dataMessage)))
 					{
 						// write to error log
 					}
@@ -597,7 +597,7 @@ namespace Phoenix
 					break;
 				
 				case SCH_RUN_SCHEDULE_FAILURE: //Health and Status request failure
-					if(!fileHandler->Append(SUBSYSTEM_SCH, opcode, (* dataMessage)))
+					if(!fileHandler->Log(SUBSYSTEM_SCH, opcode, (* dataMessage)))
 					{
 						// write to error log
 					}
@@ -621,20 +621,20 @@ namespace Phoenix
 					switch(opcode)
 					{
 						case CMD_ACP_SWITCH_BAD_SUBSYS: //Bad Subsystem Index, ACP Switch Failure
-							if(!fileHandler->Append(SUBSYSTEM_CMD, opcode, (* dataMessage)))
+							if(!fileHandler->Log(SUBSYSTEM_CMD, opcode, (* dataMessage)))
 							{
 								// write to error log
 							}
 
 							break;
 						case CMD_ACP_SWITCH_BAD_PROTOCOL: //Bad Protocol Index, ACP Switch Failure
-							if(!fileHandler->Append(SUBSYSTEM_CMD, opcode, (* dataMessage)))
+							if(!fileHandler->Log(SUBSYSTEM_CMD, opcode, (* dataMessage)))
 							{
 								// write to error log
 							}
 							break;
 						case CMD_ACP_SWITCH_FAILURE: //ACP Switch Failure upon packet extraction
-							if(!fileHandler->Append(SUBSYSTEM_CMD, opcode, (* dataMessage)))
+							if(!fileHandler->Log(SUBSYSTEM_CMD, opcode, (* dataMessage)))
 							{
 								// write to error log
 							}
