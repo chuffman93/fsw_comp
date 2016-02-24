@@ -177,6 +177,8 @@ public:
 
         int fileSize(fstream & file);
 
+        uint32 fileSize(FILE * fp);
+
         uint32 fileSize(const char * fileName);
 
         void zipFiles(const char * path, const char * zipName);

@@ -15,7 +15,7 @@ using namespace rel_ops;
 //using namespace Phoenix::HAL;
 using namespace Phoenix::Core;
 
-TEST(DISABLE_TestFileHandler, exist) {
+TEST(DISABLED_TestFileHandler, exist) {
 
 	Factory::GetInstance(FILE_HANDLER_SINGLETON);
 	FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
@@ -25,7 +25,7 @@ TEST(DISABLE_TestFileHandler, exist) {
 	//EXPECT_EQ(fileHandler->fileSize("CMD_List_1.dat"),0);
 }
 
-TEST(DISABLE_TestFileHandler, sdNavRead) {
+TEST(DISABLED_TestFileHandler, sdNavRead) {
 
 	Factory::GetInstance(FILE_HANDLER_SINGLETON);
 	FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
@@ -66,8 +66,69 @@ TEST(TestFileHandler, testRead) {
 	readBuffer = fileHandler->ReadFile(testFile, &readSize);
 	ASSERT_TRUE(readBuffer != NULL);
 
-	cout<<readSize<<endl;
-	for(int i = 0; i<5; i++){
-		cout<<*readBuffer+i<<endl;
+	for(int i = 0; i<readSize; i++){
+		cout<<"Char "<<i<<":"<<readBuffer[i]<<endl;
 	}
+
+	//cout<<readBuffer<<endl;
+
+	delete readBuffer;
+}
+
+TEST(TestFileHandler, testFileSize) {
+
+	Factory::GetInstance(FILE_HANDLER_SINGLETON);
+	FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
+
+	uint32 size;
+	char * testFile = (char *)"/media/sdMount/adam.txt";
+
+	size = fileHandler->fileSize(testFile);
+	ASSERT_EQ(size,7);
+
+}
+
+TEST(TestFileHandler, testWrite) {
+
+	Factory::GetInstance(FILE_HANDLER_SINGLETON);
+	FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
+
+	char * test1 = (char *) "/media/sdMount/test1.txt";
+	char * test2 = (char *) "/media/sdMount/test2.txt";
+
+	fileHandler->DeleteFile(test2);
+
+	size_t readSize1 = 0;
+	size_t readSize2 = 0;
+	uint8 * readBuffer1;
+	uint8 * readBuffer2;
+	uint32 write1;
+	uint32 write2;
+	bool success = true;
+
+	readBuffer1 = fileHandler->ReadFile(test1, &readSize1);
+	EXPECT_TRUE(readBuffer1 != NULL);
+	write1 = fileHandler->FileWrite(test2, (char *) readBuffer1, readSize1);
+	readBuffer2 = fileHandler->ReadFile(test2, &readSize2);
+	EXPECT_TRUE(readBuffer2 != NULL);
+
+	for(uint8 i=0;i<readSize1;i++)
+	{
+		success &= (readBuffer1[i] == readBuffer2[i]);
+	}
+
+	ASSERT_TRUE(success);
+
+}
+
+TEST(DISABLED_TestFileHandler, testDelete) {
+
+	Factory::GetInstance(FILE_HANDLER_SINGLETON);
+	FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
+
+	char * test1 = (char *) "/media/sdMount/test1.txt";
+	fileHandler->DeleteFile(test1);
+
+	ASSERT_TRUE(true);
+
 }
