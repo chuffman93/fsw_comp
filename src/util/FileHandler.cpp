@@ -97,7 +97,7 @@ bool FileHandler::Log(FileHandlerIDEnum logType, MessageCodeType dataOne, Messag
         int week = gpsData->GPSWeek;
 
 
-        FetchFileName(logType, file, week);
+        FetchFileName(logType, &file, week);
 
 		uint8 *buffer = new uint8[10];
 
@@ -131,8 +131,8 @@ bool FileHandler::Log(FileHandlerIDEnum logType, MessageCodeType dataOne, Messag
 }
 
 
-uint8_t FileHandler::FetchFileName(FileHandlerIDEnum logType, string file, int week){
-	file = writeDir;
+uint8_t FileHandler::FetchFileName(FileHandlerIDEnum logType, string* file, int week){
+	*file = writeDir;
 	string tempFile;
     char *temp = new char[25];
 	string fileExtension = ".dat";
@@ -140,24 +140,24 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum logType, string file, int w
 	if (logType == LOG_MODE)
 	{
 			DEBUG_VAL("modeLog", modeLog);
-			file.append(modeLog);
+			file->append(modeLog);
 	}
 	else
 	{
 			DEBUG_VAL("errLog", errLog);
-			file.append(errLog);
+			file->append(errLog);
 	}
 	mkdir(writeDir, 0777);
-	file.append("_");
+	file->append("_");
 
 	itoa(epochNum, temp, 10);
-	file.append(temp);
-	file.append("_");
+	file->append(temp);
+	file->append("_");
 
 	//seconds = secRef[subsystem][opCode];
 	week = weekRefLog[1][2];
 
-	tempFile = file;
+	tempFile = *file;
 
 	itoa(week, temp, 10);
 	tempFile.append(temp);
@@ -167,7 +167,7 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum logType, string file, int w
 	tempFile.append(temp);
     delete temp;
 
-    if (fileSize(file.c_str())>=MAXFILESIZE){
+    if (fileSize(file->c_str())>=MAXFILESIZE){
     	//get current time in seconds and week
     	//file.append(seconds);
     	//file.append(week);
@@ -176,10 +176,10 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum logType, string file, int w
 
     }
     else{
-    	file = tempFile;
+    	*file = tempFile;
     }
 
-    file.append(fileExtension);
+    file->append(fileExtension);
 
 
 	return 0;
@@ -187,13 +187,12 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum logType, string file, int w
 
 
 
-uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType opCode, string file, int week)
+uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType opCode, string* file, int week)
 {
     string filePath;
     string tempFile;
     string fileExtension;
     char *temp = new char[25];
-
     filePath = writeDir;
     fileExtension = ".dat"; //Type of the files
 
@@ -201,43 +200,43 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType 
 	        {
 	                case SUBSYSTEM_ACS:
 	                        filePath.append("ACS/");
-	                        file = "ACS_";
+	                        file->append("ACS_");
 	                        break;
 	                case SUBSYSTEM_COM:
 	                        filePath.append("COM/");
-	                        file = "COM_";
+	                        *file = "COM_";
 	                        break;
 	                case SUBSYSTEM_EPS:
 	                        filePath.append("EPS/");
-	                        file = "EPS_";
+	                        *file = "EPS_";
 	                        break;
 	                case SUBSYSTEM_GPS:
 	                        filePath.append("GPS/");
-	                        file = "GPS_";
+	                        *file = "GPS_";
 	                        break;
 	                case SUBSYSTEM_PLD:
 	                        filePath.append("PLD/");
-	                        file = "PLD_";
+	                        *file = "PLD_";
 	                        break;
 	                case SUBSYSTEM_THM:
 	                        filePath.append("THM/");
-	                        file = "THM_";
+	                        *file = "THM_";
 	                        break;
 	                case SUBSYSTEM_SCH:
 	                        filePath.append("SCH/");
-	                        file = "SCH_";
+	                        *file = "SCH_";
 	                        break;
 	                case SUBSYSTEM_STR:
 	                        filePath.append("STR/");
-	                        file = "STR_";
+	                        *file = "STR_";
 	                        break;
 	                case SUBSYSTEM_CMD:
 	                        filePath.append("CMD/");
-	                        file = "CMD_";
+	                        *file = "CMD_";
 	                        break;
 	                case SYSTEM_CDH:
 	                        filePath.append("CDH/");
-	                        file = "CDH_";
+	                        *file = "CDH_";
 	                        break;
 	                default:
 	                        delete temp;
@@ -246,19 +245,19 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType 
 
 	mkdir(filePath.c_str(), 0777);
 	        itoa(opCode, temp, 10);
-	        file.append(temp);
-	        file.append("_");
+	        file->append(temp);
+	        file->append("_");
 
 	        itoa(epochNum, temp, 10);
-	        file.append(temp);
-	        file.append("_");
+	        file->append(temp);
+	        file->append("_");
 
 
 
             //seconds = secRef[subsystem][opCode];
             week = weekRef[subsystem][opCode];
 
-            tempFile = file;
+            tempFile = *file;
 
             itoa(week, temp, 10);
 	        tempFile.append(temp);
@@ -279,11 +278,12 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType 
 
             }
             else{
-            	file = tempFile;
+            	*file = tempFile;
             }
 
-            file.append(fileExtension);
-
+            file->append(fileExtension);
+            filePath.append(file->c_str());
+            *file = filePath;
             return 0;
 
 }
@@ -313,7 +313,7 @@ bool FileHandler::Log(FileHandlerIDEnum subsystem, MessageCodeType opCode,
 	/*Create file name using subsystem, opcode, and time. If file exists and is full, create new file, else
 	 * append file.*/
 
-	FetchFileName(subsystem, opCode, file, week);
+	FetchFileName(subsystem, opCode, &file, week);
 
 
 
@@ -389,8 +389,12 @@ bool FileHandler::Log(FileHandlerIDEnum subsystem, MessageCodeType opCode,
 
 
 	// Write into the file.
-
-	FileWrite(file.c_str(), (char*) buffer, (long int) size);
+	puts("writing file..");
+	printf("string = %s\n", file.c_str());
+	int err = FileWrite(file.c_str(), (char*) buffer, (long int) size);
+	printf("%d\n", err);
+	perror("hello");
+	if (err < 0) return false;
 	return true;
 }
 
