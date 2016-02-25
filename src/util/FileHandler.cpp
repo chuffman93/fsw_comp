@@ -279,7 +279,7 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType 
             	//file.append(seconds);
 
                 char *temp2 = new char[25];
-                itoa(week, temp2, 10);
+                itoa(week+2, temp2, 10);
                 file->append(temp2);
                 *file = filePath.append(file->append(fileExtension));
                 //secRef[subsystem][opCode] = seconds;
