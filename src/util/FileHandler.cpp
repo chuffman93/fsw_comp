@@ -259,34 +259,36 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType 
 
             //seconds = secRef[subsystem][opCode];
             week = weekRef[subsystem][opCode];
-
+	        //week = 500;
             tempFile = *file;
 
             itoa(week, temp, 10);
 	        tempFile.append(temp);
-	        tempFile.append("_");
 
-            //itoa(seconds, temp, 10);
-            tempFile.append(temp);
-
+            tempFile.append(fileExtension);
+            tempFile.insert(0, filePath);
 
             delete temp;
 
             if (fileSize(tempFile.c_str())>=MAXFILESIZE){
+            	printf("file_size = %d\n", fileSize(tempFile.c_str()));
+            	printf("file path= %s\n", tempFile.c_str());
+            	puts("File Full");
+            	printf("week = %d\n", week);
             	//get current time in seconds and week
             	//file.append(seconds);
-            	//file.append(week);
+
+                char *temp2 = new char[25];
+                itoa(week, temp2, 10);
+                file->append(temp2);
+                *file = filePath.append(file->append(fileExtension));
                 //secRef[subsystem][opCode] = seconds;
-                //weekRef[subsystem][opCode] = weeks;
+                weekRef[subsystem][opCode] = week;
 
             }
             else{
             	*file = tempFile;
             }
-
-            file->append(fileExtension);
-            filePath.append(file->c_str());
-            *file = filePath;
             return 0;
 
 }
