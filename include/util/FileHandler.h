@@ -35,7 +35,7 @@ using namespace std;
 /*! \brief Maximum number of opcodes per subsystem */
 const size_t MAX_OPCODES = 256;
 
-const size_t MAXFILESIZE = 500;
+const size_t MAXFILESIZE = 100;
 
 /*! \brief Maximum number of data points per log file */
 const size_t MAX_DATA_POINTS = 1000;
