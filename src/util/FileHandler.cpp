@@ -3,6 +3,9 @@
  *
  *  Created on: Aug 7, 2012
  *      Author: Caitlyn Cooke
+ *
+ *  Modified: February 4, 2016
+ *  	Authors: Alex St. Clair, Adam St. Amand
  */
 
 #include <cstring>
