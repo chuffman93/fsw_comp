@@ -56,7 +56,7 @@ using namespace Phoenix::Core;
 using namespace std;
 
 
-
+x
 void FileHandler::Initialize(void)
 {
         errLog = "Error_Log.dat";
