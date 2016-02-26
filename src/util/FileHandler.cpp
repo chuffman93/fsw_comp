@@ -4,7 +4,7 @@
  *  Created on: Aug 7, 2012
  *      Author: Caitlyn Cooke
  *
- *  Modified: February 4, 2016
+ *  Modified: February, 2016
  *  	Authors: Alex St. Clair, Adam St. Amand
  */
 
@@ -55,8 +55,6 @@ using namespace Phoenix::HAL;
 using namespace Phoenix::Core;
 using namespace std;
 
-
-x
 void FileHandler::Initialize(void)
 {
         errLog = "Error_Log.dat";
@@ -248,12 +246,14 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType 
 	}
 
 	mkdir(filePath.c_str(), 0777);
+
 	itoa(opCode, temp, 10);
 	file->append(temp);
 	file->append("_");
 	itoa(epochNum, temp, 10);
 	file->append(temp);
 	file->append("_");
+
 
 	//Retrieve Old file name and assign it to tempFile.
 	tempFile = *file;
