@@ -33,6 +33,7 @@ extern "C"
 using namespace std;
 
 /*! \brief Maximum number of opcodes per subsystem */
+
 const size_t MAX_OPCODES = 256;
 
 const size_t MAXFILESIZE = 100;
