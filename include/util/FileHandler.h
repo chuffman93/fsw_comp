@@ -165,17 +165,6 @@ public:
         bool InitEpoch(void);
         uint16 GetEpoch(void);
 
-        /**************************WARNING****************************
-         *                                                                                                                       *
-         *      The following functions are to be used by eKermit only!  *
-         *      Using these functions outside of the eKermit context     *
-         *  may result in the permanent locking of the SD card!      *
-         *                                                                                                               *
-         **************************WARNING***************************/
-
-        bool KermitLock(void);
-        void KermitUnlock(void);
-
         int fileSize(fstream & file);
 
         uint32 fileSize(FILE * fp);

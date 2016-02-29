@@ -19,7 +19,12 @@
  *
  */
 
-
+/*
+ * What happens if the GPS goes down? File naming
+ * will retrieve same information and begin writing
+ * files larger than they should
+ *
+ */
 
 #include <cstring>
 #include <sys/stat.h>
@@ -370,25 +375,9 @@ bool FileHandler::Log(FileHandlerIDEnum subsystem, MessageCodeType opCode,
 	return true;
 }
 
-///////////////////////////////////
-// Delete Data File
-///////////////////////////////////
-bool FileHandler::DeleteFile(const char * fileName)
-{
 
-        if (true == TakeLock(MAX_BLOCK_TIME))
-        {
-                if (remove(fileName) != 0)
-                {
-                        // error: failed to delete the file
-                        this->GiveLock();
-                        return false;
-                }
-                this->GiveLock();
-        }
-        // Success!
-        return true;
-}
+
+
 
 // known dependency: CMDServer subsystem loop
 uint8 * FileHandler::ReadFile(const char * fileName, size_t * bufferSize)
@@ -463,40 +452,31 @@ uint32 FileHandler::FileWrite(const char * fileName, char * buffer, size_t numBy
         return rv;
 }
 
-void FileHandler::FileSizePLDPicture(uint32 resolution, uint32 chunckSize)
-{
-        numDataPointsMax[SUBSYSTEM_PLD][PLD_PIC_CMD] = resolution / chunckSize;
-        numDataPoints[SUBSYSTEM_PLD][PLD_PIC_CMD] = 0;
-}
-
-//look at this one.
-bool FileHandler::InitEpoch()
+///////////////////////////////////
+// Delete Data File
+///////////////////////////////////
+bool FileHandler::DeleteFile(const char * fileName)
 {
 
-        FILE* fp;
-        char fileName[] = "epoch.txt";
         if (true == TakeLock(MAX_BLOCK_TIME))
         {
-                char buffer[1];
-                buffer[0] = 94;
-                FileWrite(fileName, buffer, 1);
+                if (remove(fileName) != 0)
+                {
+                        // error: failed to delete the file
+                        this->GiveLock();
+                        return false;
+                }
                 this->GiveLock();
         }
+        // Success!
         return true;
 }
-//Rewrite with C file pointer
-uint16 FileHandler::GetEpoch()
-{
-        FILE* fp;
-        char fileName[] = "epoch.txt";
-        uint16 epochSize = 0;
-        if (true == TakeLock(MAX_BLOCK_TIME))
-        {
-                epochSize = (uint16) this->fileSize(fileName);
-                this->GiveLock();
-        }
-        return epochSize;
-}
+
+
+
+
+
+
 
 uint32 FileHandler::fileSize(FILE * fp)
 {
@@ -579,6 +559,7 @@ void FileHandler::unzipFile(const char * path, const char * file,
         system(cmd.c_str());
 }
 
+
 //Check if necessecary
 unsigned int FileHandler::folderSize(const char * path)
 {
@@ -615,6 +596,49 @@ unsigned int FileHandler::folderSize(const char * path)
         return size;
 }
 
+
+
+
+void FileHandler::FileSizePLDPicture(uint32 resolution, uint32 chunckSize)
+{
+        numDataPointsMax[SUBSYSTEM_PLD][PLD_PIC_CMD] = resolution / chunckSize;
+        numDataPoints[SUBSYSTEM_PLD][PLD_PIC_CMD] = 0;
+}
+
+//look at this one.
+bool FileHandler::InitEpoch()
+{
+
+        FILE* fp;
+        char fileName[] = "epoch.txt";
+        if (true == TakeLock(MAX_BLOCK_TIME))
+        {
+                char buffer[1];
+                buffer[0] = 94;
+                FileWrite(fileName, buffer, 1);
+                this->GiveLock();
+        }
+        return true;
+}
+//Rewrite with C file pointer
+uint16 FileHandler::GetEpoch()
+{
+        FILE* fp;
+        char fileName[] = "epoch.txt";
+        uint16 epochSize = 0;
+        if (true == TakeLock(MAX_BLOCK_TIME))
+        {
+                epochSize = (uint16) this->fileSize(fileName);
+                this->GiveLock();
+        }
+        return epochSize;
+}
+
+
+
+//////////////////
+///////////CRC//////
+//////////////////////
 void FileHandler::makeCrcTable(uint32 crcTable[])
 {
     uint32 POLYNOMIAL = 0xEDB88320; //0x04C11DB7 reversed
