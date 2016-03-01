@@ -21,10 +21,13 @@ TEST(TestFileHandler, testAppend) {
 	Factory::GetInstance(FILE_HANDLER_SINGLETON);
 	FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
 
+	bool success = true;
+
 	ErrorMessage * msg = new ErrorMessage(ACS_HS_FAILURE);
 	ReturnMessage * ret = new ReturnMessage(msg, false);
 	MultiDataMessage * dataMessage = dynamic_cast<MultiDataMessage *> (ret->GetMessagePtr());
-	ASSERT_TRUE(fileHandler->Log(SUBSYSTEM_ACS, ACS_HS_FAILURE, (* dataMessage)));
+	success &= fileHandler->Log(SUBSYSTEM_ACS,ACS_HS_FAILURE, (* dataMessage));
+	ASSERT_TRUE(success);
 
 }
 

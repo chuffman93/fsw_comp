@@ -141,7 +141,6 @@ bool FileHandler::Log(FileHandlerIDEnum logType, MessageCodeType dataOne, Messag
 
 }
 
-
 uint8_t FileHandler::FetchFileName(FileHandlerIDEnum logType, string* file, int week){
 	*file = writeDir;
 	string tempFile;
@@ -366,20 +365,15 @@ bool FileHandler::Log(FileHandlerIDEnum subsystem, MessageCodeType opCode,
 
 
 	// Write into the file.
-	puts("writing file..");
-	printf("string = %s\n", file.c_str());
+	//puts("writing file..");
+	//printf("string = %s\n", file.c_str());
 	int err = FileWrite(file.c_str(), (char*) buffer, (long int) size);
-	printf("%d\n", err);
-	perror("hello");
+	//printf("%d\n", err);
+	//perror("hello");
 	if (err < 0) return false;
 	return true;
 }
 
-
-
-
-
-// known dependency: CMDServer subsystem loop
 uint8 * FileHandler::ReadFile(const char * fileName, size_t * bufferSize)
 {
         uint8 * buffer = NULL;
@@ -473,11 +467,6 @@ bool FileHandler::DeleteFile(const char * fileName)
 }
 
 
-
-
-
-
-
 uint32 FileHandler::fileSize(FILE * fp)
 {
 	fseek(fp, 0L, SEEK_END);
@@ -559,7 +548,6 @@ void FileHandler::unzipFile(const char * path, const char * file,
         system(cmd.c_str());
 }
 
-
 //Check if necessecary
 unsigned int FileHandler::folderSize(const char * path)
 {
@@ -596,9 +584,6 @@ unsigned int FileHandler::folderSize(const char * path)
         return size;
 }
 
-
-
-
 void FileHandler::FileSizePLDPicture(uint32 resolution, uint32 chunckSize)
 {
         numDataPointsMax[SUBSYSTEM_PLD][PLD_PIC_CMD] = resolution / chunckSize;
@@ -620,6 +605,7 @@ bool FileHandler::InitEpoch()
         }
         return true;
 }
+
 //Rewrite with C file pointer
 uint16 FileHandler::GetEpoch()
 {
@@ -633,8 +619,6 @@ uint16 FileHandler::GetEpoch()
         }
         return epochSize;
 }
-
-
 
 //////////////////
 ///////////CRC//////
