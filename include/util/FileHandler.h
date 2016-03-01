@@ -112,38 +112,6 @@ public:
          */
         uint8 * ReadFile(const char * fileName, size_t * bufferSize);
 
-        /*! \brief Checks file's size on the SD card.
-         *
-         *      Opens the file based on the file name.
-         *      Checks that the fd is valid.
-         *      Reads the size of the file and returns it.
-         *
-         *  \param fileName Name of the file to check.
-         *  \return the size of the file, -1 if it doesn't
-         *  exist.
-         */
-        uint32 FileOpens(const char * fileName);
-
-        /*! \brief Checks if the file exists on the SD card.
-         *
-         *      Opens the file based on the file name.
-         *      Checks that the fd is valid.
-         *               *
-         *  \param fileName Name of the file to check.
-         *  \return true if the file exists; false otherwise
-         */
-        bool FileExists(const string fileName);
-
-        /*! \brief Searches tru.dat for filename
-         *
-         * Opens the tru.dat file and checks each
-         * line to see if it is equal to the file name
-         *
-         * \param fileName Name of the file to look for
-         *
-         */
-        bool FileExistsInTruDat(string fileToFind);
-
         /*! \brief Writes the buffer to the file.
          *
          *      Opens the file based on the file name.
@@ -160,10 +128,6 @@ public:
         uint32 FileWrite(const char * fileName, char * buffer, size_t numBytes);
 
         void FileSizePLDPicture(uint32 resolution, uint32 chunckSize);
-
-        // Epoch information
-        bool InitEpoch(void);
-        uint16 GetEpoch(void);
 
         int fileSize(fstream & file);
 
