@@ -20,6 +20,7 @@
  */
 
 /*
+ *TODO
  * What happens if the GPS goes down? File naming
  * will retrieve same information and begin writing
  * files larger than they should
@@ -60,6 +61,11 @@ using namespace Phoenix::HAL;
 using namespace Phoenix::Core;
 using namespace std;
 
+
+///////////////////////////
+//////////Initialization/////
+/////////////////////////
+
 void FileHandler::Initialize(void)
 {
         errLog = "Error_Log.dat";
@@ -95,6 +101,13 @@ FileHandler & FileHandler::operator=(const FileHandler & source)
         return *this;
 }
 
+
+
+
+///////////////////////////////////
+/////////// Log Data/////////////////
+///////////////////////////////////
+
 bool FileHandler::Log(FileHandlerIDEnum logType, MessageCodeType dataOne, MessageCodeType dataTwo)
 {
         Phoenix::Servers::GPSServer * gpsServer =
@@ -108,7 +121,7 @@ bool FileHandler::Log(FileHandlerIDEnum logType, MessageCodeType dataOne, Messag
         int week = gpsData->GPSWeek;
 
 
-        FetchFileName(logType, &file, week);
+        FetchFileName(logType, &file);
 
 		uint8 *buffer = new uint8[10];
 
@@ -141,11 +154,13 @@ bool FileHandler::Log(FileHandlerIDEnum logType, MessageCodeType dataOne, Messag
 
 }
 
-uint8_t FileHandler::FetchFileName(FileHandlerIDEnum logType, string* file, int week){
+uint8_t FileHandler::FetchFileName(FileHandlerIDEnum logType, string* file){
 	*file = writeDir;
 	string tempFile;
     char *temp = new char[25];
     string fileExtension = ".dat";
+    int week;
+    int seconds;
 
 	//
 	if (logType == LOG_MODE)
@@ -192,7 +207,89 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum logType, string* file, int 
 	return 0;
 }
 
-uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType opCode, string* file, int week)
+bool FileHandler::Log(FileHandlerIDEnum subsystem, MessageCodeType opCode,
+                const MultiDataMessage & message)
+{
+	string file;
+
+	/*Fetch Time*/
+	//TODO: add the GPS stuff back
+	//Phoenix::Servers::GPSData * gpsData = gpsServer->GetGPSDataPtr();
+	//Phoenix::Servers::GPSServer * gpsServer = dynamic_cast<Phoenix::Servers::GPSServer *>(Factory::GetInstance(GPS_SERVER_SINGLETON));
+	int week = 1;   // gpsData->GPSWeek;
+	int seconds = 1;
+	/*Create file name using subsystem, opcode, and time. If file exists and is full, create new file, else
+	 * append file.*/
+	FetchFileName(subsystem, opCode, &file);
+
+
+	/*Fill buffer with data to be written and write buffer to file*/
+	size_t size = 0;
+	uint8 *buffer = new uint8[size];
+	if ((subsystem != SUBSYSTEM_PLD) || (subsystem == SUBSYSTEM_PLD && opCode != PLD_DATA_SUCCESS))
+		{
+				size += 9;
+		}
+
+	//Size holds the size of the buffer we will be storing the data to write//
+	//Extract message from MultiDataMessage an place into list params//
+	list<VariableTypeData *> params;
+	params = message.GetParameters();
+	uint8 numParams = 0;
+
+	//Iterate through the params list and increment size for each value in params//
+	std::list<VariableTypeData *>::iterator it = params.begin();
+	for (; it != params.end(); it++)
+	{
+			size += (*it)->GetFlattenSize();
+			numParams += 1;
+	}
+
+	//buffer keeps pointer to the whole buffer, bufferPtr points to the next place to flattened data//
+	uint8 *bufferPtr = buffer;
+	if ((subsystem != SUBSYSTEM_PLD)
+					|| (subsystem == SUBSYSTEM_PLD && opCode != PLD_DATA_SUCCESS))
+	{
+			buffer[0] = (uint8) ((week >> 24) & 0xff);
+			buffer[1] = (uint8) ((week >> 16) & 0xff);
+			buffer[2] = (uint8) ((week >> 8) & 0xff);
+			buffer[3] = (uint8) (week & 0xff);
+			buffer[4] = (uint8) ((seconds >> 24) & 0xff);
+			buffer[5] = (uint8) ((seconds >> 16) & 0xff);
+			buffer[6] = (uint8) ((seconds >> 8) & 0xff);
+			buffer[7] = (uint8) (seconds & 0xff);
+
+			bufferPtr += 8;
+	}
+
+	buffer[8] = numParams;
+	bufferPtr += 1;
+
+	it = params.begin();
+	for (; it != params.end(); it++)
+	{
+			bufferPtr += (*it)->Flatten(bufferPtr, (*it)->GetFlattenSize());
+	}
+
+	if ((subsystem == SUBSYSTEM_PLD) && (opCode == PLD_DATA_SUCCESS))
+	{
+			size -= 5;
+			bufferPtr = buffer + 5; //remove variable type data header
+			memcpy(buffer, bufferPtr, size);
+	}
+
+
+	// Write into the file.
+	//puts("writing file..");
+	//printf("string = %s\n", file.c_str());
+	int err = FileWrite(file.c_str(), (char*) buffer, (long int) size);
+	//printf("%d\n", err);
+	//perror("hello");
+	if (err < 0) return false;
+	return true;
+}
+
+uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType opCode, string* file)
 {
     string filePath;
     string tempFile;
@@ -200,6 +297,8 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType 
     char *temp = new char[25];
     filePath = writeDir;
     fileExtension = ".dat"; //Type of the files
+    int week;
+    int seconds;
 
     //Build file and filepath name using subsystem name and opcode
 	switch (subsystem)
@@ -289,90 +388,13 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType 
 	return 0;
 }
 
-///////////////////////////////////
-// Log OpCode
-///////////////////////////////////
-bool FileHandler::Log(FileHandlerIDEnum subsystem, MessageCodeType opCode,
-                const MultiDataMessage & message)
-{
-	string file;
-
-	/*Fetch Time*/
-	//TODO: add the GPS stuff back
-	//Phoenix::Servers::GPSData * gpsData = gpsServer->GetGPSDataPtr();
-	//Phoenix::Servers::GPSServer * gpsServer = dynamic_cast<Phoenix::Servers::GPSServer *>(Factory::GetInstance(GPS_SERVER_SINGLETON));
-	int week = 1;   // gpsData->GPSWeek;
-	int seconds = 1;
-	/*Create file name using subsystem, opcode, and time. If file exists and is full, create new file, else
-	 * append file.*/
-	FetchFileName(subsystem, opCode, &file, week);
 
 
-	/*Fill buffer with data to be written and write buffer to file*/
-	size_t size = 0;
-	uint8 *buffer = new uint8[size];
-	if ((subsystem != SUBSYSTEM_PLD) || (subsystem == SUBSYSTEM_PLD && opCode != PLD_DATA_SUCCESS))
-		{
-				size += 9;
-		}
-
-	//Size holds the size of the buffer we will be storing the data to write//
-	//Extract message from MultiDataMessage an place into list params//
-	list<VariableTypeData *> params;
-	params = message.GetParameters();
-	uint8 numParams = 0;
-
-	//Iterate through the params list and increment size for each value in params//
-	std::list<VariableTypeData *>::iterator it = params.begin();
-	for (; it != params.end(); it++)
-	{
-			size += (*it)->GetFlattenSize();
-			numParams += 1;
-	}
-
-	//buffer keeps pointer to the whole buffer, bufferPtr points to the next place to flattened data//
-	uint8 *bufferPtr = buffer;
-	if ((subsystem != SUBSYSTEM_PLD)
-					|| (subsystem == SUBSYSTEM_PLD && opCode != PLD_DATA_SUCCESS))
-	{
-			buffer[0] = (uint8) ((week >> 24) & 0xff);
-			buffer[1] = (uint8) ((week >> 16) & 0xff);
-			buffer[2] = (uint8) ((week >> 8) & 0xff);
-			buffer[3] = (uint8) (week & 0xff);
-			buffer[4] = (uint8) ((seconds >> 24) & 0xff);
-			buffer[5] = (uint8) ((seconds >> 16) & 0xff);
-			buffer[6] = (uint8) ((seconds >> 8) & 0xff);
-			buffer[7] = (uint8) (seconds & 0xff);
-
-			bufferPtr += 8;
-	}
-
-	buffer[8] = numParams;
-	bufferPtr += 1;
-
-	it = params.begin();
-	for (; it != params.end(); it++)
-	{
-			bufferPtr += (*it)->Flatten(bufferPtr, (*it)->GetFlattenSize());
-	}
-
-	if ((subsystem == SUBSYSTEM_PLD) && (opCode == PLD_DATA_SUCCESS))
-	{
-			size -= 5;
-			bufferPtr = buffer + 5; //remove variable type data header
-			memcpy(buffer, bufferPtr, size);
-	}
 
 
-	// Write into the file.
-	//puts("writing file..");
-	//printf("string = %s\n", file.c_str());
-	int err = FileWrite(file.c_str(), (char*) buffer, (long int) size);
-	//printf("%d\n", err);
-	//perror("hello");
-	if (err < 0) return false;
-	return true;
-}
+///////////////////////////
+////////Utilities///////////////
+//////////////////////////////
 
 uint8 * FileHandler::ReadFile(const char * fileName, size_t * bufferSize)
 {
@@ -446,9 +468,6 @@ uint32 FileHandler::FileWrite(const char * fileName, char * buffer, size_t numBy
         return rv;
 }
 
-///////////////////////////////////
-// Delete Data File
-///////////////////////////////////
 bool FileHandler::DeleteFile(const char * fileName)
 {
 
@@ -465,7 +484,6 @@ bool FileHandler::DeleteFile(const char * fileName)
         // Success!
         return true;
 }
-
 
 uint32 FileHandler::fileSize(FILE * fp)
 {
@@ -590,35 +608,8 @@ void FileHandler::FileSizePLDPicture(uint32 resolution, uint32 chunckSize)
         numDataPoints[SUBSYSTEM_PLD][PLD_PIC_CMD] = 0;
 }
 
-//look at this one.
-bool FileHandler::InitEpoch()
-{
 
-        FILE* fp;
-        char fileName[] = "epoch.txt";
-        if (true == TakeLock(MAX_BLOCK_TIME))
-        {
-                char buffer[1];
-                buffer[0] = 94;
-                FileWrite(fileName, buffer, 1);
-                this->GiveLock();
-        }
-        return true;
-}
 
-//Rewrite with C file pointer
-uint16 FileHandler::GetEpoch()
-{
-        FILE* fp;
-        char fileName[] = "epoch.txt";
-        uint16 epochSize = 0;
-        if (true == TakeLock(MAX_BLOCK_TIME))
-        {
-                epochSize = (uint16) this->fileSize(fileName);
-                this->GiveLock();
-        }
-        return epochSize;
-}
 
 //////////////////
 ///////////CRC//////

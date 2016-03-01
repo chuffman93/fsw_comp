@@ -216,9 +216,9 @@ private:
         void FileSizeReferenceCreate(void);
 
         //Comment on how it works
-        uint8_t FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType opCode, string* file, int week);
+        uint8_t FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType opCode, string* file);
 
-        uint8_t FetchFileName(FileHandlerIDEnum logType, string* file, int week);
+        uint8_t FetchFileName(FileHandlerIDEnum logType, string* file);
         // Subsystem file designator reference tables
         // Allows quick reference to most recent file.
         uint32 secRef[SYSTEM_MAX][MAX_OPCODES];
