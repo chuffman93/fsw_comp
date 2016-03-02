@@ -23,10 +23,22 @@ TEST(TestFileHandler, testAppend) {
 
 	bool success = true;
 
+	// Try ACS error message
 	ErrorMessage * msg = new ErrorMessage(ACS_HS_FAILURE);
 	ReturnMessage * ret = new ReturnMessage(msg, false);
 	MultiDataMessage * dataMessage = dynamic_cast<MultiDataMessage *> (ret->GetMessagePtr());
 	success &= fileHandler->Log(SUBSYSTEM_ACS,ACS_HS_FAILURE, (* dataMessage));
+
+	// Try CMD error message
+	for(int i=0;i<105;i++){
+		ErrorMessage * msg2 = new ErrorMessage(CMD_ACP_SWITCH_FAILURE);
+		ReturnMessage * ret2 = new ReturnMessage(msg2, false);
+		MultiDataMessage * dataMessage2 = dynamic_cast<MultiDataMessage *> (ret2->GetMessagePtr());
+		success &= fileHandler->Log(SUBSYSTEM_CMD,CMD_ACP_SWITCH_FAILURE, (* dataMessage2));
+		fileHandler->week++;
+	}
+
+
 	ASSERT_TRUE(success);
 
 }

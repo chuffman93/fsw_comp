@@ -25,6 +25,7 @@
  * will retrieve same information and begin writing
  * files larger than they should
  *
+ * ADD GPS BACK!
  */
 
 #include <cstring>
@@ -60,6 +61,8 @@ uint32 crcTable[256];
 using namespace Phoenix::HAL;
 using namespace Phoenix::Core;
 using namespace std;
+
+
 
 
 ///////////////////////////
@@ -104,9 +107,9 @@ FileHandler & FileHandler::operator=(const FileHandler & source)
 
 
 
-///////////////////////////////////
+/////////////////////////////////////
 /////////// Log Data/////////////////
-///////////////////////////////////
+/////////////////////////////////////
 
 bool FileHandler::Log(FileHandlerIDEnum logType, MessageCodeType dataOne, MessageCodeType dataTwo)
 {
@@ -159,7 +162,7 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum logType, string* file){
 	string tempFile;
     char *temp = new char[25];
     string fileExtension = ".dat";
-    int week;
+    //int week;
     int seconds;
 
 	//
@@ -297,7 +300,7 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType 
     char *temp = new char[25];
     filePath = writeDir;
     fileExtension = ".dat"; //Type of the files
-    int week;
+    //int week;
     int seconds;
 
     //Build file and filepath name using subsystem name and opcode
@@ -360,8 +363,8 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType 
 
 	//Retrieve Old file name and assign it to tempFile.
 	tempFile = *file;
-	week = weekRef[subsystem][opCode];
-	itoa(week, temp, 10);
+	int week2 = weekRef[subsystem][opCode];
+	itoa(week2, temp, 10);
 	tempFile.append(temp);
 	tempFile.append(fileExtension);
 	tempFile.insert(0, filePath);
@@ -369,6 +372,7 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType 
 
 	// Check if Old file is full. If so, create new file with current time info,
 	// else assign tempFile to file.
+	// TODO: Add GPS back in (de-globalize week)
 	if (fileSize(tempFile.c_str())>=MAXFILESIZE){
 		printf("file_size = %d\n", fileSize(tempFile.c_str()));
 		printf("file path= %s\n", tempFile.c_str());
@@ -377,7 +381,7 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType 
 
 		//get current time in seconds and week
 		char *temp2 = new char[25];
-		itoa(week+2, temp2, 10);
+		itoa(week, temp2, 10);
 		file->append(temp2);
 		*file = filePath.append(file->append(fileExtension));
 		weekRef[subsystem][opCode] = week;
@@ -392,9 +396,9 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType 
 
 
 
-///////////////////////////
+////////////////////////////////
 ////////Utilities///////////////
-//////////////////////////////
+////////////////////////////////
 
 uint8 * FileHandler::ReadFile(const char * fileName, size_t * bufferSize)
 {
@@ -611,9 +615,11 @@ void FileHandler::FileSizePLDPicture(uint32 resolution, uint32 chunckSize)
 
 
 
-//////////////////
-///////////CRC//////
+
 //////////////////////
+///////////CRC////////
+//////////////////////
+
 void FileHandler::makeCrcTable(uint32 crcTable[])
 {
     uint32 POLYNOMIAL = 0xEDB88320; //0x04C11DB7 reversed
@@ -678,4 +684,3 @@ uint32 FileHandler::crcCheck(const char * fileName)
 				}
 		return crc;
 }
-

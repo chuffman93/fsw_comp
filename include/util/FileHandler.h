@@ -185,6 +185,8 @@ public:
 
         uint32 crcCheck(const char * filename);
 
+        int week;
+
 private:
         /*! \brief Initialize the File Handler Class
          *
