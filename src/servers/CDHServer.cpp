@@ -15,6 +15,7 @@
 #include "core/StdTypes.h"
 #include "core/ModeManager.h"
 #include "core/WatchdogManager.h"
+#include <iostream>
 
 using namespace Phoenix::Core;
 
@@ -22,8 +23,6 @@ namespace Phoenix
 {
 	namespace Servers
 	{
-		// Error handler for EPS errors.
-		static ErrorOctopusHandler * octErrorHandler;
 
 		CDHServer::CDHServer(std::string nameIn, LocationIDType idIn)
 				: SubsystemServer(nameIn, idIn), Singleton(), arby(idIn)
@@ -50,13 +49,13 @@ namespace Phoenix
 
 		void CDHServer::Initialize(void)
 		{
-			octErrorHandler = new ErrorOctopusHandler();
+			// TODO: Handlers
 		}
 
 #ifdef TEST
 		void CDHServer::Destroy(void)
 		{
-			delete octErrorHandler;
+			// TODO: Delete Handlers
 		}
 #endif
 
@@ -71,6 +70,15 @@ namespace Phoenix
 			* Ex: Needs to do things to close mode 1, enter mode 2
 			* Setup and tear down between modes
 			*/
+		}
+
+		/*
+		 * Testing Purposes only
+		 */
+		bool CDHServer::Exist()
+		{
+			std::cout<<"CDH"<<std::endl;
+			return true;
 		}
 
 		/*

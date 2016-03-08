@@ -21,7 +21,7 @@ namespace Phoenix
 {
 	namespace Servers
 	{
-	class SCHServer : public SubsystemServer, public Phoenix::Core::Singleton
+	class CDHServer : public SubsystemServer, public Phoenix::Core::Singleton
 		{
 			/*! \brief Declare Factory a friend class
 			*
@@ -30,6 +30,12 @@ namespace Phoenix
 			friend class Phoenix::Core::Factory;
 
 		public:
+			void Update(const Core::SystemMode * mode);
+
+			/*
+			 * Testing purposes only
+			 */
+			bool Exist();
 
 		private:
 			/*! \brief Initialize the CDHServer Class
@@ -54,6 +60,16 @@ namespace Phoenix
 			 *  false otherwise.
 			 */
 			bool IsFullyInitialized(void);
+
+			CDHServer(std::string nameIn, LocationIDType idIn);
+			~CDHServer();
+			CDHServer & operator=(const CDHServer & source);
+
+			// Member variables needed to register message handlers.
+			Phoenix::Core::MessageHandlerRegistry reg;
+			Phoenix::Core::Arbitrator arby;
 		};
 	}
 }
+
+#endif //CDHSERVER_H_
