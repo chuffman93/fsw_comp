@@ -90,7 +90,7 @@ namespace Phoenix
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 
 			// ACS Command OpCodes
-			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, ACS_HS_CMD), cdhUsageHandler);
+			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CDH_USAGE_CMD), cdhUsageHandler);
 
 			success &= dispatcher->AddRegistry(id, &reg, &arby);
 

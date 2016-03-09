@@ -28,7 +28,20 @@ namespace Phoenix
 	{
 		ReturnMessage * CDHUsage(void)
 		{
-			return(DispatchPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, 1, 0, MESSAGE_TYPE_COMMAND, ACS_HS_CMD));
+			//Actual usage code goes here------------------------------
+			float usage = 22.0;
+			//---------------------------------------------------------
+
+			VariableTypeData usageHold(usage);
+
+			list<VariableTypeData *> params;
+			params.push_back(&usageHold);
+
+			DataMessage dat(CDH_USAGE_SUCCESS, params);
+			ReturnMessage * retMsg = new ReturnMessage(&dat, true);
+			return retMsg;
 		}
+
+		// TODO: Add Temperature Bus, Hot swaps, storage, storage management
 	}
 }

@@ -513,6 +513,15 @@ enum THMCommandEnum
 	THM_HS_FAILURE = 101,
 };
 
+enum CDHCommandEnum
+{
+	CDH_USAGE_CMD = 1,
+
+	CDH_USAGE_SUCCESS = 201,
+
+	CDH_USAGE_FAILURE = 101
+};
+
 /* Standard enumeration for general errors that can
 `* occur on any subsystem server.
  */
