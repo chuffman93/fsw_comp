@@ -6,6 +6,7 @@
  */
 
 #include "servers/CDHServer.h"
+#include "servers/CDHHandlers.h"
 
 #include "core/CommandMessage.h"
 #include "core/ReturnMessage.h"
@@ -23,6 +24,7 @@ namespace Phoenix
 {
 	namespace Servers
 	{
+		static CDHUsageHandler * cdhUsageHandler;
 
 		CDHServer::CDHServer(std::string nameIn, LocationIDType idIn)
 				: SubsystemServer(nameIn, idIn), Singleton(), arby(idIn)
@@ -49,13 +51,13 @@ namespace Phoenix
 
 		void CDHServer::Initialize(void)
 		{
-			// TODO: Handlers
+			cdhUsageHandler = new CDHUsageHandler();
 		}
 
 #ifdef TEST
 		void CDHServer::Destroy(void)
 		{
-			// TODO: Delete Handlers
+			delete cdhUsageHandler;
 		}
 #endif
 
@@ -67,9 +69,9 @@ namespace Phoenix
 		void CDHServer::Update(const SystemMode * mode)
 		{
 			/* Called by mode manager each time mode changes
-			* Ex: Needs to do things to close mode 1, enter mode 2
-			* Setup and tear down between modes
-			*/
+			 * Ex: Needs to do things to close mode 1, enter mode 2
+			 * Setup and tear down between modes
+			 */
 		}
 
 		/*
@@ -81,24 +83,19 @@ namespace Phoenix
 			return true;
 		}
 
-		/*
+
 		bool CDHServer::RegisterHandlers()
 		{
 			bool success = true;
-
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 
-			for(int opcode = OPCODE_ERRORS_MIN; opcode < OPCODE_ERRORS_MAX; opcode++)
-			{
-				success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_ERROR, opcode), octErrorHandler);
-				success &= arby.ModifyPermission(MessageIdentifierType(MESSAGE_TYPE_ERROR, opcode), true);
-			}
+			// ACS Command OpCodes
+			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, ACS_HS_CMD), cdhUsageHandler);
 
 			success &= dispatcher->AddRegistry(id, &reg, &arby);
 
 			return success;
 		}
-		*/
 
 		/*
 		void CDHServer::SubsystemLoop(void)

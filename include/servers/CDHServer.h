@@ -32,6 +32,8 @@ namespace Phoenix
 		public:
 			void Update(const Core::SystemMode * mode);
 
+			bool RegisterHandlers();
+
 			/*
 			 * Testing purposes only
 			 */
