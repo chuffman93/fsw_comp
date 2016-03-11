@@ -14,6 +14,7 @@
 #include <stdio.h>
 
 #include "servers/CDHServer.h"
+#include "servers/CDHStdTasks.h"
 
 using namespace std;
 using namespace rel_ops;

@@ -42,6 +42,6 @@ namespace Phoenix
 			return retMsg;
 		}
 
-		// TODO: Add Temperature Bus, Hot swaps, storage, storage management
+		// TODO: Add Temperature Bus, Hot swaps, storage, storage management, memory
 	}
 }
