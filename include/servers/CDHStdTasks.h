@@ -2,7 +2,7 @@
  * CDHStdTasks.h
  *
  *  Created on: Mar 8, 2016
- *      Author: alex
+ *      Author: Alex St. Clair
  */
 
 #ifndef CDHSTDTASKS_H_
@@ -16,7 +16,11 @@ namespace Phoenix
 {
 	namespace Servers
 	{
-		Phoenix::Core::ReturnMessage * CDHUsage(void);
+		Phoenix::Core::ReturnMessage * CDHCPUUsage(void);
+		Phoenix::Core::ReturnMessage * CDHMemUsage(void);
+		Phoenix::Core::ReturnMessage * CDHStorage(void);
+		Phoenix::Core::ReturnMessage * CDHTempBus(void);
+		Phoenix::Core::ReturnMessage * CDHHotSwaps(void);
 	}
 }
 

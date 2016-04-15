@@ -20,6 +20,8 @@
 #include "core/StdTypes.h"
 #include "core/ModeManager.h"
 
+#include <iostream>
+
 using namespace std;
 using namespace Phoenix::Core;
 using namespace Phoenix::Servers;
@@ -28,6 +30,7 @@ uint32 CMDSwitchProtocolHandler::enumArray[] = {VAR_TYPE_ENUM_UNSIGNED_INT, VAR_
 
 ReturnMessage * CMDSwitchProtocolHandler::Handle(const FSWPacket & packet)
 {
+	cout<<"CHECK 1 ------------------------------------------------------------------------"<<endl;
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
 	{

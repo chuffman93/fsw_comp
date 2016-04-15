@@ -17,6 +17,7 @@
 #include "core/ModeManager.h"
 #include "core/WatchdogManager.h"
 #include <iostream>
+#include <sys/sysinfo.h>
 
 using namespace Phoenix::Core;
 
@@ -24,7 +25,11 @@ namespace Phoenix
 {
 	namespace Servers
 	{
-		static CDHUsageHandler * cdhUsageHandler;
+		static CDHCPUUsageHandler * cdhCPUUsageHandler;
+		static CDHMemUsageHandler * cdhMemUsageHandler;
+		static CDHStorageHandler * cdhStorageHandler;
+		static CDHTempBusHandler * cdhTempBusHandler;
+		static CDHHotSwapsHandler * cdhHotSwapsHandler;
 
 		CDHServer::CDHServer(std::string nameIn, LocationIDType idIn)
 				: SubsystemServer(nameIn, idIn), Singleton(), arby(idIn)
@@ -51,13 +56,23 @@ namespace Phoenix
 
 		void CDHServer::Initialize(void)
 		{
-			cdhUsageHandler = new CDHUsageHandler();
+			cdhCPUUsageHandler = new CDHCPUUsageHandler();
+			cdhMemUsageHandler = new CDHMemUsageHandler();
+			cdhStorageHandler = new CDHStorageHandler();
+			cdhTempBusHandler = new CDHTempBusHandler();
+			cdhHotSwapsHandler = new CDHHotSwapsHandler();
 		}
 
 #ifdef TEST
 		void CDHServer::Destroy(void)
 		{
-			delete cdhUsageHandler;
+			delete cdhCPUUsageHandler;
+			delete cdhMemUsageHandler;
+			delete cdhStorageHandler;
+			delete cdhTempBusHandler;
+			delete cdhHotSwapsHandler;
+
+			// TODO: Add Temperature Bus, Hot swaps, storage, storage management, memory
 		}
 #endif
 
@@ -90,24 +105,32 @@ namespace Phoenix
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 
 			// ACS Command OpCodes
-			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CDH_USAGE_CMD), cdhUsageHandler);
+			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CDH_CPU_USAGE_CMD), cdhCPUUsageHandler);
+			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CDH_MEM_USAGE_CMD), cdhMemUsageHandler);
+			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CDH_STORAGE_CMD), cdhStorageHandler);
+			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CDH_TEMP_BUS_CMD), cdhTempBusHandler);
+			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CDH_HOT_SWAPS_CMD), cdhHotSwapsHandler);
+
+			for(int opcode = CDH_CMD_MIN; opcode < CDH_CMD_MAX; opcode++)
+			{
+				success &= arby.ModifyPermission(MessageIdentifierType(MESSAGE_TYPE_COMMAND, opcode), true);
+			}
 
 			success &= dispatcher->AddRegistry(id, &reg, &arby);
 
 			return success;
 		}
 
-		/*
 		void CDHServer::SubsystemLoop(void)
 		{
 			//FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
-			ErrorQueue * que = dynamic_cast<ErrorQueue *>(Factory::GetInstance(ERROR_QUEUE_SINGLETON));
+			//ErrorQueue * que = dynamic_cast<ErrorQueue *>(Factory::GetInstance(ERROR_QUEUE_SINGLETON));
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
 			//Check if there are errors in the queue.
-			FSWPacket * tmpPacket;
-			size_t num = 0;
+			//FSWPacket * tmpPacket;
+			//size_t num = 0;
 			uint64_t LastWakeTime = 0;
 			while(1)
 			{
@@ -115,6 +138,7 @@ namespace Phoenix
 				LastWakeTime = getTimeInMilis();
 				//wdm->Kick();
 				//debug_led_set_led(2, LED_TOGGLE);
+				/*
 				num = que->ErrorsWaiting();
 				while(num > 0)
 				{
@@ -185,11 +209,11 @@ namespace Phoenix
 					//update number of messages remaining.
 					num = que->ErrorsWaiting();
 				}
+				*/
 				// Delay
 				waitUntil(LastWakeTime, 1000);
 			}
 		}
-		*/
 	}
 }
 

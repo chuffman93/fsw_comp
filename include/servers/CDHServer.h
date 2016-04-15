@@ -16,6 +16,7 @@
 #include "core/Singleton.h"
 #include "core/VariableTypeEnum.h"
 #include "servers/SubsystemServer.h"
+#include <sys/sysinfo.h>
 
 namespace Phoenix
 {
@@ -38,6 +39,12 @@ namespace Phoenix
 			 * Testing purposes only
 			 */
 			bool Exist();
+
+			void SubsystemLoop();
+
+			// Allows for easy look into memory usage
+			struct sysinfo si;
+			//sysinfo (&si);
 
 		private:
 			/*! \brief Initialize the CDHServer Class
@@ -70,6 +77,7 @@ namespace Phoenix
 			// Member variables needed to register message handlers.
 			Phoenix::Core::MessageHandlerRegistry reg;
 			Phoenix::Core::Arbitrator arby;
+
 		};
 	}
 }

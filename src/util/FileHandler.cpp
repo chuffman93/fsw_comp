@@ -243,6 +243,7 @@ bool FileHandler::Log(FileHandlerIDEnum subsystem, MessageCodeType opCode,
 	std::list<VariableTypeData *>::iterator it = params.begin();
 	for (; it != params.end(); it++)
 	{
+			cout<<"Data: "<<*((double *) (*it)->GetData())<<endl; //  <-- easy way to check handler data (ensure correct type casting)
 			size += (*it)->GetFlattenSize();
 			numParams += 1;
 	}
@@ -390,7 +391,6 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType 
 	}
 	return 0;
 }
-
 
 
 
