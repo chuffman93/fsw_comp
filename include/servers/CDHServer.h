@@ -17,6 +17,8 @@
 #include "core/VariableTypeEnum.h"
 #include "servers/SubsystemServer.h"
 #include <sys/sysinfo.h>
+#include <sys/statvfs.h>
+
 
 namespace Phoenix
 {
@@ -44,7 +46,7 @@ namespace Phoenix
 
 			// Allows for easy look into memory usage
 			struct sysinfo si;
-			//sysinfo (&si);
+			struct statvfs svfs;
 
 		private:
 			/*! \brief Initialize the CDHServer Class

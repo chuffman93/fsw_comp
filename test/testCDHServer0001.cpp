@@ -60,7 +60,7 @@ TEST(TestCDHServer, testSingleton) {
 
 }
 
-TEST(TestCDHServer, testStub) {
+TEST(TestCDHServer, testMessage) {
 
 	FileHandler * fileHandler =
 			dynamic_cast<FileHandler *>(Factory::GetInstance(
@@ -92,7 +92,7 @@ TEST(TestCDHServer, testStub) {
 	params.push_back(&int_hold);
 	*/
 
-	ReturnMessage * ret1 = DispatchPacket(SERVER_LOCATION_ACS,SERVER_LOCATION_CDH, 1, 0, MESSAGE_TYPE_COMMAND, CDH_MEM_USAGE_CMD);
+	ReturnMessage * ret1 = DispatchPacket(SERVER_LOCATION_ACS,SERVER_LOCATION_CDH, 1, 0, MESSAGE_TYPE_COMMAND, CDH_TEMP_BUS_CMD);
 	/*
 	 bool success = ret1->GetSuccess();
 	 MessageCodeType code = ret1->GetOpcode();
@@ -162,4 +162,23 @@ TEST(TestCDHServer, testProc) {
 	}
 
 	delete buffer;
+}
+
+TEST(TestCDHServer, testTemp) {
+
+	cout<<"Getting temp:"<<endl;
+	system("cat /sys/bus/w1/devices/w1_bus_master1/TEMP0/temp");
+	system("echo 1 >> /sys/bus/w1/devices/w1_bus_master1/TEMP0/start");
+	usleep(600000);
+	system("cat /sys/bus/w1/devices/w1_bus_master1/TEMP0/temp");
+	system("echo 1 >> /sys/bus/w1/devices/w1_bus_master1/TEMP0/start");
+	usleep(600000);
+	system("cat /sys/bus/w1/devices/w1_bus_master1/TEMP0/temp");
+	system("echo 1 >> /sys/bus/w1/devices/w1_bus_master1/TEMP0/start");
+	usleep(600000);
+	system("cat /sys/bus/w1/devices/w1_bus_master1/TEMP0/temp");
+	system("echo 1 >> /sys/bus/w1/devices/w1_bus_master1/TEMP0/start");
+	usleep(600000);
+	system("cat /sys/bus/w1/devices/w1_bus_master1/TEMP0/temp");
+
 }

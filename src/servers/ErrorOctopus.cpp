@@ -172,6 +172,9 @@ namespace Phoenix
 						case SERVER_LOCATION_CMD:
 							CMDError(opcode, Msg);
 							break;
+						case SERVER_LOCATION_CDH:
+
+							break;
 						case SERVER_LOCATION_ERR:
 							//TODO: Error server throwing errors?
 							//We're gonna need a bigger boat.

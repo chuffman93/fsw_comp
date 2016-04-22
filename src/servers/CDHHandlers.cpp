@@ -29,31 +29,28 @@ using namespace Phoenix::Servers;
 
 ReturnMessage * CDHCPUUsageHandler::Handle(const FSWPacket & packet)
 {
-	cout<<"CPU Usage Handler(): Made it in"<<endl;
 	return (CDHCPUUsage());
 }
 
 ReturnMessage * CDHMemUsageHandler::Handle(const FSWPacket & packet)
 {
-	cout<<"CPU Usage Handler(): Made it in1"<<endl;
 	return (CDHMemUsage());
 }
 
 ReturnMessage* CDHStorageHandler::Handle(const FSWPacket & packet)
 {
-	cout<<"CPU Usage Handler(): Made it in2"<<endl;
 	return (CDHStorage());
 }
 
 ReturnMessage* CDHTempBusHandler::Handle(const FSWPacket & packet)
 {
-	cout<<"CPU Usage Handler(): Made it in3"<<endl;
+	cout<<"CPU Temp Bus Handler(): Made it in"<<endl;
 	return (CDHTempBus());
 }
 
 ReturnMessage* CDHHotSwapsHandler::Handle(const FSWPacket & packet)
 {
-	cout<<"CPU Usage Handler(): Made it in4"<<endl;
+	cout<<"CPU Hot Swaps Handler(): Made it in"<<endl;
 	return (CDHHotSwaps());
 }
 

@@ -644,6 +644,54 @@ namespace Phoenix
 					}
 				}
 
+		void CDHError(int opcode, MultiDataMessage * dataMessage)
+				{
+					// File handler error
+					if((opcode >= CDH_CMD_ERROR_MIN) && (opcode <= CDH_CMD_ERROR_MAX))
+					{
+						FileHandlerError(opcode, dataMessage);
+					}
+
+					FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
+
+					switch(opcode)
+					{
+						case CDH_CPU_USAGE_FAILURE: //Bad Subsystem Index, ACP Switch Failure
+							if(!fileHandler->Log(SYSTEM_CDH, opcode, (* dataMessage)))
+							{
+								// write to error log
+							}
+
+							break;
+						case CDH_MEM_USAGE_FAILURE: //Bad Protocol Index, ACP Switch Failure
+							if(!fileHandler->Log(SYSTEM_CDH, opcode, (* dataMessage)))
+							{
+								// write to error log
+							}
+							break;
+						case CDH_STORAGE_FAILURE: //ACP Switch Failure upon packet extraction
+							if(!fileHandler->Log(SYSTEM_CDH, opcode, (* dataMessage)))
+							{
+								// write to error log
+							}
+							break;
+						case CDH_TEMP_BUS_FAILURE: //ACP Switch Failure upon packet extraction
+							if(!fileHandler->Log(SYSTEM_CDH, opcode, (* dataMessage)))
+							{
+								// write to error log
+							}
+							break;
+						case CDH_HOT_SWAPS_FAILURE: //ACP Switch Failure upon packet extraction
+							if(!fileHandler->Log(SYSTEM_CDH, opcode, (* dataMessage)))
+							{
+								// write to error log
+							}
+							break;
+						default:
+							break;
+					}
+				}
+
 		void FileHandlerError(int opcode, MultiDataMessage * retMsg)
 		{
 			// Don't write to error log

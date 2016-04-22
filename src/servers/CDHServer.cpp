@@ -18,6 +18,7 @@
 #include "core/WatchdogManager.h"
 #include <iostream>
 #include <sys/sysinfo.h>
+#include <sys/statvfs.h>
 
 using namespace Phoenix::Core;
 
