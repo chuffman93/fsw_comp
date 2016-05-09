@@ -124,93 +124,16 @@ namespace Phoenix
 
 		void CDHServer::SubsystemLoop(void)
 		{
-			//FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
-			//ErrorQueue * que = dynamic_cast<ErrorQueue *>(Factory::GetInstance(ERROR_QUEUE_SINGLETON));
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
-			//Check if there are errors in the queue.
-			//FSWPacket * tmpPacket;
-			//size_t num = 0;
 			uint64_t LastWakeTime = 0;
 			while(1)
 			{
 				while(dispatcher->Listen(id));
 				LastWakeTime = getTimeInMilis();
 				//wdm->Kick();
-				//debug_led_set_led(2, LED_TOGGLE);
-				/*
-				num = que->ErrorsWaiting();
-				while(num > 0)
-				{
-					printf("ErrorOctopus Errors Received!\n");
-					//add error event logger here
-					tmpPacket = que->GetNextError();
-					LocationIDType source = tmpPacket->GetSource();
-					MultiDataMessage * Msg = dynamic_cast<MultiDataMessage *> (tmpPacket->GetMessagePtr());
-					MessageCodeType opcode = Msg->GetOpcode();
-					//fileHandler->logAppend(LOG_ERROR, source, opcode);
-					switch (source)
-					{
-						case HARDWARE_LOCATION_EPS:
-							EPSError(opcode, Msg);
-							break;
-						case HARDWARE_LOCATION_ACS:
-							ACSError(opcode, Msg);
-							break;
-						case HARDWARE_LOCATION_PROP:
-							//DAFAQ is prop?
-							break;
-						case HARDWARE_LOCATION_THM:
-							THMError(opcode, Msg);
-							break;
-						case HARDWARE_LOCATION_PLD:
-							PLDError(opcode, Msg);
-							break;
-						case HARDWARE_LOCATION_GPS:
-							GPSError(opcode, Msg);
-							break;
-						case SERVER_LOCATION_COM:
-							COMError(opcode, Msg);
-							break;
-						case SERVER_LOCATION_EPS:
-							EPSError(opcode, Msg);
-							break;
-						case SERVER_LOCATION_ACS:
-							ACSError(opcode, Msg);
-							break;
-						case SERVER_LOCATION_PROP:
-							//Seriously though wtf is propulsion?
-							break;
-						case SERVER_LOCATION_PLD:
-							PLDError(opcode, Msg);
-							break;
-						case SERVER_LOCATION_GPS:
-							GPSError(opcode, Msg);
-							break;
-						case SERVER_LOCATION_THM:
-							printf("Thermal Error!\n");
-							THMError(opcode, Msg);
-							break;
-						case SERVER_LOCATION_SCH:
-							SCHError(opcode, Msg);
-							break;
-						case SERVER_LOCATION_CMD:
-							CMDError(opcode, Msg);
-							break;
-						case SERVER_LOCATION_ERR:
-							//TODO: Error server throwing errors?
-							//We're gonna need a bigger boat.
-							break;
-						default:
-							//TODO: WTF WHERE DID THIS ERROR COME FROM!
-							break;
-					}
-					delete tmpPacket;
-					//update number of messages remaining.
-					num = que->ErrorsWaiting();
-				}
-				*/
+
 				// Delay
 				waitUntil(LastWakeTime, 1000);
 			}

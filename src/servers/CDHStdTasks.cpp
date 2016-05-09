@@ -106,6 +106,12 @@ namespace Phoenix
 			return retMsg;
 		}
 
+		//TODO: Determine file read specification
+		/*
+		 * - Standard char number?
+		 * - Number of files?
+		 * - If sensor goes down (ie. file DNE)
+		*/
 		ReturnMessage * CDHTempBus(void)
 		{
 			// Eventually make string arrays for iteration
@@ -160,6 +166,7 @@ namespace Phoenix
 			return retMsg;
 		}
 
+		//TODO: Finish HotSwaps (meet with CDH)
 		ReturnMessage * CDHHotSwaps(void)
 		{
 
