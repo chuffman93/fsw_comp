@@ -42,7 +42,7 @@
 using namespace std;
 //using namespace Phoenix::HAL;
 
-#define DISPATCHER_DEBUG			0
+#define DISPATCHER_DEBUG			1
 
 #if DISPATCHER_DEBUG
 #include <iostream>
@@ -338,10 +338,11 @@ bool Dispatcher::Listen(LocationIDType serverID)
 	// Permissions are correct, so invoke it and obtain the resulting message.
 	DEBUG_COUT("   Dispatcher: Listen(): Permissions are correct, invoke the handler, and obtain the resulting message.");
 
-
 	DispatcherTaskParameter parameters;
 	parameters.registry = it->second->registry;
+	cout<<"\t Registry: "<<parameters.registry<<endl;
 	parameters.packet = packet;
+	cout<<"\t packet: "<<parameters.packet<<endl;
 	pthread_t TaskHandle;
 	sem_init(&parameters.syncSem, SHARE_TO_THREADS, 1);
 	sem_init(&parameters.doneSem, SHARE_TO_THREADS, 1);
@@ -377,14 +378,19 @@ bool Dispatcher::Listen(LocationIDType serverID)
 	pthread_join(TaskHandle, NULL);
 	sem_destroy(&(parameters.syncSem));
 	sem_destroy(&(parameters.doneSem));
-
 	// Create a packet from the response.
 	try
 	{
 		LocationIDType src = packet->GetSource( );
 		packet->SetSource(packet->GetDestination( ));
 		packet->SetDestination(src);
+
+		cout<<"------------------------ Test 1 ------------------------"<<endl;
+
 		packet->SetMessage(parameters.retMsg);
+
+		cout<<"------------------------ Test 2 ------------------------"<<endl;
+
 		delete parameters.retMsg;
 	}
 	catch (bad_alloc & e)
@@ -407,6 +413,11 @@ bool Dispatcher::IsPacketMatchingResponse(const FSWPacket & packetIn,
 	DEBUG_PRINT("Queue FSWPacket    - ", (&packetOut));
 	//debug_led_set_led(5, LED_ON);
 	// Return true if *packetOut is a response to *packetIn.
+
+	cout<<"Is response?: "<<packetOut.GetMessagePtr()->IsResponse()<<endl;
+	cout<<"Matching location?: "<<(packetOut.GetDestination() == packetIn.GetSource())<<endl;
+	cout<<"Same number?: "<<(packetOut.GetNumber() == packetIn.GetNumber())<<endl;
+
 	return ((packetOut.GetMessagePtr( )->IsResponse( ))
 			&& (packetOut.GetDestination( ) == packetIn.GetSource( ))
 			&& (packetOut.GetNumber( ) == packetIn.GetNumber( )));
@@ -569,12 +580,15 @@ bool Dispatcher::SendErrorResponse(ErrorOpcodeEnum errorCode,
 
 void * Dispatcher::InvokeHandler(void * parameters)
 {
+	cout<<"\t Dispatcher: InvokeHandler(): invoke handler called"<<endl;
 	DispatcherTaskParameter * parms =
 			(DispatcherTaskParameter *) parameters;
 
 	xSemaphoreTake(&(parms->doneSem), MAX_BLOCK_TIME, 0);
 	sem_post(&(parms->syncSem));
 	parms->retMsg = parms->registry->Invoke(*(parms->packet));
+	cout<<"\t Dispatcher: InvokeHandler(): RetMsg Success: "<<parms->retMsg->GetSuccess()<<endl;
+	cout<<"\t Dispatcher: InvokeHandler(): RetMsg Opcode:  "<<parms->retMsg->GetOpcode()<<endl;
 
 
 	sem_post(&(parms->doneSem));

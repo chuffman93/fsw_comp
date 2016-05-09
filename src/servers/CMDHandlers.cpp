@@ -20,21 +20,17 @@
 #include "core/StdTypes.h"
 #include "core/ModeManager.h"
 
+#include <iostream>
+
 using namespace std;
 using namespace Phoenix::Core;
 using namespace Phoenix::Servers;
-
-// define necessary parameters
-// extract them from message
-// perform error checking on parameters
-// subsystem_acp_protocol[subsystem] = protocol;
-
-// outputArray[0]
 
 uint32 CMDSwitchProtocolHandler::enumArray[] = {VAR_TYPE_ENUM_UNSIGNED_INT, VAR_TYPE_ENUM_UNSIGNED_INT};
 
 ReturnMessage * CMDSwitchProtocolHandler::Handle(const FSWPacket & packet)
 {
+	cout<<"CHECK 1 ------------------------------------------------------------------------"<<endl;
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
 	{

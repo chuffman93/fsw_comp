@@ -21,6 +21,8 @@
 #include "core/SystemMode.h"
 #include "POSIX.h"
 
+#include <iostream>
+
 #include "core/WatchdogManager.h"
 #include "util/FileHandler.h"
 
@@ -58,6 +60,9 @@ namespace Phoenix
 			subsystem_acp_protocol[HARDWARE_LOCATION_THM] = ACP_PROTOCOL_SPI;
 			subsystem_acp_protocol[HARDWARE_LOCATION_PLD] = ACP_PROTOCOL_SPI;
 			subsystem_acp_protocol[HARDWARE_LOCATION_GPS] = ACP_PROTOCOL_SPI;
+			for(int i=HARDWARE_LOCATION_MIN;i<HARDWARE_LOCATION_MAX;i++){
+				cout<<subsystem_acp_protocol[i]<<endl;
+			}
 		}
 		
 #ifdef TEST
@@ -88,6 +93,7 @@ namespace Phoenix
 		{
 			FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
 			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 			
 			const SystemMode * mode;  
@@ -106,6 +112,7 @@ namespace Phoenix
 			
 			while(1)
 			{
+				while(dispatcher->Listen(id));
 				uint64_t LastTimeTick = getTimeInMilis();
 				//wdm->Kick();
 				//debug_led_set_led(2, LED_TOGGLE);

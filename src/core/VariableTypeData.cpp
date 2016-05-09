@@ -15,6 +15,8 @@
 #include "core/ArrayDatatype.h"
 #include "core/PacketDatatype.h"
 
+#include <iostream>
+
 //#include "boards/backplane/dbg_led.h"
 
 using namespace std;
@@ -26,7 +28,7 @@ namespace Phoenix
 		VariableTypeData::VariableTypeData(void )
 		                 : type(VAR_TYPE_ENUM_VOID), data(NULL)
         {
-			// Left Intentionally Empty
+			data = NULL;
         }
 
 		VariableTypeData::VariableTypeData(int32 dataIn)
@@ -160,7 +162,10 @@ namespace Phoenix
         
         VariableTypeData::~VariableTypeData(void )
         {
-        	delete data;
+        	if (data != NULL){
+        		cout<<".............................................................................."<<endl;
+        		delete data;
+        	}
         }
         
         VariableTypeData & VariableTypeData::operator=(const VariableTypeData & source)

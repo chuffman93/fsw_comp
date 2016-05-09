@@ -8,7 +8,6 @@
  *  	Authors: Alex St. Clair, Adam St. Amand
  */
 
-
 /*TODO List - BEFORE TUESDAY
  * 1.) Change over to C style file pointers XXXXXXFinishedXXXXX
  * 2.) Implement Time Retrieval (GPS)
@@ -192,7 +191,7 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum logType, string* file){
 	if (fileSize(tempFile.c_str())>=MAXFILESIZE){
 		printf("file_size = %d\n", fileSize(tempFile.c_str()));
 		printf("file path= %s\n", tempFile.c_str());
-		puts("File Full");
+		puts("file full or nonexistent");
 		printf("week = %d\n", week);
 
 		//get current time in seconds and week
@@ -244,6 +243,7 @@ bool FileHandler::Log(FileHandlerIDEnum subsystem, MessageCodeType opCode,
 	std::list<VariableTypeData *>::iterator it = params.begin();
 	for (; it != params.end(); it++)
 	{
+			//cout<<"Data: "<<*((uint32 *) (*it)->GetData())<<endl; //  <-- easy way to check handler data (ensure correct type casting)
 			size += (*it)->GetFlattenSize();
 			numParams += 1;
 	}
@@ -376,7 +376,7 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType 
 	if (fileSize(tempFile.c_str())>=MAXFILESIZE){
 		printf("file_size = %d\n", fileSize(tempFile.c_str()));
 		printf("file path= %s\n", tempFile.c_str());
-		puts("File Full");
+		puts("file full or nonexistent");
 		printf("week = %d\n", week);
 
 		//get current time in seconds and week
@@ -391,7 +391,6 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType 
 	}
 	return 0;
 }
-
 
 
 

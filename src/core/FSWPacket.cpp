@@ -12,6 +12,7 @@
 #include "core/FSWPacket.h"
 #include "util/crc.h"
 #include <stdio.h>
+#include <iostream>
 
 //#include "boards/backplane/dbg_led.h"
 
@@ -262,12 +263,23 @@ namespace Phoenix
 
         void FSWPacket::SetMessage(Message * newMessage)
         {
+        	cout<<"------------------------ Test 1.1 ------------------------"<<endl;
+        	cout<<"Message Success?: "<<messagePtr->GetSuccess()<<endl;
+        	cout<<"Message Opcode?:  "<<messagePtr->GetOpcode()<<endl;
             delete messagePtr;
+
+        	cout<<"------------------------ Test 1.2 ------------------------"<<endl;
+
 			if(newMessage == NULL)
 			{
+				cout<<"------------------------ Test 1.3 ------------------------"<<endl;
+
 				messagePtr = NULL;
 				return;
 			}
+
+			cout<<"------------------------ Test 1.4 ------------------------"<<endl;
+
             messagePtr = newMessage->Duplicate();
         }
 
