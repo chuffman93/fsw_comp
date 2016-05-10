@@ -54,8 +54,9 @@ namespace Phoenix
 			params.push_back(&fiveMinHold);
 			params.push_back(&fifteenMinHold);
 
-			DataMessage dat(CDH_CPU_USAGE_SUCCESS, params);
-			ReturnMessage * retMsg = new ReturnMessage(&dat, true);
+			DataMessage * dat = new DataMessage(CDH_CPU_USAGE_SUCCESS, params);
+			ReturnMessage * retMsg = new ReturnMessage(dat, true);
+			delete dat;
 			return retMsg;
 
 		}

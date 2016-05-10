@@ -37,11 +37,6 @@ namespace Phoenix
 
 			bool RegisterHandlers();
 
-			/*
-			 * Testing purposes only
-			 */
-			bool Exist();
-
 			void SubsystemLoop();
 
 			// Allows for easy look into memory usage

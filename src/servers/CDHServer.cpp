@@ -90,16 +90,6 @@ namespace Phoenix
 			 */
 		}
 
-		/*
-		 * Testing Purposes only
-		 */
-		bool CDHServer::Exist()
-		{
-			std::cout<<"CDH"<<std::endl;
-			return true;
-		}
-
-
 		bool CDHServer::RegisterHandlers()
 		{
 			bool success = true;

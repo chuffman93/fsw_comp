@@ -51,7 +51,7 @@
 // Instantiate static members
 const char * FileHandler::errLog = NULL;
 const char * FileHandler::modeLog = NULL;
-const char * writeDir = "/media/sdMount/";
+const char * writeDir = "/home/root/filehandler/";
 const char * truDat = "/home/root/filehandler/tru.dat";
 const unsigned int sizeToZip = 10 * (1024);
 uint32 crcTable[256];
@@ -64,9 +64,9 @@ using namespace std;
 
 
 
-///////////////////////////
-//////////Initialization/////
-/////////////////////////
+//////////////////////////////
+//////////Initialization//////
+//////////////////////////////
 
 void FileHandler::Initialize(void)
 {

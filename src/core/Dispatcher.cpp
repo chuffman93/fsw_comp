@@ -384,12 +384,7 @@ bool Dispatcher::Listen(LocationIDType serverID)
 		LocationIDType src = packet->GetSource( );
 		packet->SetSource(packet->GetDestination( ));
 		packet->SetDestination(src);
-
-		cout<<"------------------------ Test 1 ------------------------"<<endl;
-
 		packet->SetMessage(parameters.retMsg);
-
-		cout<<"------------------------ Test 2 ------------------------"<<endl;
 
 		delete parameters.retMsg;
 	}
