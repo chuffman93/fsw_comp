@@ -119,10 +119,12 @@ namespace Phoenix
 					}
 					break;
 				default:
+					cout<<"ErrorStdTasks: EPSError: Unknown error encountered!"<<endl;
 					//PANIC!
 					if(!fileHandler->Log(SUBSYSTEM_EPS, opcode, (* dataMessage)))
 					{
 						// write to error log
+						cout<<"ErrorStdTasks: EPSError: Unknown error encountered!"<<endl;
 					}
 					break;
 			}
@@ -211,6 +213,7 @@ namespace Phoenix
 
 					break;
 				default :
+					cout<<"ErrorStdTasks: COMError: Unknown error encountered!"<<endl;
 					//panic!
 					if(!fileHandler->Log(SUBSYSTEM_COM, opcode, (* dataMessage)))
 					{
@@ -233,84 +236,85 @@ namespace Phoenix
 			switch(opcode)
 			{
 				case PLD_HS_FAILURE: //Health and Status request failure
-				if(!fileHandler->Log(SUBSYSTEM_PLD, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_PLD, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case PLD_PIC_FAILURE: //Picture command failure
-				if(!fileHandler->Log(SUBSYSTEM_PLD, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_PLD, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case PLD_PIC_GET_FAILURE: //Picture command failure
-				if(!fileHandler->Log(SUBSYSTEM_PLD, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_PLD, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case PLD_DATA_FAILURE: //data request failure
-				if(!fileHandler->Log(SUBSYSTEM_PLD, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_PLD, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case PLD_RESET_FAILURE: //data request failure
-				if(!fileHandler->Log(SUBSYSTEM_PLD, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_PLD, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case PLD_CMOS_READ_FAILURE: //Failure to read CMOS
-				if(!fileHandler->Log(SUBSYSTEM_PLD, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_PLD, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case PLD_RES_FAILURE: //res failure
-				if(!fileHandler->Log(SUBSYSTEM_PLD, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_PLD, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case PLD_CHUNK_FAILURE: //chunk failure
-				if(!fileHandler->Log(SUBSYSTEM_PLD, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_PLD, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case PLD_GAIN_FAILURE: //gain failure
-				if(!fileHandler->Log(SUBSYSTEM_PLD, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_PLD, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case PLD_EXPTIME_FAILURE: //exptime failure
-				if(!fileHandler->Log(SUBSYSTEM_PLD, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_PLD, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case PLD_MEM_ERROR: //Local memory error
-				if(!fileHandler->Log(SUBSYSTEM_PLD, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_PLD, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				default :
 					// Panic
+					cout<<"ErrorStdTasks: PLDError: Unknown error encountered!"<<endl;
 					if(!fileHandler->Log(SUBSYSTEM_PLD, opcode, (* dataMessage)))
 					{
 						// write to error log
@@ -334,260 +338,260 @@ namespace Phoenix
 
 				// Error returns from ACS to CDH-------------------------------------------------
 				case ACS_HS_FAILURE: //Health and Status request failure
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_STATE_FAILURE: //Current state request failure
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_RAW_ADC_FAILURE: //RAW ADC request failure
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_ATTITUDE_ERROR_REQUEST_FAILURE: //Distance from required attitude failure
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_POINT_MRP_VECTOR_FAILURE: //MRP point request failure
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_POINT_GND_VECTOR_FAILURE: //Ground station point request failure
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_REQUEST_MRP_VECTOR_FAILURE: //MRP point request failure
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_REQUEST_GND_VECTOR_FAILURE: //Ground station point request failure
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_SUNSOAK_FAILURE: //Sunsoak vector request failure
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_POINT_NADIR_FAILURE: //Point NADAR failure
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_SET_TARGET_FAILURE: //Set target request
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_RANGE_TO_TARGET_FAILURE: //Range request
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_HOLD_FAILURE: //Hold request failure
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_DISABLE_FAILURE: //MRP vector failure
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_RESET_FAILURE: //Ground vector failure
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_GPS_FAILURE: //GPS failure
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_STARCAMERA_LAST_LOCK_FAILURE:
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_POINT_COM_GND_FAILURE:
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_FUNCTIONAL_TEST_FAILURE:
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_FUNCTIONAL_TEST_COMPLETE_FAILURE:
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 
 
 				// Configuration Returns from ACS to CDH----------------------------------------
 				case ACS_CTRL_ORIENT_FAILURE:
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_MOI_WHEELS_FAILURE:
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_MOI_SAT_FAILURE:
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_COEFF_TORQUER_FAILURE:
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_ORBIT_EPHEM_FAILURE:
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_CTRL_LAW_GAINS_FAILURE:
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_CTRL_LAW_FREQ_FAILURE:
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_STARCAMERA_SETTINGS_FAILURE:
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_UPDATE_ROTATION_MODE_FAILURE:
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_NOTCH_FILTER_FAILURE:
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_GPS_LEAP_SEC_FAILURE:
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_GYRO_ZRV_FAILURE:
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_DEGAUSS_FAILURE:
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_UPDATE_GND_STATION_COORDS_FAILURE:
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_GYRO_BIAS_FAILURE:
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 
 				// Errors generated on ACS sent to CDH-----------------------------------------
 				case ACS_GYRO_STUCK_ERR: //Gyroscope stuck
-				if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
-				{
-					// write to error log
-				}
+					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
 
 					break;
 				case ACS_NO_MOTOR_RESP_ERR: //Motor not responding
@@ -619,6 +623,7 @@ namespace Phoenix
 
 					break;
 				default :
+					cout<<"ErrorStdTasks: ACSError: Unknown error encountered!"<<endl;
 					//Cry a little bit
 					if(!fileHandler->Log(SUBSYSTEM_ACS, opcode, (* dataMessage)))
 					{
@@ -683,6 +688,12 @@ namespace Phoenix
 
 					break;
 				default :
+					cout<<"ErrorStdTasks: GPSError: Unknown error encountered!"<<endl;
+					if(!fileHandler->Log(SUBSYSTEM_GPS, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
+
 					break;
 			}
 		}
@@ -770,6 +781,12 @@ namespace Phoenix
 				
 				break;
 			default :
+				cout<<"ErrorStdTasks: THMError: Unknown error encountered!"<<endl;
+				if(!fileHandler->Log(SUBSYSTEM_THM, opcode, (* dataMessage)))
+				{
+					printf("filehandler failed\n");
+					// write to error log
+				}
 				break;
 
 			}
@@ -818,6 +835,12 @@ namespace Phoenix
 
 					break;
 				default:
+					cout<<"ErrorStdTasks: SCHError: Unknown error encountered!"<<endl;
+					if(!fileHandler->Log(SUBSYSTEM_SCH, opcode, (* dataMessage)))
+					{
+						// write to error log
+					}
+
 					break;
 			}
 		}
@@ -854,6 +877,11 @@ namespace Phoenix
 							}
 							break;
 						default:
+							cout<<"ErrorStdTasks: CMDError: Unknown error encountered!"<<endl;
+							if(!fileHandler->Log(SUBSYSTEM_CMD, opcode, (* dataMessage)))
+							{
+								// write to error log
+							}
 							break;
 					}
 				}
@@ -902,6 +930,11 @@ namespace Phoenix
 							}
 							break;
 						default:
+							cout<<"ErrorStdTasks: CDHError: Unknown error encountered!"<<endl;
+							if(!fileHandler->Log(SYSTEM_CDH, opcode, (* dataMessage)))
+							{
+								// write to error log
+							}
 							break;
 					}
 				}
