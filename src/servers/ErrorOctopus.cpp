@@ -173,7 +173,7 @@ namespace Phoenix
 							CMDError(opcode, Msg);
 							break;
 						case SERVER_LOCATION_CDH:
-
+							CDHError(opcode, Msg);
 							break;
 						case SERVER_LOCATION_ERR:
 							//TODO: Error server throwing errors?

@@ -23,6 +23,7 @@ namespace Phoenix
 		void THMError(int opcode, Phoenix::Core::MultiDataMessage * dataMessage);
 		void SCHError(int opcode, Phoenix::Core::MultiDataMessage * dataMessage);
 		void CMDError(int opcode, Phoenix::Core::MultiDataMessage * dataMessage);
+		void CDHError(int opcode, Phoenix::Core::MultiDataMessage * dataMessage);
 		void FileHandlerError(int opcode, Phoenix::Core::MultiDataMessage * retMsg);
 		
 		void THMPowerReset(PowerSubsystemEnum which);
