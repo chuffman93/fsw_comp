@@ -72,7 +72,7 @@ namespace Phoenix
 				return ret;
 			}
 
-			VariableTypeData memHold(100.0*(259964928.0 - ((float) cdhServer->si.freeram)) / (259964928.0)); //hard-coded total ram: 100*(total-free)/total = percent use
+			VariableTypeData memHold(100.0*(259964928.0 - ((float) cdhServer->si.freeram)) / (259964928.0)); //hard-coded total ram: 100*(total - free)/total = percent use
 
 			list<VariableTypeData *> params;
 			params.push_back(&memHold);
