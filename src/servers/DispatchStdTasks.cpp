@@ -337,8 +337,6 @@ namespace Phoenix
 			
 			//TODO: check bounds here!
 
-			cout<<"Intermediate Check"<<endl;
-
 			FileHandlerIDEnum handlerID;
 			switch(id)
 			{
@@ -374,7 +372,6 @@ namespace Phoenix
 			}
 			
 			printf("DispatchStdTasks: Got successful return message!\n");
-			cout<<"Return Message:\n"<<retMsg<<endl;
 
 			//If we get here that means it wasn't an error message.
 			//Log the success!

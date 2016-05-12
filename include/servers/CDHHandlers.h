@@ -52,7 +52,18 @@ public:
         Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
-class CDHTempBusHandler : public Phoenix::Core::MessageHandler
+class CDHTempStartHandler : public Phoenix::Core::MessageHandler
+{
+public:
+        /*! \brief Handle a request for temperature bus starting.
+         *
+         *  \param packet FSWPacket containing the message.
+         *  \return ReturnMessage that serves as a response.
+         */
+        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+};
+
+class CDHTempReadHandler : public Phoenix::Core::MessageHandler
 {
 public:
         /*! \brief Handle a request for temperature bus readings.

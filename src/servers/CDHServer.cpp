@@ -7,6 +7,8 @@
 
 #include "servers/CDHServer.h"
 #include "servers/CDHHandlers.h"
+#include "servers/CDHStdTasks.h"
+#include "servers/DispatchStdTasks.h"
 
 #include "core/CommandMessage.h"
 #include "core/ReturnMessage.h"
@@ -29,7 +31,8 @@ namespace Phoenix
 		static CDHCPUUsageHandler * cdhCPUUsageHandler;
 		static CDHMemUsageHandler * cdhMemUsageHandler;
 		static CDHStorageHandler * cdhStorageHandler;
-		static CDHTempBusHandler * cdhTempBusHandler;
+		static CDHTempStartHandler * cdhTempStartHandler;
+		static CDHTempReadHandler * cdhTempReadHandler;
 		static CDHHotSwapsHandler * cdhHotSwapsHandler;
 
 		CDHServer::CDHServer(std::string nameIn, LocationIDType idIn)
@@ -60,7 +63,8 @@ namespace Phoenix
 			cdhCPUUsageHandler = new CDHCPUUsageHandler();
 			cdhMemUsageHandler = new CDHMemUsageHandler();
 			cdhStorageHandler = new CDHStorageHandler();
-			cdhTempBusHandler = new CDHTempBusHandler();
+			cdhTempStartHandler = new CDHTempStartHandler();
+			cdhTempReadHandler = new CDHTempReadHandler();
 			cdhHotSwapsHandler = new CDHHotSwapsHandler();
 		}
 
@@ -70,7 +74,8 @@ namespace Phoenix
 			delete cdhCPUUsageHandler;
 			delete cdhMemUsageHandler;
 			delete cdhStorageHandler;
-			delete cdhTempBusHandler;
+			delete cdhTempStartHandler;
+			delete cdhTempReadHandler;
 			delete cdhHotSwapsHandler;
 
 			// TODO: Add Temperature Bus, Hot swaps, storage, storage management, memory
@@ -99,7 +104,8 @@ namespace Phoenix
 			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CDH_CPU_USAGE_CMD), cdhCPUUsageHandler);
 			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CDH_MEM_USAGE_CMD), cdhMemUsageHandler);
 			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CDH_STORAGE_CMD), cdhStorageHandler);
-			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CDH_TEMP_BUS_CMD), cdhTempBusHandler);
+			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CDH_TEMP_START_CMD), cdhTempStartHandler);
+			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CDH_TEMP_READ_CMD), cdhTempReadHandler);
 			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CDH_HOT_SWAPS_CMD), cdhHotSwapsHandler);
 
 			for(int opcode = CDH_CMD_MIN; opcode < CDH_CMD_MAX; opcode++)
@@ -117,15 +123,32 @@ namespace Phoenix
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
+			ReturnMessage * TSRet;
+			ReturnMessage * TRRet;
+
 			uint64_t LastWakeTime = 0;
+			int seconds = 1;
 			while(1)
 			{
 				while(dispatcher->Listen(id));
 				LastWakeTime = getTimeInMilis();
 				//wdm->Kick();
 
+				if((seconds % 9) == 0)
+				{
+					TSRet = CDHTempStart();
+					MessageProcess(SERVER_LOCATION_CDH, TSRet);
+				}
+				if((seconds % 10) == 0)
+				{
+					TRRet = CDHTempRead();
+					MessageProcess(SERVER_LOCATION_CDH, TRRet);
+					//seconds = 0;
+				}
+
 				// Delay
 				waitUntil(LastWakeTime, 1000);
+				seconds++;
 			}
 		}
 	}

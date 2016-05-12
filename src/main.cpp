@@ -109,6 +109,7 @@
 #include "servers/SCHServer.h"
 #include "servers/GPSServer.h"
 #include "servers/PLDServer.h"
+#include "servers/CDHServer.h"
 #include "servers/ErrorOctopus.h"
 #include "servers/ErrorQueue.h"
 #include "HAL/Ethernet_Server.h"
@@ -515,7 +516,31 @@ void* taskRunCMD(void * params)
 	pthread_exit(NULL);
 }
 
+void* taskRunCDH(void * params) {
+	CDHServer * cdhServer = dynamic_cast<CDHServer *>(Factory::GetInstance(
+			CDH_SERVER_SINGLETON));
+	ModeManager * modeManager =
+			dynamic_cast<ModeManager *>(Factory::GetInstance(
+					MODE_MANAGER_SINGLETON));
+	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
+	modeManager->Attach(*cdhServer);
+
+	for (int i = 0; i < 0; i++) {
+		//wdm->Kick();
+		usleep(1000000);
+	}
+
+	printf("\r\nKicking off the CDH server\r\n");
+
+	bool success = cdhServer->RegisterHandlers();
+	if(!success)
+	{
+		cout<<"ERROR STARTING CDH HANDLERS"<<endl;
+	}
+	cdhServer->SubsystemLoop();
+	pthread_exit(NULL);
+}
 
 void* StartETH_HAL(void * params)
 {
@@ -584,18 +609,19 @@ int main(int argc, char * argv[])
 	{
 		//EGSE is plugged in, go into access mode
 		modeManager->SetMode(MODE_ACCESS, LOCATION_ID_INVALID);
-
+		printf("Access Mode Entered!");
 	}
 	else
 	{
 		//Flight go to startup mode
 		modeManager->SetMode(MODE_STARTUP, LOCATION_ID_INVALID);
-
+		printf("Startup Mode Entered!");
 	}
 	printf("Flight Software Initialization Complete!\n");
 
 	bool threadCreated;
 
+	/*
 	pthread_t ACSThread;
 	threadCreated = pthread_create(&ACSThread, NULL, &taskRunACS, NULL);
 #ifdef DEBUG
@@ -608,7 +634,7 @@ int main(int argc, char * argv[])
 		printf("ACS Server Thread Creation Failed\n");
 	}
 #endif //DEBUG
-
+	*/
 /*
 	pthread_t EPSThread;
 	threadCreated = pthread_create(&EPSThread, NULL, &taskRunEPS, NULL);
@@ -667,7 +693,7 @@ int main(int argc, char * argv[])
 		printf("THM Server Thread Creation Failed\n");
 	}
 */
-
+/*
 	pthread_t CMDThread;
 	threadCreated = pthread_create(&CMDThread ,NULL,&taskRunCMD, NULL );
 //#ifdef DEBUG
@@ -679,7 +705,8 @@ int main(int argc, char * argv[])
 	{
 		printf("CMD Server Thread Creation Failed\n");
 	}
-
+*/
+/*
 	pthread_t ETHThread;
 	threadCreated = pthread_create(&ETHThread ,NULL,&StartETH_HAL, NULL );
 //#ifdef DEBUG
@@ -693,17 +720,29 @@ int main(int argc, char * argv[])
 	}
 
 //#endif //DEBUG
-
+*/
 	//CREATE_TASK(taskRunSCH, (const signed char* const)"SCH task", 5000, NULL, 0, NULL);
 	//CREATE_TASK(taskRunCMD, (const signed char* const)"CMD task", 5000, NULL, 0, NULL);
+
+	pthread_t CDHThread;
+	threadCreated = pthread_create(&CDHThread ,NULL,&taskRunCDH, NULL );
+	if(!threadCreated)
+	{
+		printf("CDH Server Thread Creation Success\n");
+	}
+	else
+	{
+		printf("CDH Server Thread Creation Failed\n");
+	}
 
 	//vTaskStartScheduler();
 	//portDBG_TRACE("FreeRTOS returned.");
 
-	pthread_join(ACSThread, NULL);
+	//pthread_join(ACSThread, NULL);
 	//pthread_join(EPSThread, NULL);
 	//pthread_join(ERRThread, NULL);
 	//pthread_join(THMThread, NULL);
 	//pthread_join(PLDThread, NULL);
+	pthread_join(CDHThread, NULL);
 	return 42;
 }

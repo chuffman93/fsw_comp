@@ -14,8 +14,9 @@
 #include "core/Factory.h"
 #include "core/DataMessage.h"
 #include "core/Dispatcher.h"
-
+#include "util/itoa.h"
 #include "util/FileHandler.h"
+#include "core/Singleton.h"
 
 #include <sys/sysinfo.h>
 #include <sys/statvfs.h>
@@ -33,6 +34,7 @@ namespace Phoenix
 {
 	namespace Servers
 	{
+		// For Handlers -------------------------------------------------------------------
 		ReturnMessage * CDHCPUUsage(void)
 		{
 
@@ -107,50 +109,38 @@ namespace Phoenix
 			return retMsg;
 		}
 
-		//TODO: Determine file read specification
-		/*
-		 * - Standard char number?
-		 * - Number of files?
-		 * - If sensor goes down (ie. file DNE)
-		*/
-		ReturnMessage * CDHTempBus(void)
+		ReturnMessage * CDHTempStart(void)
 		{
-			// Eventually make string arrays for iteration
-			char * cdh1s = (char *) "echo 1 >> /sys/bus/w1/devices/w1_bus_master1/TEMP0/start";
-			char * cdh1t = (char *) "/sys/bus/w1/devices/w1_bus_master1/TEMP0/temp";
-			//string cdh2 = "/sys/bus/w1/devices/w1_bus_master1/TEMP1/";
-
-			if(system(cdh1s) == -1){
-				//error
-				cout<<"CDHStdTasks CHDTempBus(): Error starting sensor"<<endl;
-			}
-			usleep(600000);
-
-			FILE * fp;
-
-			fp = fopen(cdh1t, "r");
-
-			cout<<"CDHStdTasks CHDTempBus(): attempting to read sensor!"<<endl;
-
-			if(fp)
-			{
-				uint8 * buffer = NULL;
-				uint8 bufferSize = 128;
-				size_t result;
-				buffer = new uint8[bufferSize];
-				result = fread(buffer, 1, bufferSize, fp);
-
-				for (int i = 0; i < 128; i++) {
-					cout << buffer[i];
+			// Start all of the sensors
+			bool validStart[4][16];
+			bool success = true;
+			for(uint8 bus = 1; bus < 5; bus++){
+				for(uint8 sensor = 0; sensor < 16; sensor++){
+					validStart[bus][sensor] = StartSensor(bus,sensor);
+					success &= validStart[bus][sensor];
 				}
-
-				delete buffer;
-			}
-			else
-			{
-				cout<<"CDHStdTasks CHDTempBus(): Error opening file"<<endl;
 			}
 
+			if(success){
+				DataMessage msg(CDH_TEMP_START_SUCCESS);
+				ReturnMessage * ret = new ReturnMessage(&msg, true);
+				return ret;
+			}else{
+				ErrorMessage err(CDH_TEMP_START_FAILURE);
+				ReturnMessage * ret = new ReturnMessage(&err, false);
+				return ret;
+			}
+		}
+
+		ReturnMessage * CDHTempRead(void)
+		{
+			// read all of the sensor data
+			float temperatures[4][16];
+			for(uint8 bus = 1; bus < 5; bus++){
+				for(uint8 sensor = 0; sensor < 16; sensor++){
+					temperatures[bus][sensor] = ReadSensor(bus,sensor);
+				}
+			}
 
 			//Actual temperature code goes here------------------------------
 			float tempbus;
@@ -162,7 +152,7 @@ namespace Phoenix
 			list<VariableTypeData *> params;
 			params.push_back(&tempbusHold);
 
-			DataMessage dat(CDH_TEMP_BUS_SUCCESS, params);
+			DataMessage dat(CDH_TEMP_READ_SUCCESS, params);
 			ReturnMessage * retMsg = new ReturnMessage(&dat, true);
 			return retMsg;
 		}
@@ -184,6 +174,97 @@ namespace Phoenix
 			DataMessage dat(CDH_HOT_SWAPS_SUCCESS, params);
 			ReturnMessage * retMsg = new ReturnMessage(&dat, true);
 			return retMsg;
+		}
+
+		// Helper Functions ---------------------------------------------------------------
+		bool StartSensor(int bus, int sensor)
+		{
+			// create filename
+			char * temp = new char[1];
+			string start = "echo 1 > /sys/bus/w1/devices/w1_bus_master";
+			itoa(bus, temp, 10);
+			start.append(temp);
+			start.append("/TEMP");
+			itoa(sensor, temp, 10);
+			start.append(temp);
+			start.append("/start");
+			delete temp;
+
+			// start sensor
+			if(system(start.c_str()) == -1){
+				cout<<"Error starting sensor"<<endl;
+				return false;
+			}
+			return true;
+		}
+
+		float ReadSensor(int bus, int sensor){
+
+			// create filename
+			char * temp = new char[1];
+			string read = "/sys/bus/w1/devices/w1_bus_master";
+			itoa(bus, temp, 10);
+			read.append(temp);
+			read.append("/TEMP");
+			itoa(sensor, temp, 10);
+			read.append(temp);
+			read.append("/temp");
+			delete temp;
+
+			FILE * fp;
+			fp = fopen(read.c_str(), "r");
+
+			cout<<"Attempting to read sensor "<<sensor<<" on bus "<<bus<<"!"<<endl;
+
+			bool isGood = false;
+			if(fp)
+			{
+				char * c = new char[1];
+				char * tempRead = new char[9];
+				int tempHold;
+				int count = 0;
+				float temperature;
+
+				// Get temperature part of string
+				while((*c = fgetc(fp)) != '\n')
+				{
+					tempRead[count] = *c;
+					count++;
+				}
+
+				// Get float value
+				sscanf(tempRead, "t=%d", &tempHold);
+				temperature = (float) tempHold / 1000.0;
+				cout<<"Current Temperature: "<<temperature<<endl;
+
+				// Check validity
+				for(int i = 0; i < 28; i++){
+					*c = fgetc(fp);
+					if(i==27){
+						if(*c=='V'){
+							isGood = true;
+						}
+					}
+				}
+
+				// Act on validity
+				if(isGood){
+					cout<<"GOOD DATA"<<endl;
+					delete c;
+					delete tempRead;
+					return temperature;
+				}else{
+					cout<<"BAD DATA"<<endl;
+					delete c;
+					delete tempRead;
+					return -300;
+				}
+
+			}else
+			{
+				cout<<"Error opening file!"<<endl;
+				return -301;
+			}
 		}
 	}
 }

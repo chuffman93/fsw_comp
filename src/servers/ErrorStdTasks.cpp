@@ -905,25 +905,31 @@ namespace Phoenix
 							}
 
 							break;
-						case CDH_MEM_USAGE_FAILURE: //Bad Protocol Index, ACP Switch Failure
+						case CDH_MEM_USAGE_FAILURE:
 							if(!fileHandler->Log(SYSTEM_CDH, opcode, (* dataMessage)))
 							{
 								// write to error log
 							}
 							break;
-						case CDH_STORAGE_FAILURE: //ACP Switch Failure upon packet extraction
+						case CDH_STORAGE_FAILURE:
 							if(!fileHandler->Log(SYSTEM_CDH, opcode, (* dataMessage)))
 							{
 								// write to error log
 							}
 							break;
-						case CDH_TEMP_BUS_FAILURE: //ACP Switch Failure upon packet extraction
+						case CDH_TEMP_START_FAILURE:
 							if(!fileHandler->Log(SYSTEM_CDH, opcode, (* dataMessage)))
 							{
 								// write to error log
 							}
 							break;
-						case CDH_HOT_SWAPS_FAILURE: //ACP Switch Failure upon packet extraction
+						case CDH_TEMP_READ_FAILURE:
+							if(!fileHandler->Log(SYSTEM_CDH, opcode, (* dataMessage)))
+							{
+								// write to error log
+							}
+							break;
+						case CDH_HOT_SWAPS_FAILURE:
 							if(!fileHandler->Log(SYSTEM_CDH, opcode, (* dataMessage)))
 							{
 								// write to error log

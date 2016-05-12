@@ -49,6 +49,10 @@ void* taskRunCDH(void * params) {
 	printf("\r\nKicking off the CDH server\r\n");
 
 	bool success = cdhServer->RegisterHandlers();
+	if(!success)
+	{
+		cout<<"ERROR STARTING CDH HANDLERS"<<endl;
+	}
 	cdhServer->SubsystemLoop();
 	pthread_exit(NULL);
 }
@@ -91,69 +95,53 @@ void readSensor(int bus, int sensor){
 	FILE * fp;
 	fp = fopen(read.c_str(), "r");
 
-	cout<<"Attempting to read sensor!"<<endl;
+	cout<<"Attempting to read sensor "<<sensor<<" on bus "<<bus<<"!"<<endl;
 
-	bool isBad = false;
-	if(fp){
+	bool isGood = false;
+	if(fp)
+	{
 		char * c = new char[1];
-		char temp[5];
+		char * tempRead = new char[12];
+		int tempHold;
 		int count = 0;
+		float temperature;
 
-		// Get temperature
-		while((*c = fgetc(fp)) != '\n'){
-			if((*c != 't') & (*c != '=')){
-				//cout<<c;
-				temp[count] = *c;
-				count++;
-			}
+		// Get temperature part of string
+		while((*c = fgetc(fp)) != '\n')
+		{
+			tempRead[count] = *c;
+			count++;
 		}
 
-		// Display Temperature
-		cout<<"Temperature: ";
-		for(int i=0; i<5; i++){
-			cout<<temp[i];
-		}
-		cout<<endl;
+		// Get float value
+		sscanf(tempRead, "t=%d", &tempHold);
+		temperature = (float) tempHold / 1000.0;
+		cout<<"Current Temperature: "<<temperature<<endl;
 
-		// Get validity
-		// TODO: better way?
-		while((*c = fgetc(fp)) != 'L'){ //since L isn't hex and is in (IN)VALID
-			//cout<<c;
-			if(*c=='I'){
-				isBad = true;
+		// Check validity
+		for(int i = 0; i < 28; i++){
+			*c = fgetc(fp);
+			if(i==27){
+				if(*c=='V'){
+					isGood = true;
+				}
 			}
 		}
 
 		// Act on validity
-		if(isBad){
-			cout<<"BAD DATA"<<endl;
-		}else{
+		if(isGood){
 			cout<<"GOOD DATA"<<endl;
+		}else{
+			cout<<"BAD DATA"<<endl;
 		}
-	}else{
+
+		// Cleanup
+		delete c;
+		delete tempRead;
+	}else
+	{
 		cout<<"Error opening file!"<<endl;
 	}
-
-	/*
-	if(fp)
-	{
-		uint8 * buffer = NULL;
-		uint8 bufferSize = 128;
-		size_t result;
-		buffer = new uint8[bufferSize];
-		result = fread(buffer, 1, bufferSize, fp);
-
-		for (int i = 0; i < 128; i++) {
-			cout << buffer[i];
-		}
-
-		delete buffer;
-	}
-	else
-	{
-		cout<<"CDHStdTasks CHDTempBus(): Error opening file"<<endl;
-	}
-	*/
 }
 
 // Main Test for Message Handlers
@@ -184,7 +172,7 @@ TEST(TestCDHServer, testHandlers) {
 
 	// Check all handlers -------------------------------------------------------------------------------------------------------------
 	bool success = true;
-	for(int cmd = CDH_CMD_MIN; cmd <= CDH_MEM_USAGE_CMD; cmd++) // (cmd < CDH_CMD_MAX) when all finished
+	for(int cmd = CDH_TEMP_START_CMD; cmd <= CDH_TEMP_READ_CMD; cmd++) // (cmd < CDH_CMD_MAX) when all handlers finished
 	{
 		// Dispatch message, check return
 		ReturnMessage * ret = DispatchPacket(SERVER_LOCATION_ACS,SERVER_LOCATION_CDH, 1, 0, MESSAGE_TYPE_COMMAND, cmd);
@@ -199,73 +187,56 @@ TEST(TestCDHServer, testHandlers) {
 
 }
 
-TEST(TestCDHServer, testTemp){
-	// Eventually make string arrays for iteration
-	//char cdh1s[56];
-	//strcpy(cdh1s, "echo 1 >> /sys/bus/w1/devices/w1_bus_master1/TEMP");
-	//strcat(cdh1s, "0/start");
+TEST(TestCDHServer, runServer) {
 
-	// start all of the sensors
-	/*
-	bool valid[4][16];
+	// Grab instances / set mode ------------------------------------------------------------------------------------------------------
+	FileHandler * fileHandler = dynamic_cast<FileHandler *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	ModeManager * modeManager = dynamic_cast<ModeManager *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	modeManager->SetMode(MODE_ACCESS, LOCATION_ID_INVALID);
+
+
+	// Create CDHServer ---------------------------------------------------------------------------------------------------------------
+	pthread_t CDHThread;
+	bool threadCreated = pthread_create(&CDHThread, NULL, &taskRunCDH, NULL);
+	if (!threadCreated) {
+		printf("CDH Server Thread Creation Success\n");
+	} else {
+		printf("CDH Server Thread Creation Failed\n");
+	}
+
+
+	// Grab CDHServer, check it -------------------------------------------------------------------------------------------------------
+	CDHServer * cdhServer = dynamic_cast<CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
+	EXPECT_TRUE(!threadCreated);
+	usleep(30000000); // give server a chance to run
+
+	ASSERT_TRUE(true);
+
+}
+
+//-------------- Old Tests ------------------
+// Old testing, pending deletion
+TEST(DISABLED_TestCDHServer, testTemp){
+
+	// Start all of the sensors
+	bool validStart[4][16];
 	for(uint8 bus = 1; bus < 5; bus++){
 		for(uint8 sensor = 0; sensor < 16; sensor++){
-			valid[bus][sensor] = startSensor(bus,sensor);
+			validStart[bus][sensor] = startSensor(bus,sensor);
 		}
 	}
-	*/
-
-	ASSERT_TRUE(startSensor(1,1));
 
 	// wait for read
 	usleep(750000);
 
 	// read all of the sensor data
-	readSensor(1,1);
-
-	/*
-	string cdh1s = "echo 1 > /sys/bus/w1/devices/w1_bus_master1/TEMP";
-	cdh1s.append("0/start");
-
-	char * cdh1t = (char *) "/sys/bus/w1/devices/w1_bus_master1/TEMP0/temp";
-	//string cdh2 = "/sys/bus/w1/devices/w1_bus_master1/TEMP1/";
-	*/
-
-	/*
-	if(system(cdh1s.c_str()) == -1){
-		//error
-		cout<<"CDHStdTasks CHDTempBus(): Error starting sensor"<<endl;
-	}
-	usleep(600000);
-
-	FILE * fp;
-
-	fp = fopen(cdh1t, "r");
-
-	cout<<"CDHStdTasks CHDTempBus(): attempting to read sensor!"<<endl;
-
-	if(fp)
-	{
-		uint8 * buffer = NULL;
-		uint8 bufferSize = 128;
-		size_t result;
-		buffer = new uint8[bufferSize];
-		result = fread(buffer, 1, bufferSize, fp);
-
-		for (int i = 0; i < 128; i++) {
-			cout << buffer[i];
+	for(uint8 bus = 1; bus < 5; bus++){
+		for(uint8 sensor = 0; sensor < 16; sensor++){
+			readSensor(bus,sensor);
 		}
-
-		delete buffer;
 	}
-	else
-	{
-		cout<<"CDHStdTasks CHDTempBus(): Error opening file"<<endl;
-	}
-	*/
 }
 
-//-------------- Old Tests ------------------
 // Old testing, pending deletion
 TEST(DISABLED_TestCDHServer, testSysInfo){
 

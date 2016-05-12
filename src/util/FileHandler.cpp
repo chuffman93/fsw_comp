@@ -224,7 +224,6 @@ bool FileHandler::Log(FileHandlerIDEnum subsystem, MessageCodeType opCode,
 	 * append file.*/
 	FetchFileName(subsystem, opCode, &file);
 
-
 	/*Fill buffer with data to be written and write buffer to file*/
 	size_t size = 0;
 	uint8 *buffer = new uint8[size];
@@ -273,14 +272,12 @@ bool FileHandler::Log(FileHandlerIDEnum subsystem, MessageCodeType opCode,
 	{
 			bufferPtr += (*it)->Flatten(bufferPtr, (*it)->GetFlattenSize());
 	}
-
 	if ((subsystem == SUBSYSTEM_PLD) && (opCode == PLD_DATA_SUCCESS))
 	{
 			size -= 5;
 			bufferPtr = buffer + 5; //remove variable type data header
 			memcpy(buffer, bufferPtr, size);
 	}
-
 
 	// Write into the file.
 	//puts("writing file..");
@@ -449,12 +446,12 @@ uint32 FileHandler::FileWrite(const char * fileName, char * buffer, size_t numBy
         if (true == TakeLock(MAX_BLOCK_TIME))
         {
                 fp = fopen(fileName, "a");
+                cout<<"fp init: "<<fp<<endl;
                 if (!fp)
 				{
 						this->GiveLock();
 						return -1;
 				}
-
                 result = fwrite(buffer,1,numBytes,fp);
 
                 if(result!=numBytes){
@@ -462,12 +459,11 @@ uint32 FileHandler::FileWrite(const char * fileName, char * buffer, size_t numBy
                 	this->GiveLock();
                 	return -2;
                 }
-
                 rv = (uint32) this->fileSize(fp);
-
-                fclose(fp);
+                cout<<"fp final: "<<fp<<endl;
+				fclose(fp); // <------------------------------------------------------------------------------------------------- why error?
+                this->GiveLock();
         }
-        this->GiveLock();
         return rv;
 }
 
