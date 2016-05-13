@@ -50,11 +50,13 @@ namespace Phoenix
 			VariableTypeData oneMinHold(cdhServer->si.loads[0]);
 			VariableTypeData fiveMinHold(cdhServer->si.loads[1]);
 			VariableTypeData fifteenMinHold(cdhServer->si.loads[2]);
+			VariableTypeData testHold(true);
 
 			list<VariableTypeData *> params;
 			params.push_back(&oneMinHold);
 			params.push_back(&fiveMinHold);
 			params.push_back(&fifteenMinHold);
+			params.push_back(&testHold);
 
 			DataMessage * dat = new DataMessage(CDH_CPU_USAGE_SUCCESS, params);
 			ReturnMessage * retMsg = new ReturnMessage(dat, true);
@@ -88,7 +90,7 @@ namespace Phoenix
 		ReturnMessage * CDHStorage(void)
 		{
 			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
-			if(statvfs((char *) "/media/sdMount/", &cdhServer->svfs) != 0)
+			if(statvfs((char *) "/", &cdhServer->svfs) != 0)
 			{
 				cout<<"CDHStdTasks: CDHStorage(): Error"<<endl;
 				ErrorMessage err(CDH_STORAGE_FAILURE);
@@ -143,8 +145,8 @@ namespace Phoenix
 			}
 
 			//Actual temperature code goes here------------------------------
-			float tempbus;
-			tempbus = 22.3;
+			bool tempbus;
+			tempbus = true;
 			//---------------------------------------------------------
 
 			VariableTypeData tempbusHold(tempbus);
@@ -252,11 +254,13 @@ namespace Phoenix
 					cout<<"GOOD DATA"<<endl;
 					delete c;
 					delete tempRead;
+					fclose(fp);
 					return temperature;
 				}else{
 					cout<<"BAD DATA"<<endl;
 					delete c;
 					delete tempRead;
+					fclose(fp);
 					return -300;
 				}
 

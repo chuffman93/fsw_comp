@@ -125,26 +125,44 @@ namespace Phoenix
 
 			ReturnMessage * TSRet;
 			ReturnMessage * TRRet;
+			ReturnMessage * CPURet;
+			ReturnMessage * MemRet;
+			ReturnMessage * StrRet;
 
 			uint64_t LastWakeTime = 0;
 			int seconds = 1;
+			bool shouldReadTemp = false;
 			while(1)
 			{
 				while(dispatcher->Listen(id));
 				LastWakeTime = getTimeInMilis();
 				//wdm->Kick();
 
-				if((seconds % 9) == 0)
-				{
-					TSRet = CDHTempStart();
-					MessageProcess(SERVER_LOCATION_CDH, TSRet);
-				}
-				if((seconds % 10) == 0)
-				{
-					TRRet = CDHTempRead();
-					MessageProcess(SERVER_LOCATION_CDH, TRRet);
-					//seconds = 0;
-				}
+				CPURet = CDHCPUUsage();
+				MessageProcess(SERVER_LOCATION_CDH, CPURet);
+
+//				if((seconds % 9) == 0)
+//				{
+//					TSRet = CDHTempStart();
+//					shouldReadTemp = TSRet->GetSuccess();
+//					MessageProcess(SERVER_LOCATION_CDH, TSRet);
+//				}
+//				if((seconds % 10) == 0)
+//				{
+//					if(shouldReadTemp){
+//						TRRet = CDHTempRead();
+//						MessageProcess(SERVER_LOCATION_CDH, TRRet);
+//					}
+//
+//					//CPURet = CDHCPUUsage();
+//					//MessageProcess(SERVER_LOCATION_CDH, CPURet);
+//
+//					MemRet = CDHMemUsage();
+//					MessageProcess(SERVER_LOCATION_CDH, MemRet);
+//
+//					StrRet = CDHStorage();
+//					MessageProcess(SERVER_LOCATION_CDH, StrRet);
+//				}
 
 				// Delay
 				waitUntil(LastWakeTime, 1000);

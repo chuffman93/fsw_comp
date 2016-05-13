@@ -446,7 +446,6 @@ uint32 FileHandler::FileWrite(const char * fileName, char * buffer, size_t numBy
         if (true == TakeLock(MAX_BLOCK_TIME))
         {
                 fp = fopen(fileName, "a");
-                cout<<"fp init: "<<fp<<endl;
                 if (!fp)
 				{
 						this->GiveLock();
@@ -460,9 +459,8 @@ uint32 FileHandler::FileWrite(const char * fileName, char * buffer, size_t numBy
                 	return -2;
                 }
                 rv = (uint32) this->fileSize(fp);
-                cout<<"fp final: "<<fp<<endl;
-				fclose(fp); // <------------------------------------------------------------------------------------------------- why error?
-                this->GiveLock();
+				fclose(fp);
+				this->GiveLock();
         }
         return rv;
 }

@@ -172,7 +172,7 @@ TEST(TestCDHServer, testHandlers) {
 
 	// Check all handlers -------------------------------------------------------------------------------------------------------------
 	bool success = true;
-	for(int cmd = CDH_TEMP_START_CMD; cmd <= CDH_TEMP_READ_CMD; cmd++) // (cmd < CDH_CMD_MAX) when all handlers finished
+	for(int cmd = CDH_CPU_USAGE_CMD; cmd <= CDH_CPU_USAGE_CMD; cmd++) // (cmd < CDH_CMD_MAX) when all handlers finished
 	{
 		// Dispatch message, check return
 		ReturnMessage * ret = DispatchPacket(SERVER_LOCATION_ACS,SERVER_LOCATION_CDH, 1, 0, MESSAGE_TYPE_COMMAND, cmd);
