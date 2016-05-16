@@ -57,5 +57,3 @@ ReturnMessage* CDHHotSwapsHandler::Handle(const FSWPacket & packet)
 	cout<<"CPU Hot Swaps Handler(): Made it in"<<endl;
 	return (CDHHotSwaps());
 }
-
-// TODO: CPU_USAGE, MEM_USAGE, STORAGE, TEMP, HOT_SWAP
