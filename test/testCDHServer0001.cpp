@@ -206,6 +206,9 @@ TEST(TestCDHServer, runServer) {
 
 
 	// Grab CDHServer, check it -------------------------------------------------------------------------------------------------------
+
+	// NOTE: for some reason, boolean return messages seem to be unaffected by the errors
+
 	CDHServer * cdhServer = dynamic_cast<CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
 	EXPECT_TRUE(!threadCreated);
 	usleep(30000000); // give server a chance to run

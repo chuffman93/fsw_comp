@@ -130,39 +130,39 @@ namespace Phoenix
 			ReturnMessage * StrRet;
 
 			uint64_t LastWakeTime = 0;
-			int seconds = 1;
-			bool shouldReadTemp = false;
+			uint8 seconds = 0;
+			//bool shouldReadTemp[4][16];
+			//float temperatures[4][16];
 			while(1)
 			{
 				while(dispatcher->Listen(id));
 				LastWakeTime = getTimeInMilis();
 				//wdm->Kick();
 
-				CPURet = CDHCPUUsage();
-				MessageProcess(SERVER_LOCATION_CDH, CPURet);
+				// Start sensors for reading next round
+				if((seconds % 10) == 0){
+					TSRet = CDHTempStart();
+					MessageProcess(SERVER_LOCATION_CDH, TSRet);
+				}
 
-//				if((seconds % 9) == 0)
-//				{
-//					TSRet = CDHTempStart();
-//					shouldReadTemp = TSRet->GetSuccess();
-//					MessageProcess(SERVER_LOCATION_CDH, TSRet);
-//				}
-//				if((seconds % 10) == 0)
-//				{
-//					if(shouldReadTemp){
-//						TRRet = CDHTempRead();
-//						MessageProcess(SERVER_LOCATION_CDH, TRRet);
-//					}
-//
-//					//CPURet = CDHCPUUsage();
-//					//MessageProcess(SERVER_LOCATION_CDH, CPURet);
-//
-//					MemRet = CDHMemUsage();
-//					MessageProcess(SERVER_LOCATION_CDH, MemRet);
-//
-//					StrRet = CDHStorage();
-//					MessageProcess(SERVER_LOCATION_CDH, StrRet);
-//				}
+				// Get all CDH information
+				if(((seconds - 1) % 10) == 0){
+					// CPU usage
+					CPURet = CDHCPUUsage();
+					MessageProcess(SERVER_LOCATION_CDH, CPURet);
+
+					// Memory usage
+					MemRet = CDHMemUsage();
+					MessageProcess(SERVER_LOCATION_CDH, MemRet);
+
+					// Storage in use
+					StrRet = CDHStorage();
+					MessageProcess(SERVER_LOCATION_CDH, StrRet);
+
+					// Read Temp sensors
+					TRRet = CDHTempRead();
+					MessageProcess(SERVER_LOCATION_CDH, TRRet);
+				}
 
 				// Delay
 				waitUntil(LastWakeTime, 1000);

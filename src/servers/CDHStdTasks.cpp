@@ -137,25 +137,38 @@ namespace Phoenix
 		ReturnMessage * CDHTempRead(void)
 		{
 			// read all of the sensor data
-			float temperatures[4][16];
-			for(uint8 bus = 1; bus < 5; bus++){
-				for(uint8 sensor = 0; sensor < 16; sensor++){
-					temperatures[bus][sensor] = ReadSensor(bus,sensor);
-				}
+			float * temp1 = new float[16];
+			float * temp2 = new float[16];
+			float * temp3 = new float[16];
+			float * temp4 = new float[16];
+			for(uint8 sensor = 0; sensor < 16; sensor++){
+				temp1[sensor] = ReadSensor(1,sensor);
+				temp2[sensor] = ReadSensor(2,sensor);
+				temp3[sensor] = ReadSensor(3,sensor);
+				temp4[sensor] = ReadSensor(4,sensor);
 			}
 
-			//Actual temperature code goes here------------------------------
-			bool tempbus;
-			tempbus = true;
-			//---------------------------------------------------------
-
-			VariableTypeData tempbusHold(tempbus);
-
+			// Set parameters
+			// TODO: make sure this works w/in the variable type data class
+			VariableTypeData temp1Hold((uint8 *) temp1, 16);
+			VariableTypeData temp2Hold((uint8 *) temp2, 16);
+			VariableTypeData temp3Hold((uint8 *) temp3, 16);
+			VariableTypeData temp4Hold((uint8 *) temp4, 16);
 			list<VariableTypeData *> params;
-			params.push_back(&tempbusHold);
+			params.push_back(&temp1Hold);
+			params.push_back(&temp2Hold);
+			params.push_back(&temp3Hold);
+			params.push_back(&temp4Hold);
 
+			// Send return
 			DataMessage dat(CDH_TEMP_READ_SUCCESS, params);
 			ReturnMessage * retMsg = new ReturnMessage(&dat, true);
+
+			// cleanup
+			delete temp1;
+			delete temp2;
+			delete temp3;
+			delete temp4;
 			return retMsg;
 		}
 
@@ -164,8 +177,8 @@ namespace Phoenix
 		{
 
 			//Actual hot swap code goes here------------------------------
-			float hotswaps;
-			hotswaps = 22.8;
+			bool hotswaps;
+			hotswaps = false;
 			//---------------------------------------------------------
 
 			VariableTypeData hotswapHold(hotswaps);
