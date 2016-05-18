@@ -33,10 +33,7 @@ extern "C"
 using namespace std;
 
 /*! \brief Maximum number of opcodes per subsystem */
-
 const size_t MAX_OPCODES = 256;
-
-const size_t MAXFILESIZE = 100;
 
 /*! \brief Maximum number of data points per log file */
 const size_t MAX_DATA_POINTS = 1000;
@@ -69,7 +66,7 @@ public:
          * and false otherwise
          *
          */
-        bool Log(FileHandlerIDEnum logType, MessageCodeType dataOne, MessageCodeType dataTwo);
+        bool LogAppend(FileHandlerIDEnum logType, MessageCodeType dataOne, MessageCodeType dataTwo);
 
         /*! \brief Adds the buffer to the file.
          *
@@ -85,7 +82,7 @@ public:
          *  \return true if the operation was successful and
          *  false otherwise.
          */
-        bool Log(FileHandlerIDEnum subsystem, MessageCodeType opCode,
+        bool Append(FileHandlerIDEnum subsystem, MessageCodeType opCode,
                         const Phoenix::Core::MultiDataMessage & message);
 
         /*! \brief Deletes the file from the SD card.
@@ -104,13 +101,45 @@ public:
          *      Reads the entire file into a buffer, sets
          *      the buffer size based on the size of the read.
          *
-         *  \param fileName Name of the file to read.
+         *  \param fileName Name of the file to delete.
          *  \param bufferSize Location to store the size of the
          *      buffer read.
          *  \return If the read was successful returns a pointer
          *  to the information read, otherwise returns NULL.
          */
         uint8 * ReadFile(const char * fileName, size_t * bufferSize);
+
+        /*! \brief Checks file's size on the SD card.
+         *
+         *      Opens the file based on the file name.
+         *      Checks that the fd is valid.
+         *      Reads the size of the file and returns it.
+         *
+         *  \param fileName Name of the file to check.
+         *  \return the size of the file, -1 if it doesn't
+         *  exist.
+         */
+        uint32 FileOpens(const char * fileName);
+
+        /*! \brief Checks if the file exists on the SD card.
+         *
+         *      Opens the file based on the file name.
+         *      Checks that the fd is valid.
+         *               *
+         *  \param fileName Name of the file to check.
+         *  \return true if the file exists; false otherwise
+         */
+        bool FileExists(const string fileName);
+
+        /*! \brief Searches tru.dat for filename
+         *
+         * Opens the tru.dat file and checks each
+         * line to see if it is equal to the file name
+         *
+         * \param fileName Name of the file to look for
+         *
+         */
+        bool FileExistsInTruDat(string fileToFind);
 
         /*! \brief Writes the buffer to the file.
          *
@@ -125,15 +154,28 @@ public:
          *  \return the size of the file, -1 if it doesn't
          *  exist.
          */
-        uint32 FileWrite(const char * fileName, char * buffer, size_t numBytes);
+        uint32 FileWrite(char * fileName, char * buffer, size_t numBytes);
 
         void FileSizePLDPicture(uint32 resolution, uint32 chunckSize);
 
+        // Epoch information
+        bool InitEpoch(void);
+        uint16 GetEpoch(void);
+
+        /**************************WARNING****************************
+         *                                                                                                                       *
+         *      The following functions are to be used by eKermit only!  *
+         *      Using these functions outside of the eKermit context     *
+         *  may result in the permanent locking of the SD card!      *
+         *                                                                                                               *
+         **************************WARNING***************************/
+
+        bool KermitLock(void);
+        void KermitUnlock(void);
+
         int fileSize(fstream & file);
 
-        uint32 fileSize(FILE * fp);
-
-        uint32 fileSize(const char * fileName);
+        uint32 fileSize(char * fileName);
 
         void zipFiles(const char * path, const char * zipName);
 
@@ -142,14 +184,6 @@ public:
         void unzipFile(const char * path, const char * file, const char * zipName);
 
         unsigned int folderSize(const char * path);
-
-        void makeCrcTable(uint32 crcTable[]);
-
-        unsigned int generateCrc(uint8 *p, size_t n, unsigned int crcTable[], unsigned int crc);
-
-        uint32 crcCheck(const char * filename);
-
-        int week;
 
 private:
         /*! \brief Initialize the File Handler Class
@@ -181,16 +215,10 @@ private:
          */
         void FileSizeReferenceCreate(void);
 
-        //Comment on how it works
-        uint8_t FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType opCode, string* file);
-
-        uint8_t FetchFileName(FileHandlerIDEnum logType, string* file);
         // Subsystem file designator reference tables
         // Allows quick reference to most recent file.
         uint32 secRef[SYSTEM_MAX][MAX_OPCODES];
         uint32 weekRef[SYSTEM_MAX][MAX_OPCODES];
-        uint32 secRefLog[SYSTEM_MAX][MAX_OPCODES];
-        uint32 weekRefLog[SYSTEM_MAX][MAX_OPCODES];
 
         // Subsystem file data size reference tables
         uint32 numDataPoints[SYSTEM_MAX][MAX_OPCODES];

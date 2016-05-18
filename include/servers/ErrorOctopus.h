@@ -61,7 +61,7 @@ namespace Phoenix
 			*  Frees all internal memory use, frees all operating system
 			*  objects used, and deletes the singleton instance pointer.
 			*/
-#ifdef TEST
+#ifdef HOST
 			static void Destroy(void);
 #endif
 			

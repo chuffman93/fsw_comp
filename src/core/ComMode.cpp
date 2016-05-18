@@ -54,7 +54,7 @@ namespace Phoenix
 
 		}
 
-#ifdef TEST
+#ifdef HOST
 		void ComMode::DestroySubclass(void)
 		{
 			delete instancePtr;

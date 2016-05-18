@@ -53,7 +53,7 @@ namespace Phoenix
 		{
 		}
 
-#ifdef TEST
+#ifdef HOST
 		void BusPriorityMode::DestroySubclass(void)
 		{
 			delete instancePtr;

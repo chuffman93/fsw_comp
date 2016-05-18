@@ -79,7 +79,7 @@ namespace Phoenix
 #ifdef TEST
 		void ModeManager::Destroy(void)
 		{
-			//SystemMode::Destroy();
+			SystemMode::Destroy();
 		}
 #endif
 

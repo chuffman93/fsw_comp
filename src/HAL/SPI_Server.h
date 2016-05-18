@@ -4,8 +4,8 @@
  *  Created on: Jun 26, 2015
  *      Author: Umang
  */
-#ifndef SPI_SERVER_H_
-#define SPI_SERVER_H_
+#ifndef ETHERNET_SERVER_H_
+#define ETHERNET_SERVER_H_
 
 #include "core/Singleton.h"
 #include <sys/types.h>
@@ -25,27 +25,17 @@
 using namespace std;
 
 
-#define        QLEN        32    /* maximum connection queue length    */
 #define        BUFSIZE        512
 #define     CMDLEN        BUFSIZE
-#define     server_name_len    8
-#define     N_SERVERS    10
-
-#define PORT_N_SERVER "5004"         // Default socket used for server communication
-#define PORT_N_CLIENT "5002"         // Default socket used for client communication
-
-struct SessionInfo {
-    char name[server_name_len];    /*Name of the session Server*/
-    struct sockaddr_in fsin;    /* TCP addresses of the clients    */
-    pid_t s_pid;                /*Process id of the session*/
-    bool Initd;                    /*If true, means that the session exists*/
-};
 
 
 class SPI_HALServer: public Phoenix::Core::Singleton
 {
 	public:
 	int spiFileDescriptor;
+
+    // The Host names are indexed by their HardwareLocationIDType
+    char host[HARDWARE_LOCATION_MAX][INET_ADDRSTRLEN]; // Stores the IP Address of the different servers in the char array format of size INET_ADDRSTRLEN each
 
 
         // Constructor
@@ -74,16 +64,27 @@ class SPI_HALServer: public Phoenix::Core::Singleton
             //send_sock = UDPsock("10.14.134.204",port_num_client);
         }
 
+        /*------------------------------------------------------------------------
+         * UDPsock - allocate & bind for recieving data on a socket using UDP on local host
+         *------------------------------------------------------------------------
+         */
+        void    SPIReset(void);
+        /*------------------------------------------------------------------------
+         * UDPsock - allocate  a socket using UDP for sending. This will also populate the UDP fsin
+         *------------------------------------------------------------------------
+         */
+        void receivedComplete(int signum);
 
 
         void SPI_HALServerLoop(void);
 
-        void spiReset(void);
-        void sendComplete(int signum);
-        void receivedComplete(int signum);
-
-
+        /*------------------------------------------------------------------------
+         * TCPsock - allocate & bind a server socket using TCP
+         *------------------------------------------------------------------------
+         */
 };
+
+
 
 
 #endif /* ETHERNET_SERVER_H_ */

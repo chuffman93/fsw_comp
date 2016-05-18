@@ -42,7 +42,7 @@
 using namespace std;
 //using namespace Phoenix::HAL;
 
-#define DISPATCHER_DEBUG			1
+#define DISPATCHER_DEBUG			0
 
 #if DISPATCHER_DEBUG
 #include <iostream>
@@ -68,8 +68,11 @@ namespace Phoenix
         // Instantiate static members
     	char * Dispatcher::subsystemQueueName = "/subsystemQueueHandle";
     	char * Dispatcher::queueName = "/queueHandle";
+    	bool receiving = false;
     	size_t timer;
-
+    	static bool sentPacket = false;
+    	static uint8_t transFlag = 0;
+    	static uint8_t recvFlag = 0;
 //
 //    	char * Dispatcher::getQueueName()
 //    	{
@@ -85,6 +88,7 @@ namespace Phoenix
 //    	{
 //    		return &subsystemQueueAttr;
 //    	}
+
 
 void Dispatcher::Initialize(void)
 {
@@ -126,6 +130,7 @@ void Dispatcher::DispatcherTask(void * params)
 
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
+
 	while (1)
 	{
 		uint64_t LastWakeTime = getTimeInMilis();
@@ -134,6 +139,17 @@ void Dispatcher::DispatcherTask(void * params)
 
 		//wdm->Kick();
 
+		if(receiving)
+		{
+			timer++;
+			if(timer == 10)
+			{
+
+				timer = 0;
+				receiving = false;
+				//spiReset();
+			}
+		}
 		//TODO:ADD THREAD HANDLING and REMOVE RECIEVE COMPLETE STUFF and SIG_ACTION
 
 		waitUntil(LastWakeTime, 1000);
@@ -207,7 +223,7 @@ bool Dispatcher::Dispatch(FSWPacket & packet)
 
 		if (true == this->TakeLock(MAX_BLOCK_TIME))
 		{
-			printf("Dispatcher: Took lock\n");
+			printf("Dispatch: Took lock~\n");
 			size_t numPackets = mq_size(queueHandle, queueAttr);
 
 			if (numPackets < DISPATCHER_QUEUE_LENGTH)
@@ -230,6 +246,7 @@ bool Dispatcher::Dispatch(FSWPacket & packet)
 		}
 		else
 		{
+			printf("Dispatch: Failed to take lock\n");
 			return false;
 		}
 	}
@@ -242,13 +259,12 @@ DispatcherStatusEnum Dispatcher::WaitForDispatchResponse(
 	ReturnMessage * retMsg;
 	size_t i;
 	DEBUG_COUT("   Dispatcher: WaitForDispatchResponse() called");
-	printf("Dispatcher: WaitForDispatchResponse() called\n");
 	for (i = 0; i < DISPATCHER_MAX_RESPONSE_TRIES; ++i)
 	{
 		if (CheckQueueForMatchingPacket(packet, ret,
 				&Dispatcher::IsPacketMatchingResponse))
 		{
-			printf("Dispatcher: WaitForDispatchResponse(): Matching FSWPacket found.\n");
+			printf("Found matching packet");
 			// Returned packet is a response to our command, so
 			// return the result.
 			DEBUG_COUT("   Dispatcher: WaitForDispatchResponse(): Matching FSWPacket found.");
@@ -282,12 +298,16 @@ bool Dispatcher::Listen(LocationIDType serverID)
 	FSWPacket * packet, tmpPacket;
 	IteratorType it;
 
+	printf("Dispatcher listen called()\n");
+
 	DEBUG_COUT("Dispatcher: Listen() called with serverID: " << serverID);
 
 	// Create a packet that can be compared with the incoming packets
 	// to check if any are addressed to the desired server.
 
 	tmpPacket.SetSource(serverID);
+
+	printf("Dispatcher checking queue()\n");
 
 	if (!CheckQueueForMatchingPacket(tmpPacket, packet,
 			&Dispatcher::IsPacketDestMatchingSource))
@@ -296,6 +316,7 @@ bool Dispatcher::Listen(LocationIDType serverID)
 		return false;
 	}
 	DEBUG_COUT(" Dispatcher: Listen(): Found a packet, looking for a handler.");
+	printf("Dispatcher found packet()\n");
 
 
 	// A packet has been found, so try to find the handler in the
@@ -338,11 +359,10 @@ bool Dispatcher::Listen(LocationIDType serverID)
 	// Permissions are correct, so invoke it and obtain the resulting message.
 	DEBUG_COUT("   Dispatcher: Listen(): Permissions are correct, invoke the handler, and obtain the resulting message.");
 
+
 	DispatcherTaskParameter parameters;
 	parameters.registry = it->second->registry;
-	cout<<"\t Registry: "<<parameters.registry<<endl;
 	parameters.packet = packet;
-	cout<<"\t packet: "<<parameters.packet<<endl;
 	pthread_t TaskHandle;
 	sem_init(&parameters.syncSem, SHARE_TO_THREADS, 1);
 	sem_init(&parameters.doneSem, SHARE_TO_THREADS, 1);
@@ -368,6 +388,7 @@ bool Dispatcher::Listen(LocationIDType serverID)
 		{
 
 		}
+		//spiReset
 		DEBUG_COUT("HANDLER TIMED OUT");
 
 		pthread_cancel(TaskHandle);
@@ -378,15 +399,14 @@ bool Dispatcher::Listen(LocationIDType serverID)
 	pthread_join(TaskHandle, NULL);
 	sem_destroy(&(parameters.syncSem));
 	sem_destroy(&(parameters.doneSem));
+
 	// Create a packet from the response.
 	try
 	{
 		LocationIDType src = packet->GetSource( );
 		packet->SetSource(packet->GetDestination( ));
 		packet->SetDestination(src);
-
 		packet->SetMessage(parameters.retMsg);
-
 		delete parameters.retMsg;
 	}
 	catch (bad_alloc & e)
@@ -409,11 +429,6 @@ bool Dispatcher::IsPacketMatchingResponse(const FSWPacket & packetIn,
 	DEBUG_PRINT("Queue FSWPacket    - ", (&packetOut));
 	//debug_led_set_led(5, LED_ON);
 	// Return true if *packetOut is a response to *packetIn.
-
-	cout<<"Is response?: "<<packetOut.GetMessagePtr()->IsResponse()<<endl;
-	cout<<"Matching location?: "<<(packetOut.GetDestination() == packetIn.GetSource())<<endl;
-	cout<<"Same number?: "<<(packetOut.GetNumber() == packetIn.GetNumber())<<endl;
-
 	return ((packetOut.GetMessagePtr( )->IsResponse( ))
 			&& (packetOut.GetDestination( ) == packetIn.GetSource( ))
 			&& (packetOut.GetNumber( ) == packetIn.GetNumber( )));
@@ -422,9 +437,10 @@ bool Dispatcher::IsPacketMatchingResponse(const FSWPacket & packetIn,
 bool Dispatcher::IsPacketDestMatchingSource(const FSWPacket & packetIn,
 		const FSWPacket & packetOut) const
 {
+
 	// Return true if *packetOut is being sent to the server in
 	// packetIn->GetSource().
-	DEBUG_COUT("IsPacketDestMatchingSource called");
+	printf("IsPacketDestMatchingSource called\n");
 	return ((!packetOut.GetMessagePtr( )->IsResponse( ))
 			&& (packetOut.GetDestination( ) == packetIn.GetSource( )));
 }
@@ -443,11 +459,11 @@ bool Dispatcher::CheckQueueForMatchingPacket(const FSWPacket & packetIn,
 	size_t numPackets, i;
 	FSWPacket * tmpPacket;
 
+	printf("Check queue for matching packet\n");
 	// Get the semaphore
 	if (true == this->TakeLock(MAX_BLOCK_TIME))
 	{
 		// Check for the first message in the queue
-
 		if (mq_timed_receive(queueName, &packetOut, 0, DISPATCHER_MAX_DELAY) == false)
 		{
 			this->GiveLock();
@@ -463,18 +479,17 @@ bool Dispatcher::CheckQueueForMatchingPacket(const FSWPacket & packetIn,
 				this->GiveLock();
 				return false;
 			}
-
 			if ((this->*Check)(packetIn, *packetOut))
 			{
 				//debug_led_set_led(3, LED_ON);
-				DEBUG_PRINT("Match 1 - ", packetOut);
+				printf("Match 1 - ", packetOut);
 				this->GiveLock();
 				return true;
 			}
 			else
 			{
 				// Check the number of packets waiting in the queue.
-				DEBUG_COUT("checking more packets");
+				printf("checking more packets\n");
 				numPackets = mq_size(queueHandle, queueAttr);
 
 				// Get each packet and check it against packetIn.
@@ -576,15 +591,12 @@ bool Dispatcher::SendErrorResponse(ErrorOpcodeEnum errorCode,
 
 void * Dispatcher::InvokeHandler(void * parameters)
 {
-	cout<<"\t Dispatcher: InvokeHandler(): invoke handler called"<<endl;
 	DispatcherTaskParameter * parms =
 			(DispatcherTaskParameter *) parameters;
 
 	xSemaphoreTake(&(parms->doneSem), MAX_BLOCK_TIME, 0);
 	sem_post(&(parms->syncSem));
 	parms->retMsg = parms->registry->Invoke(*(parms->packet));
-	cout<<"\t Dispatcher: InvokeHandler(): RetMsg Success: "<<parms->retMsg->GetSuccess()<<endl;
-	cout<<"\t Dispatcher: InvokeHandler(): RetMsg Opcode:  "<<parms->retMsg->GetOpcode()<<endl;
 
 
 	sem_post(&(parms->doneSem));
@@ -603,7 +615,7 @@ uint32_t Dispatcher::DispatchToHardware( FSWPacket & packet)
 	size_t iterations;
 	bool timedOut;
 
-	/*
+	/* dumb spi things
 	if(transFlag == 1)
 	{
 		return -EBUSY;
@@ -613,6 +625,7 @@ uint32_t Dispatcher::DispatchToHardware( FSWPacket & packet)
 		transFlag = 1;
 	}
 	*/
+
 
 	packetLength = packet.GetFlattenSize();
 	printf("Hardware dispatch packet size %d",packet.GetFlattenSize());
@@ -663,7 +676,7 @@ uint32_t Dispatcher::DispatchToHardware( FSWPacket & packet)
 
 
 	/*
-	 //fixme these are old SPI things
+	//fixme
 	printf("write called in dispatch to hardware\n");
 	if(bytesCopied != packetLength)
 	{
@@ -671,7 +684,7 @@ uint32_t Dispatcher::DispatchToHardware( FSWPacket & packet)
 		printf("failed to copy packet to device file :(\n");
 		return -3;
 	}
-	sentPacket = false;
+	sentPacket = true;
 
 	uint64_t startTime = getTimeInMilis();
 
@@ -1071,7 +1084,7 @@ uint32_t Dispatcher::DispatchToHardware(HardwareLocationIDEnum loc, const FSWPac
 Dispatcher::Dispatcher(void)
 		: Singleton(), registryMap()
 {
-
+	printf("Dispatcher: Initalizing message queues\n");
 	mq_unlink(subsystemQueueName);
 	mq_unlink(queueName);
 	subQinit = mqCreate(&subsystemQueueHandle, &subsystemQueueAttr, subsystemQueueName);
@@ -1086,7 +1099,7 @@ Dispatcher::Dispatcher(const Dispatcher & source)
 	// Left Intentionally Empty
 }
 
-#ifdef TEST
+#ifdef HOST
 void Dispatcher::Destroy(void)
 {
 	mq_unlink(subsystemQueueName);

@@ -14,7 +14,6 @@
 #include "core/ReturnMessage.h"
 #include "core/ErrorMessage.h"
 #include <cstdio>
-#include <iostream>
 
 //#include "boards/backplane/dbg_led.h"
 
@@ -58,15 +57,11 @@ namespace Phoenix
 
         	if (it == handlerMap.end() || it->second == NULL)
         	{
-        		std::cout<<"\t MessageHandlerRegistry: Invoke(): Error, unrecognized opcode type"<<std::endl;
-        		std::cout<<"\t MessageHandlerRegistry: Invoke(): Handler map end: "<<(it == handlerMap.end())<<std::endl;
-        		std::cout<<"\t MessageHandlerRegistry: Invoke(): Handler map null: "<<(it->second == NULL)<<std::endl;
         		ErrorMessage error(ERROR_OPCODE_UNRECOGNIZED_TYPE);
         		return new ReturnMessage(&error, false);
         	}
         	else
         	{
-        		std::cout<<"\t MessageHandlerRegistry: Invoke(): Handle called"<<std::endl;
         		return it->second->Handle(packet);
         	}
         }
