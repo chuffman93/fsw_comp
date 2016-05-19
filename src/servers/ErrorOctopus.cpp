@@ -59,7 +59,7 @@ namespace Phoenix
 			octErrorHandler = new ErrorOctopusHandler();
 		}
 		
-#ifdef TEST
+#ifdef HOST
 		void ErrorOctopus::Destroy(void)
 		{
 			delete octErrorHandler;

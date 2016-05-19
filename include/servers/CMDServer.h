@@ -38,8 +38,10 @@ namespace Phoenix
 			void SubsystemLoop(void);
 			void Update(const Core::SystemMode * mode);
 			bool RegisterHandlers();
+			int subsystem_acp_protocol[HARDWARE_LOCATION_MAX];
 
 		private:
+
 			/*! \brief Initialize the CMDServer Class
 			*
 			*  Initializes the operating system constructs needed for
@@ -52,7 +54,7 @@ namespace Phoenix
 			*  Frees all internal memory use, frees all operating system
 			*  objects used, and deletes the singleton instance pointer.
 			*/
-#ifdef HOST
+#ifdef TEST
 			static void Destroy(void);
 #endif
 			

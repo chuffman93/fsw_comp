@@ -79,7 +79,7 @@ namespace Phoenix
             // Left Intentionally Blank.
         }
 
-#ifdef TEST
+#ifdef HOST
         void SystemMode::Destroy(void)
         {
         	AccessMode::DestroySubclass();

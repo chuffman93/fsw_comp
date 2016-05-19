@@ -197,7 +197,7 @@ namespace Phoenix
 			}
 		} */
 		
-#ifdef TEST
+#ifdef HOST
 	 void Factory::Destroy(SingletonType type)
 		{
 			switch (type)

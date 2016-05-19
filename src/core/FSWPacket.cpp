@@ -318,7 +318,7 @@ namespace Phoenix
             }else{
             	*(buffer++) = 0;
             	*(buffer++) = 0;
-            	numCopied +=2
+            	numCopied +=2;
             	size -= 2;
             }
 
