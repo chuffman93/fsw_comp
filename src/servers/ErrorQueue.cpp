@@ -49,7 +49,7 @@ namespace Phoenix
 			
 		}
 
-#ifdef TEST
+#ifdef HOST
 		void ErrorQueue::Destroy(void)
 		{
 

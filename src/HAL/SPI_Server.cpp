@@ -20,6 +20,7 @@
 #include "core/FSWPacket.h"
 #include "core/Dispatcher.h"
 
+
 using namespace Phoenix;
 using namespace Core;
 
@@ -39,7 +40,6 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 	char *cmdp;
 
 
-
 	// Declarations for FSW packet to Message queue
 	int packetSize;
 	uint8_t * buffer;
@@ -47,63 +47,38 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 
-	// HARDWARE INIT: Open up the /dev/phoenix_spi file and init signals
-	//spiFileDescriptor = open(spiFiePath, O_RDWR);
-	//TODO: Error handling
-
-	if(spiFileDescriptor < 0)
-	{
-		//error
-	}
+	nfds = getdtablesize();
+	FD_ZERO(&afds);
 
 	while (1) {
 
-		memcpy(&rfds, &afds, sizeof(rfds));
 
-		/* Makes the connections wait for the filedescriptor to be set*/
-		printf("\n*****************************************************\n");
-		printf("SPI_HAL Server: Waiting for messages\n ");
-		printf("\n*****************************************************\n");
-		printf("Recieving data\n");
-
-		printf("listener: packet contains \"%s\ bytes %d \n", cmd, numbytes);
-
-		buffer = (uint8_t*) malloc(numbytes);
-		memcpy((uint8_t *) buffer, cmd,numbytes);
-		printf("Converting a Pheonix Packet into a FSW packet\n");
-
-		packet =new FSWPacket(buffer, numbytes);
-		printf("Now putting that FSW Packet into the message queue using Dispatch!\n");
-
-		//packet->SetDestination(SERVER_LOCATION_ACS);
-
-		if((packet->GetDestination() == LOCATION_ID_INVALID )|| (packet->GetSource() == LOCATION_ID_INVALID))
-		{
-			printf("FSW Packet src or dest invalid. Not placing on queue\n");
-			printf("src %d dest %d\n", packet->GetDestination(), packet->GetSource());
-			//todo log error
-			delete packet;
-			free(buffer);
-		}
-		else{
-			if(!dispatcher->Dispatch(*packet))
-			{
-				printf("\r\nError in dispatch\r\n");
-			}
-
-			printf("SPI_HAL Server: Dispatched packet successfully\n");
-
-			delete packet;
-			free(buffer);
-		}
-
-//		}
 
 	printf("\n*****************************************************\n ");
 
 	}
 
 }
+
+
+
+
+
+/*------------------------------------------------------------------------
+ * UDPsock - allocate & bind a server socket using UDP
+ *------------------------------------------------------------------------
+ */
+void    SPI_HALServer::SPIReset(void)
+/*
+ * Arguments:
+ *      portnum   - port number of the server
+ *      qlen      - maximum server request queue length
+ */
+{
+	char dummy = 'c';
+	write(spiFileDescriptor,&dummy,1); //write one byte that will reset the state machine & clear the buffers
+}
+
 
 void SPI_HALServer::receivedComplete(int signum)
 {
@@ -154,9 +129,3 @@ void SPI_HALServer::receivedComplete(int signum)
 	return;
 }
 
-
-void SPI_HALServer::spiReset(void)
-{
-		char dummy = 'c';
-		write(spiFileDescriptor,&dummy,1); //write one byte that will reset the state machine & clear the buffers
-}

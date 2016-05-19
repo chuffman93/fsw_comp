@@ -15,7 +15,6 @@
 #include "servers/SCHServer.h"
 #include "servers/THMServer.h"
 #include "servers/ErrorQueue.h"
-#include "servers/CDHServer.h"
 
 
 #include <stdio.h>
@@ -122,10 +121,6 @@ namespace Phoenix
 					case ETH_HALSERVER_SINGLETON:
 						instance = new ETH_HALServer();
 						break;
-					case CDH_SERVER_SINGLETON:
-						CDHServer::Initialize( );
-						instance = new CDHServer("CDH Server", SERVER_LOCATION_CDH);
-						break;
 #ifdef NOT
 					case RF_INTERFACE_SINGLETON:
 						Phoenix::Emulators::RFInterface::Initialize( );
@@ -202,7 +197,7 @@ namespace Phoenix
 			}
 		} */
 		
-#ifdef TEST
+#ifdef HOST
 	 void Factory::Destroy(SingletonType type)
 		{
 			switch (type)
@@ -248,9 +243,6 @@ namespace Phoenix
  					break;
 				case THM_SERVER_SINGLETON:
 					THMServer::Destroy( );
-					break;
-				case CDH_SERVER_SINGLETON:
-					CDHServer::Destroy( );
 					break;
 #ifdef NOT
 				case RF_INTERFACE_SINGLETON:

@@ -114,7 +114,7 @@ namespace Phoenix
 #endif
 		}
 		
-#ifdef TEST
+#ifdef HOST
 		void COMServer::Destroy(void)
 		{
 			//delete handlers

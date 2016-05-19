@@ -32,8 +32,8 @@ namespace Phoenix
 			PLD_SERVER_SINGLETON,
 			SCH_SERVER_SINGLETON,
 			THM_SERVER_SINGLETON,
-			ETH_HALSERVER_SINGLETON,
 			CDH_SERVER_SINGLETON,
+			ETH_HALSERVER_SINGLETON,
 #ifdef WIN32
 			RF_INTERFACE_SINGLETON,
 			GROUND_COM_SERVER_SINGLETON,
@@ -50,9 +50,9 @@ namespace Phoenix
 		public:
 			static Singleton * GetInstance(SingletonType type);
 			//static Singleton * GetInstanceFromLocation(LocationIDType loc);
-#ifdef TEST
+//#ifdef HOST
 			static void Destroy(SingletonType type);
-#endif //TEST
+//#endif //HOST
 			
 		private:
 			static bool Initialize(SingletonType type);

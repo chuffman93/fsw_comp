@@ -42,7 +42,7 @@ namespace Phoenix
         private:
 			virtual ~ModeManager(void);
 			static void Initialize(void);
-#ifdef TEST
+#ifdef HOST
 			static void Destroy(void);
 #endif
 			bool IsFullyInitialized(void);

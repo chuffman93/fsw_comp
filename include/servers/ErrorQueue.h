@@ -68,7 +68,7 @@ namespace Phoenix
 			 *  Frees all internal memory use and frees all operating system
 			 *  objects used.
 			 */
-#ifdef TEST
+#ifdef HOST
 			static void Destroy(void);
 #endif
 			

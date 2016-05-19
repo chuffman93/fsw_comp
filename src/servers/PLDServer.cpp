@@ -92,7 +92,7 @@ namespace Phoenix
 			pldErrorHandler = new PLDErrorHandler();
 		}
 		
-#ifdef TEST
+#ifdef HOST
 		void PLDServer::Destroy(void)
 		{
 			delete pldHSHandler;

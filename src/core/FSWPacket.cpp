@@ -12,7 +12,6 @@
 #include "core/FSWPacket.h"
 #include "util/crc.h"
 #include <stdio.h>
-#include <iostream>
 
 //#include "boards/backplane/dbg_led.h"
 
@@ -79,6 +78,12 @@ namespace Phoenix
                 return;
             }
 
+            printf("Received FSW Packet: ");
+            for(unsigned int i = 0; i < size; i++){
+            	printf("%X ", buffer[i]);
+            }
+            printf("\n");
+
             // Get the source
             source = (LocationIDType)(((uint16)(buffer[0]) << 8) | buffer[1]);
             buffer += sizeof(uint16);
@@ -89,7 +94,7 @@ namespace Phoenix
             number = (uint16)(((uint16)(buffer[0]) << 8) | buffer[1]);
             buffer += sizeof(uint16);
             size -= sizeof(uint16);
-            timestamp = (uint32)(((uint32)(buffer[0]) << 24) | ((uint32)(buffer[1]) << 16) | ((uint32)(buffer[0]) << 8) | ((uint32)(buffer[3])));
+            timestamp = (uint32)(((uint32)(buffer[0]) << 24) | ((uint32)(buffer[1]) << 16) | ((uint32)(buffer[2]) << 8) | ((uint32)(buffer[3])));
             buffer += sizeof(uint32);
             size -= sizeof(uint32);
 
@@ -264,14 +269,6 @@ namespace Phoenix
         void FSWPacket::SetMessage(Message * newMessage)
         {
             delete messagePtr;
-
-
-			if(newMessage == NULL)
-			{
-				messagePtr = NULL;
-				return;
-			}
-
             messagePtr = newMessage->Duplicate();
         }
 
@@ -309,10 +306,16 @@ namespace Phoenix
             *(buffer++) = timestamp & 0xFF;
             numCopied+=4;
             size-=4;
-
-            messageCopied += messagePtr->Flatten(buffer, size);
-            numCopied += messageCopied;
-            buffer += messageCopied;
+            if(messagePtr != NULL){
+				messageCopied += messagePtr->Flatten(buffer, size);
+				numCopied += messageCopied;
+				buffer += messageCopied;
+            }else{
+            	*(buffer++) = 0;
+            	*(buffer++) = 0;
+            	numCopied +=2;
+            	size -= 2;
+            }
 
            crc = crcSlow(bufferStart, numCopied);
            for (size_t i = 0; i < sizeof(crc); ++i)
@@ -323,5 +326,9 @@ namespace Phoenix
 
             return numCopied;
 		}
+
+        void FSWPacket::print(void){
+        	printf("Src: %u Dest: %u Num: %u Timestamp: %zu", source, destination, timestamp);
+        }
     }
 }

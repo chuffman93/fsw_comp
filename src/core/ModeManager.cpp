@@ -76,10 +76,10 @@ namespace Phoenix
 			return isInit;
 		}
 		
-#ifdef TEST
+#ifdef HOST
 		void ModeManager::Destroy(void)
 		{
-			//SystemMode::Destroy();
+			SystemMode::Destroy();
 		}
 #endif
 

@@ -68,6 +68,7 @@ void ETH_HALServer::ETH_HALServerLoop(void)
 			errexit("select: %s\n", strerror(errno));
 		if (FD_ISSET(this->recv_sock, &rfds)) {
 
+			printf("ETH_Hal: Post select\n");
 		alen = sizeof(fsin);
 
 		printf("Recieving data\n");
@@ -79,15 +80,13 @@ void ETH_HALServer::ETH_HALServerLoop(void)
 		printf("listener: packet contains \"%s\ bytes %d \n", cmd, numbytes);
 
 
-
-
 //		Command_Parser(cmd,args);
 		FD_SET(this->recv_sock, &afds);
 //		FD_SET(pipe1[0],&afds);
 
 
 		buffer = (uint8_t*) malloc(numbytes);
-		memcpy((uint8_t *) buffer, cmd,numbytes);
+		memcpy((uint8_t *) buffer, cmd, numbytes);
 		printf("Converting a Pheonix Packet into a FSW packet\n");
 
 		packet =new FSWPacket(buffer, numbytes);
@@ -114,6 +113,8 @@ void ETH_HALServer::ETH_HALServerLoop(void)
 			delete packet;
 			free(buffer);
 		}
+
+
 
 
 

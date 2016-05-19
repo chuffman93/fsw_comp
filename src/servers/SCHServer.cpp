@@ -71,7 +71,7 @@ namespace Phoenix
 			schDefaultRangeHandler = new SCHDefaultRangeHandler();
 		}
 		
-#ifdef TEST
+#ifdef HOST
 		void SCHServer::Destroy(void)
 		{
 			delete schScheduleHandler;
