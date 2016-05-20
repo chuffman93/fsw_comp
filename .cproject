@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+<?fileVersion 4.0.0?>
+
+<cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
 		<cconfiguration id="cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199" moduleId="org.eclipse.cdt.core.settings" name="HOST-TEST">
 				<externalSettings/>
 				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -80,12 +82,12 @@
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1577213963" moduleId="org.eclipse.cdt.core.settings" name="ARM">
 				<externalSettings/>
 				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -135,8 +137,19 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<folderInfo id="cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1577213963.426549309" name="/" resourcePath="include/HAL">
+						<toolChain id="cdt.managedbuild.toolchain.gnu.base.1561678707" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.base" unusedChildren="">
+							<tool id="cdt.managedbuild.tool.gnu.archiver.base.2118208898" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base.1971655919"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.1839731650" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base.924137175"/>
+							<tool id="cdt.managedbuild.tool.gnu.c.compiler.base.1771207512" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base.582756987"/>
+							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.573821440" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base.717110460"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.1971544695" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base.2126185228"/>
+							<tool id="cdt.managedbuild.tool.gnu.assembler.base.2070639866" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base.1761940111"/>
+						</toolChain>
+					</folderInfo>
+					<fileInfo id="cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1577213963.298781163" name="I2C.h" rcbsApplicability="disable" resourcePath="include/HAL/I2C.h" toolsToInvoke=""/>
 					<sourceEntries>
-						<entry excluding="util/allstarIO.c|util/CircularBuffer.c|util/ctrl_access.c|util/delay.c|HAL/SAMA5D3/I2C.cpp|HAL/SAMA5D3/SPI.cpp|core/WatchdogManager.cpp|TestMode.cpp" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
+						<entry excluding="util/allstarIO.c|util/CircularBuffer.c|util/ctrl_access.c|util/delay.c|HAL/SAMA5D3/SPI.cpp|core/WatchdogManager.cpp|TestMode.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -151,12 +164,12 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -191,13 +204,14 @@
 								</inputType>
 							</tool>
 							<tool command="arm-linux-gnueabihf-as" id="cdt.managedbuild.tool.gnu.assembler.base.770584479" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base">
-								<option id="gnu.both.asm.option.include.paths.77373148" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+								<option id="gnu.both.asm.option.include.paths.77373148" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cdh-fsw/include}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.2030074163" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1851741721.83943128" name="I2C.h" rcbsApplicability="disable" resourcePath="include/HAL/I2C.h" toolsToInvoke=""/>
 					<sourceEntries>
 						<entry excluding="util/allstarIO.c|util/CircularBuffer.c|util/ctrl_access.c|util/delay.c|HAL/SAMA5D3/I2C.cpp|HAL/SAMA5D3/SPI.cpp|TestMode.cpp" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
 					</sourceEntries>
@@ -209,12 +223,12 @@
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1587269299" moduleId="org.eclipse.cdt.core.settings" name="HOST">
 				<externalSettings/>
 				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -259,13 +273,14 @@
 								</inputType>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.base.780608276" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base">
-								<option id="gnu.both.asm.option.include.paths.2002832916" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+								<option id="gnu.both.asm.option.include.paths.2002832916" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cdh-fsw/include}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.744724842" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1587269299.1306749630" name="I2C.h" rcbsApplicability="disable" resourcePath="include/HAL/I2C.h" toolsToInvoke=""/>
 					<sourceEntries>
 						<entry excluding="util/allstarIO.c|util/CircularBuffer.c|util/ctrl_access.c|util/delay.c|HAL/SAMA5D3/I2C.cpp|HAL/SAMA5D3/SPI.cpp|core/WatchdogManager.cpp|TestMode.cpp" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
 					</sourceEntries>
@@ -277,12 +292,12 @@
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.188595611" moduleId="org.eclipse.cdt.core.settings" name="HOST-DEBUG">
 				<externalSettings/>
 				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -345,12 +360,12 @@
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1577213963.1399872821" moduleId="org.eclipse.cdt.core.settings" name="ARM-TEST">
 				<externalSettings/>
 				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -399,6 +414,7 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1577213963.1399872821.1236175616" name="I2C.h" rcbsApplicability="disable" resourcePath="include/HAL/I2C.h" toolsToInvoke=""/>
 					<sourceEntries>
 						<entry excluding="util/allstarIO.c|util/CircularBuffer.c|util/ctrl_access.c|util/delay.c|HAL/SAMA5D3/I2C.cpp|HAL/SAMA5D3/SPI.cpp|main.cpp" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
 						<entry excluding="testhal0001.cpp|testgps0001.cpp|testwdm0009.cpp|testwdm0008.cpp|testwdm0007.cpp|testwdm0006.cpp|testwdm0005.cpp|testwdm0004.cpp|testwdm0003.cpp|testwdm0002.cpp|testwdm0001.cpp|testvtd0013.cpp|testvtd0012.cpp|testvtd0011.cpp|testvtd0010.cpp|testvtd0009.cpp|testvtd0008.cpp|testvtd0007.cpp|testvtd0006.cpp|testvtd0005.cpp|testvtd0004.cpp|testvtd0003.cpp|testvtd0002.cpp|testvtd0001.cpp|testset0009.cpp|testset0008.cpp|testset0007.cpp|testset0006.cpp|testset0005.cpp|testset0004.cpp|testset0003.cpp|testset0002.cpp|testset0001.cpp|testsendmsg0003.cpp|testsendmsg0002.cpp|testsendmsg0001.cpp|testrtc0001.cpp|testringbuf0002.cpp|testringbuf0001.cpp|testretmsg0012.cpp|testretmsg0011.cpp|testretmsg0010.cpp|testretmsg0009.cpp|testretmsg0008.cpp|testretmsg0007.cpp|testretmsg0006.cpp|testretmsg0005.cpp|testretmsg0004.cpp|testretmsg0003.cpp|testretmsg0002.cpp|testretmsg0001.cpp|testpkt0002.cpp|testpkt0001.cpp|testper0004.cpp|testper0003.cpp|testper0002.cpp|testper0001.cpp|testmultidatamsg0009.cpp|testmultidatamsg0008.cpp|testmultidatamsg0007.cpp|testmultidatamsg0006.cpp|testmultidatamsg0005.cpp|testmultidatamsg0004.cpp|testmultidatamsg0003.cpp|testmultidatamsg0002.cpp|testmultidatamsg0001.cpp|testmsg0001.cpp|testmodeman0005.cpp|testmodeman0004.cpp|testmodeman0003.cpp|testmodeman0002.cpp|testmodeman0001.cpp|testfilehandler0005.cpp|testfilehandler0004.cpp|testfilehandler0003.cpp|testfilehandler0002.cpp|testfilehandler0001.cpp|testerrmsg0006.cpp|testerrmsg0005.cpp|testerrmsg0004.cpp|testerrmsg0003.cpp|testerrmsg0002.cpp|testerrmsg0001.cpp|testdisp0016.cpp|testdisp0015.cpp|testdisp0014.cpp|testdisp0013.cpp|testdisp0012.cpp|testdisp0011.cpp|testdisp0010.cpp|testdisp0009.cpp|testdisp0008.cpp|testdisp0007.cpp|testdisp0006.cpp|testdisp0005.cpp|testdisp0004.cpp|testdisp0003.cpp|testdisp0002.cpp|testdisp0001.cpp|testdatamsg0006.cpp|testdatamsg0005.cpp|testdatamsg0004.cpp|testdatamsg0003.cpp|testdatamsg0002.cpp|testdatamsg0001.cpp|testconfmsg0006.cpp|testconfmsg0005.cpp|testconfmsg0004.cpp|testconfmsg0003.cpp|testconfmsg0002.cpp|testconfmsg0001.cpp|testcommsg0006.cpp|testcommsg0005.cpp|testcommsg0004.cpp|testcommsg0003.cpp|testcommsg0002.cpp|testcommsg0001.cpp|testarby0007.cpp|testarby0006.cpp|testarby0005.cpp|testarby0004.cpp|testarby0003.cpp|testarby0002.cpp|testarby0001.cpp|test0003.cpp|test0002.cpp|test0001.cpp" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="test"/>
@@ -432,9 +448,6 @@
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199;cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.;cdt.managedbuild.tool.gnu.cpp.compiler.base.144183051;cdt.managedbuild.tool.gnu.cpp.compiler.input.1205988212">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.188595611;cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.188595611.;cdt.managedbuild.tool.gnu.cross.cpp.compiler.868835014;cdt.managedbuild.tool.gnu.cpp.compiler.input.2070563470">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
@@ -447,22 +460,19 @@
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1587269299;cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1587269299.;cdt.managedbuild.tool.gnu.cross.c.compiler.968541255;cdt.managedbuild.tool.gnu.c.compiler.input.897980734">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1851741721;cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1851741721.;cdt.managedbuild.tool.gnu.cross.c.compiler.1461447610;cdt.managedbuild.tool.gnu.c.compiler.input.553655076">
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1851741721;cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1851741721.;cdt.managedbuild.tool.gnu.cpp.compiler.base.1264088548;cdt.managedbuild.tool.gnu.cpp.compiler.input.1326739379">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.188595611;cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.188595611.;cdt.managedbuild.tool.gnu.cross.c.compiler.242966492;cdt.managedbuild.tool.gnu.c.compiler.input.1626279405">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1851741721;cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1851741721.;cdt.managedbuild.tool.gnu.cpp.compiler.base.1264088548;cdt.managedbuild.tool.gnu.cpp.compiler.input.1326739379">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1851741721;cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1851741721.;cdt.managedbuild.tool.gnu.cross.cpp.compiler.1920078706;cdt.managedbuild.tool.gnu.cpp.compiler.input.1470757636">
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1851741721;cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1851741721.;cdt.managedbuild.tool.gnu.cross.c.compiler.1461447610;cdt.managedbuild.tool.gnu.c.compiler.input.553655076">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1587269299;cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1587269299.;cdt.managedbuild.tool.gnu.cross.cpp.compiler.2042281844;cdt.managedbuild.tool.gnu.cpp.compiler.input.1830519103">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199;cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.;cdt.managedbuild.tool.gnu.c.compiler.base.112255088;cdt.managedbuild.tool.gnu.c.compiler.input.512985647">
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1851741721;cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1851741721.;cdt.managedbuild.tool.gnu.cross.cpp.compiler.1920078706;cdt.managedbuild.tool.gnu.cpp.compiler.input.1470757636">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1577213963;cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1577213963.;cdt.managedbuild.tool.gnu.cpp.compiler.base.924137175;cdt.managedbuild.tool.gnu.cpp.compiler.input.83323647">
@@ -513,10 +523,10 @@
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1577213963;cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1577213963.;cdt.managedbuild.tool.gnu.c.compiler.base.582756987;cdt.managedbuild.tool.gnu.c.compiler.input.1642730628">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1851741721;cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1851741721.;cdt.managedbuild.tool.gnu.cross.c.compiler.944124057;cdt.managedbuild.tool.gnu.c.compiler.input.1059876459">
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199;cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.;cdt.managedbuild.tool.gnu.c.compiler.base.1113701834;cdt.managedbuild.tool.gnu.c.compiler.input.465263901">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199;cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.;cdt.managedbuild.tool.gnu.c.compiler.base.1113701834;cdt.managedbuild.tool.gnu.c.compiler.input.465263901">
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1851741721;cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1851741721.;cdt.managedbuild.tool.gnu.cross.c.compiler.944124057;cdt.managedbuild.tool.gnu.c.compiler.input.1059876459">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.188595611;cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.188595611.;cdt.managedbuild.tool.gnu.c.compiler.base.1423192354;cdt.managedbuild.tool.gnu.c.compiler.input.1203387425">

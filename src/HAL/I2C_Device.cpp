@@ -1,0 +1,7 @@
+namespace Phoenix
+{
+	namespace HAL
+	{
+
+	}
+}
