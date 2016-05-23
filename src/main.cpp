@@ -517,17 +517,21 @@ void* taskRunCMD(void * params)
 }
 
 void* taskRunCDH(void * params) {
-	CDHServer * cdhServer = dynamic_cast<CDHServer *>(Factory::GetInstance(
-			CDH_SERVER_SINGLETON));
-	ModeManager * modeManager =
-			dynamic_cast<ModeManager *>(Factory::GetInstance(
-					MODE_MANAGER_SINGLETON));
+	cout<<"In taskRunCDH()"<<endl;
+
+	CDHServer * cdhServer = dynamic_cast<CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
+	cout<<"grabbed CDHServer"<<endl;
+
+	ModeManager * modeManager = dynamic_cast<ModeManager *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	cout<<"grabbed ModeManager"<<endl;
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
 	modeManager->Attach(*cdhServer);
+	cout<<"attached mode"<<endl;
 
 	for (int i = 0; i < 0; i++) {
 		//wdm->Kick();
+		cout<<"in loop"<<endl;
 		usleep(1000000);
 	}
 
@@ -621,20 +625,19 @@ int main(int argc, char * argv[])
 
 	bool threadCreated;
 
-	/*
-	pthread_t ACSThread;
-	threadCreated = pthread_create(&ACSThread, NULL, &taskRunACS, NULL);
-#ifdef DEBUG
-	if(!threadCreated)
-	{
-		printf("ACS Server Thread Creation Success\n");
-	}
-	else
-	{
-		printf("ACS Server Thread Creation Failed\n");
-	}
-#endif //DEBUG
-	*/
+//	pthread_t ACSThread;
+//	threadCreated = pthread_create(&ACSThread, NULL, &taskRunACS, NULL);
+//#ifdef DEBUG
+//	if(!threadCreated)
+//	{
+//		printf("ACS Server Thread Creation Success\n");
+//	}
+//	else
+//	{
+//		printf("ACS Server Thread Creation Failed\n");
+//	}
+//#endif //DEBUG
+
 /*
 	pthread_t EPSThread;
 	threadCreated = pthread_create(&EPSThread, NULL, &taskRunEPS, NULL);
@@ -734,6 +737,8 @@ int main(int argc, char * argv[])
 	{
 		printf("CDH Server Thread Creation Failed\n");
 	}
+
+	cout<<"NOW HERE"<<endl;
 
 	//vTaskStartScheduler();
 	//portDBG_TRACE("FreeRTOS returned.");

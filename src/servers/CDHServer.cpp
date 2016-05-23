@@ -123,6 +123,8 @@ namespace Phoenix
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
+			std::cout<<"CDHServer: Subsystem Loop Entered"<<std::endl;
+
 			ReturnMessage * TSRet;
 			ReturnMessage * TRRet;
 			ReturnMessage * CPURet;
@@ -140,17 +142,21 @@ namespace Phoenix
 				//wdm->Kick();
 
 				// Start sensors for reading next round
+				/*
 				if((seconds % 10) == 0){
 					TSRet = CDHTempStart();
 					MessageProcess(SERVER_LOCATION_CDH, TSRet);
 				}
+				*/
 
 				// Get all CDH information
 				if(((seconds - 1) % 10) == 0){
+
 					// CPU usage
 					CPURet = CDHCPUUsage();
 					MessageProcess(SERVER_LOCATION_CDH, CPURet);
 
+					/*
 					// Memory usage
 					MemRet = CDHMemUsage();
 					MessageProcess(SERVER_LOCATION_CDH, MemRet);
@@ -160,8 +166,9 @@ namespace Phoenix
 					MessageProcess(SERVER_LOCATION_CDH, StrRet);
 
 					// Read Temp sensors
-					TRRet = CDHTempRead();
-					MessageProcess(SERVER_LOCATION_CDH, TRRet);
+					//TRRet = CDHTempRead();
+					//MessageProcess(SERVER_LOCATION_CDH, TRRet);
+					*/
 				}
 
 				// Delay

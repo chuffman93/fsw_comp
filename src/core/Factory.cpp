@@ -7,6 +7,7 @@
 
 #include "servers/ACSServer.h"
 #include "servers/CMDServer.h"
+#include "servers/CDHServer.h"
 #include "servers/COMServer.h"
 #include "servers/EPSServer.h"
 #include "servers/ErrorOctopus.h"
@@ -117,6 +118,10 @@ namespace Phoenix
 					case THM_SERVER_SINGLETON:
 						THMServer::Initialize( );
 						instance = new THMServer("THM Server", SERVER_LOCATION_THM);
+						break;
+					case CDH_SERVER_SINGLETON:
+						CDHServer::Initialize( );
+						instance = new CDHServer("CDH Server", SERVER_LOCATION_CDH);
 						break;
 					case ETH_HALSERVER_SINGLETON:
 						instance = new ETH_HALServer();
@@ -243,6 +248,9 @@ namespace Phoenix
  					break;
 				case THM_SERVER_SINGLETON:
 					THMServer::Destroy( );
+					break;
+				case CDH_SERVER_SINGLETON:
+					CDHServer::Destroy( );
 					break;
 #ifdef NOT
 				case RF_INTERFACE_SINGLETON:

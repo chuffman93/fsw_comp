@@ -381,7 +381,8 @@ namespace Phoenix
 				printf("DispatchStdTasks: Failed to log message\n");
 			}
 
-			delete retMsg;
+			cout<<"here"<<endl;
+			//delete retMsg;
 		}
 	}
 }

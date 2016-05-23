@@ -282,7 +282,6 @@ bool FileHandler::Log(FileHandlerIDEnum subsystem, MessageCodeType opCode,
 	//printf("string = %s\n", file.c_str());
 	int err = FileWrite(file.c_str(), (char*) buffer, (long int) size);
 	//printf("%d\n", err);
-	//perror("hello");
 	if (err < 0) return false;
 	return true;
 }
