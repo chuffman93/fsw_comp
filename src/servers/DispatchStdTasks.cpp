@@ -290,7 +290,7 @@ namespace Phoenix
 				if((retOpcode >= DISPATCHER_ERR_START) && (retOpcode <= DISPATCHER_ERR_END))
 				{
 					//dispatcher error! Log it
-					if(!fileHandler->Append(SYSTEM_CDH, retOpcode, (* dataMessage)))
+					if(!fileHandler->Log(SYSTEM_CDH, retOpcode, (* dataMessage)))
 					{
 						// write to error log
 					}
@@ -371,7 +371,7 @@ namespace Phoenix
 
 			//If we get here that means it wasn't an error message.
 			//Log the success!
-			if(!fileHandler->Append(handlerID, retOpcode, (* dataMessage)))
+			if(!fileHandler->Log(handlerID, retOpcode, (* dataMessage)))
 			{
 				// write to error log
 				printf("DispatchStdTasks: Failed to log message\n");
