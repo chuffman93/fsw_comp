@@ -1,15 +1,63 @@
-/*! \file HotSwaps.h
- *  \brief Define methods and functionality to read from hotswaps
+/*! \file PowerMonitor.h
+ *  \brief Define methods and functionality to read from power monitor
  *
  * Robert Belter Summer 2016
  *
  */
 #include <stdint.h>
+#include "I2C_Device.h"
+
+#ifndef POWERMONITOR_H_
+#define POWERMONITOR_H_
 
 namespace Phoenix
-{
-	namespace HAL
 	{
+	namespace HAL
+		{
+
+		typedef enum {
+			A5_1V8_ADDR 			=0xCE,
+			A5_1V2_ADDR 			=0xD0,
+			ETH_2V5_ADDR 			=0xD2,
+			ETH_1V2_ADDR 			=0xD4,
+		}PowerMonitor_Address;
+
+		typedef struct {
+			float MaxPower;
+			float MinPower;
+			float MinVoltage;
+			float MaxVoltage;
+			float MinADIN;
+			float MaxADIN;
+			float MinCurrent;
+			float MaxCurrent;
+		}PowerMonitor_Config;
+
+		typedef struct {
+			float MaxPower;
+			float MinPower;
+			float CurrPower;
+			bool MinPowerFault;
+			bool MaxPowerFault;
+
+			float MaxVoltage;
+			float MinVoltage;
+			float CurrVoltage;
+			bool MinVoltageFault;
+			bool MaxVoltageFault;
+
+			float MinADIN;
+			float MaxADIN;
+			float CurrADIN;
+			bool MinADINFault;
+			bool MaxADINFault;
+
+			float MaxCurrent;
+			float MinCurrent;
+			float CurrCurrent;
+			bool MinCurrentFault;
+			bool MaxCurrentFault;
+		}PowerMonitor_Data;
 		class PowerMonitor : public I2C_Device{
 		public:
 			PowerMonitor(PowerMonitor_Address addr);
@@ -88,51 +136,7 @@ namespace Phoenix
 			}PowerMonitor_Register;
 
 		};
-
-		typedef enum {
-			A5_1V8_ADDR 			=0xCE,
-			A5_1V2_ADDR 			=0xD0,
-			A5_2V5_ADDR 			=0xD2,
-			A5_1V2_ADDR 			=0xD4,
-		}PowerMonitor_Address;
-
-		typedef struct {
-			float MaxPower;
-			float MinPower;
-			float MinVoltage;
-			float MaxVoltage;
-			float MinADIN;
-			float MaxADIN;
-			float MinCurrent;
-			float MaxCurrent;
-		}PowerMonitor_Config;
-
-		typedef struct {
-			float MaxPower;
-			float MinPower;
-			float CurrPower;
-			bool MinPowerFault;
-			bool MaxPowerFault;
-
-			float MaxVoltage;
-			float MinVoltage;
-			float CurrVoltage;
-			bool MinVoltageFault;
-			bool MaxVoltageFault;
-
-			float MinADIN;
-			float MaxADIN;
-			float CurrADIN;
-			bool MinADINFault;
-			bool MaxADINFault;
-
-			float MaxCurrent;
-			float MinCurrent;
-			float CurrCurrent;
-			bool MinCurrentFault;
-			bool MaxCurrentFault;
-		}PowerMonitor_Data;
-
-
 	}
 }
+
+#endif

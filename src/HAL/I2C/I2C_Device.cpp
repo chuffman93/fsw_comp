@@ -6,6 +6,11 @@
  */
 
 #include <fcntl.h>
+#include "I2C_Device.h"
+#include <stdio.h>
+#include <unistd.h>
+#include <linux/i2c-dev.h>
+#include <sys/ioctl.h>
 
 namespace Phoenix
 {
@@ -29,6 +34,9 @@ namespace Phoenix
 			if(fd < 0){
 				return false;
 			}
+			if(ioctl(fd, I2C_SLAVE, i2c_chip_info.slave_addr) < 0){
+				return false;
+			}
 
 			int retval = write(fd, buffer, numBytes);
 			close(fd);
@@ -47,6 +55,9 @@ namespace Phoenix
 			if(fd < 0){
 				return false;
 			}
+			if(ioctl(fd, I2C_SLAVE, i2c_chip_info.slave_addr) < 0){
+							return false;
+			}
 
 			int retval = read(fd, buffer, numBytes);
 			close(fd);
@@ -60,6 +71,13 @@ namespace Phoenix
 			uint8_t retval;
 			I2C_read(&retval, 1);
 			return retval;
+		}
+
+		void I2C_Device::I2C_writeReg(uint8_t reg, uint8_t value){
+			uint8_t buf[2];
+			buf[0] = reg;
+			buf[1] = value;
+			I2C_write(buf, 2);
 		}
 	}
 }

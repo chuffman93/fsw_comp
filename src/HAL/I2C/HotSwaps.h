@@ -5,31 +5,19 @@
  *
  */
 #include <stdint.h>
+#include "I2C_Device.h"
 
 #define IOtoInt(port, val)  (port - 'A')*32 + val
 #define IOPort(io) (io/32) + 'A'
 #define IOPin(io) io%32
 
+#ifndef HOT_SWAPS_H_
+#define HOT_SWAPS_H_
+
 namespace Phoenix
 {
 	namespace HAL
 	{
-		class HotSwap : public I2C_Device{
-		public:
-			HotSwap(HotSwap_Address addr, HotSwap_Fault faultIO, float SenseResistor);
-
-			//Init MUST be called before any other function
-			void Init();
-
-			void Status(float *Voltage, float *Current);
-
-			bool Fault();
-
-		private:
-			int fault_fd;
-			float SenseResistorValue;
-			HotSwap_Fault faultLine;
-		};
 
 		typedef enum {
 			//COM Monitors
@@ -80,5 +68,24 @@ namespace Phoenix
 			AUXCOM_3V3_FAULT				 =IOtoInt('B', 9),
 			AUXCOM_VBAT_FAULT				 =IOtoInt('D', 24),
 		}HotSwap_Fault;
+
+		class HotSwap : public I2C_Device{
+		public:
+			HotSwap(HotSwap_Address addr, HotSwap_Fault faultIO, float SenseResistor);
+
+			//Init MUST be called before any other function
+			void Init();
+
+			void Status(float *Voltage, float *Current);
+
+			bool Fault();
+
+		private:
+			int fault_fd;
+			float SenseResistorValue;
+			HotSwap_Fault faultLine;
+		};
 	}
 }
+
+#endif

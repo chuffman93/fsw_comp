@@ -1,11 +1,11 @@
-/*! \file HotSwaps.cpp
- *  \brief Define methods and functionality to read from hotswaps
+/*! \file PowerMonitor.cpp
+ *  \brief Define methods and functionality to read from power monitor
  *
  * Robert Belter Summer 2016
  *
  */
-#include "HotSwaps.h"
 #include <fcntl.h>
+#include "PowerMonitor.h"
 
 namespace Phoenix
 {
@@ -86,6 +86,8 @@ namespace Phoenix
 			I2C_writeReg(PWRMON_MAXADINLSB, 0xFF);
 			I2C_writeReg(PWRMON_MINADINMSB, 0x00);
 			I2C_writeReg(PWRMON_MINADINLSB, 0x00);
+
+			I2C_writeReg(PWRMON_CONTROL, I2C_readReg(PWRMON_CONTROL) & ~0x10);
 		}
 
 		void PowerMonitor::Status(PowerMonitor_Data *data){
