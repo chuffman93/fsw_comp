@@ -1,12 +1,9 @@
 /*
-  * ETHERNET_Server.c
+ * ETHERNET_Server.c
  *
  *  Created on: Jun 26, 2015
  *      Author: Umang
  */
-
-
-
 
 #include <stdarg.h>
 #include <unistd.h>
@@ -14,118 +11,330 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <sys/select.h>
+#include <sys/ioctl.h>
+#include <linux/spi/spidev.h>
 
 
 #include "SPI_Server.h"
 #include "core/FSWPacket.h"
 #include "core/Dispatcher.h"
 
+#define NELEMS(x)  (sizeof(x) / sizeof((x)[0]))
+#define STR_LEN	   50
+#define RX_BUF_LEN 300
 
 using namespace Phoenix;
 using namespace Core;
 
+bool packetWaiting;
+
+int debugFile;
+
 // Enter this loop
 void SPI_HALServer::SPI_HALServerLoop(void)
 {
-	struct sockaddr_in fsin;	/* the from address of a client	*/
-	fd_set	rfds;			/* read file descriptor set	*/
-	fd_set 	wfds;			/*	write file descriptor set*/
-	fd_set	afds;			/* active file descriptor set	*/
-	unsigned int alen;		/* from-address length		*/
-	int	fd, nfds;
-	int numbytes;
-	char args[BUFSIZE];
-	char *argsp;
-	char cmd[CMDLEN];
-	char *cmdp;
+	char spi_devices[NUM_SLAVES][STR_LEN];
+	char int_val[NUM_SLAVES][STR_LEN];
+	fd_set int_fd_set;
+	struct pollfd poll_fds[NUM_SLAVES];
 
+	int i ,ret, len;
 
-	// Declarations for FSW packet to Message queue
-	int packetSize;
-	uint8_t * buffer;
+	uint8_t mode = SPI_MODE_0 | SPI_CS_HIGH;
+	uint32_t speed = 1000000;
+	uint8_t buf;
+	int timeout = -1;
 	FSWPacket * packet;
 
-	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+	memset((void*)poll_fds, 0, sizeof(poll_fds));
 
-	nfds = getdtablesize();
-	FD_ZERO(&afds);
+	debugFile = open("~/Logfile.txt",  O_RDWR);
+	//Initalize GPIO INT Pins TODO EXPORT PINS AND SET INTS
+	system("echo \"134\" > /sys/class/gpio/export");
+	system("echo \"in\" > /sys/class/gpio/pioE6/direction");
+	system("echo \"falling\" > /sys/class/gpio/pioE6/edge");
+	system("echo \"102\" > /sys/class/gpio/export");
+	//system("echo \"in\" > /sys/class/gpio/pioB27/direction");
+	system("echo \"rising\" > /sys/class/gpio/pioD6/edge");
+	system("echo \"4\" > /sys/class/gpio/export");
+	//system("echo \"in\" > /sys/class/gpio/pioB28/direction");
+	system("echo \"rising\" > /sys/class/gpio/pioA4/edge");
+
+	//Open spi device File Descriptors
+	strcpy(&spi_devices[0][0],"/dev/spidev32765.0");
+	strcpy(&spi_devices[1][0],"/dev/spidev32765.1");
+	strcpy(&spi_devices[2][0],"/dev/spidev32765.2");
+
+	//Open INT gpio File Descriptors
+	strcpy(&int_val[0][0],"/sys/class/gpio/pioE6/value");
+	strcpy(&int_val[1][0],"/sys/class/gpio/pioD6/value");
+	strcpy(&int_val[2][0],"/sys/class/gpio/pioA4/value");
+
+	//FD_ZERO(&int_fd_set);
+
+	printf("Opening file descriptors\n");
+
+	for(i = 0; i < NUM_SLAVES; i++){
+		spi_fds[i] = open(spi_devices[i], O_RDWR);
+		if(spi_fds[i] < 0){
+			printf("%s\n", spi_devices[i]);
+			printf("Error opening spi fd %d\n", i);
+		}
+		ioctl(spi_fds[i], SPI_IOC_WR_MODE, &mode);
+		ret = ioctl(spi_fds[i],SPI_IOC_WR_MAX_SPEED_HZ, &speed);
+		if(ret == -1){
+			perror("Failed to set max speed");
+		}
+		int_fds[i] = open(int_val[i], O_RDONLY);
+		poll_fds[i].fd = int_fds[i];
+		//FD_SET(int_fds[i], &int_fd_set);
+		if(int_fds[i] < 0){
+			printf("Error opening int fd %d\n", i);
+			perror("error =");
+		}
+		poll_fds[i].events = POLLPRI;
+		read(int_fds[i], &buf, 1);
+	}
+
+
 
 	while (1) {
 
+		printf("\n*****************************************************\n");
+		printf("SPI_HAL Server: Waiting for messages\n ");
+		printf("\n*****************************************************\n");
+		char buf[10] = "Start";
+		system("echo \"Start\" > Logfile.txt");
 
+		errno = 0;
 
-	printf("\n*****************************************************\n ");
+		//TODO SPI Read Loop
+		//Wait for interrupt
+		printf("Waiting for interrupt\n");
+
+		//Poll for slave start on INT pins
+		int retval = poll(poll_fds, NUM_SLAVES, -1);
+		printf("retval = %d, revents = %x\n", retval, poll_fds[0].revents);
+
+		//TODO Correct take lock
+		if (true == this->TakeLock(20)){
+
+			//Figure out if there was an interrupt
+			for(int i = 0; i < NUM_SLAVES; i++){
+				puts("reading interrupt fds...\n");
+				read(int_fds[i], &buf, 1);
+				if(poll_fds[i].revents & POLLPRI){
+					//send null packet
+					packet = new FSWPacket(SERVER_LOCATION_MIN + i, HARDWARE_LOCATION_MIN + i , 1, 0, NULL);
+					printf("found interrupt on fds %d\n", i);
+					SPIDispatch(*packet);
+					break;
+				}
+			}
+		}
+		this->GiveLock();
+		printf("\n*****************************************************\n ");
 
 	}
-
 }
 
+int SPI_HALServer::SPIDispatch(Phoenix::Core::FSWPacket & packet){
+	int bytes_copied;
+	int nbytes;
+	int ret;
+	int slave_fd;
+	uint8 * rx_buf;
+	ssize_t packetLength;
+	uint8_t * packetBuffer;
+	struct pollfd fds;
+	FSWPacket * retPacket;
+	int destination = 0;
+
+	char buff[6] = "Valid";
+
+	packetLength = packet.GetFlattenSize();
+	printf("Hardware dispatch packet size %d\n",packet.GetFlattenSize());
+	if(packetLength >= MAX_PACKET_SIZE)
+	{
+		//packet is too large
+		return -1;
+	}
+
+	packetBuffer = (uint8_t *) malloc(packetLength);
+	//check if whole packet was copied
+	ret = packet.Flatten(packetBuffer,packetLength);
+	if (ret != packetLength)
+	{
+		//failed to flatten packet
+		printf("PacketLength = %d  PacketBuffer = %d\n", packetLength, ret);
+		return -2;
+	}
+
+	destination = packet.GetDestination();
+	printf("destination = %d\n", destination);
+	get_int_fds(destination-1, &fds);
+	slave_fd = get_slave_fd(destination-1);
+
+	//take_lock
+	bytes_copied = this->spi_write(slave_fd, &fds, packetBuffer, packetLength);
+	//give lock
+	nbytes = spi_read(slave_fd, &fds, &rx_buf);
+	printf("packet = %2X\n", rx_buf);
+
+	retPacket = new FSWPacket(rx_buf, nbytes);
+	printf("Now putting that FSW Packet into the message queue using Dispatch!\n");
+
+	if((retPacket->GetDestination() == LOCATION_ID_INVALID )|| (retPacket->GetSource() == LOCATION_ID_INVALID))
+	{
+		printf("FSW Packet src or dest invalid. Not placing on queue\n");
+		printf("src %d dest %d\n", retPacket->GetDestination(), retPacket->GetSource());
+		//todo log error
+		delete retPacket;
+	}
+	else{
+
+		Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+
+		if(!dispatcher->Dispatch(*retPacket))
+		{
+			printf("\r\nError in dispatch\r\n");
+		}
+		printf("SPI Server: Dispatched packet successfully\n");
 
 
+		system("echo \"Yay\" > Logfile.txt");
 
+		delete retPacket;
+	}
 
-/*------------------------------------------------------------------------
- * UDPsock - allocate & bind a server socket using UDP
- *------------------------------------------------------------------------
- */
-void    SPI_HALServer::SPIReset(void)
-/*
- * Arguments:
- *      portnum   - port number of the server
- *      qlen      - maximum server request queue length
- */
-{
-	char dummy = 'c';
-	write(spiFileDescriptor,&dummy,1); //write one byte that will reset the state machine & clear the buffers
+	return bytes_copied;
 }
 
+int SPI_HALServer::spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, int len){
+	int buf_pt = 0;
+	int wr_size = 1;
+	int timeout = -1;
+	int ret;
+	uint8_t dummy;
+	//char dummy[64];
+	int fd = fds->fd;
+	//TODO Add timeout
+	//read(fds->fd, &dummy, 1);
 
-void SPI_HALServer::receivedComplete(int signum)
-{
-	int packetSize;
-	uint8_t * buffer;
-	FSWPacket * packet;
-	ReturnMessage retMsg;
-	LocationIDType temp;
-	uint32 time;
-	bool receiving = false;
+	while(buf_pt != len){
+		printf("Writing byte %d\n", buf_pt);
+		ret = write(slave_fd, buf + buf_pt, wr_size);
+		if(ret != wr_size){
+			perror("Error sending byte\n");
+		}
+		buf_pt++;
 
-	//driver returns packet size when reading only 1 byte
-	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-	packetSize = read(spiFileDescriptor,buffer,1);
-
-	buffer = (uint8_t*) malloc(packetSize);
-	if(read(spiFileDescriptor,buffer,packetSize) != packetSize)
-	{
-		cout << "Error reading packet" << endl;
-		//return err? What Error?
+		//Wait for interrupt before sending next byte
+		printf("Waiting for interrupt \n");
+		poll(fds, 1, timeout);
+		ret = read(fds->fd, &dummy, 1);
+		printf("revent = %x\n", fds->revents);
+		if(fds->fd < 0){
+			perror("Err opening\n");
+		}
+		//printf("Read %d bytes\n", ret);
 	}
+	return buf_pt;
+}
 
-	packet =new FSWPacket(buffer, packetSize);
+int SPI_HALServer::spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_bufp){
 
-	if (!dispatcher->Dispatch(*packet))
-	{
+	int buf_pt = 0;
+	int wr_size = 1;
+	int timeout = -10;
+	int ret, i;
+	uint8_t dummy;
+	//char dummy[64];
+	int fd = fds->fd;
+	int rx_complete = 0;
+	uint16_t packet_len = 0;
 
+	struct spi_ioc_transfer tr;
+
+	uint8 *rx_buf;
+
+	tr.tx_buf = 0;
+	tr.rx_buf = 0;
+	tr.len = 1;
+	tr.delay_usecs = 0;
+	tr.speed_hz = 1000000;
+	tr.cs_change = 1;
+	tr.bits_per_word = 8;
+
+	uint8 rx, tx = 0;
+
+	rx_buf = (uint8 *) malloc(sizeof(uint8) * 16);
+
+
+	//TODO Add timeout
+	read(fds->fd, &dummy, 1);
+	while(rx_complete != true){
+
+		for(i = 0; i < 14; i++){
+			//Wait for interrupt before sending next byte
+			printf("Waiting for interrupt\n");
+			poll(fds, 1, timeout);
+			ret = read(fds->fd, &dummy, 1);
+			printf("Reading byte %d: ", buf_pt);
+			tr.tx_buf =  (unsigned long) &tx;
+			tr.rx_buf =  (unsigned long) &rx;
+
+			ret = ioctl(slave_fd, SPI_IOC_MESSAGE(1), &tr);
+			rx_buf[buf_pt] = rx;
+
+			printf("%X\n", rx);
+			buf_pt++;
+		}
+
+		printf("Allocating memory for packet\n");
+		//Allocate more memory based on length
+		packet_len = (rx_buf[12] << 8 | rx_buf[13]) + 16;
+		printf("allocating %d\n", packet_len);
+		rx_buf = (uint8 *) realloc(rx_buf, packet_len * sizeof(uint8));
+
+		//Read in remaining bytes
+		for(i = 0; i < packet_len - 14; i++){
+			//Wait for interrupt before sending next byte
+			printf("Waiting for interrupt\n");
+			poll(fds, 1, timeout);
+			ret = read(fds->fd, &dummy, 1);
+			printf("Reading byte %d: ", buf_pt);
+			tr.tx_buf =  (unsigned long) &tx;
+			tr.rx_buf =  (unsigned long) &rx;
+
+			ret = ioctl(slave_fd, SPI_IOC_MESSAGE(1), &tr);
+			rx_buf[buf_pt] = rx;
+
+			printf("%d\n", rx);
+			buf_pt++;
+		}
+
+		fds->fd = fd;
+		fds->events = POLLPRI;
+		poll(fds, 1, timeout);
+		read(fds->fd, &dummy, 1);
+
+		*rx_bufp = rx_buf;
+		return buf_pt;
 	}
+}
 
-	/*if (DISPATCHER_STATUS_OK != dispatcher->WaitForDispatchResponse(*packet, retMsg))
-	{
-	}
+int SPI_HALServer::get_int_fds(int subsystem, struct pollfd * poll_fds){
+	memset((void*)poll_fds, 0, sizeof(struct pollfd));
+	poll_fds->fd = int_fds[subsystem];
+	poll_fds->events = POLLPRI;
+	return 0;
+}
 
-	temp = packet->GetDestination();
-	packet->SetDestination(packet->GetSource());
-	packet->SetSource(temp);
-	packet->SetTimestamp(time);
-	packet->SetMessage(&retMsg);
-
-	if (0 != dispatcher->DispatchToHardware(*packet))
-	{
-
-
-	}*/
-
-	delete packet;
-	free(buffer);
-	return;
+int SPI_HALServer::get_slave_fd(int subsystem){
+	return spi_fds[subsystem];
 }
 

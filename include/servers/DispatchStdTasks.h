@@ -16,7 +16,7 @@
 #include "core/StdTypes.h"
 #include "core/VariableTypeEnum.h"
 
-#define DIS_DEBUG			1
+#define DIS_DEBUG			0
 
 #if DIS_DEBUG && defined(WIN32)
 #include <iostream>

@@ -132,6 +132,7 @@ namespace Phoenix
         	if (NULL == data || NULL == data->GetDataPtr( ))
         	{
         		type = VAR_TYPE_ENUM_VOID;
+        		//fixme this is fucked
         		delete data;
         		data = NULL;
         	}

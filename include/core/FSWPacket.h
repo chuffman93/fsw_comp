@@ -147,8 +147,6 @@ namespace Phoenix
              *  \return Number of bytes actually copied into buffer.
              */
             virtual std::size_t Flatten(uint8 * buffer, std::size_t size) const;
-
-            void print();
 			
         private:
             /*! \brief Source of the FSWPacket */
@@ -162,6 +160,12 @@ namespace Phoenix
 
             /*! \brief Timestamp of the FSWPacket */
             uint32 timestamp;
+
+            /* brief status of the FSWPacket */
+            uint8 status;
+
+            /* brief opcode of the FSWPacket */
+            uint8 opcode;
 
             /*! \brief Message of the FSWPacket */
             Message * messagePtr;

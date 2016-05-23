@@ -20,10 +20,11 @@ namespace Phoenix
 		 * chip_fd := file descriptor to hold the path fd
 		 * slave_addr := slave address
 		 */
-		typedef struct{
+		typedef struct i2c_chip_info{
 			char path[20];
 			int fd;
 			uint32_t slave_addr;
+
 		}i2c_chip_info;
 
         /*! \brief Initialize Slave elements for I2C interface

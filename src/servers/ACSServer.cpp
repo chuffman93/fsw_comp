@@ -34,10 +34,10 @@
 
 //#include "boards/backplane/dbg_led.h"
 
+#define HARDWARE
+
 using namespace std;
 using namespace Phoenix::Core;
-
-#define HARDWARE
 
 namespace Phoenix
 {
@@ -165,7 +165,7 @@ namespace Phoenix
 			acsErrorHandler = new ACSErrorHandler();
 		}
 		
-#ifdef HOST
+#ifdef TEST
 		void ACSServer::Destroy(void)
 		{
 			//delete handlers
@@ -341,11 +341,9 @@ namespace Phoenix
 
 			while(mode == currentMode)
 			{
-				printf("ACS_Server: Subsys loop\n");
 				
 				uint64_t LastWakeTime = getTimeInMilis();
-				//while(dispatcher->Listen(id));
-				printf("ACS_Server: Post listen\n");
+				while(dispatcher->Listen(id));
 
 				// Check current mode
 				currentMode = modeManager->GetMode();
@@ -353,7 +351,7 @@ namespace Phoenix
 				//wdm->Kick();
 				
 #ifdef HARDWARE
-				printf("ACSServer: Sending health and status command\n");
+				printf("ACSServer: Sending Health and Status\n");
 				HSRet = ACSHealthStatus();
 				MessageProcess(SERVER_LOCATION_ACS, HSRet);
 #endif //HARDWARE

@@ -28,6 +28,8 @@ namespace Phoenix
             messagePtr = NULL;
             source = LOCATION_ID_INVALID;
             number = 0;
+            opcode = 0; //Probably (maybe) needs to be changed [Adam]
+            status = 0;
             destination = LOCATION_ID_INVALID;
             timestamp = 0;
         }
@@ -37,6 +39,8 @@ namespace Phoenix
             source = sourceIn;
             destination = destIn;
             timestamp = timestampIn;
+            opcode = 0; //Probably needs to be changed [Adam]
+            status = 0;
             if (messageIn != NULL)
             {
                 messagePtr = messageIn->Duplicate();
@@ -68,6 +72,7 @@ namespace Phoenix
 
         FSWPacket::FSWPacket(uint8 * buffer, std::size_t size)
         {
+        	printf("size %d\n", size);
             // Check that the buffer is sized correctly.
             if (NULL == buffer || size < (sizeof(LocationIDType) + sizeof(LocationIDType) + sizeof(uint16) + sizeof(uint32)))
             {
@@ -76,13 +81,8 @@ namespace Phoenix
                 messagePtr = NULL;
                 printf("FSWPacket: Null packet\n");
                 return;
-            }
 
-            printf("Received FSW Packet: ");
-            for(unsigned int i = 0; i < size; i++){
-            	printf("%X ", buffer[i]);
             }
-            printf("\n");
 
             // Get the source
             source = (LocationIDType)(((uint16)(buffer[0]) << 8) | buffer[1]);
@@ -94,13 +94,29 @@ namespace Phoenix
             number = (uint16)(((uint16)(buffer[0]) << 8) | buffer[1]);
             buffer += sizeof(uint16);
             size -= sizeof(uint16);
-            timestamp = (uint32)(((uint32)(buffer[0]) << 24) | ((uint32)(buffer[1]) << 16) | ((uint32)(buffer[2]) << 8) | ((uint32)(buffer[3])));
+            timestamp = (uint32)(((uint32)(buffer[0]) << 24) | ((uint32)(buffer[1]) << 16) | ((uint32)(buffer[0]) << 8) | ((uint32)(buffer[3])));
             buffer += sizeof(uint32);
             size -= sizeof(uint32);
 
-            printf("Source %hu Dest %hu Num %hu Timestamp %x\n", source, destination, number, timestamp);
+            /*
+            status = buffer[0];
+            buffer++;
+            size++;
+            opcode = buffer[0];
+            buffer++;
+            size++;
 
-            messagePtr = Message::CreateMessage(buffer, size);
+            uint16 length = ((uint16) buffer[0] << 8) | (uint16)buffer[1];
+            buffer += sizeof(uint16);
+            size -= sizeof(uint16);
+            */
+
+
+
+            messagePtr = Message::CreateMessage(buffer, size - 2);
+
+            printf("Source %hu Dest %hu Num %hu Timestamp %x Response %2X Status %2X Type %2X Opcode %2X\n",
+            		source, destination, number, timestamp, messagePtr->IsResponse(), messagePtr->GetSuccess(), messagePtr->GetType(), messagePtr->GetOpcode());
 
             // Check that the allocation worked correctly.
             if (NULL == messagePtr)
@@ -111,7 +127,7 @@ namespace Phoenix
                 return;
             }
 
-            printf("Inside FSWPacket(): Message copied to string size %d %x",messagePtr->GetFlattenSize(),messagePtr);
+            printf("Inside FSWPacket(): Message copied to string size %d %x\n",messagePtr->GetFlattenSize(),messagePtr);
 			size -= messagePtr->GetFlattenSize();
 			
 			//fixme add crc in soon
@@ -137,6 +153,8 @@ namespace Phoenix
                 number = 0;
                 timestamp = 0;
                 messagePtr = NULL;
+                status = 0;
+                opcode = 0; //Probably needs to be changed [Adam]
                 return;
             }
             messagePtr = packetSource.GetMessagePtr()->Duplicate();
@@ -147,6 +165,8 @@ namespace Phoenix
                 destination = LOCATION_ID_INVALID;
                 number = 0;
                 timestamp = 0;
+                opcode = 0;
+                status = 0; //Probably needs to be changed [Adam]
                 return;
             }
 			
@@ -159,7 +179,7 @@ namespace Phoenix
         FSWPacket::~FSWPacket(void )
         {
             delete messagePtr;
-            messagePtr = NULL;
+            //messagePtr = NULL;
         }
 
         FSWPacket & FSWPacket::operator=(const FSWPacket & source)
@@ -229,7 +249,7 @@ namespace Phoenix
                 messageSize = messagePtr->GetFlattenSize();
             }
 
-            return sizeof(source) + sizeof(destination) + sizeof(number) + sizeof(timestamp) + messageSize + sizeof(crc_t);
+            return sizeof(source) + sizeof(destination) + sizeof(number) + sizeof(timestamp) + sizeof(opcode) + sizeof(status) + sizeof(uint16) + messageSize + sizeof(crc_t);
         }
 
         bool FSWPacket::operator==(const FSWPacket & check) const
@@ -281,6 +301,7 @@ namespace Phoenix
         {
             size_t numCopied = 0, messageCopied = 0;
             uint8 * bufferStart = buffer;
+            uint16 length;
             crc_t crc;
 
             // Check the buffer and buffer size.
@@ -311,16 +332,26 @@ namespace Phoenix
             *(buffer++) = timestamp & 0xFF;
             numCopied+=4;
             size-=4;
-            if(messagePtr != NULL){
-				messageCopied += messagePtr->Flatten(buffer, size);
+
+            *(buffer++) = status & 0xFF;
+            *(buffer++) = opcode & 0xFF;
+            numCopied+=2;
+            size-=2;
+
+            if(messagePtr){
+            	length = messagePtr->GetFlattenSize();
+            	*(buffer++) = (length >> 8) & 0xFF;
+            	*(buffer++) = length & 0xFF;
+            	numCopied += sizeof(uint16);
+            	messageCopied += messagePtr->Flatten(buffer, size);
 				numCopied += messageCopied;
 				buffer += messageCopied;
             }else{
-            	*(buffer++) = 0;
-            	*(buffer++) = 0;
-            	numCopied +=2;
-            	size -= 2;
+            	*(buffer++) = 0x00;
+            	*(buffer++) = 0x00;
+            	numCopied += sizeof(uint16);
             }
+
 
            crc = crcSlow(bufferStart, numCopied);
            for (size_t i = 0; i < sizeof(crc); ++i)
@@ -331,9 +362,5 @@ namespace Phoenix
 
             return numCopied;
 		}
-
-        void FSWPacket::print(void){
-        	printf("Src: %u Dest: %u Num: %u Timestamp: %zu", source, destination, timestamp);
-        }
     }
 }

@@ -14,10 +14,9 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
-
+#include <pthread.h>
 
 #include "Ethernet_Server.h"
-#include "core/FSWPacket.h"
 #include "core/Dispatcher.h"
 
 
@@ -54,6 +53,10 @@ void ETH_HALServer::ETH_HALServerLoop(void)
 	FD_ZERO(&afds);
 	FD_SET(this->recv_sock, &afds);
 
+	pthread_t self_id;
+	self_id = pthread_self();
+	printf("ETHHALServerLoop: Thread %u\n", self_id);
+
 	while (1) {
 
 		memcpy(&rfds, &afds, sizeof(rfds));
@@ -68,7 +71,6 @@ void ETH_HALServer::ETH_HALServerLoop(void)
 			errexit("select: %s\n", strerror(errno));
 		if (FD_ISSET(this->recv_sock, &rfds)) {
 
-			printf("ETH_Hal: Post select\n");
 		alen = sizeof(fsin);
 
 		printf("Recieving data\n");
@@ -79,14 +81,13 @@ void ETH_HALServer::ETH_HALServerLoop(void)
 		}
 		printf("listener: packet contains \"%s\ bytes %d \n", cmd, numbytes);
 
-
 //		Command_Parser(cmd,args);
 		FD_SET(this->recv_sock, &afds);
 //		FD_SET(pipe1[0],&afds);
 
 
 		buffer = (uint8_t*) malloc(numbytes);
-		memcpy((uint8_t *) buffer, cmd, numbytes);
+		memcpy((uint8_t *) buffer, cmd,numbytes);
 		printf("Converting a Pheonix Packet into a FSW packet\n");
 
 		packet =new FSWPacket(buffer, numbytes);
@@ -113,24 +114,6 @@ void ETH_HALServer::ETH_HALServerLoop(void)
 			delete packet;
 			free(buffer);
 		}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 //		CC_Commands(cmd,args,&msock,&fsin,&alen);
@@ -303,6 +286,46 @@ int ETH_HALServer::TCPsock(struct sockaddr_in *fsin,char *portnum, int qlen)
 		return s;
 }
 
+int ETH_HALServer::ETHDispatch(FSWPacket & packet)
+{
+	struct sockaddr_in fsin;    /* the from address of a client    */
+	int alen= sizeof(fsin);
+	int nbytes;
+	ssize_t packetLength;
+	uint8_t * packetBuffer;
+
+	pthread_t self_id;
+	self_id = pthread_self();
+	printf("ETHDispatch: Thread %u\n", self_id);
+
+	packetLength = packet.GetFlattenSize();
+	printf("Hardware dispatch packet size %d",packet.GetFlattenSize());
+	if(packetLength >= MAX_PACKET_SIZE)
+	{
+		//packet is too large
+		return -1;
+	}
+
+	packetBuffer = (uint8_t *) malloc(packetLength);
+
+	//check if whole packet was copied
+	if(packet.Flatten(packetBuffer,packetLength) != packetLength)
+	{
+		//failed to flatten packet
+		printf("failed at 2\n");
+		return -2;
+	}
+
+	memcpy(&fsin,ETH_GetSendFSin(packet.GetDestination()),sizeof(*(ETH_GetSendFSin(packet.GetDestination()))));
+	alen= sizeof(fsin);
+	// Code for sending the Pheonix Packet onto the UDP server
+	nbytes= sendto(ETH_GetSendSocket(packet.GetDestination()), packetBuffer, packetLength,0,(struct sockaddr *) &fsin,alen);
+	printf("\r\nDispatched to UDP Hardware %d bytes\r\n",nbytes);
+
+	printf("\r\nDispatched to Hardware %d bytes to server number %d\r\n",nbytes,packet.GetDestination());
+	printf("\r\n Dispatching to IP Address %s and port number %s",host[packet.GetDestination()],port_num_client[packet.GetDestination()]);
+	return 0;
+}
 
 /*------------------------------------------------------------------------
  * errexit - print an error message and exit

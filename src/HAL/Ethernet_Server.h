@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <iostream>
+#include "core/FSWPacket.h"
 
 
 using namespace std;
@@ -84,7 +85,6 @@ class ETH_HALServer: public Phoenix::Core::Singleton
             strcpy(&(host[HARDWARE_LOCATION_MIN][0]),"10.14.134.250");
             strcpy(&(host[HARDWARE_LOCATION_MIN+1][0]),"10.14.134.252");
             strcpy(&(host[HARDWARE_LOCATION_MIN+2][0]),"10.14.134.203");
-            //strcpy(&(host[HARDWARE_LOCATION_MIN+2][0]),"10.14.134.102");
             strcpy(&(host[HARDWARE_LOCATION_MIN+3][0]),"10.14.134.204");
             strcpy(&(host[HARDWARE_LOCATION_MIN+4][0]),"10.14.134.205");
             strcpy(&(host[HARDWARE_LOCATION_MIN+5][0]),"10.14.134.205");
@@ -140,6 +140,9 @@ class ETH_HALServer: public Phoenix::Core::Singleton
          *------------------------------------------------------------------------
          */
         int     TCPsock(struct sockaddr_in *fsin,char *portnum, int qlen);
+
+        int ETHDispatch(Phoenix::Core::FSWPacket & packet);
+
 
 };
 

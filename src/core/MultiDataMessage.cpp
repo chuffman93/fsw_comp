@@ -1,5 +1,6 @@
 
 #include "core/MultiDataMessage.h"
+
 #include <stdio.h>
 
 using namespace std;
@@ -92,10 +93,10 @@ namespace Phoenix
             // Make sure buffer is not false and size is large enough
             if (NULL == buffer || size < 3)
             {
+            	//printf("bad buffer");
                 return false;
             }
 
-            printf("multidatamessage: Setting params\n");
             // Get the "length" field from the buffer (two bytes)
             uint16 length = *buffer++;
             length = length << 8;
@@ -113,14 +114,11 @@ namespace Phoenix
             size_t parameterSize;
 
             // Variable to keep track of current length of message
-            size_t messageLength = 0;
-
-            printf("Length: %zu, Num parameters: %zu\n", length, numParameters);
+            size_t messageLength = 1; //start at 1, because we already read th enumber of parameters
 
             // Loop through the number of parameters in the buffer
             for (size_t i = 0; i < numParameters; i++)
             {
-            	printf("MultiDataMes: in for\n");
                 // Create new parameter from buffer
                 parameter = new VariableTypeData(buffer, size);
 
@@ -136,7 +134,7 @@ namespace Phoenix
                 // unsuccessful  return false
                 if (!AddParameter(*parameter))
                 {
-                	printf("Failed to add param!\n");
+                	//printf("Bad parameter");
                     return false;
                 }
 
@@ -144,18 +142,15 @@ namespace Phoenix
                 delete parameter;
             }
 
-            printf("messageLength %u actualLength %u\n", messageLength, length);
             // If the actual message length is not what the buffer said it
             // would be, return false
-
             if (messageLength == length)
             {
-            	printf("MultiDataMessage: Created message successfully\n");
                 return true;
             }
             else
             {
-            	printf("MultiDataMes: returning false\n");
+            	printf("%d != %d\n", messageLength, length);
                 return false;
             }
         }

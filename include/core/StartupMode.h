@@ -24,7 +24,7 @@ namespace Phoenix
 			void OnExit(void);
 
 			virtual ~StartupMode( );
-#ifdef HOST
+#ifdef TEST
 			static void DestroySubclass(void);
 #endif
 

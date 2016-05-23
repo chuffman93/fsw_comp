@@ -8,7 +8,6 @@
 #define SPI_SERVER_H_
 
 #include "core/Singleton.h"
-#include "core/Dispatcher.h"
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/time.h>
@@ -21,7 +20,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <iostream>
-#include <poll.h>
+
 
 using namespace std;
 
@@ -31,8 +30,6 @@ using namespace std;
 #define     CMDLEN        BUFSIZE
 #define     server_name_len    8
 #define     N_SERVERS    10
-
-#define NUM_SLAVES 3
 
 #define TXD_PACKET_SIG		SIGUSR1
 #define RXD_PACKET_SIG		SIGUSR2
@@ -45,9 +42,6 @@ class SPI_HALServer: public Phoenix::Core::Singleton
 {
 	public:
 	int spiFileDescriptor;
-	struct pollfd poll_fds;
-	int spi_fds[NUM_SLAVES];
-	int int_fds[NUM_SLAVES];
 	//static bool packetWaiting;
 
 	// Constructor
@@ -62,7 +56,6 @@ class SPI_HALServer: public Phoenix::Core::Singleton
 
         	if(spiFileDescriptor < 0)
         	{
-        		perror("open");
         		printf("SPI_HALServer: Failed to initialize SPI driver\n");
         		//todo error logging
             }
@@ -78,14 +71,6 @@ class SPI_HALServer: public Phoenix::Core::Singleton
         static void spi_rx_handler(int signum);
 
         static void spi_tx_complete(int signum);
-
-        int spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, int len);
-
-        int spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_buf);
-
-        int get_int_fds(int subsystem, struct pollfd * poll_fds);
-
-        int get_slave_fd(int subsystem);
 };
 
 //static bool SPI_HALServer::packetWaiting;

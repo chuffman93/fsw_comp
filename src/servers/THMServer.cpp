@@ -57,7 +57,7 @@ namespace Phoenix
 			//bool rv = TemperatureInit();
 		}
 		
-#ifdef HOST
+#ifdef TEST
  		void THMServer::Destroy(void)
 		{
 		}

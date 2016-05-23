@@ -53,7 +53,7 @@ namespace Phoenix
 		{
 		}
 
-#ifdef HOST
+#ifdef TEST
 		void PayloadPriorityMode::DestroySubclass(void)
 		{
 			delete instancePtr;

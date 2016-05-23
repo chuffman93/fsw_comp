@@ -8,6 +8,7 @@
  */
 
 #include "core/ReturnMessage.h"
+#include <stdio.h>
 
 using namespace std;
 
@@ -54,7 +55,7 @@ namespace Phoenix
 		{
         	// Memory management of the pointer
 			delete messagePtr;
-			messagePtr = NULL;
+			//messagePtr = NULL;
 		}
 
         bool ReturnMessage::IsResponse() const

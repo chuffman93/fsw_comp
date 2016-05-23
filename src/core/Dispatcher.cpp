@@ -19,6 +19,8 @@
 //#include "util/crc.h"
 #include "core/CommandMessage.h"
 #include "../src/HAL/Ethernet_Server.h"
+#include "../src/HAL/SPI_Server.h"
+#include "servers/CMDServer.h"
 #include "POSIX.h"
 
 //#include "boards/backplane/dbg_led.h"
@@ -68,11 +70,8 @@ namespace Phoenix
         // Instantiate static members
     	char * Dispatcher::subsystemQueueName = "/subsystemQueueHandle";
     	char * Dispatcher::queueName = "/queueHandle";
-    	bool receiving = false;
     	size_t timer;
-    	static bool sentPacket = false;
-    	static uint8_t transFlag = 0;
-    	static uint8_t recvFlag = 0;
+
 //
 //    	char * Dispatcher::getQueueName()
 //    	{
@@ -88,7 +87,6 @@ namespace Phoenix
 //    	{
 //    		return &subsystemQueueAttr;
 //    	}
-
 
 void Dispatcher::Initialize(void)
 {
@@ -130,7 +128,6 @@ void Dispatcher::DispatcherTask(void * params)
 
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
-
 	while (1)
 	{
 		uint64_t LastWakeTime = getTimeInMilis();
@@ -139,17 +136,6 @@ void Dispatcher::DispatcherTask(void * params)
 
 		//wdm->Kick();
 
-		if(receiving)
-		{
-			timer++;
-			if(timer == 10)
-			{
-
-				timer = 0;
-				receiving = false;
-				//spiReset();
-			}
-		}
 		//TODO:ADD THREAD HANDLING and REMOVE RECIEVE COMPLETE STUFF and SIG_ACTION
 
 		waitUntil(LastWakeTime, 1000);
@@ -193,6 +179,9 @@ bool Dispatcher::AddRegistry(LocationIDType serverID,
 
 bool Dispatcher::Dispatch(FSWPacket & packet)
 {
+	if(packet.GetDestination() < HARDWARE_LOCATION_MIN || packet.GetDestination() > SERVER_LOCATION_MAX){
+		return false;
+	}
    if (packet.GetDestination() >= HARDWARE_LOCATION_MIN && packet.GetDestination() < HARDWARE_LOCATION_MAX)
 	{
 	   DEBUG_COUT("Hardware Dispatch: YAY!");
@@ -207,25 +196,26 @@ bool Dispatcher::Dispatch(FSWPacket & packet)
 
 		printf("Now sending the message to the queue\n");
 		fflush(stdout);
-		FSWPacket * tmpPacket;
 
 
-		try
-		{
-			tmpPacket = new FSWPacket(packet);
-		}
-		catch (bad_alloc & e)
-		{
-			return false;
-		}
+
+
 
 
 
 		if (true == this->TakeLock(MAX_BLOCK_TIME))
 		{
-			printf("Dispatch: Took lock~\n");
+			printf("Dispatcher: Took lock\n");
 			size_t numPackets = mq_size(queueHandle, queueAttr);
-
+			FSWPacket * tmpPacket;
+			try
+			{
+				tmpPacket = new FSWPacket(packet);
+			}
+			catch (bad_alloc & e)
+			{
+				return false;
+			}
 			if (numPackets < DISPATCHER_QUEUE_LENGTH)
 			{
 				printf("Dispatcher::Dispatch() Queue is not full\n");
@@ -246,7 +236,6 @@ bool Dispatcher::Dispatch(FSWPacket & packet)
 		}
 		else
 		{
-			printf("Dispatch: Failed to take lock\n");
 			return false;
 		}
 	}
@@ -259,12 +248,13 @@ DispatcherStatusEnum Dispatcher::WaitForDispatchResponse(
 	ReturnMessage * retMsg;
 	size_t i;
 	DEBUG_COUT("   Dispatcher: WaitForDispatchResponse() called");
+	printf("Dispatcher: WaitForDispatchResponse() called\n");
 	for (i = 0; i < DISPATCHER_MAX_RESPONSE_TRIES; ++i)
 	{
 		if (CheckQueueForMatchingPacket(packet, ret,
 				&Dispatcher::IsPacketMatchingResponse))
 		{
-			printf("Found matching packet");
+			printf("Dispatcher: WaitForDispatchResponse(): Matching FSWPacket found.\n");
 			// Returned packet is a response to our command, so
 			// return the result.
 			DEBUG_COUT("   Dispatcher: WaitForDispatchResponse(): Matching FSWPacket found.");
@@ -298,16 +288,12 @@ bool Dispatcher::Listen(LocationIDType serverID)
 	FSWPacket * packet, tmpPacket;
 	IteratorType it;
 
-	printf("Dispatcher listen called()\n");
-
 	DEBUG_COUT("Dispatcher: Listen() called with serverID: " << serverID);
 
 	// Create a packet that can be compared with the incoming packets
 	// to check if any are addressed to the desired server.
 
 	tmpPacket.SetSource(serverID);
-
-	printf("Dispatcher checking queue()\n");
 
 	if (!CheckQueueForMatchingPacket(tmpPacket, packet,
 			&Dispatcher::IsPacketDestMatchingSource))
@@ -316,7 +302,6 @@ bool Dispatcher::Listen(LocationIDType serverID)
 		return false;
 	}
 	DEBUG_COUT(" Dispatcher: Listen(): Found a packet, looking for a handler.");
-	printf("Dispatcher found packet()\n");
 
 
 	// A packet has been found, so try to find the handler in the
@@ -388,7 +373,6 @@ bool Dispatcher::Listen(LocationIDType serverID)
 		{
 
 		}
-		//spiReset
 		DEBUG_COUT("HANDLER TIMED OUT");
 
 		pthread_cancel(TaskHandle);
@@ -437,10 +421,9 @@ bool Dispatcher::IsPacketMatchingResponse(const FSWPacket & packetIn,
 bool Dispatcher::IsPacketDestMatchingSource(const FSWPacket & packetIn,
 		const FSWPacket & packetOut) const
 {
-
 	// Return true if *packetOut is being sent to the server in
 	// packetIn->GetSource().
-	printf("IsPacketDestMatchingSource called\n");
+	DEBUG_COUT("IsPacketDestMatchingSource called");
 	return ((!packetOut.GetMessagePtr( )->IsResponse( ))
 			&& (packetOut.GetDestination( ) == packetIn.GetSource( )));
 }
@@ -459,11 +442,11 @@ bool Dispatcher::CheckQueueForMatchingPacket(const FSWPacket & packetIn,
 	size_t numPackets, i;
 	FSWPacket * tmpPacket;
 
-	printf("Check queue for matching packet\n");
 	// Get the semaphore
 	if (true == this->TakeLock(MAX_BLOCK_TIME))
 	{
 		// Check for the first message in the queue
+
 		if (mq_timed_receive(queueName, &packetOut, 0, DISPATCHER_MAX_DELAY) == false)
 		{
 			this->GiveLock();
@@ -479,17 +462,18 @@ bool Dispatcher::CheckQueueForMatchingPacket(const FSWPacket & packetIn,
 				this->GiveLock();
 				return false;
 			}
+
 			if ((this->*Check)(packetIn, *packetOut))
 			{
 				//debug_led_set_led(3, LED_ON);
-				printf("Match 1 - ", packetOut);
+				DEBUG_PRINT("Match 1 - ", packetOut);
 				this->GiveLock();
 				return true;
 			}
 			else
 			{
 				// Check the number of packets waiting in the queue.
-				printf("checking more packets\n");
+				DEBUG_COUT("checking more packets");
 				numPackets = mq_size(queueHandle, queueAttr);
 
 				// Get each packet and check it against packetIn.
@@ -614,21 +598,15 @@ uint32_t Dispatcher::DispatchToHardware( FSWPacket & packet)
 	ssize_t bytesCopied;
 	size_t iterations;
 	bool timedOut;
-
-	/* dumb spi things
-	if(transFlag == 1)
-	{
-		return -EBUSY;
-	}
-	else
-	{
-		transFlag = 1;
-	}
-	*/
-
+	int protocolChoice = -1;
 
 	packetLength = packet.GetFlattenSize();
 	printf("Hardware dispatch packet size %d",packet.GetFlattenSize());
+
+	pthread_t self_id;
+	self_id = pthread_self();
+	printf("DispatchToHardware: Thread %u\n", self_id);
+
 	if(packetLength >= MAX_PACKET_SIZE)
 	{
 		//packet is too large
@@ -650,67 +628,31 @@ uint32_t Dispatcher::DispatchToHardware( FSWPacket & packet)
 				printf("0x%02x ",packetBuffer[i]);
 	}
 
-	//write packet to /dev/phoenix_spi
+	// Get the instances for the Ethernet and SPI Servers
+	ETH_HALServer * eth_server = dynamic_cast<ETH_HALServer *> (Factory::GetInstance(ETH_HALSERVER_SINGLETON));
+	SPI_HALServer * spi_server = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
 
-	// Code for send the pheonix packet onto the SPI hardware
-	//bytesCopied = write(spiFileDescriptor,packetBuffer,packetLength);
+	// Protocol Switching Code
+	Servers::CMDServer * cmdServer = dynamic_cast<Servers::CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
 
+	protocolChoice = cmdServer->subsystem_acp_protocol[packet.GetDestination()];
 
-	// Get the instance for the Ethernet Server
-	ETH_HALServer * cmd_server = dynamic_cast<ETH_HALServer *> (Factory::GetInstance(ETH_HALSERVER_SINGLETON));
-
-
-
-	struct sockaddr_in fsin;    /* the from address of a client    */
-	int alen= sizeof(fsin);
-	int nbytes;
-
-	memcpy(&fsin,cmd_server->ETH_GetSendFSin(packet.GetDestination()),sizeof(*(cmd_server->ETH_GetSendFSin(packet.GetDestination()))));
-	alen= sizeof(fsin);
-	// Code for sending the Pheonix Packet onto the UDP server
-	nbytes= sendto(cmd_server->ETH_GetSendSocket(packet.GetDestination()), packetBuffer, packetLength,0,(struct sockaddr *) &fsin,alen);
-	printf("\r\nDispatched to UDP Hardware %d bytes\r\n",nbytes);
-
-	printf("\r\nDispatched to Hardware %d bytes to server number %d\r\n",nbytes,packet.GetDestination());
-	printf("\r\n Dispatching to IP Address %s and port number %s",cmd_server->host[packet.GetDestination()],cmd_server->port_num_client[packet.GetDestination()]);
-
-
-	/*
-	//fixme
-	printf("write called in dispatch to hardware\n");
-	if(bytesCopied != packetLength)
-	{
-		//failed to copy packet into device file
-		printf("failed to copy packet to device file :(\n");
-		return -3;
-	}
-	sentPacket = true;
-
-	uint64_t startTime = getTimeInMilis();
-
-	uint64_t lastWakeTime = startTime;
-
-
-	while(!sentPacket)
-	{
-		waitUntil(lastWakeTime, 500);
-		if(timedOut)
-		{
-			//printf("Timeout YAYA!\n");
-			spiReset();
-			transFlag = 0;
-
-			timedOut = false;
-			return -1;
-		}
-		lastWakeTime = getTimeInMilis();
-		if(200 ==(iterations++) ){ timedOut = true; }
+	switch(protocolChoice){
+		case ACP_PROTOCOL_SPI:
+			bytesCopied = spi_server->SPIDispatch(packet);
+			break;
+		case ACP_PROTOCOL_ETH:
+			//fixme take ETHDispatch out of ETH_Server and make it a utility. i hate c++
+			bytesCopied = eth_server->ETHDispatch(packet);
+			break;
+		default:
+			//log error
+			break;
 	}
 
-	//printf("send the packet?\n");
-	sentPacket = false;
-	transFlag = 0;
-	*/
+	if(bytesCopied != packetLength){
+		//todo error handling
+	}
 
 	return 0;
 }
@@ -1084,7 +1026,7 @@ uint32_t Dispatcher::DispatchToHardware(HardwareLocationIDEnum loc, const FSWPac
 Dispatcher::Dispatcher(void)
 		: Singleton(), registryMap()
 {
-	printf("Dispatcher: Initalizing message queues\n");
+
 	mq_unlink(subsystemQueueName);
 	mq_unlink(queueName);
 	subQinit = mqCreate(&subsystemQueueHandle, &subsystemQueueAttr, subsystemQueueName);
@@ -1099,7 +1041,7 @@ Dispatcher::Dispatcher(const Dispatcher & source)
 	// Left Intentionally Empty
 }
 
-#ifdef HOST
+#ifdef TEST
 void Dispatcher::Destroy(void)
 {
 	mq_unlink(subsystemQueueName);

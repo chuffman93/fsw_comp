@@ -104,7 +104,7 @@ namespace Phoenix
 
 		}
 	
-#ifdef HOST
+#ifdef TEST
 		void EPSServer::Destroy(void)
 		{
 			//delete handlers

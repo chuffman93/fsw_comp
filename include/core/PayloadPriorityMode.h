@@ -24,7 +24,7 @@ namespace Phoenix
 			void OnExit(void);
 
 			virtual ~PayloadPriorityMode( );
-#ifdef HOST
+#ifdef TEST
 			static void DestroySubclass(void);
 #endif
 

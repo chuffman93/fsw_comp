@@ -59,8 +59,6 @@ namespace Phoenix
         	opCode = (MessageCodeType)(*(buffer++));
         	size--;
 
-        	printf("Op-code %u type %u\n", opCode, type);
-
 			//Construct the message depending on the type, and pass the rest of the buffer
         	//for the message to set its information
         	switch (type)
@@ -83,16 +81,15 @@ namespace Phoenix
 					rv = ((ConfigMessage *)ret)->SetParameters(buffer,size);
 					break;
 				default:
-					printf("Message type enum error\n");
 					return NULL;
         	}
 			if(rv == false)
 			{
-				printf("Failed to set parameters\n");
+				printf("Invalid parameters");
 				delete ret;
 				return NULL;
 			}
-			printf("Message: rv != false\n");
+
         	Message * tmp;
 
         	//If this message is a response, create a new ReturnMessage

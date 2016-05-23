@@ -272,7 +272,6 @@ namespace Phoenix
 		
 		void MessageProcess(LocationIDType id, ReturnMessage * retMsg)
 		{
-			cout<<"Message Process(): called"<<endl;
 			FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
 			
 			//dispatcher error! Log it
@@ -291,7 +290,7 @@ namespace Phoenix
 				if((retOpcode >= DISPATCHER_ERR_START) && (retOpcode <= DISPATCHER_ERR_END))
 				{
 					//dispatcher error! Log it
-					if(!fileHandler->Log(SYSTEM_CDH, retOpcode, (* dataMessage)))
+					if(!fileHandler->Append(SYSTEM_CDH, retOpcode, (* dataMessage)))
 					{
 						// write to error log
 					}
@@ -337,8 +336,6 @@ namespace Phoenix
 			
 			//TODO: check bounds here!
 
-			cout<<"Intermediate Check"<<endl;
-
 			FileHandlerIDEnum handlerID;
 			switch(id)
 			{
@@ -366,19 +363,15 @@ namespace Phoenix
 				case SERVER_LOCATION_CMD :
 					handlerID = SUBSYSTEM_CMD;
 					break;
-				case SERVER_LOCATION_CDH :
-					handlerID = SYSTEM_CDH;
-					break;
 				default:
 					return;
 			}
 			
 			printf("DispatchStdTasks: Got successful return message!\n");
-			cout<<"Return Message:\n"<<retMsg<<endl;
 
 			//If we get here that means it wasn't an error message.
 			//Log the success!
-			if(!fileHandler->Log(handlerID, retOpcode, (* dataMessage)))
+			if(!fileHandler->Append(handlerID, retOpcode, (* dataMessage)))
 			{
 				// write to error log
 				printf("DispatchStdTasks: Failed to log message\n");
