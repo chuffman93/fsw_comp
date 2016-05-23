@@ -50,13 +50,13 @@ namespace Phoenix
 			VariableTypeData oneMinHold(cdhServer->si.loads[0]);
 			VariableTypeData fiveMinHold(cdhServer->si.loads[1]);
 			VariableTypeData fifteenMinHold(cdhServer->si.loads[2]);
-			VariableTypeData testHold(true);
+			//VariableTypeData testHold(true);
 
 			list<VariableTypeData *> params;
 			params.push_back(&oneMinHold);
 			params.push_back(&fiveMinHold);
 			params.push_back(&fifteenMinHold);
-			params.push_back(&testHold);
+			//params.push_back(&testHold);
 
 			DataMessage * dat = new DataMessage(CDH_CPU_USAGE_SUCCESS, params);
 			ReturnMessage * retMsg = new ReturnMessage(dat, true);
