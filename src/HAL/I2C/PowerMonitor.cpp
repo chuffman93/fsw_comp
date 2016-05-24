@@ -5,7 +5,7 @@
  *
  */
 #include <fcntl.h>
-#include "PowerMonitor.h"
+#include "HAL/I2C/PowerMonitor.h"
 
 namespace Phoenix
 {

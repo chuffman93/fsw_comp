@@ -4,7 +4,7 @@
  * Robert Belter Summer 2016
  *
  */
-#include "HotSwaps.h"
+#include "HAL/I2C/HotSwaps.h"
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>

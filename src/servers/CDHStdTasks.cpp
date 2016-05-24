@@ -29,6 +29,7 @@
 
 using namespace std;
 using namespace Phoenix::Core;
+using namespace Phoenix::HAL;
 
 namespace Phoenix
 {
@@ -136,60 +137,48 @@ namespace Phoenix
 
 		ReturnMessage * CDHTempRead(void)
 		{
-			// read all of the sensor data
-			float * temp1 = new float[16];
-			float * temp2 = new float[16];
-			float * temp3 = new float[16];
-			float * temp4 = new float[16];
-			for(uint8 sensor = 0; sensor < 16; sensor++){
-				temp1[sensor] = ReadSensor(1,sensor);
-				temp2[sensor] = ReadSensor(2,sensor);
-				temp3[sensor] = ReadSensor(3,sensor);
-				temp4[sensor] = ReadSensor(4,sensor);
-			}
-
-			// Set parameters
-			// TODO: make sure this works w/in the variable type data class
-			VariableTypeData temp1Hold((uint8 *) temp1, 16);
-			VariableTypeData temp2Hold((uint8 *) temp2, 16);
-			VariableTypeData temp3Hold((uint8 *) temp3, 16);
-			VariableTypeData temp4Hold((uint8 *) temp4, 16);
+			// Setup
+			float temperatures[4][16];
 			list<VariableTypeData *> params;
-			params.push_back(&temp1Hold);
-			params.push_back(&temp2Hold);
-			params.push_back(&temp3Hold);
-			params.push_back(&temp4Hold);
+			VariableTypeData tempHold[4][16];
+
+			// Read and add to list
+			for(uint8 bus = 0; bus < 4; bus++){
+				for(uint8 sensor = 0; sensor < 16; sensor++){
+					temperatures[bus][sensor] = ReadSensor(bus,sensor);
+					tempHold[bus][sensor] = VariableTypeData(temperatures[bus][sensor]);
+					params.push_back(&tempHold[bus][sensor]);
+				}
+			}
 
 			// Send return
 			DataMessage dat(CDH_TEMP_READ_SUCCESS, params);
 			ReturnMessage * retMsg = new ReturnMessage(&dat, true);
-
-			// cleanup
-			delete temp1;
-			delete temp2;
-			delete temp3;
-			delete temp4;
 			return retMsg;
 		}
 
-		//TODO: Finish HotSwaps (meet with CDH)
-		ReturnMessage * CDHHotSwaps(void)
-		{
-
-			//Actual hot swap code goes here------------------------------
-			bool hotswaps;
-			hotswaps = false;
-			//---------------------------------------------------------
-
-			VariableTypeData hotswapHold(hotswaps);
-
-			list<VariableTypeData *> params;
-			params.push_back(&hotswapHold);
-
-			DataMessage dat(CDH_HOT_SWAPS_SUCCESS, params);
-			ReturnMessage * retMsg = new ReturnMessage(&dat, true);
-			return retMsg;
-		}
+//		ReturnMessage * CDHHotSwaps(void)
+//		{
+//			// Setup
+//			float voltages[16];
+//			float currents[16];
+//			list<VariableTypeData *> params;
+//			VariableTypeData voltageHold[16];
+//			VariableTypeData currentHold[16];
+//
+//			// Read and add to list
+//			for(uint8 i = 0; i < 16; i++){
+//				CDHServer::hotSwaps[i]->Status(&voltages[i],&currents[i]);
+//				voltageHold[i] = VariableTypeData(voltages[i]);
+//				currentHold[i] = VariableTypeData(currents[i]);
+//				params.push_back(&voltageHold[i]);
+//				params.push_back(&currentHold[i]);
+//			}
+//
+//			DataMessage dat(CDH_HOT_SWAPS_SUCCESS, params);
+//			ReturnMessage * retMsg = new ReturnMessage(&dat, true);
+//			return retMsg;
+//		}
 
 		// Helper Functions ---------------------------------------------------------------
 		bool StartSensor(int bus, int sensor)
@@ -229,7 +218,7 @@ namespace Phoenix
 			FILE * fp;
 			fp = fopen(read.c_str(), "r");
 
-			cout<<"Attempting to read sensor "<<sensor<<" on bus "<<bus<<"!"<<endl;
+			//cout<<"Attempting to read sensor "<<sensor<<" on bus "<<bus<<"!"<<endl;
 
 			bool isGood = false;
 			if(fp)
@@ -250,7 +239,7 @@ namespace Phoenix
 				// Get float value
 				sscanf(tempRead, "t=%d", &tempHold);
 				temperature = (float) tempHold / 1000.0;
-				cout<<"Current Temperature: "<<temperature<<endl;
+				//cout<<"Current Temperature: "<<temperature<<endl;
 
 				// Check validity
 				for(int i = 0; i < 28; i++){
@@ -276,9 +265,7 @@ namespace Phoenix
 					fclose(fp);
 					return -300;
 				}
-
-			}else
-			{
+			}else{
 				cout<<"Error opening file!"<<endl;
 				return -301;
 			}

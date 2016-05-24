@@ -18,7 +18,9 @@
 #include "servers/SubsystemServer.h"
 #include <sys/sysinfo.h>
 #include <sys/statvfs.h>
+#include "HAL/I2C/HotSwaps.h"
 
+using namespace Phoenix::HAL;
 
 namespace Phoenix
 {
@@ -67,6 +69,13 @@ namespace Phoenix
 			 */
 			bool IsFullyInitialized(void);
 
+			/*! \brief Sets up and initializes hot swaps
+			 *
+			 * 	Creates arrays for hot swaps and their information
+			 * 	Initializes each hot swap object
+			 */
+			void PrepHotSwaps(void);
+
 			CDHServer(std::string nameIn, LocationIDType idIn);
 			~CDHServer();
 			CDHServer & operator=(const CDHServer & source);
@@ -75,6 +84,10 @@ namespace Phoenix
 			Phoenix::Core::MessageHandlerRegistry reg;
 			Phoenix::Core::Arbitrator arby;
 
+			HotSwap_Address adresses[16]; //= {COM_3V3_ADDR,COM_VBAT_ADDR,COM_12V0_ADDR,ACS_3V3_ADDR,ACS_VBAT_ADDR,ACS_12V0_ADDR,PROP_3V3_ADDR,PROP_VBAT_ADDR,PROP_12V0_ADDR,PLD_3V3_ADDR,PLD_VBAT_ADDR,PLD_12V0_ADDR,GPS_3V3_ADDR,GPS_VBAT_ADDR,AUXCOM_3V3_ADDR,AUXCOM_VBAT_ADDR};
+			HotSwap_Fault faults[16]; //= {COM_3V3_FAULT,COM_VBAT_FAULT,COM_12V0_FAULT,ACS_3V3_FAULT,ACS_VBAT_FAULT,ACS_12V0_FAULT,PROP_3V3_FAULT,PROP_VBAT_FAULT,PROP_12V0_FAULT,PLD_3V3_FAULT,PLD_VBAT_FAULT,PLD_12V0_FAULT,GPS_3V3_FAULT,GPS_VBAT_FAULT,AUXCOM_3V3_FAULT,AUXCOM_VBAT_FAULT};
+			float resistors[16]; //= {0.01,0.01,0.015,0.01,0.01,0.015,0.01,0.01,0.015,0.01,0.01,0.015,0.01,0.01,0.01,0.01};
+			HotSwap * hotSwaps[16];
 		};
 	}
 }

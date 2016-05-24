@@ -54,6 +54,5 @@ ReturnMessage* CDHTempReadHandler::Handle(const FSWPacket & packet)
 
 ReturnMessage* CDHHotSwapsHandler::Handle(const FSWPacket & packet)
 {
-	cout<<"CPU Hot Swaps Handler(): Made it in"<<endl;
-	return (CDHHotSwaps());
+	//return (CDHHotSwaps());
 }

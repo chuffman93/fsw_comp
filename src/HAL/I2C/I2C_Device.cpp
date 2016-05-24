@@ -6,7 +6,7 @@
  */
 
 #include <fcntl.h>
-#include "I2C_Device.h"
+#include "HAL/I2C/I2C_Device.h"
 #include <stdio.h>
 #include <unistd.h>
 #include <linux/i2c-dev.h>

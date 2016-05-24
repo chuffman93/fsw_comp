@@ -5,14 +5,14 @@
  *
  */
 #include <stdint.h>
-#include "I2C_Device.h"
+#include "HAL/I2C/I2C_Device.h"
+
+#ifndef HOT_SWAPS_H_
+#define HOT_SWAPS_H_
 
 #define IOtoInt(port, val)  (port - 'A')*32 + val
 #define IOPort(io) (io/32) + 'A'
 #define IOPin(io) io%32
-
-#ifndef HOT_SWAPS_H_
-#define HOT_SWAPS_H_
 
 namespace Phoenix
 {

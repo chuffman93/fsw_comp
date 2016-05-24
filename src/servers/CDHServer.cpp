@@ -10,6 +10,9 @@
 #include "servers/CDHStdTasks.h"
 #include "servers/DispatchStdTasks.h"
 
+#include "HAL/I2C/HotSwaps.h"
+#include "core/StdTypes.h"
+
 #include "core/CommandMessage.h"
 #include "core/ReturnMessage.h"
 #include "core/Singleton.h"
@@ -23,6 +26,7 @@
 #include <sys/statvfs.h>
 
 using namespace Phoenix::Core;
+using namespace Phoenix::HAL;
 
 namespace Phoenix
 {
@@ -66,6 +70,11 @@ namespace Phoenix
 			cdhTempStartHandler = new CDHTempStartHandler();
 			cdhTempReadHandler = new CDHTempReadHandler();
 			cdhHotSwapsHandler = new CDHHotSwapsHandler();
+
+//			for(uint8 i = 0; i < 16; i++){
+//				*hotSwaps[i] = HotSwap(adresses[i],faults[i],resistors[i]);
+//				hotSwaps[i]->Init();
+//			}
 		}
 
 #ifdef TEST
@@ -118,6 +127,14 @@ namespace Phoenix
 			return success;
 		}
 
+		void CDHServer::PrepHotSwaps(){
+
+//			for(uint8 i = 0; i < 16; i++){
+//				*hotSwaps[i] = HotSwap(adresses[i],faults[i],resistors[i]);
+//				hotSwaps[i]->Init();
+//			}
+		}
+
 		void CDHServer::SubsystemLoop(void)
 		{
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
@@ -142,12 +159,10 @@ namespace Phoenix
 				//wdm->Kick();
 
 				// Start sensors for reading next round
-				/*
 				if((seconds % 10) == 0){
 					TSRet = CDHTempStart();
 					MessageProcess(SERVER_LOCATION_CDH, TSRet);
 				}
-				*/
 
 				// Get all CDH information
 				if(((seconds - 1) % 10) == 0){
@@ -156,7 +171,6 @@ namespace Phoenix
 					CPURet = CDHCPUUsage();
 					MessageProcess(SERVER_LOCATION_CDH, CPURet);
 
-					/*
 					// Memory usage
 					MemRet = CDHMemUsage();
 					MessageProcess(SERVER_LOCATION_CDH, MemRet);
@@ -166,9 +180,8 @@ namespace Phoenix
 					MessageProcess(SERVER_LOCATION_CDH, StrRet);
 
 					// Read Temp sensors
-					//TRRet = CDHTempRead();
-					//MessageProcess(SERVER_LOCATION_CDH, TRRet);
-					*/
+					TRRet = CDHTempRead();
+					MessageProcess(SERVER_LOCATION_CDH, TRRet);
 				}
 
 				// Delay
