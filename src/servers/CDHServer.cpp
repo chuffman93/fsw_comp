@@ -11,7 +11,7 @@
 #include "servers/DispatchStdTasks.h"
 
 #include "HAL/I2C/HotSwaps.h"
-#include "core/StdTypes.h"
+#include "HAL/I2C/PowerMonitor.h"
 
 #include "core/CommandMessage.h"
 #include "core/ReturnMessage.h"
@@ -70,11 +70,6 @@ namespace Phoenix
 			cdhTempStartHandler = new CDHTempStartHandler();
 			cdhTempReadHandler = new CDHTempReadHandler();
 			cdhHotSwapsHandler = new CDHHotSwapsHandler();
-
-//			for(uint8 i = 0; i < 16; i++){
-//				*hotSwaps[i] = HotSwap(adresses[i],faults[i],resistors[i]);
-//				hotSwaps[i]->Init();
-//			}
 		}
 
 #ifdef TEST
@@ -86,8 +81,6 @@ namespace Phoenix
 			delete cdhTempStartHandler;
 			delete cdhTempReadHandler;
 			delete cdhHotSwapsHandler;
-
-			// TODO: Add Temperature Bus, Hot swaps, storage, storage management, memory
 		}
 #endif
 
@@ -127,12 +120,15 @@ namespace Phoenix
 			return success;
 		}
 
-		void CDHServer::PrepHotSwaps(){
-
-//			for(uint8 i = 0; i < 16; i++){
-//				*hotSwaps[i] = HotSwap(adresses[i],faults[i],resistors[i]);
-//				hotSwaps[i]->Init();
-//			}
+		void CDHServer::PrepHSPM(){
+			for(uint8 i = 0; i < 16; i++){
+				hotSwaps[i] = new HotSwap(adresses[i],faults[i],resistors[i]);
+				//hotSwaps[i]->Init();
+			}
+			for(uint8 j = 0; j < 4; j++){
+				powerMonitors[j] = new PowerMonitor(PM_adresses[j]);
+				//powerMonitors[j]->Init(); //TODO: init with config struct for each
+			}
 		}
 
 		void CDHServer::SubsystemLoop(void)
@@ -142,11 +138,14 @@ namespace Phoenix
 
 			std::cout<<"CDHServer: Subsystem Loop Entered"<<std::endl;
 
+			//PrepHotSwaps();
+
 			ReturnMessage * TSRet;
 			ReturnMessage * TRRet;
 			ReturnMessage * CPURet;
 			ReturnMessage * MemRet;
 			ReturnMessage * StrRet;
+			ReturnMessage * HtswRet;
 
 			uint64_t LastWakeTime = 0;
 			uint8 seconds = 0;
@@ -182,6 +181,10 @@ namespace Phoenix
 					// Read Temp sensors
 					TRRet = CDHTempRead();
 					MessageProcess(SERVER_LOCATION_CDH, TRRet);
+
+					// Read Hot swaps
+//					HtswRet = CDHHotSwaps();
+//					MessageProcess(SERVER_LOCATION_CDH, HtswRet);
 				}
 
 				// Delay

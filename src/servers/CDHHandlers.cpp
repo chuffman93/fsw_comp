@@ -54,5 +54,5 @@ ReturnMessage* CDHTempReadHandler::Handle(const FSWPacket & packet)
 
 ReturnMessage* CDHHotSwapsHandler::Handle(const FSWPacket & packet)
 {
-	//return (CDHHotSwaps());
+	return (CDHHotSwaps());
 }

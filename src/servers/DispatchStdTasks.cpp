@@ -380,8 +380,6 @@ namespace Phoenix
 				// write to error log
 				printf("DispatchStdTasks: Failed to log message\n");
 			}
-
-			cout<<"here"<<endl;
 			//delete retMsg;
 		}
 	}

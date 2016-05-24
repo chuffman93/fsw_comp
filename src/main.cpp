@@ -542,6 +542,7 @@ void* taskRunCDH(void * params) {
 	{
 		cout<<"ERROR STARTING CDH HANDLERS"<<endl;
 	}
+	cdhServer->PrepHSPM();
 	cdhServer->SubsystemLoop();
 	pthread_exit(NULL);
 }

@@ -52,6 +52,5 @@ namespace Phoenix
 			read(fault_fd, &readVal, 1);
 			return !(readVal == 0);
 		}
-
 	}
 }

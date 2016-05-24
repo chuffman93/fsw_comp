@@ -157,28 +157,31 @@ namespace Phoenix
 			return retMsg;
 		}
 
-//		ReturnMessage * CDHHotSwaps(void)
-//		{
-//			// Setup
-//			float voltages[16];
-//			float currents[16];
-//			list<VariableTypeData *> params;
-//			VariableTypeData voltageHold[16];
-//			VariableTypeData currentHold[16];
-//
-//			// Read and add to list
-//			for(uint8 i = 0; i < 16; i++){
-//				CDHServer::hotSwaps[i]->Status(&voltages[i],&currents[i]);
-//				voltageHold[i] = VariableTypeData(voltages[i]);
-//				currentHold[i] = VariableTypeData(currents[i]);
-//				params.push_back(&voltageHold[i]);
-//				params.push_back(&currentHold[i]);
-//			}
-//
-//			DataMessage dat(CDH_HOT_SWAPS_SUCCESS, params);
-//			ReturnMessage * retMsg = new ReturnMessage(&dat, true);
-//			return retMsg;
-//		}
+		ReturnMessage * CDHHotSwaps(void)
+		{
+			printf("hot swaps entered");
+
+			// Setup
+			Phoenix::Servers::CDHServer * cdhServer = dynamic_cast<Phoenix::Servers::CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
+			float voltages[16];
+			float currents[16];
+			list<VariableTypeData *> params;
+			VariableTypeData voltageHold[16];
+			VariableTypeData currentHold[16];
+
+			// Read and add to list
+			for(uint8 i = 0; i < 16; i++){
+				cdhServer->hotSwaps[i]->Status(&voltages[i],&currents[i]);
+				voltageHold[i] = VariableTypeData(voltages[i]);
+				currentHold[i] = VariableTypeData(currents[i]);
+				params.push_back(&voltageHold[i]);
+				params.push_back(&currentHold[i]);
+			}
+
+			DataMessage dat(CDH_HOT_SWAPS_SUCCESS, params);
+			ReturnMessage * retMsg = new ReturnMessage(&dat, true);
+			return retMsg;
+		}
 
 		// Helper Functions ---------------------------------------------------------------
 		bool StartSensor(int bus, int sensor)
