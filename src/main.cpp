@@ -170,6 +170,8 @@
 #include "core/ErrorMode.h"
 #include "core/Dispatcher.h"
 
+#include "util/Logger.h"
+
 //#include "demos/BackplaneRev2CDRDemo.h"
 
 using namespace std;
@@ -577,6 +579,9 @@ int main(int argc, char * argv[])
 	Factory::GetInstance(FILE_HANDLER_SINGLETON);
 	Factory::GetInstance(ERROR_QUEUE_SINGLETON);
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log((char *) "Logger Grabbed", LEVEL_INFO);
 
 	uint8 input = 1;
 	//GetPin(EGSE_PRESENT, PIN_TYPE_GPIO, &input);

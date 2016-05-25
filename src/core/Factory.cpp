@@ -36,6 +36,7 @@
 
 #include "../HAL/Ethernet_Server.h"
 #include "util/FileHandler.h"
+#include "util/Logger.h"
 
 using namespace Phoenix::Servers;
 
@@ -81,6 +82,10 @@ namespace Phoenix
 					case FILE_HANDLER_SINGLETON:
 						FileHandler::Initialize( );
 						instance = new FileHandler( );
+						break;
+					case LOGGER_SINGLETON:
+						Logger::Initialize( );
+						instance = new Logger( );
 						break;
 					case ACS_SERVER_SINGLETON:
 						ACSServer::Initialize( );
@@ -216,6 +221,9 @@ namespace Phoenix
 					break;
 				case FILE_HANDLER_SINGLETON:
 					//FileHandler::Destroy( );
+					break;
+				case LOGGER_SINGLETON:
+					//Logger::Destroy( );
 					break;
 				case ACS_SERVER_SINGLETON:
 					ACSServer::Destroy( );
