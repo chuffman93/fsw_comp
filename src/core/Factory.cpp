@@ -7,7 +7,6 @@
 
 #include "servers/ACSServer.h"
 #include "servers/CMDServer.h"
-#include "servers/CDHServer.h"
 #include "servers/COMServer.h"
 #include "servers/EPSServer.h"
 #include "servers/ErrorOctopus.h"
@@ -37,6 +36,7 @@
 
 #include "../HAL/Ethernet_Server.h"
 #include "util/FileHandler.h"
+#include "util/Logger.h"
 
 using namespace Phoenix::Servers;
 
@@ -83,6 +83,10 @@ namespace Phoenix
 						FileHandler::Initialize( );
 						instance = new FileHandler( );
 						break;
+					case LOGGER_SINGLETON:
+						Logger::Initialize( );
+						instance = new Logger( );
+						break;
 					case ACS_SERVER_SINGLETON:
 						ACSServer::Initialize( );
 						instance = new ACSServer("ACS Server", SERVER_LOCATION_ACS);
@@ -118,10 +122,6 @@ namespace Phoenix
 					case THM_SERVER_SINGLETON:
 						THMServer::Initialize( );
 						instance = new THMServer("THM Server", SERVER_LOCATION_THM);
-						break;
-					case CDH_SERVER_SINGLETON:
-						CDHServer::Initialize( );
-						instance = new CDHServer("CDH Server", SERVER_LOCATION_CDH);
 						break;
 					case ETH_HALSERVER_SINGLETON:
 						instance = new ETH_HALServer();
@@ -222,6 +222,9 @@ namespace Phoenix
 				case FILE_HANDLER_SINGLETON:
 					//FileHandler::Destroy( );
 					break;
+				case LOGGER_SINGLETON:
+					//Logger::Destroy( );
+					break;
 				case ACS_SERVER_SINGLETON:
 					ACSServer::Destroy( );
 					break;
@@ -248,9 +251,6 @@ namespace Phoenix
  					break;
 				case THM_SERVER_SINGLETON:
 					THMServer::Destroy( );
-					break;
-				case CDH_SERVER_SINGLETON:
-					CDHServer::Destroy( );
 					break;
 #ifdef NOT
 				case RF_INTERFACE_SINGLETON:

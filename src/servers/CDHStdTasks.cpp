@@ -35,7 +35,8 @@ namespace Phoenix
 {
 	namespace Servers
 	{
-		// For Handlers -------------------------------------------------------------------
+		//------------------------------------------- Message Handlers -------------------------------------------
+
 		ReturnMessage * CDHCPUUsage(void)
 		{
 
@@ -159,8 +160,6 @@ namespace Phoenix
 
 		ReturnMessage * CDHHotSwaps(void)
 		{
-			printf("hot swaps entered\n");
-
 			// Setup
 			Phoenix::Servers::CDHServer * cdhServer = dynamic_cast<Phoenix::Servers::CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
 			float voltages[16];
