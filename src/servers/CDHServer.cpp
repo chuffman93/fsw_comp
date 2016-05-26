@@ -24,6 +24,7 @@
 #include <iostream>
 #include <sys/sysinfo.h>
 #include <sys/statvfs.h>
+#include "util/Logger.h"
 
 using namespace Phoenix::Core;
 using namespace Phoenix::HAL;
@@ -134,11 +135,10 @@ namespace Phoenix
 		void CDHServer::SubsystemLoop(void)
 		{
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
-			std::cout<<"CDHServer: Subsystem Loop Entered"<<std::endl;
-
-			//PrepHotSwaps();
+			//logger->Log("CDHServer Subsystem loop entered", LOGGER_LEVEL_INFO);
 
 			ReturnMessage * TSRet;
 			ReturnMessage * TRRet;
@@ -165,10 +165,11 @@ namespace Phoenix
 
 				// Get all CDH information
 				if(((seconds - 1) % 10) == 0){
+					//logger->Log("CDHServer: Gathering information", LOGGER_LEVEL_DEBUG);
 
 //					// CPU usage
-//					CPURet = CDHCPUUsage();
-//					MessageProcess(SERVER_LOCATION_CDH, CPURet);
+					CPURet = CDHCPUUsage();
+					MessageProcess(SERVER_LOCATION_CDH, CPURet);
 //
 //					// Memory usage
 //					MemRet = CDHMemUsage();
@@ -183,8 +184,8 @@ namespace Phoenix
 //					MessageProcess(SERVER_LOCATION_CDH, TRRet);
 
 					// Read Hot swaps
-					HtswRet = CDHHotSwaps();
-					MessageProcess(SERVER_LOCATION_CDH, HtswRet);
+//					HtswRet = CDHHotSwaps();
+//					MessageProcess(SERVER_LOCATION_CDH, HtswRet);
 				}
 
 				// Delay

@@ -16,6 +16,7 @@
 #include "core/Dispatcher.h"
 #include "util/itoa.h"
 #include "util/FileHandler.h"
+#include "util/Logger.h"
 #include "core/Singleton.h"
 
 #include <sys/sysinfo.h>
@@ -39,15 +40,17 @@ namespace Phoenix
 
 		ReturnMessage * CDHCPUUsage(void)
 		{
-
+			//Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 			if(sysinfo(&cdhServer->si) != 0)
 			{
-				cout<<"CDHStdTasks: CDHCPUUsage(): Error"<<endl;
+				//logger->Log("CDHStdTasks: CDHCPUUsage(): Error", LOGGER_LEVEL_ERROR);
 				ErrorMessage err(CDH_CPU_USAGE_FAILURE);
 				ReturnMessage * ret = new ReturnMessage(&err, false);
 				return ret;
 			}
+
+			//logger->Log("Checking loads", LOGGER_LEVEL_DEBUG);
 
 			VariableTypeData oneMinHold(cdhServer->si.loads[0]);
 			VariableTypeData fiveMinHold(cdhServer->si.loads[1]);

@@ -171,6 +171,8 @@
 #include "core/ErrorMode.h"
 #include "core/Dispatcher.h"
 
+#include "util/Logger.h"
+
 //#include "demos/BackplaneRev2CDRDemo.h"
 
 using namespace std;
@@ -517,30 +519,27 @@ void* taskRunCMD(void * params)
 }
 
 void* taskRunCDH(void * params) {
-	cout<<"In taskRunCDH()"<<endl;
 
 	CDHServer * cdhServer = dynamic_cast<CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
-	cout<<"grabbed CDHServer"<<endl;
-
 	ModeManager * modeManager = dynamic_cast<ModeManager *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
-	cout<<"grabbed ModeManager"<<endl;
+	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
+	logger->Log("taskRunCDH", LOGGER_LEVEL_INFO);
+
 	modeManager->Attach(*cdhServer);
-	cout<<"attached mode"<<endl;
 
 	for (int i = 0; i < 0; i++) {
 		//wdm->Kick();
-		cout<<"in loop"<<endl;
 		usleep(1000000);
 	}
 
-	printf("\r\nKicking off the CDH server\r\n");
+	logger->Log("\r\nKicking off the CDH server\r\n", LOGGER_LEVEL_INFO);
 
-	bool success = cdhServer->RegisterHandlers();
-	if(!success)
+	bool handlers = cdhServer->RegisterHandlers();
+	if(!handlers)
 	{
-		cout<<"ERROR STARTING CDH HANDLERS"<<endl;
+		logger->Log("Error starting CDH Handlers!", LOGGER_LEVEL_FATAL);
 	}
 	cdhServer->PrepHSPM();
 	cdhServer->SubsystemLoop();
@@ -602,7 +601,7 @@ int main(int argc, char * argv[])
 	//watchdog manager must be called first
 	//Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON);
 	Dispatcher * disp = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	Factory::GetInstance(FILE_HANDLER_SINGLETON);
 	Factory::GetInstance(ERROR_QUEUE_SINGLETON);
@@ -614,15 +613,15 @@ int main(int argc, char * argv[])
 	{
 		//EGSE is plugged in, go into access mode
 		modeManager->SetMode(MODE_ACCESS, LOCATION_ID_INVALID);
-		printf("Access Mode Entered!");
+		logger->Log("Access Mode Entered!", LOGGER_LEVEL_INFO);
 	}
 	else
 	{
 		//Flight go to startup mode
 		modeManager->SetMode(MODE_STARTUP, LOCATION_ID_INVALID);
-		printf("Startup Mode Entered!");
+		logger->Log("Startup Mode Entered!", LOGGER_LEVEL_INFO);
 	}
-	printf("Flight Software Initialization Complete!\n");
+	logger->Log("Flight Software Initialization Complete! Now starting servers.", LOGGER_LEVEL_INFO);
 
 	bool threadCreated;
 
@@ -732,14 +731,12 @@ int main(int argc, char * argv[])
 	threadCreated = pthread_create(&CDHThread ,NULL,&taskRunCDH, NULL );
 	if(!threadCreated)
 	{
-		printf("CDH Server Thread Creation Success\n");
+		logger->Log("CDH Server Thread Creation Success", LOGGER_LEVEL_INFO);
 	}
 	else
 	{
-		printf("CDH Server Thread Creation Failed\n");
+		logger->Log("CDH Server Thread Creation Failed\n", LOGGER_LEVEL_FATAL);
 	}
-
-	cout<<"NOW HERE"<<endl;
 
 	//vTaskStartScheduler();
 	//portDBG_TRACE("FreeRTOS returned.");
