@@ -31,10 +31,10 @@ class Logger : public Singleton
 	friend class Factory;
 public:
 	void Log(char * message, Logger_Level level_in);
-protected:
-	Logger(void);
+	bool Test(bool in);
 private:
-	virtual ~Logger(void);
+	Logger(void);
+	~Logger(void);
 	static void Initialize(void);
 //#ifdef TEST
 //			static void Destroy(void);
