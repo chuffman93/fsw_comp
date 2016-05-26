@@ -38,21 +38,13 @@ namespace Phoenix
 
 		void HotSwap::Status(float *Voltage, float *Current){
 			uint8_t buf[3];
-			bool readRet = I2C_read(buf, 3);
-			if(readRet){
-				printf("Received data from I2C bus\n");
-				printf("Buffer: %x, %x, %x\n", buf[0], buf[1], buf[2]);
+			I2C_read(buf, 3);
 
-				uint16_t voltRaw = (buf[0]<<4) | (0x0F & (buf[2]>>4));
-				uint16_t currRaw = (buf[1]<<4) | (0x0F & buf[2]);
+			uint16_t voltRaw = (buf[0]<<4) | (0x0F & (buf[2]>>4));
+			uint16_t currRaw = (buf[1]<<4) | (0x0F & buf[2]);
 
-				*Voltage = 23.65 * ((float)voltRaw/4096.0); //Volts
-				*Current = 0.10584 * ((float)currRaw/4096.0) / SenseResistorValue; //Current
-			}else{
-				printf("Read from I2C bus failed\n");
-				*Voltage = -1000;
-				*Current = -1000;
-			}
+			*Voltage = 23.65 * ((float)voltRaw/4096); //Volts
+			*Current = 0.10584 * ((float)currRaw/4096) / SenseResistorValue; //Current
 		}
 
 		bool HotSwap::Fault(){

@@ -163,6 +163,8 @@ namespace Phoenix
 
 		ReturnMessage * CDHHotSwaps(void)
 		{
+			printf("hot swaps entered");
+
 			// Setup
 			Phoenix::Servers::CDHServer * cdhServer = dynamic_cast<Phoenix::Servers::CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
 			float voltages[16];
@@ -172,12 +174,8 @@ namespace Phoenix
 			VariableTypeData currentHold[16];
 
 			// Read and add to list
-			for(uint8 i = 0; i < 1; i++){
+			for(uint8 i = 0; i < 16; i++){
 				cdhServer->hotSwaps[i]->Status(&voltages[i],&currents[i]);
-				printf("Voltage [%d]: %f\n",i,voltages[i]);
-				printf("Current [%d]: %f\n",i,currents[i]);
-				//cout<<"Voltage ["<<i<<"]: "<<voltages[i]<<endl;
-				//cout<<"Current ["<<i<<"]: "<<currents[i]<<endl;
 				voltageHold[i] = VariableTypeData(voltages[i]);
 				currentHold[i] = VariableTypeData(currents[i]);
 				params.push_back(&voltageHold[i]);

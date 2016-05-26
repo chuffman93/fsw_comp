@@ -158,14 +158,15 @@ namespace Phoenix
 				//wdm->Kick();
 
 				// Start sensors for reading next round
-//				if((seconds % 10) == 0){
-//					TSRet = CDHTempStart();
-//					MessageProcess(SERVER_LOCATION_CDH, TSRet);
-//				}
+				if((seconds % 10) == 0){
+					TSRet = CDHTempStart();
+					MessageProcess(SERVER_LOCATION_CDH, TSRet);
+				}
 
 				// Get all CDH information
 				if(((seconds - 1) % 10) == 0){
 					//logger->Log("CDHServer: Gathering information", LOGGER_LEVEL_DEBUG);
+
 
 //					// CPU usage
 					CPURet = CDHCPUUsage();
@@ -182,6 +183,7 @@ namespace Phoenix
 //					// Read Temp sensors
 //					TRRet = CDHTempRead();
 //					MessageProcess(SERVER_LOCATION_CDH, TRRet);
+
 
 					// Read Hot swaps
 //					HtswRet = CDHHotSwaps();
