@@ -158,33 +158,33 @@ namespace Phoenix
 				//wdm->Kick();
 
 				// Start sensors for reading next round
-				if((seconds % 10) == 0){
-					TSRet = CDHTempStart();
-					MessageProcess(SERVER_LOCATION_CDH, TSRet);
-				}
+//				if((seconds % 10) == 0){
+//					TSRet = CDHTempStart();
+//					MessageProcess(SERVER_LOCATION_CDH, TSRet);
+//				}
 
 				// Get all CDH information
 				if(((seconds - 1) % 10) == 0){
 
-					// CPU usage
-					CPURet = CDHCPUUsage();
-					MessageProcess(SERVER_LOCATION_CDH, CPURet);
-
-					// Memory usage
-					MemRet = CDHMemUsage();
-					MessageProcess(SERVER_LOCATION_CDH, MemRet);
-
-					// Storage in use
-					StrRet = CDHStorage();
-					MessageProcess(SERVER_LOCATION_CDH, StrRet);
-
-					// Read Temp sensors
-					TRRet = CDHTempRead();
-					MessageProcess(SERVER_LOCATION_CDH, TRRet);
+//					// CPU usage
+//					CPURet = CDHCPUUsage();
+//					MessageProcess(SERVER_LOCATION_CDH, CPURet);
+//
+//					// Memory usage
+//					MemRet = CDHMemUsage();
+//					MessageProcess(SERVER_LOCATION_CDH, MemRet);
+//
+//					// Storage in use
+//					StrRet = CDHStorage();
+//					MessageProcess(SERVER_LOCATION_CDH, StrRet);
+//
+//					// Read Temp sensors
+//					TRRet = CDHTempRead();
+//					MessageProcess(SERVER_LOCATION_CDH, TRRet);
 
 					// Read Hot swaps
-//					HtswRet = CDHHotSwaps();
-//					MessageProcess(SERVER_LOCATION_CDH, HtswRet);
+					HtswRet = CDHHotSwaps();
+					MessageProcess(SERVER_LOCATION_CDH, HtswRet);
 				}
 
 				// Delay
