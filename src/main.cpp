@@ -354,11 +354,17 @@ void * taskRunEPS(void * params)
 
 	EPSServer * epsServer = dynamic_cast<EPSServer *> (Factory::GetInstance(EPS_SERVER_SINGLETON));
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
 	modeManager->Attach(*epsServer);
 
-	epsServer->RegisterHandlers();
+	logger->Log("\r\nKicking off the EPS server\r\n", LOGGER_LEVEL_INFO);
+
+	bool handlers = epsServer->RegisterHandlers();
+	if(!handlers){
+		logger->Log("EPS Handlers registration failed!", LOGGER_LEVEL_ERROR);
+	}
 	epsServer->SubsystemLoop();
 	pthread_exit(NULL);
 
@@ -368,6 +374,7 @@ void * taskRunACS(void * params)
 {
 	ACSServer * acsServer = dynamic_cast<ACSServer *> (Factory::GetInstance(ACS_SERVER_SINGLETON));
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
 	modeManager->Attach(*acsServer);
@@ -378,7 +385,12 @@ void * taskRunACS(void * params)
 		usleep(1000000);
 	}
 	
-	acsServer->RegisterHandlers();
+	logger->Log("\r\nKicking off the ACS server\r\n", LOGGER_LEVEL_INFO);
+
+	bool handlers = acsServer->RegisterHandlers();
+	if(!handlers){
+		logger->Log("ACS Handlers registration failed!", LOGGER_LEVEL_ERROR);
+	}
 	acsServer->SubsystemLoop();
 	pthread_exit(NULL);
 
@@ -388,6 +400,7 @@ void * taskRunPLD(void * params)
 {
 	PLDServer * pldServer = dynamic_cast<PLDServer *> (Factory::GetInstance(PLD_SERVER_SINGLETON));
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 	
 	modeManager->Attach(*pldServer);
@@ -398,7 +411,12 @@ void * taskRunPLD(void * params)
 //		usleep(1000000);
 //	}
 
-	pldServer->RegisterHandlers();
+	logger->Log("\r\nKicking off the PLD server\r\n", LOGGER_LEVEL_INFO);
+
+	bool handlers = pldServer->RegisterHandlers();
+	if(!handlers){
+		logger->Log("PLD Handlers registration failed!", LOGGER_LEVEL_ERROR);
+	}
 	pldServer->SubsystemLoop();
 	pthread_exit(NULL);
 }
@@ -407,6 +425,7 @@ void * taskRunCOM(void * params)
 {
 	COMServer * comServer = dynamic_cast<COMServer *> (Factory::GetInstance(COM_SERVER_SINGLETON));
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 	
 	modeManager->Attach(*comServer);
@@ -417,7 +436,12 @@ void * taskRunCOM(void * params)
 		usleep(1000000);
 	}
 	
-	comServer->RegisterHandlers();
+	logger->Log("\r\nKicking off the COM server\r\n", LOGGER_LEVEL_INFO);
+
+	bool handlers = comServer->RegisterHandlers();
+	if(!handlers){
+		logger->Log("COM Handlers registration failed!", LOGGER_LEVEL_ERROR);
+	}
 	comServer->SubsystemLoop();
 	pthread_exit(NULL);
 }
@@ -426,6 +450,7 @@ void * taskRunGPS(void * params)
 {
 	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 	
 	//GPSInit();
@@ -445,7 +470,12 @@ void * taskRunGPS(void * params)
 		usleep(1000000);
 	}
 
-	gpsServer->RegisterHandlers();
+	logger->Log("\r\nKicking off the GPS server\r\n", LOGGER_LEVEL_INFO);
+
+	bool handlers = gpsServer->RegisterHandlers();
+	if(!handlers){
+		logger->Log("GPS Handlers registration failed!", LOGGER_LEVEL_ERROR);
+	}
 	gpsServer->SubsystemLoop();
 	pthread_exit(NULL);
 }
@@ -454,12 +484,18 @@ void * taskRunTHM(void * params)
 {
 	THMServer * thmServer = dynamic_cast<THMServer *> (Factory::GetInstance(THM_SERVER_SINGLETON));
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 	
 	modeManager->Attach(*thmServer);
 	//wdm->Kick();
 
-	thmServer->RegisterHandlers();
+	logger->Log("\r\nKicking off the THM server\r\n", LOGGER_LEVEL_INFO);
+
+	bool handlers = thmServer->RegisterHandlers();
+	if(!handlers){
+		logger->Log("THM Handlers registration failed!", LOGGER_LEVEL_ERROR);
+	}
 	thmServer->SubsystemLoop();
 	pthread_exit(NULL);
 }
@@ -468,12 +504,18 @@ void * taskRunERR(void * params)
 {
 	ErrorOctopus * errServer = dynamic_cast<ErrorOctopus *> (Factory::GetInstance(ERR_SERVER_SINGLETON));
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 	
 	modeManager->Attach(*errServer);
 	//wdm->Kick();
 
-	errServer->RegisterHandlers();
+	logger->Log("\r\nKicking off the ERR server\r\n", LOGGER_LEVEL_INFO);
+
+	bool handlers = errServer->RegisterHandlers();
+	if(!handlers){
+		logger->Log("ERR Handlers registration failed!", LOGGER_LEVEL_ERROR);
+	}
 	errServer->SubsystemLoop();
 	pthread_exit(NULL);
 }
@@ -482,6 +524,7 @@ void * taskRunSCH(void * params)
 {
 	SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 	
 	modeManager->Attach(*schServer);
@@ -492,7 +535,12 @@ void * taskRunSCH(void * params)
 		usleep(1000000);
 	}
 	
-	schServer->RegisterHandlers();
+	logger->Log("\r\nKicking off the SCH server\r\n", LOGGER_LEVEL_INFO);
+
+	bool handlers = schServer->RegisterHandlers();
+	if(!handlers){
+		logger->Log("SCH Handlers registration failed!", LOGGER_LEVEL_ERROR);
+	}
 	schServer->SubsystemLoop();
 	pthread_exit(NULL);
 }
@@ -501,6 +549,7 @@ void* taskRunCMD(void * params)
 {
 	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 	
 	modeManager->Attach(*cmdServer);
@@ -511,7 +560,7 @@ void* taskRunCMD(void * params)
 		usleep(1000000);
 	}
 
-	printf("\r\nKicking off the CMD server\r\n");
+	logger->Log("\r\nKicking off the CMD server\r\n", LOGGER_LEVEL_INFO);
 
 	cmdServer->SubsystemLoop();
 	pthread_exit(NULL);
@@ -521,6 +570,7 @@ void* taskRunCMD(void * params)
 
 void* StartETH_HAL(void * params)
 {
+	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 	ETH_HALServer * cmd_Server = dynamic_cast<ETH_HALServer *> (Factory::GetInstance(ETH_HALSERVER_SINGLETON));
 
 	for(int i = 0; i < 10; i++)
@@ -528,7 +578,9 @@ void* StartETH_HAL(void * params)
 		//wdm->Kick();
 		usleep(100000);
 	}
-	printf("\r\nKicking off the Ethernet HAL server\r\n");
+
+	logger->Log("\r\nKicking off the ETH_HAL server\r\n", LOGGER_LEVEL_INFO);
+
 	cmd_Server->ETH_HALServerLoop();
 	pthread_exit(NULL);
 }
@@ -574,14 +626,11 @@ int main(int argc, char * argv[])
 	//watchdog manager must be called first
 	//Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON);
 	Dispatcher * disp = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-
+	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 
 	Factory::GetInstance(FILE_HANDLER_SINGLETON);
 	Factory::GetInstance(ERROR_QUEUE_SINGLETON);
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log((char *) "Logger Grabbed", LEVEL_INFO);
 
 	uint8 input = 1;
 	//GetPin(EGSE_PRESENT, PIN_TYPE_GPIO, &input);
@@ -597,107 +646,99 @@ int main(int argc, char * argv[])
 		modeManager->SetMode(MODE_STARTUP, LOCATION_ID_INVALID);
 
 	}
-	printf("Flight Software Initialization Complete!\n");
+
+	logger->Log("Flight software initialization complete! Starting servers.", LOGGER_LEVEL_FATAL);
 
 	bool threadCreated;
 
+	// ------------------------------------- ACS Thread -------------------------------------
 	pthread_t ACSThread;
 	threadCreated = pthread_create(&ACSThread, NULL, &taskRunACS, NULL);
-#ifdef DEBUG
 	if(!threadCreated)
 	{
-		printf("ACS Server Thread Creation Success\n");
+		logger->Log("ACS Server Thread Creation Success", LOGGER_LEVEL_INFO);
 	}
 	else
 	{
-		printf("ACS Server Thread Creation Failed\n");
+		logger->Log("ACS Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
 	}
-#endif //DEBUG
 
-/*
+	// ------------------------------------- EPS Thread -------------------------------------
 	pthread_t EPSThread;
 	threadCreated = pthread_create(&EPSThread, NULL, &taskRunEPS, NULL);
 
-//#ifdef DEBUG
  	if(!threadCreated)
 	{
-		printf("EPS Server Thread Creation Success\n");
+ 		logger->Log("EPS Server Thread Creation Success", LOGGER_LEVEL_INFO);
 	}
 	else
 	{
-		printf("EPS Server Thread Creation Failed\n");
+		logger->Log("EPS Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
 	}
-//#endif //DEBUG
-*/
-/*
+
+	// ------------------------------------- PLD Thread -------------------------------------
 	pthread_t PLDThread;
-	//threadCreated = pthread_create(&PLDThread, NULL, &taskRunPLD, NULL);
-#ifdef DEBUG
+	threadCreated = pthread_create(&PLDThread, NULL, &taskRunPLD, NULL);
 	if(!threadCreated)
 	{
-		printf("PLD Server Thread Creation Success\n");
+		logger->Log("PLD Server Thread Creation Success", LOGGER_LEVEL_INFO);
 	}
 	else
 	{
-		printf("PLD Server Thread Creation Failed\n");
+		logger->Log("PLD Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
 	}
-#endif //DEBUG
 
-*/
-/*
+
+	// ------------------------------------- ERR Thread -------------------------------------
 	//CREATE_TASK(taskRunERR, (const signed char* const)"ERR task", 2000, NULL, 0, NULL);
 	pthread_t ERRThread;
 	threadCreated = pthread_create(&ERRThread, NULL, &taskRunERR, NULL);
-//#ifdef DEBUG
 	if(!threadCreated)
 	{
-		printf("ERR Server Thread Creation Success\n");
+		logger->Log("ERR Server Thread Creation Success", LOGGER_LEVEL_INFO);
 	}
 	else
 	{
-		printf("ERR Server Thread Creation Failed\n");
+		logger->Log("ERR Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
 	}
-//#endif //DEBUG
-*/
-/*
+
+
+	// ------------------------------------- THM Thread -------------------------------------
 	pthread_t THMThread;
 	threadCreated = pthread_create(&THMThread ,NULL,&taskRunTHM, NULL );
-//#ifdef DEBUG
 	if(!threadCreated)
 	{
-		printf("THM Server Thread Creation Success\n");
+		logger->Log("THM Server Thread Creation Success", LOGGER_LEVEL_INFO);
 	}
 	else
 	{
-		printf("THM Server Thread Creation Failed\n");
+		logger->Log("THM Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
 	}
-*/
 
+	// ------------------------------------- CMD Thread -------------------------------------
 	pthread_t CMDThread;
 	threadCreated = pthread_create(&CMDThread ,NULL,&taskRunCMD, NULL );
-//#ifdef DEBUG
 	if(!threadCreated)
 	{
-		printf("CMD Server Thread Creation Success\n");
+		logger->Log("CMD Server Thread Creation Success", LOGGER_LEVEL_INFO);
 	}
 	else
 	{
-		printf("CMD Server Thread Creation Failed\n");
+		logger->Log("CMD Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
 	}
 
+	// ------------------------------------- ETH Thread -------------------------------------
 	pthread_t ETHThread;
 	threadCreated = pthread_create(&ETHThread ,NULL,&StartETH_HAL, NULL );
-//#ifdef DEBUG
 	if(!threadCreated)
 	{
-		printf("Ethernet HALServer Thread Creation Success\n");
+		logger->Log("Ethernet HALServer Thread Creation Success", LOGGER_LEVEL_INFO);
 	}
 	else
 	{
-		printf("Ethernet HALServer Thread Creation Failed\n");
+		logger->Log("Ethernet HALServer Thread Creation Failed!", LOGGER_LEVEL_FATAL);
 	}
 
-//#endif //DEBUG
 
 	//CREATE_TASK(taskRunSCH, (const signed char* const)"SCH task", 5000, NULL, 0, NULL);
 	//CREATE_TASK(taskRunCMD, (const signed char* const)"CMD task", 5000, NULL, 0, NULL);

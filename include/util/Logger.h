@@ -1,45 +1,47 @@
 /*
- * Logger.h
+ * 	Logger.h
  *
- *  Created on: May 24, 2016
- *      Author: Alex St. Clair
+ * 	Created on: May 26, 2016
+ * 	    Author: Alex St. Clair
  */
 
-#ifndef LOGGER_H_
-#define LOGGER_H_
+#ifndef _LOGGER_H
+#define _LOGGER_H
 
 #include "core/StdTypes.h"
 #include "core/Singleton.h"
+#include "core/Factory.h"
 
-using namespace Phoenix::Core;
-
-typedef enum{
-	LEVEL_MIN = 1,
-	LEVEL_DEBUG = LEVEL_MIN,
-	LEVEL_INFO,
-	LEVEL_WARNING,
-	LEVEL_ERROR,
-	LEVEL_CRITICAL,
-}Logger_Level;
-
-class Logger : public Singleton
-{
-	/*! \brief Declare Factory a friend class
-	*
-	*	This allows factory to call Logger's private constructor
-	*/
-	friend class Factory;
-public:
-	void Log(char * message, Logger_Level level_in);
-	bool Test(bool in);
-private:
-	Logger(void);
-	~Logger(void);
-	static void Initialize(void);
-//#ifdef TEST
-//			static void Destroy(void);
-//#endif
-	bool IsFullyInitialized(void);
+class Logger : public Phoenix::Core::Singleton{
+	 /*! \brief Declare Factory a friend class
+	 *
+	 *      This allows factory to call FileHandler's private constructor
+	 */
+	friend class Phoenix::Core::Factory;
+	public:
+		const static LoggerLevelType threshold;
+		void Log(char * message, LoggerLevelType level_in);
+	private:
+		static void Initialize(void);
+		bool IsFullyInitialized(void);
+		Logger(void);
+		~Logger(void);
 };
 
-#endif /* LOGGER_H_ */
+#endif
+
+// --------------------- Below is working class -------------------------------
+
+//#ifndef _LOGGER_H
+//#define _LOGGER_H
+//
+//#include "core/StdTypes.h"
+//
+//class Logger{
+//	public:
+//		Logger(void);
+//		const static LoggerLevelType threshold;
+//		void Log(char * message, LoggerLevelType level_in);
+//};
+//
+//#endif
