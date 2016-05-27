@@ -31,6 +31,11 @@ Logger::~Logger(void){
 	//Left intentionally blank
 }
 
+
+// TODO: change to string and use c_str()
+// Overload method?
+// Timestamp
+// Thread ID
 void Logger::Log(char * message, LoggerLevelType level_in){
 
 	if(level_in >= threshold){

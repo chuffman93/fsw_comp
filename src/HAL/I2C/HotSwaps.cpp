@@ -5,10 +5,14 @@
  *
  */
 #include "HAL/I2C/HotSwaps.h"
+#include "util/Logger.h"
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+
+using namespace Phoenix::Core;
+Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 
 namespace Phoenix
 {
@@ -22,6 +26,7 @@ namespace Phoenix
 
 		void HotSwap::Init(){
 			//Initialize the fault line GPIO
+			logger->Log("HotSwaps: Initializing", LOGGER_LEVEL_DEBUG);
 			char cmdString[100];
 			sprintf(cmdString, "echo \"%d\" > /sys/class/gpio/export", faultLine);
 			system(cmdString);
@@ -38,16 +43,27 @@ namespace Phoenix
 
 		void HotSwap::Status(float *Voltage, float *Current){
 			uint8_t buf[3];
-			I2C_read(buf, 3);
+			bool read = I2C_read(buf, 3);
+			if(read){
+				char log[20];
+				sprintf(log,"Hot Swap Buffer: %x %x %x",buf[0],buf[1],buf[2]);
+				logger->Log(log,LOGGER_LEVEL_DEBUG);
 
-			uint16_t voltRaw = (buf[0]<<4) | (0x0F & (buf[2]>>4));
-			uint16_t currRaw = (buf[1]<<4) | (0x0F & buf[2]);
+				uint16_t voltRaw = (buf[0]<<4) | (0x0F & (buf[2]>>4));
+				uint16_t currRaw = (buf[1]<<4) | (0x0F & buf[2]);
 
-			*Voltage = 23.65 * ((float)voltRaw/4096); //Volts
-			*Current = 0.10584 * ((float)currRaw/4096) / SenseResistorValue; //Current
+				*Voltage = 23.65 * ((float)voltRaw/4096); //Volts
+				*Current = 0.10584 * ((float)currRaw/4096) / SenseResistorValue; //Current
+			}else{
+				*Voltage = -1001;
+				*Current = -1001;
+				logger->Log("HotSwaps: Error reading hot swap!", LOGGER_LEVEL_ERROR);
+			}
 		}
 
 		bool HotSwap::Fault(){
+			logger->Log("HotSwaps: Checking fault", LOGGER_LEVEL_DEBUG);
+
 			uint8_t readVal = 0;
 			read(fault_fd, &readVal, 1);
 			return !(readVal == 0);

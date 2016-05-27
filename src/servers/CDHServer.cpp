@@ -138,7 +138,7 @@ namespace Phoenix
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
-			//logger->Log("CDHServer Subsystem loop entered", LOGGER_LEVEL_INFO);
+			logger->Log("CDHServer Subsystem loop entered", LOGGER_LEVEL_INFO);
 
 			ReturnMessage * TSRet;
 			ReturnMessage * TRRet;
@@ -165,7 +165,7 @@ namespace Phoenix
 
 				// Get all CDH information
 				if(((seconds - 1) % 10) == 0){
-					//logger->Log("CDHServer: Gathering information", LOGGER_LEVEL_DEBUG);
+					logger->Log("CDHServer: Gathering information", LOGGER_LEVEL_DEBUG);
 
 
 //					// CPU usage

@@ -36,21 +36,22 @@ namespace Phoenix
 {
 	namespace Servers
 	{
+		Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
 		//------------------------------------------- Message Handlers -------------------------------------------
 
 		ReturnMessage * CDHCPUUsage(void)
 		{
-			//Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 			if(sysinfo(&cdhServer->si) != 0)
 			{
-				//logger->Log("CDHStdTasks: CDHCPUUsage(): Error", LOGGER_LEVEL_ERROR);
+				logger->Log("CDHStdTasks: CDHCPUUsage(): Error", LOGGER_LEVEL_ERROR);
 				ErrorMessage err(CDH_CPU_USAGE_FAILURE);
 				ReturnMessage * ret = new ReturnMessage(&err, false);
 				return ret;
 			}
 
-			//logger->Log("Checking loads", LOGGER_LEVEL_DEBUG);
+			logger->Log("CDHStdTasks: CDHCPUUsage(): Checking loads", LOGGER_LEVEL_INFO);
 
 			VariableTypeData oneMinHold(cdhServer->si.loads[0]);
 			VariableTypeData fiveMinHold(cdhServer->si.loads[1]);
@@ -75,12 +76,13 @@ namespace Phoenix
 			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 			if(sysinfo(&cdhServer->si) != 0)
 			{
-				cout<<"CDHStdTasks: CDHMemUsage(): Error"<<endl;
+				logger->Log("CDHStdTasks: CDHMemUsage(): Error", LOGGER_LEVEL_ERROR);
 				ErrorMessage err(CDH_MEM_USAGE_FAILURE);
 				ReturnMessage * ret = new ReturnMessage(&err, false);
 				return ret;
 			}
 
+			logger->Log("CDHStdTasks: CDHMemUsage(): Checking Memory", LOGGER_LEVEL_INFO);
 			VariableTypeData memHold(100.0*(259964928.0 - ((float) cdhServer->si.freeram)) / (259964928.0)); //hard-coded total ram: 100*(total - free)/total = percent use
 
 			list<VariableTypeData *> params;
@@ -97,14 +99,13 @@ namespace Phoenix
 			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 			if(statvfs((char *) "/", &cdhServer->svfs) != 0)
 			{
-				cout<<"CDHStdTasks: CDHStorage(): Error"<<endl;
+				logger->Log("CDHStdTasks: CDHStorage(): Error", LOGGER_LEVEL_ERROR);
 				ErrorMessage err(CDH_STORAGE_FAILURE);
 				ReturnMessage * ret = new ReturnMessage(&err, false);
 				return ret;
 			}
 
-			cout<<"Free blocks: "<<cdhServer->svfs.f_bfree<<endl;
-			cout<<"Total blocks: "<<cdhServer->svfs.f_blocks<<endl;
+			logger->Log("CDHStdTasks: CDHStorage(): Checking storage", LOGGER_LEVEL_INFO);
 
 			VariableTypeData storageHold((uint32) cdhServer->svfs.f_bfree);
 
@@ -129,10 +130,12 @@ namespace Phoenix
 			}
 
 			if(success){
+				logger->Log("CDHStdTasks: CDHTempStart(): Started sensors", LOGGER_LEVEL_INFO);
 				DataMessage msg(CDH_TEMP_START_SUCCESS);
 				ReturnMessage * ret = new ReturnMessage(&msg, true);
 				return ret;
 			}else{
+				logger->Log("CDHStdTasks: CDHTempStart(): Error starting sensors!", LOGGER_LEVEL_ERROR);
 				ErrorMessage err(CDH_TEMP_START_FAILURE);
 				ReturnMessage * ret = new ReturnMessage(&err, false);
 				return ret;
@@ -156,6 +159,7 @@ namespace Phoenix
 			}
 
 			// Send return
+			logger->Log("CDHStdTasks: CDHTempRead(): Read sensors", LOGGER_LEVEL_INFO);
 			DataMessage dat(CDH_TEMP_READ_SUCCESS, params);
 			ReturnMessage * retMsg = new ReturnMessage(&dat, true);
 			return retMsg;
@@ -163,8 +167,6 @@ namespace Phoenix
 
 		ReturnMessage * CDHHotSwaps(void)
 		{
-			printf("hot swaps entered");
-
 			// Setup
 			Phoenix::Servers::CDHServer * cdhServer = dynamic_cast<Phoenix::Servers::CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
 			float voltages[16];
@@ -182,6 +184,7 @@ namespace Phoenix
 				params.push_back(&currentHold[i]);
 			}
 
+			logger->Log("CDHStdTasks: CDHHotSwaps(): Read Hot Swaps", LOGGER_LEVEL_INFO);
 			DataMessage dat(CDH_HOT_SWAPS_SUCCESS, params);
 			ReturnMessage * retMsg = new ReturnMessage(&dat, true);
 			return retMsg;
@@ -203,7 +206,7 @@ namespace Phoenix
 
 			// start sensor
 			if(system(start.c_str()) == -1){
-				cout<<"Error starting sensor"<<endl;
+				logger->Log("CDHStdTasks: StartSensor(): Error Starting Sensor!", LOGGER_LEVEL_WARN);
 				return false;
 			}
 			return true;
@@ -221,6 +224,7 @@ namespace Phoenix
 			read.append(temp);
 			read.append("/temp");
 			delete temp;
+			char logbuf[80];
 
 			FILE * fp;
 			fp = fopen(read.c_str(), "r");
@@ -260,20 +264,23 @@ namespace Phoenix
 
 				// Act on validity
 				if(isGood){
-					cout<<"GOOD DATA"<<endl;
+					sprintf(logbuf,"CDHStdTasks: ReadSensor: Good data from sensor %d on bus %d",sensor,bus);
+					logger->Log(logbuf,LOGGER_LEVEL_DEBUG);
 					delete c;
 					delete tempRead;
 					fclose(fp);
 					return temperature;
 				}else{
-					cout<<"BAD DATA"<<endl;
+					sprintf(logbuf,"CDHStdTasks: ReadSensor: Bad data from sensor %d on bus %d!",sensor,bus);
+					logger->Log(logbuf,LOGGER_LEVEL_WARN);
 					delete c;
 					delete tempRead;
 					fclose(fp);
 					return -300;
 				}
 			}else{
-				cout<<"Error opening file!"<<endl;
+				sprintf(logbuf,"CDHStdTasks: ReadSensor: Error opening file: sensor %d on bus %d",sensor,bus);
+				logger->Log(logbuf,LOGGER_LEVEL_ERROR);
 				return -301;
 			}
 		}
