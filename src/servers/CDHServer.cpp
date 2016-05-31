@@ -28,6 +28,7 @@
 
 using namespace Phoenix::Core;
 using namespace Phoenix::HAL;
+using namespace std;
 
 namespace Phoenix
 {

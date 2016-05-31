@@ -360,7 +360,7 @@ void * taskRunEPS(void * params)
 
 	modeManager->Attach(*epsServer);
 
-	logger->Log("\r\nKicking off the EPS server\r\n", LOGGER_LEVEL_INFO);
+	logger->Log("Kicking off the EPS server", LOGGER_LEVEL_INFO);
 
 	bool handlers = epsServer->RegisterHandlers();
 	if(!handlers){
@@ -386,7 +386,7 @@ void * taskRunACS(void * params)
 		usleep(1000000);
 	}
 	
-	logger->Log("\r\nKicking off the ACS server\r\n", LOGGER_LEVEL_INFO);
+	logger->Log("Kicking off the ACS server", LOGGER_LEVEL_INFO);
 
 	bool handlers = acsServer->RegisterHandlers();
 	if(!handlers){
@@ -412,7 +412,7 @@ void * taskRunPLD(void * params)
 //		usleep(1000000);
 //	}
 
-	logger->Log("\r\nKicking off the PLD server\r\n", LOGGER_LEVEL_INFO);
+	logger->Log("Kicking off the PLD server", LOGGER_LEVEL_INFO);
 
 	bool handlers = pldServer->RegisterHandlers();
 	if(!handlers){
@@ -437,7 +437,7 @@ void * taskRunCOM(void * params)
 		usleep(1000000);
 	}
 	
-	logger->Log("\r\nKicking off the COM server\r\n", LOGGER_LEVEL_INFO);
+	logger->Log("Kicking off the COM server", LOGGER_LEVEL_INFO);
 
 	bool handlers = comServer->RegisterHandlers();
 	if(!handlers){
@@ -471,7 +471,7 @@ void * taskRunGPS(void * params)
 		usleep(1000000);
 	}
 
-	logger->Log("\r\nKicking off the GPS server\r\n", LOGGER_LEVEL_INFO);
+	logger->Log("Kicking off the GPS server", LOGGER_LEVEL_INFO);
 
 	bool handlers = gpsServer->RegisterHandlers();
 	if(!handlers){
@@ -491,7 +491,7 @@ void * taskRunTHM(void * params)
 	modeManager->Attach(*thmServer);
 	//wdm->Kick();
 
-	logger->Log("\r\nKicking off the THM server\r\n", LOGGER_LEVEL_INFO);
+	logger->Log("Kicking off the THM server", LOGGER_LEVEL_INFO);
 
 	bool handlers = thmServer->RegisterHandlers();
 	if(!handlers){
@@ -511,7 +511,7 @@ void * taskRunERR(void * params)
 	modeManager->Attach(*errServer);
 	//wdm->Kick();
 
-	logger->Log("\r\nKicking off the ERR server\r\n", LOGGER_LEVEL_INFO);
+	logger->Log("Kicking off the ERR server", LOGGER_LEVEL_INFO);
 
 	bool handlers = errServer->RegisterHandlers();
 	if(!handlers){
@@ -536,7 +536,7 @@ void * taskRunSCH(void * params)
 		usleep(1000000);
 	}
 	
-	logger->Log("\r\nKicking off the SCH server\r\n", LOGGER_LEVEL_INFO);
+	logger->Log("Kicking off the SCH server", LOGGER_LEVEL_INFO);
 
 	bool handlers = schServer->RegisterHandlers();
 	if(!handlers){
@@ -561,7 +561,7 @@ void* taskRunCMD(void * params)
 		usleep(1000000);
 	}
 
-	logger->Log("\r\nKicking off the CMD server\r\n", LOGGER_LEVEL_INFO);
+	logger->Log("Kicking off the CMD server", LOGGER_LEVEL_INFO);
 
 	cmdServer->SubsystemLoop();
 	pthread_exit(NULL);
@@ -583,7 +583,7 @@ void* taskRunCDH(void * params) {
 		usleep(1000000);
 	}
 
-	logger->Log("\r\nKicking off the CDH server\r\n", LOGGER_LEVEL_INFO);
+	logger->Log("Kicking off the CDH server", LOGGER_LEVEL_INFO);
 
 	bool handlers = cdhServer->RegisterHandlers();
 	if(!handlers)
@@ -678,98 +678,93 @@ int main(int argc, char * argv[])
 
 	bool threadCreated;
 
-	// ------------------------------------- ACS Thread -------------------------------------
-	pthread_t ACSThread;
-	threadCreated = pthread_create(&ACSThread, NULL, &taskRunACS, NULL);
-	if(!threadCreated)
-	{
-		logger->Log("ACS Server Thread Creation Success", LOGGER_LEVEL_INFO);
-	}
-	else
-	{
-		logger->Log("ACS Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
-	}
+//	// ------------------------------------- ACS Thread -------------------------------------
+//	pthread_t ACSThread;
+//	threadCreated = pthread_create(&ACSThread, NULL, &taskRunACS, NULL);
+//	if(!threadCreated)
+//	{
+//		logger->Log("ACS Server Thread Creation Success", LOGGER_LEVEL_INFO);
+//	}
+//	else
+//	{
+//		logger->Log("ACS Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
+//	}
 
-	// ------------------------------------- EPS Thread -------------------------------------
-	pthread_t EPSThread;
-	threadCreated = pthread_create(&EPSThread, NULL, &taskRunEPS, NULL);
+//	// ------------------------------------- EPS Thread -------------------------------------
+//	pthread_t EPSThread;
+//	threadCreated = pthread_create(&EPSThread, NULL, &taskRunEPS, NULL);
+//
+// 	if(!threadCreated)
+//	{
+// 		logger->Log("EPS Server Thread Creation Success", LOGGER_LEVEL_INFO);
+//	}
+//	else
+//	{
+//		logger->Log("EPS Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
+//	}
 
- 	if(!threadCreated)
-	{
- 		logger->Log("EPS Server Thread Creation Success", LOGGER_LEVEL_INFO);
-	}
-	else
-	{
-		logger->Log("EPS Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
-	}
+//	// ------------------------------------- PLD Thread -------------------------------------
+//	pthread_t PLDThread;
+//	threadCreated = pthread_create(&PLDThread, NULL, &taskRunPLD, NULL);
+//	if(!threadCreated)
+//	{
+//		logger->Log("PLD Server Thread Creation Success", LOGGER_LEVEL_INFO);
+//	}
+//	else
+//	{
+//		logger->Log("PLD Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
+//	}
 
-	// ------------------------------------- PLD Thread -------------------------------------
-	pthread_t PLDThread;
-	threadCreated = pthread_create(&PLDThread, NULL, &taskRunPLD, NULL);
-	if(!threadCreated)
-	{
-		logger->Log("PLD Server Thread Creation Success", LOGGER_LEVEL_INFO);
-	}
-	else
-	{
-		logger->Log("PLD Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
-	}
+//	// ------------------------------------- ERR Thread -------------------------------------
+//	//CREATE_TASK(taskRunERR, (const signed char* const)"ERR task", 2000, NULL, 0, NULL);
+//	pthread_t ERRThread;
+//	threadCreated = pthread_create(&ERRThread, NULL, &taskRunERR, NULL);
+//	if(!threadCreated)
+//	{
+//		logger->Log("ERR Server Thread Creation Success", LOGGER_LEVEL_INFO);
+//	}
+//	else
+//	{
+//		logger->Log("ERR Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
+//	}
 
+//	// ------------------------------------- THM Thread -------------------------------------
+//	pthread_t THMThread;
+//	threadCreated = pthread_create(&THMThread ,NULL,&taskRunTHM, NULL );
+//	if(!threadCreated)
+//	{
+//		logger->Log("THM Server Thread Creation Success", LOGGER_LEVEL_INFO);
+//	}
+//	else
+//	{
+//		logger->Log("THM Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
+//	}
 
-	// ------------------------------------- ERR Thread -------------------------------------
-	//CREATE_TASK(taskRunERR, (const signed char* const)"ERR task", 2000, NULL, 0, NULL);
-	pthread_t ERRThread;
-	threadCreated = pthread_create(&ERRThread, NULL, &taskRunERR, NULL);
-	if(!threadCreated)
-	{
-		logger->Log("ERR Server Thread Creation Success", LOGGER_LEVEL_INFO);
-	}
-	else
-	{
-		logger->Log("ERR Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
-	}
+//	// ------------------------------------- CMD Thread -------------------------------------
+//	pthread_t CMDThread;
+//	threadCreated = pthread_create(&CMDThread ,NULL,&taskRunCMD, NULL );
+//	if(!threadCreated)
+//	{
+//		logger->Log("CMD Server Thread Creation Success", LOGGER_LEVEL_INFO);
+//	}
+//	else
+//	{
+//		logger->Log("CMD Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
+//	}
 
+//	// ------------------------------------- ETH Thread -------------------------------------
+//	pthread_t ETHThread;
+//	threadCreated = pthread_create(&ETHThread ,NULL,&StartETH_HAL, NULL );
+//	if(!threadCreated)
+//	{
+//		logger->Log("Ethernet HALServer Thread Creation Success", LOGGER_LEVEL_INFO);
+//	}
+//	else
+//	{
+//		logger->Log("Ethernet HALServer Thread Creation Failed!", LOGGER_LEVEL_FATAL);
+//	}
 
-	// ------------------------------------- THM Thread -------------------------------------
-	pthread_t THMThread;
-	threadCreated = pthread_create(&THMThread ,NULL,&taskRunTHM, NULL );
-	if(!threadCreated)
-	{
-		logger->Log("THM Server Thread Creation Success", LOGGER_LEVEL_INFO);
-	}
-	else
-	{
-		logger->Log("THM Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
-	}
-
-	// ------------------------------------- CMD Thread -------------------------------------
-	pthread_t CMDThread;
-	threadCreated = pthread_create(&CMDThread ,NULL,&taskRunCMD, NULL );
-	if(!threadCreated)
-	{
-		logger->Log("CMD Server Thread Creation Success", LOGGER_LEVEL_INFO);
-	}
-	else
-	{
-		logger->Log("CMD Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
-	}
-
-	// ------------------------------------- ETH Thread -------------------------------------
-	pthread_t ETHThread;
-	threadCreated = pthread_create(&ETHThread ,NULL,&StartETH_HAL, NULL );
-	if(!threadCreated)
-	{
-		logger->Log("Ethernet HALServer Thread Creation Success", LOGGER_LEVEL_INFO);
-	}
-	else
-	{
-		logger->Log("Ethernet HALServer Thread Creation Failed!", LOGGER_LEVEL_FATAL);
-	}
-
-
-	//CREATE_TASK(taskRunSCH, (const signed char* const)"SCH task", 5000, NULL, 0, NULL);
-	//CREATE_TASK(taskRunCMD, (const signed char* const)"CMD task", 5000, NULL, 0, NULL);
-
+	// ------------------------------------- CDH Thread -------------------------------------
 	pthread_t CDHThread;
 	threadCreated = pthread_create(&CDHThread ,NULL,&taskRunCDH, NULL );
 	if(!threadCreated)
@@ -780,6 +775,11 @@ int main(int argc, char * argv[])
 	{
 		logger->Log("CDH Server Thread Creation Failed\n", LOGGER_LEVEL_FATAL);
 	}
+
+	//CREATE_TASK(taskRunSCH, (const signed char* const)"SCH task", 5000, NULL, 0, NULL);
+	//CREATE_TASK(taskRunCMD, (const signed char* const)"CMD task", 5000, NULL, 0, NULL);
+
+
 
 	//vTaskStartScheduler();
 	//portDBG_TRACE("FreeRTOS returned.");

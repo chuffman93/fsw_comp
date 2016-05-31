@@ -13,6 +13,7 @@
 #include "core/ErrorMode.h"
 #include "core/ComMode.h"
 #include "util/FileHandler.h"
+#include "util/Logger.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -120,20 +121,21 @@ namespace Phoenix
 
         bool ModeManager::SetMode(SystemModeEnum newMode, LocationIDType server)
         {
-			DEBUG_MODE_COUT("SetMode called")
+        	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			logger->Log("SetMode called", LOGGER_LEVEL_DEBUG);
 #ifdef HARDWARE
 			FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
 #endif //HARDWARE
 
 			//Mode is null jackass
 			//SystemModeEnum prevMode = this->mode->GetID();
-			DEBUG_MODE_COUT("	SetMode: Before take lock")
+			logger->Log("----SetMode: Before take lock", LOGGER_LEVEL_DEBUG);
             if (true == this->TakeLock(MAX_BLOCK_TIME))
             {
-				DEBUG_MODE_COUT("	SetMode: Cehcking for NULL mode")
+				logger->Log("----SetMode: Checking for NULL mode", LOGGER_LEVEL_DEBUG);
                 if (NULL != this->mode)
                 {
-					DEBUG_MODE_COUT("	SetMode: Current Mode is not NULL")
+					logger->Log("----SetMode: Current Mode is not NULL", LOGGER_LEVEL_DEBUG);
                     if (newMode == this->mode->GetID())
                     {
                         this->GiveLock();
@@ -148,7 +150,7 @@ namespace Phoenix
 
                     this->mode->OnExit( );
                 }
-				DEBUG_MODE_COUT("	SetMode: Current Mode is NULL")
+				logger->Log("----SetMode: Current Mode is NULL", LOGGER_LEVEL_DEBUG);
 
                 if (newMode >= MODE_FIRST_MODE && newMode < MODE_NUM_MODES)
 				{
@@ -156,12 +158,12 @@ namespace Phoenix
 				}
 				else
 				{
-					DEBUG_MODE_COUT("	SetMode: Invalid mode")
+					logger->Log("----SetMode: Invalid mode", LOGGER_LEVEL_ERROR);
 					this->GiveLock();
 					return false;
 				}
 				
-				DEBUG_MODE_COUT("		SetMode: Calling OnEntry and Notify all")
+				logger->Log("--------SetMode: Calling OnEntry and Notify all", LOGGER_LEVEL_DEBUG);
                 this->mode->OnEntry();
 
                 NotifyAll();
@@ -171,7 +173,7 @@ namespace Phoenix
 #endif //HARDWARE
 				
                 this->GiveLock();
-				DEBUG_MODE_COUT("			SetMode: succcess")
+				logger->Log("------------SetMode: success", LOGGER_LEVEL_DEBUG);
                 return true;
             }
             else

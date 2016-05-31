@@ -15,15 +15,6 @@ using namespace rel_ops;
 using namespace Phoenix::Core;
 //using namespace Phoenix::Servers;
 
-//TEST(TestLogger, testLog){
-//	Logger * logger = new Logger();
-//	logger->Log("Debug", LOGGER_LEVEL_DEBUG);
-//	logger->Log("Info", LOGGER_LEVEL_INFO);
-//	logger->Log("Warning", LOGGER_LEVEL_WARN);
-//	logger->Log("Error", LOGGER_LEVEL_ERROR);
-//	logger->Log("Fatal", LOGGER_LEVEL_FATAL);
-//}
-
 
 TEST(TestLogger, testSingleton){
 	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
