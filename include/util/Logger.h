@@ -29,19 +29,3 @@ class Logger : public Phoenix::Core::Singleton{
 };
 
 #endif
-
-// --------------------- Below is working class -------------------------------
-
-//#ifndef _LOGGER_H
-//#define _LOGGER_H
-//
-//#include "core/StdTypes.h"
-//
-//class Logger{
-//	public:
-//		Logger(void);
-//		const static LoggerLevelType threshold;
-//		void Log(char * message, LoggerLevelType level_in);
-//};
-//
-//#endif
