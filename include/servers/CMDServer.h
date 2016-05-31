@@ -38,7 +38,7 @@ namespace Phoenix
 			void SubsystemLoop(void);
 			void Update(const Core::SystemMode * mode);
 			bool RegisterHandlers();
-			int subsystem_acp_protocol[HARDWARE_LOCATION_MAX];
+			int subsystem_acp_protocol[HARDWARE_LOCATION_MAX] = {ACP_PROTOCOL_SPI, ACP_PROTOCOL_SPI, ACP_PROTOCOL_SPI, ACP_PROTOCOL_SPI, ACP_PROTOCOL_SPI, ACP_PROTOCOL_SPI, ACP_PROTOCOL_SPI};
 
 		private:
 

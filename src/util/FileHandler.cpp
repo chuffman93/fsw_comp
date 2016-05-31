@@ -62,8 +62,6 @@ using namespace Phoenix::Core;
 using namespace std;
 
 
-
-
 ////////////////////////////////
 //////////Initialization////////
 ////////////////////////////////
@@ -220,15 +218,14 @@ bool FileHandler::Log(FileHandlerIDEnum subsystem, MessageCodeType opCode,
 	//Phoenix::Servers::GPSServer * gpsServer = dynamic_cast<Phoenix::Servers::GPSServer *>(Factory::GetInstance(GPS_SERVER_SINGLETON));
 	int week = 1;   // gpsData->GPSWeek;
 	int seconds = 1;
+	bool notPLDData = (subsystem != SUBSYSTEM_PLD) || (opCode != PLD_DATA_SUCCESS);
 	/*Create file name using subsystem, opcode, and time. If file exists and is full, create new file, else
 	 * append file.*/
 	FetchFileName(subsystem, opCode, &file);
 
-
 	/*Fill buffer with data to be written and write buffer to file*/
 	size_t size = 0;
-	uint8 *buffer = new uint8[size];
-	if ((subsystem != SUBSYSTEM_PLD) || (subsystem == SUBSYSTEM_PLD && opCode != PLD_DATA_SUCCESS))
+	if (notPLDData)
 		{
 				size += 9;
 		}
@@ -247,11 +244,11 @@ bool FileHandler::Log(FileHandlerIDEnum subsystem, MessageCodeType opCode,
 			size += (*it)->GetFlattenSize();
 			numParams += 1;
 	}
+	uint8 *buffer = new uint8[size];
 
 	//buffer keeps pointer to the whole buffer, bufferPtr points to the next place to flattened data//
 	uint8 *bufferPtr = buffer;
-	if ((subsystem != SUBSYSTEM_PLD)
-					|| (subsystem == SUBSYSTEM_PLD && opCode != PLD_DATA_SUCCESS))
+	if (notPLDData)
 	{
 			buffer[0] = (uint8) ((week >> 24) & 0xff);
 			buffer[1] = (uint8) ((week >> 16) & 0xff);
@@ -272,22 +269,21 @@ bool FileHandler::Log(FileHandlerIDEnum subsystem, MessageCodeType opCode,
 	for (; it != params.end(); it++)
 	{
 			bufferPtr += (*it)->Flatten(bufferPtr, (*it)->GetFlattenSize());
+			//delete *it;
 	}
-
-	if ((subsystem == SUBSYSTEM_PLD) && (opCode == PLD_DATA_SUCCESS))
+	//TODO: is this safe?
+	if (!notPLDData)
 	{
 			size -= 5;
 			bufferPtr = buffer + 5; //remove variable type data header
-			memcpy(buffer, bufferPtr, size);
+			memmove(buffer, bufferPtr, size);
 	}
-
 
 	// Write into the file.
 	//puts("writing file..");
 	//printf("string = %s\n", file.c_str());
 	int err = FileWrite(file.c_str(), (char*) buffer, (long int) size);
 	//printf("%d\n", err);
-	//perror("hello");
 	if (err < 0) return false;
 	return true;
 }
@@ -454,7 +450,6 @@ uint32 FileHandler::FileWrite(const char * fileName, char * buffer, size_t numBy
 						this->GiveLock();
 						return -1;
 				}
-
                 result = fwrite(buffer,1,numBytes,fp);
 
                 if(result!=numBytes){
@@ -462,12 +457,10 @@ uint32 FileHandler::FileWrite(const char * fileName, char * buffer, size_t numBy
                 	this->GiveLock();
                 	return -2;
                 }
-
                 rv = (uint32) this->fileSize(fp);
-
-                fclose(fp);
+				fclose(fp);
+				this->GiveLock();
         }
-        this->GiveLock();
         return rv;
 }
 

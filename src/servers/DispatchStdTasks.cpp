@@ -62,7 +62,7 @@ namespace Phoenix
 			printf("DispatchStdTaks: Waiting for return message\n");
 			if(DISPATCHER_STATUS_OK != (stat = dispatcher->WaitForDispatchResponse(*packet, retMsg)))
 			{
-				printf("DispatchStdTaks: Did not receieve response\n");
+				printf("DispatchStdTaks: Did not receive response\n");
 				//debug_led_set_led(7, LED_ON);
 				ErrorMessage err(DISPATCHER_STATUS_ERR);
 				ReturnMessage * eRet = new ReturnMessage(&err, false);
@@ -376,8 +376,7 @@ namespace Phoenix
 				// write to error log
 				printf("DispatchStdTasks: Failed to log message\n");
 			}
-
-			delete retMsg;
+			//delete retMsg;
 		}
 	}
 }

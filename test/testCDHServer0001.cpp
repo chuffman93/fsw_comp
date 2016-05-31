@@ -18,6 +18,8 @@
 #include "util/itoa.h"
 #include <sys/sysinfo.h>
 #include <sys/statvfs.h>
+#include <cstring>
+#include <string.h>
 
 #include "servers/CDHServer.h"
 #include "servers/CDHStdTasks.h"
@@ -28,6 +30,7 @@ using namespace rel_ops;
 using namespace Phoenix::Core;
 using namespace Phoenix::Servers;
 
+// Necessary to test CDH
 void* taskRunCDH(void * params) {
 	CDHServer * cdhServer = dynamic_cast<CDHServer *>(Factory::GetInstance(
 			CDH_SERVER_SINGLETON));
@@ -46,31 +49,112 @@ void* taskRunCDH(void * params) {
 	printf("\r\nKicking off the CDH server\r\n");
 
 	bool success = cdhServer->RegisterHandlers();
+	if(!success)
+	{
+		cout<<"ERROR STARTING CDH HANDLERS"<<endl;
+	}
 	cdhServer->SubsystemLoop();
 	pthread_exit(NULL);
 }
 
-TEST(TestCDHServer, testSingleton) {
+bool startSensor(int bus, int sensor)
+{
+	// create filename
+	char * temp = new char[1];
+	string start = "echo 1 > /sys/bus/w1/devices/w1_bus_master";
+	itoa(bus, temp, 10);
+	start.append(temp);
+	start.append("/TEMP");
+	itoa(sensor, temp, 10);
+	start.append(temp);
+	start.append("/start");
+	delete temp;
 
-	Factory::GetInstance(CDH_SERVER_SINGLETON);
-	CDHServer * cdhServer = dynamic_cast<CDHServer *>(Factory::GetInstance(
-			CDH_SERVER_SINGLETON));
+	// start sensor
+	if(system(start.c_str()) == -1){
+		cout<<"Error starting sensor"<<endl;
+		return false;
+	}
 
-	ASSERT_TRUE(cdhServer->Exist());
-
+	return true;
 }
 
-TEST(TestCDHServer, testMessage) {
+void readSensor(int bus, int sensor){
 
-	FileHandler * fileHandler =
-			dynamic_cast<FileHandler *>(Factory::GetInstance(
-					MODE_MANAGER_SINGLETON));
-	ModeManager * modeManager =
-			dynamic_cast<ModeManager *>(Factory::GetInstance(
-					MODE_MANAGER_SINGLETON));
+	// create filename
+	char * temp = new char[1];
+	string read = "/sys/bus/w1/devices/w1_bus_master";
+	itoa(bus, temp, 10);
+	read.append(temp);
+	read.append("/TEMP");
+	itoa(sensor, temp, 10);
+	read.append(temp);
+	read.append("/temp");
+	delete temp;
+
+	FILE * fp;
+	fp = fopen(read.c_str(), "r");
+
+	cout<<"Attempting to read sensor "<<sensor<<" on bus "<<bus<<"!"<<endl;
+
+	bool isGood = false;
+	if(fp)
+	{
+		char * c = new char[1];
+		char * tempRead = new char[12];
+		int tempHold;
+		int count = 0;
+		float temperature;
+
+		// Get temperature part of string
+		while((*c = fgetc(fp)) != '\n')
+		{
+			tempRead[count] = *c;
+			count++;
+		}
+
+		// Get float value
+		sscanf(tempRead, "t=%d", &tempHold);
+		temperature = (float) tempHold / 1000.0;
+		cout<<"Current Temperature: "<<temperature<<endl;
+
+		// Check validity
+		for(int i = 0; i < 28; i++){
+			*c = fgetc(fp);
+			if(i==27){
+				if(*c=='V'){
+					isGood = true;
+				}
+			}
+		}
+
+		// Act on validity
+		if(isGood){
+			cout<<"GOOD DATA"<<endl;
+		}else{
+			cout<<"BAD DATA"<<endl;
+		}
+
+		// Cleanup
+		delete c;
+		delete tempRead;
+	}else
+	{
+		cout<<"Error opening file!"<<endl;
+	}
+}
+
+// Main Test for Message Handlers
+TEST(TestCDHServer, testHandlers) {
+
+
+	// Grab instances / set mode ------------------------------------------------------------------------------------------------------
+	FileHandler * fileHandler = dynamic_cast<FileHandler *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	ModeManager * modeManager = dynamic_cast<ModeManager *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	modeManager->SetMode(MODE_ACCESS, LOCATION_ID_INVALID);
 
-	// Create CDHServer
+
+	// Create CDHServer ---------------------------------------------------------------------------------------------------------------
 	pthread_t CDHThread;
 	bool threadCreated = pthread_create(&CDHThread, NULL, &taskRunCDH, NULL);
 	if (!threadCreated) {
@@ -79,47 +163,85 @@ TEST(TestCDHServer, testMessage) {
 		printf("CDH Server Thread Creation Failed\n");
 	}
 
-	CDHServer * cdhServer = dynamic_cast<CDHServer *>(Factory::GetInstance(
-			CDH_SERVER_SINGLETON));
+
+	// Grab CDHServer, check it -------------------------------------------------------------------------------------------------------
+	CDHServer * cdhServer = dynamic_cast<CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
 	EXPECT_TRUE(!threadCreated);
+	usleep(5000000); //ensure full boot up
 
-	usleep(5000000);
-	//TODO: FIX THE FUCKING CODE ALEX
 
-	/*
-	VariableTypeData int_hold = VariableTypeData((uint32) 2);
-	list<VariableTypeData *> params;
-	params.push_back(&int_hold);
-	*/
+	// Check all handlers -------------------------------------------------------------------------------------------------------------
+	bool success = true;
+	for(int cmd = CDH_CPU_USAGE_CMD; cmd <= CDH_CPU_USAGE_CMD; cmd++) // (cmd < CDH_CMD_MAX) when all handlers finished
+	{
+		// Dispatch message, check return
+		ReturnMessage * ret = DispatchPacket(SERVER_LOCATION_ACS,SERVER_LOCATION_CDH, 1, 0, MESSAGE_TYPE_COMMAND, cmd);
+		success &= ret->GetSuccess();
 
-	ReturnMessage * ret1 = DispatchPacket(SERVER_LOCATION_ACS,SERVER_LOCATION_CDH, 1, 0, MESSAGE_TYPE_COMMAND, CDH_TEMP_BUS_CMD);
-	/*
-	 bool success = ret1->GetSuccess();
-	 MessageCodeType code = ret1->GetOpcode();
-	 MessageTypeEnum type = ret1->GetType();
-	 cout<<"Success: "<<success<<" <------------------------------"<<endl;
-	 cout<<"Opcode: "<<code<<endl;
-	 cout<<"Type: "<<type<<endl;
-	 */
-	MessageProcess(SERVER_LOCATION_CDH, ret1);
+		// Process Message
+		MessageProcess(SERVER_LOCATION_CDH, ret);
+	}
 
-	/*
-	 usleep(1000000);
-	 char * file = (char *) "/media/sdMount/CDH/CDH_182_0_0.dat";
-	 uint8 * readBuffer;
-	 uint32 size;
-	 size = fileHandler->fileSize(file);
-	 //readBuffer = fileHandler->ReadFile((char *) "/media/sdMount/CDH/CDH_182_0_0.dat", &size);
+	// Perform check ------------------------------------------------------------------------------------------------------------------
+	ASSERT_TRUE(success);
 
-	 for(int i=0;i<(int)size;i++){
-	 cout<<"Char "<<i<<": "<<readBuffer[i]<<endl;
-	 }
-	 */
-
-	ASSERT_TRUE(true);
 }
 
-TEST(TestCDHServer, testSysInfo){
+TEST(TestCDHServer, runServer) {
+
+	// Grab instances / set mode ------------------------------------------------------------------------------------------------------
+	FileHandler * fileHandler = dynamic_cast<FileHandler *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	ModeManager * modeManager = dynamic_cast<ModeManager *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	modeManager->SetMode(MODE_ACCESS, LOCATION_ID_INVALID);
+
+
+	// Create CDHServer ---------------------------------------------------------------------------------------------------------------
+	pthread_t CDHThread;
+	bool threadCreated = pthread_create(&CDHThread, NULL, &taskRunCDH, NULL);
+	if (!threadCreated) {
+		printf("CDH Server Thread Creation Success\n");
+	} else {
+		printf("CDH Server Thread Creation Failed\n");
+	}
+
+
+	// Grab CDHServer, check it -------------------------------------------------------------------------------------------------------
+
+	// NOTE: for some reason, boolean return messages seem to be unaffected by the errors
+
+	CDHServer * cdhServer = dynamic_cast<CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
+	EXPECT_TRUE(!threadCreated);
+	usleep(30000000); // give server a chance to run
+
+	ASSERT_TRUE(true);
+
+}
+
+//-------------- Old Tests ------------------
+// Old testing, pending deletion
+TEST(DISABLED_TestCDHServer, testTemp){
+
+	// Start all of the sensors
+	bool validStart[4][16];
+	for(uint8 bus = 1; bus < 5; bus++){
+		for(uint8 sensor = 0; sensor < 16; sensor++){
+			validStart[bus][sensor] = startSensor(bus,sensor);
+		}
+	}
+
+	// wait for read
+	usleep(750000);
+
+	// read all of the sensor data
+	for(uint8 bus = 1; bus < 5; bus++){
+		for(uint8 sensor = 0; sensor < 16; sensor++){
+			readSensor(bus,sensor);
+		}
+	}
+}
+
+// Old testing, pending deletion
+TEST(DISABLED_TestCDHServer, testSysInfo){
 
 	struct sysinfo si;
 	sysinfo (&si);
@@ -132,7 +254,8 @@ TEST(TestCDHServer, testSysInfo){
 	cout<<"Percent used RAM: "<<(100.0*(259964928.0 - ((float) si.freeram)) / (259964928.0))<<endl;
 }
 
-TEST(TestCDHServer, testStatvfs){
+// Old testing, pending deletion
+TEST(DISABLED_TestCDHServer, testStatvfs){
 
 	struct statvfs svfs;
 	statvfs((char *) "/", &svfs);
@@ -142,7 +265,8 @@ TEST(TestCDHServer, testStatvfs){
 
 }
 
-TEST(TestCDHServer, testProc) {
+// Unused testing, pending deletion
+TEST(DISABLED_TestCDHServer, testProc) {
 
 	char * filename = (char *) "/proc/meminfo";
 	FILE * fp;
@@ -162,23 +286,4 @@ TEST(TestCDHServer, testProc) {
 	}
 
 	delete buffer;
-}
-
-TEST(TestCDHServer, testTemp) {
-
-	cout<<"Getting temp:"<<endl;
-	system("cat /sys/bus/w1/devices/w1_bus_master1/TEMP0/temp");
-	system("echo 1 >> /sys/bus/w1/devices/w1_bus_master1/TEMP0/start");
-	usleep(600000);
-	system("cat /sys/bus/w1/devices/w1_bus_master1/TEMP0/temp");
-	system("echo 1 >> /sys/bus/w1/devices/w1_bus_master1/TEMP0/start");
-	usleep(600000);
-	system("cat /sys/bus/w1/devices/w1_bus_master1/TEMP0/temp");
-	system("echo 1 >> /sys/bus/w1/devices/w1_bus_master1/TEMP0/start");
-	usleep(600000);
-	system("cat /sys/bus/w1/devices/w1_bus_master1/TEMP0/temp");
-	system("echo 1 >> /sys/bus/w1/devices/w1_bus_master1/TEMP0/start");
-	usleep(600000);
-	system("cat /sys/bus/w1/devices/w1_bus_master1/TEMP0/temp");
-
 }

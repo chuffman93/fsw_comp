@@ -31,6 +31,8 @@ namespace Phoenix
 		ReturnMessage * DataCollect(uint32 busNumber)
 		{
 
+
+/*
 			//FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
 			THMServer * thmServer = dynamic_cast<THMServer *>(Factory::GetInstance(THM_SERVER_SINGLETON));
 			uint16 * ubound = thmServer->getUpper();
@@ -130,6 +132,7 @@ namespace Phoenix
 				}
 			}
 #endif //HARDWARE
+*/
 			
 			DataMessage msg(THM_HS_SUCCESS);
 			ReturnMessage * ret = new ReturnMessage(&msg, true);
@@ -196,5 +199,6 @@ namespace Phoenix
 #endif //HARDWARE
 			
 		}
+
 	}//end namespace servers
 }//end namespace phoenix

@@ -27,7 +27,9 @@ namespace Phoenix
 	namespace Servers
 	{
 		Phoenix::Core::ReturnMessage * DataCollect(uint32 busNumber);
-		void IsDark(void);		  
+		void IsDark(void);
+		bool StartSensor(int bus, int sensor);
+		float ReadSensor(int bus, int sensor);
 	}
 }
 

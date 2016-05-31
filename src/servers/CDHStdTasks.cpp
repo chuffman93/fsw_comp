@@ -14,8 +14,10 @@
 #include "core/Factory.h"
 #include "core/DataMessage.h"
 #include "core/Dispatcher.h"
-
+#include "util/itoa.h"
 #include "util/FileHandler.h"
+#include "util/Logger.h"
+#include "core/Singleton.h"
 
 #include <sys/sysinfo.h>
 #include <sys/statvfs.h>
@@ -28,34 +30,43 @@
 
 using namespace std;
 using namespace Phoenix::Core;
+using namespace Phoenix::HAL;
 
 namespace Phoenix
 {
 	namespace Servers
 	{
+		Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+		//------------------------------------------- Message Handlers -------------------------------------------
+
 		ReturnMessage * CDHCPUUsage(void)
 		{
-
 			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 			if(sysinfo(&cdhServer->si) != 0)
 			{
-				cout<<"CDHStdTasks: CDHCPUUsage(): Error"<<endl;
+				logger->Log("CDHStdTasks: CDHCPUUsage(): Error", LOGGER_LEVEL_ERROR);
 				ErrorMessage err(CDH_CPU_USAGE_FAILURE);
 				ReturnMessage * ret = new ReturnMessage(&err, false);
 				return ret;
 			}
 
+			logger->Log("CDHStdTasks: CDHCPUUsage(): Checking loads", LOGGER_LEVEL_INFO);
+
 			VariableTypeData oneMinHold(cdhServer->si.loads[0]);
 			VariableTypeData fiveMinHold(cdhServer->si.loads[1]);
 			VariableTypeData fifteenMinHold(cdhServer->si.loads[2]);
+			//VariableTypeData testHold(true);
 
 			list<VariableTypeData *> params;
 			params.push_back(&oneMinHold);
 			params.push_back(&fiveMinHold);
 			params.push_back(&fifteenMinHold);
+			//params.push_back(&testHold);
 
-			DataMessage dat(CDH_CPU_USAGE_SUCCESS, params);
-			ReturnMessage * retMsg = new ReturnMessage(&dat, true);
+			DataMessage * dat = new DataMessage(CDH_CPU_USAGE_SUCCESS, params);
+			ReturnMessage * retMsg = new ReturnMessage(dat, true);
+			delete dat;
 			return retMsg;
 
 		}
@@ -65,13 +76,14 @@ namespace Phoenix
 			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 			if(sysinfo(&cdhServer->si) != 0)
 			{
-				cout<<"CDHStdTasks: CDHMemUsage(): Error"<<endl;
+				logger->Log("CDHStdTasks: CDHMemUsage(): Error", LOGGER_LEVEL_ERROR);
 				ErrorMessage err(CDH_MEM_USAGE_FAILURE);
 				ReturnMessage * ret = new ReturnMessage(&err, false);
 				return ret;
 			}
 
-			VariableTypeData memHold(100.0*(259964928.0 - ((float) cdhServer->si.freeram)) / (259964928.0)); //hard-coded total ram: 100*(total-free)/total = percent use
+			logger->Log("CDHStdTasks: CDHMemUsage(): Checking Memory", LOGGER_LEVEL_INFO);
+			VariableTypeData memHold(100.0*(259964928.0 - ((float) cdhServer->si.freeram)) / (259964928.0)); //hard-coded total ram: 100*(total - free)/total = percent use
 
 			list<VariableTypeData *> params;
 			params.push_back(&memHold);
@@ -85,16 +97,15 @@ namespace Phoenix
 		ReturnMessage * CDHStorage(void)
 		{
 			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
-			if(statvfs((char *) "/media/sdMount/", &cdhServer->svfs) != 0)
+			if(statvfs((char *) "/", &cdhServer->svfs) != 0)
 			{
-				cout<<"CDHStdTasks: CDHStorage(): Error"<<endl;
+				logger->Log("CDHStdTasks: CDHStorage(): Error", LOGGER_LEVEL_ERROR);
 				ErrorMessage err(CDH_STORAGE_FAILURE);
 				ReturnMessage * ret = new ReturnMessage(&err, false);
 				return ret;
 			}
 
-			cout<<"Free blocks: "<<cdhServer->svfs.f_bfree<<endl;
-			cout<<"Total blocks: "<<cdhServer->svfs.f_blocks<<endl;
+			logger->Log("CDHStdTasks: CDHStorage(): Checking storage", LOGGER_LEVEL_INFO);
 
 			VariableTypeData storageHold((uint32) cdhServer->svfs.f_bfree);
 
@@ -106,83 +117,172 @@ namespace Phoenix
 			return retMsg;
 		}
 
-		//TODO: Determine file read specification
-		/*
-		 * - Standard char number?
-		 * - Number of files?
-		 * - If sensor goes down (ie. file DNE)
-		*/
-		ReturnMessage * CDHTempBus(void)
+		ReturnMessage * CDHTempStart(void)
 		{
-			// Eventually make string arrays for iteration
-			char * cdh1s = (char *) "echo 1 >> /sys/bus/w1/devices/w1_bus_master1/TEMP0/start";
-			char * cdh1t = (char *) "/sys/bus/w1/devices/w1_bus_master1/TEMP0/temp";
-			//string cdh2 = "/sys/bus/w1/devices/w1_bus_master1/TEMP1/";
-
-			if(system(cdh1s) == -1){
-				//error
-				cout<<"CDHStdTasks CHDTempBus(): Error starting sensor"<<endl;
-			}
-			usleep(600000);
-
-			FILE * fp;
-
-			fp = fopen(cdh1t, "r");
-
-			cout<<"CDHStdTasks CHDTempBus(): attempting to read sensor!"<<endl;
-
-			if(fp)
-			{
-				uint8 * buffer = NULL;
-				uint8 bufferSize = 128;
-				size_t result;
-				buffer = new uint8[bufferSize];
-				result = fread(buffer, 1, bufferSize, fp);
-
-				for (int i = 0; i < 128; i++) {
-					cout << buffer[i];
+			// Start all of the sensors
+			bool validStart[4][16];
+			bool success = true;
+			for(uint8 bus = 1; bus < 5; bus++){
+				for(uint8 sensor = 0; sensor < 16; sensor++){
+					validStart[bus][sensor] = StartSensor(bus,sensor);
+					success &= validStart[bus][sensor];
 				}
-
-				delete buffer;
-			}
-			else
-			{
-				cout<<"CDHStdTasks CHDTempBus(): Error opening file"<<endl;
 			}
 
+			if(success){
+				logger->Log("CDHStdTasks: CDHTempStart(): Started sensors", LOGGER_LEVEL_INFO);
+				DataMessage msg(CDH_TEMP_START_SUCCESS);
+				ReturnMessage * ret = new ReturnMessage(&msg, true);
+				return ret;
+			}else{
+				logger->Log("CDHStdTasks: CDHTempStart(): Error starting sensors!", LOGGER_LEVEL_ERROR);
+				ErrorMessage err(CDH_TEMP_START_FAILURE);
+				ReturnMessage * ret = new ReturnMessage(&err, false);
+				return ret;
+			}
+		}
 
-			//Actual temperature code goes here------------------------------
-			float tempbus;
-			tempbus = 22.3;
-			//---------------------------------------------------------
-
-			VariableTypeData tempbusHold(tempbus);
-
+		ReturnMessage * CDHTempRead(void)
+		{
+			// Setup
+			float temperatures[4][16];
 			list<VariableTypeData *> params;
-			params.push_back(&tempbusHold);
+			VariableTypeData tempHold[4][16];
 
-			DataMessage dat(CDH_TEMP_BUS_SUCCESS, params);
+			// Read and add to list
+			for(uint8 bus = 0; bus < 4; bus++){
+				for(uint8 sensor = 0; sensor < 16; sensor++){
+					temperatures[bus][sensor] = ReadSensor(bus,sensor);
+					tempHold[bus][sensor] = VariableTypeData(temperatures[bus][sensor]);
+					params.push_back(&tempHold[bus][sensor]);
+				}
+			}
+
+			// Send return
+			logger->Log("CDHStdTasks: CDHTempRead(): Read sensors", LOGGER_LEVEL_INFO);
+			DataMessage dat(CDH_TEMP_READ_SUCCESS, params);
 			ReturnMessage * retMsg = new ReturnMessage(&dat, true);
 			return retMsg;
 		}
 
-		//TODO: Finish HotSwaps (meet with CDH)
 		ReturnMessage * CDHHotSwaps(void)
 		{
-
-			//Actual hot swap code goes here------------------------------
-			float hotswaps;
-			hotswaps = 22.8;
-			//---------------------------------------------------------
-
-			VariableTypeData hotswapHold(hotswaps);
-
+			// Setup
+			Phoenix::Servers::CDHServer * cdhServer = dynamic_cast<Phoenix::Servers::CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
+			float voltages[16];
+			float currents[16];
 			list<VariableTypeData *> params;
-			params.push_back(&hotswapHold);
+			VariableTypeData voltageHold[16];
+			VariableTypeData currentHold[16];
 
+			// Read and add to list
+			for(uint8 i = 0; i < 16; i++){
+				cdhServer->hotSwaps[i]->Status(&voltages[i],&currents[i]);
+				voltageHold[i] = VariableTypeData(voltages[i]);
+				currentHold[i] = VariableTypeData(currents[i]);
+				params.push_back(&voltageHold[i]);
+				params.push_back(&currentHold[i]);
+			}
+
+			logger->Log("CDHStdTasks: CDHHotSwaps(): Read Hot Swaps", LOGGER_LEVEL_INFO);
 			DataMessage dat(CDH_HOT_SWAPS_SUCCESS, params);
 			ReturnMessage * retMsg = new ReturnMessage(&dat, true);
 			return retMsg;
+		}
+
+		// Helper Functions ---------------------------------------------------------------
+		bool StartSensor(int bus, int sensor)
+		{
+			// create filename
+			char * temp = new char[1];
+			string start = "echo 1 > /sys/bus/w1/devices/w1_bus_master";
+			itoa(bus, temp, 10);
+			start.append(temp);
+			start.append("/TEMP");
+			itoa(sensor, temp, 10);
+			start.append(temp);
+			start.append("/start");
+			delete temp;
+
+			// start sensor
+			if(system(start.c_str()) == -1){
+				logger->Log("CDHStdTasks: StartSensor(): Error Starting Sensor!", LOGGER_LEVEL_WARN);
+				return false;
+			}
+			return true;
+		}
+
+		float ReadSensor(int bus, int sensor){
+
+			// create filename
+			char * temp = new char[1];
+			string read = "/sys/bus/w1/devices/w1_bus_master";
+			itoa(bus, temp, 10);
+			read.append(temp);
+			read.append("/TEMP");
+			itoa(sensor, temp, 10);
+			read.append(temp);
+			read.append("/temp");
+			delete temp;
+			char logbuf[80];
+
+			FILE * fp;
+			fp = fopen(read.c_str(), "r");
+
+			//cout<<"Attempting to read sensor "<<sensor<<" on bus "<<bus<<"!"<<endl;
+
+			bool isGood = false;
+			if(fp)
+			{
+				char * c = new char[1];
+				char * tempRead = new char[9];
+				int tempHold;
+				int count = 0;
+				float temperature;
+
+				// Get temperature part of string
+				while((*c = fgetc(fp)) != '\n')
+				{
+					tempRead[count] = *c;
+					count++;
+				}
+
+				// Get float value
+				sscanf(tempRead, "t=%d", &tempHold);
+				temperature = (float) tempHold / 1000.0;
+				//cout<<"Current Temperature: "<<temperature<<endl;
+
+				// Check validity
+				for(int i = 0; i < 28; i++){
+					*c = fgetc(fp);
+					if(i==27){
+						if(*c=='V'){
+							isGood = true;
+						}
+					}
+				}
+
+				// Act on validity
+				if(isGood){
+					sprintf(logbuf,"CDHStdTasks: ReadSensor: Good data from sensor %d on bus %d",sensor,bus);
+					logger->Log(logbuf,LOGGER_LEVEL_DEBUG);
+					delete c;
+					delete tempRead;
+					fclose(fp);
+					return temperature;
+				}else{
+					sprintf(logbuf,"CDHStdTasks: ReadSensor: Bad data from sensor %d on bus %d!",sensor,bus);
+					logger->Log(logbuf,LOGGER_LEVEL_WARN);
+					delete c;
+					delete tempRead;
+					fclose(fp);
+					return -300;
+				}
+			}else{
+				sprintf(logbuf,"CDHStdTasks: ReadSensor: Error opening file: sensor %d on bus %d",sensor,bus);
+				logger->Log(logbuf,LOGGER_LEVEL_ERROR);
+				return -301;
+			}
 		}
 	}
 }

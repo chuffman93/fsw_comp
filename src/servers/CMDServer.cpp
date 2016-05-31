@@ -52,17 +52,13 @@ namespace Phoenix
 		void CMDServer::Initialize(void)
 		{
 			cmdSwitchProtocolHandler = new CMDSwitchProtocolHandler();
-			int subsystem_acp_protocol[HARDWARE_LOCATION_MAX];
-			subsystem_acp_protocol[HARDWARE_LOCATION_COM] = ACP_PROTOCOL_SPI;
-			subsystem_acp_protocol[HARDWARE_LOCATION_EPS] = ACP_PROTOCOL_SPI;
-			subsystem_acp_protocol[HARDWARE_LOCATION_ACS] = ACP_PROTOCOL_SPI;
-			subsystem_acp_protocol[HARDWARE_LOCATION_PROP] = ACP_PROTOCOL_SPI;
-			subsystem_acp_protocol[HARDWARE_LOCATION_THM] = ACP_PROTOCOL_SPI;
-			subsystem_acp_protocol[HARDWARE_LOCATION_PLD] = ACP_PROTOCOL_SPI;
-			subsystem_acp_protocol[HARDWARE_LOCATION_GPS] = ACP_PROTOCOL_SPI;
-			for(int i=HARDWARE_LOCATION_MIN;i<HARDWARE_LOCATION_MAX;i++){
-				cout<<subsystem_acp_protocol[i]<<endl;
-			}
+//			subsystem_acp_protocol[HARDWARE_LOCATION_COM] = ACP_PROTOCOL_SPI;
+//			subsystem_acp_protocol[HARDWARE_LOCATION_EPS] = ACP_PROTOCOL_SPI;
+//			subsystem_acp_protocol[HARDWARE_LOCATION_ACS] = ACP_PROTOCOL_SPI;
+//			subsystem_acp_protocol[HARDWARE_LOCATION_PROP] = ACP_PROTOCOL_SPI;
+//			subsystem_acp_protocol[HARDWARE_LOCATION_THM] = ACP_PROTOCOL_SPI;
+//			subsystem_acp_protocol[HARDWARE_LOCATION_PLD] = ACP_PROTOCOL_SPI;
+//			subsystem_acp_protocol[HARDWARE_LOCATION_GPS] = ACP_PROTOCOL_SPI;
 		}
 		
 #ifdef TEST

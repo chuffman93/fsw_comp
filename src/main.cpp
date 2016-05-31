@@ -109,6 +109,7 @@
 #include "servers/SCHServer.h"
 #include "servers/GPSServer.h"
 #include "servers/PLDServer.h"
+#include "servers/CDHServer.h"
 #include "servers/ErrorOctopus.h"
 #include "servers/ErrorQueue.h"
 #include "HAL/Ethernet_Server.h"
@@ -566,7 +567,33 @@ void* taskRunCMD(void * params)
 	pthread_exit(NULL);
 }
 
+void* taskRunCDH(void * params) {
 
+	CDHServer * cdhServer = dynamic_cast<CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
+	ModeManager * modeManager = dynamic_cast<ModeManager *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
+	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
+
+	logger->Log("taskRunCDH", LOGGER_LEVEL_INFO);
+
+	modeManager->Attach(*cdhServer);
+
+	for (int i = 0; i < 0; i++) {
+		//wdm->Kick();
+		usleep(1000000);
+	}
+
+	logger->Log("\r\nKicking off the CDH server\r\n", LOGGER_LEVEL_INFO);
+
+	bool handlers = cdhServer->RegisterHandlers();
+	if(!handlers)
+	{
+		logger->Log("Error starting CDH Handlers!", LOGGER_LEVEL_FATAL);
+	}
+	cdhServer->PrepHSPM();
+	cdhServer->SubsystemLoop();
+	pthread_exit(NULL);
+}
 
 void* StartETH_HAL(void * params)
 {
@@ -626,7 +653,7 @@ int main(int argc, char * argv[])
 	//watchdog manager must be called first
 	//Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON);
 	Dispatcher * disp = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	Factory::GetInstance(FILE_HANDLER_SINGLETON);
 	Factory::GetInstance(ERROR_QUEUE_SINGLETON);
@@ -638,16 +665,16 @@ int main(int argc, char * argv[])
 	{
 		//EGSE is plugged in, go into access mode
 		modeManager->SetMode(MODE_ACCESS, LOCATION_ID_INVALID);
-
+		logger->Log("Access Mode Entered!", LOGGER_LEVEL_INFO);
 	}
 	else
 	{
 		//Flight go to startup mode
 		modeManager->SetMode(MODE_STARTUP, LOCATION_ID_INVALID);
-
+		logger->Log("Startup Mode Entered!", LOGGER_LEVEL_INFO);
 	}
 
-	logger->Log("Flight software initialization complete! Starting servers.", LOGGER_LEVEL_FATAL);
+	logger->Log("Flight software initialization complete! Starting servers!", LOGGER_LEVEL_FATAL);
 
 	bool threadCreated;
 
@@ -743,13 +770,25 @@ int main(int argc, char * argv[])
 	//CREATE_TASK(taskRunSCH, (const signed char* const)"SCH task", 5000, NULL, 0, NULL);
 	//CREATE_TASK(taskRunCMD, (const signed char* const)"CMD task", 5000, NULL, 0, NULL);
 
+	pthread_t CDHThread;
+	threadCreated = pthread_create(&CDHThread ,NULL,&taskRunCDH, NULL );
+	if(!threadCreated)
+	{
+		logger->Log("CDH Server Thread Creation Success", LOGGER_LEVEL_INFO);
+	}
+	else
+	{
+		logger->Log("CDH Server Thread Creation Failed\n", LOGGER_LEVEL_FATAL);
+	}
+
 	//vTaskStartScheduler();
 	//portDBG_TRACE("FreeRTOS returned.");
 
-	pthread_join(ACSThread, NULL);
+	//pthread_join(ACSThread, NULL);
 	//pthread_join(EPSThread, NULL);
 	//pthread_join(ERRThread, NULL);
 	//pthread_join(THMThread, NULL);
 	//pthread_join(PLDThread, NULL);
+	pthread_join(CDHThread, NULL);
 	return 42;
 }

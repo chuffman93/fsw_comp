@@ -42,16 +42,17 @@ ReturnMessage* CDHStorageHandler::Handle(const FSWPacket & packet)
 	return (CDHStorage());
 }
 
-ReturnMessage* CDHTempBusHandler::Handle(const FSWPacket & packet)
+ReturnMessage* CDHTempStartHandler::Handle(const FSWPacket & packet)
 {
-	cout<<"CPU Temp Bus Handler(): Made it in"<<endl;
-	return (CDHTempBus());
+	return (CDHTempStart());
+}
+
+ReturnMessage* CDHTempReadHandler::Handle(const FSWPacket & packet)
+{
+	return (CDHTempRead());
 }
 
 ReturnMessage* CDHHotSwapsHandler::Handle(const FSWPacket & packet)
 {
-	cout<<"CPU Hot Swaps Handler(): Made it in"<<endl;
 	return (CDHHotSwaps());
 }
-
-// TODO: CPU_USAGE, MEM_USAGE, STORAGE, TEMP, HOT_SWAP

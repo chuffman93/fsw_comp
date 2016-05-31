@@ -289,11 +289,6 @@ namespace Phoenix
         void FSWPacket::SetMessage(Message * newMessage)
         {
             delete messagePtr;
-			if(newMessage == NULL)
-			{
-				messagePtr = NULL;
-				return;
-			}
             messagePtr = newMessage->Duplicate();
         }
 

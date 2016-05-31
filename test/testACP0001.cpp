@@ -85,7 +85,7 @@ TEST(TestACP, protocolSwitch){
 		printf("CMD Server Thread Creation Failed\n");
 	}
 
-	usleep(5000000);
+	usleep(1000000);
 
 	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
 
@@ -100,6 +100,9 @@ TEST(TestACP, protocolSwitch){
 
 	// Ensure that the change has been enacted
 	ASSERT_EQ(cmdServer->subsystem_acp_protocol[HARDWARE_LOCATION_EPS], ACP_PROTOCOL_ETH);
+	cout<<"EPS: "<<cmdServer->subsystem_acp_protocol[HARDWARE_LOCATION_EPS]<<endl;
+	ASSERT_EQ(cmdServer->subsystem_acp_protocol[HARDWARE_LOCATION_ACS], ACP_PROTOCOL_SPI);
+	cout<<"ACS: "<<cmdServer->subsystem_acp_protocol[HARDWARE_LOCATION_ACS]<<endl;
 	EXPECT_EQ(ret->GetSuccess(), true);
 	EXPECT_EQ(ret->GetOpcode(), CMD_ACP_SWITCH_SUCCESS);
 

@@ -125,7 +125,6 @@ bool Dispatcher::IsFullyInitialized(void)
 void Dispatcher::DispatcherTask(void * params)
 {
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
 	while (1)
@@ -653,6 +652,24 @@ uint32_t Dispatcher::DispatchToHardware( FSWPacket & packet)
 	if(bytesCopied != packetLength){
 		//todo error handling
 	}
+
+	/*
+	while(!sentPacket)
+	{
+		waitUntil(lastWakeTime, 500);
+		if(timedOut)
+		{
+			//printf("Timeout YAYA!\n");
+			spiReset();
+			transFlag = 0;
+
+			timedOut = false;
+			return -1;
+		}
+		lastWakeTime = getTimeInMilis();
+		if(200 ==(iterations++) ){ timedOut = true; }
+	}
+	*/
 
 	return 0;
 }

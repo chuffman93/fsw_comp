@@ -3,6 +3,9 @@
 *
 *  Created on: July 09, 2012
 *      Author: Caitlyn Cooke
+*
+*  Modified on: May 16, 2016
+*  		Author: Alex St. Clair
 */
 
 #include "core/CommandMessage.h"
@@ -41,10 +44,12 @@ namespace Phoenix
 		THMServer::THMServer(string nameIn, LocationIDType idIn)
 			: SubsystemServer(nameIn, idIn), Singleton(), arby(idIn)
 		{
+			/*
 			UBOUND[0]= 70; UBOUND[1]= 70; UBOUND[2]= 46; UBOUND[3]= 46; UBOUND[4]= 46; UBOUND[5]= 58; UBOUND[6]= 58; UBOUND[7]= 85; UBOUND[8]= 140; UBOUND[9]= 62;
 			UBOUND[10]= 54; UBOUND[11]= 100; UBOUND[12]= 98; UBOUND[13]= 105; UBOUND[14]= 115; UBOUND[15]= 98;
 			LBOUND[0] = -25; LBOUND[1] = -25; LBOUND[2] = -40; LBOUND[3] = -40; LBOUND[4] = -40; LBOUND[5] = -35; LBOUND[6] = -35; LBOUND[7] = -35; LBOUND[8] = -25;
 			LBOUND[9] = -75; LBOUND[10] = -60; LBOUND[11] = -10; LBOUND[12] = -20; LBOUND[13] = -20; LBOUND[14] = -20; LBOUND[15] = -20;
+			*/
 		}
 
 		THMServer::~THMServer()
@@ -109,10 +114,13 @@ namespace Phoenix
 					DataCollect(2);
 					DataCollect(3);
 
+					// TODO: determine if this is necessary
+					/*
 					if((modeManager->GetMode()) != (ComMode::GetInstance()))
 					{
 						IsDark();
 					}
+					*/
 				}
 #endif
 								
