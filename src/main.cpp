@@ -113,6 +113,7 @@
 #include "servers/ErrorOctopus.h"
 #include "servers/ErrorQueue.h"
 #include "HAL/Ethernet_Server.h"
+#include "HAL/SPI_Server.h"
 
 //extern "C"
 //{
@@ -183,171 +184,19 @@ using namespace Phoenix::Servers;
 
 #define DEBUG
 
-/*! \name USART Settings
-*/
-//! @{
+#define ACS_EN 0
+#define CDH_EN 0
+#define CMD_EN 0
+#define COM_EN 0
+#define EPS_EN 0
+#define ERR_EN 0
+#define PLD_EN 0
+#define THM_EN 0
 
-//#define MAP_SIZE(map)	sizeof(map)/sizeof(map[0])
-//
-//void*   __dso_handle = (void*) &__dso_handle;
-//
-//extern "C"
-//{
-//	void vApplicationStackOverflowHook( xTaskHandle *pxTask, signed portCHAR *pcTaskName )
-//	{
-//		while (1)
-//		{
-//			gpio_local_tgl_gpio_pin(AVR32_PIN_PX07);
-//		}
-//	}
-//}
-//
-//struct mapType
-//{
-//	void * p;
-//	size_t size;
-//	bool used;
-//};
-//
-//#define MAX_ENTRIES 1000
-//#define PROFILING_PIN	AVR32_PIN_PX07
-//
-//static void PrintHex(unsigned long n, uint8 hexDigits);
-//
-//#define SET_POWER_STATE		0x01
-//
-//void init_spiMaster(volatile avr32_spi_t *spi, long cpuHz)
-//{
-//	//  volatile avr32_pio_t *pioc = &AVR32_PIOC;
-//	spi_options_t spiOptions;
-//	uint8_t delay = 31;
-//
-//	spiOptions.reg = 0;
-//	spiOptions.baudrate = 8000000;
-//	spiOptions.bits = 8;
-//	spiOptions.spck_delay = 0;
-//	spiOptions.trans_delay = delay;
-//	spiOptions.stay_act = 0;
-//	spiOptions.spi_mode = 0;
-//	spiOptions.modfdis = 1;
-//
-//	/* Initialize as master */
-//	spi_initMaster(spi, &spiOptions);
-//
-//	/* Set master mode; variable_ps, pcs_decode, delay */
-//	spi_selectionMode(spi, 1, 1, 0);
-//
-//	spi_setupChipReg(spi, &spiOptions, cpuHz);
-//	spiOptions.reg = 1;
-//	spi_setupChipReg(spi, &spiOptions, cpuHz);
-//	spiOptions.reg = 2;
-//	spi_setupChipReg(spi, &spiOptions, cpuHz);
-//	spiOptions.reg = 3;
-//	spi_setupChipReg(spi, &spiOptions, cpuHz);
-//
-//	/* Select slave chip 0 (SPI_NPCS0) */
-//	//	spi_selectChip(spi, 0);
-//	//	spi_unselectChip(spi, 0);
-//
-//	spi_enable(spi);
-//
-//	//  pioc->sodr = (1<<AVR32_PIO_P7)|(1<<AVR32_PIO_P0);
-//	//  pioc->codr = (1<<AVR32_PIO_P6)|(1<<AVR32_PIO_P1);
-//	//  rgb_setColor(pioc, 0);
-//}
-//
-//void spi_masterSend(volatile avr32_spi_t *spi, char *string)
-//{
-//	//  volatile avr32_pio_t *pioc = &AVR32_PIOC;
-//	int error;
-//	char *textStringPtr = string;
-//
-//	//  pioc->codr = (1<<AVR32_PIO_P0);
-//	//  pioc->sodr = (1<<AVR32_PIO_P1);
-//
-//	do {
-//		error = spi_write(spi, (unsigned short) *textStringPtr);
-//		delay_ms(1);
-//	} while (*textStringPtr++ != '\n');
-//
-//	//  pioc->codr = (1<<AVR32_PIO_P1);
-//	//  pioc->sodr = (1<<AVR32_PIO_P0);
-//
-//	if (error != SPI_OK) {
-//	}
-//}
-//
-//#define FS_DEMO 0
-//volatile bool interrupted = false;
-//
-//__attribute__((__interrupt__)) static void subsystemInterruptHandler(void)
-//{
-//	gpio_clear_pin_interrupt_flag(AVR32_PIN_PX25);
-//	interrupted = true;
-//}
-//
-//#define PLD_ADC_CONVST	AVR32_PIN_PX46
-//#define PLD_ADC_EOC		AVR32_PIN_PX45
-//#define PLD_ADC_CS		AVR32_PIN_PA01
-//
-//#define PWR_ADC_CS		AVR32_PIN_PA05
-//#define PWR_ADC_CS2		AVR32_PIN_PA06
-//
-//static const char HEX_DIGITS[] = "0123456789ABCDEF";
-//void PrintHex(unsigned long n, uint8 hexDigits)
-//{
-//	char tmp[8];
-//	int i;
-//
-//	if (hexDigits > 8)
-//	{
-//		return;
-//	}
-//
-//	// Convert the given number to an ASCII hexadecimal representation.
-//	for (i = hexDigits-1; i >= 0; i--)
-//	{
-//		tmp[i] = HEX_DIGITS[n & 0xF];
-//		n >>= 4;
-//	}
-//
-//	// Transmit the resulting string with the given USART.
-//	int written = 0;
-//	while (written < hexDigits)
-//	{
-//		written += Phoenix::HAL::UARTWrite(0, (const uint8 *)(tmp+written), hexDigits);
-//		vTaskDelay(1);
-//	}
-//}
-//
-//void print_buffer_hex(unsigned char * buffer_in, uint32 size)
-//{
-//	for (size_t i = 0; i < size; ++i)
-//	{
-//		/*if (i % 16 == 0)
-//		{
-//		print_dbg_short_hex(i);
-//		usart_write_line(UART_0, ": ");
-//		}
-//		print_dbg_char_hex(buffer_in[i]);
-//		usart_bw_write_char(UART_0, ' ');
-//		if ((i+1) % 16 == 0)
-//		{
-//		usart_write_line(UART_0, "\n");
-//		}*/
-//		print_dbg_char(buffer_in[i]);
-//	}
-//}
-//
-//static xTaskHandle ucTaskHandle;
-//static xTaskHandle * curTask = NULL;
-//static xSemaphoreHandle taskSem;
-//static xSemaphoreHandle taskDoneSem;
-//int openFd;
-//
-//// Create server tasks
+#define ETH_EN 0
+#define SPI_EN 0
 
-
+//----------------------- Create server tasks -----------------------
 //TODO:Add meaningful exit information to each server pthread_exit
 void * taskRunEPS(void * params)
 {
@@ -612,30 +461,19 @@ void* StartETH_HAL(void * params)
 	pthread_exit(NULL);
 }
 
-/*! \name Hmatrix bus configuration*/
-
-/*void init_hmatrix(void)
+void* StartSPI_HAL(void * params)
 {
-	union
+	SPI_HALServer * spi_server = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
+
+	for(int i = 0; i < 10; i++)
 	{
-		unsigned long                 scfg;
-		avr32_hmatrix_scfg_t          SCFG;
-	} u_avr32_hmatrix_scfg;
-
-	// For the internal-flash HMATRIX slave, use last master as default.
-	u_avr32_hmatrix_scfg.scfg = AVR32_HMATRIX.scfg[AVR32_HMATRIX_SLAVE_FLASH];
-	u_avr32_hmatrix_scfg.SCFG.defmstr_type = AVR32_HMATRIX_DEFMSTR_TYPE_LAST_DEFAULT;
-	AVR32_HMATRIX.scfg[AVR32_HMATRIX_SLAVE_FLASH] = u_avr32_hmatrix_scfg.scfg;
+		//wdm->Kick();
+		usleep(100000);
+	}
+	printf("\r\nKicking off the SPI HAL server\r\n");
+	spi_server->SPI_HALServerLoop();
+	pthread_exit(NULL);
 }
-
-//__attribute__((__section__(".mram"))) static volatile unsigned char mram_data[0x80000];
-//static volatile unsigned char __attribute__((__section__(".mram"))) thisBetterWork;
-static volatile unsigned char * tBW2 = (unsigned char *)(0xd0000000);*/
-
-/*! \brief This is an example demonstrating the USART RS232 TX and RX
-*         functionalities using the USART driver.
-*/
-
 
 
 int main(int argc, char * argv[])
@@ -678,18 +516,21 @@ int main(int argc, char * argv[])
 
 	bool threadCreated;
 
-//	// ------------------------------------- ACS Thread -------------------------------------
-//	pthread_t ACSThread;
-//	threadCreated = pthread_create(&ACSThread, NULL, &taskRunACS, NULL);
-//	if(!threadCreated)
-//	{
-//		logger->Log("ACS Server Thread Creation Success", LOGGER_LEVEL_INFO);
-//	}
-//	else
-//	{
-//		logger->Log("ACS Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
-//	}
+#if ACS_EN
+	// ------------------------------------- ACS Thread -------------------------------------
+	pthread_t ACSThread;
+	threadCreated = pthread_create(&ACSThread, NULL, &taskRunACS, NULL);
+	if(!threadCreated)
+	{
+		logger->Log("ACS Server Thread Creation Success", LOGGER_LEVEL_INFO);
+	}
+	else
+	{
+		logger->Log("ACS Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
+	}
+#endif //ACS_EN
 
+#if EPS_EN
 	// ------------------------------------- EPS Thread -------------------------------------
 	pthread_t EPSThread;
 	threadCreated = pthread_create(&EPSThread, NULL, &taskRunEPS, NULL);
@@ -702,68 +543,94 @@ int main(int argc, char * argv[])
 	{
 		logger->Log("EPS Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
 	}
+#endif //EPS_EN
 
-//	// ------------------------------------- PLD Thread -------------------------------------
-//	pthread_t PLDThread;
-//	threadCreated = pthread_create(&PLDThread, NULL, &taskRunPLD, NULL);
-//	if(!threadCreated)
-//	{
-//		logger->Log("PLD Server Thread Creation Success", LOGGER_LEVEL_INFO);
-//	}
-//	else
-//	{
-//		logger->Log("PLD Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
-//	}
+#if PLD_EN
+	// ------------------------------------- PLD Thread -------------------------------------
+	pthread_t PLDThread;
+	threadCreated = pthread_create(&PLDThread, NULL, &taskRunPLD, NULL);
+	if(!threadCreated)
+	{
+		logger->Log("PLD Server Thread Creation Success", LOGGER_LEVEL_INFO);
+	}
+	else
+	{
+		logger->Log("PLD Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
+	}
+#endif PLD_EN
 
-//	// ------------------------------------- ERR Thread -------------------------------------
-//	//CREATE_TASK(taskRunERR, (const signed char* const)"ERR task", 2000, NULL, 0, NULL);
-//	pthread_t ERRThread;
-//	threadCreated = pthread_create(&ERRThread, NULL, &taskRunERR, NULL);
-//	if(!threadCreated)
-//	{
-//		logger->Log("ERR Server Thread Creation Success", LOGGER_LEVEL_INFO);
-//	}
-//	else
-//	{
-//		logger->Log("ERR Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
-//	}
+#if ERR_EN
+	// ------------------------------------- ERR Thread -------------------------------------
+	//CREATE_TASK(taskRunERR, (const signed char* const)"ERR task", 2000, NULL, 0, NULL);
+	pthread_t ERRThread;
+	threadCreated = pthread_create(&ERRThread, NULL, &taskRunERR, NULL);
+	if(!threadCreated)
+	{
+		logger->Log("ERR Server Thread Creation Success", LOGGER_LEVEL_INFO);
+	}
+	else
+	{
+		logger->Log("ERR Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
+	}
+#endif //ERR_EN
 
-//	// ------------------------------------- THM Thread -------------------------------------
-//	pthread_t THMThread;
-//	threadCreated = pthread_create(&THMThread ,NULL,&taskRunTHM, NULL );
-//	if(!threadCreated)
-//	{
-//		logger->Log("THM Server Thread Creation Success", LOGGER_LEVEL_INFO);
-//	}
-//	else
-//	{
-//		logger->Log("THM Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
-//	}
+#if THM_EN
+	// ------------------------------------- THM Thread -------------------------------------
+	pthread_t THMThread;
+	threadCreated = pthread_create(&THMThread ,NULL,&taskRunTHM, NULL );
+	if(!threadCreated)
+	{
+		logger->Log("THM Server Thread Creation Success", LOGGER_LEVEL_INFO);
+	}
+	else
+	{
+		logger->Log("THM Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
+	}
+#endif //THM_EN
 
-//	// ------------------------------------- CMD Thread -------------------------------------
-//	pthread_t CMDThread;
-//	threadCreated = pthread_create(&CMDThread ,NULL,&taskRunCMD, NULL );
-//	if(!threadCreated)
-//	{
-//		logger->Log("CMD Server Thread Creation Success", LOGGER_LEVEL_INFO);
-//	}
-//	else
-//	{
-//		logger->Log("CMD Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
-//	}
+#if CMD_EN
+	// ------------------------------------- CMD Thread -------------------------------------
+	pthread_t CMDThread;
+	threadCreated = pthread_create(&CMDThread ,NULL,&taskRunCMD, NULL );
+	if(!threadCreated)
+	{
+		logger->Log("CMD Server Thread Creation Success", LOGGER_LEVEL_INFO);
+	}
+	else
+	{
+		logger->Log("CMD Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
+	}
+#endif //CMD_EN
 
-//	// ------------------------------------- ETH Thread -------------------------------------
-//	pthread_t ETHThread;
-//	threadCreated = pthread_create(&ETHThread ,NULL,&StartETH_HAL, NULL );
-//	if(!threadCreated)
-//	{
-//		logger->Log("Ethernet HALServer Thread Creation Success", LOGGER_LEVEL_INFO);
-//	}
-//	else
-//	{
-//		logger->Log("Ethernet HALServer Thread Creation Failed!", LOGGER_LEVEL_FATAL);
-//	}
+#if ETH_EN
+	// ------------------------------------- ETH Thread -------------------------------------
+	pthread_t ETHThread;
+	threadCreated = pthread_create(&ETHThread ,NULL,&StartETH_HAL, NULL );
+	if(!threadCreated)
+	{
+		logger->Log("Ethernet HALServer Thread Creation Success", LOGGER_LEVEL_INFO);
+	}
+	else
+	{
+		logger->Log("Ethernet HALServer Thread Creation Failed!", LOGGER_LEVEL_FATAL);
+	}
+#endif //ETH_EN
 
+#if SPI_EN
+	pthread_t SPIThread;
+	threadCreated = pthread_create(&SPIThread ,NULL,&StartSPI_HAL, NULL );
+
+	if(!threadCreated)
+	{
+		printf("SPI HALServer Thread Creation Success\n");
+	}
+	else
+	{
+		printf("SPI HALServer Thread Creation Failed\n");
+	}
+#endif //SPI_EN
+
+#if CDH_EN
 	// ------------------------------------- CDH Thread -------------------------------------
 	pthread_t CDHThread;
 	threadCreated = pthread_create(&CDHThread ,NULL,&taskRunCDH, NULL );
@@ -775,20 +642,36 @@ int main(int argc, char * argv[])
 	{
 		logger->Log("CDH Server Thread Creation Failed\n", LOGGER_LEVEL_FATAL);
 	}
+#endif //CDH_EN
 
 	//CREATE_TASK(taskRunSCH, (const signed char* const)"SCH task", 5000, NULL, 0, NULL);
 	//CREATE_TASK(taskRunCMD, (const signed char* const)"CMD task", 5000, NULL, 0, NULL);
 
 
+#if ACS_EN
+	pthread_join(ACSThread, NULL);
+#endif //ACS_EN
 
-	//vTaskStartScheduler();
-	//portDBG_TRACE("FreeRTOS returned.");
-
-	//pthread_join(ACSThread, NULL);
+#if EPS_EN
 	pthread_join(EPSThread, NULL);
-	//pthread_join(ERRThread, NULL);
-	//pthread_join(THMThread, NULL);
-	//pthread_join(PLDThread, NULL);
+#endif //EPS_EN
+
+#if ERR_EN
+	pthread_join(ERRThread, NULL);
+#endif //ERR_EN
+
+#if THM_EN
+	pthread_join(THMThread, NULL);
+#endif //THM_EN
+
+#if PLD_EN
+	pthread_join(PLDThread, NULL);
+#endif //PLD_EN
+
+#if CDH_EN
 	pthread_join(CDHThread, NULL);
+#endif //CDH_EN
+
+
 	return 42;
 }
