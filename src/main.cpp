@@ -690,18 +690,18 @@ int main(int argc, char * argv[])
 //		logger->Log("ACS Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
 //	}
 
-//	// ------------------------------------- EPS Thread -------------------------------------
-//	pthread_t EPSThread;
-//	threadCreated = pthread_create(&EPSThread, NULL, &taskRunEPS, NULL);
-//
-// 	if(!threadCreated)
-//	{
-// 		logger->Log("EPS Server Thread Creation Success", LOGGER_LEVEL_INFO);
-//	}
-//	else
-//	{
-//		logger->Log("EPS Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
-//	}
+	// ------------------------------------- EPS Thread -------------------------------------
+	pthread_t EPSThread;
+	threadCreated = pthread_create(&EPSThread, NULL, &taskRunEPS, NULL);
+
+ 	if(!threadCreated)
+	{
+ 		logger->Log("EPS Server Thread Creation Success", LOGGER_LEVEL_INFO);
+	}
+	else
+	{
+		logger->Log("EPS Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
+	}
 
 //	// ------------------------------------- PLD Thread -------------------------------------
 //	pthread_t PLDThread;
@@ -785,7 +785,7 @@ int main(int argc, char * argv[])
 	//portDBG_TRACE("FreeRTOS returned.");
 
 	//pthread_join(ACSThread, NULL);
-	//pthread_join(EPSThread, NULL);
+	pthread_join(EPSThread, NULL);
 	//pthread_join(ERRThread, NULL);
 	//pthread_join(THMThread, NULL);
 	//pthread_join(PLDThread, NULL);

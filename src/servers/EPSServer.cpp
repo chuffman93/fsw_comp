@@ -29,6 +29,7 @@
 #include "servers/EPSServer.h"
 #include "servers/EPSStdTasks.h"
 #include "servers/DispatchStdTasks.h"
+#include "util/Logger.h"
 
 //#include "boards/backplane/dbg_led.h"
 
@@ -125,7 +126,8 @@ namespace Phoenix
 
 		void EPSServer::SubsystemLoop(void)
 		{
-			DEBUG_COUT("	EPSServer: Entering subsystem loop...")
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			logger->Log("	EPSServer: Entering subsystem loop...", LOGGER_LEVEL_INFO);
 			
 			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 			
@@ -199,6 +201,7 @@ namespace Phoenix
 
 			EPSServer * epsServer = dynamic_cast<EPSServer *> (Factory::GetInstance(EPS_SERVER_SINGLETON));
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
 			const SystemMode * mode = AccessMode::GetInstance();
@@ -211,7 +214,7 @@ namespace Phoenix
 			ReturnMessage * HSRet;
 			ReturnMessage * SOCRet;
 			ReturnMessage * rstRet;
-			printf("EPS successfully entered Access Mode\n");
+			logger->Log("EPS successfully entered Access Mode\n", LOGGER_LEVEL_INFO);
 
 			for(i = 0; i < 5; i++)
 			{
@@ -242,19 +245,19 @@ namespace Phoenix
 				currentMode = modeManager->GetMode();
 
 
-			/*	if ((seconds % 10) == 0 )
+				if ((seconds % 10) == 0 )
 				{
 					
 					// Functions
-					printf("Calling EPS Health and Status Function\n");
+					logger->Log("Calling EPS Health and Status Function", LOGGER_LEVEL_DEBUG);
 					HSRet = EPSHealthStat();
-					printf("Calling Message process on the ret message!\n");
+					logger->Log("Calling Message process on the ret message!", LOGGER_LEVEL_DEBUG);
 					MessageProcess(SERVER_LOCATION_EPS, HSRet);
 
 					//SOCRet = EPSStateOfCharge();
 					//MessageProcess(SERVER_LOCATION_EPS, SOCRet);
 					
-				}*/
+				}
 
 				if((seconds % 60) == 0)
 				{
@@ -263,7 +266,7 @@ namespace Phoenix
 					seconds = 0;
 				}
 
-				CheckPowerTimers();
+				//CheckPowerTimers();
 
 				//SattyResetTimer();
 				// Delay
