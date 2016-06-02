@@ -56,3 +56,13 @@ ReturnMessage* CDHHotSwapsHandler::Handle(const FSWPacket & packet)
 {
 	return (CDHHotSwaps());
 }
+
+ReturnMessage* CDHPowerMonitorsHandler::Handle(const FSWPacket & packet)
+{
+	return (CDHPowerMonitors());
+}
+
+ReturnMessage* CDHStartPMHandler::Handle(const FSWPacket & packet)
+{
+	return (CDHStartPM());
+}

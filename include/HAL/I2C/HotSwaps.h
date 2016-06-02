@@ -74,7 +74,7 @@ namespace Phoenix
 			HotSwap(HotSwap_Address addr, HotSwap_Fault faultIO, float SenseResistor);
 
 			//Init MUST be called before any other function
-			void Init();
+			bool Init();
 
 			void Status(float *Voltage, float *Current);
 

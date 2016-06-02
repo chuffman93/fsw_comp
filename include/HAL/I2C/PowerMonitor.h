@@ -14,7 +14,6 @@ namespace Phoenix
 	{
 	namespace HAL
 		{
-
 		typedef enum {
 			A5_1V8_ADDR 			=0xCE,
 			A5_1V2_ADDR 			=0xD0,

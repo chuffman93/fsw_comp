@@ -185,16 +185,16 @@ using namespace Phoenix::Servers;
 #define DEBUG
 
 #define ACS_EN 0
-#define CDH_EN 0
+#define CDH_EN 1
 #define CMD_EN 0
 #define COM_EN 0
-#define EPS_EN 1
+#define EPS_EN 0
 #define ERR_EN 0
 #define PLD_EN 0
 #define THM_EN 0
 
 #define ETH_EN 0
-#define SPI_EN 1
+#define SPI_EN 0
 
 //----------------------- Create server tasks -----------------------
 //TODO:Add meaningful exit information to each server pthread_exit
@@ -440,7 +440,7 @@ void * taskRunCDH(void * params) {
 	{
 		logger->Log("Error starting CDH Handlers!", LOGGER_LEVEL_FATAL);
 	}
-	cdhServer->PrepHSPM();
+	//cdhServer->PrepHSPM();
 	cdhServer->SubsystemLoop();
 	pthread_exit(NULL);
 }

@@ -30,6 +30,13 @@ using namespace Phoenix::Core;
 using namespace Phoenix::HAL;
 using namespace std;
 
+#define CPU_EN 	0
+#define MEM_EN 	0
+#define STOR_EN 0
+#define TEMP_EN 0
+#define HS_EN	1
+#define PM_EN	0
+
 namespace Phoenix
 {
 	namespace Servers
@@ -40,6 +47,8 @@ namespace Phoenix
 		static CDHTempStartHandler * cdhTempStartHandler;
 		static CDHTempReadHandler * cdhTempReadHandler;
 		static CDHHotSwapsHandler * cdhHotSwapsHandler;
+		static CDHPowerMonitorsHandler * cdhPowerMonitorsHandler;
+		static CDHStartPMHandler * cdhStartPMHandler;
 
 		CDHServer::CDHServer(std::string nameIn, LocationIDType idIn)
 				: SubsystemServer(nameIn, idIn), Singleton(), arby(idIn)
@@ -72,6 +81,8 @@ namespace Phoenix
 			cdhTempStartHandler = new CDHTempStartHandler();
 			cdhTempReadHandler = new CDHTempReadHandler();
 			cdhHotSwapsHandler = new CDHHotSwapsHandler();
+			cdhPowerMonitorsHandler = new CDHPowerMonitorsHandler();
+			cdhStartPMHandler = new CDHStartPMHandler;
 		}
 
 #ifdef TEST
@@ -83,6 +94,8 @@ namespace Phoenix
 			delete cdhTempStartHandler;
 			delete cdhTempReadHandler;
 			delete cdhHotSwapsHandler;
+			delete cdhPowerMonitorsHandler;
+			delete cdhStartPMHandler;
 		}
 #endif
 
@@ -111,6 +124,8 @@ namespace Phoenix
 			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CDH_TEMP_START_CMD), cdhTempStartHandler);
 			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CDH_TEMP_READ_CMD), cdhTempReadHandler);
 			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CDH_HOT_SWAPS_CMD), cdhHotSwapsHandler);
+			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CDH_POWER_MONITORS_CMD), cdhPowerMonitorsHandler);
+			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CDH_START_PM_CMD), cdhStartPMHandler);
 
 			for(int opcode = CDH_CMD_MIN; opcode < CDH_CMD_MAX; opcode++)
 			{
@@ -122,16 +137,16 @@ namespace Phoenix
 			return success;
 		}
 
-		void CDHServer::PrepHSPM(){
-			for(uint8 i = 0; i < 16; i++){
-				hotSwaps[i] = new HotSwap(adresses[i],faults[i],resistors[i]);
-				//hotSwaps[i]->Init();
-			}
-			for(uint8 j = 0; j < 4; j++){
-				powerMonitors[j] = new PowerMonitor(PM_adresses[j]);
-				//powerMonitors[j]->Init(); //TODO: init with config struct for each
-			}
-		}
+//		void CDHServer::PrepHSPM(){
+//			for(uint8 i = 0; i < 16; i++){
+//				hotSwaps[i] = new HotSwap(adresses[i],faults[i],resistors[i]);
+//				hotSwaps[i]->Init();
+//			}
+//			for(uint8 j = 0; j < 4; j++){
+//				powerMonitors[j] = new PowerMonitor(PM_adresses[j]);
+//				//powerMonitors[j]->Init(); //TODO: init with config struct for each
+//			}
+//		}
 
 		void CDHServer::SubsystemLoop(void)
 		{
@@ -141,12 +156,20 @@ namespace Phoenix
 
 			logger->Log("CDHServer Subsystem loop entered", LOGGER_LEVEL_INFO);
 
+			devMan = new I2CDeviceManager();
+			bool initHS = devMan->initializeHS();
+			devMan->initializePM();
+			if(!initHS){
+				logger->Log("CDHServer: Error initializing hot swaps!", LOGGER_LEVEL_ERROR);
+			}
+
 			ReturnMessage * TSRet;
 			ReturnMessage * TRRet;
 			ReturnMessage * CPURet;
 			ReturnMessage * MemRet;
 			ReturnMessage * StrRet;
 			ReturnMessage * HtswRet;
+			ReturnMessage * PMRet;
 
 			uint64_t LastWakeTime = 0;
 			uint8 seconds = 0;
@@ -159,36 +182,52 @@ namespace Phoenix
 				//wdm->Kick();
 
 				// Start sensors for reading next round
+#if TEMP_EN
 				if((seconds % 10) == 0){
 					TSRet = CDHTempStart();
 					MessageProcess(SERVER_LOCATION_CDH, TSRet);
 				}
+#endif //TEMP_EN
 
 				// Get all CDH information
 				if(((seconds - 1) % 10) == 0){
 					logger->Log("CDHServer: Gathering information", LOGGER_LEVEL_DEBUG);
 
-
-//					// CPU usage
+#if CPU_EN
+					// CPU usage
 					CPURet = CDHCPUUsage();
 					MessageProcess(SERVER_LOCATION_CDH, CPURet);
-//
-//					// Memory usage
-//					MemRet = CDHMemUsage();
-//					MessageProcess(SERVER_LOCATION_CDH, MemRet);
-//
-//					// Storage in use
-//					StrRet = CDHStorage();
-//					MessageProcess(SERVER_LOCATION_CDH, StrRet);
-//
-//					// Read Temp sensors
-//					TRRet = CDHTempRead();
-//					MessageProcess(SERVER_LOCATION_CDH, TRRet);
+#endif //CPU_EN
 
+#if MEM_EN
+					// Memory usage
+					MemRet = CDHMemUsage();
+					MessageProcess(SERVER_LOCATION_CDH, MemRet);
+#endif //MEM_EN
 
+#if STOR_EN
+					// Storage in use
+					StrRet = CDHStorage();
+					MessageProcess(SERVER_LOCATION_CDH, StrRet);
+#endif //STOR_EN
+
+#if TEMP_EN
+					// Read Temp sensors
+					TRRet = CDHTempRead();
+					MessageProcess(SERVER_LOCATION_CDH, TRRet);
+#endif //TEMP_EN
+
+#if HS_EN
 					// Read Hot swaps
-//					HtswRet = CDHHotSwaps();
-//					MessageProcess(SERVER_LOCATION_CDH, HtswRet);
+					HtswRet = CDHHotSwaps();
+					MessageProcess(SERVER_LOCATION_CDH, HtswRet);
+#endif //HS_EN
+
+#if PM_EN
+					// Read Power Monitors
+					PMRet = CDHPowerMonitors();
+					MessageProcess(SERVER_LOCATION_CDH, PMRet);
+#endif //PM_EN
 				}
 
 				// Delay

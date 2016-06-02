@@ -23,9 +23,9 @@ namespace Phoenix
 			void I2C_writeReg(uint8_t reg, uint8_t value);
 		private:
 			struct{
-						char filename[20];
-						uint8_t slave_addr;
-					}i2c_chip_info;
+				char filename[20];
+				uint8_t slave_addr;
+			}i2c_chip_info;
 		};
 
 	}

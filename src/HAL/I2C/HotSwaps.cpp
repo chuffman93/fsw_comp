@@ -24,7 +24,7 @@ namespace Phoenix
 			// Intentionally left empty
 		}
 
-		void HotSwap::Init(){
+		bool HotSwap::Init(){
 			//Initialize the fault line GPIO
 			logger->Log("HotSwaps: Initializing", LOGGER_LEVEL_DEBUG);
 			char cmdString[100];
@@ -38,7 +38,7 @@ namespace Phoenix
 			fault_fd = open(cmdString, O_RDONLY);
 
 			//Write to the configuration register
-			I2C_write(0x05); //Set to do voltage and current continuously
+			return I2C_write(0x05); //Set to do voltage and current continuously
 		}
 
 		void HotSwap::Status(float *Voltage, float *Current){

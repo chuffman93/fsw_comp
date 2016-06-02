@@ -22,6 +22,8 @@ namespace Phoenix
 		Phoenix::Core::ReturnMessage * CDHTempStart(void);
 		Phoenix::Core::ReturnMessage * CDHTempRead(void);
 		Phoenix::Core::ReturnMessage * CDHHotSwaps(void);
+		Phoenix::Core::ReturnMessage * CDHPowerMonitors(void);
+		Phoenix::Core::ReturnMessage * CDHStartPM(void);
 		bool StartSensor(int bus, int sensor);
 		float ReadSensor(int bus, int sensor);
 	}

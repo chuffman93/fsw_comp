@@ -169,17 +169,16 @@ namespace Phoenix
 		{
 			// Setup
 			Phoenix::Servers::CDHServer * cdhServer = dynamic_cast<Phoenix::Servers::CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
-			float voltages[16];
-			float currents[16];
+			float vcRead[32];
 			list<VariableTypeData *> params;
 			VariableTypeData voltageHold[16];
 			VariableTypeData currentHold[16];
 
 			// Read and add to list
+			cdhServer->devMan->getHSStatus(vcRead);
 			for(uint8 i = 0; i < 16; i++){
-				cdhServer->hotSwaps[i]->Status(&voltages[i],&currents[i]);
-				voltageHold[i] = VariableTypeData(voltages[i]);
-				currentHold[i] = VariableTypeData(currents[i]);
+				voltageHold[i] = VariableTypeData(vcRead[i]);
+				currentHold[i] = VariableTypeData(vcRead[i+16]);
 				params.push_back(&voltageHold[i]);
 				params.push_back(&currentHold[i]);
 			}
@@ -188,6 +187,60 @@ namespace Phoenix
 			DataMessage dat(CDH_HOT_SWAPS_SUCCESS, params);
 			ReturnMessage * retMsg = new ReturnMessage(&dat, true);
 			return retMsg;
+		}
+
+		//TODO: check more information
+		ReturnMessage * CDHPowerMonitors(void)
+		{
+			Phoenix::Servers::CDHServer * cdhServer = dynamic_cast<Phoenix::Servers::CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
+			PowerMonitor_Data data[4];
+			list<VariableTypeData *>params;
+			VariableTypeData maxPHold[4];
+			VariableTypeData minPHold[4];
+			VariableTypeData maxVHold[4];
+			VariableTypeData minVHold[4];
+			VariableTypeData maxAHold[4];
+			VariableTypeData minAHold[4];
+			VariableTypeData maxIHold[4];
+			VariableTypeData minIHold[4];
+
+			// Read and add to list
+			cdhServer->devMan->getPMStatus(data);
+			for(uint8 i = 0; i < 4; i++){
+				maxPHold[i] = VariableTypeData(data[i].MaxPower);
+				minPHold[i] = VariableTypeData(data[i].MinPower);
+				maxVHold[i] = VariableTypeData(data[i].MaxVoltage);
+				minVHold[i] = VariableTypeData(data[i].MinVoltage);
+				maxAHold[i] = VariableTypeData(data[i].MaxADIN);
+				minAHold[i] = VariableTypeData(data[i].MinADIN);
+				maxIHold[i] = VariableTypeData(data[i].MaxCurrent);
+				minIHold[i] = VariableTypeData(data[i].MinCurrent);
+				params.push_back(&maxPHold[i]);
+				params.push_back(&minPHold[i]);
+				params.push_back(&maxVHold[i]);
+				params.push_back(&minVHold[i]);
+				params.push_back(&maxAHold[i]);
+				params.push_back(&minAHold[i]);
+				params.push_back(&maxIHold[i]);
+				params.push_back(&minIHold[i]);
+			}
+
+			DataMessage dat(CDH_POWER_MONITORS_SUCCESS, params);
+			ReturnMessage * retMsg = new ReturnMessage(&dat, true);
+			return retMsg;
+		}
+
+		ReturnMessage * CDHStartPM(void)
+		{
+			Phoenix::Servers::CDHServer * cdhServer = dynamic_cast<Phoenix::Servers::CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
+
+			// Start all of the sensors
+			cdhServer->devMan->startPMMeas();
+
+			logger->Log("CDHStdTasks: CDHStartPM(): Started PM measurement", LOGGER_LEVEL_INFO);
+			DataMessage msg(CDH_START_PM_SUCCESS);
+			ReturnMessage * ret = new ReturnMessage(&msg, true);
+			return ret;
 		}
 
 		// Helper Functions ---------------------------------------------------------------
