@@ -12,14 +12,16 @@
 #include "core/ErrorMessage.h"
 #include "core/Singleton.h"
 #include "core/WatchdogManager.h"
+#include "util/Logger.h"
 
 #include <iostream>
 #include <signal.h>
 #include <fcntl.h>
+#include <string>
 //#include "util/crc.h"
 #include "core/CommandMessage.h"
 #include "../src/HAL/Ethernet_Server.h"
-#include "../src/HAL/SPI_Server.h"
+#include "HAL/SPI_Server.h"
 #include "servers/CMDServer.h"
 #include "POSIX.h"
 
@@ -243,20 +245,19 @@ bool Dispatcher::Dispatch(FSWPacket & packet)
 DispatcherStatusEnum Dispatcher::WaitForDispatchResponse(
 		const FSWPacket & packet, ReturnMessage & returnMessage)
 {
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FSWPacket * ret;
 	ReturnMessage * retMsg;
 	size_t i;
-	DEBUG_COUT("   Dispatcher: WaitForDispatchResponse() called");
-	printf("Dispatcher: WaitForDispatchResponse() called\n");
+	logger->Log("   Dispatcher: WaitForDispatchResponse() called", LOGGER_LEVEL_DEBUG);
 	for (i = 0; i < DISPATCHER_MAX_RESPONSE_TRIES; ++i)
 	{
 		if (CheckQueueForMatchingPacket(packet, ret,
 				&Dispatcher::IsPacketMatchingResponse))
 		{
-			printf("Dispatcher: WaitForDispatchResponse(): Matching FSWPacket found.\n");
+			logger->Log("    Dispatcher: WaitForDispatchResponse(): Matching FSWPacket found.", LOGGER_LEVEL_DEBUG);
 			// Returned packet is a response to our command, so
 			// return the result.
-			DEBUG_COUT("   Dispatcher: WaitForDispatchResponse(): Matching FSWPacket found.");
 			retMsg = dynamic_cast<ReturnMessage *> (ret->GetMessagePtr( ));
 			returnMessage = (NULL == retMsg ? ReturnMessage( ) : *retMsg);
 			delete ret;
@@ -266,7 +267,7 @@ DispatcherStatusEnum Dispatcher::WaitForDispatchResponse(
 
 	}
 	// At this point, see if the command we sent has been received at least.
-	DEBUG_COUT("   Dispatch:  See if the packet we sent has been received.");
+	logger->Log("   Dispatch:  See if the packet we sent has been received.", LOGGER_LEVEL_DEBUG);
 	//debug_led_set_led(6, LED_ON);
 
 	if (CheckQueueForMatchingPacket(packet, ret,
@@ -287,7 +288,11 @@ bool Dispatcher::Listen(LocationIDType serverID)
 	FSWPacket * packet, tmpPacket;
 	IteratorType it;
 
-	DEBUG_COUT("Dispatcher: Listen() called with serverID: " << serverID);
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	char * out = new char[100];
+	sprintf(out, "Dispatcher: Listen() called with serverID: %u", serverID);
+	logger->Log(out, LOGGER_LEVEL_DEBUG);
+	delete out;
 
 	// Create a packet that can be compared with the incoming packets
 	// to check if any are addressed to the desired server.
@@ -297,17 +302,17 @@ bool Dispatcher::Listen(LocationIDType serverID)
 	if (!CheckQueueForMatchingPacket(tmpPacket, packet,
 			&Dispatcher::IsPacketDestMatchingSource))
 	{
-		DEBUG_COUT("   Dispatcher: Listen(): No packets have been sent to this server.");
+		logger->Log("   Dispatcher: Listen(): No packets have been sent to this server.", LOGGER_LEVEL_DEBUG);
 		return false;
 	}
-	DEBUG_COUT(" Dispatcher: Listen(): Found a packet, looking for a handler.");
+	logger->Log(" Dispatcher: Listen(): Found a packet, looking for a handler.", LOGGER_LEVEL_DEBUG);
 
 
 	// A packet has been found, so try to find the handler in the
 	// global registry list.- Umang
 	if (true == this->TakeLock(MAX_BLOCK_TIME))
 	{
-		DEBUG_COUT("   Dispatcher: searching registry map for handler.");
+		logger->Log("   Dispatcher: searching registry map for handler.", LOGGER_LEVEL_DEBUG);
 		it = registryMap.find(serverID);
 		this->GiveLock();
 	}
@@ -318,7 +323,7 @@ bool Dispatcher::Listen(LocationIDType serverID)
 
 	if (registryMap.end( ) == it)
 	{
-		DEBUG_COUT("   Dispatcher: Listen(): Didn't find a handler.");
+		logger->Log("   Dispatcher: Listen(): Didn't find a handler.", LOGGER_LEVEL_DEBUG);
 		if (SendErrorResponse(ERROR_OPCODE_SERVER_NOT_REGISTERED,
 				packet, VariableTypeData( )))
 		{
@@ -326,14 +331,16 @@ bool Dispatcher::Listen(LocationIDType serverID)
 		return false;
 	}
 	// A handler exists, so check the permissions
-	DEBUG_COUT("   Dispatcher: Listen(): Handler exists, checking permissions.");
+	logger->Log("   Dispatcher: Listen(): Handler exists, checking permissions.", LOGGER_LEVEL_DEBUG);
 
 	ArbitratorAuthStatusEnum arbyRet;
 	if (ARBITRATOR_AUTH_STATUS_PERMISSION != (arbyRet
 			= it->second->arby->Authenticate(*packet)))
 	{
-		DEBUG_COUT("   Dispatcher: Listen(): Don't have permissions, reject packet.");
-		DEBUG_COUT("   Dispatcher: Listen(): Authenticate returned: " << arbyRet);
+		logger->Log("   Dispatcher: Listen(): Don't have permissions, reject packet.", LOGGER_LEVEL_ERROR);
+		char * out = new char[100];
+		sprintf(out, "   Dispatcher: Listen(): Authenticate returned: %d", arbyRet);
+		logger->Log(out, LOGGER_LEVEL_ERROR);
 		if (SendErrorResponse(ERROR_OPCODE_PACKET_NOT_ALLOWED, packet,
 				(uint32) arbyRet))
 		{
@@ -341,7 +348,7 @@ bool Dispatcher::Listen(LocationIDType serverID)
 		return false;
 	}
 	// Permissions are correct, so invoke it and obtain the resulting message.
-	DEBUG_COUT("   Dispatcher: Listen(): Permissions are correct, invoke the handler, and obtain the resulting message.");
+	logger->Log("   Dispatcher: Listen(): Permissions are correct, invoke the handler, and obtain the resulting message.", LOGGER_LEVEL_DEBUG);
 
 
 	DispatcherTaskParameter parameters;
@@ -372,7 +379,7 @@ bool Dispatcher::Listen(LocationIDType serverID)
 		{
 
 		}
-		DEBUG_COUT("HANDLER TIMED OUT");
+		logger->Log("HANDLER TIMED OUT", LOGGER_LEVEL_ERROR);
 
 		pthread_cancel(TaskHandle);
 		sem_destroy(&(parameters.syncSem));
@@ -407,9 +414,11 @@ bool Dispatcher::Listen(LocationIDType serverID)
 bool Dispatcher::IsPacketMatchingResponse(const FSWPacket & packetIn,
 		const FSWPacket & packetOut) const
 {
-	DEBUG_COUT("IsPacketMatchingRespone called");
-	DEBUG_PRINT("Original FSWPacket - ", (&packetIn));
-	DEBUG_PRINT("Queue FSWPacket    - ", (&packetOut));
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("IsPacketMatchingRespone called", LOGGER_LEVEL_DEBUG);
+
+//	DEBUG_PRINT("Original FSWPacket - ", (&packetIn));
+//	DEBUG_PRINT("Queue FSWPacket    - ", (&packetOut));
 	//debug_led_set_led(5, LED_ON);
 	// Return true if *packetOut is a response to *packetIn.
 	return ((packetOut.GetMessagePtr( )->IsResponse( ))
@@ -440,6 +449,7 @@ bool Dispatcher::CheckQueueForMatchingPacket(const FSWPacket & packetIn,
 {
 	size_t numPackets, i;
 	FSWPacket * tmpPacket;
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	// Get the semaphore
 	if (true == this->TakeLock(MAX_BLOCK_TIME))
@@ -472,7 +482,7 @@ bool Dispatcher::CheckQueueForMatchingPacket(const FSWPacket & packetIn,
 			else
 			{
 				// Check the number of packets waiting in the queue.
-				DEBUG_COUT("checking more packets");
+				logger->Log("Dispatcher: CheckQueueForMatchingPacket(): checking more packets", LOGGER_LEVEL_DEBUG);
 				numPackets = mq_size(queueHandle, queueAttr);
 
 				// Get each packet and check it against packetIn.
@@ -542,7 +552,7 @@ bool Dispatcher::CheckQueueForMatchingPacket(const FSWPacket & packetIn,
 	}
 	else
 	{
-		DEBUG_PRINT("Sem Failed - ", packetOut);
+		logger->Log("Dispatcher: CheckQueueForMatchingPacket(): Sem Failed - ", LOGGER_LEVEL_ERROR);
 		return false;
 	}
 }
@@ -591,6 +601,8 @@ void * Dispatcher::InvokeHandler(void * parameters)
 
 uint32_t Dispatcher::DispatchToHardware( FSWPacket & packet)
 {
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("Dispatcher: DispatchtoHardware() called", LOGGER_LEVEL_DEBUG);
 	//todo: add semaphores for locking & real error values
 	ssize_t packetLength;
 	uint8_t * packetBuffer;
@@ -600,11 +612,14 @@ uint32_t Dispatcher::DispatchToHardware( FSWPacket & packet)
 	int protocolChoice = -1;
 
 	packetLength = packet.GetFlattenSize();
-	printf("Hardware dispatch packet size %d",packet.GetFlattenSize());
+	char * packetStr = new char[100];
+	sprintf(packetStr, "DispatchtoHardware(): dispatch packet size %d",packet.GetFlattenSize());
+	logger->Log(packetStr, LOGGER_LEVEL_DEBUG);
+	delete packetStr;
 
-	pthread_t self_id;
-	self_id = pthread_self();
-	printf("DispatchToHardware: Thread %u\n", self_id);
+//	pthread_t self_id;
+//	self_id = pthread_self();
+//	printf("DispatchToHardware: Thread %u\n", self_id);
 
 	if(packetLength >= MAX_PACKET_SIZE)
 	{
@@ -618,13 +633,13 @@ uint32_t Dispatcher::DispatchToHardware( FSWPacket & packet)
 	if(packet.Flatten(packetBuffer,packetLength) != packetLength)
 	{
 		//failed to flatten packet
-		printf("failed at 2\n");
+		logger->Log("DispatchToHardware(): flatten failed", LOGGER_LEVEL_WARN);
 		return -2;
 	}
 
 	for(uint16_t i = 0; i < packetLength; i++)
 	{
-				printf("0x%02x ",packetBuffer[i]);
+		printf("0x%02x ",packetBuffer[i]);
 	}
 
 	// Get the instances for the Ethernet and SPI Servers
@@ -638,9 +653,11 @@ uint32_t Dispatcher::DispatchToHardware( FSWPacket & packet)
 
 	switch(protocolChoice){
 		case ACP_PROTOCOL_SPI:
+			logger->Log("DispatchToHardware(): Dispatch over SPI", LOGGER_LEVEL_DEBUG);
 			bytesCopied = spi_server->SPIDispatch(packet);
 			break;
 		case ACP_PROTOCOL_ETH:
+			logger->Log("DispatchToHardware(): Dispatch over SPI", LOGGER_LEVEL_DEBUG);
 			//fixme take ETHDispatch out of ETH_Server and make it a utility. i hate c++
 			bytesCopied = eth_server->ETHDispatch(packet);
 			break;

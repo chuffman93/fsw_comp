@@ -12,13 +12,13 @@
 #include <sys/types.h>
 
 // Set desired threshold for logging here
-const LoggerLevelType Logger::threshold = LOGGER_LEVEL_INFO;
+const LoggerLevelType Logger::threshold = LOGGER_LEVEL_DEBUG;
 using namespace Phoenix::Core;
 using namespace std;
 
 
 void Logger::Initialize(void){
-	//Left intentionally blank
+	printf("\n-------------- Logger initialized with threshold: %d --------------\n\n", threshold);
 }
 
 bool Logger::IsFullyInitialized(void)
@@ -35,19 +35,19 @@ Logger::~Logger(void){
 }
 
 // TODO:
-// 1.  When writing out a logging line, prepend a timestamp to the line
-// 2.  When writing out a logging line, derive a thread ID and write it out, probably between the timestamp and the actual logging text
-// 3.  The logging method should have two parameters:  a string and the logging level, like "DEBUG" or "INFO" or "ERROR".  The logging level should be an enumerated type and part of the logging class.
-// 4.  The logging class can output to the screen, a file, or both
-// 5.  If logging to a file, the PID and process name should be part of the filename
+// 1. X When writing out a logging line, prepend a timestamp to the line
+// 2. X When writing out a logging line, derive a thread ID and write it out, probably between the timestamp and the actual logging text
+// 3. X The logging method should have two parameters:  a string and the logging level, like "DEBUG" or "INFO" or "ERROR".  The logging level should be an enumerated type and part of the logging class.
+// 4.   The logging class can output to the screen, a file, or both
+// 5.   If logging to a file, the PID and process name should be part of the filename
 void Logger::Log(char const * message, LoggerLevelType level_in){
 
 	if(level_in >= threshold){
 		// Log all of the thread and time info
 		// Print thread and time info
+		printf("(%u)", getTimeInMilis());
 		printf("[PID: %d]", getpid());
-		printf("[TID: %u]", (uint16) pthread_self());
-		printf("(%u) ", getTimeInMilis());
+		printf("[TID: %u] ", (uint16) pthread_self());
 
 		// Display the log level
 		switch(level_in){

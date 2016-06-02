@@ -18,9 +18,10 @@
 #include <linux/spi/spidev.h>
 
 
-#include "SPI_Server.h"
+#include "HAL/SPI_Server.h"
 #include "core/FSWPacket.h"
 #include "core/Dispatcher.h"
+#include "util/Logger.h"
 
 #define NELEMS(x)  (sizeof(x) / sizeof((x)[0]))
 #define STR_LEN	   50
@@ -33,9 +34,15 @@ bool packetWaiting;
 
 int debugFile;
 
+SPI_HALServer::SPI_HALServer()
+	{
+		// Intentionally left blank
+	}
+
 // Enter this loop
 void SPI_HALServer::SPI_HALServerLoop(void)
 {
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	char spi_devices[NUM_SLAVES][STR_LEN];
 	char int_val[NUM_SLAVES][STR_LEN];
 	fd_set int_fd_set;
@@ -52,7 +59,9 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 	memset((void*)poll_fds, 0, sizeof(poll_fds));
 
 	debugFile = open("~/Logfile.txt",  O_RDWR);
+
 	//Initalize GPIO INT Pins TODO EXPORT PINS AND SET INTS
+	logger->Log("SPI_Server: Loop(): Initializing GPIO INT pins", LOGGER_LEVEL_DEBUG);
 	system("echo \"134\" > /sys/class/gpio/export");
 	system("echo \"in\" > /sys/class/gpio/pioE6/direction");
 	system("echo \"falling\" > /sys/class/gpio/pioE6/edge");
@@ -75,7 +84,7 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 
 	//FD_ZERO(&int_fd_set);
 
-	printf("Opening file descriptors\n");
+	logger->Log("SPI_Server: Loop(): Opening file descriptors", LOGGER_LEVEL_DEBUG);
 
 	for(i = 0; i < NUM_SLAVES; i++){
 		spi_fds[i] = open(spi_devices[i], O_RDWR);
@@ -152,11 +161,17 @@ int SPI_HALServer::SPIDispatch(Phoenix::Core::FSWPacket & packet){
 	struct pollfd fds;
 	FSWPacket * retPacket;
 	int destination = 0;
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-	char buff[6] = "Valid";
+	//char buff[6] = "Valid";
 
 	packetLength = packet.GetFlattenSize();
-	printf("Hardware dispatch packet size %d\n",packet.GetFlattenSize());
+
+	char * out = new char[100];
+	snprintf(out, 99, "SPI_Server: SPIDispatch(): Hardware dispatch packet size %d", packetLength);
+	logger->Log(out, LOGGER_LEVEL_DEBUG);
+	delete out;
+
 	if(packetLength >= MAX_PACKET_SIZE)
 	{
 		//packet is too large
@@ -169,7 +184,7 @@ int SPI_HALServer::SPIDispatch(Phoenix::Core::FSWPacket & packet){
 	if (ret != packetLength)
 	{
 		//failed to flatten packet
-		printf("PacketLength = %d  PacketBuffer = %d\n", packetLength, ret);
+		logger->Log("SPI_Server: SPIDispatch(): Packet flatten fail", LOGGER_LEVEL_WARN);
 		return -2;
 	}
 
@@ -179,17 +194,20 @@ int SPI_HALServer::SPIDispatch(Phoenix::Core::FSWPacket & packet){
 	slave_fd = get_slave_fd(destination-1);
 
 	//take_lock
+	logger->Log("SPI_Server: SPIDispatch(): Writing packet to SPI", LOGGER_LEVEL_DEBUG);
 	bytes_copied = this->spi_write(slave_fd, &fds, packetBuffer, packetLength);
+	logger->Log("SPI_Server: SPIDispatch(): Waiting on return message", LOGGER_LEVEL_DEBUG);
 	//give lock
 	nbytes = spi_read(slave_fd, &fds, &rx_buf);
+	logger->Log("SPI_Server: SPIDispatch(): Received return message!", LOGGER_LEVEL_DEBUG);
 	printf("packet = %2X\n", rx_buf);
 
 	retPacket = new FSWPacket(rx_buf, nbytes);
-	printf("Now putting that FSW Packet into the message queue using Dispatch!\n");
+	logger->Log("Now putting that FSW Packet into the message queue using Dispatch!", LOGGER_LEVEL_DEBUG);
 
 	if((retPacket->GetDestination() == LOCATION_ID_INVALID )|| (retPacket->GetSource() == LOCATION_ID_INVALID))
 	{
-		printf("FSW Packet src or dest invalid. Not placing on queue\n");
+		logger->Log("FSW Packet src or dest invalid. Not placing on queue\n", LOGGER_LEVEL_DEBUG);
 		printf("src %d dest %d\n", retPacket->GetDestination(), retPacket->GetSource());
 		//todo log error
 		delete retPacket;

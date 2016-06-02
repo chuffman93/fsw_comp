@@ -8,6 +8,7 @@
 #define SPI_SERVER_H_
 
 #include "core/Singleton.h"
+#include "core/Dispatcher.h"
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/time.h>
@@ -20,7 +21,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <iostream>
-
+#include <poll.h>
 
 using namespace std;
 
@@ -30,6 +31,8 @@ using namespace std;
 #define     CMDLEN        BUFSIZE
 #define     server_name_len    8
 #define     N_SERVERS    10
+
+#define NUM_SLAVES 3
 
 #define TXD_PACKET_SIG		SIGUSR1
 #define RXD_PACKET_SIG		SIGUSR2
@@ -41,36 +44,32 @@ void sendComplete(int signum);
 class SPI_HALServer: public Phoenix::Core::Singleton
 {
 	public:
-	int spiFileDescriptor;
+	//int spiFileDescriptor;
+	struct pollfd poll_fds;
+	int spi_fds[NUM_SLAVES];
+	int int_fds[NUM_SLAVES];
 	//static bool packetWaiting;
 
 	// Constructor
-        SPI_HALServer()
-        {
-        	spiFileDescriptor = 0;
-        	const char * spiFilePath = "/dev/phoenix_spi";
-        	// HARDWARE INIT: Open up the /dev/phoenix_spi file and init signals
-        	spiFileDescriptor = open(spiFilePath, O_RDWR);
+	SPI_HALServer();
 
-        	//packetWaiting = false;
+	void SPI_HALServerLoop(void);
 
-        	if(spiFileDescriptor < 0)
-        	{
-        		printf("SPI_HALServer: Failed to initialize SPI driver\n");
-        		//todo error logging
-            }
-            printf("SPI_HALServer: Initialized SPI driver\n");
-        }
+	void spi_reset(void);
 
-        void SPI_HALServerLoop(void);
+	int SPIDispatch(Phoenix::Core::FSWPacket & packet);
 
-        void spi_reset(void);
+	static void spi_rx_handler(int signum);
 
-        int SPIDispatch(Phoenix::Core::FSWPacket & packet);
+	static void spi_tx_complete(int signum);
 
-        static void spi_rx_handler(int signum);
+	int spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, int len);
 
-        static void spi_tx_complete(int signum);
+	int spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_buf);
+
+	int get_int_fds(int subsystem, struct pollfd * poll_fds);
+
+	int get_slave_fd(int subsystem);
 };
 
 //static bool SPI_HALServer::packetWaiting;

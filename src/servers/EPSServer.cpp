@@ -233,6 +233,8 @@ namespace Phoenix
 			
 			while(mode == currentMode)
 			{
+				logger->Log("EPS Access Mode loop start", LOGGER_LEVEL_DEBUG);
+
 				LastWakeTime = getTimeInMilis();
 				//wdm->Kick();
 				

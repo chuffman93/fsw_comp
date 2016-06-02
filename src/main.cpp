@@ -188,16 +188,17 @@ using namespace Phoenix::Servers;
 #define CDH_EN 0
 #define CMD_EN 0
 #define COM_EN 0
-#define EPS_EN 0
+#define EPS_EN 1
 #define ERR_EN 0
 #define PLD_EN 0
 #define THM_EN 0
 
 #define ETH_EN 0
-#define SPI_EN 0
+#define SPI_EN 1
 
 //----------------------- Create server tasks -----------------------
 //TODO:Add meaningful exit information to each server pthread_exit
+
 void * taskRunEPS(void * params)
 {
 	//EnablePinInterrupt(INTERRUPT_PIN_EPS, INTERRUPT_EDGE_RISING);
@@ -395,7 +396,7 @@ void * taskRunSCH(void * params)
 	pthread_exit(NULL);
 }
 
-void* taskRunCMD(void * params)
+void * taskRunCMD(void * params)
 {
 	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
@@ -416,7 +417,7 @@ void* taskRunCMD(void * params)
 	pthread_exit(NULL);
 }
 
-void* taskRunCDH(void * params) {
+void * taskRunCDH(void * params) {
 
 	CDHServer * cdhServer = dynamic_cast<CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
 	ModeManager * modeManager = dynamic_cast<ModeManager *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
@@ -444,7 +445,7 @@ void* taskRunCDH(void * params) {
 	pthread_exit(NULL);
 }
 
-void* StartETH_HAL(void * params)
+void * StartETH_HAL(void * params)
 {
 	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 	ETH_HALServer * cmd_Server = dynamic_cast<ETH_HALServer *> (Factory::GetInstance(ETH_HALSERVER_SINGLETON));
@@ -455,14 +456,15 @@ void* StartETH_HAL(void * params)
 		usleep(100000);
 	}
 
-	logger->Log("\r\nKicking off the ETH_HAL server\r\n", LOGGER_LEVEL_INFO);
+	logger->Log("Kicking off the ETH_HAL server", LOGGER_LEVEL_INFO);
 
 	cmd_Server->ETH_HALServerLoop();
 	pthread_exit(NULL);
 }
 
-void* StartSPI_HAL(void * params)
+void * StartSPI_HAL(void * params)
 {
+	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 	SPI_HALServer * spi_server = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
 
 	for(int i = 0; i < 10; i++)
@@ -470,7 +472,8 @@ void* StartSPI_HAL(void * params)
 		//wdm->Kick();
 		usleep(100000);
 	}
-	printf("\r\nKicking off the SPI HAL server\r\n");
+
+	logger->Log("Kicking off the SPI HAL server", LOGGER_LEVEL_INFO);
 	spi_server->SPI_HALServerLoop();
 	pthread_exit(NULL);
 }
@@ -557,7 +560,7 @@ int main(int argc, char * argv[])
 	{
 		logger->Log("PLD Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
 	}
-#endif PLD_EN
+#endif //PLD_EN
 
 #if ERR_EN
 	// ------------------------------------- ERR Thread -------------------------------------
@@ -602,6 +605,20 @@ int main(int argc, char * argv[])
 	}
 #endif //CMD_EN
 
+#if CDH_EN
+	// ------------------------------------- CDH Thread -------------------------------------
+	pthread_t CDHThread;
+	threadCreated = pthread_create(&CDHThread ,NULL,&taskRunCDH, NULL );
+	if(!threadCreated)
+	{
+		logger->Log("CDH Server Thread Creation Success", LOGGER_LEVEL_INFO);
+	}
+	else
+	{
+		logger->Log("CDH Server Thread Creation Failed\n", LOGGER_LEVEL_FATAL);
+	}
+#endif //CDH_EN
+
 #if ETH_EN
 	// ------------------------------------- ETH Thread -------------------------------------
 	pthread_t ETHThread;
@@ -617,37 +634,26 @@ int main(int argc, char * argv[])
 #endif //ETH_EN
 
 #if SPI_EN
+	// ------------------------------------- SPI Thread -------------------------------------
 	pthread_t SPIThread;
 	threadCreated = pthread_create(&SPIThread ,NULL,&StartSPI_HAL, NULL );
 
 	if(!threadCreated)
 	{
-		printf("SPI HALServer Thread Creation Success\n");
+		logger->Log("SPI HALServer Thread Creation Success", LOGGER_LEVEL_INFO);
 	}
 	else
 	{
-		printf("SPI HALServer Thread Creation Failed\n");
+		logger->Log("SPI HALServer Thread Creation Failed", LOGGER_LEVEL_FATAL);
 	}
 #endif //SPI_EN
 
-#if CDH_EN
-	// ------------------------------------- CDH Thread -------------------------------------
-	pthread_t CDHThread;
-	threadCreated = pthread_create(&CDHThread ,NULL,&taskRunCDH, NULL );
-	if(!threadCreated)
-	{
-		logger->Log("CDH Server Thread Creation Success", LOGGER_LEVEL_INFO);
-	}
-	else
-	{
-		logger->Log("CDH Server Thread Creation Failed\n", LOGGER_LEVEL_FATAL);
-	}
-#endif //CDH_EN
+	logger->Log("All servers created!", LOGGER_LEVEL_INFO);
 
 	//CREATE_TASK(taskRunSCH, (const signed char* const)"SCH task", 5000, NULL, 0, NULL);
 	//CREATE_TASK(taskRunCMD, (const signed char* const)"CMD task", 5000, NULL, 0, NULL);
 
-
+	// Suspend execution of main until the following threads exit
 #if ACS_EN
 	pthread_join(ACSThread, NULL);
 #endif //ACS_EN
@@ -672,6 +678,7 @@ int main(int argc, char * argv[])
 	pthread_join(CDHThread, NULL);
 #endif //CDH_EN
 
+	logger->Log("Flight Software exiting from main!", LOGGER_LEVEL_FATAL);
 
 	return 42;
 }

@@ -17,6 +17,7 @@
 #include "core/ConfigMessage.h"
 
 #include "util/FileHandler.h"
+#include "util/Logger.h"
 
 //#include "boards/backplane/dbg_led.h"
 
@@ -29,6 +30,9 @@ namespace Phoenix
 	{
 		ReturnMessage * DispatchPacket(FSWPacket * packet)
 		{
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			logger->Log("DispatchStdTasks: DispatchPacket() Called with FSWPacket", LOGGER_LEVEL_DEBUG);
+
 			//check inputs
 			LocationIDType source = packet->GetSource();
 			LocationIDType destination = packet->GetDestination();
@@ -36,7 +40,7 @@ namespace Phoenix
 			if(source < HARDWARE_LOCATION_MIN || source >= SERVER_LOCATION_MAX
 				|| destination < HARDWARE_LOCATION_MIN || destination >= SERVER_LOCATION_MAX)
 			{
-				DEBUG_COUT("		DispatchPacket: invalid source or destination")
+				logger->Log("DispatcherStdTasks: DispatchPacket(): invalid src/dest!", LOGGER_LEVEL_ERROR);
 				ErrorMessage err(PACKET_FORMAT_FAIL);
 				ReturnMessage * eRet = new ReturnMessage(&err, false);
 				return eRet;
@@ -48,7 +52,7 @@ namespace Phoenix
 			//Dispatch packet, if it fails return DISPATCH_FAILED
 			if(!dispatcher->Dispatch(*packet))
 			{
-				printf("DispatchStdTaks: Failed to dispatch packet\n");
+				logger->Log("DispatchStdTaks: Failed to dispatch packet\n", LOGGER_LEVEL_WARN);
 				ErrorMessage err(DISPATCH_FAILED);
 				ReturnMessage * eRet = new ReturnMessage(&err, false);
 				delete packet;
@@ -59,10 +63,10 @@ namespace Phoenix
 			ReturnMessage retMsg;
 			DispatcherStatusEnum stat;
 			//Wait for return message, if it fails return status response from dispatcher
-			printf("DispatchStdTaks: Waiting for return message\n");
+			logger->Log("DispatchStdTaks: Waiting for return message\n", LOGGER_LEVEL_DEBUG);
 			if(DISPATCHER_STATUS_OK != (stat = dispatcher->WaitForDispatchResponse(*packet, retMsg)))
 			{
-				printf("DispatchStdTaks: Did not receive response\n");
+				logger->Log("DispatchStdTaks: Did not receive response\n", LOGGER_LEVEL_WARN);
 				//debug_led_set_led(7, LED_ON);
 				ErrorMessage err(DISPATCHER_STATUS_ERR);
 				ReturnMessage * eRet = new ReturnMessage(&err, false);
@@ -70,7 +74,7 @@ namespace Phoenix
 				return eRet;
 			}
 
-			printf("DispatchStdTaks: Received return message\n");
+			logger->Log("DispatchStdTaks: Received return message\n", LOGGER_LEVEL_DEBUG);
 
 			delete packet;
 			//Send response message back to caller
@@ -87,10 +91,14 @@ namespace Phoenix
 		ReturnMessage * DispatchPacket(LocationIDType source, LocationIDType destination, uint16 number,
 				uint32 timestamp, MessageTypeEnum type, MessageCodeType opCode)
 		{
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			logger->Log("DispatchStdTasks: DispatchPacket() Called", LOGGER_LEVEL_DEBUG);
+
 			//check inputs
 			if(source < HARDWARE_LOCATION_MIN || source >= SERVER_LOCATION_MAX
 				|| destination < HARDWARE_LOCATION_MIN || destination >= SERVER_LOCATION_MAX)
 			{
+				logger->Log("DispatcherStdTasks: DispatchPacket(): invalid src/dest!", LOGGER_LEVEL_ERROR);
 				ErrorMessage err(PACKET_FORMAT_FAIL);
 				ReturnMessage * eRet = new ReturnMessage(&err, false);
 				return eRet;
@@ -130,12 +138,13 @@ namespace Phoenix
 		Phoenix::Core::ReturnMessage * DispatchPacket(LocationIDType source, LocationIDType destination, uint16 number,
 				uint32 timestamp, MessageTypeEnum type, MessageCodeType opCode, const Phoenix::Core::VariableTypeData & parameterIn)
 		{
-
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			logger->Log("DispatchStdTasks: DispatchPacket() called", LOGGER_LEVEL_DEBUG);
 			//check inputs
 			if(source < HARDWARE_LOCATION_MIN || source >= SERVER_LOCATION_MAX
 					|| destination < HARDWARE_LOCATION_MIN || destination >= SERVER_LOCATION_MAX)
 			{
-				DEBUG_COUT("		DispatchPacket: invalid source or destination")
+				logger->Log("DispatcherStdTasks: DispatchPacket(): invalid src/dest!", LOGGER_LEVEL_ERROR);
 				ErrorMessage err(PACKET_FORMAT_FAIL);
 				ReturnMessage * eRet = new ReturnMessage(&err, false);
 				return eRet;
@@ -148,7 +157,6 @@ namespace Phoenix
 			{
 				case MESSAGE_TYPE_COMMAND:
 					msg = new CommandMessage(opCode, parameterIn);
-					DEBUG_COUT("		DispatchPacket: new command message")
 					break;
 				case MESSAGE_TYPE_DATA:
 					msg = new DataMessage(opCode, parameterIn);
@@ -176,11 +184,14 @@ namespace Phoenix
 		Phoenix::Core::ReturnMessage * DispatchPacket(LocationIDType source, LocationIDType destination, uint16 number,
 				uint32 timestamp, MessageTypeEnum type, MessageCodeType opCode, const std::list<Phoenix::Core::VariableTypeData*> & parametersIn)
 		{
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			logger->Log("DispatchStdTasks: DispatchPacket() called", LOGGER_LEVEL_DEBUG);
 
 			//check inputs
 			if(source < HARDWARE_LOCATION_MIN || source >= SERVER_LOCATION_MAX
 			|| destination < HARDWARE_LOCATION_MIN || destination >= SERVER_LOCATION_MAX)
 			{
+				logger->Log("DispatcherStdTasks: DispatchPacket(): invalid src/dest!", LOGGER_LEVEL_ERROR);
 				ErrorMessage err(PACKET_FORMAT_FAIL);
 				ReturnMessage * eRet = new ReturnMessage(&err, false);
 				return eRet;
@@ -273,6 +284,8 @@ namespace Phoenix
 		void MessageProcess(LocationIDType id, ReturnMessage * retMsg)
 		{
 			FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			logger->Log("DispatchStdTasks: MessageProcess() called", LOGGER_LEVEL_DEBUG);
 			
 			//dispatcher error! Log it
 			MultiDataMessage * dataMessage = dynamic_cast<MultiDataMessage *> (retMsg->GetMessagePtr());
@@ -287,6 +300,7 @@ namespace Phoenix
 			MessageCodeType retOpcode = dataMessage->GetOpcode();
 			if(!success) //error message!
 			{
+				logger->Log("DispatchStdTasks: Got error return message", LOGGER_LEVEL_INFO);
 				if((retOpcode >= DISPATCHER_ERR_START) && (retOpcode <= DISPATCHER_ERR_END))
 				{
 					//dispatcher error! Log it
@@ -367,14 +381,14 @@ namespace Phoenix
 					return;
 			}
 			
-			printf("DispatchStdTasks: Got successful return message!\n");
+			logger->Log("DispatchStdTasks: Got successful return message!", LOGGER_LEVEL_INFO);
 
 			//If we get here that means it wasn't an error message.
 			//Log the success!
 			if(!fileHandler->Log(handlerID, retOpcode, (* dataMessage)))
 			{
 				// write to error log
-				printf("DispatchStdTasks: Failed to log message\n");
+				logger->Log("DispatchStdTasks: Failed to log message", LOGGER_LEVEL_WARN);
 			}
 			//delete retMsg;
 		}

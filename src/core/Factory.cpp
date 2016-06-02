@@ -36,6 +36,7 @@
 
 
 #include "../HAL/Ethernet_Server.h"
+#include "HAL/SPI_Server.h"
 #include "util/FileHandler.h"
 #include "util/Logger.h"
 
@@ -130,6 +131,9 @@ namespace Phoenix
 						break;
 					case ETH_HALSERVER_SINGLETON:
 						instance = new ETH_HALServer();
+						break;
+					case SPI_HALSERVER_SINGLETON:
+						instance = new SPI_HALServer();
 						break;
 #ifdef NOT
 					case RF_INTERFACE_SINGLETON:
