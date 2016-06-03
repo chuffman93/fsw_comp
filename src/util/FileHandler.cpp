@@ -38,6 +38,7 @@
 #include <iostream>
 #include "servers/GPSServer.h"
 #include "util/FileHandler.h"
+#include "util/Logger.h"
 #include "util/itoa.h"
 #include "HAL/RTC.h"
 
@@ -209,6 +210,8 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum logType, string* file){
 bool FileHandler::Log(FileHandlerIDEnum subsystem, MessageCodeType opCode,
                 const MultiDataMessage & message)
 {
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("FileHandler: Log()", LOGGER_LEVEL_DEBUG);
 	string file;
 
 	/*Fetch Time*/
@@ -289,6 +292,7 @@ bool FileHandler::Log(FileHandlerIDEnum subsystem, MessageCodeType opCode,
 
 uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType opCode, string* file)
 {
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
     string filePath;
     string tempFile;
     string fileExtension;
@@ -369,10 +373,13 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType 
 	// else assign tempFile to file.
 	// TODO: Add GPS back in (de-globalize week)
 	if (fileSize(tempFile.c_str())>=MAXFILESIZE){
-		printf("file_size = %d\n", fileSize(tempFile.c_str()));
-		printf("file path= %s\n", tempFile.c_str());
-		puts("file full or nonexistent");
-		printf("week = %d\n", week);
+		//printf("file_size = %d\n", fileSize(tempFile.c_str()));
+		char * out = new char[100];
+		sprintf(out, "file path= %s", tempFile.c_str());
+		logger->Log(out, LOGGER_LEVEL_INFO);
+		delete out;
+		logger->Log("FileHandler: FetchFileName(): file full or nonexistent", LOGGER_LEVEL_DEBUG);
+		//printf("week = %d\n", week);
 
 		//get current time in seconds and week
 		char *temp2 = new char[25];
@@ -396,6 +403,11 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType 
 
 uint8 * FileHandler::ReadFile(const char * fileName, size_t * bufferSize)
 {
+		Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+		char * out = new char[150];
+		sprintf(out, "FileHandler: ReadFile(): %s", fileName);
+		logger->Log(out, LOGGER_LEVEL_DEBUG);
+		delete out;
         uint8 * buffer = NULL;
         FILE * fp;
         size_t result;
@@ -437,6 +449,11 @@ uint8 * FileHandler::ReadFile(const char * fileName, size_t * bufferSize)
 //Append instead of writing?
 uint32 FileHandler::FileWrite(const char * fileName, char * buffer, size_t numBytes)
 {
+		Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+		char * out = new char[150];
+		sprintf(out, "FileHandler: FileWrite(): %s", fileName);
+		logger->Log(out, LOGGER_LEVEL_DEBUG);
+		delete out;
         uint32 rv = 0;
         size_t result;
         //open file for write only
@@ -465,7 +482,11 @@ uint32 FileHandler::FileWrite(const char * fileName, char * buffer, size_t numBy
 
 bool FileHandler::DeleteFile(const char * fileName)
 {
-
+		Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+		char * out = new char[150];
+		sprintf(out, "FileHandler: DeleteFile(): %s", fileName);
+		logger->Log(out, LOGGER_LEVEL_DEBUG);
+		delete out;
         if (true == TakeLock(MAX_BLOCK_TIME))
         {
                 if (remove(fileName) != 0)
