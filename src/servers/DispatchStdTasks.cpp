@@ -377,7 +377,11 @@ namespace Phoenix
 				case SERVER_LOCATION_CMD :
 					handlerID = SUBSYSTEM_CMD;
 					break;
+				case SERVER_LOCATION_CDH :
+					handlerID = SYSTEM_CDH;
+					break;
 				default:
+					logger->Log("DispatchStdTasks: Unknown Server!", LOGGER_LEVEL_ERROR);
 					return;
 			}
 			

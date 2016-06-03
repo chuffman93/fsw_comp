@@ -26,7 +26,7 @@ namespace Phoenix
 
 		bool HotSwap::Init(){
 			//Initialize the fault line GPIO
-			logger->Log("HotSwaps: Initializing", LOGGER_LEVEL_DEBUG);
+			logger->Log("HotSwap: Initializing", LOGGER_LEVEL_DEBUG);
 			char cmdString[100];
 			sprintf(cmdString, "echo \"%d\" > /sys/class/gpio/export", faultLine);
 			system(cmdString);

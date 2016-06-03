@@ -8,11 +8,10 @@
  *  	Authors: Alex St. Clair, Adam St. Amand
  */
 
-/*TODO List - BEFORE TUESDAY
+/*TODO List
  * 1.) Change over to C style file pointers XXXXXXFinishedXXXXX
  * 2.) Implement Time Retrieval (GPS)
  * 3.) Design Testing to exercise all the above
- *AFTER TUESDAY
  * 4.) Storage Management (Delete things when needed/Recognize when storage is full).
  * Implement storage monitor
  *

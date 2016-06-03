@@ -6,6 +6,7 @@
  */
 #include <fcntl.h>
 #include "HAL/I2C/PowerMonitor.h"
+#include "util/Logger.h"
 
 namespace Phoenix
 {
@@ -18,6 +19,9 @@ namespace Phoenix
 		}
 
 		void PowerMonitor::Init(PowerMonitor_Config *config){
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			logger->Log("PowerMonitor: Initializing", LOGGER_LEVEL_DEBUG);
+
 			//Write to the configuration register
 			uint8_t buf[2];
 			buf[0] = PWRMON_CONTROL;
@@ -63,6 +67,9 @@ namespace Phoenix
 		}
 
 		void PowerMonitor::StartMeasurement(){
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			logger->Log("PowerMonitor: StartMeasurement()", LOGGER_LEVEL_DEBUG);
+
 			I2C_writeReg(PWRMON_CONTROL, I2C_readReg(PWRMON_CONTROL) | 0x10);
 
 			I2C_writeReg(PWRMON_MAXPOWMSB2, 0xFF);
@@ -91,6 +98,9 @@ namespace Phoenix
 		}
 
 		void PowerMonitor::Status(PowerMonitor_Data *data){
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			logger->Log("PowerMonitor: Status()", LOGGER_LEVEL_DEBUG);
+
 			uint32_t raw;
 			//Read values for Power
 			raw = (I2C_readReg(PWRMON_MAXPOWMSB2) << 16) | (I2C_readReg(PWRMON_MAXPOWMSB1) << 8) | I2C_readReg(PWRMON_MAXPOWLSB);

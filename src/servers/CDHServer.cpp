@@ -35,7 +35,7 @@ using namespace std;
 #define STOR_EN 0
 #define TEMP_EN 0
 #define HS_EN	1
-#define PM_EN	0
+#define PM_EN	1
 
 namespace Phoenix
 {
@@ -157,11 +157,16 @@ namespace Phoenix
 			logger->Log("CDHServer Subsystem loop entered", LOGGER_LEVEL_INFO);
 
 			devMan = new I2CDeviceManager();
+#if HS_EN
 			bool initHS = devMan->initializeHS();
-			devMan->initializePM();
 			if(!initHS){
 				logger->Log("CDHServer: Error initializing hot swaps!", LOGGER_LEVEL_ERROR);
 			}
+#endif //HS_EN
+
+#if PM_EN
+			devMan->initializePM();
+#endif //PM_EN
 
 			ReturnMessage * TSRet;
 			ReturnMessage * TRRet;
@@ -170,6 +175,7 @@ namespace Phoenix
 			ReturnMessage * StrRet;
 			ReturnMessage * HtswRet;
 			ReturnMessage * PMRet;
+			ReturnMessage * SPMRet;
 
 			uint64_t LastWakeTime = 0;
 			uint8 seconds = 0;
@@ -181,16 +187,27 @@ namespace Phoenix
 				LastWakeTime = getTimeInMilis();
 				//wdm->Kick();
 
+				if((seconds % 60) == 0){
+					seconds = 0;
+				}
+
 				// Start sensors for reading next round
-#if TEMP_EN
+#if PM_EN
 				if((seconds % 10) == 0){
+					SPMRet = CDHStartPM();
+					MessageProcess(SERVER_LOCATION_CDH, SPMRet);
+				}
+#endif //PM_EN
+
+#if TEMP_EN
+				if(((seconds-8) % 10) == 0){
 					TSRet = CDHTempStart();
 					MessageProcess(SERVER_LOCATION_CDH, TSRet);
 				}
 #endif //TEMP_EN
 
 				// Get all CDH information
-				if(((seconds - 1) % 10) == 0){
+				if(((seconds - 9) % 10) == 0){
 					logger->Log("CDHServer: Gathering information", LOGGER_LEVEL_DEBUG);
 
 #if CPU_EN
