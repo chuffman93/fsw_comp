@@ -408,7 +408,8 @@ uint8 * FileHandler::ReadFile(const char * fileName, size_t * bufferSize)
 		sprintf(out, "FileHandler: ReadFile(): %s", fileName);
 		logger->Log(out, LOGGER_LEVEL_DEBUG);
 		delete out;
-        uint8 * buffer = NULL;
+
+		uint8 * buffer = NULL;
         FILE * fp;
         size_t result;
         if (true == TakeLock(MAX_BLOCK_TIME))

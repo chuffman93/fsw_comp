@@ -185,16 +185,16 @@ using namespace Phoenix::Servers;
 #define DEBUG
 
 #define ACS_EN 0
-#define CDH_EN 1
+#define CDH_EN 0
 #define CMD_EN 0
 #define COM_EN 0
-#define EPS_EN 0
+#define EPS_EN 1
 #define ERR_EN 0
 #define PLD_EN 0
 #define THM_EN 0
 
 #define ETH_EN 0
-#define SPI_EN 0
+#define SPI_EN 1
 
 //----------------------- Create server tasks -----------------------
 //TODO:Add meaningful exit information to each server pthread_exit
@@ -481,6 +481,8 @@ void * StartSPI_HAL(void * params)
 
 int main(int argc, char * argv[])
 {
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("Entered Flight Software", LOGGER_LEVEL_FATAL);
 /*
 	PowerInit();
 	RTCSetTime(0);
@@ -494,7 +496,6 @@ int main(int argc, char * argv[])
 	//watchdog manager must be called first
 	//Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON);
 	Dispatcher * disp = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	Factory::GetInstance(FILE_HANDLER_SINGLETON);
 	Factory::GetInstance(ERROR_QUEUE_SINGLETON);
