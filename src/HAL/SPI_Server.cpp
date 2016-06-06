@@ -253,6 +253,7 @@ int SPI_HALServer::spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, in
 		//Wait for interrupt before sending next byte
 		printf("Waiting for interrupt \n");
 		poll(fds, 1, timeout);
+		printf("After poll\n");
 		ret = read(fds->fd, &dummy, 1);
 		printf("revent = %x\n", fds->revents);
 		if(fds->fd < 0){
