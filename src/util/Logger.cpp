@@ -43,33 +43,7 @@ Logger::~Logger(void){
 void Logger::Log(char const * message, LoggerLevelType level_in){
 
 	if(level_in >= threshold){
-		// Log all of the thread and time info
-		// Print thread and time info
-		printf("(%u)", getTimeInMilis());
-		printf("[PID: %d]", getpid());
-		printf("[TID: %u] ", (uint16) pthread_self());
-
-		// Display the log level
-		switch(level_in){
-		case LOGGER_LEVEL_DEBUG:
-			printf("DEBUG:\t");
-			break;
-		case LOGGER_LEVEL_INFO:
-			printf("INFO:\t");
-			break;
-		case LOGGER_LEVEL_WARN:
-			printf("WARN:\t");
-			break;
-		case LOGGER_LEVEL_ERROR:
-			printf("ERROR:\t");
-			break;
-		case LOGGER_LEVEL_FATAL:
-			printf("FATAL:\t");
-			break;
-		default:
-			// maybe add assert on bounds
-			break;
-		}
+		GetInfo(level_in);
 
 		// Display the message
 		printf("%s\n", message);
@@ -78,4 +52,70 @@ void Logger::Log(char const * message, LoggerLevelType level_in){
 
 void Logger::Log(string message, LoggerLevelType level_in){
 	Log(message.c_str(), level_in);
+}
+
+void Logger::Log(char const * message, int int_in, LoggerLevelType level_in){
+	if(level_in >= threshold){
+		GetInfo(level_in);
+
+		// Display the message
+		printf(message, int_in);
+		printf("\n");
+	}
+}
+
+void Logger::Log(char const * message, uint32 uint_in, LoggerLevelType level_in){
+	if(level_in >= threshold){
+		GetInfo(level_in);
+
+		// Display the message
+		printf(message, uint_in);
+		printf("\n");
+	}
+}
+
+void Logger::Log(char const * message, const char * char_in, LoggerLevelType level_in){
+	if(level_in >= threshold){
+		GetInfo(level_in);
+
+		// Display the message
+		printf(message, char_in);
+		printf("\n");
+	}
+}
+
+void Logger::Log(char const * message, string str_in, LoggerLevelType level_in){
+	Log(message, str_in.c_str(), level_in);
+}
+
+void Logger::Log(string message, string str_in, LoggerLevelType level_in){
+	Log(message.c_str(), str_in.c_str(), level_in);
+}
+
+void Logger::GetInfo(LoggerLevelType level_in){
+	printf("(%u)", getTimeInMilis());
+	printf("[PID: %d]", getpid());
+	printf("[TID: %u] ", (uint16) pthread_self());
+
+	// Display the log level
+	switch(level_in){
+	case LOGGER_LEVEL_DEBUG:
+		printf("DEBUG:\t");
+		break;
+	case LOGGER_LEVEL_INFO:
+		printf("INFO:\t");
+		break;
+	case LOGGER_LEVEL_WARN:
+		printf("WARN:\t");
+		break;
+	case LOGGER_LEVEL_ERROR:
+		printf("ERROR:\t");
+		break;
+	case LOGGER_LEVEL_FATAL:
+		printf("FATAL:\t");
+		break;
+	default:
+		// maybe add assert on bounds
+		break;
+	}
 }

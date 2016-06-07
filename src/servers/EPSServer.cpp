@@ -247,7 +247,7 @@ namespace Phoenix
 				currentMode = modeManager->GetMode();
 
 
-				if ((seconds % 10) == 0 )
+				if ((seconds % 2) == 0 )
 				{
 					
 					// Functions

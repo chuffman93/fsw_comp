@@ -20,6 +20,7 @@
 
 #include "HAL/Power.h"
 #include "HAL/Interrupt.h"
+#include "util/Logger.h"
 
 //#include "boards/backplane/dbg_led.h"
 
@@ -32,8 +33,9 @@ namespace Phoenix
 	{
 		ReturnMessage * EPSHealthStat()
 		{
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 			ReturnMessage * HSRet = DispatchPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, 1, 0, MESSAGE_TYPE_COMMAND, EPS_HS_CMD);
-			printf("packet dispatched, HSRet acquired\n");
+			logger->Log("EPSStdTasks: EPSHealthStat(): packet dispatched, HSRet acquired\n", LOGGER_LEVEL_INFO);
 			
 			// Translate H&S into beacon form
 			//COMServer * comServer = dynamic_cast<COMServer *> (Factory::GetInstance(COM_SERVER_SINGLETON));
@@ -43,11 +45,11 @@ namespace Phoenix
 				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
 				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
 				VAR_TYPE_ENUM_UNSIGNED_INT
-				};
+			};
 
 			if(!ExtractParameters(*HSRet,enumArray,10,outputArray))
 			{
-				// Error
+				logger->Log("EPSStdTasks: EPSHealthStat(): error extracting parameters\n", LOGGER_LEVEL_WARN);
 			}
 			else 
 			{

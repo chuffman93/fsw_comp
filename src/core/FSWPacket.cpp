@@ -39,7 +39,7 @@ namespace Phoenix
             source = sourceIn;
             destination = destIn;
             timestamp = timestampIn;
-            opcode = 0; //Probably needs to be changed [Adam]
+            opcode = messageIn->GetOpcode();
             status = 0;
             if (messageIn != NULL)
             {
@@ -154,7 +154,7 @@ namespace Phoenix
                 timestamp = 0;
                 messagePtr = NULL;
                 status = 0;
-                opcode = 0; //Probably needs to be changed [Adam]
+                opcode = packetSource.GetMessagePtr()->GetOpcode();
                 return;
             }
             messagePtr = packetSource.GetMessagePtr()->Duplicate();
@@ -166,7 +166,7 @@ namespace Phoenix
                 number = 0;
                 timestamp = 0;
                 opcode = 0;
-                status = 0; //Probably needs to be changed [Adam]
+                status = 0; // TODO: Definitely needs to be changed [Alex]
                 return;
             }
 			
@@ -330,6 +330,7 @@ namespace Phoenix
 
             *(buffer++) = status & 0xFF;
             *(buffer++) = opcode & 0xFF;
+            printf("Opcode: %d\n",opcode);
             numCopied+=2;
             size-=2;
 

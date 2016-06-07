@@ -338,9 +338,7 @@ bool Dispatcher::Listen(LocationIDType serverID)
 			= it->second->arby->Authenticate(*packet)))
 	{
 		logger->Log("   Dispatcher: Listen(): Don't have permissions, reject packet.", LOGGER_LEVEL_ERROR);
-		char * out = new char[100];
-		sprintf(out, "   Dispatcher: Listen(): Authenticate returned: %d", arbyRet);
-		logger->Log(out, LOGGER_LEVEL_ERROR);
+		logger->Log("   Dispatcher: Listen(): Authenticate returned: %d", arbyRet, LOGGER_LEVEL_ERROR);
 		if (SendErrorResponse(ERROR_OPCODE_PACKET_NOT_ALLOWED, packet,
 				(uint32) arbyRet))
 		{
@@ -612,10 +610,7 @@ uint32_t Dispatcher::DispatchToHardware( FSWPacket & packet)
 	int protocolChoice = -1;
 
 	packetLength = packet.GetFlattenSize();
-	char * packetStr = new char[100];
-	sprintf(packetStr, "DispatchtoHardware(): dispatch packet size %d",packet.GetFlattenSize());
-	logger->Log(packetStr, LOGGER_LEVEL_DEBUG);
-	delete packetStr;
+	logger->Log("DispatchtoHardware(): dispatch packet size %d", packetLength, LOGGER_LEVEL_DEBUG);
 
 //	pthread_t self_id;
 //	self_id = pthread_self();

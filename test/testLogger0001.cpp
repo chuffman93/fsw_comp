@@ -9,6 +9,7 @@
 #include "gtest/gtest.h"
 #include "core/StdTypes.h"
 #include "core/Factory.h"
+#include <string>
 
 using namespace std;
 using namespace rel_ops;
@@ -24,4 +25,19 @@ TEST(TestLogger, testSingleton){
 	logger->Log("Test warning", LOGGER_LEVEL_WARN);
 	logger->Log("Test error", LOGGER_LEVEL_ERROR);
 	logger->Log("Test fatal", LOGGER_LEVEL_FATAL);
+}
+
+TEST(TestLogger, testOverload){
+	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
+
+	string str = "string";
+	string str2 = "Test string 2: %s";
+
+	logger->Log("Test normal", LOGGER_LEVEL_INFO);
+	logger->Log(str, LOGGER_LEVEL_INFO);
+	logger->Log("Test int: %d", (int) -10, LOGGER_LEVEL_INFO);
+	logger->Log("Test uint: %u", (uint32) 10, LOGGER_LEVEL_INFO);
+	logger->Log("Test char[]: %s", "Test", LOGGER_LEVEL_INFO);
+	logger->Log("Test string: %s", str, LOGGER_LEVEL_INFO);
+	logger->Log(str2, str, LOGGER_LEVEL_INFO);
 }

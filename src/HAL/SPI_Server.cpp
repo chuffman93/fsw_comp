@@ -50,7 +50,7 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 
 	int i ,ret, len;
 
-	uint8_t mode = SPI_MODE_0 | SPI_CS_HIGH;
+	uint8_t mode = SPI_MODE_1;
 	uint32_t speed = 1000000;
 	uint8_t buf;
 	int timeout = -1;
@@ -115,8 +115,8 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 		printf("\n*****************************************************\n");
 		printf("SPI_HAL Server: Waiting for messages\n ");
 		printf("\n*****************************************************\n");
-		char buf[10] = "Start";
-		system("echo \"Start\" > Logfile.txt");
+//		char buf[10] = "Start";
+//		system("echo \"Start\" > Logfile.txt");
 
 		errno = 0;
 
@@ -124,27 +124,29 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 		//Wait for interrupt
 		printf("Waiting for interrupt\n");
 
+		usleep(1000000000);
+
 		//Poll for slave start on INT pins
-		int retval = poll(poll_fds, NUM_SLAVES, -1);
-		printf("retval = %d, revents = %x\n", retval, poll_fds[0].revents);
+		//int retval = poll(poll_fds, NUM_SLAVES, -1);
+		//printf("retval = %d, revents = %x\n", retval, poll_fds[0].revents);
 
 		//TODO Correct take lock
-		if (true == this->TakeLock(20)){
-
-			//Figure out if there was an interrupt
-			for(int i = 0; i < NUM_SLAVES; i++){
-				puts("reading interrupt fds...\n");
-				read(int_fds[i], &buf, 1);
-				if(poll_fds[i].revents & POLLPRI){
-					//send null packet
-					packet = new FSWPacket(SERVER_LOCATION_MIN + i, HARDWARE_LOCATION_MIN + i , 1, 0, NULL);
-					printf("found interrupt on fds %d\n", i);
-					SPIDispatch(*packet);
-					break;
-				}
-			}
-		}
-		this->GiveLock();
+//		if (true == this->TakeLock(20)){
+//
+//			//Figure out if there was an interrupt
+//			for(int i = 0; i < NUM_SLAVES; i++){
+//				puts("reading interrupt fds...\n");
+//				read(int_fds[i], &buf, 1);
+//				if(poll_fds[i].revents & POLLPRI){
+//					//send null packet
+//					packet = new FSWPacket(SERVER_LOCATION_MIN + i, HARDWARE_LOCATION_MIN + i , 1, 0, NULL);
+//					printf("found interrupt on fds %d\n", i);
+//					SPIDispatch(*packet);
+//					break;
+//				}
+//			}
+//			this->GiveLock();
+//		}
 		printf("\n*****************************************************\n ");
 
 	}
@@ -189,9 +191,11 @@ int SPI_HALServer::SPIDispatch(Phoenix::Core::FSWPacket & packet){
 	}
 
 	destination = packet.GetDestination();
+	int source = packet.GetSource();
 	printf("destination = %d\n", destination);
+	printf("source = %d\n", source);
 	get_int_fds(destination-1, &fds);
-	slave_fd = get_slave_fd(destination-1);
+	slave_fd = get_slave_fd(destination);
 
 	//take_lock
 	logger->Log("SPI_Server: SPIDispatch(): Writing packet to SPI", LOGGER_LEVEL_DEBUG);
@@ -240,10 +244,11 @@ int SPI_HALServer::spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, in
 	//char dummy[64];
 	int fd = fds->fd;
 	//TODO Add timeout
-	//read(fds->fd, &dummy, 1);
+	read(fds->fd, &dummy, 1);
 
 	while(buf_pt != len){
 		printf("Writing byte %d\n", buf_pt);
+		printf("Byte value: %x\n", *(buf + buf_pt));
 		ret = write(slave_fd, buf + buf_pt, wr_size);
 		if(ret != wr_size){
 			perror("Error sending byte\n");
@@ -251,11 +256,16 @@ int SPI_HALServer::spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, in
 		buf_pt++;
 
 		//Wait for interrupt before sending next byte
-		printf("Waiting for interrupt \n");
-		poll(fds, 1, timeout);
+		printf("Waiting for interrupt HERE\n");
+		if (true == this->TakeLock(2000)){
+			printf("Polling\n");
+			int retval = poll(fds, 1, timeout);
+			printf("Poll return: %d", retval);
+			this->GiveLock();
+		}
 		printf("After poll\n");
 		ret = read(fds->fd, &dummy, 1);
-		printf("revent = %x\n", fds->revents);
+		printf("revent = 0x%x\n", fds->revents);
 		if(fds->fd < 0){
 			perror("Err opening\n");
 		}
@@ -309,7 +319,7 @@ int SPI_HALServer::spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_bufp){
 			ret = ioctl(slave_fd, SPI_IOC_MESSAGE(1), &tr);
 			rx_buf[buf_pt] = rx;
 
-			printf("%X\n", rx);
+			printf("0x%X\n", rx);
 			buf_pt++;
 		}
 
@@ -332,7 +342,7 @@ int SPI_HALServer::spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_bufp){
 			ret = ioctl(slave_fd, SPI_IOC_MESSAGE(1), &tr);
 			rx_buf[buf_pt] = rx;
 
-			printf("%d\n", rx);
+			printf("0x%x\n", rx);
 			buf_pt++;
 		}
 
@@ -354,6 +364,7 @@ int SPI_HALServer::get_int_fds(int subsystem, struct pollfd * poll_fds){
 }
 
 int SPI_HALServer::get_slave_fd(int subsystem){
+	//subsystem = 1; // TODO: this breaks literally everything
 	return spi_fds[subsystem];
 }
 

@@ -95,12 +95,14 @@ namespace Phoenix
         	//If this message is a response, create a new ReturnMessage
         	if (response)
         	{
+        		printf("Creating return message\n");
         		//Create new ReturnMessage with prior message and success as the parameters
         		tmp = new ReturnMessage(ret,success);
         		delete ret;
         		ret = tmp;
         	}
 
+        	printf("Returning\n");
         	return ret;
 		}
     }
