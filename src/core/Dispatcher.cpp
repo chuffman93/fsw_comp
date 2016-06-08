@@ -610,7 +610,7 @@ uint32_t Dispatcher::DispatchToHardware( FSWPacket & packet)
 	int protocolChoice = -1;
 
 	packetLength = packet.GetFlattenSize();
-	logger->Log("DispatchtoHardware(): dispatch packet size %d", packetLength, LOGGER_LEVEL_DEBUG);
+	logger->Log("DispatchtoHardware(): dispatch packet size %d", (uint32) packetLength, LOGGER_LEVEL_DEBUG);
 
 //	pthread_t self_id;
 //	self_id = pthread_self();

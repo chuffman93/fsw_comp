@@ -98,7 +98,7 @@ namespace Phoenix
         		printf("Creating return message\n");
         		//Create new ReturnMessage with prior message and success as the parameters
         		tmp = new ReturnMessage(ret,success);
-        		delete ret;
+        		//delete ret;
         		ret = tmp;
         	}
 

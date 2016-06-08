@@ -28,6 +28,7 @@ class Logger : public Phoenix::Core::Singleton{
 		void Log(string message, LoggerLevelType level_in);
 		void Log(char const * message, int int_in, LoggerLevelType level_in);
 		void Log(char const * message, uint32 uint_in, LoggerLevelType level_in);
+		void Log(char const * message, float float_in, LoggerLevelType level_in);
 		void Log(char const * message, const char * char_in, LoggerLevelType level_in);
 		void Log(char const * message, string str_in, LoggerLevelType level_in);
 		void Log(string message, string str_in, LoggerLevelType level_in);

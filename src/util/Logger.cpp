@@ -74,6 +74,16 @@ void Logger::Log(char const * message, uint32 uint_in, LoggerLevelType level_in)
 	}
 }
 
+void Logger::Log(char const * message, float float_in, LoggerLevelType level_in){
+	if(level_in >= threshold){
+		GetInfo(level_in);
+
+		//Display the message
+		printf(message, float_in);
+		printf("\n");
+	}
+}
+
 void Logger::Log(char const * message, const char * char_in, LoggerLevelType level_in){
 	if(level_in >= threshold){
 		GetInfo(level_in);

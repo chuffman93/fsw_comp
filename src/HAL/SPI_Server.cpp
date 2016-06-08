@@ -112,9 +112,9 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 
 	while (1) {
 
-		printf("\n*****************************************************\n");
-		printf("SPI_HAL Server: Waiting for messages\n ");
-		printf("\n*****************************************************\n");
+		logger->Log("\n*****************************************************", LOGGER_LEVEL_DEBUG);
+		logger->Log("SPI_HAL Server: Waiting for messages", LOGGER_LEVEL_DEBUG);
+		logger->Log("\n*****************************************************", LOGGER_LEVEL_DEBUG);
 //		char buf[10] = "Start";
 //		system("echo \"Start\" > Logfile.txt");
 
@@ -147,7 +147,7 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 //			}
 //			this->GiveLock();
 //		}
-		printf("\n*****************************************************\n ");
+		//printf("\n*****************************************************\n ");
 
 	}
 }
@@ -169,10 +169,7 @@ int SPI_HALServer::SPIDispatch(Phoenix::Core::FSWPacket & packet){
 
 	packetLength = packet.GetFlattenSize();
 
-	char * out = new char[100];
-	snprintf(out, 99, "SPI_Server: SPIDispatch(): Hardware dispatch packet size %d", packetLength);
-	logger->Log(out, LOGGER_LEVEL_DEBUG);
-	delete out;
+	logger->Log("SPI_Server: SPIDispatch(): Hardware dispatch packet size %d", (uint32) packetLength, LOGGER_LEVEL_DEBUG);
 
 	if(packetLength >= MAX_PACKET_SIZE)
 	{
@@ -192,8 +189,8 @@ int SPI_HALServer::SPIDispatch(Phoenix::Core::FSWPacket & packet){
 
 	destination = packet.GetDestination();
 	int source = packet.GetSource();
-	printf("destination = %d\n", destination);
-	printf("source = %d\n", source);
+	logger->Log("destination = %d\n", destination, LOGGER_LEVEL_DEBUG);
+	logger->Log("source = %d\n", source, LOGGER_LEVEL_DEBUG);
 	get_int_fds(destination-1, &fds);
 	slave_fd = get_slave_fd(destination);
 
@@ -204,15 +201,16 @@ int SPI_HALServer::SPIDispatch(Phoenix::Core::FSWPacket & packet){
 	//give lock
 	nbytes = spi_read(slave_fd, &fds, &rx_buf);
 	logger->Log("SPI_Server: SPIDispatch(): Received return message!", LOGGER_LEVEL_DEBUG);
-	printf("packet = %2X\n", rx_buf);
+	logger->Log("Packet = %2X\n", (uint32) rx_buf, LOGGER_LEVEL_DEBUG);
 
 	retPacket = new FSWPacket(rx_buf, nbytes);
 	logger->Log("Now putting that FSW Packet into the message queue using Dispatch!", LOGGER_LEVEL_DEBUG);
 
 	if((retPacket->GetDestination() == LOCATION_ID_INVALID )|| (retPacket->GetSource() == LOCATION_ID_INVALID))
 	{
-		logger->Log("FSW Packet src or dest invalid. Not placing on queue\n", LOGGER_LEVEL_DEBUG);
-		printf("src %d dest %d\n", retPacket->GetDestination(), retPacket->GetSource());
+		logger->Log("FSW Packet src or dest invalid. Not placing on queue", LOGGER_LEVEL_DEBUG);
+		logger->Log("Ret dest: %d", retPacket->GetDestination(), LOGGER_LEVEL_DEBUG);
+		logger->Log("Ret source: %d",retPacket->GetSource(), LOGGER_LEVEL_DEBUG);
 		//todo log error
 		delete retPacket;
 	}
@@ -222,9 +220,9 @@ int SPI_HALServer::SPIDispatch(Phoenix::Core::FSWPacket & packet){
 
 		if(!dispatcher->Dispatch(*retPacket))
 		{
-			printf("\r\nError in dispatch\r\n");
+			logger->Log("SPIServer: Error in dispatch", LOGGER_LEVEL_WARN);
 		}
-		printf("SPI Server: Dispatched packet successfully\n");
+		logger->Log("SPIServer: Dispatched packet successfully", LOGGER_LEVEL_INFO);
 
 
 		system("echo \"Yay\" > Logfile.txt");
@@ -236,6 +234,7 @@ int SPI_HALServer::SPIDispatch(Phoenix::Core::FSWPacket & packet){
 }
 
 int SPI_HALServer::spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, int len){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	int buf_pt = 0;
 	int wr_size = 1;
 	int timeout = -1;
@@ -247,25 +246,26 @@ int SPI_HALServer::spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, in
 	read(fds->fd, &dummy, 1);
 
 	while(buf_pt != len){
-		printf("Writing byte %d\n", buf_pt);
-		printf("Byte value: %x\n", *(buf + buf_pt));
+		logger->Log("Writing byte %d", buf_pt, LOGGER_LEVEL_DEBUG);
+		logger->Log("Byte value: ----------------------- 0x%x", *(buf + buf_pt), LOGGER_LEVEL_DEBUG);
 		ret = write(slave_fd, buf + buf_pt, wr_size);
 		if(ret != wr_size){
+			logger->Log("spi_write: Failed to write byte!", LOGGER_LEVEL_WARN);
 			perror("Error sending byte\n");
 		}
 		buf_pt++;
 
 		//Wait for interrupt before sending next byte
-		printf("Waiting for interrupt HERE\n");
+		logger->Log("Waiting for interrupt after byte send", LOGGER_LEVEL_DEBUG);
 		if (true == this->TakeLock(2000)){
-			printf("Polling\n");
+			logger->Log("spi_write: Polling", LOGGER_LEVEL_DEBUG);
 			int retval = poll(fds, 1, timeout);
-			printf("Poll return: %d", retval);
+			logger->Log("spi_write: Poll return: %d", retval, LOGGER_LEVEL_DEBUG);
 			this->GiveLock();
 		}
-		printf("After poll\n");
+		logger->Log("spi_write: After poll", LOGGER_LEVEL_DEBUG);
 		ret = read(fds->fd, &dummy, 1);
-		printf("revent = 0x%x\n", fds->revents);
+		logger->Log("spi_write: revent = 0x%x", fds->revents, LOGGER_LEVEL_DEBUG);
 		if(fds->fd < 0){
 			perror("Err opening\n");
 		}
@@ -275,7 +275,7 @@ int SPI_HALServer::spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, in
 }
 
 int SPI_HALServer::spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_bufp){
-
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	int buf_pt = 0;
 	int wr_size = 1;
 	int timeout = -10;
@@ -309,40 +309,40 @@ int SPI_HALServer::spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_bufp){
 
 		for(i = 0; i < 14; i++){
 			//Wait for interrupt before sending next byte
-			printf("Waiting for interrupt\n");
+			logger->Log("spi_read: Waiting for interrupt", LOGGER_LEVEL_DEBUG);
 			poll(fds, 1, timeout);
 			ret = read(fds->fd, &dummy, 1);
-			printf("Reading byte %d: ", buf_pt);
+			logger->Log("spi_read: Reading byte %d: ", buf_pt, LOGGER_LEVEL_DEBUG);
 			tr.tx_buf =  (unsigned long) &tx;
 			tr.rx_buf =  (unsigned long) &rx;
 
 			ret = ioctl(slave_fd, SPI_IOC_MESSAGE(1), &tr);
 			rx_buf[buf_pt] = rx;
 
-			printf("0x%X\n", rx);
+			logger->Log("spi_read: byte value: ------------- 0x%X", rx, LOGGER_LEVEL_DEBUG);
 			buf_pt++;
 		}
 
-		printf("Allocating memory for packet\n");
+		logger->Log("spi_read: Allocating memory for packet", LOGGER_LEVEL_DEBUG);
 		//Allocate more memory based on length
 		packet_len = (rx_buf[12] << 8 | rx_buf[13]) + 16;
-		printf("allocating %d\n", packet_len);
+		logger->Log("spi_read: allocating %d", packet_len, LOGGER_LEVEL_DEBUG);
 		rx_buf = (uint8 *) realloc(rx_buf, packet_len * sizeof(uint8));
 
 		//Read in remaining bytes
 		for(i = 0; i < packet_len - 14; i++){
 			//Wait for interrupt before sending next byte
-			printf("Waiting for interrupt\n");
+			logger->Log("spi_read: Waiting for interrupt", LOGGER_LEVEL_DEBUG);
 			poll(fds, 1, timeout);
 			ret = read(fds->fd, &dummy, 1);
-			printf("Reading byte %d: ", buf_pt);
+			logger->Log("spi_read: Reading byte %d: ", buf_pt, LOGGER_LEVEL_DEBUG);
 			tr.tx_buf =  (unsigned long) &tx;
 			tr.rx_buf =  (unsigned long) &rx;
 
 			ret = ioctl(slave_fd, SPI_IOC_MESSAGE(1), &tr);
 			rx_buf[buf_pt] = rx;
 
-			printf("0x%x\n", rx);
+			logger->Log("spi_read: byte value: ------------- 0x%x", rx, LOGGER_LEVEL_DEBUG);
 			buf_pt++;
 		}
 

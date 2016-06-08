@@ -228,9 +228,9 @@ bool FileHandler::Log(FileHandlerIDEnum subsystem, MessageCodeType opCode,
 	/*Fill buffer with data to be written and write buffer to file*/
 	size_t size = 0;
 	if (notPLDData)
-		{
-				size += 9;
-		}
+	{
+			size += 9;
+	}
 
 	//Size holds the size of the buffer we will be storing the data to write//
 	//Extract message from MultiDataMessage an place into list params//
