@@ -205,6 +205,7 @@ int SPI_HALServer::SPIDispatch(Phoenix::Core::FSWPacket & packet){
 
 	retPacket = new FSWPacket(rx_buf, nbytes);
 	logger->Log("Now putting that FSW Packet into the message queue using Dispatch!", LOGGER_LEVEL_DEBUG);
+	free(rx_buf);
 
 	if((retPacket->GetDestination() == LOCATION_ID_INVALID )|| (retPacket->GetSource() == LOCATION_ID_INVALID))
 	{

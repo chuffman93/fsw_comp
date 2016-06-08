@@ -46,6 +46,22 @@ namespace Phoenix
             FSWPacket(LocationIDType sourceIn, LocationIDType destIn, uint16 numberIn, uint32 timestampIn, Message * messageIn);
 
             /*! \brief Constructor for the FSWPacket Class
+			 *
+			 *  Creates a packet object with the given source, destination,
+			 *  number, and message.
+			 *
+			 *  \param sourceIn Source of the packet.
+			 *  \param destIn Destination of the packet.
+			 *  \param numberIn Number of the packet.  This value is only used
+			 *  if messageIn is a ReturnMessage.
+			 *  \param timestampIn Timestamp of the packet.
+			 *  \param messageIn Pointer to the message of the packet.  This
+			 *  parameter is duplicated internally and is not changed by
+			 *  this constructor.
+			 */
+            FSWPacket(LocationIDType sourceIn, LocationIDType destIn, uint16 numberIn, uint32 timestampIn, uint8 opcodeIn, uint8 * messageIn);
+
+            /*! \brief Constructor for the FSWPacket Class
              *
              *  Creates a packet object from the given buffer as specified in
              *  the xxx Specification.
@@ -99,6 +115,10 @@ namespace Phoenix
              *  \return A pointer to the message in the packet.
              */
             Message * GetMessagePtr(void) const;
+
+            uint8 * GetMessageBufPtr(void) const;
+
+            uint16 GetMessageLength(void) const;
 
             /*! \brief Returns the current value of packetCounter. */
             std::size_t GetPacketCounter(void) const;
@@ -161,14 +181,29 @@ namespace Phoenix
             /*! \brief Timestamp of the FSWPacket */
             uint32 timestamp;
 
-            /* brief status of the FSWPacket */
+            /* \brief status of the FSWPacket */
             uint8 status;
 
-            /* brief opcode of the FSWPacket */
+            /* \brief tells if the packet is a response */
+            bool response;
+
+            /* \brief tells the success of the operation */
+            bool success;
+
+            /* \brief type of the packet */
+            MessageTypeEnum type;
+
+            /* \brief length of the message */
+            uint16 length;
+
+            /* \brief opcode of the FSWPacket */
             uint8 opcode;
 
             /*! \brief Message of the FSWPacket */
             Message * messagePtr;
+
+            /*! \brief Message of the FSWPacket */
+            uint8 * messageBuf;
 
             /*! \brief Number Counter for the FSWPacket */
             static std::size_t packetCounter;

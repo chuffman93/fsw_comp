@@ -10,6 +10,7 @@
 //
 
 #include "core/FSWPacket.h"
+#include "util/Logger.h"
 #include "util/crc.h"
 #include <stdio.h>
 
@@ -26,6 +27,7 @@ namespace Phoenix
         FSWPacket::FSWPacket(void )
         {
             messagePtr = NULL;
+            messageBuf = NULL;
             source = LOCATION_ID_INVALID;
             number = 0;
             opcode = 0; //Probably (maybe) needs to be changed [Adam]
@@ -36,11 +38,14 @@ namespace Phoenix
 
         FSWPacket::FSWPacket(LocationIDType sourceIn, LocationIDType destIn, uint16 numberIn, uint32 timestampIn, Message * messageIn)
         {
+        	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+        	logger->Log("FSW Packet: outdated constructor called!", LOGGER_LEVEL_ERROR);
             source = sourceIn;
             destination = destIn;
             timestamp = timestampIn;
             opcode = messageIn->GetOpcode();
             status = 0;
+            messageBuf = NULL; //TODO: remove this
             if (messageIn != NULL)
             {
                 messagePtr = messageIn->Duplicate();
@@ -70,78 +75,138 @@ namespace Phoenix
             }
         }
 
-        FSWPacket::FSWPacket(uint8 * buffer, std::size_t size)
+        FSWPacket::FSWPacket(LocationIDType sourceIn, LocationIDType destIn, uint16 numberIn, uint32 timestampIn, uint8 opcodeIn, uint8 * messageIn)
+		{
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			logger->Log("FSW Packet: outdated constructor called!", LOGGER_LEVEL_ERROR);
+			source = sourceIn;
+			destination = destIn;
+			timestamp = timestampIn;
+			opcode = opcodeIn;
+			status = 0;
+			messagePtr = NULL; //TODO: remove this
+			if (messageIn != NULL)
+			{
+				messageBuf = messageIn;
+			}
+			else
+			{
+				messageBuf = NULL;
+				number = numberIn;
+				return;
+			}
+
+			if (NULL == messageBuf)
+			{
+				source = LOCATION_ID_INVALID;
+				destination = LOCATION_ID_INVALID;
+				number = 0;
+				return;
+			}
+
+			if(messagePtr->IsResponse())
+			{
+				number = numberIn;
+			}
+			else
+			{
+				number = packetCounter++;
+			}
+		}
+
+        FSWPacket::FSWPacket(uint8 * buffer, std::size_t size_in)
         {
-        	printf("size %d\n", size);
-            // Check that the buffer is sized correctly.
-            if (NULL == buffer || size < (sizeof(LocationIDType) + sizeof(LocationIDType) + sizeof(uint16) + sizeof(uint32)))
+        	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+        	logger->Log("Creating FSWPacket from buffer of size %d\n", (int) size_in, LOGGER_LEVEL_DEBUG);
+
+        	messagePtr = NULL; // TODO: remove messagePtr from class
+
+        	std::size_t size = size_in;
+
+        	// Check that the buffer is sized correctly.
+            if (NULL == buffer || size < 14)
             {
                 source = LOCATION_ID_INVALID;
                 destination = LOCATION_ID_INVALID;
-                messagePtr = NULL;
-                printf("FSWPacket: Null packet\n");
+                messageBuf = NULL;
+                logger->Log("FSWPacket: Null or incomplete packet", LOGGER_LEVEL_DEBUG);
                 return;
-
             }
+
+            // -----------------------------------------------------------------------------------
 
             // Get the source
             source = (LocationIDType)(((uint16)(buffer[0]) << 8) | buffer[1]);
-            buffer += sizeof(uint16);
-            size -= sizeof(uint16);
+            logger->Log("FSWPacket source: %u", (uint32) source, LOGGER_LEVEL_DEBUG);
+            buffer += 2;
+            size -= 2;
+
+            // Get the destination
             destination = (LocationIDType)(((uint16)(buffer[0]) << 8) | buffer[1]);
-            buffer += sizeof(uint16);
-            size -= sizeof(uint16);
+            logger->Log("FSWPacket destination: %u", (uint32) destination, LOGGER_LEVEL_DEBUG);
+            buffer += 2;
+            size -= 2;
+
+            // Get the number
             number = (uint16)(((uint16)(buffer[0]) << 8) | buffer[1]);
-            buffer += sizeof(uint16);
-            size -= sizeof(uint16);
+            logger->Log("FSWPacket number: %u", (uint32) number, LOGGER_LEVEL_DEBUG);
+            buffer += 2;
+            size -= 2;
+
+            // Get the timestamp
             timestamp = (uint32)(((uint32)(buffer[0]) << 24) | ((uint32)(buffer[1]) << 16) | ((uint32)(buffer[0]) << 8) | ((uint32)(buffer[3])));
-            buffer += sizeof(uint32);
-            size -= sizeof(uint32);
+            logger->Log("FSWPacket timestamp: %u", timestamp, LOGGER_LEVEL_DEBUG);
+            buffer += 4;
+            size -= 4;
 
-            /*
+            // Get the status, then response, success, and type
             status = buffer[0];
+            response = (status >> 7) & 0x01;
+			success = (status >> 6) & 0x01;
+			type = (MessageTypeEnum)(status & 0x3F);
+			logger->Log("FSWPacket response: %d", response, LOGGER_LEVEL_DEBUG);
+			logger->Log("FSWPacket success: %d", success, LOGGER_LEVEL_DEBUG);
+			logger->Log("FSWPacket type: %u", (uint32) type, LOGGER_LEVEL_DEBUG);
             buffer++;
-            size++;
+            size--;
+
+            // Get the opcode
             opcode = buffer[0];
+            logger->Log("FSWPacket opcode: %u", (uint32) opcode, LOGGER_LEVEL_DEBUG);
             buffer++;
-            size++;
+            size--;
 
-            uint16 length = ((uint16) buffer[0] << 8) | (uint16)buffer[1];
-            buffer += sizeof(uint16);
-            size -= sizeof(uint16);
-            */
+            // Get the length
+            length = ((uint16) buffer[0] << 8) | (uint16)buffer[1];
+            logger->Log("FSWPacket message length: %u", (uint32) length, LOGGER_LEVEL_DEBUG);
+            buffer += 2;
+            size -= 2;
 
+            // -----------------------------------------------------------------------------------
 
+            // Make sure that the length we're expecting is correct
+            size -= 2; // take CRC into account
+            if(size != length){
+            	// TODO: handle this
+            	logger->Log("FSWPacket: length difference error! Packet invalid.", LOGGER_LEVEL_ERROR);
+            	source = LOCATION_ID_INVALID;
+				destination = LOCATION_ID_INVALID;
+				messageBuf = NULL;
+				return;
+            }
 
-            messagePtr = Message::CreateMessage(buffer, size - 2);
-
-            printf("Source %hu Dest %hu Num %hu Timestamp %x Response %2X Status %2X Type %2X Opcode %2X\n",
-            		source, destination, number, timestamp, messagePtr->IsResponse(), messagePtr->GetSuccess(), messagePtr->GetType(), messagePtr->GetOpcode());
+            // Allocate and fill in message buffer
+            messageBuf = (uint8*) malloc(length);
+            memcpy(messageBuf, buffer, length);
 
             // Check that the allocation worked correctly.
-            if (NULL == messagePtr)
+            if (NULL == messageBuf)
             {
-            	printf("FSW Packet NULL message pointer\n");
+            	logger->Log("FSWPacket: NULL message pointer after memcpy", LOGGER_LEVEL_ERROR);
                 source = LOCATION_ID_INVALID;
                 destination = LOCATION_ID_INVALID;
                 return;
             }
-
-            printf("Inside FSWPacket(): Message copied to string size %d %x\n",messagePtr->GetFlattenSize(),messagePtr);
-			size -= messagePtr->GetFlattenSize();
-			
-			//fixme add crc in soon
-			size += 2;
-
-			if (size < 2)
-			{
-				printf("\r\nINVALID!! ");
-				source = LOCATION_ID_INVALID;
-				destination = LOCATION_ID_INVALID;
-				delete messagePtr;
-				messagePtr = NULL;
-				return;
-			}
         }
 
         FSWPacket::FSWPacket(const FSWPacket & packetSource)
@@ -179,6 +244,7 @@ namespace Phoenix
         FSWPacket::~FSWPacket(void )
         {
             delete messagePtr;
+            free(messageBuf);
             //messagePtr = NULL;
         }
 
@@ -231,6 +297,16 @@ namespace Phoenix
             return messagePtr;
         }
 
+        uint8 * FSWPacket::GetMessageBufPtr(void) const
+        {
+        	return messageBuf;
+        }
+
+        uint16 FSWPacket::GetMessageLength(void) const
+        {
+        	return length;
+        }
+
         std::size_t FSWPacket::GetPacketCounter(void) const
         {
             return packetCounter;
@@ -238,19 +314,9 @@ namespace Phoenix
 
         std::size_t FSWPacket::GetFlattenSize(void ) const
         {
-            std::size_t messageSize;
+            return (length + 16);
 
-            if (NULL == messagePtr)
-            {
-                messageSize = 0;
-            }
-            else
-            {
-                messageSize = messagePtr->GetFlattenSize();
-            }
-
-            return sizeof(source) + sizeof(destination) + sizeof(number) + sizeof(timestamp) + sizeof(opcode) + sizeof(status) + sizeof(uint16) + messageSize + sizeof(crc_t);
-        }
+		}
 
         bool FSWPacket::operator==(const FSWPacket & check) const
 		{
@@ -296,7 +362,6 @@ namespace Phoenix
         {
             size_t numCopied = 0, messageCopied = 0;
             uint8 * bufferStart = buffer;
-            uint16 length;
             crc_t crc;
 
             // Check the buffer and buffer size.
@@ -308,55 +373,62 @@ namespace Phoenix
             // Copy the source, destination, number, messagePtr
             *(buffer++) = (source >> 8) & 0xFF;
             *(buffer++) = source & 0xFF;
-            numCopied+=2;
-            size-=2;
+            numCopied += 2;
+            size -= 2;
 
             *(buffer++) = (destination >> 8) & 0xFF;
             *(buffer++) = destination & 0xFF;
-            numCopied+=2;
-            size-=2;
+            numCopied += 2;
+            size -= 2;
 
             *(buffer++) = (number >> 8) & 0xFF;
             *(buffer++) = number & 0xFF;
-            numCopied+=2;
-            size-=2;
+            numCopied += 2;
+            size -= 2;
 
             *(buffer++) = (timestamp >> 24) & 0xFF;
             *(buffer++) = (timestamp >> 16) & 0xFF;
             *(buffer++) = (timestamp >> 8)  & 0xFF;
             *(buffer++) = timestamp & 0xFF;
-            numCopied+=4;
-            size-=4;
+            numCopied += 4;
+            size -= 4;
 
             *(buffer++) = status & 0xFF;
             *(buffer++) = opcode & 0xFF;
-            printf("Opcode: %d\n",opcode);
-            numCopied+=2;
-            size-=2;
+            numCopied += 2;
+            size -= 2;
 
-            if(messagePtr){
-            	length = messagePtr->GetFlattenSize();
-            	*(buffer++) = (length >> 8) & 0xFF;
-            	*(buffer++) = length & 0xFF;
-            	numCopied += sizeof(uint16);
-            	messageCopied += messagePtr->Flatten(buffer, size);
-				numCopied += messageCopied;
-				buffer += messageCopied;
-            }else{
-            	*(buffer++) = 0x00;
-            	*(buffer++) = 0x00;
-            	numCopied += sizeof(uint16);
-            }
+//            if(messagePtr){
+//            	length = messagePtr->GetFlattenSize();
+//            	*(buffer++) = (length >> 8) & 0xFF;
+//            	*(buffer++) = length & 0xFF;
+//            	numCopied += sizeof(uint16);
+//            	messageCopied += messagePtr->Flatten(buffer, size);
+//				numCopied += messageCopied;
+//				buffer += messageCopied;
+//            }else{
+//            	*(buffer++) = 0x00;
+//            	*(buffer++) = 0x00;
+//            	numCopied += sizeof(uint16);
+//            }
 
+            *(buffer++) = (length >> 8) & 0xFF;
+            *(buffer++) = length & 0xFF;
+            numCopied += 2;
+            size -= 2;
 
-           crc = crcSlow(bufferStart, numCopied);
-           for (size_t i = 0; i < sizeof(crc); ++i)
-           {
-               *(buffer++) = (crc >> (8*(sizeof(crc)-i-1))) & 0xff;
-           }
-            numCopied += sizeof(crc);
+            memcpy(buffer, messageBuf, length);
+            numCopied += length;
+            size -= length;
 
-            return numCopied;
+            crc = crcSlow(bufferStart, numCopied);
+			for (size_t i = 0; i < sizeof(crc); ++i)
+			{
+				*(buffer++) = (crc >> (8*(sizeof(crc)-i-1))) & 0xff;
+			}
+			numCopied += sizeof(crc);
+
+			return numCopied;
 		}
     }
 }
