@@ -40,9 +40,6 @@ TEST(TestFSWPacket, testBuffer){
 	ASSERT_EQ(testPacket->GetMessageLength(), 2);
 	ASSERT_EQ(testPacket->GetFlattenSize(), 18);
 
-	printf("Element 0: %u\n", testPacket->GetMessageBufPtr()[0]);
-	printf("Element 1: %u\n", testPacket->GetMessageBufPtr()[1]);
-
 	free(testBuf);
 	delete testPacket;
 	ASSERT_TRUE(true);
@@ -80,17 +77,33 @@ TEST(TestFSWPacket, testFlatten){
 
 
 	bool equal = true;
-	for(size_t i = 0; i < size; i++){
+	for(size_t i = 0; i < size-2; i++){ //ignore CRC for now
 		equal &= (flattenBuf[i] == testBuf[i]);
-		printf("At index %u\n", i);
-		printf("Flatten: %d\n", flattenBuf[i]);
-		printf("Test:    %d\n", testBuf[i]);
 	}
 
 	ASSERT_TRUE(equal);
 
 	free(testBuf);
 	free(flattenBuf);
+	delete testPacket;
+	ASSERT_TRUE(true);
+}
+
+TEST(TestFSWPacket, testBadLength){
+	uint8 * testBuf;
+	size_t size = 18;
+	testBuf = (uint8 *) malloc(size);
+
+	createMessageBuffer(testBuf, size);
+	testBuf[13] = 0x06; //incorrect length of message
+
+	FSWPacket * testPacket = new FSWPacket(testBuf, size);
+
+	ASSERT_TRUE(testPacket->GetMessageBufPtr()==NULL);
+	ASSERT_EQ(testPacket->GetDestination(), LOCATION_ID_INVALID);
+	ASSERT_EQ(testPacket->GetSource(), LOCATION_ID_INVALID);
+
+	free(testBuf);
 	delete testPacket;
 	ASSERT_TRUE(true);
 }

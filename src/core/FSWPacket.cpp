@@ -187,7 +187,6 @@ namespace Phoenix
             // Make sure that the length we're expecting is correct
             size -= 2; // take CRC into account
             if(size != length){
-            	// TODO: handle this
             	logger->Log("FSWPacket: length difference error! Packet invalid.", LOGGER_LEVEL_ERROR);
             	source = LOCATION_ID_INVALID;
 				destination = LOCATION_ID_INVALID;
@@ -360,7 +359,7 @@ namespace Phoenix
 
         std::size_t FSWPacket::Flatten(uint8 * buffer, std::size_t size) const
         {
-            size_t numCopied = 0, messageCopied = 0;
+            size_t numCopied = 0;
             uint8 * bufferStart = buffer;
             crc_t crc;
 
@@ -418,9 +417,11 @@ namespace Phoenix
             size -= 2;
 
             memcpy(buffer, messageBuf, length);
+            buffer += length;
             numCopied += length;
             size -= length;
 
+            // TODO: check CRC!
             crc = crcSlow(bufferStart, numCopied);
 			for (size_t i = 0; i < sizeof(crc); ++i)
 			{
