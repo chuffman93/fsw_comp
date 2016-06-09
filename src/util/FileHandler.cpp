@@ -273,7 +273,7 @@ bool FileHandler::Log(FileHandlerIDEnum subsystem, MessageCodeType opCode,
 			bufferPtr += (*it)->Flatten(bufferPtr, (*it)->GetFlattenSize());
 			//delete *it;
 	}
-	//TODO: is this safe?
+
 	if (!notPLDData)
 	{
 			size -= 5;
@@ -287,6 +287,63 @@ bool FileHandler::Log(FileHandlerIDEnum subsystem, MessageCodeType opCode,
 	int err = FileWrite(file.c_str(), (char*) buffer, (long int) size);
 	//printf("%d\n", err);
 	if (err < 0) return false;
+	return true;
+}
+
+bool FileHandler::Log(FileHandlerIDEnum subsystem, const Phoenix::Core::FSWPacket * packet){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	string file;
+	uint8 opcode = packet->GetOpcode();
+	bool notPLDData = (subsystem != SUBSYSTEM_PLD) || (opcode != PLD_DATA_SUCCESS);
+
+	/*Fetch Time*/
+	//FIXME: add the GPS stuff back
+	//Phoenix::Servers::GPSData * gpsData = gpsServer->GetGPSDataPtr();
+	//Phoenix::Servers::GPSServer * gpsServer = dynamic_cast<Phoenix::Servers::GPSServer *>(Factory::GetInstance(GPS_SERVER_SINGLETON));
+	int week = 1;   // gpsData->GPSWeek;
+	int seconds = 1;
+
+	// Get filename from dedicated method
+	FetchFileName(subsystem, opcode, &file);
+	logger->Log("FileHandler: Log(): Filename: %s", file, LOGGER_LEVEL_DEBUG);
+
+	// Fill buffer with data to be written and write buffer to file
+	size_t size = packet->GetMessageLength();
+	if (notPLDData){
+		size += 8;
+	}
+
+	uint8 * buffer = new uint8[size];
+
+	// keep a pointer for current location in buffer
+	uint8 *bufferPtr = buffer;
+	if(notPLDData){
+		buffer[0] = (uint8) ((week >> 24) & 0xff);
+		buffer[1] = (uint8) ((week >> 16) & 0xff);
+		buffer[2] = (uint8) ((week >> 8) & 0xff);
+		buffer[3] = (uint8) (week & 0xff);
+		buffer[4] = (uint8) ((seconds >> 24) & 0xff);
+		buffer[5] = (uint8) ((seconds >> 16) & 0xff);
+		buffer[6] = (uint8) ((seconds >> 8) & 0xff);
+		buffer[7] = (uint8) (seconds & 0xff);
+		bufferPtr += 8;
+	}
+
+
+	if((size - (bufferPtr - buffer)) != packet->GetMessageLength()){
+		printf("%u != %u", (bufferPtr-buffer), packet->GetMessageLength());
+		logger->Log("FileHandler: Log(): Message length error!", LOGGER_LEVEL_ERROR);
+		return false;
+	}
+
+	memcpy(bufferPtr, packet->GetMessageBufPtr(), packet->GetMessageLength());
+
+	// Write into the file.
+	int err = FileWrite(file.c_str(), (char*) buffer, (long int) size);
+	delete[] buffer;
+	if (err < 0){
+		return false;
+	}
 	return true;
 }
 
@@ -451,12 +508,11 @@ uint8 * FileHandler::ReadFile(const char * fileName, size_t * bufferSize)
 uint32 FileHandler::FileWrite(const char * fileName, char * buffer, size_t numBytes)
 {
 		Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-		char * out = new char[150];
-		sprintf(out, "FileHandler: FileWrite(): %s", fileName);
-		logger->Log(out, LOGGER_LEVEL_DEBUG);
-		delete out;
-        uint32 rv = 0;
+		logger->Log("FileHandler: FileWrite(): %s", fileName, LOGGER_LEVEL_DEBUG);
+
+		uint32 rv = 0;
         size_t result;
+
         //open file for write only
         FILE * fp;
         if (true == TakeLock(MAX_BLOCK_TIME))
@@ -474,6 +530,7 @@ uint32 FileHandler::FileWrite(const char * fileName, char * buffer, size_t numBy
                 	this->GiveLock();
                 	return -2;
                 }
+
                 rv = (uint32) this->fileSize(fp);
 				fclose(fp);
 				this->GiveLock();

@@ -88,6 +88,8 @@ public:
         bool Log(FileHandlerIDEnum subsystem, MessageCodeType opCode,
                         const Phoenix::Core::MultiDataMessage & message);
 
+        bool Log(FileHandlerIDEnum subsystem, const Phoenix::Core::FSWPacket * packet);
+
         /*! \brief Deletes the file from the SD card.
          *
          *      Deletes the file given by the fileName.

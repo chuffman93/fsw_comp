@@ -118,6 +118,16 @@ namespace Phoenix
 
             uint8 * GetMessageBufPtr(void) const;
 
+            uint8 GetStatus(void) const;
+
+			bool GetResponse(void) const;
+
+			bool GetSuccess(void) const;
+
+			MessageTypeEnum GetType(void) const;
+
+			uint8 GetOpcode(void) const;
+
             uint16 GetMessageLength(void) const;
 
             /*! \brief Returns the current value of packetCounter. */

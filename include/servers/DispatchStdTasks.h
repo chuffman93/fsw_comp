@@ -139,6 +139,8 @@ namespace Phoenix
 		*
 		*/	
 		void MessageProcess(LocationIDType id, Phoenix::Core::ReturnMessage * retMsg);
+
+		void PacketProcess(LocationIDType id, Phoenix::Core::FSWPacket * retPacket);
 	}
 }
 

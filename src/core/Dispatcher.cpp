@@ -264,8 +264,8 @@ DispatcherStatusEnum Dispatcher::WaitForDispatchResponse(
 			return DISPATCHER_STATUS_OK;
 		}
 		usleep(DISPATCHER_WAIT_TIME);
-
 	}
+
 	// At this point, see if the command we sent has been received at least.
 	logger->Log("   Dispatch:  See if the packet we sent has been received.", LOGGER_LEVEL_DEBUG);
 	//debug_led_set_led(6, LED_ON);

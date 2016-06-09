@@ -5,6 +5,8 @@
 
 #include "core/StdTypes.h"
 #include "core/FSWPacket.h"
+#include "servers/DispatchStdTasks.h"
+#include "util/FileHandler.h"
 
 using namespace std;
 using namespace rel_ops;
@@ -15,7 +17,7 @@ void createMessageBuffer(uint8 * buffer, int size){
 		buffer[i] = 0x00;
 	}
 	buffer[10] = 0b11000011; // status
-	buffer[11] = 0x03; // opcode
+	buffer[11] = EPS_HS_SUCCESS; // sample opcode
 	buffer[12] = 0x00; // length
 	buffer[13] = size-16; // length
 
@@ -26,8 +28,7 @@ void createMessageBuffer(uint8 * buffer, int size){
 	buffer[17] = 0x0C; // CRC
 }
 
-
-TEST(TestFSWPacket, testBuffer){
+TEST(TestFSWPacket, testPacket){
 	uint8 * testBuf;
 	testBuf = (uint8 *) malloc(18);
 
@@ -72,8 +73,9 @@ TEST(TestFSWPacket, testFlatten){
 
 	FSWPacket * testPacket = new FSWPacket(testBuf, size);
 
-	testPacket->Flatten(flattenBuf, testPacket->GetFlattenSize());
+	size_t result = testPacket->Flatten(flattenBuf, testPacket->GetFlattenSize());
 	EXPECT_EQ(size, testPacket->GetFlattenSize());
+	EXPECT_EQ(size, result);
 
 
 	bool equal = true;
@@ -106,4 +108,35 @@ TEST(TestFSWPacket, testBadLength){
 	free(testBuf);
 	delete testPacket;
 	ASSERT_TRUE(true);
+}
+
+TEST(TestFSWPacket, testPacketLog){
+	FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
+
+	uint8 * testBuf;
+	testBuf = (uint8 *) malloc(18);
+
+	createMessageBuffer(testBuf, 18);
+
+	FSWPacket * testPacket = new FSWPacket(testBuf, 18);
+
+	bool success = fileHandler->Log(SUBSYSTEM_EPS, testPacket);
+	ASSERT_TRUE(success);
+
+	free(testBuf);
+	delete testPacket;
+}
+
+TEST(TestFSWPacket, testPacketProcess){
+	uint8 * testBuf;
+	testBuf = (uint8 *) malloc(18);
+
+	createMessageBuffer(testBuf, 18);
+
+	FSWPacket * testPacket = new FSWPacket(testBuf, 18);
+
+	Phoenix::Servers::PacketProcess(SERVER_LOCATION_EPS, testPacket);
+
+	free(testBuf);
+	delete testPacket;
 }

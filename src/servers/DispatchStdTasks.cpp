@@ -396,5 +396,105 @@ namespace Phoenix
 			}
 			//delete retMsg;
 		}
+
+		void PacketProcess(LocationIDType id, Phoenix::Core::FSWPacket * retPacket)
+		{
+			FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			logger->Log("DispatchStdTasks: MessageProcess() called", LOGGER_LEVEL_DEBUG);
+
+//			//dispatcher error! Log it
+//			MultiDataMessage * dataMessage = dynamic_cast<MultiDataMessage *> (retMsg->GetMessagePtr());
+//			if(dataMessage == NULL)
+//			{
+//				//error
+//				delete retMsg;
+//				return;
+//			}
+
+			bool success = retPacket->GetSuccess();
+			MessageCodeType retOpcode = retPacket->GetOpcode();
+			if(!success) //error message!
+			{
+				logger->Log("DispatchStdTasks: Got error return message", LOGGER_LEVEL_INFO);
+				if((retOpcode >= DISPATCHER_ERR_START) && (retOpcode <= DISPATCHER_ERR_END))
+				{
+					//dispatcher error! Log it
+					if(!fileHandler->Log(SYSTEM_CDH, retPacket))
+					{
+						logger->Log("DispatchStdTasks: Failed to log error!", LOGGER_LEVEL_ERROR);
+					}
+					return;
+				}
+				else
+				{ //Non dispatcher error message, send it to the octopus!
+					Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+
+					//Dispatch packet, if it fails return DISPATCH_FAILED
+					if(!dispatcher->Dispatch(*retPacket)) {
+						// TODO: handle this
+						logger->Log("DispatchStdTasks(): Failed to dispatch error to octopus", LOGGER_LEVEL_ERROR);
+						return;
+					}
+
+					ReturnMessage tempRetMsg;
+					DispatcherStatusEnum stat;
+					//Wait for return message, if it fails return status response from dispatcher
+					if(DISPATCHER_STATUS_OK != (stat = dispatcher->WaitForDispatchResponse(*retPacket, tempRetMsg)))
+					{
+						// TODO: handle this
+						return;
+					}
+
+					//successfully sent message to error octopus.
+					return;
+				}
+			}
+
+			//TODO: check bounds here!
+
+			FileHandlerIDEnum handlerID;
+			switch(id)
+			{
+				case SERVER_LOCATION_COM :
+					handlerID = SUBSYSTEM_COM;
+					break;
+				case SERVER_LOCATION_EPS :
+					handlerID = SUBSYSTEM_EPS;
+					break;
+				case SERVER_LOCATION_ACS :
+					handlerID = SUBSYSTEM_ACS;
+					break;
+				case SERVER_LOCATION_PLD :
+					handlerID = SUBSYSTEM_PLD;
+					break;
+				case SERVER_LOCATION_GPS :
+					handlerID = SUBSYSTEM_GPS;
+					break;
+				case SERVER_LOCATION_THM :
+					handlerID = SUBSYSTEM_THM;
+					break;
+				case SERVER_LOCATION_SCH :
+					handlerID = SUBSYSTEM_SCH;
+					break;
+				case SERVER_LOCATION_CMD :
+					handlerID = SUBSYSTEM_CMD;
+					break;
+				case SERVER_LOCATION_CDH :
+					handlerID = SYSTEM_CDH;
+					break;
+				default:
+					logger->Log("DispatchStdTasks: Unknown Server!", LOGGER_LEVEL_ERROR);
+					return;
+			}
+
+			// Successful return message
+			logger->Log("DispatchStdTasks: Got successful return message!", LOGGER_LEVEL_INFO);
+			if(!fileHandler->Log(handlerID, retPacket))
+			{
+				// write to error log
+				logger->Log("DispatchStdTasks: Failed to log message", LOGGER_LEVEL_WARN);
+			}
+		}
 	}
 }

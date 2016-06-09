@@ -26,14 +26,18 @@ namespace Phoenix
 
         FSWPacket::FSWPacket(void )
         {
+            source = LOCATION_ID_INVALID;
+            destination = LOCATION_ID_INVALID;
+            number = 0;
+            timestamp = 0;
+            status = 0;
+            response = 0;
+            success = 0;
+            type = (MessageTypeEnum) 0;
+            opcode = 0;
+            length = 0;
             messagePtr = NULL;
             messageBuf = NULL;
-            source = LOCATION_ID_INVALID;
-            number = 0;
-            opcode = 0; //Probably (maybe) needs to be changed [Adam]
-            status = 0;
-            destination = LOCATION_ID_INVALID;
-            timestamp = 0;
         }
 
         FSWPacket::FSWPacket(LocationIDType sourceIn, LocationIDType destIn, uint16 numberIn, uint32 timestampIn, Message * messageIn)
@@ -44,7 +48,12 @@ namespace Phoenix
             destination = destIn;
             timestamp = timestampIn;
             opcode = messageIn->GetOpcode();
+            // TODO: add the following
             status = 0;
+            response = 0;
+			success = 0;
+			type = (MessageTypeEnum) 0;
+			length = 0;
             messageBuf = NULL; //TODO: remove this
             if (messageIn != NULL)
             {
@@ -84,6 +93,10 @@ namespace Phoenix
 			timestamp = timestampIn;
 			opcode = opcodeIn;
 			status = 0;
+			response = 0;
+			success = 0;
+			type = (MessageTypeEnum) 0;
+			length = 0;
 			messagePtr = NULL; //TODO: remove this
 			if (messageIn != NULL)
 			{
@@ -210,34 +223,43 @@ namespace Phoenix
 
         FSWPacket::FSWPacket(const FSWPacket & packetSource)
         {
-            if (NULL == packetSource.GetMessagePtr())
-            {
-                source = LOCATION_ID_INVALID;
-                destination = LOCATION_ID_INVALID;
-                number = 0;
-                timestamp = 0;
-                messagePtr = NULL;
-                status = 0;
-                opcode = packetSource.GetMessagePtr()->GetOpcode();
-                return;
-            }
-            messagePtr = packetSource.GetMessagePtr()->Duplicate();
-
-            if (NULL == messagePtr)
-            {
-                source = LOCATION_ID_INVALID;
-                destination = LOCATION_ID_INVALID;
-                number = 0;
-                timestamp = 0;
-                opcode = 0;
-                status = 0; // TODO: Definitely needs to be changed [Alex]
-                return;
-            }
+//            if (NULL == packetSource.GetMessagePtr())
+//            {
+//                source = LOCATION_ID_INVALID;
+//                destination = LOCATION_ID_INVALID;
+//                number = 0;
+//                timestamp = 0;
+//                messagePtr = NULL;
+//                status = 0;
+//                opcode = packetSource.GetMessagePtr()->GetOpcode();
+//                return;
+//            }
+//            messagePtr = packetSource.GetMessagePtr()->Duplicate();
+//
+//            if (NULL == messagePtr)
+//            {
+//                source = LOCATION_ID_INVALID;
+//                destination = LOCATION_ID_INVALID;
+//                number = 0;
+//                timestamp = 0;
+//                opcode = 0;
+//                status = 0;
+//                return;
+//            }
 			
             destination = packetSource.destination;
             source = packetSource.source;
             number = packetSource.number;
             timestamp = packetSource.timestamp;
+            status = packetSource.GetStatus();
+            response = packetSource.GetResponse();
+            success = packetSource.GetSuccess();
+            type = packetSource.GetType();
+            opcode = packetSource.GetOpcode();
+            length = packetSource.GetMessageLength();
+            messagePtr = packetSource.GetMessagePtr();
+            messageBuf = packetSource.GetMessageBufPtr();
+
         }
 
         FSWPacket::~FSWPacket(void )
@@ -300,6 +322,31 @@ namespace Phoenix
         {
         	return messageBuf;
         }
+
+        uint8 FSWPacket::GetStatus(void) const
+        {
+        	return status;
+        }
+
+		bool FSWPacket::GetResponse(void) const
+		{
+			return response;
+		}
+
+		bool FSWPacket::GetSuccess(void) const
+		{
+			return success;
+		}
+
+		MessageTypeEnum FSWPacket::GetType(void) const
+		{
+			return type;
+		}
+
+		uint8 FSWPacket::GetOpcode(void) const
+		{
+			return opcode;
+		}
 
         uint16 FSWPacket::GetMessageLength(void) const
         {
