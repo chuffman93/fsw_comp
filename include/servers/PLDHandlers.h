@@ -25,7 +25,7 @@ public:
          *  \param packet: FSWPacket containing the command.
          *  \return: ReturnMessage from PLD hardware.
          */
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class PLDPictureTakeHandler : public Phoenix::Core::MessageHandler
@@ -36,7 +36,7 @@ public:
          *  \param packet: FSWPacket containing the command.
          *  \return: ReturnMessage from PLD hardware.
          */
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class PLDGetPictureHandler : public Phoenix::Core::MessageHandler
@@ -47,7 +47,7 @@ public:
          *  \param packet: FSWPacket containing the command.
          *  \return: ReturnMessage from PLD hardware.
          */
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 #ifndef EDR_TEST
 
@@ -59,7 +59,7 @@ public:
          *  \param packet: FSWPacket containing the command.
          *  \return: ReturnMessage from PLD hardware.
          */
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 1;
 		static uint32 enumArray[numParams];
@@ -75,7 +75,7 @@ public:
          *  \param packet: FSWPacket containing the command.
          *  \return: ReturnMessage from PLD hardware.
          */
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 2;
 		static uint32 enumArray[numParams];
@@ -90,7 +90,7 @@ public:
          *  \param packet: FSWPacket containing the command.
          *  \return: ReturnMessage from PLD hardware.
          */
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 1;
 		static uint32 enumArray[numParams];
@@ -104,7 +104,7 @@ public:
          *  \param packet: FSWPacket containing the command.
          *  \return: ReturnMessage from PLD hardware.
          */
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 1;
 		static uint32 enumArray[numParams];
@@ -118,7 +118,7 @@ public:
          *  \param packet: FSWPacket containing the command.
          *  \return: ReturnMessage from PLD hardware.
          */
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 1;
 		static uint32 enumArray[numParams];
@@ -132,7 +132,7 @@ public:
          *  \param packet: FSWPacket containing the command.
          *  \return: ReturnMessage from PLD hardware.
          */
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class PLDErrorHandler : public Phoenix::Core::MessageHandler
@@ -143,7 +143,7 @@ public:
          *  \param packet: FSWPacket containing the command.
          *  \return: ReturnMessage from PLD hardware.
          */
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 #ifdef EDR_TEST

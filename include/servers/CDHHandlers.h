@@ -27,7 +27,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class CDHMemUsageHandler : public Phoenix::Core::MessageHandler
@@ -38,7 +38,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class CDHStorageHandler : public Phoenix::Core::MessageHandler
@@ -49,7 +49,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class CDHTempStartHandler : public Phoenix::Core::MessageHandler
@@ -60,7 +60,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class CDHTempReadHandler : public Phoenix::Core::MessageHandler
@@ -71,7 +71,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class CDHHotSwapsHandler : public Phoenix::Core::MessageHandler
@@ -82,7 +82,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class CDHPowerMonitorsHandler : public Phoenix::Core::MessageHandler
@@ -93,7 +93,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class CDHStartPMHandler : public Phoenix::Core::MessageHandler
@@ -104,7 +104,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 #endif /* CDHHANDLERS_H_ */

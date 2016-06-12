@@ -31,72 +31,79 @@ namespace Phoenix
 {
 	namespace Servers
 	{
-		ReturnMessage * EPSHealthStat()
+		FSWPacket * EPSHealthStat()
 		{
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-			ReturnMessage * HSRet = DispatchPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, 1, 0, MESSAGE_TYPE_COMMAND, EPS_HS_CMD);
-			logger->Log("EPSStdTasks: EPSHealthStat(): packet dispatched, HSRet acquired\n", LOGGER_LEVEL_INFO);
+			logger->Log("EPSStdTasks: unfinished function entered!", LOGGER_LEVEL_FATAL);
+
+			FSWPacket * HSQuery = new FSWPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, 0, EPS_HS_CMD, true, false, MESSAGE_TYPE_COMMAND);
+			FSWPacket * HSRet = DispatchPacket(HSQuery);
+			logger->Log("EPSStdTasks: EPSHealthStat(): packet dispatched, HSRet acquired", LOGGER_LEVEL_INFO);
 			
 			// Translate H&S into beacon form
-			//COMServer * comServer = dynamic_cast<COMServer *> (Factory::GetInstance(COM_SERVER_SINGLETON));
-			void * outputArray[10] = {NULL};
-			uint32 enumArray[10] = {
-				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
-				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
-				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
-				VAR_TYPE_ENUM_UNSIGNED_INT
-			};
-
-			if(!ExtractParameters(*HSRet,enumArray,10,outputArray))
-			{
-				logger->Log("EPSStdTasks: EPSHealthStat(): error extracting parameters\n", LOGGER_LEVEL_WARN);
-			}
-			else 
-			{
-																					// Original Types in outputArray
-				int16_t battVoltage				= * (int16_t *) outputArray[0];		// EPS uint32_t voltage
-				int16_t battCurrent				= * (int16_t *) outputArray[1];		// EPS uint32_t current
-				uint16_t stateOfCharge			= * (uint16_t *) outputArray[2];	// EPS uint32_t relativeSOC 
-				int16_t battRemainingCapacity	= * (int16_t *) outputArray[3];		// EPS uint32_t remainingCapacity
-				int16_t cycleCount				= * (int16_t *) outputArray[8];		// EPS uint32_t cycleCount
-				int16_t batteryManagerStatus	= * (int16_t *) outputArray[9];		// EPS uint32_t batteryStatus
-					
-				//comServer -> UpdateEPSHS(battVoltage,battCurrent, stateOfCharge,battRemainingCapacity,cycleCount,batteryManagerStatus);
-			}
+			// COMServer * comServer = dynamic_cast<COMServer *> (Factory::GetInstance(COM_SERVER_SINGLETON));
+//			void * outputArray[10] = {NULL};
+//			uint32 enumArray[10] = {
+//				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
+//				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
+//				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
+//				VAR_TYPE_ENUM_UNSIGNED_INT
+//			};
+//
+//			if(!ExtractParameters(*HSRet,enumArray,10,outputArray))
+//			{
+//				logger->Log("EPSStdTasks: EPSHealthStat(): error extracting parameters", LOGGER_LEVEL_WARN);
+//			}
+//			else
+//			{
+//																					// Original Types in outputArray
+//				int16_t battVoltage				= * (int16_t *) outputArray[0];		// EPS uint32_t voltage
+//				int16_t battCurrent				= * (int16_t *) outputArray[1];		// EPS uint32_t current
+//				uint16_t stateOfCharge			= * (uint16_t *) outputArray[2];	// EPS uint32_t relativeSOC
+//				int16_t battRemainingCapacity	= * (int16_t *) outputArray[3];		// EPS uint32_t remainingCapacity
+//				int16_t cycleCount				= * (int16_t *) outputArray[8];		// EPS uint32_t cycleCount
+//				int16_t batteryManagerStatus	= * (int16_t *) outputArray[9];		// EPS uint32_t batteryStatus
+//
+//				//comServer -> UpdateEPSHS(battVoltage,battCurrent, stateOfCharge,battRemainingCapacity,cycleCount,batteryManagerStatus);
+//			}
 			
 			return HSRet;
 		}
 
-		ReturnMessage * EPSStateOfCharge()
+		FSWPacket * EPSStateOfCharge()
 		{
-			return(DispatchPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, 1, 0, MESSAGE_TYPE_COMMAND, EPS_SOC_CMD));
+			FSWPacket * query = new FSWPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, 0, EPS_SOC_CMD, true, false, MESSAGE_TYPE_COMMAND);
+			return(DispatchPacket(query));
 		}
 
-		ReturnMessage * EPSPowerCycle()
+		FSWPacket * EPSPowerCycle()
 		{
-			return(DispatchPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, 1, 0, MESSAGE_TYPE_COMMAND, EPS_POWER_CYCLE_CMD));
+			FSWPacket * query = new FSWPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, 0, EPS_POWER_CYCLE_CMD, true, false, MESSAGE_TYPE_COMMAND);
+			return(DispatchPacket(query));
 		}
 
-		ReturnMessage * EPSDisableOCProt()
+		FSWPacket * EPSDisableOCProt()
 		{
-			return(DispatchPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, 1, 0, MESSAGE_TYPE_COMMAND, EPS_DISABLE_OC_PROT_CMD));
+			FSWPacket * query = new FSWPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, 0, EPS_DISABLE_OC_PROT_CMD, true, false, MESSAGE_TYPE_COMMAND);
+			return(DispatchPacket(query));
 		}
 
 
-		ReturnMessage * EPSEnableOCProt()
+		FSWPacket * EPSEnableOCProt()
 		{
-			return(DispatchPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, 1, 0, MESSAGE_TYPE_COMMAND, EPS_ENABLE_OC_PROT_CMD));
+			FSWPacket * query = new FSWPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, 0, EPS_ENABLE_OC_PROT_CMD, true, false, MESSAGE_TYPE_COMMAND);
+			return(DispatchPacket(query));
 		}
 		
-		ReturnMessage * EPSPowerSubsystems(PowerSubsystemEnum subsystem, bool onOff, uint32 time)
+		FSWPacket * EPSPowerSubsystems(PowerSubsystemEnum subsystem, bool onOff, uint32 time)
 		{
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 			EPSServer * epsServer = dynamic_cast<EPSServer *>(Factory::GetInstance(EPS_SERVER_SINGLETON));
 			ReturnMessage * disRet;
 			ReturnMessage * enRet;
 
 			switch(subsystem)
 			{
-
 				case POWER_SUBSYSTEM_ACS:
 					if(onOff)
 					{
@@ -105,7 +112,7 @@ namespace Phoenix
 							//turn on acs
 	//						PowerSet(POWER_SUBSYSTEM_ACS, false);
 							//usleep(500000);
-							printf("EPS Server Powering On ACS\n");
+							logger->Log("EPS Server Powering On ACS", LOGGER_LEVEL_INFO);
 							//disRet = EPSDisableOCProt();
 //							PowerSet(POWER_SUBSYSTEM_ACS, true);
 							//enRet = EPSEnableOCProt();
@@ -118,12 +125,10 @@ namespace Phoenix
 							epsServer->setPowerState(subsystem, true);
 							system("/home/root/acsOn.sh");
 							//usleep(5000000);
-							DataMessage msg(EPS_POWER_SUB_SUCCESS);
-							ReturnMessage * ret = new ReturnMessage(&msg, true);
+							FSWPacket * ret = new FSWPacket(0, EPS_POWER_SUB_SUCCESS, true, true, MESSAGE_TYPE_DATA);
 							return ret;
 						}
-						ErrorMessage err(EPS_POWER_SUB_FAILURE);
-						ReturnMessage * ret = new ReturnMessage(&err, false);
+						FSWPacket * ret = new FSWPacket(0, EPS_POWER_SUB_FAILURE, false, true, MESSAGE_TYPE_ERROR);
 						return ret;
 					}
 					else
@@ -133,26 +138,23 @@ namespace Phoenix
 							//DisablePinInterrupt(INTERRUPT_PIN_ACS);
 							//turn off acs
 //							PowerSet(POWER_SUBSYSTEM_ACS, false);
-							printf("EPS Server Powering Off ACS for %i seconds\n", time/1000);
+							logger->Log("EPS Server Powering Off ACS for %u seconds", time/1000, LOGGER_LEVEL_INFO);
 							epsServer->setPowerOffTimer(subsystem, time);
 							epsServer->setPowerState(subsystem, false);
 							system("/home/root/acsOff.sh");
 							//usleep(1000000);
-							DataMessage msg(EPS_POWER_SUB_SUCCESS);
-							ReturnMessage * ret = new ReturnMessage(&msg, true);
+							FSWPacket * ret = new FSWPacket(0, EPS_POWER_SUB_SUCCESS, true, true, MESSAGE_TYPE_DATA);
 							return ret;
 						}
 						else
 						{
-							printf("EPS Server Incrementing ACS Powering Off timer for %i seconds\n", time/1000);
+							logger->Log("EPS Server Incrementing ACS Powering Off timer for %u seconds", time/1000, LOGGER_LEVEL_INFO);
 							epsServer->setPowerOffTimer(subsystem, time + epsServer->getPowerOffTimer(subsystem));
 							
-							DataMessage msg(EPS_POWER_SUB_SUCCESS);
-							ReturnMessage * ret = new ReturnMessage(&msg, true);
+							FSWPacket * ret = new FSWPacket(0, EPS_POWER_SUB_SUCCESS, true, true, MESSAGE_TYPE_DATA);
 							return ret;
 						}
-						ErrorMessage err(EPS_POWER_SUB_FAILURE);
-						ReturnMessage * ret = new ReturnMessage(&err, false);
+						FSWPacket * ret = new FSWPacket(0, EPS_POWER_SUB_FAILURE, false, true, MESSAGE_TYPE_ERROR);
 						return ret;
 
 					}
@@ -179,12 +181,10 @@ namespace Phoenix
 							epsServer->setPowerState(subsystem, true);
 							system("/home/root/comOn.sh");
 							//usleep(5000000);
-							DataMessage msg(EPS_POWER_SUB_SUCCESS);
-							ReturnMessage * ret = new ReturnMessage(&msg, true);
+							FSWPacket * ret = new FSWPacket(0, EPS_POWER_SUB_SUCCESS, true, true, MESSAGE_TYPE_DATA);
 							return ret;
 						}
-						ErrorMessage err(EPS_POWER_SUB_FAILURE);
-						ReturnMessage * ret = new ReturnMessage(&err, false);
+						FSWPacket * ret = new FSWPacket(0, EPS_POWER_SUB_FAILURE, false, true, MESSAGE_TYPE_ERROR);
 						return ret;
 					}
 					else
@@ -200,8 +200,7 @@ namespace Phoenix
 							epsServer->setPowerState(subsystem, false);
 							system("/home/root/comOff.sh");
 							//usleep(1000000);
-							DataMessage msg(EPS_POWER_SUB_SUCCESS);
-							ReturnMessage * ret = new ReturnMessage(&msg, true);
+							FSWPacket * ret = new FSWPacket(0, EPS_POWER_SUB_SUCCESS, true, true, MESSAGE_TYPE_DATA);
 							return ret;
 						}
 						else
@@ -209,12 +208,10 @@ namespace Phoenix
 							printf("EPS Server Incrementing COM Powering Off timer for %i seconds\n", time/1000);
 							epsServer->setPowerOffTimer(subsystem, time + epsServer->getPowerOffTimer(subsystem));
 							
-							DataMessage msg(EPS_POWER_SUB_SUCCESS);
-							ReturnMessage * ret = new ReturnMessage(&msg, true);
+							FSWPacket * ret = new FSWPacket(0, EPS_POWER_SUB_SUCCESS, true, true, MESSAGE_TYPE_DATA);
 							return ret;
 						}
-						ErrorMessage err(EPS_POWER_SUB_FAILURE);
-						ReturnMessage * ret = new ReturnMessage(&err, false);
+						FSWPacket * ret = new FSWPacket(0, EPS_POWER_SUB_FAILURE, false, true, MESSAGE_TYPE_ERROR);
 						return ret;
 					}
 					
@@ -222,8 +219,8 @@ namespace Phoenix
 					//no prop on ALLSTAR 1
 				default:
 					//do nothing
-					ErrorMessage err(EPS_POWER_SUB_FAILURE);
-					ReturnMessage * ret = new ReturnMessage(&err, false);
+					logger->Log("EPS power subsystem: unknown subsystem!", LOGGER_LEVEL_ERROR);
+					FSWPacket * ret = new FSWPacket(0, EPS_POWER_SUB_FAILURE, false, true, MESSAGE_TYPE_ERROR);
 					return ret;
 			}
 		}
@@ -381,57 +378,62 @@ namespace Phoenix
 		
 		float SetStarCameraThreshold(void)
 		{
-			uint32 enumArray[] = {VAR_TYPE_ENUM_FLOAT, VAR_TYPE_ENUM_FLOAT, VAR_TYPE_ENUM_FLOAT, VAR_TYPE_ENUM_FLOAT, VAR_TYPE_ENUM_UNSIGNED_INT,
-				VAR_TYPE_ENUM_UNSIGNED_INT, VAR_TYPE_ENUM_UNSIGNED_INT, VAR_TYPE_ENUM_UNSIGNED_INT, VAR_TYPE_ENUM_FLOAT};
-			ReturnMessage * starCamHS = DispatchPacket(SERVER_LOCATION_EPS, SERVER_LOCATION_ACS, 1,
-				0, MESSAGE_TYPE_COMMAND , ACS_STARCAMERA_HS_CMD);
-			//MessageProcess(SERVER_LOCATION_EPS, starCamHS);
-			
-			void * outputArray[9] = {NULL};
-			if(!ExtractParameters(*starCamHS, enumArray, 9, outputArray))
-			{
-				//cannot read data, assume not deployed?
-				return 0;
-			}
-			float sensorThreshold = * (float *) outputArray[8];
-			return sensorThreshold;
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			logger->Log("EPSStdTasks: SetStarCameraThreshold(): Unfinished function!", LOGGER_LEVEL_FATAL);
+
+//			uint32 enumArray[] = {VAR_TYPE_ENUM_FLOAT, VAR_TYPE_ENUM_FLOAT, VAR_TYPE_ENUM_FLOAT, VAR_TYPE_ENUM_FLOAT, VAR_TYPE_ENUM_UNSIGNED_INT,
+//				VAR_TYPE_ENUM_UNSIGNED_INT, VAR_TYPE_ENUM_UNSIGNED_INT, VAR_TYPE_ENUM_UNSIGNED_INT, VAR_TYPE_ENUM_FLOAT};
+//			ReturnMessage * starCamHS = DispatchPacket(SERVER_LOCATION_EPS, SERVER_LOCATION_ACS, 1,
+//				0, MESSAGE_TYPE_COMMAND , ACS_STARCAMERA_HS_CMD);
+//			//MessageProcess(SERVER_LOCATION_EPS, starCamHS);
+//
+//			void * outputArray[9] = {NULL};
+//			if(!ExtractParameters(*starCamHS, enumArray, 9, outputArray))
+//			{
+//				//cannot read data, assume not deployed?
+//				return 0;
+//			}
+//			float sensorThreshold = * (float *) outputArray[8];
+//			return sensorThreshold;
 		}
 		
 		bool CheckStarCameraDeployed(const float & sensorThreshhold)
 		{
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			logger->Log("EPSStdTasks: CheckStarCameraDeployed(): Unfinished function!", LOGGER_LEVEL_FATAL);
 			
-			uint32 enumArray[] = {VAR_TYPE_ENUM_FLOAT, VAR_TYPE_ENUM_FLOAT, VAR_TYPE_ENUM_FLOAT, VAR_TYPE_ENUM_FLOAT, VAR_TYPE_ENUM_UNSIGNED_INT,
-				VAR_TYPE_ENUM_UNSIGNED_INT, VAR_TYPE_ENUM_UNSIGNED_INT, VAR_TYPE_ENUM_UNSIGNED_INT, VAR_TYPE_ENUM_FLOAT};
-			ReturnMessage * starCamHS = DispatchPacket(SERVER_LOCATION_EPS, SERVER_LOCATION_ACS, 1,
-				0, MESSAGE_TYPE_COMMAND , ACS_STARCAMERA_HS_CMD);
-			
-			//MessageProcess(SERVER_LOCATION_ACS, starCamHS);
-			
-			void * outputArray[9] = {NULL};
-			if(!ExtractParameters(*starCamHS, enumArray, 9, outputArray))
-			{
-				//cannot read data, assume not deployed?
-				return false;
-			}
-				
-			//float lastLock = * (float *) outputArray[0];
-			//float MRPVecOne = * (float *) outputArray[1];
-			//float MRPVecTwo = * (float *) outputArray[2];
-			//float MRPVecThree = * (float *) outputArray[3];
-			uint32 numStars = * (uint32 *) outputArray[4];
-			if(numStars > STAR_CAMERA_STARS_THRESHOLD)
-			{
-				return true;
-			}
-			//uint32 numTries = * (uint32 *) outputArray[5];
-			//uint32 error = * (uint32 *) outputArray[6];
-			//uint32 status = * (uint32 *) outputArray[7];
-			float avgSensorBright = * (float *) outputArray[8];
-			if(avgSensorBright > (sensorThreshhold*STAR_CAMERA_LIGHT_THRESHOLD))
-			{
-				return true;
-			}		
-			return false;
+//			uint32 enumArray[] = {VAR_TYPE_ENUM_FLOAT, VAR_TYPE_ENUM_FLOAT, VAR_TYPE_ENUM_FLOAT, VAR_TYPE_ENUM_FLOAT, VAR_TYPE_ENUM_UNSIGNED_INT,
+//				VAR_TYPE_ENUM_UNSIGNED_INT, VAR_TYPE_ENUM_UNSIGNED_INT, VAR_TYPE_ENUM_UNSIGNED_INT, VAR_TYPE_ENUM_FLOAT};
+//			ReturnMessage * starCamHS = DispatchPacket(SERVER_LOCATION_EPS, SERVER_LOCATION_ACS, 1,
+//				0, MESSAGE_TYPE_COMMAND , ACS_STARCAMERA_HS_CMD);
+//
+//			//MessageProcess(SERVER_LOCATION_ACS, starCamHS);
+//
+//			void * outputArray[9] = {NULL};
+//			if(!ExtractParameters(*starCamHS, enumArray, 9, outputArray))
+//			{
+//				//cannot read data, assume not deployed?
+//				return false;
+//			}
+//
+//			//float lastLock = * (float *) outputArray[0];
+//			//float MRPVecOne = * (float *) outputArray[1];
+//			//float MRPVecTwo = * (float *) outputArray[2];
+//			//float MRPVecThree = * (float *) outputArray[3];
+//			uint32 numStars = * (uint32 *) outputArray[4];
+//			if(numStars > STAR_CAMERA_STARS_THRESHOLD)
+//			{
+//				return true;
+//			}
+//			//uint32 numTries = * (uint32 *) outputArray[5];
+//			//uint32 error = * (uint32 *) outputArray[6];
+//			//uint32 status = * (uint32 *) outputArray[7];
+//			float avgSensorBright = * (float *) outputArray[8];
+//			if(avgSensorBright > (sensorThreshhold*STAR_CAMERA_LIGHT_THRESHOLD))
+//			{
+//				return true;
+//			}
+//			return false;
 		}
 		
 		void SetDeploymentFlag(void)

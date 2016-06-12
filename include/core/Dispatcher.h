@@ -207,6 +207,8 @@ namespace Phoenix
              */
             DispatcherStatusEnum WaitForDispatchResponse(const FSWPacket & packet, ReturnMessage & returnMessage);
 
+            DispatcherStatusEnum WaitForDispatchResponse(const FSWPacket & packet, FSWPacket * retPacket);
+
             void printString(const uint8 * str);
 
             /*! \brief Checks for a FSWPacket Addressed to a Given Server
@@ -273,7 +275,7 @@ namespace Phoenix
             	FSWPacket * packet;
 
             	/*! \brief Return Value of the MessageHandler */
-            	ReturnMessage * retMsg;
+            	FSWPacket * retPacket;
 
             	sem_t syncSem;
 

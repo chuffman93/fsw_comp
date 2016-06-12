@@ -212,9 +212,9 @@ namespace Phoenix
 			
 			uint32 timeUnit = 0;
 
-			ReturnMessage * HSRet;
-			ReturnMessage * BCNRet;
-			ReturnMessage * DATRet;
+			FSWPacket * HSRet;
+			FSWPacket * BCNRet;
+			FSWPacket * DATRet;
 
 			while(mode == currentMode)
 			{
@@ -234,13 +234,13 @@ namespace Phoenix
 						{
 							//BCNRet = COMBeacon();
 							//delete BCNRet;
-							MessageProcess(SERVER_LOCATION_COM, BCNRet);
+							PacketProcess(SERVER_LOCATION_COM, BCNRet);
 						}
 						if ((timeUnit % 200) == 0 )
 						{
 							HSRet = COMHealthStatus();
 							//delete HSRet;
-							MessageProcess(SERVER_LOCATION_COM, HSRet);
+							PacketProcess(SERVER_LOCATION_COM, HSRet);
 							timeUnit = 0;
 						}
 						break;

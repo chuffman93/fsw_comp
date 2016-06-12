@@ -16,14 +16,14 @@ namespace Phoenix
 {
 	namespace Servers
 	{
-		Phoenix::Core::ReturnMessage * CDHCPUUsage(void);
-		Phoenix::Core::ReturnMessage * CDHMemUsage(void);
-		Phoenix::Core::ReturnMessage * CDHStorage(void);
-		Phoenix::Core::ReturnMessage * CDHTempStart(void);
-		Phoenix::Core::ReturnMessage * CDHTempRead(void);
-		Phoenix::Core::ReturnMessage * CDHHotSwaps(void);
-		Phoenix::Core::ReturnMessage * CDHPowerMonitors(void);
-		Phoenix::Core::ReturnMessage * CDHStartPM(void);
+		Phoenix::Core::FSWPacket * CDHCPUUsage(void);
+		Phoenix::Core::FSWPacket * CDHMemUsage(void);
+		Phoenix::Core::FSWPacket * CDHStorage(void);
+		Phoenix::Core::FSWPacket * CDHTempStart(void);
+		Phoenix::Core::FSWPacket * CDHTempRead(void);
+		Phoenix::Core::FSWPacket * CDHHotSwaps(void);
+		Phoenix::Core::FSWPacket * CDHPowerMonitors(void);
+		Phoenix::Core::FSWPacket * CDHStartPM(void);
 		bool StartSensor(int bus, int sensor);
 		float ReadSensor(int bus, int sensor);
 	}

@@ -16,6 +16,9 @@
 #include "core/Singleton.h"
 #include "core/Factory.h"
 #include "core/StdTypes.h"
+#include "core/FSWPacket.h"
+
+#include "util/Logger.h"
 
 using namespace std;
 using namespace Phoenix::Core;
@@ -27,117 +30,131 @@ uint32 PLDSetChunkSizeHandler::enumArray[] = {VAR_TYPE_ENUM_UNSIGNED_INT};
 uint32 PLDSetGainHandler::enumArray[] = {VAR_TYPE_ENUM_UNSIGNED_INT};
 uint32 PLDSetExpTimeHandler::enumArray[] = {VAR_TYPE_ENUM_UNSIGNED_INT};
 
-ReturnMessage * PLDHSHandler::Handle(const FSWPacket & packet)
+FSWPacket * PLDHSHandler::Handle(const FSWPacket & packet)
 {
 	return (PLDHealthStatus());
 }
 
-ReturnMessage * PLDPictureTakeHandler::Handle(const FSWPacket & packet)
+FSWPacket * PLDPictureTakeHandler::Handle(const FSWPacket & packet)
 {
 	return (PLDPicture());
 }
 
-ReturnMessage * PLDGetPictureHandler::Handle(const FSWPacket & packet)
+FSWPacket * PLDGetPictureHandler::Handle(const FSWPacket & packet)
 {
 	return (PLDGetPicture());
 }
 
 
-ReturnMessage * PLDDataHandler::Handle(const FSWPacket & packet)
+FSWPacket * PLDDataHandler::Handle(const FSWPacket & packet)
 {
-	void * outputArray[numParams] = {NULL};
-	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
-	{
-		ErrorMessage err(PLD_DATA_FAILURE);
-		ReturnMessage * ret = new ReturnMessage(&err, false);
-		return ret;
-	}
-	
-	uint32 ChunkNum = *(uint32 *) outputArray[0];
-	
-	return (PLDDataRequest(ChunkNum));
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("PLDHandlers: PLDDataHandler(): Unfinished method!", LOGGER_LEVEL_FATAL);
+
+//	void * outputArray[numParams] = {NULL};
+//	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
+//	{
+//		ErrorMessage err(PLD_DATA_FAILURE);
+//		ReturnMessage * ret = new ReturnMessage(&err, false);
+//		return ret;
+//	}
+//
+//	uint32 ChunkNum = *(uint32 *) outputArray[0];
+//
+//	return (PLDDataRequest(ChunkNum));
 }
 
-ReturnMessage * PLDResSetHandler::Handle(const FSWPacket & packet)
+FSWPacket * PLDResSetHandler::Handle(const FSWPacket & packet)
 {
-	void * outputArray[numParams] = {NULL};
-	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
-	{
-		ErrorMessage err(PLD_RES_FAILURE);
-		ReturnMessage * ret = new ReturnMessage(&err, false);
-		return ret;
-	}
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("PLDHandlers: PLDResSetHandler(): Unfinished method!", LOGGER_LEVEL_FATAL);
 	
-	uint32 ResX = *(uint32 *) outputArray[0];
-	uint32 ResY = *(uint32 *) outputArray[1];
-
-	return (PLDResSet(ResX, ResY));
+//	void * outputArray[numParams] = {NULL};
+//	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
+//	{
+//		ErrorMessage err(PLD_RES_FAILURE);
+//		ReturnMessage * ret = new ReturnMessage(&err, false);
+//		return ret;
+//	}
+//
+//	uint32 ResX = *(uint32 *) outputArray[0];
+//	uint32 ResY = *(uint32 *) outputArray[1];
+//
+//	return (PLDResSet(ResX, ResY));
 }
 
-ReturnMessage * PLDSetChunkSizeHandler::Handle(const FSWPacket & packet)
+FSWPacket * PLDSetChunkSizeHandler::Handle(const FSWPacket & packet)
 {
-	void * outputArray[numParams] = {NULL};
-	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
-	{
-		ErrorMessage err(PLD_CHUNK_FAILURE);
-		ReturnMessage * ret = new ReturnMessage(&err, false);
-		return ret;
-	}
-	
-	uint32 ChunkSize = *(uint32 *) outputArray[0];
-	
-	return (PLDConfigChunkSize(ChunkSize));
-}
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("PLDHandlers: PLDSetChunkSizeHandler(): Unfinished method!", LOGGER_LEVEL_FATAL);
 
-
-
-ReturnMessage * PLDSetGainHandler::Handle(const FSWPacket & packet)
-{
-	void * outputArray[numParams] = {NULL};
-	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
-	{
-		ErrorMessage err(PLD_GAIN_FAILURE);
-		ReturnMessage * ret = new ReturnMessage(&err, false);
-		return ret;
-	}
-	
-	uint32 gain = *(uint32 *) outputArray[0];
-	
-	return (PLDSetGain(gain));
+//	void * outputArray[numParams] = {NULL};
+//	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
+//	{
+//		ErrorMessage err(PLD_CHUNK_FAILURE);
+//		ReturnMessage * ret = new ReturnMessage(&err, false);
+//		return ret;
+//	}
+//
+//	uint32 ChunkSize = *(uint32 *) outputArray[0];
+//
+//	return (PLDConfigChunkSize(ChunkSize));
 }
 
 
 
-ReturnMessage * PLDSetExpTimeHandler::Handle(const FSWPacket & packet)
+FSWPacket * PLDSetGainHandler::Handle(const FSWPacket & packet)
+{
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("PLDHandlers: PLDSetGainHandler(): Unfinished method!", LOGGER_LEVEL_FATAL);
+
+//	void * outputArray[numParams] = {NULL};
+//	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
+//	{
+//		ErrorMessage err(PLD_GAIN_FAILURE);
+//		ReturnMessage * ret = new ReturnMessage(&err, false);
+//		return ret;
+//	}
+//
+//	uint32 gain = *(uint32 *) outputArray[0];
+//
+//	return (PLDSetGain(gain));
+}
+
+
+
+FSWPacket * PLDSetExpTimeHandler::Handle(const FSWPacket & packet)
 {	
-	void * outputArray[numParams] = {NULL};
-	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
-	{
-		ErrorMessage err(PLD_EXPTIME_FAILURE);
-		ReturnMessage * ret = new ReturnMessage(&err, false);
-		return ret;
-	}
-	
-	uint32 time = *(uint32 *) outputArray[0];
-	
-	return (PLDSetExpTime(time));
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("PLDHandlers: PLDSetExpTimeHandler(): Unfinished method!", LOGGER_LEVEL_FATAL);
+
+//	void * outputArray[numParams] = {NULL};
+//	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
+//	{
+//		ErrorMessage err(PLD_EXPTIME_FAILURE);
+//		ReturnMessage * ret = new ReturnMessage(&err, false);
+//		return ret;
+//	}
+//
+//	uint32 time = *(uint32 *) outputArray[0];
+//
+//	return (PLDSetExpTime(time));
 }
 
 
-ReturnMessage * PLDResetHandler::Handle(const FSWPacket & packet)
+FSWPacket * PLDResetHandler::Handle(const FSWPacket & packet)
 {
 	return (PLDReset());
 }
 
-ReturnMessage * PLDErrorHandler::Handle(const FSWPacket & packet)
+FSWPacket * PLDErrorHandler::Handle(const FSWPacket & packet)
 {
 	//grab dispatcher instance, if it fails return DISPATCHER_NO_INSTANCE
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 	if (NULL == dispatcher)
 	{
-			ErrorMessage err(DISPATCHER_NO_INSTANCE);
-			ReturnMessage * eRet = new ReturnMessage(&err, false);
-			return eRet;
+		FSWPacket * ret = new FSWPacket(0, DISPATCHER_NO_INSTANCE, false, true, MESSAGE_TYPE_ERROR);
+		return ret;
 	}
 	FSWPacket * forward = new FSWPacket(packet);
 
@@ -148,27 +165,24 @@ ReturnMessage * PLDErrorHandler::Handle(const FSWPacket & packet)
 	//Dispatch packet, if it fails return DISPATCH_FAILED
 	if(!dispatcher->Dispatch(*forward))
 	{
-			ErrorMessage err(DISPATCH_FAILED);
-			ReturnMessage * eRet = new ReturnMessage(&err, false);
-			delete forward;
-			return eRet;
+		delete forward;
+		FSWPacket * ret = new FSWPacket(0, DISPATCH_FAILED, false, true, MESSAGE_TYPE_ERROR);
+		return ret;
 	}
 
-	ReturnMessage retMsg;
+	FSWPacket * retPacket;
 	DispatcherStatusEnum stat;
 	//Wait for return message, if it fails return status response from dispatcher
-	if(DISPATCHER_STATUS_OK != (stat = dispatcher->WaitForDispatchResponse(*forward, retMsg)))
+	if(DISPATCHER_STATUS_OK != (stat = dispatcher->WaitForDispatchResponse(*forward, retPacket)))
 	{
-			ErrorMessage err(DISPATCHER_STATUS_ERR);
-			ReturnMessage * eRet = new ReturnMessage(&err, false);
-			delete forward;
-			return eRet;
+		delete forward;
+		FSWPacket * ret = new FSWPacket(0, DISPATCHER_STATUS_ERR, false, true, MESSAGE_TYPE_ERROR);
+		return ret;
 	}
 
 	delete forward;
 	//Send server response message back to caller
-	ReturnMessage * ret = new ReturnMessage(retMsg);
 	//caller responsible for deleting the return message.
-	return ret;
+	return retPacket;
 }
 

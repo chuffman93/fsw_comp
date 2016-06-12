@@ -25,25 +25,25 @@ namespace Phoenix
 	namespace Servers
 	{
 		// \brief Collects health and status from COM.
-		Phoenix::Core::ReturnMessage * COMHealthStatus(void);
+		Phoenix::Core::FSWPacket * COMHealthStatus(void);
 
 		// \brief Sends a beacon to COM.
-		Phoenix::Core::ReturnMessage * COMBeacon(void);
+		Phoenix::Core::FSWPacket * COMBeacon(void);
 
 		// \brief Sends a data packet to COM.
-		Phoenix::Core::ReturnMessage * COMDataSend(const std::vector<uint8> & data, LocationIDType server);
+		Phoenix::Core::FSWPacket * COMDataSend(const std::vector<uint8> & data, LocationIDType server);
 
 		// \brief Resets the COM subsystem.
-		Phoenix::Core::ReturnMessage * COMReset(void);
+		Phoenix::Core::FSWPacket * COMReset(void);
 
 		// \brief Adds data to the input buffer, and parses it if the COM server is the waiting for command state.
-		Phoenix::Core::ReturnMessage * COMDataReceive(std::vector<uint8> & data, LocationIDType server);
+		Phoenix::Core::FSWPacket * COMDataReceive(std::vector<uint8> & data, LocationIDType server);
 
 		// \brief Transitions COM Server state from beacon to waiting for command.
-		Phoenix::Core::ReturnMessage * COMLogin(LocationIDType server);
+		Phoenix::Core::FSWPacket * COMLogin(LocationIDType server);
 
 		// \brief Transition COM Server to beacon, kills eKermit if it is running.
-		Phoenix::Core::ReturnMessage * COMLogout(LocationIDType server, MessageCodeType opcode);
+		Phoenix::Core::FSWPacket * COMLogout(LocationIDType server, MessageCodeType opcode);
 
 		// \brief Sends a packet to the ground station (Packetception)
 		void DispatchGndPacket(MessageTypeEnum type, MessageCodeType opCode, std::list<Phoenix::Core::VariableTypeData*> parameters);

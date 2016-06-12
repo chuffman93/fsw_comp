@@ -242,8 +242,8 @@ bool Dispatcher::Dispatch(FSWPacket & packet)
 	}
 }
 
-DispatcherStatusEnum Dispatcher::WaitForDispatchResponse(
-		const FSWPacket & packet, ReturnMessage & returnMessage)
+// TODO: remove this method
+DispatcherStatusEnum Dispatcher::WaitForDispatchResponse(const FSWPacket & packet, ReturnMessage & returnMessage)
 {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FSWPacket * ret;
@@ -256,8 +256,7 @@ DispatcherStatusEnum Dispatcher::WaitForDispatchResponse(
 				&Dispatcher::IsPacketMatchingResponse))
 		{
 			logger->Log("    Dispatcher: WaitForDispatchResponse(): Matching FSWPacket found.", LOGGER_LEVEL_DEBUG);
-			// Returned packet is a response to our command, so
-			// return the result.
+			// Return the result
 			retMsg = dynamic_cast<ReturnMessage *> (ret->GetMessagePtr( ));
 			returnMessage = (NULL == retMsg ? ReturnMessage( ) : *retMsg);
 			delete ret;
@@ -279,6 +278,40 @@ DispatcherStatusEnum Dispatcher::WaitForDispatchResponse(
 	}
 	// The command was received, but no response has been placed in
 	// the queue, so return that the operation failed.
+	return DISPATCHER_STATUS_MSG_RCVD_NO_RESP_SENT;
+}
+
+DispatcherStatusEnum Dispatcher::WaitForDispatchResponse(const FSWPacket & packet, FSWPacket * retPacket)
+{
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	//ReturnMessage * retMsg;
+	size_t i;
+	logger->Log("   Dispatcher: WaitForDispatchResponse() called", LOGGER_LEVEL_DEBUG);
+	for (i = 0; i < DISPATCHER_MAX_RESPONSE_TRIES; ++i)
+	{
+		if (CheckQueueForMatchingPacket(packet, retPacket,
+				&Dispatcher::IsPacketMatchingResponse))
+		{
+			logger->Log("    Dispatcher: WaitForDispatchResponse(): Matching FSWPacket found.", LOGGER_LEVEL_DEBUG);
+			return DISPATCHER_STATUS_OK;
+		}
+		usleep(DISPATCHER_WAIT_TIME);
+	}
+
+	// At this point, see if the command we sent has been received at least.
+	logger->Log("   Dispatch:  See if the packet we sent has been received.", LOGGER_LEVEL_DEBUG);
+	//debug_led_set_led(6, LED_ON);
+
+	if (CheckQueueForMatchingPacket(packet, retPacket,
+			&Dispatcher::IsPacketSame))
+	{
+		logger->Log("   Dispatch: Command not received, removed from queue", LOGGER_LEVEL_ERROR);
+		return DISPATCHER_STATUS_MSG_NOT_RCVD;
+	}
+
+	// The command was received, but no response has been placed in
+	// the queue, so return that the operation failed.
+	logger->Log("   Dispatch: Command received, but no response sent", LOGGER_LEVEL_ERROR);
 	return DISPATCHER_STATUS_MSG_RCVD_NO_RESP_SENT;
 }
 
@@ -394,8 +427,8 @@ bool Dispatcher::Listen(LocationIDType serverID)
 		LocationIDType src = packet->GetSource( );
 		packet->SetSource(packet->GetDestination( ));
 		packet->SetDestination(src);
-		packet->SetMessage(parameters.retMsg);
-		delete parameters.retMsg;
+		packet->SetMessageBuf(parameters.retPacket->GetMessageBufPtr());
+		delete parameters.retPacket;
 	}
 	catch (bad_alloc & e)
 	{
@@ -415,11 +448,11 @@ bool Dispatcher::IsPacketMatchingResponse(const FSWPacket & packetIn,
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log("IsPacketMatchingRespone called", LOGGER_LEVEL_DEBUG);
 
-//	DEBUG_PRINT("Original FSWPacket - ", (&packetIn));
-//	DEBUG_PRINT("Queue FSWPacket    - ", (&packetOut));
+	//	DEBUG_PRINT("Original FSWPacket - ", (&packetIn));
+	//	DEBUG_PRINT("Queue FSWPacket    - ", (&packetOut));
 	//debug_led_set_led(5, LED_ON);
 	// Return true if *packetOut is a response to *packetIn.
-	return ((packetOut.GetMessagePtr( )->IsResponse( ))
+	return ((packetOut.IsResponse())
 			&& (packetOut.GetDestination( ) == packetIn.GetSource( ))
 			&& (packetOut.GetNumber( ) == packetIn.GetNumber( )));
 }
@@ -587,7 +620,7 @@ void * Dispatcher::InvokeHandler(void * parameters)
 
 	xSemaphoreTake(&(parms->doneSem), MAX_BLOCK_TIME, 0);
 	sem_post(&(parms->syncSem));
-	parms->retMsg = parms->registry->Invoke(*(parms->packet));
+	parms->retPacket = parms->registry->Invoke(*(parms->packet));
 
 
 	sem_post(&(parms->doneSem));

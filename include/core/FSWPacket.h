@@ -61,6 +61,10 @@ namespace Phoenix
 			 */
             FSWPacket(LocationIDType sourceIn, LocationIDType destIn, uint16 numberIn, uint32 timestampIn, uint8 opcodeIn, uint8 * messageIn);
 
+            FSWPacket(LocationIDType sourceIn, LocationIDType destIn, uint32 timestampIn, uint8 opcodeIn, bool success, bool response, MessageTypeEnum type);
+
+            FSWPacket(uint32 timestampIn, uint8 opcodeIn, bool successIn, bool responseIn, MessageTypeEnum typeIn);
+
             /*! \brief Constructor for the FSWPacket Class
              *
              *  Creates a packet object from the given buffer as specified in
@@ -120,9 +124,9 @@ namespace Phoenix
 
             uint8 GetStatus(void) const;
 
-			bool GetResponse(void) const;
+			bool IsResponse(void) const;
 
-			bool GetSuccess(void) const;
+			bool IsSuccess(void) const;
 
 			MessageTypeEnum GetType(void) const;
 
@@ -168,6 +172,12 @@ namespace Phoenix
              *  \param newMessage New message for the packet.
              */
             void SetMessage(Message * newMessage);
+
+            void SetMessageBuf(uint8 * newPtr);
+
+            void SetResponse(bool responseIn);
+
+            void SetSuccess(bool successIn);
 
             /*! \brief Flattens the calling object into the given buffer.
              *

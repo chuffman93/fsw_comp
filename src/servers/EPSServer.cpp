@@ -211,9 +211,11 @@ namespace Phoenix
 			int i = 0;
 			uint64_t LastWakeTime;
 			uint32 resetTime = 0;
-			ReturnMessage * HSRet;
-			ReturnMessage * SOCRet;
-			ReturnMessage * rstRet;
+
+			FSWPacket * HSRet;
+			FSWPacket * SOCRet;
+			FSWPacket * rstRet;
+
 			logger->Log("EPS successfully entered Access Mode\n", LOGGER_LEVEL_INFO);
 
 			for(i = 0; i < 5; i++)
@@ -254,7 +256,7 @@ namespace Phoenix
 					logger->Log("Calling EPS Health and Status Function", LOGGER_LEVEL_DEBUG);
 					HSRet = EPSHealthStat();
 					logger->Log("Calling Message process on the ret message!", LOGGER_LEVEL_DEBUG);
-					MessageProcess(SERVER_LOCATION_EPS, HSRet);
+					PacketProcess(SERVER_LOCATION_EPS, HSRet);
 
 					//SOCRet = EPSStateOfCharge();
 					//MessageProcess(SERVER_LOCATION_EPS, SOCRet);

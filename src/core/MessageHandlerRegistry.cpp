@@ -49,7 +49,7 @@ namespace Phoenix
         	return true;
         }
 
-        ReturnMessage * MessageHandlerRegistry::Invoke(const FSWPacket & packet)
+        FSWPacket * MessageHandlerRegistry::Invoke(const FSWPacket & packet)
         {
         	Message * msg = packet.GetMessagePtr();
         	std::map<MessageIdentifierType, MessageHandler*>::iterator it =
@@ -57,8 +57,8 @@ namespace Phoenix
 
         	if (it == handlerMap.end() || it->second == NULL)
         	{
-        		ErrorMessage error(ERROR_OPCODE_UNRECOGNIZED_TYPE);
-        		return new ReturnMessage(&error, false);
+        		FSWPacket * ret = new FSWPacket(0, ERROR_OPCODE_UNRECOGNIZED_TYPE, false, true, MESSAGE_TYPE_ERROR);
+				return ret;
         	}
         	else
         	{

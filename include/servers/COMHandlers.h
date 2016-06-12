@@ -25,7 +25,7 @@ public:
          *  \param packet FSWPacket containing the command.
          *  \return ReturnMessage from COM hardware.
          */
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class COMBeaconHandler : public Phoenix::Core::MessageHandler
@@ -36,7 +36,7 @@ public:
          *  \param packet FSWPacket containing the command.
          *  \return ReturnMessage from COM hardware.
          */
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 
@@ -48,7 +48,7 @@ public:
          *  \param packet FSWPacket containing the command.
          *  \return ReturnMessage from COM hardware.
          */
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 1;
 		static uint32 enumArray[numParams];
@@ -62,7 +62,7 @@ public:
          *  \param packet FSWPacket containing the command.
          *  \return ReturnMessage from COM hardware.
          */
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class COMLogoutHandler : public Phoenix::Core::MessageHandler
@@ -73,7 +73,7 @@ public:
          *  \param packet FSWPacket containing the command.
          *  \return ReturnMessage from COM hardware.
          */
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class COMResetHandler : public Phoenix::Core::MessageHandler
@@ -84,7 +84,7 @@ public:
          *  \param packet FSWPacket containing the command.
          *  \return ReturnMessage from COM hardware.
          */
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class COMDataReceiveHandler : public Phoenix::Core::MessageHandler
@@ -95,7 +95,7 @@ public:
          *  \param packet FSWPacket containing the command.
          *  \return ReturnMessage from COM hardware.
          */
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 1;
 		static uint32 enumArray[numParams];
@@ -109,7 +109,7 @@ public:
          *  \param packet FSWPacket containing the command.
          *  \return ReturnMessage from COM hardware.
          */
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 #endif  //COMHANDLERS_H_

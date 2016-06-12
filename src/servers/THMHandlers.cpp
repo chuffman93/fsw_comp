@@ -19,17 +19,17 @@ using namespace Phoenix::Servers;
 
 uint32 THMDataHandler::enumArray[] = {VAR_TYPE_ENUM_UNSIGNED_INT};
 
-ReturnMessage * THMDataHandler::Handle(const FSWPacket & packet)
+FSWPacket * THMDataHandler::Handle(const FSWPacket & packet)
 {	
-	void * outputArray[numParams] = {NULL};
-	if(ExtractParameters(packet, enumArray, numParams, outputArray))
-	{
-		ErrorMessage err(THM_HS_FAILURE);
-		ReturnMessage * ret = new ReturnMessage(&err, false);
-		return ret;
-	}
-	
-	uint32 busNum = * (uint32 *) outputArray[0];
-	
-	return (DataCollect(busNum));
+//	void * outputArray[numParams] = {NULL};
+//	if(ExtractParameters(packet, enumArray, numParams, outputArray))
+//	{
+//		ErrorMessage err(THM_HS_FAILURE);
+//		ReturnMessage * ret = new ReturnMessage(&err, false);
+//		return ret;
+//	}
+//
+//	uint32 busNum = * (uint32 *) outputArray[0];
+//
+//	return (DataCollect(busNum));
 }

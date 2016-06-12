@@ -700,96 +700,96 @@ namespace Phoenix
 
 		void THMError(int opcode, MultiDataMessage * dataMessage)
 		{
-			uint32 enumArray[] = {VAR_TYPE_ENUM_UNSIGNED_INT, VAR_TYPE_ENUM_UNSIGNED_INT, VAR_TYPE_ENUM_BOOL};
-			uint32 sensor;
-			uint32 temp;
-			uint32 time = 15000;
-			uint8 hotOrNot;
-			void * outputArray[3] = {NULL};
-			// File handler error
-			if((opcode >= FILE_HANDLER_ERR_START) && (opcode <= FILE_HANDLER_ERR_END))
-			{
-				FileHandlerError(opcode, dataMessage);
-			}
-
-			FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
-
-			switch(opcode)
-			{
-			case THM_HS_FAILURE: //Thermal measurement failure
-				if(!fileHandler->Log(SUBSYSTEM_THM, opcode, (* dataMessage)))
-				{
-					printf("filehandler failed\n");
-					// write to error log
-				}
-
-				if(!ExtractParameters(* dataMessage, enumArray, 3, outputArray))
-				{
-					printf("extract parameters failed?");
-					return;
-				}
-
-				
-				sensor = * (uint32 *) outputArray[0];
-				temp = * (uint32 *) outputArray[1];
-				hotOrNot = *(uint8 *) outputArray[2];
-				
-					
-				if(hotOrNot == 1)
-				{
-					//THMPowerReset(/*whichpowersub?*/);
-
-					if(sensor > 15)
-					{
-						return;
-					}
-					if(sensor == 7 || sensor == 12 || sensor == 13 || sensor == 14)
-					{
-
-						//THMPowerReset(POWER_SUBSYSTEM_ACS);
-						uint32 sub = (uint32) POWER_SUBSYSTEM_ACS;
-						
-						VariableTypeData subsystem_hold(sub);
-						VariableTypeData off_hold(false);
-						VariableTypeData time_hold(time);
-						
-						list<VariableTypeData *> params;
-						params.push_back(&subsystem_hold);
-						params.push_back(&off_hold);
-						params.push_back(&time_hold);
-						printf("ACS Overheating!\n");
-						DispatchPacket(SERVER_LOCATION_ERR, SERVER_LOCATION_EPS, 1, 0, MESSAGE_TYPE_COMMAND, EPS_POWER_SUB_CMD, params);
-					}
-					if(sensor == 6 || sensor == 8 || sensor == 11)
-					{
-						//THMPowerReset(POWER_SUBSYSTEM_COM);
-						uint32 sub = (uint32) POWER_SUBSYSTEM_COM;
-						
-						VariableTypeData subsystem_hold(sub);
-						VariableTypeData off_hold(false);
-						VariableTypeData time_hold(time);
-						
-						list<VariableTypeData *> params;
-						params.push_back(&subsystem_hold);
-						params.push_back(&off_hold);
-						params.push_back(&time_hold);
-						printf("COM Overheating!\n");
-						DispatchPacket(SERVER_LOCATION_ERR, SERVER_LOCATION_EPS, 1, 0, MESSAGE_TYPE_COMMAND, EPS_POWER_SUB_CMD, params);
-					}
-					
-				}
-				
-				break;
-			default :
-				cout<<"ErrorStdTasks: THMError: Unknown error encountered!"<<endl;
-				if(!fileHandler->Log(SUBSYSTEM_THM, opcode, (* dataMessage)))
-				{
-					printf("filehandler failed\n");
-					// write to error log
-				}
-				break;
-
-			}
+//			uint32 enumArray[] = {VAR_TYPE_ENUM_UNSIGNED_INT, VAR_TYPE_ENUM_UNSIGNED_INT, VAR_TYPE_ENUM_BOOL};
+//			uint32 sensor;
+//			uint32 temp;
+//			uint32 time = 15000;
+//			uint8 hotOrNot;
+//			void * outputArray[3] = {NULL};
+//			// File handler error
+//			if((opcode >= FILE_HANDLER_ERR_START) && (opcode <= FILE_HANDLER_ERR_END))
+//			{
+//				FileHandlerError(opcode, dataMessage);
+//			}
+//
+//			FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
+//
+//			switch(opcode)
+//			{
+//			case THM_HS_FAILURE: //Thermal measurement failure
+//				if(!fileHandler->Log(SUBSYSTEM_THM, opcode, (* dataMessage)))
+//				{
+//					printf("filehandler failed\n");
+//					// write to error log
+//				}
+//
+//				if(!ExtractParameters(* dataMessage, enumArray, 3, outputArray))
+//				{
+//					printf("extract parameters failed?");
+//					return;
+//				}
+//
+//
+//				sensor = * (uint32 *) outputArray[0];
+//				temp = * (uint32 *) outputArray[1];
+//				hotOrNot = *(uint8 *) outputArray[2];
+//
+//
+//				if(hotOrNot == 1)
+//				{
+//					//THMPowerReset(/*whichpowersub?*/);
+//
+//					if(sensor > 15)
+//					{
+//						return;
+//					}
+//					if(sensor == 7 || sensor == 12 || sensor == 13 || sensor == 14)
+//					{
+//
+//						//THMPowerReset(POWER_SUBSYSTEM_ACS);
+//						uint32 sub = (uint32) POWER_SUBSYSTEM_ACS;
+//
+//						VariableTypeData subsystem_hold(sub);
+//						VariableTypeData off_hold(false);
+//						VariableTypeData time_hold(time);
+//
+//						list<VariableTypeData *> params;
+//						params.push_back(&subsystem_hold);
+//						params.push_back(&off_hold);
+//						params.push_back(&time_hold);
+//						printf("ACS Overheating!\n");
+//						DispatchPacket(SERVER_LOCATION_ERR, SERVER_LOCATION_EPS, 1, 0, MESSAGE_TYPE_COMMAND, EPS_POWER_SUB_CMD, params);
+//					}
+//					if(sensor == 6 || sensor == 8 || sensor == 11)
+//					{
+//						//THMPowerReset(POWER_SUBSYSTEM_COM);
+//						uint32 sub = (uint32) POWER_SUBSYSTEM_COM;
+//
+//						VariableTypeData subsystem_hold(sub);
+//						VariableTypeData off_hold(false);
+//						VariableTypeData time_hold(time);
+//
+//						list<VariableTypeData *> params;
+//						params.push_back(&subsystem_hold);
+//						params.push_back(&off_hold);
+//						params.push_back(&time_hold);
+//						printf("COM Overheating!\n");
+//						DispatchPacket(SERVER_LOCATION_ERR, SERVER_LOCATION_EPS, 1, 0, MESSAGE_TYPE_COMMAND, EPS_POWER_SUB_CMD, params);
+//					}
+//
+//				}
+//
+//				break;
+//			default :
+//				cout<<"ErrorStdTasks: THMError: Unknown error encountered!"<<endl;
+//				if(!fileHandler->Log(SUBSYSTEM_THM, opcode, (* dataMessage)))
+//				{
+//					printf("filehandler failed\n");
+//					// write to error log
+//				}
+//				break;
+//
+//			}
 		}
 		
 		void SCHError(int opcode, MultiDataMessage * dataMessage)
@@ -956,24 +956,24 @@ namespace Phoenix
 
 		bool SendEPSReset()
 		{
-			// Send message to subsystem server to reset subsystem hardware.
-			ReturnMessage * ret = DispatchPacket(SERVER_LOCATION_ERR, SERVER_LOCATION_EPS, 1, 0, MESSAGE_TYPE_COMMAND, EPS_POWER_CYCLE_CMD);
-			if(ret->GetSuccess() == true)
-			{
-				return true;
-			}
-			return false;
+//			// Send message to subsystem server to reset subsystem hardware.
+//			ReturnMessage * ret = DispatchPacket(SERVER_LOCATION_ERR, SERVER_LOCATION_EPS, 1, 0, MESSAGE_TYPE_COMMAND, EPS_POWER_CYCLE_CMD);
+//			if(ret->GetSuccess() == true)
+//			{
+//				return true;
+//			}
+//			return false;
 		}
 
 		bool SendCOMReset()
 		{
-			// Send message to subsystem server to reset subsystem hardware.
-			ReturnMessage * ret = DispatchPacket(SERVER_LOCATION_ERR, SERVER_LOCATION_COM, 1, 0, MESSAGE_TYPE_COMMAND, COM_RESET_CMD);
-			if(ret->GetSuccess() == true)
-			{
-				return true;
-			}
-			return false;
+//			// Send message to subsystem server to reset subsystem hardware.
+//			ReturnMessage * ret = DispatchPacket(SERVER_LOCATION_ERR, SERVER_LOCATION_COM, 1, 0, MESSAGE_TYPE_COMMAND, COM_RESET_CMD);
+//			if(ret->GetSuccess() == true)
+//			{
+//				return true;
+//			}
+//			return false;
 		}
 
 		bool SendPLDReset()
@@ -989,24 +989,24 @@ namespace Phoenix
 
 		bool SendACSReset()
 		{
-			// Send message to subsystem server to reset subsystem hardware.
-			ReturnMessage * ret = DispatchPacket(SERVER_LOCATION_ERR, SERVER_LOCATION_ACS, 1, 0, MESSAGE_TYPE_COMMAND, ACS_RESET_CMD);
-			if(ret->GetSuccess() == true)
-			{
-				return true;
-			}
-			return false;
+//			// Send message to subsystem server to reset subsystem hardware.
+//			ReturnMessage * ret = DispatchPacket(SERVER_LOCATION_ERR, SERVER_LOCATION_ACS, 1, 0, MESSAGE_TYPE_COMMAND, ACS_RESET_CMD);
+//			if(ret->GetSuccess() == true)
+//			{
+//				return true;
+//			}
+//			return false;
 		}
 
 		bool SendGPSReset()
 		{
-			// Send message to subsystem server to reset subsystem hardware.
-			ReturnMessage * ret = DispatchPacket(SERVER_LOCATION_ERR, SERVER_LOCATION_GPS, 1, 0, MESSAGE_TYPE_COMMAND, GPS_RESET_CMD);
-			if(ret->GetSuccess() == true)
-			{
-				return true;
-			}
-			return false;
+//			// Send message to subsystem server to reset subsystem hardware.
+//			ReturnMessage * ret = DispatchPacket(SERVER_LOCATION_ERR, SERVER_LOCATION_GPS, 1, 0, MESSAGE_TYPE_COMMAND, GPS_RESET_CMD);
+//			if(ret->GetSuccess() == true)
+//			{
+//				return true;
+//			}
+//			return false;
 		}
     }
 }

@@ -23,35 +23,34 @@ using namespace Phoenix::Servers;
 using namespace Phoenix::Core;
 
 
-ReturnMessage * GPSHealthAndStatusHandler::Handle(const FSWPacket & packet)
+FSWPacket * GPSHealthAndStatusHandler::Handle(const FSWPacket & packet)
 {
 	return (GPSHealthStatus());
 }
 
-ReturnMessage * GPSTimeHandler::Handle(const FSWPacket & packet)
+FSWPacket * GPSTimeHandler::Handle(const FSWPacket & packet)
 {
 	return (GPSTime());
 }
 
-ReturnMessage * GPSPositionHandler::Handle(const FSWPacket & packet)
+FSWPacket * GPSPositionHandler::Handle(const FSWPacket & packet)
 {
 	return (GPSPostion());
 }
 
-ReturnMessage * GPSResetHandler::Handle(const FSWPacket & packet)
+FSWPacket * GPSResetHandler::Handle(const FSWPacket & packet)
 {
 	return (GPSReset());
 }
 
-ReturnMessage * GPSErrorHandler::Handle(const FSWPacket & packet)
+FSWPacket * GPSErrorHandler::Handle(const FSWPacket & packet)
 {
 	//grab dispatcher instance, if it fails return DISPATCHER_NO_INSTANCE
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 	if (NULL == dispatcher)
 	{
-			ErrorMessage err(DISPATCHER_NO_INSTANCE);
-			ReturnMessage * eRet = new ReturnMessage(&err, false);
-			return eRet;
+		FSWPacket * ret = new FSWPacket(0, DISPATCHER_NO_INSTANCE, false, false, MESSAGE_TYPE_ERROR);
+		return ret;
 	}
 	FSWPacket * forward = new FSWPacket(packet);
 
@@ -62,26 +61,23 @@ ReturnMessage * GPSErrorHandler::Handle(const FSWPacket & packet)
 	//Dispatch packet, if it fails return DISPATCH_FAILED
 	if(!dispatcher->Dispatch(*forward))
 	{
-			ErrorMessage err(DISPATCH_FAILED);
-			ReturnMessage * eRet = new ReturnMessage(&err, false);
-			delete forward;
-			return eRet;
+		delete forward;
+		FSWPacket * ret = new FSWPacket(0, DISPATCH_FAILED, false, false, MESSAGE_TYPE_ERROR);
+		return ret;
 	}
 
-	ReturnMessage retMsg;
+	FSWPacket * retPacket;
 	DispatcherStatusEnum stat;
 	//Wait for return message, if it fails return status response from dispatcher
-	if(DISPATCHER_STATUS_OK != (stat = dispatcher->WaitForDispatchResponse(*forward, retMsg)))
+	if(DISPATCHER_STATUS_OK != (stat = dispatcher->WaitForDispatchResponse(*forward, retPacket)))
 	{
-			ErrorMessage err(DISPATCHER_STATUS_ERR);
-			ReturnMessage * eRet = new ReturnMessage(&err, false);
-			delete forward;
-			return eRet;
+		delete forward;
+		FSWPacket * ret = new FSWPacket(0, DISPATCHER_STATUS_ERR, false, false, MESSAGE_TYPE_ERROR);
+		return ret;
 	}
 
 	delete forward;
 	//Send server response message back to caller
-	ReturnMessage * ret = new ReturnMessage(retMsg);
 	//caller responsible for deleting the return message.
-	return ret;
+	return retPacket;
 }

@@ -50,39 +50,39 @@ void* taskRunACS(void * params) {
 }
 
 TEST(TestHandlers, test1){
-	FileHandler * fileHandler =
-			dynamic_cast<FileHandler *>(Factory::GetInstance(
-					MODE_MANAGER_SINGLETON));
-	ModeManager * modeManager =
-			dynamic_cast<ModeManager *>(Factory::GetInstance(
-					MODE_MANAGER_SINGLETON));
-	modeManager->SetMode(MODE_ACCESS, LOCATION_ID_INVALID);
-
-	// Create ACSServer
-	pthread_t ACSThread;
-	bool threadCreated = pthread_create(&ACSThread, NULL, &taskRunACS, NULL);
-	if (!threadCreated) {
-		printf("ACS Server Thread Creation Success\n");
-	} else {
-		printf("ACS Server Thread Creation Failed\n");
-	}
-
-	ACSServer * acsServer = dynamic_cast<ACSServer *>(Factory::GetInstance(
-			ACS_SERVER_SINGLETON));
-	EXPECT_TRUE(!threadCreated);
-
-	usleep(5000000);
-
-	ReturnMessage * ret1 = DispatchPacket(SERVER_LOCATION_CDH,SERVER_LOCATION_ACS, 1, 0, MESSAGE_TYPE_COMMAND, ACS_HS_CMD);
-	/*
-	 bool success = ret1->GetSuccess();
-	 MessageCodeType code = ret1->GetOpcode();
-	 MessageTypeEnum type = ret1->GetType();
-	 cout<<"Success: "<<success<<" <------------------------------"<<endl;
-	 cout<<"Opcode: "<<code<<endl;
-	 cout<<"Type: "<<type<<endl;
-	 */
-	MessageProcess(SERVER_LOCATION_ACS, ret1);
+//	FileHandler * fileHandler =
+//			dynamic_cast<FileHandler *>(Factory::GetInstance(
+//					MODE_MANAGER_SINGLETON));
+//	ModeManager * modeManager =
+//			dynamic_cast<ModeManager *>(Factory::GetInstance(
+//					MODE_MANAGER_SINGLETON));
+//	modeManager->SetMode(MODE_ACCESS, LOCATION_ID_INVALID);
+//
+//	// Create ACSServer
+//	pthread_t ACSThread;
+//	bool threadCreated = pthread_create(&ACSThread, NULL, &taskRunACS, NULL);
+//	if (!threadCreated) {
+//		printf("ACS Server Thread Creation Success\n");
+//	} else {
+//		printf("ACS Server Thread Creation Failed\n");
+//	}
+//
+//	ACSServer * acsServer = dynamic_cast<ACSServer *>(Factory::GetInstance(
+//			ACS_SERVER_SINGLETON));
+//	EXPECT_TRUE(!threadCreated);
+//
+//	usleep(5000000);
+//
+//	ReturnMessage * ret1 = DispatchPacket(SERVER_LOCATION_CDH,SERVER_LOCATION_ACS, 1, 0, MESSAGE_TYPE_COMMAND, ACS_HS_CMD);
+//	/*
+//	 bool success = ret1->GetSuccess();
+//	 MessageCodeType code = ret1->GetOpcode();
+//	 MessageTypeEnum type = ret1->GetType();
+//	 cout<<"Success: "<<success<<" <------------------------------"<<endl;
+//	 cout<<"Opcode: "<<code<<endl;
+//	 cout<<"Type: "<<type<<endl;
+//	 */
+//	MessageProcess(SERVER_LOCATION_ACS, ret1);
 }
 
 

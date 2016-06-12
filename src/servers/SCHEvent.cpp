@@ -28,11 +28,13 @@ namespace Phoenix
 
 				if(subsystem == SERVER_LOCATION_PLD)
 				{
-					ret = DispatchPacket(SERVER_LOCATION_SCH, SERVER_LOCATION_PLD, 1, 0, MESSAGE_TYPE_COMMAND, this->opcode);
+					FSWPacket * query = new FSWPacket(SERVER_LOCATION_SCH, SERVER_LOCATION_PLD, 0, this->opcode, true, false, MESSAGE_TYPE_COMMAND);
+					FSWPacket * ret = DispatchPacket(query);
 				}
 				else if(subsystem == SERVER_LOCATION_ACS)
 				{
-					ret = DispatchPacket(SERVER_LOCATION_SCH, SERVER_LOCATION_ACS, 1, 0, MESSAGE_TYPE_COMMAND, this->opcode);
+					FSWPacket * query = new FSWPacket(SERVER_LOCATION_SCH, SERVER_LOCATION_ACS, 0, this->opcode, true, false, MESSAGE_TYPE_COMMAND);
+					FSWPacket * ret = DispatchPacket(query);
 				}
 				else
 				{

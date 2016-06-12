@@ -35,7 +35,7 @@ namespace Phoenix
             MessageHandler & operator=(const MessageHandler & source);
             std::string GetName() const;
             void SetName(std::string newName);
-            virtual ReturnMessage * Handle(const FSWPacket & packet) = 0;
+            virtual FSWPacket * Handle(const FSWPacket & packet) = 0;
         private:
             std::string name;
         };

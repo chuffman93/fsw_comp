@@ -24,6 +24,7 @@
 #include "core/Dispatcher.h"
 
 #include "util/FileHandler.h"
+#include "util/Logger.h"
 
 //#include "boards/backplane/dbg_led.h"
 
@@ -36,8 +37,11 @@ namespace Phoenix
 	{
 		//build a schedule from file.
 	//TODO FIXBUILD SCHEDULE FUNCTION
-		ReturnMessage * BuildSchedule(const char * fileName)
+		FSWPacket * BuildSchedule(const char * fileName)
 		{
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			logger->Log("SCHStdTasks: unfinished function entered!", LOGGER_LEVEL_FATAL);
+
 //			SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
 //			FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
 //
@@ -159,26 +163,26 @@ namespace Phoenix
 //			return ret;
 		}
 
-		ReturnMessage * RunSchedule(void)
+		FSWPacket * RunSchedule(void)
 		{
 			SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
 			if(schServer->RunCurrentSchedule())
 			{
-				//debug_led_set_led(0, LED_ON);
-				DataMessage msg(SCH_RUN_SCHEDULE_SUCCESS);
-				ReturnMessage * ret = new ReturnMessage(&msg, true);
+				FSWPacket * ret = new FSWPacket(0, SCH_RUN_SCHEDULE_SUCCESS, true, true, MESSAGE_TYPE_DATA);
 				return ret;
 			}
-			ErrorMessage err(SCH_RUN_SCHEDULE_FAILURE);
-			ReturnMessage * ret = new ReturnMessage(&err, false);
+			FSWPacket * ret = new FSWPacket(0, SCH_RUN_SCHEDULE_FAILURE, false, true, MESSAGE_TYPE_ERROR);
 			return ret;
 		}
 
 
 		//build a schedule from file.
 		//TODO::FIX BUILDPLDSCHEDULEFUNCTION
-		ReturnMessage * BuildPLDSchedule(const char * fileName)
+		FSWPacket * BuildPLDSchedule(const char * fileName)
 		{
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			logger->Log("SCHStdTasks: unfinished function entered!", LOGGER_LEVEL_FATAL);
+
 //			SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
 //			FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
 //
@@ -341,18 +345,16 @@ namespace Phoenix
 			return false;
 		}
 		
-		ReturnMessage * SCHDefaultRange(const float & newRange)
+		FSWPacket * SCHDefaultRange(const float & newRange)
 		{
 			SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
 			
 			if(!schServer->SetNewDefaultRange(newRange))
 			{
-				ErrorMessage err(SCH_DEFAULT_RANGE_FAILURE);
-				ReturnMessage * ret = new ReturnMessage(&err, true);
+				FSWPacket * ret = new FSWPacket(0, SCH_DEFAULT_RANGE_FAILURE, false, true, MESSAGE_TYPE_ERROR);
 				return ret;
 			}
-			DataMessage msg(SCH_DEFAULT_RANGE_SUCCESS);
-			ReturnMessage * ret = new ReturnMessage(&msg, true);
+			FSWPacket * ret = new FSWPacket(0, SCH_DEFAULT_RANGE_SUCCESS, true, true, MESSAGE_TYPE_ERROR);
 			return ret;
 		}
 	}

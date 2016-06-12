@@ -25,7 +25,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class ACSStateHandler : public Phoenix::Core::MessageHandler
@@ -36,7 +36,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class ACSRawADCHandler : public Phoenix::Core::MessageHandler
@@ -47,7 +47,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class ACSAttitudeErrorHandler : public Phoenix::Core::MessageHandler
@@ -58,7 +58,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 
@@ -70,7 +70,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 4;
 		static uint32 enumArray[numParams];
@@ -85,7 +85,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 3;
 		static uint32 enumArray[numParams];
@@ -99,7 +99,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class ACSRequestMRPHandler : public Phoenix::Core::MessageHandler
@@ -110,7 +110,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class ACSSunsoakHandler : public Phoenix::Core::MessageHandler
@@ -121,7 +121,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class ACSPointNadirHandler : public Phoenix::Core::MessageHandler
@@ -136,7 +136,7 @@ private:
 		const static uint32 numParams = 1;
 		static uint32 enumArray[numParams];
 		
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 // class ACSSetTargetHandler : public Phoenix::Core::MessageHandler
@@ -175,7 +175,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class ACSDisableHandler : public Phoenix::Core::MessageHandler
@@ -186,7 +186,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class ACSResetHandler : public Phoenix::Core::MessageHandler
@@ -197,7 +197,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class ACSGPSHandler : public Phoenix::Core::MessageHandler
@@ -208,7 +208,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 8;
 		static uint32 enumArray[numParams];
@@ -222,7 +222,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class ACSPointComGndHandler : public Phoenix::Core::MessageHandler
@@ -233,7 +233,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class ACSHelloWorldTestHandler : public Phoenix::Core::MessageHandler
@@ -244,7 +244,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 
 };
 
@@ -281,7 +281,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 10;
 		static uint32 enumArray[numParams];
@@ -295,7 +295,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 3;
 		static uint32 enumArray[numParams];
@@ -323,7 +323,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 8;
 		static uint32 enumArray[numParams];
@@ -337,7 +337,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 5;
 		static uint32 enumArray[numParams];
@@ -351,7 +351,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 11;
 		static uint32 enumArray[numParams];
@@ -365,7 +365,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 9;
 		static uint32 enumArray[numParams];
@@ -379,7 +379,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 7;
 		static uint32 enumArray[numParams];
@@ -393,7 +393,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 4;
 		static uint32 enumArray[numParams];
@@ -407,7 +407,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 4;
 		static uint32 enumArray[numParams];
@@ -421,7 +421,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 1;
 		static uint32 enumArray[numParams];
@@ -435,7 +435,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 4;
 		static uint32 enumArray[numParams];
@@ -449,7 +449,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 11;
 		static uint32 enumArray[numParams];
@@ -463,7 +463,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 3;
 		static uint32 enumArray[numParams];
@@ -477,7 +477,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 1;
 		static uint32 enumArray[numParams];
@@ -492,7 +492,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 #endif /* ACSHANDLERS_H_ */

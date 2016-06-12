@@ -17,12 +17,12 @@ namespace Phoenix
 {
 	namespace Servers
 	{
-		Phoenix::Core::ReturnMessage * EPSHealthStat();
-		Phoenix::Core::ReturnMessage * EPSStateOfCharge();
-		Phoenix::Core::ReturnMessage * EPSPowerCycle();
-		Phoenix::Core::ReturnMessage * EPSDisableOCProt();
-		Phoenix::Core::ReturnMessage * EPSEnableOCProt();
-		Phoenix::Core::ReturnMessage * EPSPowerSubsystems(PowerSubsystemEnum subsystem, bool onOff, uint32 time);
+		Phoenix::Core::FSWPacket * EPSHealthStat();
+		Phoenix::Core::FSWPacket * EPSStateOfCharge();
+		Phoenix::Core::FSWPacket * EPSPowerCycle();
+		Phoenix::Core::FSWPacket * EPSDisableOCProt();
+		Phoenix::Core::FSWPacket * EPSEnableOCProt();
+		Phoenix::Core::FSWPacket * EPSPowerSubsystems(PowerSubsystemEnum subsystem, bool onOff, uint32 time);
 		void CheckPowerTimers(void);
 		void SattyResetTimer(void);
 		void SattyReset(void);

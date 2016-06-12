@@ -18,7 +18,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 2;
 		static uint32 enumArray[numParams];

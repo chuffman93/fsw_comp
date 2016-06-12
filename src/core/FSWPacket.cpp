@@ -221,6 +221,36 @@ namespace Phoenix
             }
         }
 
+        FSWPacket::FSWPacket(LocationIDType sourceIn, LocationIDType destIn, uint32 timestampIn, uint8 opcodeIn, bool successIn, bool responseIn, MessageTypeEnum typeIn){
+        	destination = sourceIn;
+			source = destIn;
+			number = 1;
+			timestamp = destIn;
+			type = typeIn;
+			success = successIn;
+			response = responseIn;
+			status = 0; // TODO: this isn't accurate, but check that it doesn't need to be
+			opcode = opcodeIn;
+			length = 0;
+			messagePtr = NULL;
+			messageBuf = NULL;
+        }
+
+        FSWPacket::FSWPacket(uint32 timestampIn, uint8 opcodeIn, bool successIn, bool responseIn, MessageTypeEnum typeIn){
+			destination = LOCATION_ID_INVALID;
+			source = LOCATION_ID_INVALID;
+			number = 1;
+			timestamp = timestampIn;
+			type = typeIn;
+			success = successIn;
+			response = responseIn;
+			status = 0; // TODO: this isn't accurate, but check that it doesn't need to be
+			opcode = opcodeIn;
+			length = 0;
+			messagePtr = NULL;
+			messageBuf = NULL;
+		}
+
         FSWPacket::FSWPacket(const FSWPacket & packetSource)
         {
 //            if (NULL == packetSource.GetMessagePtr())
@@ -252,8 +282,8 @@ namespace Phoenix
             number = packetSource.number;
             timestamp = packetSource.timestamp;
             status = packetSource.GetStatus();
-            response = packetSource.GetResponse();
-            success = packetSource.GetSuccess();
+            response = packetSource.IsResponse();
+            success = packetSource.IsSuccess();
             type = packetSource.GetType();
             opcode = packetSource.GetOpcode();
             length = packetSource.GetMessageLength();
@@ -328,12 +358,12 @@ namespace Phoenix
         	return status;
         }
 
-		bool FSWPacket::GetResponse(void) const
+		bool FSWPacket::IsResponse(void) const
 		{
 			return response;
 		}
 
-		bool FSWPacket::GetSuccess(void) const
+		bool FSWPacket::IsSuccess(void) const
 		{
 			return success;
 		}
@@ -403,6 +433,19 @@ namespace Phoenix
             delete messagePtr;
             messagePtr = newMessage->Duplicate();
         }
+
+        void FSWPacket::SetMessageBuf(uint8 * newPtr){
+        	delete messageBuf;
+        	messageBuf = newPtr;
+        }
+
+        void FSWPacket::SetResponse(bool responseIn){
+        	response = responseIn;
+        }
+
+		void FSWPacket::SetSuccess(bool successIn){
+			success = successIn;
+		}
 
         std::size_t FSWPacket::Flatten(uint8 * buffer, std::size_t size) const
         {

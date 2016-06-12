@@ -37,7 +37,7 @@ namespace Phoenix
 		*	and the response message if dispatched successfully.
 		*/
 		
-		Phoenix::Core::ReturnMessage * DispatchPacket(Phoenix::Core::FSWPacket * packet);
+		Phoenix::Core::FSWPacket * DispatchPacket(Phoenix::Core::FSWPacket * packet);
 		
 		/*!	\brief Dispatches a message with no parameters.
 		*
@@ -53,6 +53,9 @@ namespace Phoenix
 		*/
 		Phoenix::Core::ReturnMessage * DispatchPacket(LocationIDType source, LocationIDType destination, uint16 number,
 				uint32 timestamp, MessageTypeEnum type, MessageCodeType opCode);
+
+		Phoenix::Core::FSWPacket * DispatchPacket(LocationIDType source, LocationIDType destination, uint16 number,
+						uint32 timestamp, MessageTypeEnum type, MessageCodeType opCode, int testvar);
 				
 		/*!	\brief Dispatches a message with one parameter.
 		*

@@ -21,6 +21,8 @@
 #include "core/VariableTypeData.h"
 #include "core/CommandMessage.h"
 
+#include "util/Logger.h"
+
 //#include "boards/backplane/dbg_led.h"
 
 using namespace std;
@@ -34,164 +36,168 @@ namespace Phoenix
 		uint32 GPSConversionEnumArray[] = {VAR_TYPE_ENUM_FLOAT, VAR_TYPE_ENUM_FLOAT, VAR_TYPE_ENUM_FLOAT, 
 				VAR_TYPE_ENUM_FLOAT, VAR_TYPE_ENUM_FLOAT, VAR_TYPE_ENUM_FLOAT};
 		
-		ReturnMessage * GPSHealthStatus()
+		FSWPacket * GPSHealthStatus()
 		{
-			
 			GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 			if (NULL == gpsServer)
 			{
-				ErrorMessage err(GPS_HS_FAILURE);
-				ReturnMessage * eRet = new ReturnMessage(&err, false);
-				return eRet;
+				FSWPacket * ret = new FSWPacket(0, GPS_HS_FAILURE, false, true, MESSAGE_TYPE_ERROR);
+				return ret;
 			}
 			GPSData * gpsData = gpsServer->GetGPSDataPtr();
 			if(gpsData == NULL)
 			{
-				ErrorMessage err(GPS_HS_FAILURE);
-				ReturnMessage * eRet = new ReturnMessage(&err, false);
-				return eRet;
+				FSWPacket * ret = new FSWPacket(0, GPS_HS_FAILURE, false, true, MESSAGE_TYPE_ERROR);
+				return ret;
 			}
 			
-			uint8 buff[350];
-			memcpy(buff, gpsData->header, 100);
-			memcpy((buff + 100), gpsData->message, 250);
-			DataMessage dat(GPS_HS_SUCCESS, VariableTypeData(buff, 350));
-			ReturnMessage * retMsg = new ReturnMessage(&dat, true);
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			logger->Log("GPSStdTasks: GPSHealth(): Unfinished Function (variable type)!", LOGGER_LEVEL_FATAL);
 			
-			//COMServer * comServer = dynamic_cast<COMServer *> (Factory::GetInstance(COM_SERVER_SINGLETON));
-			//FIXME: figure out why eclipse dosent like this lines
-//			comServer -> UpdateGPSHS(GPSData->GPSWeek,GPSData->GPSSec,GPSData->posX,GPSData->posY,GPSData->posZ,
-//				GPSData->velX,GPSData->velY,GPSData->velZ,GPSData->numSolution,GPSData->solAge);
-				
-			return retMsg;
+//			uint8 buff[350];
+//			memcpy(buff, gpsData->header, 100);
+//			memcpy((buff + 100), gpsData->message, 250);
+//			DataMessage dat(GPS_HS_SUCCESS, VariableTypeData(buff, 350));
+//			ReturnMessage * retMsg = new ReturnMessage(&dat, true);
+//
+//			//COMServer * comServer = dynamic_cast<COMServer *> (Factory::GetInstance(COM_SERVER_SINGLETON));
+//			//FIXME: figure out why eclipse doesn't like these lines
+////			comServer -> UpdateGPSHS(GPSData->GPSWeek,GPSData->GPSSec,GPSData->posX,GPSData->posY,GPSData->posZ,
+////				GPSData->velX,GPSData->velY,GPSData->velZ,GPSData->numSolution,GPSData->solAge);
+//
+//			return retMsg;
 		}
 
-		ReturnMessage * GPSTime()
+		FSWPacket * GPSTime()
 		{
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			logger->Log("GPSStdTasks: GPSTime(): Unfinished Function (variable type)!", LOGGER_LEVEL_FATAL);
+
 			GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 			if (NULL == gpsServer)
 			{
-				ErrorMessage err(GPS_TIME_FAILURE);
-				ReturnMessage * eRet = new ReturnMessage(&err, false);
-				return eRet;
+				FSWPacket * ret = new FSWPacket(0, GPS_TIME_FAILURE, false, true, MESSAGE_TYPE_ERROR);
+				return ret;
 			}
 			GPSData * gpsData = gpsServer->GetGPSDataPtr();
 			if(gpsData == NULL)
 			{
-				ErrorMessage err(GPS_TIME_FAILURE);
-				ReturnMessage * eRet = new ReturnMessage(&err, false);
-				return eRet;
+				FSWPacket * ret = new FSWPacket(0, GPS_TIME_FAILURE, false, true, MESSAGE_TYPE_ERROR);
+				return ret;
 			}
-			
-			int32 week = gpsData->GPSWeek;
-			float sec = gpsData->GPSSec;
-			VariableTypeData weekHold(week);
-			VariableTypeData secHold(sec);
-			
-			list<VariableTypeData *> params;
-			params.push_back(&weekHold);
-			params.push_back(&secHold);
-			
-			DataMessage dat(GPS_TIME_SUCCESS, params);
-			ReturnMessage * retMsg = new ReturnMessage(&dat, true);
-			return retMsg;
+
+//			int32 week = gpsData->GPSWeek;
+//			float sec = gpsData->GPSSec;
+//			VariableTypeData weekHold(week);
+//			VariableTypeData secHold(sec);
+//
+//			list<VariableTypeData *> params;
+//			params.push_back(&weekHold);
+//			params.push_back(&secHold);
+//
+//			DataMessage dat(GPS_TIME_SUCCESS, params);
+//			ReturnMessage * retMsg = new ReturnMessage(&dat, true);
+//			return retMsg;
 		}
 
-		ReturnMessage * GPSPostion()
+		FSWPacket * GPSPostion()
 		{
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			logger->Log("GPSStdTasks: GPSHealth(): Unfinished Function (variable type)!", LOGGER_LEVEL_FATAL);
+
 			GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 			if (NULL == gpsServer)
 			{
-				ErrorMessage err(GPS_POSITION_FAILURE);
-				ReturnMessage * eRet = new ReturnMessage(&err, false);
-				return eRet;
+				FSWPacket * ret = new FSWPacket(0, GPS_POSITION_FAILURE, false, true, MESSAGE_TYPE_ERROR);
+				return ret;
 			}
 			GPSData * gpsData = gpsServer->GetGPSDataPtr();
 			if(gpsData == NULL)
 			{
-				ErrorMessage err(GPS_POSITION_FAILURE);
-				ReturnMessage * eRet = new ReturnMessage(&err, false);
-				return eRet;
+				FSWPacket * ret = new FSWPacket(0, GPS_POSITION_FAILURE, false, true, MESSAGE_TYPE_ERROR);
+				return ret;
 			}
 			
-			VariableTypeData x_hold(gpsData->posX);
-			VariableTypeData y_hold(gpsData->posY);
-			VariableTypeData z_hold(gpsData->posZ);
-
-			list<VariableTypeData *> params;
-			params.push_back(&x_hold);
-			params.push_back(&y_hold);
-			params.push_back(&z_hold);
-
-			DataMessage dat(GPS_POSITION_SUCCESS, params);
-			ReturnMessage * retMsg = new ReturnMessage(&dat, true);
-			return retMsg;
+//			VariableTypeData x_hold(gpsData->posX);
+//			VariableTypeData y_hold(gpsData->posY);
+//			VariableTypeData z_hold(gpsData->posZ);
+//
+//			list<VariableTypeData *> params;
+//			params.push_back(&x_hold);
+//			params.push_back(&y_hold);
+//			params.push_back(&z_hold);
+//
+//			DataMessage dat(GPS_POSITION_SUCCESS, params);
+//			ReturnMessage * retMsg = new ReturnMessage(&dat, true);
+//			return retMsg;
 		}
 
 		//Talk to ACS to convert ECEF -> ECI
 		bool GPSConversion()
 		{
-			GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
-			if (NULL == gpsServer)
-			{
-				ErrorMessage err(GPS_TIME_FAILURE);
-				ReturnMessage * eRet = new ReturnMessage(&err, false);
-				return eRet;
-			}
-			GPSData * gpsData = gpsServer->GetGPSDataPtr();
-			if(gpsData == NULL)
-			{
-				ErrorMessage err(GPS_POSITION_FAILURE);
-				ReturnMessage * eRet = new ReturnMessage(&err, false);
-				return eRet;
-			}
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			logger->Log("GPSStdTasks: GPSConversion(): Unfinished Function (variable type)!", LOGGER_LEVEL_FATAL);
 
-			VariableTypeData posX_hold(gpsData->posX);
-			VariableTypeData posY_hold(gpsData->posY);
-			VariableTypeData posZ_hold(gpsData->posZ);
-			VariableTypeData velX_hold(gpsData->velX);
-			VariableTypeData velY_hold(gpsData->velY);
-			VariableTypeData velZ_hold(gpsData->velZ);
-			VariableTypeData sec_hold(gpsData->GPSSec);
-			VariableTypeData weekHold((uint32) gpsData->GPSWeek);
-
-			list<VariableTypeData *> params;
-			params.push_back(&posX_hold);
-			params.push_back(&posY_hold);
-			params.push_back(&posZ_hold);
-			params.push_back(&velX_hold);
-			params.push_back(&velY_hold);
-			params.push_back(&velZ_hold);
-			params.push_back(&sec_hold);
-
-			ReturnMessage * ret = DispatchPacket(SERVER_LOCATION_GPS, SERVER_LOCATION_ACS, 1, 0, MESSAGE_TYPE_COMMAND, ACS_GPS_CMD, params);
-			if(!ret->GetSuccess())
-			{
-				return false;
-			}
-			
-			void * outputArray[6] = {NULL};
-			if(!ExtractParameters((*ret), GPSConversionEnumArray, 6, outputArray))
-			{
-				return false;
-			}
-
-			gpsData->posECIX= * (float *) outputArray[0];
-			gpsData->posECIY= * (float *) outputArray[1];
-			gpsData->posECIZ= * (float *) outputArray[2];
-			gpsData->velECIX= * (float *) outputArray[3];
-			gpsData->velECIY= * (float *) outputArray[4];
-			gpsData->velECIZ= * (float *) outputArray[5];
-			
-			return true;
+//			GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
+//			if (NULL == gpsServer)
+//			{
+//				ErrorMessage err(GPS_TIME_FAILURE);
+//				ReturnMessage * eRet = new ReturnMessage(&err, false);
+//				return eRet;
+//			}
+//			GPSData * gpsData = gpsServer->GetGPSDataPtr();
+//			if(gpsData == NULL)
+//			{
+//				ErrorMessage err(GPS_POSITION_FAILURE);
+//				ReturnMessage * eRet = new ReturnMessage(&err, false);
+//				return eRet;
+//			}
+//
+//			VariableTypeData posX_hold(gpsData->posX);
+//			VariableTypeData posY_hold(gpsData->posY);
+//			VariableTypeData posZ_hold(gpsData->posZ);
+//			VariableTypeData velX_hold(gpsData->velX);
+//			VariableTypeData velY_hold(gpsData->velY);
+//			VariableTypeData velZ_hold(gpsData->velZ);
+//			VariableTypeData sec_hold(gpsData->GPSSec);
+//			VariableTypeData weekHold((uint32) gpsData->GPSWeek);
+//
+//			list<VariableTypeData *> params;
+//			params.push_back(&posX_hold);
+//			params.push_back(&posY_hold);
+//			params.push_back(&posZ_hold);
+//			params.push_back(&velX_hold);
+//			params.push_back(&velY_hold);
+//			params.push_back(&velZ_hold);
+//			params.push_back(&sec_hold);
+//
+//			ReturnMessage * ret = DispatchPacket(SERVER_LOCATION_GPS, SERVER_LOCATION_ACS, 1, 0, MESSAGE_TYPE_COMMAND, ACS_GPS_CMD, params);
+//			if(!ret->GetSuccess())
+//			{
+//				return false;
+//			}
+//
+//			void * outputArray[6] = {NULL};
+//			if(!ExtractParameters((*ret), GPSConversionEnumArray, 6, outputArray))
+//			{
+//				return false;
+//			}
+//
+//			gpsData->posECIX= * (float *) outputArray[0];
+//			gpsData->posECIY= * (float *) outputArray[1];
+//			gpsData->posECIZ= * (float *) outputArray[2];
+//			gpsData->velECIX= * (float *) outputArray[3];
+//			gpsData->velECIY= * (float *) outputArray[4];
+//			gpsData->velECIZ= * (float *) outputArray[5];
+//
+//			return true;
 		}
 
-		ReturnMessage * GPSReset()
+		FSWPacket * GPSReset()
 		{
 			//TODO: Figure out how to reset the GPS chip
-			ErrorMessage err(GPS_RESET_FAILURE);
-			ReturnMessage * retMsg = new ReturnMessage(&err, false);
-			return retMsg;
+			FSWPacket * ret = new FSWPacket(0, GPS_RESET_FAILURE, false, true, MESSAGE_TYPE_ERROR);
+			return ret;
 		}
 
 		void GPSDataProcess(char * buffer,const size_t size)

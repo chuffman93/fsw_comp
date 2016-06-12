@@ -30,10 +30,10 @@ using namespace Phoenix::Core;
 using namespace Phoenix::HAL;
 using namespace std;
 
-#define CPU_EN 	0
-#define MEM_EN 	0
-#define STOR_EN 0
-#define TEMP_EN 0
+#define CPU_EN 	1
+#define MEM_EN 	1
+#define STOR_EN 1
+#define TEMP_EN 1
 #define HS_EN	1
 #define PM_EN	1
 
@@ -168,14 +168,14 @@ namespace Phoenix
 			devMan->initializePM();
 #endif //PM_EN
 
-			ReturnMessage * TSRet;
-			ReturnMessage * TRRet;
-			ReturnMessage * CPURet;
-			ReturnMessage * MemRet;
-			ReturnMessage * StrRet;
-			ReturnMessage * HtswRet;
-			ReturnMessage * PMRet;
-			ReturnMessage * SPMRet;
+			FSWPacket * TSRet;
+			FSWPacket * TRRet;
+			FSWPacket * CPURet;
+			FSWPacket * MemRet;
+			FSWPacket * StrRet;
+			FSWPacket * HtswRet;
+			FSWPacket * PMRet;
+			FSWPacket * SPMRet;
 
 			uint64_t LastWakeTime = 0;
 			uint8 seconds = 0;
@@ -195,14 +195,14 @@ namespace Phoenix
 #if PM_EN
 				if((seconds % 10) == 0){
 					SPMRet = CDHStartPM();
-					MessageProcess(SERVER_LOCATION_CDH, SPMRet);
+					PacketProcess(SERVER_LOCATION_CDH, SPMRet);
 				}
 #endif //PM_EN
 
 #if TEMP_EN
 				if(((seconds-8) % 10) == 0){
 					TSRet = CDHTempStart();
-					MessageProcess(SERVER_LOCATION_CDH, TSRet);
+					PacketProcess(SERVER_LOCATION_CDH, TSRet);
 				}
 #endif //TEMP_EN
 
@@ -213,37 +213,37 @@ namespace Phoenix
 #if CPU_EN
 					// CPU usage
 					CPURet = CDHCPUUsage();
-					MessageProcess(SERVER_LOCATION_CDH, CPURet);
+					PacketProcess(SERVER_LOCATION_CDH, CPURet);
 #endif //CPU_EN
 
 #if MEM_EN
 					// Memory usage
 					MemRet = CDHMemUsage();
-					MessageProcess(SERVER_LOCATION_CDH, MemRet);
+					PacketProcess(SERVER_LOCATION_CDH, MemRet);
 #endif //MEM_EN
 
 #if STOR_EN
 					// Storage in use
 					StrRet = CDHStorage();
-					MessageProcess(SERVER_LOCATION_CDH, StrRet);
+					PacketProcess(SERVER_LOCATION_CDH, StrRet);
 #endif //STOR_EN
 
 #if TEMP_EN
 					// Read Temp sensors
 					TRRet = CDHTempRead();
-					MessageProcess(SERVER_LOCATION_CDH, TRRet);
+					PacketProcess(SERVER_LOCATION_CDH, TRRet);
 #endif //TEMP_EN
 
 #if HS_EN
 					// Read Hot swaps
 					HtswRet = CDHHotSwaps();
-					MessageProcess(SERVER_LOCATION_CDH, HtswRet);
+					PacketProcess(SERVER_LOCATION_CDH, HtswRet);
 #endif //HS_EN
 
 #if PM_EN
 					// Read Power Monitors
 					PMRet = CDHPowerMonitors();
-					MessageProcess(SERVER_LOCATION_CDH, PMRet);
+					PacketProcess(SERVER_LOCATION_CDH, PMRet);
 #endif //PM_EN
 				}
 

@@ -28,7 +28,7 @@ namespace Phoenix
 {
 	namespace Servers
 	{
-		ReturnMessage * DispatchPacket(FSWPacket * packet)
+		FSWPacket * DispatchPacket(FSWPacket * packet)
 		{
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 			logger->Log("DispatchStdTasks: DispatchPacket() Called with FSWPacket", LOGGER_LEVEL_DEBUG);
@@ -41,9 +41,9 @@ namespace Phoenix
 				|| destination < HARDWARE_LOCATION_MIN || destination >= SERVER_LOCATION_MAX)
 			{
 				logger->Log("DispatcherStdTasks: DispatchPacket(): invalid src/dest!", LOGGER_LEVEL_ERROR);
-				ErrorMessage err(PACKET_FORMAT_FAIL);
-				ReturnMessage * eRet = new ReturnMessage(&err, false);
-				return eRet;
+				FSWPacket * ret = new FSWPacket(0, PACKET_FORMAT_FAIL, false, false, MESSAGE_TYPE_ERROR);
+				delete packet;
+				return ret;
 			}
 			
 			//grab dispatcher instance, if it fails return DISPATCHER_NO_INSTANCE
@@ -53,180 +53,217 @@ namespace Phoenix
 			if(!dispatcher->Dispatch(*packet))
 			{
 				logger->Log("DispatchStdTaks: Failed to dispatch packet\n", LOGGER_LEVEL_WARN);
-				ErrorMessage err(DISPATCH_FAILED);
-				ReturnMessage * eRet = new ReturnMessage(&err, false);
+				FSWPacket * ret = new FSWPacket(0, DISPATCH_FAILED, false, false, MESSAGE_TYPE_ERROR);
 				delete packet;
-				return eRet;
+				return ret;
 			}
 			//debug_led_set_led(1, LED_ON);
 
-			ReturnMessage retMsg;
 			DispatcherStatusEnum stat;
+			FSWPacket * responsePacket;
 			//Wait for return message, if it fails return status response from dispatcher
 			logger->Log("DispatchStdTaks: Waiting for return message\n", LOGGER_LEVEL_DEBUG);
-			if(DISPATCHER_STATUS_OK != (stat = dispatcher->WaitForDispatchResponse(*packet, retMsg)))
+			if(DISPATCHER_STATUS_OK != (stat = dispatcher->WaitForDispatchResponse(*packet, responsePacket)))
 			{
 				logger->Log("DispatchStdTaks: Did not receive response\n", LOGGER_LEVEL_WARN);
-				//debug_led_set_led(7, LED_ON);
-				ErrorMessage err(DISPATCHER_STATUS_ERR);
-				ReturnMessage * eRet = new ReturnMessage(&err, false);
+				FSWPacket * ret = new FSWPacket(0, DISPATCHER_STATUS_ERR, false, false, MESSAGE_TYPE_ERROR);
 				delete packet;
-				return eRet;
+				delete responsePacket;
+				return ret;
 			}
 
 			logger->Log("DispatchStdTaks: Received return message\n", LOGGER_LEVEL_DEBUG);
 
 			delete packet;
-			//Send response message back to caller
-			ReturnMessage * ret = new ReturnMessage(retMsg);
-// 			Message * temp = retMsg.GetMessagePtr();
-// 			if(temp != NULL)
-// 			{
-// 				delete temp;
-// 			}
-			//caller responsible for deleting the return message.
-			return ret;
+			return responsePacket;
 		}
 		
-		ReturnMessage * DispatchPacket(LocationIDType source, LocationIDType destination, uint16 number,
-				uint32 timestamp, MessageTypeEnum type, MessageCodeType opCode)
-		{
-			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-			logger->Log("DispatchStdTasks: DispatchPacket() Called", LOGGER_LEVEL_DEBUG);
+//		ReturnMessage * DispatchPacket(LocationIDType source, LocationIDType destination, uint16 number,
+//				uint32 timestamp, MessageTypeEnum type, MessageCodeType opCode)
+//		{
+//			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+//			logger->Log("DispatchStdTasks: DispatchPacket() Called", LOGGER_LEVEL_DEBUG);
+//
+//			//check inputs
+//			if(source < HARDWARE_LOCATION_MIN || source >= SERVER_LOCATION_MAX
+//				|| destination < HARDWARE_LOCATION_MIN || destination >= SERVER_LOCATION_MAX)
+//			{
+//				logger->Log("DispatcherStdTasks: DispatchPacket(): invalid src/dest!", LOGGER_LEVEL_ERROR);
+//				ErrorMessage err(PACKET_FORMAT_FAIL);
+//				ReturnMessage * eRet = new ReturnMessage(&err, false);
+//				return eRet;
+//			}
+//
+//			//message holder
+//			Message * msg;
+//			//build message based on type and opCode.
+//			switch (type)
+//			{
+//				case MESSAGE_TYPE_COMMAND:
+//					msg = new CommandMessage(opCode);
+//					break;
+//				case MESSAGE_TYPE_DATA:
+//					msg = new DataMessage(opCode);
+//					break;
+//				case MESSAGE_TYPE_ERROR:
+//					msg = new ErrorMessage(opCode);
+//					break;
+//				case MESSAGE_TYPE_CONFIG:
+//					msg = new ConfigMessage(opCode);
+//					break;
+//				default:
+//					ErrorMessage err(PACKET_FORMAT_FAIL);
+//					ReturnMessage * eRet = new ReturnMessage(&err, false);
+//					return eRet;
+//			}
+//
+//			//create FSWPacket based on parameters and the created message
+//			FSWPacket * query = new FSWPacket(source, destination, number, timestamp, msg);
+//			//delete message, packet has duplicated it.
+//			delete msg;
+//
+//			return(DispatchPacket(query));
+//		}
+		
+//		FSWPacket * DispatchPacket(LocationIDType source, LocationIDType destination, uint16 number,
+//								uint32 timestamp, MessageTypeEnum type, MessageCodeType opCode, int testvar)
+//		{
+//			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+//			logger->Log("DispatchStdTasks: DispatchPacket() Called", LOGGER_LEVEL_DEBUG);
+//
+//			//check inputs
+//			if(source < HARDWARE_LOCATION_MIN || source >= SERVER_LOCATION_MAX
+//				|| destination < HARDWARE_LOCATION_MIN || destination >= SERVER_LOCATION_MAX)
+//			{
+//				logger->Log("DispatcherStdTasks: DispatchPacket(): invalid src/dest!", LOGGER_LEVEL_ERROR);
+//				ErrorMessage err(PACKET_FORMAT_FAIL);
+//				ReturnMessage * eRet = new ReturnMessage(&err, false);
+//				return eRet;
+//			}
+//
+//			//message holder
+//			Message * msg;
+//			//build message based on type and opCode.
+//			switch (type)
+//			{
+//				case MESSAGE_TYPE_COMMAND:
+//					msg = new CommandMessage(opCode);
+//					break;
+//				case MESSAGE_TYPE_DATA:
+//					msg = new DataMessage(opCode);
+//					break;
+//				case MESSAGE_TYPE_ERROR:
+//					msg = new ErrorMessage(opCode);
+//					break;
+//				case MESSAGE_TYPE_CONFIG:
+//					msg = new ConfigMessage(opCode);
+//					break;
+//				default:
+//					ErrorMessage err(PACKET_FORMAT_FAIL);
+//					ReturnMessage * eRet = new ReturnMessage(&err, false);
+//					return eRet;
+//			}
+//
+//			//create FSWPacket based on parameters and the created message
+//			FSWPacket * query = new FSWPacket(source, destination, number, timestamp, msg);
+//			//delete message, packet has duplicated it.
+//			delete msg;
+//
+//			return(DispatchPacket(query));
+//		}
 
-			//check inputs
-			if(source < HARDWARE_LOCATION_MIN || source >= SERVER_LOCATION_MAX
-				|| destination < HARDWARE_LOCATION_MIN || destination >= SERVER_LOCATION_MAX)
-			{
-				logger->Log("DispatcherStdTasks: DispatchPacket(): invalid src/dest!", LOGGER_LEVEL_ERROR);
-				ErrorMessage err(PACKET_FORMAT_FAIL);
-				ReturnMessage * eRet = new ReturnMessage(&err, false);
-				return eRet;
-			}
-			
-			//message holder
-			Message * msg;
-			//build message based on type and opCode.
-			switch (type)
-			{
-				case MESSAGE_TYPE_COMMAND:
-					msg = new CommandMessage(opCode);
-					break;
-				case MESSAGE_TYPE_DATA:
-					msg = new DataMessage(opCode);
-					break;
-				case MESSAGE_TYPE_ERROR:
-					msg = new ErrorMessage(opCode);
-					break;
-				case MESSAGE_TYPE_CONFIG:
-					msg = new ConfigMessage(opCode);
-					break;
-				default:
-					ErrorMessage err(PACKET_FORMAT_FAIL);
-					ReturnMessage * eRet = new ReturnMessage(&err, false);
-					return eRet;
-			}
-			
-			//create FSWPacket based on parameters and the created message
-			FSWPacket * query = new FSWPacket(source, destination, number, timestamp, msg);
-			//delete message, packet has duplicated it.
-			delete msg;
-			
-			return(DispatchPacket(query));
-		}
+//		Phoenix::Core::ReturnMessage * DispatchPacket(LocationIDType source, LocationIDType destination, uint16 number,
+//				uint32 timestamp, MessageTypeEnum type, MessageCodeType opCode, const Phoenix::Core::VariableTypeData & parameterIn)
+//		{
+//			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+//			logger->Log("DispatchStdTasks: DispatchPacket() called", LOGGER_LEVEL_DEBUG);
+//			//check inputs
+//			if(source < HARDWARE_LOCATION_MIN || source >= SERVER_LOCATION_MAX
+//					|| destination < HARDWARE_LOCATION_MIN || destination >= SERVER_LOCATION_MAX)
+//			{
+//				logger->Log("DispatcherStdTasks: DispatchPacket(): invalid src/dest!", LOGGER_LEVEL_ERROR);
+//				ErrorMessage err(PACKET_FORMAT_FAIL);
+//				ReturnMessage * eRet = new ReturnMessage(&err, false);
+//				return eRet;
+//			}
+//
+//			//message holder
+//			Message * msg;
+//			//build message based on type, opCode, parameterIn.
+//			switch (type)
+//			{
+//				case MESSAGE_TYPE_COMMAND:
+//					msg = new CommandMessage(opCode, parameterIn);
+//					break;
+//				case MESSAGE_TYPE_DATA:
+//					msg = new DataMessage(opCode, parameterIn);
+//					break;
+//				case MESSAGE_TYPE_ERROR:
+//					msg = new ErrorMessage(opCode, parameterIn);
+//					break;
+//				case MESSAGE_TYPE_CONFIG:
+//					msg = new ConfigMessage(opCode, parameterIn);
+//					break;
+//				default:
+//					ErrorMessage err(PACKET_FORMAT_FAIL);
+//					ReturnMessage * eRet = new ReturnMessage(&err, false);
+//					return eRet;
+//			}
+//
+//			//create FSWPacket based on parameters and the created message
+//			FSWPacket * query = new FSWPacket(source, destination, number, timestamp, msg);
+//			//delete message, packet has duplicated it.
+//			delete msg;
+//
+//			return(DispatchPacket(query));
+//		}
 		
-		Phoenix::Core::ReturnMessage * DispatchPacket(LocationIDType source, LocationIDType destination, uint16 number,
-				uint32 timestamp, MessageTypeEnum type, MessageCodeType opCode, const Phoenix::Core::VariableTypeData & parameterIn)
-		{
-			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-			logger->Log("DispatchStdTasks: DispatchPacket() called", LOGGER_LEVEL_DEBUG);
-			//check inputs
-			if(source < HARDWARE_LOCATION_MIN || source >= SERVER_LOCATION_MAX
-					|| destination < HARDWARE_LOCATION_MIN || destination >= SERVER_LOCATION_MAX)
-			{
-				logger->Log("DispatcherStdTasks: DispatchPacket(): invalid src/dest!", LOGGER_LEVEL_ERROR);
-				ErrorMessage err(PACKET_FORMAT_FAIL);
-				ReturnMessage * eRet = new ReturnMessage(&err, false);
-				return eRet;
-			}
-			
-			//message holder
-			Message * msg;
-			//build message based on type, opCode, parameterIn.
-			switch (type)
-			{
-				case MESSAGE_TYPE_COMMAND:
-					msg = new CommandMessage(opCode, parameterIn);
-					break;
-				case MESSAGE_TYPE_DATA:
-					msg = new DataMessage(opCode, parameterIn);
-					break;
-				case MESSAGE_TYPE_ERROR:
-					msg = new ErrorMessage(opCode, parameterIn);
-					break;
-				case MESSAGE_TYPE_CONFIG:
-					msg = new ConfigMessage(opCode, parameterIn);
-					break;
-				default:
-					ErrorMessage err(PACKET_FORMAT_FAIL);
-					ReturnMessage * eRet = new ReturnMessage(&err, false);
-					return eRet;
-			}
-			
-			//create FSWPacket based on parameters and the created message
-			FSWPacket * query = new FSWPacket(source, destination, number, timestamp, msg);
-			//delete message, packet has duplicated it.
-			delete msg;
-			
-			return(DispatchPacket(query));
-		}
-		
-		Phoenix::Core::ReturnMessage * DispatchPacket(LocationIDType source, LocationIDType destination, uint16 number,
-				uint32 timestamp, MessageTypeEnum type, MessageCodeType opCode, const std::list<Phoenix::Core::VariableTypeData*> & parametersIn)
-		{
-			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-			logger->Log("DispatchStdTasks: DispatchPacket() called", LOGGER_LEVEL_DEBUG);
-
-			//check inputs
-			if(source < HARDWARE_LOCATION_MIN || source >= SERVER_LOCATION_MAX
-			|| destination < HARDWARE_LOCATION_MIN || destination >= SERVER_LOCATION_MAX)
-			{
-				logger->Log("DispatcherStdTasks: DispatchPacket(): invalid src/dest!", LOGGER_LEVEL_ERROR);
-				ErrorMessage err(PACKET_FORMAT_FAIL);
-				ReturnMessage * eRet = new ReturnMessage(&err, false);
-				return eRet;
-			}
-			
-			//message holder
-			Message * msg;
-			//build message based on type, opCode, parameterIn.
-			switch (type)
-			{
-				case MESSAGE_TYPE_COMMAND:
-					msg = new CommandMessage(opCode, parametersIn);
-					break;
-				case MESSAGE_TYPE_DATA:
-					msg = new DataMessage(opCode, parametersIn);
-					break;
-				case MESSAGE_TYPE_ERROR:
-					msg = new ErrorMessage(opCode, parametersIn);
-					break;
-				case MESSAGE_TYPE_CONFIG:
-					msg = new ConfigMessage(opCode, parametersIn);
-					break;
-				default:
-					ErrorMessage err(PACKET_FORMAT_FAIL);
-					ReturnMessage * eRet = new ReturnMessage(&err, false);
-					return eRet;
-			}
-			
-			//create FSWPacket based on parameters and the created message
-			FSWPacket * query = new FSWPacket(source, destination, number, timestamp, msg);
-			//delete message, packet has duplicated it.
-			delete msg;
-			
-			return(DispatchPacket(query));
-		}
+//		Phoenix::Core::ReturnMessage * DispatchPacket(LocationIDType source, LocationIDType destination, uint16 number,
+//				uint32 timestamp, MessageTypeEnum type, MessageCodeType opCode, const std::list<Phoenix::Core::VariableTypeData*> & parametersIn)
+//		{
+//			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+//			logger->Log("DispatchStdTasks: DispatchPacket() called", LOGGER_LEVEL_DEBUG);
+//
+//			//check inputs
+//			if(source < HARDWARE_LOCATION_MIN || source >= SERVER_LOCATION_MAX
+//			|| destination < HARDWARE_LOCATION_MIN || destination >= SERVER_LOCATION_MAX)
+//			{
+//				logger->Log("DispatcherStdTasks: DispatchPacket(): invalid src/dest!", LOGGER_LEVEL_ERROR);
+//				ErrorMessage err(PACKET_FORMAT_FAIL);
+//				ReturnMessage * eRet = new ReturnMessage(&err, false);
+//				return eRet;
+//			}
+//
+//			//message holder
+//			Message * msg;
+//			//build message based on type, opCode, parameterIn.
+//			switch (type)
+//			{
+//				case MESSAGE_TYPE_COMMAND:
+//					msg = new CommandMessage(opCode, parametersIn);
+//					break;
+//				case MESSAGE_TYPE_DATA:
+//					msg = new DataMessage(opCode, parametersIn);
+//					break;
+//				case MESSAGE_TYPE_ERROR:
+//					msg = new ErrorMessage(opCode, parametersIn);
+//					break;
+//				case MESSAGE_TYPE_CONFIG:
+//					msg = new ConfigMessage(opCode, parametersIn);
+//					break;
+//				default:
+//					ErrorMessage err(PACKET_FORMAT_FAIL);
+//					ReturnMessage * eRet = new ReturnMessage(&err, false);
+//					return eRet;
+//			}
+//
+//			//create FSWPacket based on parameters and the created message
+//			FSWPacket * query = new FSWPacket(source, destination, number, timestamp, msg);
+//			//delete message, packet has duplicated it.
+//			delete msg;
+//
+//			return(DispatchPacket(query));
+//		}
 		
 		bool ExtractParameters(const FSWPacket & packet, uint32 * inputParameters, uint32 numParams, void ** outputParameters)
 		{
@@ -403,18 +440,12 @@ namespace Phoenix
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 			logger->Log("DispatchStdTasks: MessageProcess() called", LOGGER_LEVEL_DEBUG);
 
-//			//dispatcher error! Log it
-//			MultiDataMessage * dataMessage = dynamic_cast<MultiDataMessage *> (retMsg->GetMessagePtr());
-//			if(dataMessage == NULL)
-//			{
-//				//error
-//				delete retMsg;
-//				return;
-//			}
-
-			bool success = retPacket->GetSuccess();
+			// Get packet info
+			bool success = retPacket->IsSuccess();
 			MessageCodeType retOpcode = retPacket->GetOpcode();
-			if(!success) //error message!
+
+			// Check if error message
+			if(!success)
 			{
 				logger->Log("DispatchStdTasks: Got error return message", LOGGER_LEVEL_INFO);
 				if((retOpcode >= DISPATCHER_ERR_START) && (retOpcode <= DISPATCHER_ERR_END))
@@ -424,6 +455,7 @@ namespace Phoenix
 					{
 						logger->Log("DispatchStdTasks: Failed to log error!", LOGGER_LEVEL_ERROR);
 					}
+					delete retPacket;
 					return;
 				}
 				else
@@ -433,20 +465,25 @@ namespace Phoenix
 					//Dispatch packet, if it fails return DISPATCH_FAILED
 					if(!dispatcher->Dispatch(*retPacket)) {
 						// TODO: handle this
-						logger->Log("DispatchStdTasks(): Failed to dispatch error to octopus", LOGGER_LEVEL_ERROR);
+						logger->Log("DispatchStdTasks: Failed to dispatch error to octopus", LOGGER_LEVEL_ERROR);
+						delete retPacket;
 						return;
 					}
 
-					ReturnMessage tempRetMsg;
 					DispatcherStatusEnum stat;
+					FSWPacket * responsePacket;
 					//Wait for return message, if it fails return status response from dispatcher
-					if(DISPATCHER_STATUS_OK != (stat = dispatcher->WaitForDispatchResponse(*retPacket, tempRetMsg)))
+					if(DISPATCHER_STATUS_OK != (stat = dispatcher->WaitForDispatchResponse(*retPacket, responsePacket)))
 					{
-						// TODO: handle this
+						logger->Log("DispatchStdTasks: no response from error octopus (NOTE: check ERRServer Handler return)", LOGGER_LEVEL_ERROR);
+						FSWPacket * ret = new FSWPacket(0, DISPATCH_FAILED, false, false, MESSAGE_TYPE_ERROR);
+						PacketProcess(id, ret);
+						delete retPacket;
 						return;
 					}
 
-					//successfully sent message to error octopus.
+					logger->Log("DispatchStdTasks: error octopus now has error", LOGGER_LEVEL_DEBUG);
+					delete retPacket;
 					return;
 				}
 			}
@@ -495,6 +532,7 @@ namespace Phoenix
 				// write to error log
 				logger->Log("DispatchStdTasks: Failed to log message", LOGGER_LEVEL_WARN);
 			}
+			delete retPacket;
 		}
 	}
 }

@@ -13,11 +13,11 @@ namespace Phoenix
 {
 	namespace Servers
 	{
-		Phoenix::Core::ReturnMessage * GPSHealthStatus();
-		Phoenix::Core::ReturnMessage * GPSTime();
-		Phoenix::Core::ReturnMessage * GPSPostion();
+		Phoenix::Core::FSWPacket * GPSHealthStatus();
+		Phoenix::Core::FSWPacket * GPSTime();
+		Phoenix::Core::FSWPacket * GPSPostion();
 		bool GPSConversion();
-		Phoenix::Core::ReturnMessage * GPSReset();
+		Phoenix::Core::FSWPacket * GPSReset();
 		void GPSDataProcess(char * buffer,const size_t size);
 	}
 }

@@ -25,6 +25,8 @@
 #include "core/StdTypes.h"
 #include "core/ModeManager.h"
 
+#include "util/Logger.h"
+
 //#include "boards/backplane/dbg_led.h"
 
 using namespace std;
@@ -65,99 +67,104 @@ uint32 ACSUpdateGNDCoordsHandler::enumArray[] = {VAR_TYPE_ENUM_FLOAT, VAR_TYPE_E
 uint32 ACSUseGyroBiasHandler::enumArray[] = {VAR_TYPE_ENUM_UNSIGNED_INT};
 
 
-ReturnMessage * ACSMeasurementHandler::Handle(const FSWPacket & packet)
+FSWPacket * ACSMeasurementHandler::Handle(const FSWPacket & packet)
 {
 	return (ACSHealthStatus());
 }
 
-ReturnMessage * ACSStateHandler::Handle(const FSWPacket & packet)
+FSWPacket * ACSStateHandler::Handle(const FSWPacket & packet)
 {
 	return (ACSState());
 }
 
-ReturnMessage * ACSRawADCHandler::Handle(const FSWPacket & packet)
+FSWPacket * ACSRawADCHandler::Handle(const FSWPacket & packet)
 {
 	return (ACSRawADC());
 }
 
-ReturnMessage * ACSAttitudeErrorHandler::Handle(const FSWPacket & packet)
+FSWPacket * ACSAttitudeErrorHandler::Handle(const FSWPacket & packet)
 {
 	return (ACSAttitudeError());
 }
 
-ReturnMessage * ACSPointGNDHandler::Handle(const FSWPacket & packet)
+FSWPacket * ACSPointGNDHandler::Handle(const FSWPacket & packet)
 {
-	void * outputArray[numParams] = {NULL};
-	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
-	{
-		ErrorMessage err(ACS_POINT_GND_VECTOR_FAILURE);
-		ReturnMessage * ret = new ReturnMessage(&err, false);
-		return ret;
-	}
-	
-	float x = * (float *) outputArray[0];	
-	float y = * (float *) outputArray[1];
-	float z = * (float *) outputArray[2];
-	uint32 system = * (uint32 *) outputArray[3];
-
-	return (ACSPointGND(x, y, z, ((ACSSystemPointEnum)system)));
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("ACSStdTasks: ACSPointGNDHandler(): Unfinished method!", LOGGER_LEVEL_FATAL);
+//	void * outputArray[numParams] = {NULL};
+//	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
+//	{
+//		FSWPacket * ret = new FSWPacket(0, ACS_POINT_GND_VECTOR_FAILURE, false, true, MESSAGE_TYPE_ERROR);
+//		return ret;
+//	}
+//
+//	float x = * (float *) outputArray[0];
+//	float y = * (float *) outputArray[1];
+//	float z = * (float *) outputArray[2];
+//	uint32 system = * (uint32 *) outputArray[3];
+//
+//	return (ACSPointGND(x, y, z, ((ACSSystemPointEnum)system)));
 }
 
-ReturnMessage * ACSPointMRPHandler::Handle(const FSWPacket & packet)
+FSWPacket * ACSPointMRPHandler::Handle(const FSWPacket & packet)
 {
-	void * outputArray[numParams] = {NULL};
-	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
-	{
-		ErrorMessage err(ACS_POINT_MRP_VECTOR_FAILURE);
-		ReturnMessage * ret = new ReturnMessage(&err, false);
-		return ret;
-	}
-	
-	float x = * (float *) outputArray[0];
-	float y = * (float *) outputArray[1];
-	float z = * (float *) outputArray[2];
-
-	return (ACSPointMRP(x, y, z));
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("ACSStdTasks: ACSPointGNDHandler(): Unfinished method!", LOGGER_LEVEL_FATAL);
+//	void * outputArray[numParams] = {NULL};
+//	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
+//	{
+//		ErrorMessage err(ACS_POINT_MRP_VECTOR_FAILURE);
+//		ReturnMessage * ret = new ReturnMessage(&err, false);
+//		return ret;
+//	}
+//
+//	float x = * (float *) outputArray[0];
+//	float y = * (float *) outputArray[1];
+//	float z = * (float *) outputArray[2];
+//
+//	return (ACSPointMRP(x, y, z));
 }
 
-ReturnMessage * ACSRequestGNDHandler::Handle(const FSWPacket & packet)
+FSWPacket * ACSRequestGNDHandler::Handle(const FSWPacket & packet)
 {
 	return (ACSRequestGND());
 }
 
-ReturnMessage * ACSRequestMRPHandler::Handle(const FSWPacket & packet)
+FSWPacket * ACSRequestMRPHandler::Handle(const FSWPacket & packet)
 {
 	return (ACSRequestMRP());
 }
 
-ReturnMessage * ACSSunsoakHandler::Handle(const FSWPacket & packet)
+FSWPacket * ACSSunsoakHandler::Handle(const FSWPacket & packet)
 {
 	return (ACSSunSoak());
 }
 
-ReturnMessage * ACSPointNadirHandler::Handle(const FSWPacket & packet)
+FSWPacket * ACSPointNadirHandler::Handle(const FSWPacket & packet)
 {
-	void * outputArray[numParams] = {NULL};
-	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
-	{
-		ErrorMessage err(ACS_POINT_NADIR_FAILURE);
-		ReturnMessage * ret = new ReturnMessage(&err, false);
-		return ret;
-	}
-	
-	uint32 system = * (uint32 *) outputArray[0];
-	
-	switch(system)
-	{
-		case COM_RF_ANTENNA:
-			return (ACSPointNadir(COM_RF_ANTENNA));
-		case THEIA_CAMERA:
-			return (ACSPointNadir(THEIA_CAMERA));
-		default:
-			ErrorMessage err(ACS_POINT_NADIR_FAILURE);
-			ReturnMessage * ret = new ReturnMessage(&err, false);
-			return ret;
-	}	
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("ACSStdTasks: ACSPointGNDHandler(): Unfinished method!", LOGGER_LEVEL_FATAL);
+//	void * outputArray[numParams] = {NULL};
+//	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
+//	{
+//		ErrorMessage err(ACS_POINT_NADIR_FAILURE);
+//		ReturnMessage * ret = new ReturnMessage(&err, false);
+//		return ret;
+//	}
+//
+//	uint32 system = * (uint32 *) outputArray[0];
+//
+//	switch(system)
+//	{
+//		case COM_RF_ANTENNA:
+//			return (ACSPointNadir(COM_RF_ANTENNA));
+//		case THEIA_CAMERA:
+//			return (ACSPointNadir(THEIA_CAMERA));
+//		default:
+//			ErrorMessage err(ACS_POINT_NADIR_FAILURE);
+//			ReturnMessage * ret = new ReturnMessage(&err, false);
+//			return ret;
+//	}
 	
 }
 
@@ -218,57 +225,60 @@ ReturnMessage * ACSRangeHandler::Handle(const FSWPacket & packet)
 }
 */
 
-ReturnMessage * ACSHoldHandler::Handle(const FSWPacket & packet)
+FSWPacket * ACSHoldHandler::Handle(const FSWPacket & packet)
 {
 	return (ACSHold());
 }
 
-ReturnMessage * ACSDisableHandler::Handle(const FSWPacket & packet)
+FSWPacket * ACSDisableHandler::Handle(const FSWPacket & packet)
 {
 	return (ACSDisable());
 }
 
-ReturnMessage * ACSResetHandler::Handle(const FSWPacket & packet)
+FSWPacket * ACSResetHandler::Handle(const FSWPacket & packet)
 {
 	return (ACSReset());
 }
 
-ReturnMessage * ACSGPSHandler::Handle(const FSWPacket & packet)
+FSWPacket * ACSGPSHandler::Handle(const FSWPacket & packet)
 {
-	void * outputArray[numParams] = {NULL};
-	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
-	{
-		ErrorMessage err(ACS_GPS_FAILURE);
-		ReturnMessage * ret = new ReturnMessage(&err, false);
-		return ret;
-	}
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("ACSStdTasks: ACSPointGNDHandler(): Unfinished method!", LOGGER_LEVEL_FATAL);
 
-	float posX = * (float *) outputArray[0];
-	float posY = * (float *) outputArray[1];
-	float posZ = * (float *) outputArray[2];
-	float velX = * (float *) outputArray[3];
-	float velY = * (float *) outputArray[4];
-	float velZ = * (float *) outputArray[5];
-	float sec = * (float *) outputArray[6];
-	uint32 week = * (uint32 *) outputArray[7];
-
-	return (ACSSendGPS(posX, posY, posZ, velX, velY, velZ, sec, week));
+//	void * outputArray[numParams] = {NULL};
+//	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
+//	{
+//		ErrorMessage err(ACS_GPS_FAILURE);
+//		ReturnMessage * ret = new ReturnMessage(&err, false);
+//		return ret;
+//	}
+//
+//	float posX = * (float *) outputArray[0];
+//	float posY = * (float *) outputArray[1];
+//	float posZ = * (float *) outputArray[2];
+//	float velX = * (float *) outputArray[3];
+//	float velY = * (float *) outputArray[4];
+//	float velZ = * (float *) outputArray[5];
+//	float sec = * (float *) outputArray[6];
+//	uint32 week = * (uint32 *) outputArray[7];
+//
+//	return (ACSSendGPS(posX, posY, posZ, velX, velY, velZ, sec, week));
 }
 
-ReturnMessage * ACSStarCameraHSHandler::Handle(const FSWPacket & packet)
+FSWPacket * ACSStarCameraHSHandler::Handle(const FSWPacket & packet)
 {
 
 	return (ACSStarCameraHS());
 }
 
 
-ReturnMessage * ACSPointComGndHandler::Handle(const FSWPacket & packet)
+FSWPacket * ACSPointComGndHandler::Handle(const FSWPacket & packet)
 {
 	return (ACSPointComGnd());
 }
 
 
-ReturnMessage * ACSHelloWorldTestHandler::Handle(const FSWPacket & packet)
+FSWPacket * ACSHelloWorldTestHandler::Handle(const FSWPacket & packet)
 {
 
 	return (ACSHelloworld(packet));
@@ -295,45 +305,51 @@ ReturnMessage * ACSHelloWorldTestHandler::Handle(const FSWPacket & packet)
 // }
 
 
-ReturnMessage * ACSControlOrientationsHandler::Handle(const FSWPacket & packet)
+FSWPacket * ACSControlOrientationsHandler::Handle(const FSWPacket & packet)
 {
-	void * outputArray[numParams] = {NULL};
-	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
-	{
-		ErrorMessage err(ACS_CTRL_ORIENT_FAILURE);
-		ReturnMessage * ret = new ReturnMessage(&err, false);
-		return ret;
-	}
-
-	uint32 selection = * (uint32 *) outputArray[0];
-	float x1 = * (float *) outputArray[1];
-	float x2 = * (float *) outputArray[2];
-	float x3 = * (float *) outputArray[3];
-	float y1 = * (float *) outputArray[4];
-	float y2 = * (float *) outputArray[5];
-	float y3 = * (float *) outputArray[6];
-	float z1 = * (float *) outputArray[7];
-	float z2 = * (float *) outputArray[8];
-	float z3 = * (float *) outputArray[9];
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("ACSStdTasks: ACSPointGNDHandler(): Unfinished method!", LOGGER_LEVEL_FATAL);
 	
-	return(ACSControlOrientations(selection, x1, x2, x3, y1, y2, y3, z1, z2, z3));
+//	void * outputArray[numParams] = {NULL};
+//	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
+//	{
+//		ErrorMessage err(ACS_CTRL_ORIENT_FAILURE);
+//		ReturnMessage * ret = new ReturnMessage(&err, false);
+//		return ret;
+//	}
+//
+//	uint32 selection = * (uint32 *) outputArray[0];
+//	float x1 = * (float *) outputArray[1];
+//	float x2 = * (float *) outputArray[2];
+//	float x3 = * (float *) outputArray[3];
+//	float y1 = * (float *) outputArray[4];
+//	float y2 = * (float *) outputArray[5];
+//	float y3 = * (float *) outputArray[6];
+//	float z1 = * (float *) outputArray[7];
+//	float z2 = * (float *) outputArray[8];
+//	float z3 = * (float *) outputArray[9];
+//
+//	return(ACSControlOrientations(selection, x1, x2, x3, y1, y2, y3, z1, z2, z3));
 }
 
-ReturnMessage * ACSMOIWheelsHandler::Handle(const FSWPacket & packet)
+FSWPacket * ACSMOIWheelsHandler::Handle(const FSWPacket & packet)
 {
-	void * outputArray[numParams] = {NULL};
-	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
-	{
-		ErrorMessage err(ACS_MOI_WHEELS_FAILURE);
-		ReturnMessage * ret = new ReturnMessage(&err, false);
-		return ret;
-	}
-
-	float motorX = * (float *) outputArray[0];
-	float motorY = * (float *) outputArray[1];
-	float motorZ = * (float *) outputArray[2];
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("ACSStdTasks: ACSPointGNDHandler(): Unfinished method!", LOGGER_LEVEL_FATAL);
 	
-	return(ACSMOIWheels(motorX, motorY, motorZ));
+//	void * outputArray[numParams] = {NULL};
+//	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
+//	{
+//		ErrorMessage err(ACS_MOI_WHEELS_FAILURE);
+//		ReturnMessage * ret = new ReturnMessage(&err, false);
+//		return ret;
+//	}
+//
+//	float motorX = * (float *) outputArray[0];
+//	float motorY = * (float *) outputArray[1];
+//	float motorZ = * (float *) outputArray[2];
+//
+//	return(ACSMOIWheels(motorX, motorY, motorZ));
 }
 
 // ReturnMessage * ACSMOISatelliteHandler::Handle(const FSWPacket & packet)
@@ -356,243 +372,279 @@ ReturnMessage * ACSMOIWheelsHandler::Handle(const FSWPacket & packet)
 // 	return(ACSMOISatellite(I_11, I_12, I_13, I_22, I_23, I_33));
 // }
 
-ReturnMessage * ACSTorqCoeffHandler::Handle(const FSWPacket & packet)
+FSWPacket * ACSTorqCoeffHandler::Handle(const FSWPacket & packet)
 {
-	void * outputArray[numParams] = {NULL};
-	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
-	{
-		ErrorMessage err(ACS_COEFF_TORQUER_FAILURE);
-		ReturnMessage * ret = new ReturnMessage(&err, false);
-		return ret;
-	}
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("ACSStdTasks: ACSPointGNDHandler(): Unfinished method!", LOGGER_LEVEL_FATAL);
 	
-	uint32 rodNum = * (uint32 *) outputArray[0];
-	float p1 = * (float *) outputArray[1];
-	float p2 = * (float *) outputArray[2];
-	float p3 = * (float *) outputArray[3];
-	float p4 = * (float *) outputArray[4];
-	float p5 = * (float *) outputArray[5];
-	float p6 = * (float *) outputArray[6];
-	float p7 = * (float *) outputArray[7];
-	
-	return(ACSTorqCoeff(rodNum, p1, p2, p3, p4, p5, p6, p7));
+//	void * outputArray[numParams] = {NULL};
+//	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
+//	{
+//		ErrorMessage err(ACS_COEFF_TORQUER_FAILURE);
+//		ReturnMessage * ret = new ReturnMessage(&err, false);
+//		return ret;
+//	}
+//
+//	uint32 rodNum = * (uint32 *) outputArray[0];
+//	float p1 = * (float *) outputArray[1];
+//	float p2 = * (float *) outputArray[2];
+//	float p3 = * (float *) outputArray[3];
+//	float p4 = * (float *) outputArray[4];
+//	float p5 = * (float *) outputArray[5];
+//	float p6 = * (float *) outputArray[6];
+//	float p7 = * (float *) outputArray[7];
+//
+//	return(ACSTorqCoeff(rodNum, p1, p2, p3, p4, p5, p6, p7));
 }
 
-ReturnMessage * ACSOrbitEphemHandler::Handle(const FSWPacket & packet)
+FSWPacket * ACSOrbitEphemHandler::Handle(const FSWPacket & packet)
 {
-	void * outputArray[numParams] = {NULL};
-	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
-	{
-		ErrorMessage err(ACS_ORBIT_EPHEM_FAILURE);
-		ReturnMessage * ret = new ReturnMessage(&err, false);
-		return ret;
-	}
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("ACSStdTasks: ACSPointGNDHandler(): Unfinished method!", LOGGER_LEVEL_FATAL);
 	
-	float a = * (float *) outputArray[0];
-	float e = * (float *) outputArray[1];
-	float i = * (float *) outputArray[2];
-	float Omega = * (float *) outputArray[3];
-	float omega = * (float *) outputArray[4];
-	
-	return(ACSOrbitEphem(a, e, i, Omega, omega));
+//	void * outputArray[numParams] = {NULL};
+//	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
+//	{
+//		ErrorMessage err(ACS_ORBIT_EPHEM_FAILURE);
+//		ReturnMessage * ret = new ReturnMessage(&err, false);
+//		return ret;
+//	}
+//
+//	float a = * (float *) outputArray[0];
+//	float e = * (float *) outputArray[1];
+//	float i = * (float *) outputArray[2];
+//	float Omega = * (float *) outputArray[3];
+//	float omega = * (float *) outputArray[4];
+//
+//	return(ACSOrbitEphem(a, e, i, Omega, omega));
 }
 
-ReturnMessage * ACSControllerGainsHandler::Handle(const FSWPacket & packet)
+FSWPacket * ACSControllerGainsHandler::Handle(const FSWPacket & packet)
 {
-	void * outputArray[numParams] = {NULL};
-	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
-	{
-		ErrorMessage err(ACS_CTRL_LAW_GAINS_FAILURE);
-		ReturnMessage * ret = new ReturnMessage(&err, false);
-		return ret;
-	}
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("ACSStdTasks: ACSPointGNDHandler(): Unfinished method!", LOGGER_LEVEL_FATAL);
 	
-	float K = * (float *) outputArray[0];
-	float Px = * (float *) outputArray[1];
-	float Py = * (float *) outputArray[2];
-	float Pz = * (float *) outputArray[3];
-	float Kix = * (float *) outputArray[4];
-	float Kiy = * (float *) outputArray[5];
-	float Kiz = * (float *) outputArray[6];
-	float Kmx = * (float *) outputArray[7];
-	float Kmy = * (float *) outputArray[8];
-	float Kmz = * (float *) outputArray[9];
-	float Kw = * (float *) outputArray[10];
-	
-	return(ACSControllerGains(K, Px, Py, Pz, Kix, Kiy, Kiz, Kmx, Kmy, Kmz, Kw));
+//	void * outputArray[numParams] = {NULL};
+//	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
+//	{
+//		ErrorMessage err(ACS_CTRL_LAW_GAINS_FAILURE);
+//		ReturnMessage * ret = new ReturnMessage(&err, false);
+//		return ret;
+//	}
+//
+//	float K = * (float *) outputArray[0];
+//	float Px = * (float *) outputArray[1];
+//	float Py = * (float *) outputArray[2];
+//	float Pz = * (float *) outputArray[3];
+//	float Kix = * (float *) outputArray[4];
+//	float Kiy = * (float *) outputArray[5];
+//	float Kiz = * (float *) outputArray[6];
+//	float Kmx = * (float *) outputArray[7];
+//	float Kmy = * (float *) outputArray[8];
+//	float Kmz = * (float *) outputArray[9];
+//	float Kw = * (float *) outputArray[10];
+//
+//	return(ACSControllerGains(K, Px, Py, Pz, Kix, Kiy, Kiz, Kmx, Kmy, Kmz, Kw));
 }
 
-ReturnMessage * ACSContolFreqHandler::Handle(const FSWPacket & packet)
+FSWPacket * ACSContolFreqHandler::Handle(const FSWPacket & packet)
 {
-	void * outputArray[numParams] = {NULL};
-	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
-	{
-		ErrorMessage err(ACS_CTRL_LAW_FREQ_FAILURE);
-		ReturnMessage * ret = new ReturnMessage(&err, false);
-		return ret;
-	}
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("ACSStdTasks: ACSPointGNDHandler(): Unfinished method!", LOGGER_LEVEL_FATAL);
 	
-	float motor = * (float *) outputArray[0];
-	float gyro = * (float *) outputArray[1];
-	float magnetorquer = * (float *) outputArray[2];
-	float starCamera = * (float *) outputArray[3];
-	float magnetometerRate = * (float *) outputArray[4];
-	float magnetometerSamples = * (float *) outputArray[5];
-	float loopFreq = * (float *) outputArray[6];
-	uint32 maxPWMTorq = * (uint32 *) outputArray[7];
-	uint32 maxPWMWheels = * (uint32 *) outputArray[8];
-	
-	return(ACSContolFreq(motor, gyro, magnetorquer, starCamera, magnetometerRate, magnetometerSamples, loopFreq, maxPWMTorq, maxPWMWheels));
+//	void * outputArray[numParams] = {NULL};
+//	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
+//	{
+//		ErrorMessage err(ACS_CTRL_LAW_FREQ_FAILURE);
+//		ReturnMessage * ret = new ReturnMessage(&err, false);
+//		return ret;
+//	}
+//
+//	float motor = * (float *) outputArray[0];
+//	float gyro = * (float *) outputArray[1];
+//	float magnetorquer = * (float *) outputArray[2];
+//	float starCamera = * (float *) outputArray[3];
+//	float magnetometerRate = * (float *) outputArray[4];
+//	float magnetometerSamples = * (float *) outputArray[5];
+//	float loopFreq = * (float *) outputArray[6];
+//	uint32 maxPWMTorq = * (uint32 *) outputArray[7];
+//	uint32 maxPWMWheels = * (uint32 *) outputArray[8];
+//
+//	return(ACSContolFreq(motor, gyro, magnetorquer, starCamera, magnetometerRate, magnetometerSamples, loopFreq, maxPWMTorq, maxPWMWheels));
 }
 
-ReturnMessage * ACSStarCameraSettingsHandler::Handle(const FSWPacket & packet)
+FSWPacket * ACSStarCameraSettingsHandler::Handle(const FSWPacket & packet)
 {
-	void * outputArray[numParams] = {NULL};
-	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
-	{
-		ErrorMessage err(ACS_STARCAMERA_SETTINGS_FAILURE);
-		ReturnMessage * ret = new ReturnMessage(&err, false);
-		return ret;
-	}
-
-	uint32 digGain = * (uint32 *) outputArray[0];
-	uint32 angGain = * (uint32 *) outputArray[1];
-	uint32 exp = * (uint32 *) outputArray[2];
-	uint32 thres = * (uint32 *) outputArray[3];
-	uint32 maxBright = * (uint32 *) outputArray[4];
-	float normalErr = * (float *) outputArray[5];
-	float largeAngErr = * (float *) outputArray[6];
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("ACSStdTasks: ACSPointGNDHandler(): Unfinished method!", LOGGER_LEVEL_FATAL);
 	
-	return(ACSStarCameraSettings(digGain, angGain, exp, thres, maxBright, normalErr, largeAngErr));
+//	void * outputArray[numParams] = {NULL};
+//	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
+//	{
+//		ErrorMessage err(ACS_STARCAMERA_SETTINGS_FAILURE);
+//		ReturnMessage * ret = new ReturnMessage(&err, false);
+//		return ret;
+//	}
+//
+//	uint32 digGain = * (uint32 *) outputArray[0];
+//	uint32 angGain = * (uint32 *) outputArray[1];
+//	uint32 exp = * (uint32 *) outputArray[2];
+//	uint32 thres = * (uint32 *) outputArray[3];
+//	uint32 maxBright = * (uint32 *) outputArray[4];
+//	float normalErr = * (float *) outputArray[5];
+//	float largeAngErr = * (float *) outputArray[6];
+//
+//	return(ACSStarCameraSettings(digGain, angGain, exp, thres, maxBright, normalErr, largeAngErr));
 }
 
-ReturnMessage * ACSRotationModeHandler::Handle(const FSWPacket & packet)
+FSWPacket * ACSRotationModeHandler::Handle(const FSWPacket & packet)
 {
-	void * outputArray[numParams] = {NULL};
-	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
-	{
-		ErrorMessage err(ACS_UPDATE_ROTATION_MODE_FAILURE);
-		ReturnMessage * ret = new ReturnMessage(&err, false);
-		return ret;
-	}
-
-	int32 rot180 = * (int32 *) outputArray[0];
-	int32 rot45 = * (int32 *) outputArray[1];
-	int32 rotNeg90 = * (int32 *) outputArray[2];
-	int32 rot90 = * (int32 *) outputArray[3];
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("ACSStdTasks: ACSPointGNDHandler(): Unfinished method!", LOGGER_LEVEL_FATAL);
 	
-	return(ACSSetRot(rot180, rot45, rotNeg90, rot90));
+//	void * outputArray[numParams] = {NULL};
+//	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
+//	{
+//		ErrorMessage err(ACS_UPDATE_ROTATION_MODE_FAILURE);
+//		ReturnMessage * ret = new ReturnMessage(&err, false);
+//		return ret;
+//	}
+//
+//	int32 rot180 = * (int32 *) outputArray[0];
+//	int32 rot45 = * (int32 *) outputArray[1];
+//	int32 rotNeg90 = * (int32 *) outputArray[2];
+//	int32 rot90 = * (int32 *) outputArray[3];
+//
+//	return(ACSSetRot(rot180, rot45, rotNeg90, rot90));
 }
 
-ReturnMessage * ACSUpdateNotchFilterHandler::Handle(const FSWPacket & packet)
+FSWPacket * ACSUpdateNotchFilterHandler::Handle(const FSWPacket & packet)
 {
-	void * outputArray[numParams] = {NULL};
-	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
-	{
-		ErrorMessage err(ACS_NOTCH_FILTER_FAILURE);
-		ReturnMessage * ret = new ReturnMessage(&err, false);
-		return ret;
-	}
-
-	float magSampleRate = * (float *) outputArray[0];
-	float bandwidth1 = * (float *) outputArray[1];
-	float bandwidth2 = * (float *) outputArray[2];
-	float bandwidth3 = * (float *) outputArray[3];
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("ACSStdTasks: ACSPointGNDHandler(): Unfinished method!", LOGGER_LEVEL_FATAL);
 	
-	return(ACSUpdateNotch(magSampleRate, bandwidth1, bandwidth2, bandwidth3));
+//	void * outputArray[numParams] = {NULL};
+//	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
+//	{
+//		ErrorMessage err(ACS_NOTCH_FILTER_FAILURE);
+//		ReturnMessage * ret = new ReturnMessage(&err, false);
+//		return ret;
+//	}
+//
+//	float magSampleRate = * (float *) outputArray[0];
+//	float bandwidth1 = * (float *) outputArray[1];
+//	float bandwidth2 = * (float *) outputArray[2];
+//	float bandwidth3 = * (float *) outputArray[3];
+//
+//	return(ACSUpdateNotch(magSampleRate, bandwidth1, bandwidth2, bandwidth3));
 }
 
-ReturnMessage * ACSUpdateLeapSecondHandler::Handle(const FSWPacket & packet)
+FSWPacket * ACSUpdateLeapSecondHandler::Handle(const FSWPacket & packet)
 {
-	void * outputArray[numParams] = {NULL};
-	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
-	{
-		ErrorMessage err(ACS_GPS_LEAP_SEC_FAILURE);
-		ReturnMessage * ret = new ReturnMessage(&err, false);
-		return ret;
-	}
-
-	uint32 leapSec = * (uint32 *) outputArray[0];
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("ACSStdTasks: ACSPointGNDHandler(): Unfinished method!", LOGGER_LEVEL_FATAL);
 	
-	return(ACSUpdateLeap(leapSec));
+//	void * outputArray[numParams] = {NULL};
+//	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
+//	{
+//		ErrorMessage err(ACS_GPS_LEAP_SEC_FAILURE);
+//		ReturnMessage * ret = new ReturnMessage(&err, false);
+//		return ret;
+//	}
+//
+//	uint32 leapSec = * (uint32 *) outputArray[0];
+//
+//	return(ACSUpdateLeap(leapSec));
 }
 
-ReturnMessage * ACSGyroZRVHandler::Handle(const FSWPacket & packet)
+FSWPacket * ACSGyroZRVHandler::Handle(const FSWPacket & packet)
 {
-	void * outputArray[numParams] = {NULL};
-	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
-	{
-		ErrorMessage err(ACS_GYRO_ZRV_FAILURE);
-		ReturnMessage * ret = new ReturnMessage(&err, false);
-		return ret;
-	}
-
-	float x = * (float *) outputArray[0];
-	float y = * (float *) outputArray[1];
-	float z = * (float *) outputArray[2];
-	float noise = * (float *) outputArray[3];
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("ACSStdTasks: ACSPointGNDHandler(): Unfinished method!", LOGGER_LEVEL_FATAL);
 	
-	return(ACSGyroZRV(x, y, z, noise));
+//	void * outputArray[numParams] = {NULL};
+//	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
+//	{
+//		ErrorMessage err(ACS_GYRO_ZRV_FAILURE);
+//		ReturnMessage * ret = new ReturnMessage(&err, false);
+//		return ret;
+//	}
+//
+//	float x = * (float *) outputArray[0];
+//	float y = * (float *) outputArray[1];
+//	float z = * (float *) outputArray[2];
+//	float noise = * (float *) outputArray[3];
+//
+//	return(ACSGyroZRV(x, y, z, noise));
 }
 
-ReturnMessage * ACSDeguassProfileHandler::Handle(const FSWPacket & packet)
+FSWPacket * ACSDeguassProfileHandler::Handle(const FSWPacket & packet)
 {
-	void * outputArray[numParams] = {NULL};
-	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
-	{
-		ErrorMessage err(ACS_DEGAUSS_FAILURE);
-		ReturnMessage * ret = new ReturnMessage(&err, false);
-		return ret;
-	}
-
-	int32 x1 = * (int32 *) outputArray[0];
-	int32 x2 = * (int32 *) outputArray[1];
-	int32 x3 = * (int32 *) outputArray[2];
-	int32 x4 = * (int32 *) outputArray[3];
-	int32 x5 = * (int32 *) outputArray[4];
-	int32 x6 = * (int32 *) outputArray[5];
-	int32 x7 = * (int32 *) outputArray[6];
-	int32 x8 = * (int32 *) outputArray[7];
-	int32 x9 = * (int32 *) outputArray[8];
-	int32 x10 = * (int32 *) outputArray[9];
-	float ms = * (float *) outputArray[10];
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("ACSStdTasks: ACSPointGNDHandler(): Unfinished method!", LOGGER_LEVEL_FATAL);
 	
-	return(ACSDeguassProfile(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, ms));
+//	void * outputArray[numParams] = {NULL};
+//	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
+//	{
+//		ErrorMessage err(ACS_DEGAUSS_FAILURE);
+//		ReturnMessage * ret = new ReturnMessage(&err, false);
+//		return ret;
+//	}
+//
+//	int32 x1 = * (int32 *) outputArray[0];
+//	int32 x2 = * (int32 *) outputArray[1];
+//	int32 x3 = * (int32 *) outputArray[2];
+//	int32 x4 = * (int32 *) outputArray[3];
+//	int32 x5 = * (int32 *) outputArray[4];
+//	int32 x6 = * (int32 *) outputArray[5];
+//	int32 x7 = * (int32 *) outputArray[6];
+//	int32 x8 = * (int32 *) outputArray[7];
+//	int32 x9 = * (int32 *) outputArray[8];
+//	int32 x10 = * (int32 *) outputArray[9];
+//	float ms = * (float *) outputArray[10];
+//
+//	return(ACSDeguassProfile(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, ms));
 }
 
-ReturnMessage * ACSUpdateGNDCoordsHandler::Handle(const FSWPacket & packet)
+FSWPacket * ACSUpdateGNDCoordsHandler::Handle(const FSWPacket & packet)
 {
-	void * outputArray[numParams] = {NULL};
-	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
-	{
-		ErrorMessage err(ACS_UPDATE_GND_STATION_COORDS_FAILURE);
-		ReturnMessage * ret = new ReturnMessage(&err, false);
-		return ret;
-	}
-
-	float x = * (float *) outputArray[0];
-	float y = * (float *) outputArray[1];
-	float z = * (float *) outputArray[2];
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("ACSStdTasks: ACSPointGNDHandler(): Unfinished method!", LOGGER_LEVEL_FATAL);
 	
-	return(ACSUpdateGNDCorrds(x, y, z));
+//	void * outputArray[numParams] = {NULL};
+//	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
+//	{
+//		ErrorMessage err(ACS_UPDATE_GND_STATION_COORDS_FAILURE);
+//		ReturnMessage * ret = new ReturnMessage(&err, false);
+//		return ret;
+//	}
+//
+//	float x = * (float *) outputArray[0];
+//	float y = * (float *) outputArray[1];
+//	float z = * (float *) outputArray[2];
+//
+//	return(ACSUpdateGNDCorrds(x, y, z));
 }
 
-ReturnMessage * ACSUseGyroBiasHandler::Handle(const FSWPacket & packet)
+FSWPacket * ACSUseGyroBiasHandler::Handle(const FSWPacket & packet)
 {
-	void * outputArray[numParams] = {NULL};
-	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
-	{
-		ErrorMessage err(ACS_GYRO_BIAS_FAILURE);
-		ReturnMessage * ret = new ReturnMessage(&err, false);
-		return ret;
-	}
-
-	uint32 bias = * (uint32 *) outputArray[0];
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("ACSStdTasks: ACSPointGNDHandler(): Unfinished method!", LOGGER_LEVEL_FATAL);
 	
-	return(ACSUseGyroBias(bias));
+//	void * outputArray[numParams] = {NULL};
+//	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
+//	{
+//		ErrorMessage err(ACS_GYRO_BIAS_FAILURE);
+//		ReturnMessage * ret = new ReturnMessage(&err, false);
+//		return ret;
+//	}
+//
+//	uint32 bias = * (uint32 *) outputArray[0];
+//
+//	return(ACSUseGyroBias(bias));
 }
 
-ReturnMessage * ACSErrorHandler::Handle(const FSWPacket & packet)
+FSWPacket * ACSErrorHandler::Handle(const FSWPacket & packet)
 {
 	//grab dispatcher instance, if it fails return DISPATCHER_NO_INSTANCE
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
@@ -606,27 +658,24 @@ ReturnMessage * ACSErrorHandler::Handle(const FSWPacket & packet)
 	//Dispatch packet, if it fails return DISPATCH_FAILED
 	if(!dispatcher->Dispatch(*forward))
 	{
-			ErrorMessage err(DISPATCH_FAILED);
-			ReturnMessage * eRet = new ReturnMessage(&err, false);
-			delete forward;
-			return eRet;
+		delete forward;
+		FSWPacket * ret = new FSWPacket(0, DISPATCH_FAILED, false, true, MESSAGE_TYPE_ERROR);
+		return ret;
 	}
 
-	ReturnMessage retMsg;
+	FSWPacket * retPacket;
 	DispatcherStatusEnum stat;
 	//Wait for return message, if it fails return status response from dispatcher
-	if(DISPATCHER_STATUS_OK != (stat = dispatcher->WaitForDispatchResponse(*forward, retMsg)))
+	if(DISPATCHER_STATUS_OK != (stat = dispatcher->WaitForDispatchResponse(*forward, retPacket)))
 	{
-			ErrorMessage err(DISPATCHER_STATUS_ERR);
-			ReturnMessage * eRet = new ReturnMessage(&err, false);
-			delete forward;
-			return eRet;
+		delete forward;
+		FSWPacket * ret = new FSWPacket(0, DISPATCHER_STATUS_ERR, false, true, MESSAGE_TYPE_ERROR);
+		return ret;
 	}
 
 	delete forward;
 	//Send server response message back to caller
-	ReturnMessage * ret = new ReturnMessage(retMsg);
 	//caller responsible for deleting the return message.
-	return ret;
+	return retPacket;
 }
 

@@ -202,10 +202,11 @@ namespace Phoenix
 			const SystemMode * mode = AccessMode::GetInstance();
 			const SystemMode * currentMode = mode;
 			uint32 seconds = 0;
-			ReturnMessage * PicRet;
-			ReturnMessage * HSRet;
-			ReturnMessage * DatRet;
-			ReturnMessage * ChunkSize;
+
+			FSWPacket * PicRet;
+			FSWPacket * HSRet;
+			FSWPacket * DatRet;
+			FSWPacket * ChunkSize;
 			bool getPic = false;
 			
 			while(mode == currentMode)
@@ -229,13 +230,13 @@ namespace Phoenix
 // 				if ((seconds % 600) == 0 ) //Use this to change frequency.
 // 				{
 //					HSRet = PLDHealthStatus();
-//					MessageProcess(SERVER_LOCATION_PLD, HSRet);
+//					PacketProcess(SERVER_LOCATION_PLD, HSRet);
 //					ChunkSize = PLDConfigChunkSize(150);
-//					MessageProcess(SERVER_LOCATION_PLD, ChunkSize);
+//					PacketProcess(SERVER_LOCATION_PLD, ChunkSize);
 //					PicRet = PLDPicture();
-//					MessageProcess(SERVER_LOCATION_PLD, PicRet);
+//					PacketProcess(SERVER_LOCATION_PLD, PicRet);
 //					DatRet = PLDGetPicture();
-//					MessageProcess(SERVER_LOCATION_PLD, DatRet);
+//					PacketProcess(SERVER_LOCATION_PLD, DatRet);
 //
 // 					seconds = 0;
 // 				}
@@ -281,7 +282,7 @@ namespace Phoenix
 			const SystemMode * currentMode = mode;
 			uint8 seconds = 0;
 
-			ReturnMessage * HSRet;
+			FSWPacket * HSRet;
 
 			while(mode == currentMode)
 			{
@@ -295,7 +296,7 @@ namespace Phoenix
 					// Functions
 
 					//HSRet = PLDHealthStatus();
-					//MessageProcess(SERVER_LOCATION_PLD, HSRet);
+					//PacketProcess(SERVER_LOCATION_PLD, HSRet);
 
 					seconds = 0;
 
@@ -318,7 +319,7 @@ namespace Phoenix
 			const SystemMode * mode = PayloadPriorityMode::GetInstance();
 			const SystemMode * currentMode = mode;
 			uint8 seconds = 0;
-			ReturnMessage * HSRet;
+			FSWPacket * HSRet;
 
 			while(mode == currentMode)
 			{
@@ -332,7 +333,7 @@ namespace Phoenix
 					// Functions
 
 					HSRet = PLDHealthStatus();
-					MessageProcess(SERVER_LOCATION_PLD, HSRet);
+					PacketProcess(SERVER_LOCATION_PLD, HSRet);
 					
 					seconds = 0;
 
@@ -355,7 +356,7 @@ namespace Phoenix
 			const SystemMode * currentMode = mode;
 			uint8 seconds = 0;
 
-			ReturnMessage * HSRet;
+			FSWPacket * HSRet;
 
 			while(mode == currentMode)
 			{
@@ -373,7 +374,7 @@ namespace Phoenix
 					// Functions
 
 					HSRet = PLDHealthStatus();
-					MessageProcess(SERVER_LOCATION_PLD, HSRet);
+					PacketProcess(SERVER_LOCATION_PLD, HSRet);
 
 					seconds = 0;
 
@@ -394,7 +395,7 @@ namespace Phoenix
 			const SystemMode * currentMode = mode;
 			uint8 seconds = 0;
 
-			ReturnMessage * HSRet;
+			FSWPacket * HSRet;
 
 			while(mode == currentMode)
 			{
@@ -408,7 +409,7 @@ namespace Phoenix
 					// Functions
 
 					HSRet = PLDHealthStatus();
-					MessageProcess(SERVER_LOCATION_PLD, HSRet);
+					PacketProcess(SERVER_LOCATION_PLD, HSRet);
 
 					seconds = 0;
 

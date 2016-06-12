@@ -333,11 +333,11 @@ namespace Phoenix
 			bool runTest2 = true;
 			uint32 timeCount = 0;
 
-			ReturnMessage * HSRet;
-			ReturnMessage * RawADCRet;
-			ReturnMessage * MrpRet;
-			ReturnMessage * AttErrRet;
-			ReturnMessage * starCamHS;
+			FSWPacket * HSRet;
+			FSWPacket * RawADCRet;
+			FSWPacket * MrpRet;
+			FSWPacket * AttErrRet;
+			FSWPacket * starCamHS;
 
 			while(mode == currentMode)
 			{
@@ -353,7 +353,7 @@ namespace Phoenix
 #ifdef HARDWARE
 				printf("ACSServer: Sending Health and Status\n");
 				HSRet = ACSHealthStatus();
-				MessageProcess(SERVER_LOCATION_ACS, HSRet);
+				PacketProcess(SERVER_LOCATION_ACS, HSRet);
 #endif //HARDWARE
 				
 				
@@ -392,9 +392,9 @@ namespace Phoenix
 			const SystemMode * currentMode = BusPriorityMode::GetInstance();
 			uint8 seconds = 0;
 
-			ReturnMessage * HSRet;
-			ReturnMessage * RawADCRet;
-			ReturnMessage * AttErrRet;
+			FSWPacket * HSRet;
+			FSWPacket * RawADCRet;
+			FSWPacket * AttErrRet;
 
 			while(mode == currentMode)
 			{
@@ -409,11 +409,11 @@ namespace Phoenix
 					// Functions
 
 					HSRet = ACSHealthStatus();
-					MessageProcess(SERVER_LOCATION_ACS, HSRet);
+					PacketProcess(SERVER_LOCATION_ACS, HSRet);
 					RawADCRet = ACSRawADC();
-					MessageProcess(SERVER_LOCATION_ACS, RawADCRet);
+					PacketProcess(SERVER_LOCATION_ACS, RawADCRet);
 					AttErrRet = ACSAttitudeError();
-					MessageProcess(SERVER_LOCATION_ACS, AttErrRet);
+					PacketProcess(SERVER_LOCATION_ACS, AttErrRet);
 
 					seconds = 0;
 				}
@@ -436,9 +436,9 @@ namespace Phoenix
 			const SystemMode * currentMode = mode;
 			uint8 seconds = 0;
 
-			ReturnMessage * HSRet;
-			ReturnMessage * RawADCRet;
-			ReturnMessage * AttErrRet;
+			FSWPacket * HSRet;
+			FSWPacket * RawADCRet;
+			FSWPacket * AttErrRet;
 
 			while(mode == currentMode)
 			{
@@ -452,11 +452,11 @@ namespace Phoenix
 					// Functions
 
 					HSRet = ACSHealthStatus();
-					MessageProcess(SERVER_LOCATION_ACS, HSRet);
+					PacketProcess(SERVER_LOCATION_ACS, HSRet);
 					RawADCRet = ACSRawADC();
-					MessageProcess(SERVER_LOCATION_ACS, RawADCRet);
+					PacketProcess(SERVER_LOCATION_ACS, RawADCRet);
 					AttErrRet = ACSAttitudeError();
-					MessageProcess(SERVER_LOCATION_ACS, AttErrRet);
+					PacketProcess(SERVER_LOCATION_ACS, AttErrRet);
 
 					seconds = 0;
 
@@ -479,9 +479,9 @@ namespace Phoenix
 			const SystemMode * currentMode = mode;
 			uint8 seconds = 0;
 
-			ReturnMessage * HSRet;
-			ReturnMessage * RawADCRet;
-			ReturnMessage * AttErrRet;
+			FSWPacket * HSRet;
+			FSWPacket * RawADCRet;
+			FSWPacket * AttErrRet;
 
 			while(mode == currentMode)
 			{
@@ -495,11 +495,11 @@ namespace Phoenix
 					// Functions
 
 					HSRet = ACSHealthStatus();
-					MessageProcess(SERVER_LOCATION_ACS, HSRet);
+					PacketProcess(SERVER_LOCATION_ACS, HSRet);
 					RawADCRet = ACSRawADC();
-					MessageProcess(SERVER_LOCATION_ACS, RawADCRet);
+					PacketProcess(SERVER_LOCATION_ACS, RawADCRet);
 					AttErrRet = ACSAttitudeError();
-					MessageProcess(SERVER_LOCATION_ACS, AttErrRet);
+					PacketProcess(SERVER_LOCATION_ACS, AttErrRet);
 
 					seconds = 0;
 				}
@@ -522,9 +522,9 @@ namespace Phoenix
 			uint8 seconds = 0;
 
 
-			ReturnMessage * HSRet;
-			ReturnMessage * RawADCRet;
-			ReturnMessage * AttErrRet;
+			FSWPacket * HSRet;
+			FSWPacket * RawADCRet;
+			FSWPacket * AttErrRet;
 
 			while(mode == currentMode)
 			{
@@ -538,11 +538,11 @@ namespace Phoenix
 					// Functions
 
 					HSRet = ACSHealthStatus();
-					MessageProcess(SERVER_LOCATION_ACS, HSRet);
+					PacketProcess(SERVER_LOCATION_ACS, HSRet);
 					RawADCRet = ACSRawADC();
-					MessageProcess(SERVER_LOCATION_ACS, RawADCRet);
+					PacketProcess(SERVER_LOCATION_ACS, RawADCRet);
 					AttErrRet = ACSAttitudeError();
-					MessageProcess(SERVER_LOCATION_ACS, AttErrRet);
+					PacketProcess(SERVER_LOCATION_ACS, AttErrRet);
 
 					seconds = 0;
 

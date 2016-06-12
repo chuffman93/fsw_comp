@@ -19,7 +19,7 @@ public:
 		 *	\param packet FSWPacket containing the command.
 		 *	\return ReturnMessage from SCH Hardware.
 		 */	
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 1;
 		static uint32 enumArray[numParams];
@@ -33,7 +33,7 @@ public:
 		 *	\param packet FSWPacket containing the command.
 		 *	\return ReturnMessage from SCH Hardware.
 		 */	
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 private:		
 		const static uint32 numParams = 1;
 		static uint32 enumArray[numParams];
@@ -47,7 +47,7 @@ public:
 		 *	\param packet FSWPacket containing the command.
 		 *	\return ReturnMessage from SCH Hardware.
 		 */	
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class SCHDefaultRangeHandler: public Phoenix::Core::MessageHandler
@@ -58,7 +58,7 @@ public:
 		 *	\param packet FSWPacket containing the command.
 		 *	\return ReturnMessage from SCH Hardware.
 		 */	
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 1;
 		static uint32 enumArray[numParams];

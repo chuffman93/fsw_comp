@@ -18,7 +18,7 @@ public:
 		 *  \param packet FSWPacket containing the message.
 		 *  \return ReturnMessage that serves as a response.
 		 */
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class GPSTimeHandler: public Phoenix::Core::MessageHandler
@@ -29,7 +29,7 @@ public:
 		 *  \param packet FSWPacket containing the message.
 		 *  \return ReturnMessage that serves as a response.
 		 */
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class GPSPositionHandler: public Phoenix::Core::MessageHandler
@@ -40,7 +40,7 @@ public:
 		 *  \param packet FSWPacket containing the message.
 		 *  \return ReturnMessage that serves as a response.
 		 */
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class GPSResetHandler: public Phoenix::Core::MessageHandler
@@ -51,7 +51,7 @@ public:
 		 *  \param packet FSWPacket containing the message.
 		 *  \return ReturnMessage that serves as a response.
 		 */
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class GPSErrorHandler: public Phoenix::Core::MessageHandler
@@ -62,7 +62,7 @@ public:
 		 *  \param packet FSWPacket containing the message.
 		 *  \return ReturnMessage that serves as a response.
 		 */
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 #endif /* GPSHANDLERS_H */

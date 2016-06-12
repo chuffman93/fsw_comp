@@ -28,14 +28,13 @@ uint32 SCHScheduleHandler::enumArray[] = {VAR_TYPE_ENUM_STRING};
 uint32 SCHPldScheduleHandler::enumArray[] = {VAR_TYPE_ENUM_STRING};
 uint32 SCHDefaultRangeHandler::enumArray[] = {VAR_TYPE_ENUM_FLOAT};
 
-ReturnMessage * SCHScheduleHandler::Handle(const FSWPacket & packet)
+FSWPacket * SCHScheduleHandler::Handle(const FSWPacket & packet)
 {
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
 	{
-		ErrorMessage err(SCH_BUILD_SCHEDULE_FAILURE);
-		ReturnMessage * ret = new ReturnMessage(&err, false);
-		return ret;	
+		FSWPacket * ret = new FSWPacket(0, SCH_BUILD_SCHEDULE_FAILURE, false, true, MESSAGE_TYPE_ERROR);
+		return ret;
 	}
 	
 	string * fileName = (string *) outputArray[0];
@@ -43,13 +42,12 @@ ReturnMessage * SCHScheduleHandler::Handle(const FSWPacket & packet)
 	return(BuildSchedule(file));
 }
 
-ReturnMessage * SCHPldScheduleHandler::Handle(const FSWPacket & packet)
+FSWPacket * SCHPldScheduleHandler::Handle(const FSWPacket & packet)
 {
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
 	{
-		ErrorMessage err(SCH_BUILD_PLD_SCHEDULE_FAILURE);
-		ReturnMessage * ret = new ReturnMessage(&err, false);
+		FSWPacket * ret = new FSWPacket(0, SCH_BUILD_SCHEDULE_FAILURE, false, true, MESSAGE_TYPE_ERROR);
 		return ret;
 	}
 		
@@ -58,18 +56,17 @@ ReturnMessage * SCHPldScheduleHandler::Handle(const FSWPacket & packet)
 	return(BuildPLDSchedule(file));
 }
 
-ReturnMessage * SCHRunScheduleHandler::Handle(const FSWPacket & packet)
+FSWPacket * SCHRunScheduleHandler::Handle(const FSWPacket & packet)
 {
 	return(RunSchedule());
 }
 
-ReturnMessage * SCHDefaultRangeHandler::Handle(const FSWPacket & packet)
+FSWPacket * SCHDefaultRangeHandler::Handle(const FSWPacket & packet)
 {
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
 	{
-		ErrorMessage err(SCH_BUILD_PLD_SCHEDULE_FAILURE);
-		ReturnMessage * ret = new ReturnMessage(&err, false);
+		FSWPacket * ret = new FSWPacket(0, SCH_BUILD_PLD_SCHEDULE_FAILURE, false, true, MESSAGE_TYPE_ERROR);
 		return ret;
 	}
 	

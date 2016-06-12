@@ -29,25 +29,24 @@ using namespace Phoenix::Servers;
 uint32 COMDataSendHandler::enumArray[] = {VAR_TYPE_ENUM_ARRAY};
 uint32 COMDataReceiveHandler::enumArray[] = {VAR_TYPE_ENUM_ARRAY};
 
-ReturnMessage * COMHSHandler::Handle(const FSWPacket & packet)
+FSWPacket * COMHSHandler::Handle(const FSWPacket & packet)
 {
 	return (COMHealthStatus());
 }
 
-ReturnMessage * COMBeaconHandler::Handle(const FSWPacket & packet)
+FSWPacket * COMBeaconHandler::Handle(const FSWPacket & packet)
 {
 	DEBUG_COUT("		In COMBeaconHandler, calling COMBeacon...")
 	//return (COMBeacon());
 }
 
-ReturnMessage * COMDataSendHandler::Handle(const FSWPacket & packet)
+FSWPacket * COMDataSendHandler::Handle(const FSWPacket & packet)
 {
 	DEBUG_COUT("		COMDataSendHandler:: handle caled...");
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
 	{
-		ErrorMessage err(COM_DATA_SEND_FAILURE);
-		ReturnMessage * ret = new ReturnMessage(&err, false);
+		FSWPacket * ret = new FSWPacket(0, COM_DATA_SEND_FAILURE, false, true, MESSAGE_TYPE_ERROR);
 		return ret;
 	}
 	std::vector<uint8> data = *(vector<uint8> *) outputArray[0];
@@ -55,31 +54,30 @@ ReturnMessage * COMDataSendHandler::Handle(const FSWPacket & packet)
 	//return (COMDataSend(data, packet.GetDestination()));
 }
 
-ReturnMessage * COMLoginHandler::Handle(const FSWPacket & packet)
+FSWPacket * COMLoginHandler::Handle(const FSWPacket & packet)
 {	
 	DEBUG_COUT("		COMLoginHandler:: logging in...");
 	//return (COMLogin(packet.GetDestination()));
 }
 
-ReturnMessage * COMLogoutHandler::Handle(const FSWPacket & packet)
+FSWPacket * COMLogoutHandler::Handle(const FSWPacket & packet)
 {
 	//return (COMLogout(packet.GetDestination(), packet.GetMessagePtr()->GetOpcode()));
 }
 
-ReturnMessage * COMResetHandler::Handle(const FSWPacket & packet)
+FSWPacket * COMResetHandler::Handle(const FSWPacket & packet)
 {	
 	//return (COMReset());
 }
 
-ReturnMessage * COMDataReceiveHandler::Handle(const FSWPacket & packet)
+FSWPacket * COMDataReceiveHandler::Handle(const FSWPacket & packet)
 {	
 	//DEBUG_COUT("		COMDataReceiveHandler:: handle called...");
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
 	{
 		DEBUG_COUT("		COMDataReceiveHandler:: failed parameter extraction...");
-		ErrorMessage err(COM_DATA_RECEIVE_FAILURE);
-		ReturnMessage * ret = new ReturnMessage(&err, false);
+		FSWPacket * ret = new FSWPacket(0, COM_DATA_RECEIVE_FAILURE, false, false, MESSAGE_TYPE_ERROR);
 		return ret;
 	}
 
@@ -88,7 +86,7 @@ ReturnMessage * COMDataReceiveHandler::Handle(const FSWPacket & packet)
 	//return (COMDataReceive(data, packet.GetDestination()));
 }
 
-ReturnMessage * COMErrorHandler::Handle(const FSWPacket & packet)
+FSWPacket * COMErrorHandler::Handle(const FSWPacket & packet)
 {
 	//grab dispatcher instance, if it fails return DISPATCHER_NO_INSTANCE
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
@@ -101,26 +99,21 @@ ReturnMessage * COMErrorHandler::Handle(const FSWPacket & packet)
 	//Dispatch packet, if it fails return DISPATCH_FAILED
 	if(!dispatcher->Dispatch(*forward))
 	{
-			ErrorMessage err(DISPATCH_FAILED);
-			ReturnMessage * eRet = new ReturnMessage(&err, false);
-			delete forward;
-			return eRet;
+		FSWPacket * ret = new FSWPacket(0, DISPATCH_FAILED, false, true, MESSAGE_TYPE_ERROR);
+		delete forward;
+		return ret;
 	}
 
-	ReturnMessage retMsg;
+	FSWPacket * retMsg;
 	DispatcherStatusEnum stat;
 	//Wait for return message, if it fails return status response from dispatcher
 	if(DISPATCHER_STATUS_OK != (stat = dispatcher->WaitForDispatchResponse(*forward, retMsg)))
 	{
-			ErrorMessage err(DISPATCHER_STATUS_ERR);
-			ReturnMessage * eRet = new ReturnMessage(&err, false);
-			delete forward;
-			return eRet;
+		FSWPacket * ret = new FSWPacket(0, DISPATCHER_STATUS_ERR, false, true, MESSAGE_TYPE_ERROR);
+		delete forward;
+		return ret;
 	}
 
 	delete forward;
-	//Send server response message back to caller
-	ReturnMessage * ret = new ReturnMessage(retMsg);
-	//caller responsible for deleting the return message.
-	return ret;
+	return retMsg;
 }

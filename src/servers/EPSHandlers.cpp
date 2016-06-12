@@ -25,41 +25,35 @@ using namespace Phoenix::Servers;
 
 uint32 EPSPowerHandler::enumArray[] = {VAR_TYPE_ENUM_UNSIGNED_INT, VAR_TYPE_ENUM_BOOL, VAR_TYPE_ENUM_UNSIGNED_INT};
 
-ReturnMessage * EPSHSHandler::Handle(const FSWPacket & packet)
+FSWPacket * EPSHSHandler::Handle(const FSWPacket & packet)
 {
 	return(EPSHealthStat());
 }
 
-ReturnMessage * EPSStateofChargeHandler::Handle(const FSWPacket & packet)
+FSWPacket * EPSStateofChargeHandler::Handle(const FSWPacket & packet)
 {
 	return(EPSStateOfCharge());
 }
 
-ReturnMessage * EPSPowerCycleHandler::Handle(const FSWPacket & packet)
+FSWPacket * EPSPowerCycleHandler::Handle(const FSWPacket & packet)
 {
 	return(EPSPowerCycle());
 }
 
-ReturnMessage * EPSDisableOCHandler::Handle(const FSWPacket & packet)
+FSWPacket * EPSDisableOCHandler::Handle(const FSWPacket & packet)
 {
 	return(EPSDisableOCProt());
 }
 
-ReturnMessage * EPSEnableOCHandler::Handle(const FSWPacket & packet)
+FSWPacket * EPSEnableOCHandler::Handle(const FSWPacket & packet)
 {
 	return(EPSEnableOCProt());
 }
 
-ReturnMessage * EPSErrorHandler::Handle(const FSWPacket & packet)
+FSWPacket * EPSErrorHandler::Handle(const FSWPacket & packet)
 {
 	//grab dispatcher instance, if it fails return DISPATCHER_NO_INSTANCE
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-	if (NULL == dispatcher)
-	{
-			ErrorMessage err(DISPATCHER_NO_INSTANCE);
-			ReturnMessage * eRet = new ReturnMessage(&err, false);
-			return eRet;
-	}
 	FSWPacket * forward = new FSWPacket(packet);
 
 	//forward error message to Error Octopus
@@ -69,37 +63,29 @@ ReturnMessage * EPSErrorHandler::Handle(const FSWPacket & packet)
 	//Dispatch packet, if it fails return DISPATCH_FAILED
 	if(!dispatcher->Dispatch(*forward))
 	{
-			ErrorMessage err(DISPATCH_FAILED);
-			ReturnMessage * eRet = new ReturnMessage(&err, false);
-			delete forward;
-			return eRet;
+		FSWPacket * ret = new FSWPacket(0, DISPATCH_FAILED, false, false, MESSAGE_TYPE_ERROR);
+		return ret;
 	}
 
-	ReturnMessage retMsg;
+	FSWPacket * retMsg;
 	DispatcherStatusEnum stat;
 	//Wait for return message, if it fails return status response from dispatcher
 	if(DISPATCHER_STATUS_OK != (stat = dispatcher->WaitForDispatchResponse(*forward, retMsg)))
 	{
-			ErrorMessage err(DISPATCHER_STATUS_ERR);
-			ReturnMessage * eRet = new ReturnMessage(&err, false);
-			delete forward;
-			return eRet;
+			FSWPacket * ret = new FSWPacket(0, DISPATCHER_STATUS_ERR, false, false, MESSAGE_TYPE_ERROR);
+			return ret;
 	}
 
 	delete forward;
-	//Send server response message back to caller
-	ReturnMessage * ret = new ReturnMessage(retMsg);
-	//caller responsible for deleting the return message.
-	return ret;
+	return retMsg;
 }
 
-ReturnMessage * EPSPowerHandler::Handle(const FSWPacket & packet)
+FSWPacket * EPSPowerHandler::Handle(const FSWPacket & packet)
 {
 	void * outputArray[numParams] = {NULL};
 	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
 	{
-		ErrorMessage err(EPS_POWER_SUB_FAILURE);
-		ReturnMessage * ret = new ReturnMessage(&err, false);
+		FSWPacket * ret = new FSWPacket(0, EPS_POWER_SUB_FAILURE, false, false, MESSAGE_TYPE_ERROR);
 		return ret;
 	}
 	

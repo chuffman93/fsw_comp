@@ -14,6 +14,8 @@
 #include "core/ComMode.h"
 #include "core/ConfigMessage.h"
 
+#include "util/Logger.h"
+
 //#include "util/FileHandler.h"
 
 //#include "boards/backplane/dbg_led.h"
@@ -34,88 +36,91 @@ namespace Phoenix
 {
 	namespace Servers
 	{
-		ReturnMessage * COMHealthStatus(void)
+		FSWPacket * COMHealthStatus(void)
 		{
-			ReturnMessage * HSRet = DispatchPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, 1, 0, MESSAGE_TYPE_COMMAND, COM_HS_CMD);
-			
+			FSWPacket * HSQuery = new FSWPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, 0, COM_HS_CMD, true, false, MESSAGE_TYPE_COMMAND);
+			FSWPacket * HSRet = DispatchPacket(HSQuery);
+
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			logger->Log("COMStdTasks: unfinished function entered!", LOGGER_LEVEL_FATAL);
 			// Extract to beacon
 			// UpdateCOMHS(uint16 signalStrength, uint8 transmitPower,uint8 TXPLLFlags,int8 PATemp, uint8 RXIFDetect,
 			// uint8 RXGain, uint8 currentSense, uint8 voltageSense)
 			
-			COMServer * comServer = dynamic_cast<COMServer *> (Factory::GetInstance(COM_SERVER_SINGLETON));
-			void * outputArray[33] = {NULL};
-			uint32 enumArray[33] = {	
-				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
-				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
-				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
-				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
-				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
-				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
-				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
-				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
-				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
-				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
-				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT
-				};
-											
-			if(!ExtractParameters(*HSRet,enumArray,33,outputArray))
-			{
-				// Error
-			}
-			else 
-			{
-				// Link Status
-				uint16 lwipPacketsTx	    = * (uint16 *) outputArray[0];
-				uint16 lwipPacketsRx	    = * (uint16 *) outputArray[1];
-				uint16 lwipPacketsDrop		= * (uint16 *) outputArray[2];
-				uint16 lwipPacketsErrors	= * (uint16 *) outputArray[3];
-				
-				// ETHARP Status
-				uint16 lwipEtharpTx			= * (uint16 *) outputArray[4];
-				uint16 lwipEtharpRx			= * (uint16 *) outputArray[5];
-				uint16 lwipEtharpDrop		= * (uint16 *) outputArray[6];
-				uint16 lwipEtharpErrors		= * (uint16 *) outputArray[7];
-				
-				// IP Status
-				uint16 lwipIPTx			= * (uint16 *) outputArray[8];
-				uint16 lwipIPRx			= * (uint16 *) outputArray[9];
-				uint16 lwipIPDrop		= * (uint16 *) outputArray[10];
-				uint16 lwipIPErrors		= * (uint16 *) outputArray[11];
-				
-				// UDP Status
-				uint16 lwipUDPTx		= * (uint16 *) outputArray[12];
-				uint16 lwipUDPRx		= * (uint16 *) outputArray[13];
-				uint16 lwipUDPDrop		= * (uint16 *) outputArray[14];
-				uint16 lwipUDPErrors	= * (uint16 *) outputArray[15];
-				
-				// TCP Status
-				uint16 lwipTCPTx		= * (uint16 *) outputArray[16];
-				uint16 lwipTCPRx		= * (uint16 *) outputArray[17];
-				uint16 lwipTCPDrop	    = * (uint16 *) outputArray[18];
-				uint16 lwipTCPErrors	= * (uint16 *) outputArray[19];
-				
-				// Memory Status
-				uint16 lwipMemAvail	    = * (uint16 *) outputArray[20];
-				uint16 lwipMemUsed	    = * (uint16 *) outputArray[21];
-				uint16 lwipMemMax		= * (uint16 *) outputArray[22];
-				uint16 lwipMemErrors	= * (uint16 *) outputArray[23];
-				uint16 lwipMemIllegal	= * (uint16 *) outputArray[24];
-				
-				uint16 comState		    = * (uint16 *) outputArray[25];
-				uint16 statBits		    = * (uint16 *) outputArray[26];
-
-				uint16 signalStrength	= * (uint16 *) outputArray[27];	// check 
-				uint8 transmitPower	    = * (uint8 *) outputArray[28];	// check
-				uint8 RXIFDetect		= * (uint8 *) outputArray[29];	// check
-				uint8 RXGain			= * (uint8 *) outputArray[30];	// check
-				uint8 currentSensCOMHealthStatue	    = * (uint8 *) outputArray[31];	// check
-				uint8 voltageSense	    = * (uint8 *) outputArray[32];	// check
-				
-				/*comServer->UpdateCOMHS(lwipPacketsTx,lwipPacketsRx,lwipPacketsDrop,lwipPacketsErrors,lwipEtharpTx, lwipEtharpRx,lwipEtharpDrop,lwipEtharpErrors,
-										lwipIPTx,lwipIPRx,lwipIPDrop,lwipIPErrors,lwipUDPTx,lwipUDPRx,lwipUDPDrop,lwipUDPErrors,
-										lwipTCPTx,lwipTCPRx,lwipTCPDrop,lwipTCPErrors,lwipMemAvail,lwipMemUsed,lwipMemMax,lwipMemErrors,lwipMemIllegal, comState, statBits,
-										signalStrength,transmitPower,RXIFDetect,RXGain,currentSense,voltageSense);*/
-			}
+//			COMServer * comServer = dynamic_cast<COMServer *> (Factory::GetInstance(COM_SERVER_SINGLETON));
+//			void * outputArray[33] = {NULL};
+//			uint32 enumArray[33] = {
+//				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
+//				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
+//				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
+//				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
+//				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
+//				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
+//				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
+//				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
+//				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
+//				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
+//				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT
+//				};
+//
+//			if(!ExtractParameters(*HSRet,enumArray,33,outputArray))
+//			{
+//				// Error
+//			}
+//			else
+//			{
+//				// Link Status
+//				uint16 lwipPacketsTx	    = * (uint16 *) outputArray[0];
+//				uint16 lwipPacketsRx	    = * (uint16 *) outputArray[1];
+//				uint16 lwipPacketsDrop		= * (uint16 *) outputArray[2];
+//				uint16 lwipPacketsErrors	= * (uint16 *) outputArray[3];
+//
+//				// ETHARP Status
+//				uint16 lwipEtharpTx			= * (uint16 *) outputArray[4];
+//				uint16 lwipEtharpRx			= * (uint16 *) outputArray[5];
+//				uint16 lwipEtharpDrop		= * (uint16 *) outputArray[6];
+//				uint16 lwipEtharpErrors		= * (uint16 *) outputArray[7];
+//
+//				// IP Status
+//				uint16 lwipIPTx			= * (uint16 *) outputArray[8];
+//				uint16 lwipIPRx			= * (uint16 *) outputArray[9];
+//				uint16 lwipIPDrop		= * (uint16 *) outputArray[10];
+//				uint16 lwipIPErrors		= * (uint16 *) outputArray[11];
+//
+//				// UDP Status
+//				uint16 lwipUDPTx		= * (uint16 *) outputArray[12];
+//				uint16 lwipUDPRx		= * (uint16 *) outputArray[13];
+//				uint16 lwipUDPDrop		= * (uint16 *) outputArray[14];
+//				uint16 lwipUDPErrors	= * (uint16 *) outputArray[15];
+//
+//				// TCP Status
+//				uint16 lwipTCPTx		= * (uint16 *) outputArray[16];
+//				uint16 lwipTCPRx		= * (uint16 *) outputArray[17];
+//				uint16 lwipTCPDrop	    = * (uint16 *) outputArray[18];
+//				uint16 lwipTCPErrors	= * (uint16 *) outputArray[19];
+//
+//				// Memory Status
+//				uint16 lwipMemAvail	    = * (uint16 *) outputArray[20];
+//				uint16 lwipMemUsed	    = * (uint16 *) outputArray[21];
+//				uint16 lwipMemMax		= * (uint16 *) outputArray[22];
+//				uint16 lwipMemErrors	= * (uint16 *) outputArray[23];
+//				uint16 lwipMemIllegal	= * (uint16 *) outputArray[24];
+//
+//				uint16 comState		    = * (uint16 *) outputArray[25];
+//				uint16 statBits		    = * (uint16 *) outputArray[26];
+//
+//				uint16 signalStrength	= * (uint16 *) outputArray[27];	// check
+//				uint8 transmitPower	    = * (uint8 *) outputArray[28];	// check
+//				uint8 RXIFDetect		= * (uint8 *) outputArray[29];	// check
+//				uint8 RXGain			= * (uint8 *) outputArray[30];	// check
+//				uint8 currentSensCOMHealthStatue	    = * (uint8 *) outputArray[31];	// check
+//				uint8 voltageSense	    = * (uint8 *) outputArray[32];	// check
+//
+//				/*comServer->UpdateCOMHS(lwipPacketsTx,lwipPacketsRx,lwipPacketsDrop,lwipPacketsErrors,lwipEtharpTx, lwipEtharpRx,lwipEtharpDrop,lwipEtharpErrors,
+//										lwipIPTx,lwipIPRx,lwipIPDrop,lwipIPErrors,lwipUDPTx,lwipUDPRx,lwipUDPDrop,lwipUDPErrors,
+//										lwipTCPTx,lwipTCPRx,lwipTCPDrop,lwipTCPErrors,lwipMemAvail,lwipMemUsed,lwipMemMax,lwipMemErrors,lwipMemIllegal, comState, statBits,
+//										signalStrength,transmitPower,RXIFDetect,RXGain,currentSense,voltageSense);*/
+//			}
 		
 			return HSRet;
 			//return(DispatchPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, 1, 0, MESSAGE_TYPE_COMMAND, COM_HS_CMD));

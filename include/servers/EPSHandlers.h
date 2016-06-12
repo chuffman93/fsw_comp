@@ -17,11 +17,11 @@ class EPSHSHandler : public Phoenix::Core::MessageHandler
 {
 public:
     /*! \brief Handle a request for power data.
-        *
-        *  \param packet FSWPacket containing the message.
-        *  \return ReturnMessage that serves as a response.
-        */
-    Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+	*
+	*  \param packet FSWPacket containing the message.
+	*  \return ReturnMessage that serves as a response.
+	*/
+    Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class EPSStateofChargeHandler : public Phoenix::Core::MessageHandler
@@ -33,7 +33,7 @@ public:
 	 * \return ReturnMessage that serves as a response
 	 */
 
-	Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+	Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class EPSPowerCycleHandler : public Phoenix::Core::MessageHandler
@@ -44,7 +44,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class EPSDisableOCHandler : public Phoenix::Core::MessageHandler
@@ -55,7 +55,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class EPSEnableOCHandler : public Phoenix::Core::MessageHandler
@@ -66,7 +66,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class EPSErrorHandler : public Phoenix::Core::MessageHandler
@@ -77,7 +77,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
 class EPSPowerHandler : public Phoenix::Core::MessageHandler
@@ -88,7 +88,7 @@ public:
 	 * \param packet FSWPacket containing a message
 	 * \return ReturnMessage that serves as a respone
 	 */
-	Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+	Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 private:
 	const static uint32 numParams = 3;
 	static uint32 enumArray[numParams];

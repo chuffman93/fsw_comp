@@ -14,6 +14,7 @@
 #include "core/Dispatcher.h"
 #include "core/StdTypes.h"
 #include "core/ModeManager.h"
+#include "core/FSWPacket.h"
 
 //#include "boards/backplane/dbg_led.h"
 
@@ -21,7 +22,7 @@ using namespace std;
 using namespace Phoenix::Servers;
 using namespace Phoenix::Core;
 
-ReturnMessage * ErrorOctopusHandler::Handle(const FSWPacket & packet)
+FSWPacket * ErrorOctopusHandler::Handle(const FSWPacket & packet)
 {
 	FSWPacket * quePacket = new FSWPacket(packet);
 	//Enqueue the packet
@@ -30,10 +31,10 @@ ReturnMessage * ErrorOctopusHandler::Handle(const FSWPacket & packet)
 	if(!(que->EnqueueError(quePacket)))
 	{
 		//Enqueue failed... errorception.
-		ErrorMessage err(ERROR_QUEUE_FAILED);
-		ReturnMessage * eRet = new ReturnMessage(&err, false);
-		return eRet;
+		FSWPacket * ret = new FSWPacket(0, ERROR_QUEUE_FAILED, false, true, MESSAGE_TYPE_ERROR);
+		return ret;
 	}
-	ReturnMessage * ret = new ReturnMessage(packet.GetMessagePtr(), true);
-	return ret;
+	//ReturnMessage * ret = new ReturnMessage(packet.GetMessagePtr(), true);
+	//return ret;
+	FSWPacket * ret = new FSWPacket(0, packet.GetOpcode(), true, true, MESSAGE_TYPE_DATA);
 }

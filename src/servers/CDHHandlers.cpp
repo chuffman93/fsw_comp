@@ -27,42 +27,42 @@ using namespace std;
 using namespace Phoenix::Core;
 using namespace Phoenix::Servers;
 
-ReturnMessage * CDHCPUUsageHandler::Handle(const FSWPacket & packet)
+FSWPacket * CDHCPUUsageHandler::Handle(const FSWPacket & packet)
 {
 	return (CDHCPUUsage());
 }
 
-ReturnMessage * CDHMemUsageHandler::Handle(const FSWPacket & packet)
+FSWPacket * CDHMemUsageHandler::Handle(const FSWPacket & packet)
 {
 	return (CDHMemUsage());
 }
 
-ReturnMessage* CDHStorageHandler::Handle(const FSWPacket & packet)
+FSWPacket * CDHStorageHandler::Handle(const FSWPacket & packet)
 {
 	return (CDHStorage());
 }
 
-ReturnMessage* CDHTempStartHandler::Handle(const FSWPacket & packet)
+FSWPacket * CDHTempStartHandler::Handle(const FSWPacket & packet)
 {
 	return (CDHTempStart());
 }
 
-ReturnMessage* CDHTempReadHandler::Handle(const FSWPacket & packet)
+FSWPacket * CDHTempReadHandler::Handle(const FSWPacket & packet)
 {
 	return (CDHTempRead());
 }
 
-ReturnMessage* CDHHotSwapsHandler::Handle(const FSWPacket & packet)
+FSWPacket * CDHHotSwapsHandler::Handle(const FSWPacket & packet)
 {
 	return (CDHHotSwaps());
 }
 
-ReturnMessage* CDHPowerMonitorsHandler::Handle(const FSWPacket & packet)
+FSWPacket * CDHPowerMonitorsHandler::Handle(const FSWPacket & packet)
 {
 	return (CDHPowerMonitors());
 }
 
-ReturnMessage* CDHStartPMHandler::Handle(const FSWPacket & packet)
+FSWPacket * CDHStartPMHandler::Handle(const FSWPacket & packet)
 {
 	return (CDHStartPM());
 }
