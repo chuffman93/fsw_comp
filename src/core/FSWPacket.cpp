@@ -222,10 +222,10 @@ namespace Phoenix
         }
 
         FSWPacket::FSWPacket(LocationIDType sourceIn, LocationIDType destIn, uint32 timestampIn, uint8 opcodeIn, bool successIn, bool responseIn, MessageTypeEnum typeIn){
-        	destination = sourceIn;
-			source = destIn;
-			number = 1;
-			timestamp = destIn;
+        	destination = destIn;
+			source = sourceIn;
+			number = 0;
+			timestamp = timestampIn;
 			type = typeIn;
 			success = successIn;
 			response = responseIn;
@@ -236,10 +236,25 @@ namespace Phoenix
 			messageBuf = NULL;
         }
 
+        FSWPacket::FSWPacket(LocationIDType sourceIn, LocationIDType destIn, uint32 timestampIn, uint8 opcodeIn, bool successIn, bool responseIn, MessageTypeEnum typeIn, uint8 * messageIn){
+			destination = destIn;
+			source = sourceIn;
+			number = 0;
+			timestamp = timestampIn;
+			type = typeIn;
+			success = successIn;
+			response = responseIn;
+			status = 0; // TODO: this isn't accurate, but check that it doesn't need to be
+			opcode = opcodeIn;
+			length = 0;
+			messagePtr = NULL;
+			messageBuf = messageIn;
+		}
+
         FSWPacket::FSWPacket(uint32 timestampIn, uint8 opcodeIn, bool successIn, bool responseIn, MessageTypeEnum typeIn){
 			destination = LOCATION_ID_INVALID;
 			source = LOCATION_ID_INVALID;
-			number = 1;
+			number = 0;
 			timestamp = timestampIn;
 			type = typeIn;
 			success = successIn;

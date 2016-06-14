@@ -207,7 +207,7 @@ namespace Phoenix
              */
             DispatcherStatusEnum WaitForDispatchResponse(const FSWPacket & packet, ReturnMessage & returnMessage);
 
-            DispatcherStatusEnum WaitForDispatchResponse(const FSWPacket & packet, FSWPacket * retPacket);
+            DispatcherStatusEnum WaitForDispatchResponse(const FSWPacket & packet, FSWPacket ** retPacketin);
 
             void printString(const uint8 * str);
 

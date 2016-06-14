@@ -70,7 +70,7 @@ FSWPacket * EPSErrorHandler::Handle(const FSWPacket & packet)
 	FSWPacket * retMsg;
 	DispatcherStatusEnum stat;
 	//Wait for return message, if it fails return status response from dispatcher
-	if(DISPATCHER_STATUS_OK != (stat = dispatcher->WaitForDispatchResponse(*forward, retMsg)))
+	if(DISPATCHER_STATUS_OK != (stat = dispatcher->WaitForDispatchResponse(*forward, &retMsg)))
 	{
 			FSWPacket * ret = new FSWPacket(0, DISPATCHER_STATUS_ERR, false, false, MESSAGE_TYPE_ERROR);
 			return ret;

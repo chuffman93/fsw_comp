@@ -13,6 +13,7 @@
 #include "core/Dispatcher.h"
 #include "core/Factory.h"
 #include "core/StdTypes.h"
+#include "core/FSWPacket.h"
 #include "stdlib.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -70,57 +71,58 @@ TEST(TestACP, initialization){
 
 TEST(TestACP, protocolSwitch){
 
-//	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-//	modeManager->SetMode(MODE_ACCESS,LOCATION_ID_INVALID);
-//
-//	// Create CMDServer
-//	pthread_t CMDThread;
-//	bool threadCreated = pthread_create(&CMDThread ,NULL,&taskRunCMD, NULL );
-//	if(!threadCreated)
-//	{
-//		printf("CMD Server Thread Creation Success\n");
-//	}
-//	else
-//	{
-//		printf("CMD Server Thread Creation Failed\n");
-//	}
-//
-//	usleep(1000000);
-//
-//	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
-//
-//	// Create Packet Params and dispatch packet
-//	VariableTypeData subsystem_hold((uint32) HARDWARE_LOCATION_EPS);
-//	VariableTypeData protocol_hold((uint32) ACP_PROTOCOL_ETH);
-//	list<VariableTypeData *> params;
-//	params.push_back(&subsystem_hold);
-//	params.push_back(&protocol_hold);
-//
-//	ReturnMessage * ret = DispatchPacket(SERVER_LOCATION_ACS, SERVER_LOCATION_CMD, 1, 0, MESSAGE_TYPE_COMMAND, CMD_ACP_SWITCH, params);
-//
-//	// Ensure that the change has been enacted
-//	ASSERT_EQ(cmdServer->subsystem_acp_protocol[HARDWARE_LOCATION_EPS], ACP_PROTOCOL_ETH);
-//	cout<<"EPS: "<<cmdServer->subsystem_acp_protocol[HARDWARE_LOCATION_EPS]<<endl;
-//	ASSERT_EQ(cmdServer->subsystem_acp_protocol[HARDWARE_LOCATION_ACS], ACP_PROTOCOL_SPI);
-//	cout<<"ACS: "<<cmdServer->subsystem_acp_protocol[HARDWARE_LOCATION_ACS]<<endl;
-//	EXPECT_EQ(ret->GetSuccess(), true);
-//	EXPECT_EQ(ret->GetOpcode(), CMD_ACP_SWITCH_SUCCESS);
-//
-//	delete ret;
-//
-//	/*
-//	// Test for bad switch
-//
-//	VariableTypeData subsystem_hold2((uint32) HARDWARE_LOCATION_EPS);
-//	VariableTypeData protocol_hold2((uint32) ACP_PROTOCOL_MAX);
-//	params.clear();
-//	params.push_back(&subsystem_hold2);
-//	params.push_back(&protocol_hold2);
-//
-//	ret = DispatchPacket(SERVER_LOCATION_ACS, SERVER_LOCATION_CMD, 1, 0, MESSAGE_TYPE_COMMAND, CMD_ACP_SWITCH, params);
-//
-//	// Ensure that the function catches the error
-//	ASSERT_EQ(ret->GetSuccess(), false);
-//	EXPECT_EQ(ret->GetOpcode(), CMD_ACP_SWITCH_BAD_PROTOCOL);
-//	*/
+	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	modeManager->SetMode(MODE_ACCESS,LOCATION_ID_INVALID);
+
+	// Create CMDServer
+	pthread_t CMDThread;
+	bool threadCreated = pthread_create(&CMDThread ,NULL,&taskRunCMD, NULL );
+	if(!threadCreated)
+	{
+		printf("CMD Server Thread Creation Success\n");
+	}
+	else
+	{
+		printf("CMD Server Thread Creation Failed\n");
+	}
+
+	usleep(1000000);
+
+	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
+
+	uint8 temp[8];
+	uint8 * message = new uint8[8];
+	uint32 subsystem = (uint32) HARDWARE_LOCATION_EPS;
+	uint32 protocol = (uint32) ACP_PROTOCOL_ETH;
+	memcpy(temp, &subsystem, 4);
+	memcpy(temp+4, &protocol, 4);
+	for(int i = 0; i < 4; i++){
+		message[i] = temp[3-i];
+		message[i+4] = temp[7-i];
+	}
+	FSWPacket * query = new FSWPacket(SERVER_LOCATION_ACS, SERVER_LOCATION_CMD, 0, CMD_ACP_SWITCH, true, false, MESSAGE_TYPE_COMMAND, message);
+	FSWPacket * ret = DispatchPacket(query);
+
+	// Ensure that the change has been enacted
+	ASSERT_EQ(cmdServer->subsystem_acp_protocol[HARDWARE_LOCATION_EPS], ACP_PROTOCOL_ETH);
+	cout<<"EPS: "<<cmdServer->subsystem_acp_protocol[HARDWARE_LOCATION_EPS]<<endl;
+	ASSERT_EQ(cmdServer->subsystem_acp_protocol[HARDWARE_LOCATION_ACS], ACP_PROTOCOL_SPI);
+	cout<<"ACS: "<<cmdServer->subsystem_acp_protocol[HARDWARE_LOCATION_ACS]<<endl;
+	//EXPECT_EQ(ret->IsSuccess(), true);
+	//EXPECT_EQ(ret->GetOpcode(), CMD_ACP_SWITCH_SUCCESS);
+	/*
+	// Test for bad switch
+
+	VariableTypeData subsystem_hold2((uint32) HARDWARE_LOCATION_EPS);
+	VariableTypeData protocol_hold2((uint32) ACP_PROTOCOL_MAX);
+	params.clear();
+	params.push_back(&subsystem_hold2);
+	params.push_back(&protocol_hold2);
+
+	ret = DispatchPacket(SERVER_LOCATION_ACS, SERVER_LOCATION_CMD, 1, 0, MESSAGE_TYPE_COMMAND, CMD_ACP_SWITCH, params);
+
+	// Ensure that the function catches the error
+	ASSERT_EQ(ret->GetSuccess(), false);
+	EXPECT_EQ(ret->GetOpcode(), CMD_ACP_SWITCH_BAD_PROTOCOL);
+	*/
 }

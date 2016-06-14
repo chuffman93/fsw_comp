@@ -75,7 +75,7 @@ namespace Phoenix
         
         ArbitratorAuthStatusEnum Arbitrator::Authenticate(const FSWPacket & packet) const
         {
-        	Message * msg;
+        	//Message * msg;
         	ConstIteratorType it;
 
         	// Check that the packet matches the Arbitrator's server.
@@ -85,9 +85,9 @@ namespace Phoenix
         	}
 
         	// Find the permission for the given packet.
-        	msg = packet.GetMessagePtr();
+        	//msg = packet.GetMessagePtr();
 			
-        	it = permissionMap.find(MessageIdentifierType(msg->GetType(), msg->GetOpcode()));
+        	it = permissionMap.find(MessageIdentifierType(packet.GetType(), packet.GetOpcode()));
 
         	if (it == permissionMap.end())
 			{

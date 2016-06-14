@@ -46,16 +46,16 @@
 using namespace std;
 //using namespace Phoenix::HAL;
 
-#define DISPATCHER_DEBUG			0
+#define DISPATCHER_DEBUG			1
 
 #if DISPATCHER_DEBUG
 #include <iostream>
 #define DEBUG_PRINT(m, p) cout << m << "S: " << p->GetSource() \
         << ", D: " << p->GetDestination() \
         << ", N: " << p->GetNumber() \
-        << ", R: " << (p->GetMessagePtr() ? p->GetMessagePtr()->IsResponse() : false) \
-		<< ", T: " << ((int)p->GetMessagePtr()->GetType()) \
-		<< ", O: " << ((int)p->GetMessagePtr()->GetOpcode()) \
+        << ", R: " << (p->IsResponse()) \
+		<< ", T: " << ((int)p->GetType()) \
+		<< ", O: " << ((int)p->GetOpcode()) \
         << ", P: " << p << endl;
 #define DEBUG_COUT(m) cout << m << endl;
 #else
@@ -180,6 +180,7 @@ bool Dispatcher::AddRegistry(LocationIDType serverID,
 
 bool Dispatcher::Dispatch(FSWPacket & packet)
 {
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	if(packet.GetDestination() < HARDWARE_LOCATION_MIN || packet.GetDestination() > SERVER_LOCATION_MAX){
 		return false;
 	}
@@ -195,18 +196,12 @@ bool Dispatcher::Dispatch(FSWPacket & packet)
 	{
 
 
-		printf("Now sending the message to the queue\n");
-		fflush(stdout);
-
-
-
-
-
+		logger->Log("Now sending the message to the queue", LOGGER_LEVEL_DEBUG);
 
 
 		if (true == this->TakeLock(MAX_BLOCK_TIME))
 		{
-			printf("Dispatcher: Took lock\n");
+			logger->Log("Dispatcher: Took lock", LOGGER_LEVEL_DEBUG);
 			size_t numPackets = mq_size(queueHandle, queueAttr);
 			FSWPacket * tmpPacket;
 			try
@@ -219,7 +214,7 @@ bool Dispatcher::Dispatch(FSWPacket & packet)
 			}
 			if (numPackets < DISPATCHER_QUEUE_LENGTH)
 			{
-				printf("Dispatcher::Dispatch() Queue is not full\n");
+				logger->Log("Dispatcher::Dispatch() Queue is not full", LOGGER_LEVEL_DEBUG);
 				// Send the message via the message queue.
 				bool ret = mq_timed_send(queueName, (&tmpPacket), MAX_BLOCK_TIME, 0);
 				numPackets = mq_size(queueHandle, queueAttr);
@@ -281,11 +276,12 @@ DispatcherStatusEnum Dispatcher::WaitForDispatchResponse(const FSWPacket & packe
 	return DISPATCHER_STATUS_MSG_RCVD_NO_RESP_SENT;
 }
 
-DispatcherStatusEnum Dispatcher::WaitForDispatchResponse(const FSWPacket & packet, FSWPacket * retPacket)
+DispatcherStatusEnum Dispatcher::WaitForDispatchResponse(const FSWPacket & packet, FSWPacket ** retPacketin)
 {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	//ReturnMessage * retMsg;
 	size_t i;
+	FSWPacket * retPacket;
 	logger->Log("   Dispatcher: WaitForDispatchResponse() called", LOGGER_LEVEL_DEBUG);
 	for (i = 0; i < DISPATCHER_MAX_RESPONSE_TRIES; ++i)
 	{
@@ -293,6 +289,7 @@ DispatcherStatusEnum Dispatcher::WaitForDispatchResponse(const FSWPacket & packe
 				&Dispatcher::IsPacketMatchingResponse))
 		{
 			logger->Log("    Dispatcher: WaitForDispatchResponse(): Matching FSWPacket found.", LOGGER_LEVEL_DEBUG);
+			*retPacketin = retPacket;
 			return DISPATCHER_STATUS_OK;
 		}
 		usleep(DISPATCHER_WAIT_TIME);
@@ -322,10 +319,7 @@ bool Dispatcher::Listen(LocationIDType serverID)
 	IteratorType it;
 
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	char * out = new char[100];
-	sprintf(out, "Dispatcher: Listen() called with serverID: %u", serverID);
-	logger->Log(out, LOGGER_LEVEL_DEBUG);
-	delete out;
+	logger->Log("Dispatcher: Listen() called with serverID: %u", serverID, LOGGER_LEVEL_DEBUG);
 
 	// Create a packet that can be compared with the incoming packets
 	// to check if any are addressed to the desired server.
@@ -446,7 +440,14 @@ bool Dispatcher::IsPacketMatchingResponse(const FSWPacket & packetIn,
 		const FSWPacket & packetOut) const
 {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("IsPacketMatchingRespone called", LOGGER_LEVEL_DEBUG);
+	logger->Log("IsPacketMatchingResponse result: %d", ((packetOut.IsResponse())
+			&& (packetOut.GetDestination( ) == packetIn.GetSource( ))
+			&& (packetOut.GetNumber( ) == packetIn.GetNumber( ))), LOGGER_LEVEL_DEBUG);
+
+	logger->Log("IsPacketMatchingResponse response result: %d", packetOut.IsResponse(), LOGGER_LEVEL_DEBUG);
+	logger->Log("IsPacketMatchingResponse dest/source: %d", packetOut.GetDestination( ) == packetIn.GetSource( ), LOGGER_LEVEL_DEBUG);
+	logger->Log("IsPacketMatchingResponse number: %d", packetOut.GetNumber( ) == packetIn.GetNumber( ), LOGGER_LEVEL_DEBUG);
+
 
 	//	DEBUG_PRINT("Original FSWPacket - ", (&packetIn));
 	//	DEBUG_PRINT("Queue FSWPacket    - ", (&packetOut));
@@ -462,8 +463,10 @@ bool Dispatcher::IsPacketDestMatchingSource(const FSWPacket & packetIn,
 {
 	// Return true if *packetOut is being sent to the server in
 	// packetIn->GetSource().
-	DEBUG_COUT("IsPacketDestMatchingSource called");
-	return ((!packetOut.GetMessagePtr( )->IsResponse( ))
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("IsPacketDestMatchingSource() result: %d", ((!packetOut.IsResponse( ))
+					&& (packetOut.GetDestination( ) == packetIn.GetSource( ))), LOGGER_LEVEL_DEBUG);
+	return ((!packetOut.IsResponse( ))
 			&& (packetOut.GetDestination( ) == packetIn.GetSource( )));
 }
 
@@ -481,6 +484,7 @@ bool Dispatcher::CheckQueueForMatchingPacket(const FSWPacket & packetIn,
 	size_t numPackets, i;
 	FSWPacket * tmpPacket;
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("Dispatcher: CheckQueueForMatchingPacket(): Called", LOGGER_LEVEL_DEBUG);
 
 	// Get the semaphore
 	if (true == this->TakeLock(MAX_BLOCK_TIME))
@@ -497,6 +501,7 @@ bool Dispatcher::CheckQueueForMatchingPacket(const FSWPacket & packetIn,
 			//debug_led_set_led(2, LED_ON);
 			// There's at least one packet, so check if it matches packetIn.
 
+			logger->Log("Dispatcher: CheckQueueForMatchingPacket(): There is at least one packet", LOGGER_LEVEL_DEBUG);
 			if(packetOut == NULL)
 			{
 				this->GiveLock();
@@ -515,6 +520,7 @@ bool Dispatcher::CheckQueueForMatchingPacket(const FSWPacket & packetIn,
 				// Check the number of packets waiting in the queue.
 				logger->Log("Dispatcher: CheckQueueForMatchingPacket(): checking more packets", LOGGER_LEVEL_DEBUG);
 				numPackets = mq_size(queueHandle, queueAttr);
+				logger->Log("Dispatcher: CheckQueueForMatchingPacket(): there are %u more packets", (uint32) numPackets, LOGGER_LEVEL_DEBUG);
 
 				// Get each packet and check it against packetIn.
 				for (i = 0; i < numPackets; ++i)
@@ -669,6 +675,7 @@ uint32_t Dispatcher::DispatchToHardware( FSWPacket & packet)
 	{
 		printf("0x%02x ",packetBuffer[i]);
 	}
+	printf("\n");
 
 	// Get the instances for the Ethernet and SPI Servers
 	ETH_HALServer * eth_server = dynamic_cast<ETH_HALServer *> (Factory::GetInstance(ETH_HALSERVER_SINGLETON));

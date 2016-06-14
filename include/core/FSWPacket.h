@@ -63,6 +63,8 @@ namespace Phoenix
 
             FSWPacket(LocationIDType sourceIn, LocationIDType destIn, uint32 timestampIn, uint8 opcodeIn, bool success, bool response, MessageTypeEnum type);
 
+            FSWPacket(LocationIDType sourceIn, LocationIDType destIn, uint32 timestampIn, uint8 opcodeIn, bool success, bool response, MessageTypeEnum type, uint8 * messageIn);
+
             FSWPacket(uint32 timestampIn, uint8 opcodeIn, bool successIn, bool responseIn, MessageTypeEnum typeIn);
 
             /*! \brief Constructor for the FSWPacket Class

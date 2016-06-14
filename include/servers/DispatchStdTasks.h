@@ -134,6 +134,19 @@ namespace Phoenix
 		bool ExtractParameters(const Phoenix::Core::MultiDataMessage & dataMessage, uint32 * inputParameters,
 				uint32 numParams, void ** outputParameters);
 				
+		uint32 GetUInt(uint8 * buffer);
+
+		uint16 GetUInt16(uint8 * buffer);
+
+		int32 GetInt(uint8 * buffer);
+
+		bool GetBool(uint8 * buffer);
+
+		float GetFloat(uint8 * buffer);
+
+		double GetDouble(uint8 * buffer);
+
+
 		/*!	\brief Handles a message. If message is an error sends it to the error octopus, otherwise writes
 		*		it writes it to a file.
 		*

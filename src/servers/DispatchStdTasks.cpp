@@ -18,6 +18,7 @@
 
 #include "util/FileHandler.h"
 #include "util/Logger.h"
+#include <assert.h>
 
 //#include "boards/backplane/dbg_led.h"
 
@@ -28,21 +29,21 @@ namespace Phoenix
 {
 	namespace Servers
 	{
-		FSWPacket * DispatchPacket(FSWPacket * packet)
+		FSWPacket * DispatchPacket(FSWPacket * query)
 		{
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 			logger->Log("DispatchStdTasks: DispatchPacket() Called with FSWPacket", LOGGER_LEVEL_DEBUG);
 
 			//check inputs
-			LocationIDType source = packet->GetSource();
-			LocationIDType destination = packet->GetDestination();
+			LocationIDType source = query->GetSource();
+			LocationIDType destination = query->GetDestination();
 			
 			if(source < HARDWARE_LOCATION_MIN || source >= SERVER_LOCATION_MAX
 				|| destination < HARDWARE_LOCATION_MIN || destination >= SERVER_LOCATION_MAX)
 			{
 				logger->Log("DispatcherStdTasks: DispatchPacket(): invalid src/dest!", LOGGER_LEVEL_ERROR);
 				FSWPacket * ret = new FSWPacket(0, PACKET_FORMAT_FAIL, false, false, MESSAGE_TYPE_ERROR);
-				delete packet;
+				delete query;
 				return ret;
 			}
 			
@@ -50,32 +51,33 @@ namespace Phoenix
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 			
 			//Dispatch packet, if it fails return DISPATCH_FAILED
-			if(!dispatcher->Dispatch(*packet))
+			if(!dispatcher->Dispatch(*query))
 			{
-				logger->Log("DispatchStdTaks: Failed to dispatch packet\n", LOGGER_LEVEL_WARN);
+				logger->Log("DispatchStdTasks: Failed to dispatch packet\n", LOGGER_LEVEL_WARN);
 				FSWPacket * ret = new FSWPacket(0, DISPATCH_FAILED, false, false, MESSAGE_TYPE_ERROR);
-				delete packet;
+				delete query;
 				return ret;
 			}
 			//debug_led_set_led(1, LED_ON);
 
 			DispatcherStatusEnum stat;
-			FSWPacket * responsePacket;
+			// TODO: determine how to deal with response allocation
+			FSWPacket * response;
 			//Wait for return message, if it fails return status response from dispatcher
-			logger->Log("DispatchStdTaks: Waiting for return message\n", LOGGER_LEVEL_DEBUG);
-			if(DISPATCHER_STATUS_OK != (stat = dispatcher->WaitForDispatchResponse(*packet, responsePacket)))
+			logger->Log("DispatchStdTasks: Waiting for return message\n", LOGGER_LEVEL_DEBUG);
+			if(DISPATCHER_STATUS_OK != (stat = dispatcher->WaitForDispatchResponse(*query, &response)))
 			{
-				logger->Log("DispatchStdTaks: Did not receive response\n", LOGGER_LEVEL_WARN);
+				logger->Log("DispatchStdTasks: Did not receive response\n", LOGGER_LEVEL_WARN);
 				FSWPacket * ret = new FSWPacket(0, DISPATCHER_STATUS_ERR, false, false, MESSAGE_TYPE_ERROR);
-				delete packet;
-				delete responsePacket;
+				delete query;
 				return ret;
 			}
 
-			logger->Log("DispatchStdTaks: Received return message\n", LOGGER_LEVEL_DEBUG);
+			logger->Log("DispatchStdTasks: Received return message\n", LOGGER_LEVEL_DEBUG);
 
-			delete packet;
-			return responsePacket;
+			delete query;
+			assert(response != NULL);
+			return response;
 		}
 		
 //		ReturnMessage * DispatchPacket(LocationIDType source, LocationIDType destination, uint16 number,
@@ -318,6 +320,45 @@ namespace Phoenix
 			return (i == numParams);
 		}
 		
+		uint32 GetUInt(uint8 * buffer){
+			uint32 result;
+			uint8 flipped[] = {buffer[3],buffer[2],buffer[1],buffer[0]};
+			memcpy(&result, flipped, 4);
+			return result;
+		}
+
+		uint16 GetUInt16(uint8 * buffer){
+			uint32 result;
+			uint8 flipped[] = {buffer[1],buffer[0]};
+			memcpy(&result, flipped, 2);
+			return result;
+		}
+
+		int32 GetInt(uint8 * buffer){
+			int32 result;
+			uint8 flipped[] = {buffer[3],buffer[2],buffer[1],buffer[0]};
+			memcpy(&result, flipped, 4);
+			return result;
+		}
+
+		bool GetBool(uint8 * buffer){
+			return((bool) (buffer[0]));
+		}
+
+		float GetFloat(uint8 * buffer){
+			float result;
+			uint8 flipped[] = {buffer[3],buffer[2],buffer[1],buffer[0]};
+			memcpy(&result, flipped, 4);
+			return result;
+		}
+
+		double GetDouble(uint8 * buffer){
+			double result;
+			uint8 flipped[] = {buffer[7],buffer[6],buffer[5],buffer[4],buffer[3],buffer[2],buffer[1],buffer[0]};
+			memcpy(&result, flipped, 8);
+			return result;
+		}
+
 		void MessageProcess(LocationIDType id, ReturnMessage * retMsg)
 		{
 			FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
@@ -473,7 +514,7 @@ namespace Phoenix
 					DispatcherStatusEnum stat;
 					FSWPacket * responsePacket;
 					//Wait for return message, if it fails return status response from dispatcher
-					if(DISPATCHER_STATUS_OK != (stat = dispatcher->WaitForDispatchResponse(*retPacket, responsePacket)))
+					if(DISPATCHER_STATUS_OK != (stat = dispatcher->WaitForDispatchResponse(*retPacket, &responsePacket)))
 					{
 						logger->Log("DispatchStdTasks: no response from error octopus (NOTE: check ERRServer Handler return)", LOGGER_LEVEL_ERROR);
 						FSWPacket * ret = new FSWPacket(0, DISPATCH_FAILED, false, false, MESSAGE_TYPE_ERROR);

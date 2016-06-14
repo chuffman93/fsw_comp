@@ -69,7 +69,7 @@ FSWPacket * GPSErrorHandler::Handle(const FSWPacket & packet)
 	FSWPacket * retPacket;
 	DispatcherStatusEnum stat;
 	//Wait for return message, if it fails return status response from dispatcher
-	if(DISPATCHER_STATUS_OK != (stat = dispatcher->WaitForDispatchResponse(*forward, retPacket)))
+	if(DISPATCHER_STATUS_OK != (stat = dispatcher->WaitForDispatchResponse(*forward, &retPacket)))
 	{
 		delete forward;
 		FSWPacket * ret = new FSWPacket(0, DISPATCHER_STATUS_ERR, false, false, MESSAGE_TYPE_ERROR);

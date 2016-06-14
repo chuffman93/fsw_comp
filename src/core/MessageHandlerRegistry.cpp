@@ -51,9 +51,9 @@ namespace Phoenix
 
         FSWPacket * MessageHandlerRegistry::Invoke(const FSWPacket & packet)
         {
-        	Message * msg = packet.GetMessagePtr();
+        	//Message * msg = packet.GetMessagePtr();
         	std::map<MessageIdentifierType, MessageHandler*>::iterator it =
-        			handlerMap.find(MessageIdentifierType(msg->GetType(), msg->GetOpcode()));
+        			handlerMap.find(MessageIdentifierType(packet.GetType(), packet.GetOpcode()));
 
         	if (it == handlerMap.end() || it->second == NULL)
         	{

@@ -26,6 +26,7 @@
 
 using namespace Phoenix::Core;
 using namespace Phoenix::HAL;
+using namespace Phoenix::Servers;
 
 namespace Phoenix
 {
@@ -39,35 +40,48 @@ namespace Phoenix
 			FSWPacket * HSQuery = new FSWPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, 0, EPS_HS_CMD, true, false, MESSAGE_TYPE_COMMAND);
 			FSWPacket * HSRet = DispatchPacket(HSQuery);
 			logger->Log("EPSStdTasks: EPSHealthStat(): packet dispatched, HSRet acquired", LOGGER_LEVEL_INFO);
-			
-			// Translate H&S into beacon form
-			// COMServer * comServer = dynamic_cast<COMServer *> (Factory::GetInstance(COM_SERVER_SINGLETON));
-//			void * outputArray[10] = {NULL};
-//			uint32 enumArray[10] = {
-//				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
-//				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
-//				VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,VAR_TYPE_ENUM_UNSIGNED_INT,
-//				VAR_TYPE_ENUM_UNSIGNED_INT
-//			};
-//
-//			if(!ExtractParameters(*HSRet,enumArray,10,outputArray))
-//			{
-//				logger->Log("EPSStdTasks: EPSHealthStat(): error extracting parameters", LOGGER_LEVEL_WARN);
-//			}
-//			else
-//			{
-//																					// Original Types in outputArray
-//				int16_t battVoltage				= * (int16_t *) outputArray[0];		// EPS uint32_t voltage
-//				int16_t battCurrent				= * (int16_t *) outputArray[1];		// EPS uint32_t current
-//				uint16_t stateOfCharge			= * (uint16_t *) outputArray[2];	// EPS uint32_t relativeSOC
-//				int16_t battRemainingCapacity	= * (int16_t *) outputArray[3];		// EPS uint32_t remainingCapacity
-//				int16_t cycleCount				= * (int16_t *) outputArray[8];		// EPS uint32_t cycleCount
-//				int16_t batteryManagerStatus	= * (int16_t *) outputArray[9];		// EPS uint32_t batteryStatus
-//
-//				//comServer -> UpdateEPSHS(battVoltage,battCurrent, stateOfCharge,battRemainingCapacity,cycleCount,batteryManagerStatus);
-//			}
-			
-			return HSRet;
+			if(HSRet == NULL){
+				printf("Null HSRet\n");
+			}
+			printf("Length: %u\n", HSRet->GetMessageLength());
+			if(HSRet->GetMessageLength() != 6*sizeof(uint16)){
+				logger->Log("EPSStdTasks: EPSHealthStat(): incorrect message length!", LOGGER_LEVEL_WARN);
+
+				//TODO: return error?
+				return HSRet;
+			}else{
+				// Parse buffer
+				printf("pointer\n");
+				uint8 * msgPtr = HSRet->GetMessageBufPtr();
+				if(msgPtr==NULL){
+					//Error
+					return HSRet;
+				}
+				uint16 outputArray[6];
+				for(uint8 i = 0; i < 6; i++){
+					printf("Loop\n");
+					outputArray[i] = GetUInt16(msgPtr);
+					msgPtr += 2;
+				}
+
+				uint16 volt_3v3 	= outputArray[0];
+				logger->Log("3v3  Voltage: %u", (uint32) volt_3v3, LOGGER_LEVEL_DEBUG);
+				uint16 curr_3v3 	= outputArray[1];
+				logger->Log("3v3  Current: %u", (uint32) curr_3v3, LOGGER_LEVEL_DEBUG);
+				uint16 volt_vbat 	= outputArray[2];
+				logger->Log("Vbat Voltage: %u", (uint32) volt_vbat, LOGGER_LEVEL_DEBUG);
+				uint16 curr_vbat 	= outputArray[3];
+				logger->Log("Vbat Current: %u", (uint32) curr_vbat, LOGGER_LEVEL_DEBUG);
+				uint16 volt_12v 	= outputArray[4];
+				logger->Log("12v  Voltage: %u", (uint32) volt_12v, LOGGER_LEVEL_DEBUG);
+				uint16 curr_12v 	= outputArray[5];
+				logger->Log("12v  Current: %u", (uint32) curr_12v, LOGGER_LEVEL_DEBUG);
+
+				// Update beacon
+				//COMServer * comServer = dynamic_cast<COMServer *> (Factory::GetInstance(COM_SERVER_SINGLETON));
+				//comServer -> UpdateEPSHS(battVoltage,battCurrent, stateOfCharge,battRemainingCapacity,cycleCount,batteryManagerStatus);
+				return HSRet;
+			}
 		}
 
 		FSWPacket * EPSStateOfCharge()
