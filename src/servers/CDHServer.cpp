@@ -35,7 +35,7 @@ using namespace std;
 #define STOR_EN 1
 #define TEMP_EN 1
 #define HS_EN	1
-#define PM_EN	1
+#define PM_EN	0
 
 namespace Phoenix
 {
@@ -137,17 +137,6 @@ namespace Phoenix
 			return success;
 		}
 
-//		void CDHServer::PrepHSPM(){
-//			for(uint8 i = 0; i < 16; i++){
-//				hotSwaps[i] = new HotSwap(adresses[i],faults[i],resistors[i]);
-//				hotSwaps[i]->Init();
-//			}
-//			for(uint8 j = 0; j < 4; j++){
-//				powerMonitors[j] = new PowerMonitor(PM_adresses[j]);
-//				//powerMonitors[j]->Init(); //TODO: init with config struct for each
-//			}
-//		}
-
 		void CDHServer::SubsystemLoop(void)
 		{
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
@@ -178,7 +167,7 @@ namespace Phoenix
 			FSWPacket * SPMRet;
 
 			uint64_t LastWakeTime = 0;
-			uint8 seconds = 0;
+			uint8 timeUnit = 0;
 			//bool shouldReadTemp[4][16];
 			//float temperatures[4][16];
 			while(1)
@@ -187,27 +176,27 @@ namespace Phoenix
 				LastWakeTime = getTimeInMilis();
 				//wdm->Kick();
 
-				if((seconds % 60) == 0){
-					seconds = 0;
+				if((timeUnit % 60) == 0){
+					timeUnit = 0;
 				}
 
 				// Start sensors for reading next round
 #if PM_EN
-				if((seconds % 10) == 0){
+				if((timeUnit % 10) == 0){
 					SPMRet = CDHStartPM();
 					PacketProcess(SERVER_LOCATION_CDH, SPMRet);
 				}
 #endif //PM_EN
 
 #if TEMP_EN
-				if(((seconds-8) % 10) == 0){
+				if(((timeUnit-8) % 10) == 0){
 					TSRet = CDHTempStart();
 					PacketProcess(SERVER_LOCATION_CDH, TSRet);
 				}
 #endif //TEMP_EN
 
 				// Get all CDH information
-				if(((seconds - 9) % 10) == 0){
+				if(((timeUnit - 9) % 10) == 0){
 					logger->Log("CDHServer: Gathering information", LOGGER_LEVEL_DEBUG);
 
 #if CPU_EN
@@ -249,7 +238,7 @@ namespace Phoenix
 
 				// Delay
 				waitUntil(LastWakeTime, 1000);
-				seconds++;
+				timeUnit++;
 			}
 		}
 	}

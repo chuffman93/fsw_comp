@@ -75,7 +75,7 @@ namespace Phoenix
 
 			logger->Log("DispatchStdTasks: Received return message\n", LOGGER_LEVEL_DEBUG);
 
-			delete query;
+			//delete query;
 			assert(response != NULL);
 			return response;
 		}
@@ -357,6 +357,14 @@ namespace Phoenix
 			uint8 flipped[] = {buffer[7],buffer[6],buffer[5],buffer[4],buffer[3],buffer[2],buffer[1],buffer[0]};
 			memcpy(&result, flipped, 8);
 			return result;
+		}
+
+		void AddUInt32(uint8 * buffer, uint32 data){
+			memcpy(buffer, &data, sizeof(uint32));
+		}
+
+		void AddFloat(uint8 * buffer, float data){
+			memcpy(buffer, &data, sizeof(float));
 		}
 
 		void MessageProcess(LocationIDType id, ReturnMessage * retMsg)

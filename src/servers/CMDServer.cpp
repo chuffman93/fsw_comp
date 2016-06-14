@@ -113,30 +113,30 @@ namespace Phoenix
 				//wdm->Kick();
 				//debug_led_set_led(2, LED_TOGGLE);
 				//check if there is a list of commands to execute
-				for(int i = 0; i < 5; i++)
-				{
-					//check if file exists
-					//if((fileHandler->FileExists(CMDFiles[i])) >= 0)
-					//{
-						//read the file into a buffer
-						readBuffer = fileHandler->ReadFile(CMDFiles[i], &readSize);
-
-//						if (i==0)
-//						{
-//							printf("\r\nPrinting the buffer read\r\n");
-//							// Check if the Read File worked it works- Umang
-//							for (int pq=0;pq<readSize;pq++)
-//								printf("\t %02x",readBuffer[pq]);
-//						}
-
-
-
-						//try to create packets from the buffer and send them
-						CMDBufferParse(((char *) readBuffer), readSize);
-						//fileHandler->DeleteFile(CMDFiles[i]);
-					//}
-					usleep(1000);
-				}
+//				for(int i = 0; i < 5; i++)
+//				{
+//					//check if file exists
+//					//if((fileHandler->FileExists(CMDFiles[i])) >= 0)
+//					//{
+//						//read the file into a buffer
+//						readBuffer = fileHandler->ReadFile(CMDFiles[i], &readSize);
+//
+////						if (i==0)
+////						{
+////							printf("\r\nPrinting the buffer read\r\n");
+////							// Check if the Read File worked it works- Umang
+////							for (int pq=0;pq<readSize;pq++)
+////								printf("\t %02x",readBuffer[pq]);
+////						}
+//
+//
+//
+//						//try to create packets from the buffer and send them
+//						CMDBufferParse(((char *) readBuffer), readSize);
+//						//fileHandler->DeleteFile(CMDFiles[i]);
+//					//}
+//					usleep(1000);
+//				}
 				
 				/*
 				// For deleting files, shouldn't be executed in COM mode.
@@ -153,13 +153,7 @@ namespace Phoenix
 				}
 				*/
 				
-				//TODO: what is this? usleep is in microseconds btw
-				//each iteration is 30 seconds
-				for(int i = 0; i < 30; i++)
-				{
-					//wdm->Kick();
-					usleep(1000);
-				}
+				waitUntil(LastTimeTick, 1000);
 				
 			}
 		}

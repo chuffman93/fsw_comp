@@ -229,7 +229,7 @@ namespace Phoenix
 			type = typeIn;
 			success = successIn;
 			response = responseIn;
-			status = 0; // TODO: this isn't accurate, but check that it doesn't need to be
+			status = 0;
 			opcode = opcodeIn;
 			length = 0;
 			messagePtr = NULL;
@@ -244,7 +244,7 @@ namespace Phoenix
 			type = typeIn;
 			success = successIn;
 			response = responseIn;
-			status = 0; // TODO: this isn't accurate, but check that it doesn't need to be
+			status = 0;
 			opcode = opcodeIn;
 			length = 0;
 			messagePtr = NULL;
@@ -259,39 +259,30 @@ namespace Phoenix
 			type = typeIn;
 			success = successIn;
 			response = responseIn;
-			status = 0; // TODO: this isn't accurate, but check that it doesn't need to be
+			status = 0;
 			opcode = opcodeIn;
 			length = 0;
 			messagePtr = NULL;
 			messageBuf = NULL;
 		}
 
+        FSWPacket::FSWPacket(uint32 timestampIn, uint8 opcodeIn, bool successIn, bool responseIn, MessageTypeEnum typeIn, uint16 lengthIn, uint8 * messageIn){
+			destination = LOCATION_ID_INVALID;
+			source = LOCATION_ID_INVALID;
+			number = 0;
+			timestamp = timestampIn;
+			type = typeIn;
+			success = successIn;
+			response = responseIn;
+			status = 0;
+			opcode = opcodeIn;
+			length = lengthIn;
+			messagePtr = NULL;
+			messageBuf = messageIn;
+		}
+
         FSWPacket::FSWPacket(const FSWPacket & packetSource)
         {
-//            if (NULL == packetSource.GetMessagePtr())
-//            {
-//                source = LOCATION_ID_INVALID;
-//                destination = LOCATION_ID_INVALID;
-//                number = 0;
-//                timestamp = 0;
-//                messagePtr = NULL;
-//                status = 0;
-//                opcode = packetSource.GetMessagePtr()->GetOpcode();
-//                return;
-//            }
-//            messagePtr = packetSource.GetMessagePtr()->Duplicate();
-//
-//            if (NULL == messagePtr)
-//            {
-//                source = LOCATION_ID_INVALID;
-//                destination = LOCATION_ID_INVALID;
-//                number = 0;
-//                timestamp = 0;
-//                opcode = 0;
-//                status = 0;
-//                return;
-//            }
-			
             destination = packetSource.destination;
             source = packetSource.source;
             number = packetSource.number;
@@ -304,7 +295,6 @@ namespace Phoenix
             length = packetSource.GetMessageLength();
             messagePtr = packetSource.GetMessagePtr();
             messageBuf = packetSource.GetMessageBufPtr();
-
         }
 
         FSWPacket::~FSWPacket(void )
@@ -462,6 +452,10 @@ namespace Phoenix
 			success = successIn;
 		}
 
+		void FSWPacket::SetOpcode(uint8 opcodeIn){
+			opcode = opcodeIn;
+		}
+
         std::size_t FSWPacket::Flatten(uint8 * buffer, std::size_t size) const
         {
             size_t numCopied = 0;
@@ -501,20 +495,6 @@ namespace Phoenix
             *(buffer++) = opcode & 0xFF;
             numCopied += 2;
             size -= 2;
-
-//            if(messagePtr){
-//            	length = messagePtr->GetFlattenSize();
-//            	*(buffer++) = (length >> 8) & 0xFF;
-//            	*(buffer++) = length & 0xFF;
-//            	numCopied += sizeof(uint16);
-//            	messageCopied += messagePtr->Flatten(buffer, size);
-//				numCopied += messageCopied;
-//				buffer += messageCopied;
-//            }else{
-//            	*(buffer++) = 0x00;
-//            	*(buffer++) = 0x00;
-//            	numCopied += sizeof(uint16);
-//            }
 
             *(buffer++) = (length >> 8) & 0xFF;
             *(buffer++) = length & 0xFF;

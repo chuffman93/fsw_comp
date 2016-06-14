@@ -416,23 +416,18 @@ bool Dispatcher::Listen(LocationIDType serverID)
 	sem_destroy(&(parameters.doneSem));
 
 	// Create a packet from the response.
-	try
-	{
-		LocationIDType src = packet->GetSource( );
-		packet->SetSource(packet->GetDestination( ));
-		packet->SetDestination(src);
-		packet->SetMessageBuf(parameters.retPacket->GetMessageBufPtr());
-		delete parameters.retPacket;
-	}
-	catch (bad_alloc & e)
-	{
-		while (!mq_timed_send(queueName, &packet, MAX_BLOCK_TIME, 0));
-		return false;
-	}
+	FSWPacket * ret = new FSWPacket(*packet);
+	LocationIDType src = packet->GetSource( );
+	ret->SetResponse(true);
+	ret->SetSource(packet->GetDestination( ));
+	ret->SetDestination(src);
+	ret->SetMessageBuf(parameters.retPacket->GetMessageBufPtr());
+	ret->SetOpcode(parameters.retPacket->GetOpcode());
+	delete parameters.retPacket;
 
 	// Send the response back to the server that dispatched the
 	// original message.
-	while (!mq_timed_send(queueName, &packet, MAX_BLOCK_TIME, 0));
+	while (!mq_timed_send(queueName, &ret, MAX_BLOCK_TIME, 0));
 	return true;
 }
 

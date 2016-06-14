@@ -33,7 +33,7 @@ uint32 CMDSwitchProtocolHandler::enumArray[] = {VAR_TYPE_ENUM_UNSIGNED_INT, VAR_
 FSWPacket * CMDSwitchProtocolHandler::Handle(const FSWPacket & packet)
 {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("CMDHandlers: Unfinished handler (variable type)", LOGGER_LEVEL_FATAL);
+	logger->Log("CMDSwitchProtocolHandler: entered", LOGGER_LEVEL_DEBUG);
 
 	uint8 * msgPtr = packet.GetMessageBufPtr();
 	if(msgPtr == NULL){
@@ -69,6 +69,7 @@ FSWPacket * CMDSwitchProtocolHandler::Handle(const FSWPacket & packet)
 	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
 	cmdServer->subsystem_acp_protocol[subsystem] = protocol;
 
+	logger->Log("CMDSwitchProtocolHandler: success", LOGGER_LEVEL_DEBUG);
 	FSWPacket * ret = new FSWPacket(0, CMD_ACP_SWITCH_SUCCESS, true, true, MESSAGE_TYPE_DATA);
 	return ret;
 }

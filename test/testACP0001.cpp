@@ -105,11 +105,10 @@ TEST(TestACP, protocolSwitch){
 
 	// Ensure that the change has been enacted
 	ASSERT_EQ(cmdServer->subsystem_acp_protocol[HARDWARE_LOCATION_EPS], ACP_PROTOCOL_ETH);
-	cout<<"EPS: "<<cmdServer->subsystem_acp_protocol[HARDWARE_LOCATION_EPS]<<endl;
 	ASSERT_EQ(cmdServer->subsystem_acp_protocol[HARDWARE_LOCATION_ACS], ACP_PROTOCOL_SPI);
-	cout<<"ACS: "<<cmdServer->subsystem_acp_protocol[HARDWARE_LOCATION_ACS]<<endl;
-	//EXPECT_EQ(ret->IsSuccess(), true);
-	//EXPECT_EQ(ret->GetOpcode(), CMD_ACP_SWITCH_SUCCESS);
+	EXPECT_EQ(ret->IsSuccess(), true);
+	EXPECT_EQ(ret->GetOpcode(), CMD_ACP_SWITCH_SUCCESS);
+
 	/*
 	// Test for bad switch
 

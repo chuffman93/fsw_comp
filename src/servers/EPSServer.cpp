@@ -249,13 +249,13 @@ namespace Phoenix
 				currentMode = modeManager->GetMode();
 
 
-				if ((seconds % 2) == 0 )
+				if ((seconds % 10) == 0 )
 				{
 					
 					// Functions
 					logger->Log("Calling EPS Health and Status Function", LOGGER_LEVEL_DEBUG);
 					HSRet = EPSHealthStat();
-					logger->Log("Calling Message process on the ret message!", LOGGER_LEVEL_DEBUG);
+					logger->Log("Calling Message process on the ret packet!", LOGGER_LEVEL_DEBUG);
 					PacketProcess(SERVER_LOCATION_EPS, HSRet);
 
 					//SOCRet = EPSStateOfCharge();

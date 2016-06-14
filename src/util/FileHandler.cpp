@@ -339,6 +339,7 @@ bool FileHandler::Log(FileHandlerIDEnum subsystem, const Phoenix::Core::FSWPacke
 	memcpy(bufferPtr, packet->GetMessageBufPtr(), packet->GetMessageLength());
 
 	// Write into the file.
+	logger->Log("FileHandler: Log(): File write size: %u", (uint32) size, LOGGER_LEVEL_DEBUG);
 	int err = FileWrite(file.c_str(), (char*) buffer, (long int) size);
 	delete[] buffer;
 	if (err < 0){
@@ -430,13 +431,9 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType 
 	// else assign tempFile to file.
 	// TODO: Add GPS back in (de-globalize week)
 	if (fileSize(tempFile.c_str())>=MAXFILESIZE){
-		//printf("file_size = %d\n", fileSize(tempFile.c_str()));
-		char * out = new char[100];
-		sprintf(out, "file path= %s", tempFile.c_str());
-		logger->Log(out, LOGGER_LEVEL_INFO);
-		delete out;
+
+		logger->Log("    file path= %s", tempFile, LOGGER_LEVEL_DEBUG);
 		logger->Log("FileHandler: FetchFileName(): file full or nonexistent", LOGGER_LEVEL_DEBUG);
-		//printf("week = %d\n", week);
 
 		//get current time in seconds and week
 		char *temp2 = new char[25];

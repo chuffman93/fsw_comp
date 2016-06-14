@@ -1,98 +1,3 @@
-/* This source file is part of the ATMEL AVR-UC3-SoftwareFramework-1.6.1 Release */
-
-/*This file is prepared for Doxygen automatic documentation generation.*/
-/*! \file *********************************************************************
-*
-* \brief USART example application for AVR32 USART driver.
-*
-* - Compiler:           IAR EWAVR32 and GNU GCC for AVR32
-* - Supported devices:  All AVR32 devices with a USART module can be used.
-* - AppNote:
-*
-* \author               Atmel Corporation: http://www.atmel.com \n
-*                       Support and FAQ: http://support.atmel.no/
-*
-******************************************************************************/
-
-/*! \page License
-* Copyright (c) 2009 Atmel Corporation. All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-* 1. Redistributions of source code must retain the above copyright notice, this
-* list of conditions and the following disclaimer.
-*
-* 2. Redistributions in binary form must reproduce the above copyright notice,
-* this list of conditions and the following disclaimer in the documentation
-* and/or other materials provided with the distribution.
-*
-* 3. The name of Atmel may not be used to endorse or promote products derived
-* from this software without specific prior written permission.
-*
-* 4. This software may only be redistributed and used in connection with an Atmel
-* AVR product.
-*
-* THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
-* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
-* EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
-* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
-*
-*/
-
-/*! \mainpage
-* \section intro Introduction
-* This is the documentation for the data structures, functions, variables,
-* defines, enums, and typedefs for the USART software driver.\n It also comes
-* bundled with an example. This example is a basic Hello-World example.\n
-* <b>Example's operating mode: </b>
-* -# A message is displayed on the PC terminal ("Hello, this is AT32UC3 saying hello! (press enter)")
-* -# You may then type any character other than CR(Carriage Return) and it will
-* be echoed back to the PC terminal.
-* -# If you type a CR, "'CRLF'Goodbye." is echoed back to the PC terminal and
-* the application ends.
-*
-* \section files Main Files
-* - usart.c: USART driver;
-* - usart.h: USART driver header file;
-* - usart_example.c: USART example application.
-*
-* \section compilinfo Compilation Information
-* This software is written for GNU GCC for AVR32 and for IAR Embedded Workbench
-* for Atmel AVR32. Other compilers may or may not work.
-* 
-* \section deviceinfo Device Information
-* All AVR32 devices with a USART module can be used.
-*
-* \section configinfo Configuration Information
-* This example has been tested with the following configuration:
-* - EVK1100, EVK1101, UC3C_EK, EVK1104, EVK1105 evaluation kits; STK600+RCUC3L routing card; AT32UC3L-EK
-* - CPU clock:
-*        -- 12 MHz : EVK1100, EVK1101, EVK1104, EVK1105, AT32UC3L-EK evaluation kits; STK600+RCUC3L routing card
-*        -- 16 Mhz : AT32UC3C-EK
-* - USART1 (on EVK1100 or EVK1101) connected to a PC serial port via a standard
-*   RS232 DB9 cable, or USART0 (on EVK1105) or USART2 (on AT32UC3C-EK) or USART1 (on EVK1104)
-*   or USART3 (on AT32UC3L-EK) abstracted with a USB CDC connection to a PC;
-*   STK600 usart port for the STK600+RCUC3L setup (connect STK600.PE2 to STK600.RS232 SPARE.TXD
-*   and STK600.PE3 to STK600.RS232 SPARE.RXD)
-* - PC terminal settings:
-*   - 57600 bps,
-*   - 8 data bits,
-*   - no parity bit,
-*   - 1 stop bit,
-*   - no flow control.
-*
-* \section contactinfo Contact Information
-* For further information, visit
-* <A href="http://www.atmel.com/products/AVR32/">Atmel AVR32</A>.\n
-* Support and FAQ: http://support.atmel.no/
-*/
 #include "POSIX.h"
 #include <string>
 #include <vector>
@@ -112,48 +17,9 @@
 #include "servers/CDHServer.h"
 #include "servers/ErrorOctopus.h"
 #include "servers/ErrorQueue.h"
+
 #include "HAL/Ethernet_Server.h"
 #include "HAL/SPI_Server.h"
-
-//extern "C"
-//{
-//	#include <avr32/io.h>
-//	#include "utils/compiler.h"
-//	#include "drivers/power_clocks_lib.h"
-//	#include "drivers/gpio.h"
-//	#include "drivers/usart.h"
-//	#include "drivers/mpu.h"
-//	#include "utils/debug/print_funcs.h"
-//	#include "util/fsaccess.h"
-//	#include "components/sd_mmc_mci.h"
-//	#include "components/sd_mmc_mci_mem.h"
-//	#include "config/conf_sd_mmc_mci.h"
-//	#include "drivers/usb_task.h"
-//	#include "usb/class/mass_storage/device_mass_storage_task.h"
-//	#include "usb/class/mass_storage/host_mass_storage_task.h"
-//	#include "usb/class/cdc/device_cdc_task.h"
-//	#include "usb/class/cdc/host_cdc_task.h"
-//	#include "drivers/spi.h"
-//	#include "util/delay.h"
-//	#include "drivers/smc.h"
-//}
-
-//#include "boards/board.h"
-//#include "boards/backplane/dbg_led.h"
-//#include "boards/backplane/MaxIoExpander.h"
-//#include "boards/backplane/dbg_string.h"
-//
-//#include "HAL/HAL.h"
-//#include "HAL/UART.h"
-//#include "HAL/Interrupt.h"
-//#include "HAL/Power.h"
-//#include "HAL/RTC.h"
-//#include "HAL/ADC.h"
-//#include "HAL/GPIO.h"
-//#include "HAL/GPS.h"
-//
-//#include "util/FileHandler.h"
-//#include "util/crc.h"
 
 #include "core/CommandMessage.h"
 #include "core/DataMessage.h"
@@ -174,27 +40,25 @@
 
 #include "util/Logger.h"
 
-//#include "demos/BackplaneRev2CDRDemo.h"
-
 using namespace std;
 using namespace Phoenix::Core;
-//using namespace Phoenix::HAL;
 using namespace Phoenix::Servers;
-
 
 #define DEBUG
 
+//----------------------- Set which servers run ---------------------
+
 #define ACS_EN 0
-#define CDH_EN 0
+#define CDH_EN 1
 #define CMD_EN 0
 #define COM_EN 0
-#define EPS_EN 1
+#define EPS_EN 0
 #define ERR_EN 0
 #define PLD_EN 0
 #define THM_EN 0
 
 #define ETH_EN 0
-#define SPI_EN 1
+#define SPI_EN 0
 
 //----------------------- Create server tasks -----------------------
 //TODO:Add meaningful exit information to each server pthread_exit
@@ -478,6 +342,7 @@ void * StartSPI_HAL(void * params)
 	pthread_exit(NULL);
 }
 
+//------------------------------ Main -------------------------------
 
 int main(int argc, char * argv[])
 {

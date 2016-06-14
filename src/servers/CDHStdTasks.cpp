@@ -43,91 +43,73 @@ namespace Phoenix
 
 		FSWPacket * CDHCPUUsage(void)
 		{
-			logger->Log("CDHStdTasks: CDHCPUUsage(): Unfinished function (variable type)!", LOGGER_LEVEL_FATAL);
+			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+			if(sysinfo(&cdhServer->si) != 0)
+			{
+				logger->Log("CDHStdTasks: CDHCPUUsage(): Error", LOGGER_LEVEL_ERROR);
+				FSWPacket * ret = new FSWPacket(0, CDH_CPU_USAGE_FAILURE, false, true, MESSAGE_TYPE_ERROR);
+				return ret;
+			}
 
-//			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
-//			if(sysinfo(&cdhServer->si) != 0)
-//			{
-//				logger->Log("CDHStdTasks: CDHCPUUsage(): Error", LOGGER_LEVEL_ERROR);
-//				ErrorMessage err(CDH_CPU_USAGE_FAILURE);
-//				ReturnMessage * ret = new ReturnMessage(&err, false);
-//				return ret;
-//			}
-//
-//			logger->Log("CDHStdTasks: CDHCPUUsage(): Checking loads", LOGGER_LEVEL_INFO);
-//
-//			VariableTypeData oneMinHold(cdhServer->si.loads[0]);
-//			VariableTypeData fiveMinHold(cdhServer->si.loads[1]);
-//			VariableTypeData fifteenMinHold(cdhServer->si.loads[2]);
-//			//VariableTypeData testHold(true);
-//
-//			list<VariableTypeData *> params;
-//			params.push_back(&oneMinHold);
-//			params.push_back(&fiveMinHold);
-//			params.push_back(&fifteenMinHold);
-//			//params.push_back(&testHold);
-//
-//			DataMessage * dat = new DataMessage(CDH_CPU_USAGE_SUCCESS, params);
-//			ReturnMessage * retMsg = new ReturnMessage(dat, true);
-//			delete dat;
-//			return retMsg;
+			logger->Log("CDHCPUUsage(): Checking loads", LOGGER_LEVEL_INFO);
+			logger->Log("    CPU 1  min: %u", cdhServer->si.loads[0], LOGGER_LEVEL_DEBUG);
+			logger->Log("    CPU 5  min: %u", cdhServer->si.loads[1], LOGGER_LEVEL_DEBUG);
+			logger->Log("    CPU 15 min: %u", cdhServer->si.loads[2], LOGGER_LEVEL_DEBUG);
 
+			uint8 * buffer = new uint8[12];
+			AddUInt32(buffer, cdhServer->si.loads[0]);
+			AddUInt32(buffer + 4, cdhServer->si.loads[1]);
+			AddUInt32(buffer + 8, cdhServer->si.loads[2]);
+
+			FSWPacket * ret = new FSWPacket(0, CDH_CPU_USAGE_SUCCESS, true, true, MESSAGE_TYPE_DATA, 12, buffer);
+			return ret;
 		}
 
 		FSWPacket * CDHMemUsage(void)
 		{
-			logger->Log("CDHStdTasks: CDHMemUsage(): Unfinished function (variable type)!", LOGGER_LEVEL_FATAL);
+			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+			if(sysinfo(&cdhServer->si) != 0)
+			{
+				logger->Log("CDHStdTasks: CDHMemUsage(): Error", LOGGER_LEVEL_ERROR);
+				FSWPacket * ret = new FSWPacket(0, CDH_MEM_USAGE_FAILURE, false, true, MESSAGE_TYPE_ERROR);
+				return ret;
+			}
 
-//			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
-//			if(sysinfo(&cdhServer->si) != 0)
-//			{
-//				logger->Log("CDHStdTasks: CDHMemUsage(): Error", LOGGER_LEVEL_ERROR);
-//				ErrorMessage err(CDH_MEM_USAGE_FAILURE);
-//				ReturnMessage * ret = new ReturnMessage(&err, false);
-//				return ret;
-//			}
-//
-//			logger->Log("CDHStdTasks: CDHMemUsage(): Checking Memory", LOGGER_LEVEL_INFO);
-//			VariableTypeData memHold(100.0*(259964928.0 - ((float) cdhServer->si.freeram)) / (259964928.0)); //hard-coded total ram: 100*(total - free)/total = percent use
-//
-//			list<VariableTypeData *> params;
-//			params.push_back(&memHold);
-//
-//			DataMessage dat(CDH_MEM_USAGE_SUCCESS, params);
-//			ReturnMessage * retMsg = new ReturnMessage(&dat, true);
-//			return retMsg;
+			logger->Log("CDHStdTasks: CDHMemUsage(): Checking Memory", LOGGER_LEVEL_INFO);
+			float mem = 100.0*(259964928.0 - ((float) cdhServer->si.freeram)) / (259964928.0); //hard-coded total ram: 100*(total - free)/total = percent use
+			logger->Log("    MEM: %f", mem, LOGGER_LEVEL_DEBUG);
+
+
+			uint8 * buffer = new uint8[4];
+			AddFloat(buffer, mem);
+
+			FSWPacket * ret = new FSWPacket(0, CDH_MEM_USAGE_SUCCESS, true, true, MESSAGE_TYPE_DATA, 4, buffer);
+			return ret;
 		}
 
 		//TODO: Fix for updated SD card mounting
 		FSWPacket * CDHStorage(void)
 		{
-			logger->Log("CDHStdTasks: CDHStorage(): Unfinished function (variable type)!", LOGGER_LEVEL_FATAL);
+			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+			if(statvfs((char *) "/", &cdhServer->svfs) != 0)
+			{
+				logger->Log("CDHStdTasks: CDHStorage(): Error", LOGGER_LEVEL_ERROR);
+				FSWPacket * ret = new FSWPacket(0, CDH_STORAGE_FAILURE, false, true, MESSAGE_TYPE_ERROR);
+				return ret;
+			}
 
-//			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
-//			if(statvfs((char *) "/", &cdhServer->svfs) != 0)
-//			{
-//				logger->Log("CDHStdTasks: CDHStorage(): Error", LOGGER_LEVEL_ERROR);
-//				ErrorMessage err(CDH_STORAGE_FAILURE);
-//				ReturnMessage * ret = new ReturnMessage(&err, false);
-//				return ret;
-//			}
-//
-//			logger->Log("CDHStdTasks: CDHStorage(): Checking storage", LOGGER_LEVEL_INFO);
-//
-//			VariableTypeData storageHold((uint32) cdhServer->svfs.f_bfree);
-//
-//			list<VariableTypeData *> params;
-//			params.push_back(&storageHold);
-//
-//			DataMessage dat(CDH_STORAGE_SUCCESS, params);
-//			ReturnMessage * retMsg = new ReturnMessage(&dat, true);
-//			return retMsg;
+			logger->Log("CDHStdTasks: CDHStorage(): Checking storage", LOGGER_LEVEL_INFO);
+			uint32 free = cdhServer->svfs.f_bfree;
+
+			uint8 * buffer = new uint8[4];
+			AddUInt32(buffer, free);
+
+			FSWPacket * ret = new FSWPacket(0, CDH_STORAGE_SUCCESS, true, true, MESSAGE_TYPE_DATA, 4, buffer);
+			return ret;
 		}
 
 		FSWPacket * CDHTempStart(void)
 		{
-			logger->Log("CDHStdTasks: CDHTempStart(): Unfinished function (variable type)!", LOGGER_LEVEL_FATAL);
-
 			// Start all of the sensors
 			bool validStart[4][16];
 			bool success = true;
@@ -151,53 +133,42 @@ namespace Phoenix
 
 		FSWPacket * CDHTempRead(void)
 		{
-			logger->Log("CDHStdTasks: CDHTempRead(): Unfinished function (variable type)!", LOGGER_LEVEL_FATAL);
+			logger->Log("CDHStdTasks: CDHTempRead(): Reading temp sensors", LOGGER_LEVEL_INFO);
 
-//			// Setup
-//			float temperatures[4][16];
-//			list<VariableTypeData *> params;
-//			VariableTypeData tempHold[4][16];
-//
-//			// Read and add to list
-//			for(uint8 bus = 0; bus < 4; bus++){
-//				for(uint8 sensor = 0; sensor < 16; sensor++){
-//					temperatures[bus][sensor] = ReadSensor(bus,sensor);
-//					tempHold[bus][sensor] = VariableTypeData(temperatures[bus][sensor]);
-//					params.push_back(&tempHold[bus][sensor]);
-//				}
-//			}
-//
-//			// Send return
-//			logger->Log("CDHStdTasks: CDHTempRead(): Read sensors", LOGGER_LEVEL_INFO);
-//			DataMessage dat(CDH_TEMP_READ_SUCCESS, params);
-//			ReturnMessage * retMsg = new ReturnMessage(&dat, true);
-//			return retMsg;
+			// Setup
+			float temperatures[4][16];
+			uint8 * buffer = new uint8[64*sizeof(float)];
+
+			// Read and add to list
+			for(uint8 bus = 0; bus < 4; bus++){
+				for(uint8 sensor = 0; sensor < 16; sensor++){
+					temperatures[bus][sensor] = ReadSensor(bus,sensor);
+					AddFloat(buffer + 4*(16*bus + sensor), temperatures[bus][sensor]);
+				}
+			}
+
+			// Send return
+			FSWPacket * ret = new FSWPacket(0, CDH_TEMP_READ_SUCCESS, true, true, MESSAGE_TYPE_DATA, 64*sizeof(float), buffer);
+			return ret;
 		}
 
 		FSWPacket * CDHHotSwaps(void)
 		{
-			logger->Log("CDHStdTasks: CDHHotSwaps(): Unfinished function (variable type)!", LOGGER_LEVEL_FATAL);
+			logger->Log("CDHStdTasks: CDHHotSwaps(): Reading hot swaps", LOGGER_LEVEL_INFO);
 
-//			// Setup
-//			Phoenix::Servers::CDHServer * cdhServer = dynamic_cast<Phoenix::Servers::CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
-//			float vcRead[32];
-//			list<VariableTypeData *> params;
-//			VariableTypeData voltageHold[16];
-//			VariableTypeData currentHold[16];
-//
-//			// Read and add to list
-//			cdhServer->devMan->getHSStatus(vcRead);
-//			for(uint8 i = 0; i < 16; i++){
-//				voltageHold[i] = VariableTypeData(vcRead[i]);
-//				currentHold[i] = VariableTypeData(vcRead[i+16]);
-//				params.push_back(&voltageHold[i]);
-//				params.push_back(&currentHold[i]);
-//			}
-//
-//			logger->Log("CDHStdTasks: CDHHotSwaps(): Read Hot Swaps", LOGGER_LEVEL_INFO);
-//			DataMessage dat(CDH_HOT_SWAPS_SUCCESS, params);
-//			ReturnMessage * retMsg = new ReturnMessage(&dat, true);
-//			return retMsg;
+			// Setup
+			Phoenix::Servers::CDHServer * cdhServer = dynamic_cast<Phoenix::Servers::CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
+			float vcRead[32];
+			uint8 * buffer = new uint8[32*sizeof(float)];
+
+			// Read and add to buffer
+			cdhServer->devMan->getHSStatus(vcRead);
+			for(uint8 i = 0; i < 32; i++){
+				AddFloat(buffer + i, vcRead[i]);
+			}
+
+			FSWPacket * ret = new FSWPacket(0, CDH_HOT_SWAPS_SUCCESS, true, true, MESSAGE_TYPE_DATA, 64*sizeof(float), buffer);
+			return ret;
 		}
 
 		//TODO: check more information

@@ -67,6 +67,8 @@ namespace Phoenix
 
             FSWPacket(uint32 timestampIn, uint8 opcodeIn, bool successIn, bool responseIn, MessageTypeEnum typeIn);
 
+            FSWPacket(uint32 timestampIn, uint8 opcodeIn, bool successIn, bool responseIn, MessageTypeEnum typeIn, uint16 lengthIn, uint8 * messageIn);
+
             /*! \brief Constructor for the FSWPacket Class
              *
              *  Creates a packet object from the given buffer as specified in
@@ -180,6 +182,8 @@ namespace Phoenix
             void SetResponse(bool responseIn);
 
             void SetSuccess(bool successIn);
+
+            void SetOpcode(uint8 opcodeIn);
 
             /*! \brief Flattens the calling object into the given buffer.
              *
