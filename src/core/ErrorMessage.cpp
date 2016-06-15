@@ -23,7 +23,7 @@ namespace Phoenix
         {
         	// Intentionally left empty
         }
-        
+
         ErrorMessage::ErrorMessage(MessageCodeType opcodeIn, const VariableTypeData & parameterIn)
                              :MultiDataMessage(opcodeIn, parameterIn)
 		{
@@ -41,12 +41,12 @@ namespace Phoenix
         {
         	// Intentionally left empty
         }
-        
+
         ErrorMessage::~ErrorMessage(void )
         {
         	// Intentionally left empty
         }
-        
+
         MessageTypeEnum ErrorMessage::GetType() const
 		{
         	return MESSAGE_TYPE_ERROR;

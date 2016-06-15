@@ -82,18 +82,18 @@ FSWPacket * EPSErrorHandler::Handle(const FSWPacket & packet)
 
 FSWPacket * EPSPowerHandler::Handle(const FSWPacket & packet)
 {
-	void * outputArray[numParams] = {NULL};
-	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
-	{
-		FSWPacket * ret = new FSWPacket(0, EPS_POWER_SUB_FAILURE, false, false, MESSAGE_TYPE_ERROR);
-		return ret;
-	}
-	
-	uint32 time = *(uint32 *) outputArray[2];
-	uint32 subsystem_hold = *(uint32 *) outputArray[0];
-	bool onOff = *(bool *) outputArray[1];
-	PowerSubsystemEnum subsystem = static_cast<PowerSubsystemEnum>(subsystem_hold);
-
-	return(EPSPowerSubsystems(subsystem, onOff, time));
+//	void * outputArray[numParams] = {NULL};
+//	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
+//	{
+//		FSWPacket * ret = new FSWPacket(0, EPS_POWER_SUB_FAILURE, false, false, MESSAGE_TYPE_ERROR);
+//		return ret;
+//	}
+//
+//	uint32 time = *(uint32 *) outputArray[2];
+//	uint32 subsystem_hold = *(uint32 *) outputArray[0];
+//	bool onOff = *(bool *) outputArray[1];
+//	PowerSubsystemEnum subsystem = static_cast<PowerSubsystemEnum>(subsystem_hold);
+//
+//	return(EPSPowerSubsystems(subsystem, onOff, time));
 }
 

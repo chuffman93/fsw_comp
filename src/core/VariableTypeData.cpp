@@ -76,7 +76,7 @@ namespace Phoenix
 		{
 			data = new ArrayDatatype(dataIn);
 		}
-		
+
 		VariableTypeData::VariableTypeData(FSWPacket dataIn)
 						 : type(VAR_TYPE_ENUM_PACKET)
 		{
@@ -137,7 +137,7 @@ namespace Phoenix
         		data = NULL;
         	}
         }
-        
+
         VariableTypeData::VariableTypeData(const VariableTypeData & source)
         {
         	// Copy the type.
@@ -158,12 +158,12 @@ namespace Phoenix
         		data = source.data->Duplicate( );
         	}
         }
-        
+
         VariableTypeData::~VariableTypeData(void )
         {
         	delete data;
         }
-        
+
         VariableTypeData & VariableTypeData::operator=(const VariableTypeData & source)
         {
         	delete data;
@@ -183,12 +183,12 @@ namespace Phoenix
         	}
         	return *this;
         }
-        
+
         VariableTypeEnum VariableTypeData::GetType(void ) const
         {
         	return type;
         }
-        
+
         void * VariableTypeData::GetData(void ) const
         {
         	if (data != NULL)
@@ -200,7 +200,7 @@ namespace Phoenix
         		return NULL;
         	}
         }
-        
+
         bool VariableTypeData::operator ==(const VariableTypeData & check) const
 		{
         	if (type == check.type)
@@ -237,7 +237,7 @@ namespace Phoenix
 
         	return size;
         }
-        
+
         std::size_t VariableTypeData::Flatten(uint8 * buffer, std::size_t size) const
         {
         	size_t numCopied = 0;

@@ -120,7 +120,7 @@ TEST(TestFSWPacket, testPacketLog){
 
 	FSWPacket * testPacket = new FSWPacket(testBuf, 18);
 
-	bool success = fileHandler->Loog(SUBSYSTEM_EPS, testPacket);
+	bool success = fileHandler->Log(SUBSYSTEM_EPS, testPacket);
 	ASSERT_TRUE(success);
 
 	free(testBuf);

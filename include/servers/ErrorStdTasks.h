@@ -15,16 +15,16 @@ namespace Phoenix
 {
 	namespace Servers
 	{
-		void EPSError(int opcode, Phoenix::Core::MultiDataMessage * dataMessage);
-		void COMError(int opcode, Phoenix::Core::MultiDataMessage * dataMessage);
-		void PLDError(int opcode, Phoenix::Core::MultiDataMessage * dataMessage);
-		void ACSError(int opcode, Phoenix::Core::MultiDataMessage * dataMessage);
-		void GPSError(int opcode, Phoenix::Core::MultiDataMessage * dataMessage);
-		void THMError(int opcode, Phoenix::Core::MultiDataMessage * dataMessage);
-		void SCHError(int opcode, Phoenix::Core::MultiDataMessage * dataMessage);
-		void CMDError(int opcode, Phoenix::Core::MultiDataMessage * dataMessage);
-		void CDHError(int opcode, Phoenix::Core::MultiDataMessage * dataMessage);
-		void FileHandlerError(int opcode, Phoenix::Core::MultiDataMessage * retMsg);
+		void EPSError(int opcode, Phoenix::Core::FSWPacket * packet);
+		void COMError(int opcode, Phoenix::Core::FSWPacket * packet);
+		void PLDError(int opcode, Phoenix::Core::FSWPacket * packet);
+		void ACSError(int opcode, Phoenix::Core::FSWPacket * packet);
+		void GPSError(int opcode, Phoenix::Core::FSWPacket * packet);
+		void THMError(int opcode, Phoenix::Core::FSWPacket * packet);
+		void SCHError(int opcode, Phoenix::Core::FSWPacket * packet);
+		void CMDError(int opcode, Phoenix::Core::FSWPacket * packet);
+		void CDHError(int opcode, Phoenix::Core::FSWPacket * packet);
+		void FileHandlerError(int opcode, Phoenix::Core::FSWPacket * packet);
 		
 		void THMPowerReset(PowerSubsystemEnum which);
 

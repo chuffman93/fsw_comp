@@ -36,103 +36,16 @@ namespace Phoenix
             type = (MessageTypeEnum) 0;
             opcode = 0;
             length = 0;
-            messagePtr = NULL;
+            //messagePtr = NULL;
             messageBuf = NULL;
         }
-
-        FSWPacket::FSWPacket(LocationIDType sourceIn, LocationIDType destIn, uint16 numberIn, uint32 timestampIn, Message * messageIn)
-        {
-        	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-        	logger->Log("FSW Packet: outdated constructor called!", LOGGER_LEVEL_ERROR);
-            source = sourceIn;
-            destination = destIn;
-            timestamp = timestampIn;
-            opcode = messageIn->GetOpcode();
-            // TODO: add the following
-            status = 0;
-            response = 0;
-			success = 0;
-			type = (MessageTypeEnum) 0;
-			length = 0;
-            messageBuf = NULL; //TODO: remove this
-            if (messageIn != NULL)
-            {
-                messagePtr = messageIn->Duplicate();
-            }
-            else
-            {
-                messagePtr = NULL;
-                number = numberIn;
-                return;
-            }
-			
-            if (NULL == messagePtr)
-            {
-                source = LOCATION_ID_INVALID;
-                destination = LOCATION_ID_INVALID;
-                number = 0;
-                return;
-            }
-			
-            if(messagePtr->IsResponse())
-            {
-                number = numberIn;
-            }
-            else
-            {
-                number = packetCounter++;
-            }
-        }
-
-        FSWPacket::FSWPacket(LocationIDType sourceIn, LocationIDType destIn, uint16 numberIn, uint32 timestampIn, uint8 opcodeIn, uint8 * messageIn)
-		{
-			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-			logger->Log("FSW Packet: outdated constructor called!", LOGGER_LEVEL_ERROR);
-			source = sourceIn;
-			destination = destIn;
-			timestamp = timestampIn;
-			opcode = opcodeIn;
-			status = 0;
-			response = 0;
-			success = 0;
-			type = (MessageTypeEnum) 0;
-			length = 0;
-			messagePtr = NULL; //TODO: remove this
-			if (messageIn != NULL)
-			{
-				messageBuf = messageIn;
-			}
-			else
-			{
-				messageBuf = NULL;
-				number = numberIn;
-				return;
-			}
-
-			if (NULL == messageBuf)
-			{
-				source = LOCATION_ID_INVALID;
-				destination = LOCATION_ID_INVALID;
-				number = 0;
-				return;
-			}
-
-			if(messagePtr->IsResponse())
-			{
-				number = numberIn;
-			}
-			else
-			{
-				number = packetCounter++;
-			}
-		}
 
         FSWPacket::FSWPacket(uint8 * buffer, std::size_t size_in)
         {
         	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
         	logger->Log("Creating FSWPacket from buffer of size %d\n", (int) size_in, LOGGER_LEVEL_DEBUG);
 
-        	messagePtr = NULL; // TODO: remove messagePtr from class
+        	//messagePtr = NULL; // TODO: remove messagePtr from class
 
         	std::size_t size = size_in;
 
@@ -232,11 +145,11 @@ namespace Phoenix
 			status = 0;
 			opcode = opcodeIn;
 			length = 0;
-			messagePtr = NULL;
+			//messagePtr = NULL;
 			messageBuf = NULL;
         }
 
-        FSWPacket::FSWPacket(LocationIDType sourceIn, LocationIDType destIn, uint32 timestampIn, uint8 opcodeIn, bool successIn, bool responseIn, MessageTypeEnum typeIn, uint8 * messageIn){
+        FSWPacket::FSWPacket(LocationIDType sourceIn, LocationIDType destIn, uint32 timestampIn, uint8 opcodeIn, bool successIn, bool responseIn, MessageTypeEnum typeIn, uint16 lengthIn, uint8 * messageIn){
 			destination = destIn;
 			source = sourceIn;
 			number = 0;
@@ -246,8 +159,8 @@ namespace Phoenix
 			response = responseIn;
 			status = 0;
 			opcode = opcodeIn;
-			length = 0;
-			messagePtr = NULL;
+			length = lengthIn;
+			//messagePtr = NULL;
 			messageBuf = messageIn;
 		}
 
@@ -262,7 +175,7 @@ namespace Phoenix
 			status = 0;
 			opcode = opcodeIn;
 			length = 0;
-			messagePtr = NULL;
+			//messagePtr = NULL;
 			messageBuf = NULL;
 		}
 
@@ -277,7 +190,7 @@ namespace Phoenix
 			status = 0;
 			opcode = opcodeIn;
 			length = lengthIn;
-			messagePtr = NULL;
+			//messagePtr = NULL;
 			messageBuf = messageIn;
 		}
 
@@ -293,13 +206,14 @@ namespace Phoenix
             type = packetSource.GetType();
             opcode = packetSource.GetOpcode();
             length = packetSource.GetMessageLength();
-            messagePtr = packetSource.GetMessagePtr();
+            //messagePtr = packetSource.GetMessagePtr();
             messageBuf = packetSource.GetMessageBufPtr();
         }
 
         FSWPacket::~FSWPacket(void )
         {
-            delete messagePtr;
+            printf("FSWPacket destructor called");
+        	//delete messagePtr;
             free(messageBuf);
             //messagePtr = NULL;
         }
@@ -315,14 +229,14 @@ namespace Phoenix
             SetDestination(source.GetDestination());
             SetNumber(source.GetNumber());
             SetTimestamp(source.GetTimestamp());
-            if (NULL == source.GetMessagePtr())
-            {
-                messagePtr = NULL;
-            }
-            else
-            {
-                messagePtr = source.GetMessagePtr();
-            }
+//            if (NULL == source.GetMessagePtr())
+//            {
+//                messagePtr = NULL;
+//            }
+//            else
+//            {
+//                messagePtr = source.GetMessagePtr();
+//            }
 
             return *this;
         }
@@ -348,10 +262,10 @@ namespace Phoenix
             return timestamp;
         }
 
-        Message * FSWPacket::GetMessagePtr(void) const
-        {
-            return messagePtr;
-        }
+//        Message * FSWPacket::GetMessagePtr(void) const
+//        {
+//            return messagePtr;
+//        }
 
         uint8 * FSWPacket::GetMessageBufPtr(void) const
         {
@@ -401,16 +315,16 @@ namespace Phoenix
 
         bool FSWPacket::operator==(const FSWPacket & check) const
 		{
-            if (messagePtr == NULL)
-            {
-                return false;
-            }
+//            if (messagePtr == NULL)
+//            {
+//                return false;
+//            }
 
             return ((source == check.source) &&
                     (destination == check.destination) &&
                     (number == check.number) &&
-                    (timestamp == check.timestamp) &&
-                    (*messagePtr == check.messagePtr));
+                    (timestamp == check.timestamp));// &&
+                    //(*messagePtr == check.messagePtr));
 		}
 
         void FSWPacket::SetSource(LocationIDType newSource)
@@ -433,11 +347,11 @@ namespace Phoenix
             timestamp = newTimestamp;
         }
 
-        void FSWPacket::SetMessage(Message * newMessage)
-        {
-            delete messagePtr;
-            messagePtr = newMessage->Duplicate();
-        }
+//        void FSWPacket::SetMessage(Message * newMessage)
+//        {
+//            delete messagePtr;
+//            messagePtr = newMessage->Duplicate();
+//        }
 
         void FSWPacket::SetMessageBuf(uint8 * newPtr){
         	delete messageBuf;

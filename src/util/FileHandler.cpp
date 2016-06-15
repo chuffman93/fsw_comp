@@ -333,6 +333,7 @@ bool FileHandler::Log(FileHandlerIDEnum subsystem, const Phoenix::Core::FSWPacke
 	if((size - (bufferPtr - buffer)) != packet->GetMessageLength()){
 		printf("%u != %u", (bufferPtr-buffer), packet->GetMessageLength());
 		logger->Log("FileHandler: Log(): Message length error!", LOGGER_LEVEL_ERROR);
+		delete[] buffer;
 		return false;
 	}
 

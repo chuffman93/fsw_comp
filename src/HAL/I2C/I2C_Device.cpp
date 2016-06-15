@@ -12,6 +12,9 @@
 #include <linux/i2c-dev.h>
 #include <sys/ioctl.h>
 
+#include "util/Logger.h"
+#include "core/StdTypes.h"
+
 namespace Phoenix
 {
 	namespace HAL
@@ -19,10 +22,7 @@ namespace Phoenix
 		I2C_Device::I2C_Device(int bus, uint8_t address){
 
 			i2c_chip_info.slave_addr = address >> 1;
-
-			char filename[20];
-			sprintf(filename, "/dev/i2c-%d", bus);
-
+			sprintf(i2c_chip_info.filename, "/dev/i2c-%d", bus);
 
 		}
 
@@ -35,14 +35,16 @@ namespace Phoenix
 				return false;
 			}
 			if(ioctl(fd, I2C_SLAVE, i2c_chip_info.slave_addr) < 0){
+				close(fd);
 				return false;
 			}
 
 			int retval = write(fd, buffer, numBytes);
 			close(fd);
 
-			if(retval != numBytes)
+			if(retval != numBytes){
 				return false;
+			}
 			return true;
 		}
 
@@ -51,19 +53,26 @@ namespace Phoenix
 		}
 
 		bool I2C_Device::I2C_read(uint8_t* buffer, int numBytes){
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			logger->Log("I2CDevice Filename: %s", i2c_chip_info.filename, LOGGER_LEVEL_DEBUG);
 			int fd = open(i2c_chip_info.filename, O_RDONLY);
 			if(fd < 0){
+				logger->Log("----I2C_Device: file descriptor error", LOGGER_LEVEL_DEBUG);
 				return false;
 			}
 			if(ioctl(fd, I2C_SLAVE, i2c_chip_info.slave_addr) < 0){
-							return false;
+				logger->Log("----I2C_Device: ioctl error", LOGGER_LEVEL_DEBUG);
+				close(fd);
+				return false;
 			}
 
 			int retval = read(fd, buffer, numBytes);
 			close(fd);
 
-			if(retval != numBytes)
+			if(retval != numBytes){
+				logger->Log("----I2C_Device: Num bytes error", LOGGER_LEVEL_DEBUG);
 				return false;
+			}
 			return true;
 		}
 		uint8_t I2C_Device::I2C_readReg(uint8_t reg){

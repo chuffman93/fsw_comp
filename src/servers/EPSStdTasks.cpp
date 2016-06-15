@@ -41,9 +41,9 @@ namespace Phoenix
 			FSWPacket * HSRet = DispatchPacket(HSQuery);
 			logger->Log("EPSStdTasks: EPSHealthStat(): packet dispatched, HSRet acquired", LOGGER_LEVEL_INFO);
 			if(HSRet == NULL){
-				printf("Null HSRet\n");
+				logger->Log("EPSStdTasks: Null HSRet", LOGGER_LEVEL_ERROR);
 			}
-			printf("Length: %u\n", HSRet->GetMessageLength());
+
 			if(HSRet->GetMessageLength() != 6*sizeof(uint16)){
 				logger->Log("EPSStdTasks: EPSHealthStat(): incorrect message length!", LOGGER_LEVEL_WARN);
 
@@ -51,7 +51,6 @@ namespace Phoenix
 				return HSRet;
 			}else{
 				// Parse buffer
-				printf("pointer\n");
 				uint8 * msgPtr = HSRet->GetMessageBufPtr();
 				if(msgPtr==NULL){
 					//Error
@@ -59,7 +58,6 @@ namespace Phoenix
 				}
 				uint16 outputArray[6];
 				for(uint8 i = 0; i < 6; i++){
-					printf("Loop\n");
 					outputArray[i] = GetUInt16(msgPtr);
 					msgPtr += 2;
 				}

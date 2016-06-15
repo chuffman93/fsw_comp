@@ -3,7 +3,7 @@
  *
  * Created: 7/25/2013 3:56:24 PM
  *  Author: Admin
- */ 
+ */
 
 #include "core/PacketDatatype.h"
 #include "core/FSWPacket.h"
@@ -37,8 +37,8 @@ namespace Phoenix
 			}
 
 			data = new FSWPacket(buffer, size);
-			
-			if(data == NULL || data->GetSource() == LOCATION_ID_INVALID || data->GetDestination() == LOCATION_ID_INVALID || data->GetMessagePtr() == NULL)
+
+			if(data == NULL || data->GetSource() == LOCATION_ID_INVALID || data->GetDestination() == LOCATION_ID_INVALID || data->GetMessageBufPtr() == NULL)
 			{
 				if(data != NULL)
 				{

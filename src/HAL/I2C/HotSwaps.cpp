@@ -45,19 +45,17 @@ namespace Phoenix
 			uint8_t buf[3];
 			bool read = I2C_read(buf, 3);
 			if(read){
-				char log[20];
-				sprintf(log,"Hot Swap Buffer: %x %x %x",buf[0],buf[1],buf[2]);
-				logger->Log(log,LOGGER_LEVEL_DEBUG);
-
 				uint16_t voltRaw = (buf[0]<<4) | (0x0F & (buf[2]>>4));
 				uint16_t currRaw = (buf[1]<<4) | (0x0F & buf[2]);
 
-				*Voltage = 23.65 * ((float)voltRaw/4096); //Volts
+				*Voltage = 26.35 * ((float)voltRaw/4096); //Volts
 				*Current = 0.10584 * ((float)currRaw/4096) / SenseResistorValue; //Current
+				logger->Log("    HotSwap Voltage: %f", *Voltage, LOGGER_LEVEL_DEBUG);
+				logger->Log("    HotSwap Current: %f", *Current , LOGGER_LEVEL_DEBUG);
 			}else{
 				*Voltage = -1001;
 				*Current = -1001;
-				logger->Log("HotSwaps: Error reading hot swap!", LOGGER_LEVEL_ERROR);
+				logger->Log("    HotSwaps: Error reading hot swap!", LOGGER_LEVEL_ERROR);
 			}
 		}
 

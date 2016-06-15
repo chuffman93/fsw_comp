@@ -105,7 +105,7 @@ namespace Phoenix
 			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
 			//Check if there are errors in the queue.
-			FSWPacket * tmpPacket;
+			FSWPacket * error;
 			size_t num = 0;
 			uint64_t LastWakeTime = 0;
 			while(1)
@@ -119,61 +119,60 @@ namespace Phoenix
 				{
 					printf("ErrorOctopus Errors Received!\n");
 					//add error event logger here
-					tmpPacket = que->GetNextError();
-					LocationIDType source = tmpPacket->GetSource();
-					MultiDataMessage * Msg = dynamic_cast<MultiDataMessage *> (tmpPacket->GetMessagePtr());
-					MessageCodeType opcode = Msg->GetOpcode();
+					error = que->GetNextError();
+					LocationIDType source = error->GetSource();
+					MessageCodeType opcode = error->GetOpcode();
 					//fileHandler->logAppend(LOG_ERROR, source, opcode);
 					switch (source)
 					{
 						case HARDWARE_LOCATION_EPS:
-							EPSError(opcode, Msg);
+							EPSError(opcode, error);
 							break;
 						case HARDWARE_LOCATION_ACS:
-							ACSError(opcode, Msg);
+							ACSError(opcode, error);
 							break;
 						case HARDWARE_LOCATION_PROP:
 							//DAFAQ is prop?
 							break;
 						case HARDWARE_LOCATION_THM:
-							THMError(opcode, Msg);
+							THMError(opcode, error);
 							break;
 						case HARDWARE_LOCATION_PLD:
-							PLDError(opcode, Msg);
+							PLDError(opcode, error);
 							break;
 						case HARDWARE_LOCATION_GPS:
-							GPSError(opcode, Msg);
+							GPSError(opcode, error);
 							break;
 						case SERVER_LOCATION_COM:
-							COMError(opcode, Msg);
+							COMError(opcode, error);
 							break;
 						case SERVER_LOCATION_EPS:
-							EPSError(opcode, Msg);
+							EPSError(opcode, error);
 							break;
 						case SERVER_LOCATION_ACS:
-							ACSError(opcode, Msg);
+							ACSError(opcode, error);
 							break;
 						case SERVER_LOCATION_PROP:
 							//Seriously though wtf is propulsion?
 							break;
 						case SERVER_LOCATION_PLD:
-							PLDError(opcode, Msg);
+							PLDError(opcode, error);
 							break;
 						case SERVER_LOCATION_GPS:
-							GPSError(opcode, Msg);
+							GPSError(opcode, error);
 							break;
 						case SERVER_LOCATION_THM:
 							printf("Thermal Error!\n");
-							THMError(opcode, Msg);
+							THMError(opcode, error);
 							break;
 						case SERVER_LOCATION_SCH:
-							SCHError(opcode, Msg);
+							SCHError(opcode, error);
 							break;
 						case SERVER_LOCATION_CMD:
-							CMDError(opcode, Msg);
+							CMDError(opcode, error);
 							break;
 						case SERVER_LOCATION_CDH:
-							CDHError(opcode, Msg);
+							CDHError(opcode, error);
 							break;
 						case SERVER_LOCATION_ERR:
 							//TODO: Error server throwing errors?
@@ -183,7 +182,7 @@ namespace Phoenix
 							//TODO: WTF WHERE DID THIS ERROR COME FROM!
 							break;
 					}
-					delete tmpPacket;
+					delete error;
 					//update number of messages remaining.
 					num = que->ErrorsWaiting();
 				}

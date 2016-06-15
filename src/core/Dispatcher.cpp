@@ -18,33 +18,13 @@
 #include <signal.h>
 #include <fcntl.h>
 #include <string>
-//#include "util/crc.h"
 #include "core/CommandMessage.h"
 #include "../src/HAL/Ethernet_Server.h"
 #include "HAL/SPI_Server.h"
 #include "servers/CMDServer.h"
 #include "POSIX.h"
 
-//#include "boards/backplane/dbg_led.h"
-
-#ifndef WIN32
-//extern "C"
-//{
-//#include "utils/debug/print_funcs.h"
-//#include "util/delay.h"
-//#include "drivers/cycle_counter.h"
-//#include "drivers/gpio.h"
-
-//#define PROFILING_PIN AVR32_PIN_PA25
-//#define CLR_PROF_PIN() gpio_local_clr_gpio_pin(PROFILING_PIN);
-//#define TGL_PROF_PIN() gpio_local_tgl_gpio_pin(PROFILING_PIN);
-//}
-//#else
-//#define CLR_PROF_PIN()
-#endif // WIN32
-
 using namespace std;
-//using namespace Phoenix::HAL;
 
 #define DISPATCHER_DEBUG			1
 
@@ -74,46 +54,9 @@ namespace Phoenix
     	char * Dispatcher::queueName = "/queueHandle";
     	size_t timer;
 
-//
-//    	char * Dispatcher::getQueueName()
-//    	{
-//    		return subsystemQueueName;
-//    	}
-//
-//    	mqd_t * Dispatcher::getQueueHandle()
-//    	{
-//    		return &subsystemQueueHandle;
-//    	}
-//
-//    	struct mq_attr * Dispatcher::getQueueAttr()
-//    	{
-//    		return &subsystemQueueAttr;
-//    	}
-
 void Dispatcher::Initialize(void)
 {
-	// Create the mutex and queue through the operating system.
-//    		char * name = getQueueName();
-//            subQinit = mqCreate(getQueueHandle(), getQueueAttr(), name);
-
-
-/*
-#ifndef WIN32
-	// Register subsystem interrupts
-	// TODO: Add other subsystems
-	IntInit();
-	IntInitPinInterrupt(INTERRUPT_PIN_PLD, &subsystemInterruptHandler, INTERRUPT_LEVEL_0, INTERRUPT_PULL_DOWN);
-	IntInitPinInterrupt(INTERRUPT_PIN_ACS, &subsystemInterruptHandler, INTERRUPT_LEVEL_0, INTERRUPT_PULL_DOWN);
-	IntInitPinInterrupt(INTERRUPT_PIN_EPS, &subsystemInterruptHandler, INTERRUPT_LEVEL_0, INTERRUPT_PULL_DOWN);
-	IntInitPinInterrupt(INTERRUPT_PIN_COM, &subsystemInterruptHandler, INTERRUPT_LEVEL_0, INTERRUPT_PULL_DOWN);
-	CREATE_TASK(DispatcherTask,
-			(const signed char* const)"Dispatcher",
-			1500,
-			NULL,
-			configMAX_PRIORITIES - 2,
-			NULL);
-#endif // WIN32
-*/
+	// Intentionally left empty
 }
 
 
@@ -237,45 +180,6 @@ bool Dispatcher::Dispatch(FSWPacket & packet)
 	}
 }
 
-// TODO: remove this method
-DispatcherStatusEnum Dispatcher::WaitForDispatchResponse(const FSWPacket & packet, ReturnMessage & returnMessage)
-{
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	FSWPacket * ret;
-	ReturnMessage * retMsg;
-	size_t i;
-	logger->Log("   Dispatcher: WaitForDispatchResponse() called", LOGGER_LEVEL_DEBUG);
-	for (i = 0; i < DISPATCHER_MAX_RESPONSE_TRIES; ++i)
-	{
-		if (CheckQueueForMatchingPacket(packet, ret,
-				&Dispatcher::IsPacketMatchingResponse))
-		{
-			logger->Log("    Dispatcher: WaitForDispatchResponse(): Matching FSWPacket found.", LOGGER_LEVEL_DEBUG);
-			// Return the result
-			retMsg = dynamic_cast<ReturnMessage *> (ret->GetMessagePtr( ));
-			returnMessage = (NULL == retMsg ? ReturnMessage( ) : *retMsg);
-			delete ret;
-			return DISPATCHER_STATUS_OK;
-		}
-		usleep(DISPATCHER_WAIT_TIME);
-	}
-
-	// At this point, see if the command we sent has been received at least.
-	logger->Log("   Dispatch:  See if the packet we sent has been received.", LOGGER_LEVEL_DEBUG);
-	//debug_led_set_led(6, LED_ON);
-
-	if (CheckQueueForMatchingPacket(packet, ret,
-			&Dispatcher::IsPacketSame))
-	{
-		// The command was not received, so it has been removed from the queue.
-		delete ret;
-		return DISPATCHER_STATUS_MSG_NOT_RCVD;
-	}
-	// The command was received, but no response has been placed in
-	// the queue, so return that the operation failed.
-	return DISPATCHER_STATUS_MSG_RCVD_NO_RESP_SENT;
-}
-
 DispatcherStatusEnum Dispatcher::WaitForDispatchResponse(const FSWPacket & packet, FSWPacket ** retPacketin)
 {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
@@ -315,7 +219,9 @@ DispatcherStatusEnum Dispatcher::WaitForDispatchResponse(const FSWPacket & packe
 
 bool Dispatcher::Listen(LocationIDType serverID)
 {
-	FSWPacket * packet, tmpPacket;
+	FSWPacket * packet;
+	FSWPacket tmpPacket;
+
 	IteratorType it;
 
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
@@ -608,7 +514,8 @@ bool Dispatcher::SendErrorResponse(ErrorOpcodeEnum errorCode,
 	src = packet->GetSource( );
 	packet->SetSource(packet->GetDestination( ));
 	packet->SetDestination(src);
-	packet->SetMessage(ret);
+	//packet->SetMessage(ret);
+	packet->SetMessageBuf(NULL);
 	delete ret;
 	while (!mq_timed_send(queueName, &packet, MAX_BLOCK_TIME, 0));
 	return true;

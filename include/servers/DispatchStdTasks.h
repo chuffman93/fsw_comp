@@ -39,56 +39,6 @@ namespace Phoenix
 		
 		Phoenix::Core::FSWPacket * DispatchPacket(Phoenix::Core::FSWPacket * packet);
 		
-		/*!	\brief Dispatches a message with no parameters.
-		*
-		*	\param source: source of the packet to send.
-		*	\param destination: destination of the packet to send.
-		*	\param number: number field for the packet to send.
-		*	\param timestamp: timestamp field for the packet to send.
-		*	\param type: type of message to construct for the packet to send.
-		*	\param opCode: opCode of the message to construct for the packet to send.
-		*	
-		*	\return NULL if improperly formated, error message if dispatch fails,
-		*	and the response message if dispatched successfully.
-		*/
-		Phoenix::Core::ReturnMessage * DispatchPacket(LocationIDType source, LocationIDType destination, uint16 number,
-				uint32 timestamp, MessageTypeEnum type, MessageCodeType opCode);
-
-		Phoenix::Core::FSWPacket * DispatchPacket(LocationIDType source, LocationIDType destination, uint16 number,
-						uint32 timestamp, MessageTypeEnum type, MessageCodeType opCode, int testvar);
-				
-		/*!	\brief Dispatches a message with one parameter.
-		*
-		*	\param source: source of the packet to send.
-		*	\param destination: destination of the packet to send.
-		*	\param number: number field for the packet to send.
-		*	\param timestamp: timestamp field for the packet to send.
-		*	\param type: type of message to construct for the packet to send.
-		*	\param opCode: opCode of the message to construct for the packet to send.
-		*	\param parameterIn: single parameter to add to the message.
-		*	
-		*	\return NULL if improperly formated, error message if dispatch fails,
-		*	and the response message if dispatched successfully.
-		*/
-		Phoenix::Core::ReturnMessage * DispatchPacket(LocationIDType source, LocationIDType destination, uint16 number,
-				uint32 timestamp, MessageTypeEnum type, MessageCodeType opCode, const Phoenix::Core::VariableTypeData & parameterIn);
-				
-		/*!	\brief Dispatches a message with a list parameters.
-		*
-		*	\param source: source of the packet to send.
-		*	\param destination: destination of the packet to send.
-		*	\param number: number field for the packet to send.
-		*	\param timestamp: timestamp field for the packet to send.
-		*	\param type: type of message to construct for the packet to send.
-		*	\param opCode: opCode of the message to construct for the packet to send.
-		*	\param parametersIn: parameter list to set for the message.
-		*
-		*	\return NULL if improperly formated, error message if dispatch fails,
-		*	and the response message if dispatched successfully.
-		*/
-		Phoenix::Core::ReturnMessage * DispatchPacket(LocationIDType source, LocationIDType destination, uint16 number,
-				uint32 timestamp, MessageTypeEnum type, MessageCodeType opCode, const std::list<Phoenix::Core::VariableTypeData*> & parametersIn);
-		
 		/*!	\brief Extracts parameters from a packet.
 		*
 		*	\param packet: packet to extract parameters from.

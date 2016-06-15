@@ -42,16 +42,16 @@ FSWPacket * COMBeaconHandler::Handle(const FSWPacket & packet)
 
 FSWPacket * COMDataSendHandler::Handle(const FSWPacket & packet)
 {
-	DEBUG_COUT("		COMDataSendHandler:: handle caled...");
-	void * outputArray[numParams] = {NULL};
-	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
-	{
-		FSWPacket * ret = new FSWPacket(0, COM_DATA_SEND_FAILURE, false, true, MESSAGE_TYPE_ERROR);
-		return ret;
-	}
-	std::vector<uint8> data = *(vector<uint8> *) outputArray[0];
-	
-	//return (COMDataSend(data, packet.GetDestination()));
+//	DEBUG_COUT("		COMDataSendHandler:: handle caled...");
+//	void * outputArray[numParams] = {NULL};
+//	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
+//	{
+//		FSWPacket * ret = new FSWPacket(0, COM_DATA_SEND_FAILURE, false, true, MESSAGE_TYPE_ERROR);
+//		return ret;
+//	}
+//	std::vector<uint8> data = *(vector<uint8> *) outputArray[0];
+//
+//	//return (COMDataSend(data, packet.GetDestination()));
 }
 
 FSWPacket * COMLoginHandler::Handle(const FSWPacket & packet)
@@ -72,17 +72,17 @@ FSWPacket * COMResetHandler::Handle(const FSWPacket & packet)
 
 FSWPacket * COMDataReceiveHandler::Handle(const FSWPacket & packet)
 {	
-	//DEBUG_COUT("		COMDataReceiveHandler:: handle called...");
-	void * outputArray[numParams] = {NULL};
-	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
-	{
-		DEBUG_COUT("		COMDataReceiveHandler:: failed parameter extraction...");
-		FSWPacket * ret = new FSWPacket(0, COM_DATA_RECEIVE_FAILURE, false, false, MESSAGE_TYPE_ERROR);
-		return ret;
-	}
-
-	std::vector<uint8> data = *(vector<uint8> *) outputArray[0];
-	
+//	//DEBUG_COUT("		COMDataReceiveHandler:: handle called...");
+//	void * outputArray[numParams] = {NULL};
+//	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
+//	{
+//		DEBUG_COUT("		COMDataReceiveHandler:: failed parameter extraction...");
+//		FSWPacket * ret = new FSWPacket(0, COM_DATA_RECEIVE_FAILURE, false, false, MESSAGE_TYPE_ERROR);
+//		return ret;
+//	}
+//
+//	std::vector<uint8> data = *(vector<uint8> *) outputArray[0];
+//
 	//return (COMDataReceive(data, packet.GetDestination()));
 }
 
