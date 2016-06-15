@@ -260,7 +260,7 @@ int SPI_HALServer::spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, in
 		logger->Log("Waiting for interrupt after byte send", LOGGER_LEVEL_DEBUG);
 		if (true == this->TakeLock(2000)){
 			logger->Log("spi_write: Polling", LOGGER_LEVEL_DEBUG);
-			int retval = poll(fds, 1, timeout);
+			int retval = poll(fds, 1, 10);
 			logger->Log("spi_write: Poll return: %d", retval, LOGGER_LEVEL_DEBUG);
 			this->GiveLock();
 		}
@@ -311,7 +311,7 @@ int SPI_HALServer::spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_bufp){
 		for(i = 0; i < 14; i++){
 			//Wait for interrupt before sending next byte
 			logger->Log("spi_read: Waiting for interrupt", LOGGER_LEVEL_DEBUG);
-			poll(fds, 1, timeout);
+			poll(fds, 1, 10);
 			ret = read(fds->fd, &dummy, 1);
 			logger->Log("spi_read: Reading byte %d: ", buf_pt, LOGGER_LEVEL_DEBUG);
 			tr.tx_buf =  (unsigned long) &tx;
@@ -334,7 +334,7 @@ int SPI_HALServer::spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_bufp){
 		for(i = 0; i < packet_len - 14; i++){
 			//Wait for interrupt before sending next byte
 			logger->Log("spi_read: Waiting for interrupt", LOGGER_LEVEL_DEBUG);
-			poll(fds, 1, timeout);
+			poll(fds, 1, 10);
 			ret = read(fds->fd, &dummy, 1);
 			logger->Log("spi_read: Reading byte %d: ", buf_pt, LOGGER_LEVEL_DEBUG);
 			tr.tx_buf =  (unsigned long) &tx;
@@ -349,7 +349,7 @@ int SPI_HALServer::spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_bufp){
 
 		fds->fd = fd;
 		fds->events = POLLPRI;
-		poll(fds, 1, timeout);
+		poll(fds, 1, 10);
 		read(fds->fd, &dummy, 1);
 
 		*rx_bufp = rx_buf;
