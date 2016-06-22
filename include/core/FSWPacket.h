@@ -23,13 +23,14 @@ namespace Phoenix
         class FSWPacket
         {
         public:
-            // Empty constructor
+
+        	// --- Empty constructor -------------------------------------------------------------------------------------------
             FSWPacket(void);
 
             // --- Constructor from a raw buffer -------------------------------------------------------------------------------
             FSWPacket(uint8 * buffer, std::size_t size);
 
-            // --- Constructors with source/destination ------------------------------------------------------------------------
+            // --- Constructors with for dispatching ---------------------------------------------------------------------------
             FSWPacket(LocationIDType sourceIn, LocationIDType destIn, uint32 timestampIn, uint8 opcodeIn, bool success, bool response, MessageTypeEnum type);
             FSWPacket(LocationIDType sourceIn, LocationIDType destIn, uint32 timestampIn, uint8 opcodeIn, bool success, bool response, MessageTypeEnum type, uint16 lengthIn, uint8 * messageIn);
 
@@ -41,7 +42,6 @@ namespace Phoenix
             FSWPacket(const FSWPacket & source);
 
             virtual ~FSWPacket(void);
-            FSWPacket & operator=(const FSWPacket & source);
             bool operator==(const FSWPacket & comparison) const;
 
             // --- Grab information from a packet ------------------------------------------------------------------------------
@@ -58,7 +58,6 @@ namespace Phoenix
             uint16 GetMessageLength(void) const;
             std::size_t GetPacketCounter(void) const;
 
-
             // --- Set packet information --------------------------------------------------------------------------------------
             void SetSource(LocationIDType newSource);
             void SetDestination(LocationIDType newDestination);
@@ -72,7 +71,7 @@ namespace Phoenix
             // --- Packet flattening -------------------------------------------------------------------------------------------
             virtual std::size_t GetFlattenSize(void ) const;
             virtual std::size_t Flatten(uint8 * buffer, std::size_t size) const;
-			
+
         private:
 
             LocationIDType source;

@@ -55,7 +55,7 @@ namespace Phoenix
 			}else{
 				*Voltage = -1001;
 				*Current = -1001;
-				logger->Log("    HotSwaps: Error reading hot swap!", LOGGER_LEVEL_ERROR);
+				logger->Log("----HotSwaps: Error reading hot swap!", LOGGER_LEVEL_ERROR);
 			}
 		}
 

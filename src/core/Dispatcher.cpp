@@ -49,10 +49,11 @@ namespace Phoenix
 {
     namespace Core
     {
-        // Instantiate static members
-    	char * Dispatcher::subsystemQueueName = "/subsystemQueueHandle";
-    	char * Dispatcher::queueName = "/queueHandle";
-    	size_t timer;
+
+// Instantiate static members
+char * Dispatcher::subsystemQueueName = (char *) "/subsystemQueueHandle";
+char * Dispatcher::queueName = (char *) "/queueHandle";
+size_t timer;
 
 void Dispatcher::Initialize(void)
 {
@@ -251,6 +252,7 @@ bool Dispatcher::Listen(LocationIDType serverID)
 	}
 	else
 	{
+		delete packet;
 		return false;
 	}
 
@@ -261,6 +263,7 @@ bool Dispatcher::Listen(LocationIDType serverID)
 				packet, VariableTypeData( )))
 		{
 		}
+		delete packet;
 		return false;
 	}
 	// A handler exists, so check the permissions
@@ -276,6 +279,7 @@ bool Dispatcher::Listen(LocationIDType serverID)
 				(uint32) arbyRet))
 		{
 		}
+		delete packet;
 		return false;
 	}
 	// Permissions are correct, so invoke it and obtain the resulting message.
@@ -315,6 +319,7 @@ bool Dispatcher::Listen(LocationIDType serverID)
 		pthread_cancel(TaskHandle);
 		sem_destroy(&(parameters.syncSem));
 		sem_destroy(&(parameters.doneSem));
+		delete packet;
 		return false;
 	}
 	pthread_join(TaskHandle, NULL);
@@ -330,6 +335,7 @@ bool Dispatcher::Listen(LocationIDType serverID)
 	ret->SetMessageBuf(parameters.retPacket->GetMessageBufPtr());
 	ret->SetOpcode(parameters.retPacket->GetOpcode());
 	delete parameters.retPacket;
+	delete packet;
 
 	// Send the response back to the server that dispatched the
 	// original message.
@@ -627,372 +633,6 @@ uint32_t Dispatcher::DispatchToHardware( FSWPacket & packet)
 
 	return 0;
 }
-
-
-/*#ifndef WIN32
-uint32_t Dispatcher::DispatchToHardware(HardwareLocationIDEnum loc, const FSWPacket & packet)
-{
-	SPIDeviceEnum dev;
-	uint8_t chip;
-	FSWPacket * packetOut;
-	uint8 out;
-	int i;
-	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-
-	uint32_t ret;
-	//debug_led_set_value(~0);
-
-	if (!GetHardwareDeviceFromLocation(loc, dev, chip))
-	{
-	//	debug_led_set_led(7, LED_ON);
-		return __LINE__;
-	}
-
-	SPIOpen(dev, chip);
-	//debug_led_set_led(1, LED_ON);
-
-	if (0 != SendPacketToHardware(dev, packet))
-	{
-	//	debug_led_set_led(7, LED_ON);
-		SPIClose(dev);
-		return __LINE__;
-	}
-	//debug_led_set_led(2, LED_ON);
-
-	// Wait for the subsystem to finish processing the packet
-	out = 0;
-	i = 0;
-	while (out != 1)
-	{
-		if (!SPIRead(dev, &out, 1))
-		{
-		//	debug_led_set_led(7, LED_ON);
-			SPIClose(dev);
-			return __LINE__;
-		}
-		if(i == MAX_DISPATCHER_LOOP)
-		{
-		//	debug_led_set_led(6, LED_ON);
-			SPIClose(dev);
-			return __LINE__;
-		}
-		cpu_delay_us(PROTOCOL_SPI_DELAY*100, CPU_PBACLK_FREQ_HZ);
-		cpu_delay_us(PROTOCOL_SPI_DELAY*100, CPU_PBACLK_FREQ_HZ);
-		i++;
-	}
-	//debug_led_set_led(3, LED_ON);
-
-	packetOut = new FSWPacket();
-
-	if (0 != (ret = dispatcher->GetPacketFromHardware(dev, *packetOut)))
-	{
-	//	debug_led_set_led(7, LED_ON);
-		delete packetOut;
-		SPIClose(dev);
-		return __LINE__;
-	}
-	//debug_led_set_led(4, LED_ON);
-
-	while (!xQueueSend(queueHandle, (void *)&packetOut, portMAX_DELAY));
-
-	SPIClose(dev);
-	//debug_led_set_led(0, LED_ON);
-
-	return 0;
-}*/
-
-/* bool Dispatcher::GetHardwareDeviceFromLocation(HardwareLocationIDEnum loc, SPIDeviceEnum & dev, uint8_t & chip)
-{
-
-	switch (loc)
-	{
-	case HARDWARE_LOCATION_COM:
-		dev = SUBSYSTEM_SPI;
-		chip = SPI_CHIP_SUBSYSTEM3;
-		break;
-	case HARDWARE_LOCATION_EPS:
-		dev = SUBSYSTEM_SPI;
-		chip = SPI_CHIP_SUBSYSTEM4;
-		break;
-	case HARDWARE_LOCATION_ACS:
-		dev = SUBSYSTEM_SPI;
-		chip = SPI_CHIP_SUBSYSTEM2;
-		break;
-	case HARDWARE_LOCATION_PROP:
-		dev = SUBSYSTEM_SPI;
-		chip = SPI_CHIP_SUBSYSTEM1;
-		break;
-	case HARDWARE_LOCATION_PLD:
-		dev = PAYLOAD_SPI;
-		chip = SPI_CHIP_PAYLOAD;
-		break;
-	default:
-		return false;
-	}
-
-	return true;
-}*/
-
-/*uint32_t Dispatcher::SendPacketToHardware(SPIDeviceEnum dev, const FSWPacket & packet)
-{
-	ReturnMessage retMsg;
-	vector<uint8> messageBuffer;
-	size_t numFrames;
-	unsigned char out = 0;
-	uint8 * buf;
-	int i;
-
-	if(packet.GetFlattenSize() >= MAX_NUMBER_FRAMES*MAX_FRAME_LENGTH)
-	{
-		//debug_led_set_led(7, LED_ON);
-		return __LINE__;
-	}
-
-	buf = new uint8[packet.GetFlattenSize()];
-	if (packet.GetFlattenSize() != packet.Flatten(buf, packet.GetFlattenSize()))
-	{
-		//debug_led_set_led(7, LED_ON);
-		delete buf;
-		return __LINE__;
-	}
-
-	if (packet.GetFlattenSize() == 0)
-	{
-		numFrames = 1;
-	}
-	else
-	{
-		numFrames = ((packet.GetFlattenSize()-1) / MAX_FRAME_LENGTH) + 1;
-	}
-
-	for (size_t frameNum = 0; frameNum < numFrames; ++frameNum)
-	{
-		uint8 pSize;
-		if (frameNum == numFrames - 1)
-		{
-			pSize = packet.GetFlattenSize() % MAX_FRAME_LENGTH;
-		}
-		else
-		{
-			pSize = MAX_FRAME_LENGTH;
-		}
-		out = 0;
-		i = 0;
-		while (out != 1)
-		{
-			if(i == MAX_DISPATCHER_LOOP)
-			{
-				//debug_led_set_led(7, LED_ON);
-				delete buf;
-				return __LINE__;
-			}
-			if (frameNum == 0)
-			{
-				out = numFrames;
-			}
-			else
-			{
-				out = 0x40 | frameNum;
-			}
-			if (!SPIWrite(dev, &out, 1))
-			{
-				//debug_led_set_led(7, LED_ON);
-				delete buf;
-				return __LINE__;
-			}
-
-			cpu_delay_us(PROTOCOL_SPI_DELAY*100, CPU_PBACLK_FREQ_HZ);
-			cpu_delay_us(PROTOCOL_SPI_DELAY*100, CPU_PBACLK_FREQ_HZ);
-			if (!SPIRead(dev, &out, 1))
-			{
-				//debug_led_set_led(7, LED_ON);
-				delete buf;
-				return __LINE__;
-			}
-
-			cpu_delay_us(PROTOCOL_SPI_DELAY*100, CPU_PBACLK_FREQ_HZ);
-			cpu_delay_us(PROTOCOL_SPI_DELAY*100, CPU_PBACLK_FREQ_HZ);
-			i++;
-		}
-		//debug_led_set_led(0, LED_ON);
-
-		// Send packet size
-		if (!SPIWrite(dev, &pSize, 1))
-		{
-			//debug_led_set_led(7, LED_ON);
-			delete buf;
-			return __LINE__;
-		}
-
-		cpu_delay_us(PROTOCOL_SPI_DELAY, CPU_PBACLK_FREQ_HZ);
-		cpu_delay_us(PROTOCOL_SPI_DELAY, CPU_PBACLK_FREQ_HZ);
-
-		for (size_t i = 0; i < pSize; ++i)
-		{
-			if (!SPIWrite(dev, &buf[MAX_FRAME_LENGTH*frameNum+i], 1))
-			{
-				//debug_led_set_led(7, LED_ON);
-				delete buf;
-				return __LINE__;
-			}
-
-			cpu_delay_us(PROTOCOL_SPI_DELAY, CPU_PBACLK_FREQ_HZ);
-			cpu_delay_us(PROTOCOL_SPI_DELAY, CPU_PBACLK_FREQ_HZ);
-		}
-	}
-	delete buf;
-
-	return 0;
-}*/
-
-/* uint32_t Dispatcher::GetPacketFromHardware(SPIDeviceEnum dev, FSWPacket & packet)
-{
-	vector<uint8> messageBuffer;
-	crc_t crc;
-	size_t numPackets;
-	unsigned char out = 0;
-	unsigned char length;
-	uint8 packetNum;
-	crc_t recCrc;
-
-	numPackets = 1;
-
-	packetNum = 0;
-	crc = INITIAL_REMAINDER;
-
-	while (packetNum != numPackets)
-	{
-		if (!SPIRead(dev, &out, 1))
-		{
-			debug_led_set_led(7, LED_ON);
-			return __LINE__;
-		}
-		//debug_led_set_value(~out);
-		//debug_led_set_value(~0);
-		if ((out & 0x40) == 0)
-		{
-			numPackets = out & 0x3f;
-			packetNum = 0;
-		}
-		else
-		{
-			if (packetNum != (out & 0x3f))
-			{
-				debug_led_set_led(7, LED_ON);
-				return __LINE__;
-			}
-		}
-
-		cpu_delay_us(PROTOCOL_SPI_DELAY, CPU_PBACLK_FREQ_HZ);
-		cpu_delay_us(PROTOCOL_SPI_DELAY, CPU_PBACLK_FREQ_HZ);
-
-		if (!SPIRead(dev, &length, 1))
-		{
-			debug_led_set_led(7, LED_ON);
-			return __LINE__;
-		}
-
-		cpu_delay_us(PROTOCOL_SPI_DELAY, CPU_PBACLK_FREQ_HZ);
-		cpu_delay_265us(PROTOCOL_SPI_DELAY, CPU_PBACLK_FREQ_HZ);
-
-		if (length < PACKET_OVERHEAD_SIZE)
-		{
-
-			debug_led_set_value(~length);
-			debug_led_set_value(~0);
-			debug_led_set_led(7, LED_ON);
-			return __LINE__;
-		}
-
-
-		for (size_t i = 0; i < length; ++i)
-		{
-			size_t comp;
-			if (!SPIRead(dev, &out, 1))
-			{
-				debug_led_set_led(7, LED_ON);
-				return __LINE__;
-			}
-
-			cpu_delay_us(PROTOCOL_SPI_DELAY, CPU_PBACLK_FREQ_HZ);
-			cpu_delay_us(PROTOCOL_SPI_DELAY, CPU_PBACLK_FREQ_HZ);
-
-			uint8 temp = out & 0xff;
-
-			if (packetNum != 0)
-			{
-				comp = i + 100;
-			}
-			else
-			{
-				comp = i;
-			}
-
-			switch (comp)
-			{
-			case 0:
-				packet.SetSource((out << 8) & 0xff00);
-				break;
-			case 1:
-				packet.SetSource(packet.GetSource() | (out & 0xff));
-				break;
-			case 2:
-				packet.SetDestination((out << 8) & 0xff00);
-				break;
-			case 3:
-				packet.SetDestination(packet.GetDestination() | (out & 0xff));
-				break;
-			case 4:
-				packet.SetNumber((out << 8) & 0xff00);
-				break;
-			case 5:
-				packet.SetNumber(packet.GetNumber() | (out & 0xff));
-				break;
-			case 6:
-				packet.SetTimestamp(((uint32)out << 24) & 0xff000000);
-				break;
-			case 7:
-				packet.SetTimestamp(packet.GetTimestamp() | (((uint32)out << 16) & 0x00ff0000));
-				break;
-			case 8:
-				packet.SetTimestamp(packet.GetTimestamp() | (((uint32)out << 8)  & 0x0000ff00));
-				break;
-			case 9:
-				packet.SetTimestamp(packet.GetTimestamp() | (out & 0xff));
-				messageBuffer.clear();
-				break;
-			default:
-				messageBuffer.push_back(out);
-				break;
-			}
-
-			if ((packetNum < (numPackets - 1)) || ((packetNum == (numPackets - 1)) && i < length - 2))
-			{
-				crc = crcFast(&temp, 1, crc);
-			}
-		}
-		++packetNum;
-	}
-	//debug_led_set_led(3, LED_ON);
-	recCrc = messageBuffer.back() & 0xff;
-	messageBuffer.pop_back();
-	recCrc |= (messageBuffer.back() << 8) & 0xff00;
-	messageBuffer.pop_back();
-
-	if (recCrc != crc)
-	{
-		debug_led_set_led(7, LED_ON);
-		return __LINE__;
-	}
-
-	packet.SetMessage(NULL);
-	Message * msg = Message::CreateMessage(messageBuffer.data(), messageBuffer.size());
-	packet.SetMessage(msg);
-	delete msg;
-
-	return 0;
-}
-#endif // WIN32*/
 
 Dispatcher::Dispatcher(void)
 		: Singleton(), registryMap()

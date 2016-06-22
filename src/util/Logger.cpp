@@ -12,7 +12,7 @@
 #include <sys/types.h>
 
 // Set desired threshold for logging here
-const LoggerLevelType Logger::threshold = LOGGER_LEVEL_DEBUG;
+const LoggerLevelType Logger::threshold = LOGGER_LEVEL_INFO;
 using namespace Phoenix::Core;
 using namespace std;
 
@@ -103,7 +103,7 @@ void Logger::Log(string message, string str_in, LoggerLevelType level_in){
 }
 
 void Logger::GetInfo(LoggerLevelType level_in){
-	printf("(%d)", getTimeInMilis());
+	printf("(%u)", getTimeInMilis());
 	printf("[PID: %d]", getpid());
 	printf("[TID: %u] ", (uint16) pthread_self());
 

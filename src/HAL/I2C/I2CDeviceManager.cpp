@@ -43,6 +43,15 @@ namespace Phoenix
 			//Intentionally left blank
 		}
 
+		I2CDeviceManager::~I2CDeviceManager(){
+			for(uint8 i = 0; i < 16; i++){
+				if(i < 4){
+					delete powerMonitors[i];
+				}
+				delete hotSwaps[i];
+			}
+		}
+
 		bool I2CDeviceManager::initializeHS(void){
 			bool success = true;
 			for(uint8 i = 0; i < 16; i++){

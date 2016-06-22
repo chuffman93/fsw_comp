@@ -24,8 +24,8 @@ namespace Phoenix
 		Phoenix::Core::FSWPacket * CDHHotSwaps(void);
 		Phoenix::Core::FSWPacket * CDHPowerMonitors(void);
 		Phoenix::Core::FSWPacket * CDHStartPM(void);
-		bool StartSensor(int bus, int sensor);
-		float ReadSensor(int bus, int sensor);
+		bool StartTempSensor(int bus, int sensor);
+		float ReadTempSensor(int bus, int sensor);
 	}
 }
 

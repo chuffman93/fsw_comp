@@ -5,16 +5,14 @@
  *      Author: Alex St. Clair
  */
 
+#include "servers/CDHServer.h"
 #include "servers/CDHStdTasks.h"
 #include "servers/DispatchStdTasks.h"
-#include "servers/CDHServer.h"
 
-#include "core/ModeManager.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
-#include "core/DataMessage.h"
+#include "core/ModeManager.h"
 #include "core/Dispatcher.h"
-#include "core/Singleton.h"
 
 #include "util/itoa.h"
 #include "util/FileHandler.h"
@@ -44,8 +42,7 @@ namespace Phoenix
 		FSWPacket * CDHCPUUsage(void)
 		{
 			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
-			if(sysinfo(&cdhServer->si) != 0)
-			{
+			if(sysinfo(&cdhServer->si) != 0){
 				logger->Log("CDHStdTasks: CDHCPUUsage(): Error", LOGGER_LEVEL_ERROR);
 				FSWPacket * ret = new FSWPacket(0, CDH_CPU_USAGE_FAILURE, false, true, MESSAGE_TYPE_ERROR);
 				return ret;
@@ -56,7 +53,7 @@ namespace Phoenix
 			logger->Log("    CPU 5  min: %u", cdhServer->si.loads[1], LOGGER_LEVEL_DEBUG);
 			logger->Log("    CPU 15 min: %u", cdhServer->si.loads[2], LOGGER_LEVEL_DEBUG);
 
-			uint8 * buffer = new uint8[12];
+			uint8 * buffer = (uint8 *) malloc(12);
 			AddUInt32(buffer, cdhServer->si.loads[0]);
 			AddUInt32(buffer + 4, cdhServer->si.loads[1]);
 			AddUInt32(buffer + 8, cdhServer->si.loads[2]);
@@ -68,8 +65,7 @@ namespace Phoenix
 		FSWPacket * CDHMemUsage(void)
 		{
 			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
-			if(sysinfo(&cdhServer->si) != 0)
-			{
+			if(sysinfo(&cdhServer->si) != 0){
 				logger->Log("CDHStdTasks: CDHMemUsage(): Error", LOGGER_LEVEL_ERROR);
 				FSWPacket * ret = new FSWPacket(0, CDH_MEM_USAGE_FAILURE, false, true, MESSAGE_TYPE_ERROR);
 				return ret;
@@ -80,7 +76,7 @@ namespace Phoenix
 			logger->Log("    MEM: %f", mem, LOGGER_LEVEL_DEBUG);
 
 
-			uint8 * buffer = new uint8[4];
+			uint8 * buffer = (uint8 *) malloc(4);
 			AddFloat(buffer, mem);
 
 			FSWPacket * ret = new FSWPacket(0, CDH_MEM_USAGE_SUCCESS, true, true, MESSAGE_TYPE_DATA, 4, buffer);
@@ -91,8 +87,7 @@ namespace Phoenix
 		FSWPacket * CDHStorage(void)
 		{
 			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
-			if(statvfs((char *) "/", &cdhServer->svfs) != 0)
-			{
+			if(statvfs((char *) "/", &cdhServer->svfs) != 0){
 				logger->Log("CDHStdTasks: CDHStorage(): Error", LOGGER_LEVEL_ERROR);
 				FSWPacket * ret = new FSWPacket(0, CDH_STORAGE_FAILURE, false, true, MESSAGE_TYPE_ERROR);
 				return ret;
@@ -101,7 +96,7 @@ namespace Phoenix
 			logger->Log("CDHStdTasks: CDHStorage(): Checking storage", LOGGER_LEVEL_INFO);
 			uint32 free = cdhServer->svfs.f_bfree;
 
-			uint8 * buffer = new uint8[4];
+			uint8 * buffer = (uint8 *) malloc(4);
 			AddUInt32(buffer, free);
 
 			FSWPacket * ret = new FSWPacket(0, CDH_STORAGE_SUCCESS, true, true, MESSAGE_TYPE_DATA, 4, buffer);
@@ -113,9 +108,9 @@ namespace Phoenix
 			// Start all of the sensors
 			bool validStart[4][16];
 			bool success = true;
-			for(uint8 bus = 1; bus < 5; bus++){
+			for(uint8 bus = 0; bus < 4; bus++){
 				for(uint8 sensor = 0; sensor < 16; sensor++){
-					validStart[bus][sensor] = StartSensor(bus,sensor);
+					validStart[bus][sensor] = StartTempSensor(bus+1,sensor);
 					success &= validStart[bus][sensor];
 				}
 			}
@@ -137,12 +132,12 @@ namespace Phoenix
 
 			// Setup
 			float temperatures[4][16];
-			uint8 * buffer = new uint8[64*sizeof(float)];
+			uint8 * buffer = (uint8 *) malloc(64*sizeof(float));
 
 			// Read and add to list
 			for(uint8 bus = 0; bus < 4; bus++){
 				for(uint8 sensor = 0; sensor < 16; sensor++){
-					temperatures[bus][sensor] = ReadSensor(bus,sensor);
+					temperatures[bus][sensor] = ReadTempSensor(bus+1,sensor);
 					AddFloat(buffer + 4*(16*bus + sensor), temperatures[bus][sensor]);
 				}
 			}
@@ -159,7 +154,7 @@ namespace Phoenix
 			// Setup
 			Phoenix::Servers::CDHServer * cdhServer = dynamic_cast<Phoenix::Servers::CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
 			float vcRead[32];
-			uint8 * buffer = new uint8[32*sizeof(float)];
+			uint8 * buffer = (uint8 *) malloc(32*sizeof(float));
 
 			// Read and add to buffer
 			cdhServer->devMan->getHSStatus(vcRead);
@@ -171,7 +166,7 @@ namespace Phoenix
 			return ret;
 		}
 
-		//TODO: check more information
+		//TODO: add back power monitors
 		FSWPacket * CDHPowerMonitors(void)
 		{
 			logger->Log("CDHStdTasks: CDHPowerMonitors(): Unfinished function (variable type)!", LOGGER_LEVEL_FATAL);
@@ -229,7 +224,7 @@ namespace Phoenix
 		}
 
 		// Helper Functions ---------------------------------------------------------------
-		bool StartSensor(int bus, int sensor)
+		bool StartTempSensor(int bus, int sensor)
 		{
 			// create filename
 			char * temp = new char[1];
@@ -244,13 +239,13 @@ namespace Phoenix
 
 			// start sensor
 			if(system(start.c_str()) == -1){
-				logger->Log("CDHStdTasks: StartSensor(): Error Starting Sensor!", LOGGER_LEVEL_WARN);
+				logger->Log("CDHStdTasks: StartTempSensor(): Error Starting Sensor!", LOGGER_LEVEL_WARN);
 				return false;
 			}
 			return true;
 		}
 
-		float ReadSensor(int bus, int sensor){
+		float ReadTempSensor(int bus, int sensor){
 
 			// create filename
 			char * temp = new char[1];
@@ -262,7 +257,7 @@ namespace Phoenix
 			read.append(temp);
 			read.append("/temp");
 			delete temp;
-			char logbuf[80];
+			char logbuf[150];
 
 			FILE * fp;
 			fp = fopen(read.c_str(), "r");
@@ -302,14 +297,14 @@ namespace Phoenix
 
 				// Act on validity
 				if(isGood){
-					sprintf(logbuf,"CDHStdTasks: ReadSensor: Good data from sensor %d on bus %d",sensor,bus);
+					sprintf(logbuf,"CDHStdTasks: ReadTempSensor: Good data from sensor %d on bus %d",sensor,bus);
 					logger->Log(logbuf,LOGGER_LEVEL_DEBUG);
 					delete c;
 					delete tempRead;
 					fclose(fp);
 					return temperature;
 				}else{
-					sprintf(logbuf,"CDHStdTasks: ReadSensor: Bad data from sensor %d on bus %d!",sensor,bus);
+					sprintf(logbuf,"CDHStdTasks: ReadTempSensor: Bad data from sensor %d on bus %d!",sensor,bus);
 					logger->Log(logbuf,LOGGER_LEVEL_WARN);
 					delete c;
 					delete tempRead;
@@ -317,8 +312,8 @@ namespace Phoenix
 					return -300;
 				}
 			}else{
-				sprintf(logbuf,"CDHStdTasks: ReadSensor: Error opening file: sensor %d on bus %d",sensor,bus);
-				logger->Log(logbuf,LOGGER_LEVEL_ERROR);
+				sprintf(logbuf,"CDHStdTasks: ReadTempSensor: Error opening file: sensor %d on bus %d",sensor,bus);
+				logger->Log(logbuf,LOGGER_LEVEL_WARN);
 				return -301;
 			}
 		}

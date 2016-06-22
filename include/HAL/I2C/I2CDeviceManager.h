@@ -18,6 +18,7 @@ namespace Phoenix
 		class I2CDeviceManager{
 		public:
 			I2CDeviceManager();
+			~I2CDeviceManager();
 			bool initializeHS(void);
 			void initializePM(void);
 			void startPMMeas(void);

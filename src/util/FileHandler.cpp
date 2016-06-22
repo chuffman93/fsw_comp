@@ -133,7 +133,7 @@ bool FileHandler::Log(FileHandlerIDEnum logType, MessageCodeType dataOne, Messag
 		if (!(Phoenix::HAL::RTCGetTime(&seconds, NULL)))
 		{
 				DEBUG_COUT("return false H");
-				delete buffer;
+				delete[] buffer;
 				this->GiveLock();
 				return false;
 		}
@@ -150,6 +150,7 @@ bool FileHandler::Log(FileHandlerIDEnum logType, MessageCodeType dataOne, Messag
     	FileWrite(file.c_str(), (char*) buffer, 10);
         // Success!
         DEBUG_COUT("LogAppend success!");
+        delete[] buffer;
         return true;
 
 }
@@ -286,6 +287,7 @@ bool FileHandler::Log(FileHandlerIDEnum subsystem, MessageCodeType opCode,
 	//printf("string = %s\n", file.c_str());
 	int err = FileWrite(file.c_str(), (char*) buffer, (long int) size);
 	//printf("%d\n", err);
+	delete[] buffer;
 	if (err < 0) return false;
 	return true;
 }
@@ -440,6 +442,7 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType 
 		char *temp2 = new char[25];
 		itoa(week, temp2, 10);
 		file->append(temp2);
+		delete temp2;
 		*file = filePath.append(file->append(fileExtension));
 		weekRef[subsystem][opCode] = week;
 	}
@@ -489,7 +492,7 @@ uint8 * FileHandler::ReadFile(const char * fileName, size_t * bufferSize)
                 if (result != *bufferSize)
                 {
                 		fclose(fp);
-                        delete buffer;
+                        delete[] buffer;
                         buffer = NULL;
                         this->GiveLock();
                         return buffer;
@@ -747,7 +750,7 @@ uint32 FileHandler::crcCheck(const char * fileName)
 							crc = generateCrc(buffer +  i,1,(unsigned int *) crcTable, (unsigned int)~crc);
 						}
 
-						delete buffer;
+						delete[] buffer;
 						this->GiveLock();
 				}
 		return crc;

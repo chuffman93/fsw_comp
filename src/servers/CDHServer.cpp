@@ -21,10 +21,13 @@
 #include "core/StdTypes.h"
 #include "core/ModeManager.h"
 #include "core/WatchdogManager.h"
+
+#include "util/Logger.h"
+#include "util/FileHandler.h"
+
 #include <iostream>
 #include <sys/sysinfo.h>
 #include <sys/statvfs.h>
-#include "util/Logger.h"
 
 using namespace Phoenix::Core;
 using namespace Phoenix::HAL;
@@ -53,12 +56,12 @@ namespace Phoenix
 		CDHServer::CDHServer(std::string nameIn, LocationIDType idIn)
 				: SubsystemServer(nameIn, idIn), Singleton(), arby(idIn)
 		{
-			// Left Intentionally Blank
+			devMan = new I2CDeviceManager();
 		}
 
 		CDHServer::~CDHServer()
 		{
-			// Left Intentionally Blank
+			delete devMan;
 		}
 
 		CDHServer & CDHServer::operator=(const CDHServer & source)
@@ -141,11 +144,12 @@ namespace Phoenix
 		{
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
 			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
 			logger->Log("CDHServer Subsystem loop entered", LOGGER_LEVEL_INFO);
 
-			devMan = new I2CDeviceManager();
+			//devMan = new I2CDeviceManager();
 #if HS_EN
 			bool initHS = devMan->initializeHS();
 			if(!initHS){

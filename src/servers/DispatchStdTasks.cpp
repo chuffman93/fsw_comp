@@ -79,59 +79,6 @@ namespace Phoenix
 			assert(response != NULL);
 			return response;
 		}
-
-//		bool ExtractParameters(const FSWPacket & packet, uint32 * inputParameters, uint32 numParams, void ** outputParameters)
-//		{
-//			MultiDataMessage * dataMessage = (dynamic_cast<MultiDataMessage *>(packet.GetMessagePtr()));
-//			if(dataMessage == NULL)
-//			{
-//				printf("dataMessage is null?!\n");
-//				outputParameters = NULL;
-//				return false;
-//			}
-//
-//			return(ExtractParameters((*dataMessage), inputParameters, numParams, outputParameters));
-//		}
-//
-//		bool ExtractParameters(const ReturnMessage & retMsg, uint32 * inputParameters, uint32 numParams, void ** outputParameters)
-//		{
-//			MultiDataMessage * dataMessage = (dynamic_cast<MultiDataMessage *>(retMsg.GetMessagePtr()));
-//			if(dataMessage == NULL)
-//			{
-//				outputParameters = NULL;
-//				return false;
-//			}
-//
-//			return(ExtractParameters((*dataMessage), inputParameters, numParams, outputParameters));
-//		}
-//
-//		bool ExtractParameters(const MultiDataMessage & dataMessage, uint32 * inputParameters, uint32 numParams, void ** outputParameters)
-//		{
-//			std::list<VariableTypeData*> params = dataMessage.GetParameters();
-//			if(numParams != params.size())
-//			{
-//				printf("numParams is %d : params.size() is %d\n", numParams, params.size());
-//				printf("num params is wrong!\n");
-//				outputParameters = NULL;
-//				return false;
-//			}
-//
-//			int i;
-//			for(i = 0; i < numParams; i++)
-//			{
-//				VariableTypeData * temp = params.front();
-//				params.pop_front();
-//
-//				if(((VariableTypeEnum) inputParameters[i]) != temp->GetType())
-//				{
-//					printf("the type is wrong!\n");
-//					outputParameters = NULL;
-//					return false;
-//				}
-//				outputParameters[i] = temp->GetData();
-//			}
-//			return (i == numParams);
-//		}
 		
 		uint32 GetUInt(uint8 * buffer){
 			uint32 result;
@@ -300,7 +247,7 @@ namespace Phoenix
 		{
 			FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-			logger->Log("DispatchStdTasks: MessageProcess() called", LOGGER_LEVEL_DEBUG);
+			logger->Log("DispatchStdTasks: PacketProcess() called", LOGGER_LEVEL_DEBUG);
 
 			// Get packet info
 			bool success = retPacket->IsSuccess();

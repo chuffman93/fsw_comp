@@ -99,17 +99,6 @@ typedef enum HardwareLocationIDEnum
     HARDWARE_LOCATION_MAX
 }HardwareLocationIDType;
 
-typedef enum LoggerLevel
-{
-	LOGGER_LEVEL_MIN = 1,
-	LOGGER_LEVEL_DEBUG = LOGGER_LEVEL_MIN, // fine-grain output for debugging
-	LOGGER_LEVEL_INFO, // nominal system info
-	LOGGER_LEVEL_WARN, // warnings
-	LOGGER_LEVEL_ERROR, // errors
-	LOGGER_LEVEL_FATAL, // fatal errors
-	LOGGER_LEVEL_MAX
-}LoggerLevelType;
-
 enum ServerLocationIDEnum
 {
     SERVER_LOCATION_MIN = HARDWARE_LOCATION_MAX,
@@ -130,6 +119,15 @@ enum ServerLocationIDEnum
 #endif
 	SERVER_LOCATION_MAX
 };
+
+typedef enum LoggerLevel
+{
+	LOGGER_LEVEL_DEBUG = 1, // fine-grain output for debugging
+	LOGGER_LEVEL_INFO, // nominal system info
+	LOGGER_LEVEL_WARN, // warnings (minor errors)
+	LOGGER_LEVEL_ERROR, // errors
+	LOGGER_LEVEL_FATAL, // fatal errors
+}LoggerLevelType;
 
 enum FileHandlerIDEnum
 {
