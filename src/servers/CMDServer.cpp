@@ -37,11 +37,14 @@ namespace Phoenix
 	{
 		//Message Handler for ACP Protocol Switches
 		static CMDSwitchProtocolHandler * cmdSwitchProtocolHandler;
+		int CMDServer::subsystem_acp_protocol[HARDWARE_LOCATION_MAX];
 		
 		CMDServer::CMDServer(string nameIn, LocationIDType idIn)
 				: SubsystemServer(nameIn, idIn), Singleton(), arby(idIn)
 		{
-			// Left Intentionally Blank
+			for(int i = HARDWARE_LOCATION_MIN; i < HARDWARE_LOCATION_MAX; i++){
+				subsystem_acp_protocol[i] = ACP_PROTOCOL_SPI;
+			}
 		}
 
 		CMDServer::~CMDServer()
@@ -52,13 +55,6 @@ namespace Phoenix
 		void CMDServer::Initialize(void)
 		{
 			cmdSwitchProtocolHandler = new CMDSwitchProtocolHandler();
-//			subsystem_acp_protocol[HARDWARE_LOCATION_COM] = ACP_PROTOCOL_SPI;
-//			subsystem_acp_protocol[HARDWARE_LOCATION_EPS] = ACP_PROTOCOL_SPI;
-//			subsystem_acp_protocol[HARDWARE_LOCATION_ACS] = ACP_PROTOCOL_SPI;
-//			subsystem_acp_protocol[HARDWARE_LOCATION_PROP] = ACP_PROTOCOL_SPI;
-//			subsystem_acp_protocol[HARDWARE_LOCATION_THM] = ACP_PROTOCOL_SPI;
-//			subsystem_acp_protocol[HARDWARE_LOCATION_PLD] = ACP_PROTOCOL_SPI;
-//			subsystem_acp_protocol[HARDWARE_LOCATION_GPS] = ACP_PROTOCOL_SPI;
 		}
 		
 #ifdef TEST

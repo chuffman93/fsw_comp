@@ -49,7 +49,7 @@ using namespace Phoenix::Servers;
 //----------------------- Set which servers run ---------------------
 
 #define ACS_EN 0
-#define CDH_EN 1
+#define CDH_EN 0
 #define CMD_EN 0
 #define COM_EN 0
 #define EPS_EN 1

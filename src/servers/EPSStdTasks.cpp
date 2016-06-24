@@ -17,6 +17,7 @@
 #include "core/Factory.h"
 
 #include "util/FileHandler.h"
+#include "util/Logger.h"
 
 #include "HAL/Power.h"
 #include "HAL/Interrupt.h"
@@ -56,6 +57,7 @@ namespace Phoenix
 					//Error
 					return HSRet;
 				}
+
 				uint16 outputArray[6];
 				for(uint8 i = 0; i < 6; i++){
 					outputArray[i] = GetUInt16(msgPtr);
@@ -82,17 +84,25 @@ namespace Phoenix
 			}
 		}
 
+		FSWPacket * EPSPowerCycle()
+		{
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			FSWPacket * query = new FSWPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, 0, EPS_POWER_CYCLE_CMD, true, false, MESSAGE_TYPE_COMMAND);
+			FSWPacket * response = DispatchPacket(query);
+
+			usleep(5000000);
+
+			// if we are here then the power cycle likely didn't happen
+			logger->Log("Power didn't cycle!", LOGGER_LEVEL_FATAL);
+			// TODO: add more handling here!
+		}
+
 		FSWPacket * EPSStateOfCharge()
 		{
 			FSWPacket * query = new FSWPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, 0, EPS_SOC_CMD, true, false, MESSAGE_TYPE_COMMAND);
 			return(DispatchPacket(query));
 		}
 
-		FSWPacket * EPSPowerCycle()
-		{
-			FSWPacket * query = new FSWPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, 0, EPS_POWER_CYCLE_CMD, true, false, MESSAGE_TYPE_COMMAND);
-			return(DispatchPacket(query));
-		}
 
 		FSWPacket * EPSDisableOCProt()
 		{

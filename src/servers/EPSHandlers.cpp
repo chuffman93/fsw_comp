@@ -30,14 +30,14 @@ FSWPacket * EPSHSHandler::Handle(const FSWPacket & packet)
 	return(EPSHealthStat());
 }
 
-FSWPacket * EPSStateofChargeHandler::Handle(const FSWPacket & packet)
-{
-	return(EPSStateOfCharge());
-}
-
 FSWPacket * EPSPowerCycleHandler::Handle(const FSWPacket & packet)
 {
 	return(EPSPowerCycle());
+}
+
+FSWPacket * EPSStateofChargeHandler::Handle(const FSWPacket & packet)
+{
+	return(EPSStateOfCharge());
 }
 
 FSWPacket * EPSDisableOCHandler::Handle(const FSWPacket & packet)

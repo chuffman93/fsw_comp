@@ -194,6 +194,7 @@ DispatcherStatusEnum Dispatcher::WaitForDispatchResponse(const FSWPacket & packe
 				&Dispatcher::IsPacketMatchingResponse))
 		{
 			logger->Log("    Dispatcher: WaitForDispatchResponse(): Matching FSWPacket found.", LOGGER_LEVEL_DEBUG);
+
 			*retPacketin = retPacket;
 			return DISPATCHER_STATUS_OK;
 		}
@@ -241,7 +242,6 @@ bool Dispatcher::Listen(LocationIDType serverID)
 	}
 	logger->Log(" Dispatcher: Listen(): Found a packet, looking for a handler.", LOGGER_LEVEL_DEBUG);
 
-
 	// A packet has been found, so try to find the handler in the
 	// global registry list.- Umang
 	if (true == this->TakeLock(MAX_BLOCK_TIME))
@@ -285,7 +285,6 @@ bool Dispatcher::Listen(LocationIDType serverID)
 	// Permissions are correct, so invoke it and obtain the resulting message.
 	logger->Log("   Dispatcher: Listen(): Permissions are correct, invoke the handler, and obtain the resulting message.", LOGGER_LEVEL_DEBUG);
 
-
 	DispatcherTaskParameter parameters;
 	parameters.registry = it->second->registry;
 	parameters.packet = packet;
@@ -326,19 +325,16 @@ bool Dispatcher::Listen(LocationIDType serverID)
 	sem_destroy(&(parameters.syncSem));
 	sem_destroy(&(parameters.doneSem));
 
-	// Create a packet from the response.
-	FSWPacket * ret = new FSWPacket(*packet);
-	LocationIDType src = packet->GetSource( );
-	ret->SetResponse(true);
-	ret->SetSource(packet->GetDestination( ));
-	ret->SetDestination(src);
-	ret->SetMessageBuf(parameters.retPacket->GetMessageBufPtr());
-	ret->SetOpcode(parameters.retPacket->GetOpcode());
+	// Create a return packet from the handler response and the original query
+	FSWPacket * ret = new FSWPacket(packet->GetDestination(), packet->GetSource(), packet->GetTimestamp(),
+			parameters.retPacket->GetOpcode(), parameters.retPacket->IsSuccess(), true, parameters.retPacket->GetType(),
+			parameters.retPacket->GetMessageLength(), parameters.retPacket->GetMessageBufPtr());
+
+	// FIXME: make sure this doesn't cause a memory leak!
 	delete parameters.retPacket;
 	delete packet;
 
-	// Send the response back to the server that dispatched the
-	// original message.
+	// Send the response back to the server that dispatched the original message.
 	while (!mq_timed_send(queueName, &ret, MAX_BLOCK_TIME, 0));
 	return true;
 }

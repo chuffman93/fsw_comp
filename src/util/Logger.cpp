@@ -12,7 +12,7 @@
 #include <sys/types.h>
 
 // Set desired threshold for logging here
-const LoggerLevelType Logger::threshold = LOGGER_LEVEL_INFO;
+const LoggerLevelType Logger::threshold = LOGGER_LEVEL_DEBUG;
 using namespace Phoenix::Core;
 using namespace std;
 

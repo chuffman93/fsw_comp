@@ -52,18 +52,21 @@ namespace Phoenix
 	{
 		// Message handler for a measurements request.
 		static EPSHSHandler * epsHSHandler;
+		// Message handler for a power cycle command.
+		static EPSPowerCycleHandler * epsPowerCycleHandler;
+
+		/* OUTDATED HANDLERS
 		// Message handler for a battery pass through command.
 		static EPSStateofChargeHandler * epsSOCHandler;
-		// Message handler for a power cycle command.
-		static EPSPowerCycleHandler * epsResetCDHHandler;
 		// Message handler for a disable overcurrent protection command.
 		static EPSDisableOCHandler * epsDisHandler;
 		// Message handler for a enable overcurrent protection command.
-		static EPSEnableOCHandler * epsEnHandler;
+		static EPSEnableOCHandler * epsEnHandler;//Message handler for EPS power subsystems
+		static EPSPowerHandler * epsPowerHandler;
+		*/
+
 		// Message handler for EPS generated errors.
 		static EPSErrorHandler * epsErrorHandler;
-		//Message handler for EPS power subsystems
-		static EPSPowerHandler * epsPowerHandler;
 		
 		EPSServer::EPSServer(string nameIn, LocationIDType idIn)
 				: SubsystemServer(nameIn, idIn), Singleton(), arby(idIn), sensorThreshhold(0)
@@ -96,12 +99,15 @@ namespace Phoenix
 		{
 			//Initialize handlers
 			epsHSHandler = new EPSHSHandler();
+			epsPowerCycleHandler = new EPSPowerCycleHandler();
+
+			/* OUTDATED HANDLERS
 			epsSOCHandler = new EPSStateofChargeHandler();
-			epsResetCDHHandler = new EPSPowerCycleHandler();
 			epsDisHandler = new EPSDisableOCHandler();
-			epsEnHandler = new EPSEnableOCHandler();
+			epsEnHandler = new EPSEnableOCHandler();epsPowerHandler = new EPSPowerHandler();
+			*/
+
 			epsErrorHandler = new EPSErrorHandler();
-			epsPowerHandler = new EPSPowerHandler();
 
 		}
 	
@@ -110,12 +116,16 @@ namespace Phoenix
 		{
 			//delete handlers
 			delete epsHSHandler;
+			delete epsPowerCycleHandler;
+
+			/* OUTDATED HANDLERS
 			delete epsSOCHandler;
-			delete epsResetCDHHandler;
 			delete epsDisHandler;
 			delete epsEnHandler;
-			delete epsErrorHandler;
 			delete epsPowerHandler;
+			*/
+
+			delete epsErrorHandler;
 		}
 #endif
 		
@@ -174,11 +184,14 @@ namespace Phoenix
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 
 			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, EPS_HS_CMD), epsHSHandler);
+			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, EPS_POWER_CYCLE_CMD), epsPowerCycleHandler);
+
+			/*
 			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, EPS_SOC_CMD), epsSOCHandler);
-			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, EPS_POWER_CYCLE_CMD), epsResetCDHHandler);
 			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, EPS_DISABLE_OC_PROT_CMD), epsDisHandler);
 			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, EPS_ENABLE_OC_PROT_CMD), epsEnHandler);
 			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, EPS_POWER_SUB_CMD), epsPowerHandler);
+			*/
 
 			for(int opcode = EPS_CMD_MIN; opcode < EPS_CMD_MAX; opcode++)
 			{
@@ -213,6 +226,7 @@ namespace Phoenix
 			uint32 resetTime = 0;
 
 			FSWPacket * HSRet;
+			FSWPacket * PCRet;
 			FSWPacket * SOCRet;
 			FSWPacket * rstRet;
 
@@ -253,10 +267,15 @@ namespace Phoenix
 				{
 					
 					// Functions
-					logger->Log("Calling EPS Health and Status Function", LOGGER_LEVEL_DEBUG);
-					HSRet = EPSHealthStat();
+//					logger->Log("Calling EPS Health and Status Function", LOGGER_LEVEL_DEBUG);
+//					HSRet = EPSHealthStat();
+//					logger->Log("Calling Message process on the ret packet!", LOGGER_LEVEL_DEBUG);
+//					PacketProcess(SERVER_LOCATION_EPS, HSRet);
+
+					logger->Log("Power Cycling!", LOGGER_LEVEL_FATAL);
+					PCRet = EPSPowerCycle();
 					logger->Log("Calling Message process on the ret packet!", LOGGER_LEVEL_DEBUG);
-					PacketProcess(SERVER_LOCATION_EPS, HSRet);
+					PacketProcess(SERVER_LOCATION_EPS, PCRet);
 
 					//SOCRet = EPSStateOfCharge();
 					//MessageProcess(SERVER_LOCATION_EPS, SOCRet);
