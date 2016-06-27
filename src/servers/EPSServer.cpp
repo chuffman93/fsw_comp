@@ -267,15 +267,15 @@ namespace Phoenix
 				{
 					
 					// Functions
-//					logger->Log("Calling EPS Health and Status Function", LOGGER_LEVEL_DEBUG);
-//					HSRet = EPSHealthStat();
-//					logger->Log("Calling Message process on the ret packet!", LOGGER_LEVEL_DEBUG);
-//					PacketProcess(SERVER_LOCATION_EPS, HSRet);
-
-					logger->Log("Power Cycling!", LOGGER_LEVEL_FATAL);
-					PCRet = EPSPowerCycle();
+					logger->Log("Calling EPS Health and Status Function", LOGGER_LEVEL_DEBUG);
+					HSRet = EPSHealthStat();
 					logger->Log("Calling Message process on the ret packet!", LOGGER_LEVEL_DEBUG);
-					PacketProcess(SERVER_LOCATION_EPS, PCRet);
+					PacketProcess(SERVER_LOCATION_EPS, HSRet);
+
+//					logger->Log("Power Cycling!", LOGGER_LEVEL_FATAL);
+//					PCRet = EPSPowerCycle();
+//					logger->Log("Calling Message process on the ret packet!", LOGGER_LEVEL_DEBUG);
+//					PacketProcess(SERVER_LOCATION_EPS, PCRet);
 
 					//SOCRet = EPSStateOfCharge();
 					//MessageProcess(SERVER_LOCATION_EPS, SOCRet);

@@ -44,32 +44,38 @@ void sendComplete(int signum);
 class SPI_HALServer: public Phoenix::Core::Singleton
 {
 	public:
-	//int spiFileDescriptor;
-	struct pollfd poll_fds;
-	int spi_fds[NUM_SLAVES];
-	int int_fds[NUM_SLAVES];
-	//static bool packetWaiting;
+		struct pollfd poll_fds;
+		int spi_fds[NUM_SLAVES];
+		int int_fds[NUM_SLAVES];
 
-	// Constructor
-	SPI_HALServer();
+		static char * queueNameSPITX;
 
-	void SPI_HALServerLoop(void);
+		// Constructor
+		SPI_HALServer();
 
-	void spi_reset(void);
+		void SPI_HALServerLoop(void);
 
-	int SPIDispatch(Phoenix::Core::FSWPacket & packet);
+//		void spi_reset(void);
 
-	static void spi_rx_handler(int signum);
+		int SPIDispatch(Phoenix::Core::FSWPacket & packet);
 
-	static void spi_tx_complete(int signum);
+//		static void spi_rx_handler(int signum);
+//
+//		static void spi_tx_complete(int signum);
 
-	int spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, int len);
+		int spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, int len);
 
-	int spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_buf);
+		int spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_buf);
 
-	int get_int_fds(int subsystem, struct pollfd * poll_fds);
+		int get_int_fds(int subsystem, struct pollfd * poll_fds);
 
-	int get_slave_fd(int subsystem);
+		int get_slave_fd(int subsystem);
+
+	private:
+		// SPI Dispatch Queue
+		mqd_t queueHandleTX;
+		struct mq_attr queueAttrTX;
+		int qInitTX;
 };
 
 //static bool SPI_HALServer::packetWaiting;

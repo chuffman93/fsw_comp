@@ -209,8 +209,6 @@ namespace Phoenix
 
             DispatcherStatusEnum WaitForDispatchResponse(const FSWPacket & packet, FSWPacket ** retPacketin);
 
-            void printString(const uint8 * str);
-
             /*! \brief Checks for a FSWPacket Addressed to a Given Server
              *
              *  Checks the message queue for a message for the given server.
@@ -237,7 +235,7 @@ namespace Phoenix
              */
 
             uint32_t DispatchToHardware(FSWPacket & packet);
-
+            static char * queueNameRX;
 
         private:
             /*! \brief Struct for Holding Server Message Handler Information */
@@ -282,17 +280,10 @@ namespace Phoenix
             	sem_t doneSem;
             };
 
-            /*! \brief Handle to the Dispatcher Subsystem Task Queue */
-            mqd_t subsystemQueueHandle;
-            struct mq_attr subsystemQueueAttr;
-            static  char * subsystemQueueName;
-            int subQinit;
-
             /*! \brief Handle to the Dispatcher Message Queue */
-            mqd_t queueHandle;
-            struct mq_attr queueAttr;
-            static char * queueName;
-            int qInit;
+            mqd_t queueHandleRX;
+            struct mq_attr queueAttrRX;
+            int qInitRX;
 
             /*! \brief MessageHandler Registry Map */
             std::map<LocationIDType, DispatcherHandlerType *> registryMap;

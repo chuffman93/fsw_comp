@@ -79,169 +79,6 @@ namespace Phoenix
 			assert(response != NULL);
 			return response;
 		}
-		
-		uint32 GetUInt(uint8 * buffer){
-			uint32 result;
-			uint8 flipped[] = {buffer[3],buffer[2],buffer[1],buffer[0]};
-			memcpy(&result, flipped, 4);
-			return result;
-		}
-
-		uint16 GetUInt16(uint8 * buffer){
-			uint32 result;
-			uint8 flipped[] = {buffer[1],buffer[0]};
-			memcpy(&result, flipped, 2);
-			return result;
-		}
-
-		int32 GetInt(uint8 * buffer){
-			int32 result;
-			uint8 flipped[] = {buffer[3],buffer[2],buffer[1],buffer[0]};
-			memcpy(&result, flipped, 4);
-			return result;
-		}
-
-		bool GetBool(uint8 * buffer){
-			return((bool) (buffer[0]));
-		}
-
-		float GetFloat(uint8 * buffer){
-			float result;
-			uint8 flipped[] = {buffer[3],buffer[2],buffer[1],buffer[0]};
-			memcpy(&result, flipped, 4);
-			return result;
-		}
-
-		double GetDouble(uint8 * buffer){
-			double result;
-			uint8 flipped[] = {buffer[7],buffer[6],buffer[5],buffer[4],buffer[3],buffer[2],buffer[1],buffer[0]};
-			memcpy(&result, flipped, 8);
-			return result;
-		}
-
-		void AddUInt32(uint8 * buffer, uint32 data){
-			memcpy(buffer, &data, sizeof(uint32));
-		}
-
-		void AddFloat(uint8 * buffer, float data){
-			memcpy(buffer, &data, sizeof(float));
-		}
-
-//		void MessageProcess(LocationIDType id, ReturnMessage * retMsg)
-//		{
-//			FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
-//			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-//			logger->Log("DispatchStdTasks: MessageProcess() called", LOGGER_LEVEL_DEBUG);
-//
-//			//dispatcher error! Log it
-//			MultiDataMessage * dataMessage = dynamic_cast<MultiDataMessage *> (retMsg->GetMessagePtr());
-//			if(dataMessage == NULL)
-//			{
-//				//error
-//				delete retMsg;
-//				return;
-//			}
-//
-//			bool success = retMsg->GetSuccess();
-//			MessageCodeType retOpcode = dataMessage->GetOpcode();
-//			if(!success) //error message!
-//			{
-//				logger->Log("DispatchStdTasks: Got error return message", LOGGER_LEVEL_INFO);
-//				if((retOpcode >= DISPATCHER_ERR_START) && (retOpcode <= DISPATCHER_ERR_END))
-//				{
-//					//dispatcher error! Log it
-//					if(!fileHandler->Log(SYSTEM_CDH, retOpcode, (* dataMessage)))
-//					{
-//						// write to error log
-//					}
-//					delete retMsg;
-//					return;
-//				}
-//				else
-//				{ //Non dispatcher error message, send it to the octopus!
-//					Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-//
-//					FSWPacket * query = new FSWPacket(id, SERVER_LOCATION_ERR, 1, 0, dataMessage);
-//
-//					//Dispatch packet, if it fails return DISPATCH_FAILED
-//					if(!dispatcher->Dispatch(*query)) {
-//						ErrorMessage err(DISPATCH_FAILED);
-//						ReturnMessage * eRet = new ReturnMessage(&err, false);
-//						delete query;
-//						MessageProcess(id, eRet);
-//						//What to do with original error message?
-//						delete retMsg;
-//						return;
-//					}
-//
-//					ReturnMessage tempRetMsg;
-//					DispatcherStatusEnum stat;
-//					//Wait for return message, if it fails return status response from dispatcher
-//					if(DISPATCHER_STATUS_OK != (stat = dispatcher->WaitForDispatchResponse(*query, tempRetMsg)))
-//					{
-//						ErrorMessage err(DISPATCH_FAILED);
-//						ReturnMessage * eRet = new ReturnMessage(&err, false);
-//						delete query;
-//						MessageProcess(id, eRet);
-//						//What to do with original error message?
-//						delete retMsg;
-//						return;
-//					}
-//					//successfully sent message to error octopus.
-//					delete query;
-//					delete retMsg;
-//					return;
-//				}
-//			}
-//
-//			//TODO: check bounds here!
-//
-//			FileHandlerIDEnum handlerID;
-//			switch(id)
-//			{
-//				case SERVER_LOCATION_COM :
-//					handlerID = SUBSYSTEM_COM;
-//					break;
-//				case SERVER_LOCATION_EPS :
-//					handlerID = SUBSYSTEM_EPS;
-//					break;
-//				case SERVER_LOCATION_ACS :
-//					handlerID = SUBSYSTEM_ACS;
-//					break;
-//				case SERVER_LOCATION_PLD :
-//					handlerID = SUBSYSTEM_PLD;
-//					break;
-//				case SERVER_LOCATION_GPS :
-//					handlerID = SUBSYSTEM_GPS;
-//					break;
-//				case SERVER_LOCATION_THM :
-//					handlerID = SUBSYSTEM_THM;
-//					break;
-//				case SERVER_LOCATION_SCH :
-//					handlerID = SUBSYSTEM_SCH;
-//					break;
-//				case SERVER_LOCATION_CMD :
-//					handlerID = SUBSYSTEM_CMD;
-//					break;
-//				case SERVER_LOCATION_CDH :
-//					handlerID = SYSTEM_CDH;
-//					break;
-//				default:
-//					logger->Log("DispatchStdTasks: Unknown Server!", LOGGER_LEVEL_ERROR);
-//					return;
-//			}
-//
-//			logger->Log("DispatchStdTasks: Got successful return message!", LOGGER_LEVEL_INFO);
-//
-//			//If we get here that means it wasn't an error message.
-//			//Log the success!
-//			if(!fileHandler->Log(handlerID, retOpcode, (* dataMessage)))
-//			{
-//				// write to error log
-//				logger->Log("DispatchStdTasks: Failed to log message", LOGGER_LEVEL_WARN);
-//			}
-//			//delete retMsg;
-//		}
 
 		void PacketProcess(LocationIDType id, Phoenix::Core::FSWPacket * retPacket)
 		{
@@ -343,6 +180,55 @@ namespace Phoenix
 				logger->Log("DispatchStdTasks: Failed to log message", LOGGER_LEVEL_WARN);
 			}
 			delete retPacket;
+		}
+
+		uint32 GetUInt(uint8 * buffer){
+			uint32 result;
+			uint8 littleEndian[] = {buffer[3],buffer[2],buffer[1],buffer[0]};
+			memcpy(&result, littleEndian, 4);
+			return result;
+		}
+
+		uint16 GetUInt16(uint8 * buffer){
+			uint32 result;
+			uint8 littleEndian[] = {buffer[1],buffer[0]};
+			memcpy(&result, littleEndian, 2);
+			return result;
+		}
+
+		int32 GetInt(uint8 * buffer){
+			int32 result;
+			uint8 littleEndian[] = {buffer[3],buffer[2],buffer[1],buffer[0]};
+			memcpy(&result, littleEndian, 4);
+			return result;
+		}
+
+		bool GetBool(uint8 * buffer){
+			return((bool) (buffer[0]));
+		}
+
+		float GetFloat(uint8 * buffer){
+			float result;
+			uint8 littleEndian[] = {buffer[3],buffer[2],buffer[1],buffer[0]};
+			memcpy(&result, littleEndian, 4);
+			return result;
+		}
+
+		double GetDouble(uint8 * buffer){
+			double result;
+			uint8 littleEndian[] = {buffer[7],buffer[6],buffer[5],buffer[4],buffer[3],buffer[2],buffer[1],buffer[0]};
+			memcpy(&result, littleEndian, 8);
+			return result;
+		}
+
+		// FIXME: check endianness
+		void AddUInt32(uint8 * buffer, uint32 data){
+			memcpy(buffer, &data, sizeof(uint32));
+		}
+
+		// FIXME: check endianness
+		void AddFloat(uint8 * buffer, float data){
+			memcpy(buffer, &data, sizeof(float));
 		}
 	}
 }

@@ -31,13 +31,14 @@ using namespace Phoenix;
 using namespace Core;
 
 bool packetWaiting;
-
 int debugFile;
+char * SPI_HALServer::queueNameTX = (char *) "/queueHandleSPITX";
 
 SPI_HALServer::SPI_HALServer()
-	{
-		// Intentionally left blank
-	}
+{
+	mq_unlink(queueNameTX);
+	qInitTX = mqCreate(&queueHandleTX, &queueAttrTX, queueNameTX);
+}
 
 // Enter this loop
 void SPI_HALServer::SPI_HALServerLoop(void)
@@ -108,67 +109,82 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 		read(int_fds[i], &buf, 1);
 	}
 
+	logger->Log("\n*****************************************************", LOGGER_LEVEL_INFO);
+	logger->Log("SPI_HAL Server: Entering Loop", LOGGER_LEVEL_INFO);
+	logger->Log("\n*****************************************************", LOGGER_LEVEL_INFO);
 
-
+	int enterTime;
+	int slave_fd;
+	int nbytes;
+	struct pollfd fds;
+	uint8 * rxBuf;
+	FSWPacket * rxPacket;
 	while (1) {
-
-		logger->Log("\n*****************************************************", LOGGER_LEVEL_DEBUG);
-		logger->Log("SPI_HAL Server: Waiting for messages", LOGGER_LEVEL_DEBUG);
-		logger->Log("\n*****************************************************", LOGGER_LEVEL_DEBUG);
-//		char buf[10] = "Start";
-//		system("echo \"Start\" > Logfile.txt");
-
 		errno = 0;
+		logger->Log("SPI_HAL Server: Preparing for TX/RX", LOGGER_LEVEL_DEBUG);
+		enterTime = getTimeInMilis();
 
-		//TODO SPI Read Loop
-		//Wait for interrupt
-		printf("Waiting for interrupt\n");
+		// ---- TX ----------------------------------------------------------------------------------------------------------------
+		FSWPacket * txPacket;
+		if(true == this->TakeLock(MAX_BLOCK_TIME)){
+			if(mq_size > 0){
+				if(mq_timed_receive(queueNameTX, &txPacket, 0, DISPATCHER_MAX_DELAY)){
+					SPIDispatch(*txPacket);
+				}else{
+					logger->Log("SPI_HAL Server: Queue receive for TX failed!", LOGGER_LEVEL_WARN);
+				}
+			}else{
+				logger->Log("SPI_HAL Server: No packets for TX", LOGGER_LEVEL_DEBUG);
+			}
+			this->GiveLock();
+		}else{
+			logger->Log("SPI_HAL Server: TX semaphore failed", LOGGER_LEVEL_WARN);
+		}
 
-		usleep(1000000000);
+		// ---- RX ----------------------------------------------------------------------------------------------------------------
+		if (true == this->TakeLock(MAX_BLOCK_TIME)){
+			//Figure out if there was an interrupt
+			for (int i = 0; i < NUM_SLAVES; i++){
+				read(int_fds[i], &buf, 1);
+				if (poll_fds[i].revents & POLLPRI){
+					logger->Log("SPI_HAL Server: found interrupt on fds %d\n", i, LOGGER_LEVEL_DEBUG);
+					slave_fd = get_slave_fd(i);
+					get_int_fds(i-1, &fds);
+					nbytes = spi_read(slave_fd, &fds, &rxBuf);
+					rxPacket = new FSWPacket(rxBuf, nbytes);
 
-		//Poll for slave start on INT pins
-		//int retval = poll(poll_fds, NUM_SLAVES, -1);
-		//printf("retval = %d, revents = %x\n", retval, poll_fds[0].revents);
+					// Check bounds and send to dispatcher RX queue
+					if ((rxPacket->GetDestination() == LOCATION_ID_INVALID )|| (rxPacket->GetSource() == LOCATION_ID_INVALID)){
+						logger->Log("FSW Packet src or dest invalid. Not placing on queue", LOGGER_LEVEL_WARN);
+						logger->Log("Ret dest: %d", rxPacket->GetDestination(), LOGGER_LEVEL_DEBUG);
+						logger->Log("Ret source: %d", rxPacket->GetSource(), LOGGER_LEVEL_DEBUG);
+						delete rxPacket;
+					}else{
+						Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+						while (!mq_timed_send(dispatcher->queueNameRX, &rxPacket, MAX_BLOCK_TIME, 0));
+					}
+				}
+			}
+			this->GiveLock();
+		}
 
-		//TODO Correct take lock
-//		if (true == this->TakeLock(20)){
-//
-//			//Figure out if there was an interrupt
-//			for(int i = 0; i < NUM_SLAVES; i++){
-//				puts("reading interrupt fds...\n");
-//				read(int_fds[i], &buf, 1);
-//				if(poll_fds[i].revents & POLLPRI){
-//					//send null packet
-//					packet = new FSWPacket(SERVER_LOCATION_MIN + i, HARDWARE_LOCATION_MIN + i , 1, 0, NULL);
-//					printf("found interrupt on fds %d\n", i);
-//					SPIDispatch(*packet);
-//					break;
-//				}
-//			}
-//			this->GiveLock();
-//		}
-		//printf("\n*****************************************************\n ");
-
+		// TODO: is this necessary/is the wait appropriate?
+		waitUntil(enterTime, 50); // wait 50 ms
 	}
 }
 
 int SPI_HALServer::SPIDispatch(Phoenix::Core::FSWPacket & packet){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
 	int bytes_copied;
-	int nbytes;
 	int ret;
 	int slave_fd;
-	uint8 * rx_buf;
 	ssize_t packetLength;
 	uint8_t * packetBuffer;
 	struct pollfd fds;
-	FSWPacket * retPacket;
 	int destination = 0;
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-
-	//char buff[6] = "Valid";
 
 	packetLength = packet.GetFlattenSize();
-
 	logger->Log("SPI_Server: SPIDispatch(): Hardware dispatch packet size %d", (uint32) packetLength, LOGGER_LEVEL_DEBUG);
 
 	if(packetLength >= MAX_PACKET_SIZE)
@@ -194,11 +210,15 @@ int SPI_HALServer::SPIDispatch(Phoenix::Core::FSWPacket & packet){
 	get_int_fds(destination-1, &fds);
 	slave_fd = get_slave_fd(destination);
 
-	//take_lock
+	// TODO: take_lock
 	logger->Log("SPI_Server: SPIDispatch(): Writing packet to SPI", LOGGER_LEVEL_DEBUG);
 	bytes_copied = this->spi_write(slave_fd, &fds, packetBuffer, packetLength);
 	logger->Log("SPI_Server: SPIDispatch(): Waiting on return message", LOGGER_LEVEL_DEBUG);
-	//give lock
+	// TODO: give lock
+
+	return bytes_copied;
+
+	/* Outdated: waits for return message
 	nbytes = spi_read(slave_fd, &fds, &rx_buf);
 	logger->Log("SPI_Server: SPIDispatch(): Received return message!", LOGGER_LEVEL_DEBUG);
 	logger->Log("Packet = %2X\n", (uint32) rx_buf, LOGGER_LEVEL_DEBUG);
@@ -230,8 +250,7 @@ int SPI_HALServer::SPIDispatch(Phoenix::Core::FSWPacket & packet){
 
 		//delete retPacket;
 	}
-
-	return bytes_copied;
+	*/
 }
 
 int SPI_HALServer::spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, int len){
@@ -278,11 +297,8 @@ int SPI_HALServer::spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, in
 int SPI_HALServer::spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_bufp){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	int buf_pt = 0;
-	int wr_size = 1;
-	int timeout = -10;
 	int ret, i;
 	uint8_t dummy;
-	//char dummy[64];
 	int fd = fds->fd;
 	int rx_complete = 0;
 	uint16_t packet_len = 0;

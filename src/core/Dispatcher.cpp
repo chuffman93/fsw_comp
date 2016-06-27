@@ -51,8 +51,7 @@ namespace Phoenix
     {
 
 // Instantiate static members
-char * Dispatcher::subsystemQueueName = (char *) "/subsystemQueueHandle";
-char * Dispatcher::queueName = (char *) "/queueHandle";
+char * Dispatcher::queueNameRX = (char *) "/queueHandleRX";
 size_t timer;
 
 void Dispatcher::Initialize(void)
@@ -60,13 +59,10 @@ void Dispatcher::Initialize(void)
 	// Intentionally left empty
 }
 
-
 bool Dispatcher::IsFullyInitialized(void)
 {
-	return(Singleton::IsFullyInitialized() && (subQinit == 0) && (qInit == 0));
+	return(Singleton::IsFullyInitialized() && (qInitRX == 0));
 }
-
-
 
 void Dispatcher::DispatcherTask(void * params)
 {
@@ -86,8 +82,6 @@ void Dispatcher::DispatcherTask(void * params)
 		waitUntil(LastWakeTime, 1000);
 	}
 }
-
-
 
 	// Adding the local register to the global registry map. This will require some kind of Mutex Protection so that multiple server threads don't mess up the Global
 	// Registry Map - Umang
@@ -146,7 +140,7 @@ bool Dispatcher::Dispatch(FSWPacket & packet)
 		if (true == this->TakeLock(MAX_BLOCK_TIME))
 		{
 			logger->Log("Dispatcher: Took lock", LOGGER_LEVEL_DEBUG);
-			size_t numPackets = mq_size(queueHandle, queueAttr);
+			size_t numPackets = mq_size(queueHandleRX, queueAttrRX);
 			FSWPacket * tmpPacket;
 			try
 			{
@@ -160,8 +154,8 @@ bool Dispatcher::Dispatch(FSWPacket & packet)
 			{
 				logger->Log("Dispatcher::Dispatch() Queue is not full", LOGGER_LEVEL_DEBUG);
 				// Send the message via the message queue.
-				bool ret = mq_timed_send(queueName, (&tmpPacket), MAX_BLOCK_TIME, 0);
-				numPackets = mq_size(queueHandle, queueAttr);
+				bool ret = mq_timed_send(queueNameRX, (&tmpPacket), MAX_BLOCK_TIME, 0);
+				numPackets = mq_size(queueHandleRX, queueAttrRX);
 				this->GiveLock();
 				return ret;
 			}
@@ -217,7 +211,6 @@ DispatcherStatusEnum Dispatcher::WaitForDispatchResponse(const FSWPacket & packe
 	logger->Log("   Dispatch: Command received, but no response sent", LOGGER_LEVEL_ERROR);
 	return DISPATCHER_STATUS_MSG_RCVD_NO_RESP_SENT;
 }
-
 
 bool Dispatcher::Listen(LocationIDType serverID)
 {
@@ -335,7 +328,7 @@ bool Dispatcher::Listen(LocationIDType serverID)
 	delete packet;
 
 	// Send the response back to the server that dispatched the original message.
-	while (!mq_timed_send(queueName, &ret, MAX_BLOCK_TIME, 0));
+	while (!mq_timed_send(queueNameRX, &ret, MAX_BLOCK_TIME, 0));
 	return true;
 }
 
@@ -394,7 +387,7 @@ bool Dispatcher::CheckQueueForMatchingPacket(const FSWPacket & packetIn,
 	{
 		// Check for the first message in the queue
 
-		if (mq_timed_receive(queueName, &packetOut, 0, DISPATCHER_MAX_DELAY) == false)
+		if (mq_timed_receive(queueNameRX, &packetOut, 0, DISPATCHER_MAX_DELAY) == false)
 		{
 			this->GiveLock();
 			return false;
@@ -422,7 +415,7 @@ bool Dispatcher::CheckQueueForMatchingPacket(const FSWPacket & packetIn,
 			{
 				// Check the number of packets waiting in the queue.
 				logger->Log("Dispatcher: CheckQueueForMatchingPacket(): checking more packets", LOGGER_LEVEL_DEBUG);
-				numPackets = mq_size(queueHandle, queueAttr);
+				numPackets = mq_size(queueHandleRX, queueAttrRX);
 				logger->Log("Dispatcher: CheckQueueForMatchingPacket(): there are %u more packets", (uint32) numPackets, LOGGER_LEVEL_DEBUG);
 
 				// Get each packet and check it against packetIn.
@@ -430,14 +423,14 @@ bool Dispatcher::CheckQueueForMatchingPacket(const FSWPacket & packetIn,
 				{
 					// Get the next packet.
 					//mqd_t tmpqueueHandle = open(queueName, O_RDONLY);
-					if (mq_timed_receive(queueName, &tmpPacket, 0, 0)
+					if (mq_timed_receive(queueNameRX, &tmpPacket, 0, 0)
 							== false)
 					{
 						//debug_led_set_led(4, LED_ON);
 						// Error: There should have been a packet in
 						// the queue, but there wasn't, so put
 						// packetOut back.
-						if (mq_timed_send(queueName, &packetOut, 1, 0)
+						if (mq_timed_send(queueNameRX, &packetOut, 1, 0)
 								== false)
 						{
 							// Error: This is really bad because we
@@ -453,7 +446,7 @@ bool Dispatcher::CheckQueueForMatchingPacket(const FSWPacket & packetIn,
 					}
 					// Put packetOut back on the queue since it didn't
 					// match packetIn.
-					if (mq_timed_send(queueName, &packetOut, 1, 0)
+					if (mq_timed_send(queueNameRX, &packetOut, 1, 0)
 							== false)
 					{
 						// Error
@@ -477,7 +470,7 @@ bool Dispatcher::CheckQueueForMatchingPacket(const FSWPacket & packetIn,
 				}
 				// No packets were found, so put the last packet
 				// back on the queue.
-				if (mq_timed_send(queueName, &packetOut, 1, 0) == false)
+				if (mq_timed_send(queueNameRX, &packetOut, 1, 0) == false)
 				{
 					// Error: This is really bad because we
 					// can't even preserve the state of
@@ -510,7 +503,7 @@ bool Dispatcher::SendErrorResponse(ErrorOpcodeEnum errorCode,
 	catch (bad_alloc & e)
 	{
 
-		while (!mq_timed_send(queueName, &packet, MAX_BLOCK_TIME, 0));
+		while (!mq_timed_send(queueNameRX, &packet, MAX_BLOCK_TIME, 0));
 		return false;
 	}
 	src = packet->GetSource( );
@@ -519,7 +512,7 @@ bool Dispatcher::SendErrorResponse(ErrorOpcodeEnum errorCode,
 	//packet->SetMessage(ret);
 	packet->SetMessageBuf(NULL);
 	delete ret;
-	while (!mq_timed_send(queueName, &packet, MAX_BLOCK_TIME, 0));
+	while (!mq_timed_send(queueNameRX, &packet, MAX_BLOCK_TIME, 0));
 	return true;
 }
 
@@ -537,8 +530,6 @@ void * Dispatcher::InvokeHandler(void * parameters)
 
 	pthread_exit(0);
 }
-
-//TODO:FIXME:Figure out hardware dispatching
 
 uint32_t Dispatcher::DispatchToHardware( FSWPacket & packet)
 {
@@ -590,14 +581,14 @@ uint32_t Dispatcher::DispatchToHardware( FSWPacket & packet)
 
 	protocolChoice = cmdServer->subsystem_acp_protocol[packet.GetDestination()];
 
+	FSWPacket * txPacket = &packet;
 	switch(protocolChoice){
 		case ACP_PROTOCOL_SPI:
-			logger->Log("DispatchToHardware(): Dispatch over SPI", LOGGER_LEVEL_DEBUG);
-			bytesCopied = spi_server->SPIDispatch(packet);
+			//logger->Log("DispatchToHardware(): Dispatch over SPI", LOGGER_LEVEL_DEBUG);
+			while (!mq_timed_send(spi_server->queueNameSPITX, NULL, MAX_BLOCK_TIME, 0));
 			break;
 		case ACP_PROTOCOL_ETH:
 			logger->Log("DispatchToHardware(): Dispatch over SPI", LOGGER_LEVEL_DEBUG);
-			//fixme take ETHDispatch out of ETH_Server and make it a utility. i hate c++
 			bytesCopied = eth_server->ETHDispatch(packet);
 			break;
 		default:
@@ -633,14 +624,8 @@ uint32_t Dispatcher::DispatchToHardware( FSWPacket & packet)
 Dispatcher::Dispatcher(void)
 		: Singleton(), registryMap()
 {
-
-	mq_unlink(subsystemQueueName);
-	mq_unlink(queueName);
-	subQinit = mqCreate(&subsystemQueueHandle, &subsystemQueueAttr, subsystemQueueName);
-
-	qInit = mqCreate(&queueHandle, &queueAttr, queueName);
-
-
+	mq_unlink(queueNameRX);
+	qInitRX = mqCreate(&queueHandleRX, &queueAttrRX, queueNameRX);
 }
 
 Dispatcher::Dispatcher(const Dispatcher & source)
@@ -651,7 +636,6 @@ Dispatcher::Dispatcher(const Dispatcher & source)
 #ifdef TEST
 void Dispatcher::Destroy(void)
 {
-	mq_unlink(subsystemQueueName);
 	mq_unlink(queueName);
 }
 #endif
@@ -665,8 +649,7 @@ Dispatcher::~Dispatcher(void)
 		registryMap.erase(it);
 	}
 	registryMap.clear( );
-	mq_unlink(subsystemQueueName);
-	mq_unlink(queueName);
+	mq_unlink(queueNameRX);
 }
 
 Dispatcher & Dispatcher::operator=(const Dispatcher & source)
