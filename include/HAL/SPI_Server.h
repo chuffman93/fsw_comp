@@ -32,7 +32,7 @@ using namespace std;
 #define     server_name_len    8
 #define     N_SERVERS    10
 
-#define NUM_SLAVES 3
+#define NUM_SLAVES 4
 
 #define TXD_PACKET_SIG		SIGUSR1
 #define RXD_PACKET_SIG		SIGUSR2

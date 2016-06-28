@@ -43,6 +43,7 @@ SPI_HALServer::SPI_HALServer()
 void SPI_HALServer::SPI_HALServerLoop(void)
 {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("Entered SPI_HAL Server Loop", LOGGER_LEVEL_INFO);
 	char spi_devices[NUM_SLAVES][STR_LEN];
 	char int_val[NUM_SLAVES][STR_LEN];
 	fd_set int_fd_set;
@@ -50,8 +51,8 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 
 	int i ,ret, len;
 
-	uint8_t mode = SPI_MODE_1;
-	uint32_t speed = 1000000;
+	uint8_t mode = SPI_MODE_0;
+	uint32_t speed = 10000;
 	uint8_t buf;
 	int timeout = -1;
 	FSWPacket * packet;
@@ -65,22 +66,31 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 	system("echo \"134\" > /sys/class/gpio/export");
 	system("echo \"in\" > /sys/class/gpio/pioE6/direction");
 	system("echo \"falling\" > /sys/class/gpio/pioE6/edge");
+
 	system("echo \"102\" > /sys/class/gpio/export");
-	//system("echo \"in\" > /sys/class/gpio/pioB27/direction");
-	system("echo \"rising\" > /sys/class/gpio/pioD6/edge");
+	system("echo \"in\" > /sys/class/gpio/pioD6/direction");
+	system("echo \"falling\" > /sys/class/gpio/pioD6/edge");
+
 	system("echo \"4\" > /sys/class/gpio/export");
-	//system("echo \"in\" > /sys/class/gpio/pioB28/direction");
-	system("echo \"rising\" > /sys/class/gpio/pioA4/edge");
+	system("echo \"in\" > /sys/class/gpio/pioA4/direction");
+	system("echo \"falling\" > /sys/class/gpio/pioA4/edge");
+
+	system("echo \"140\" > /sys/class/gpio/export");
+	system("echo \"in\" > /sys/class/gpio/pioA25/direction");
+	system("echo \"falling\" > /sys/class/gpio/pioA25/edge");
+
 
 	//Open spi device File Descriptors
 	strcpy(&spi_devices[0][0],"/dev/spidev32765.0");
 	strcpy(&spi_devices[1][0],"/dev/spidev32765.1");
 	strcpy(&spi_devices[2][0],"/dev/spidev32765.2");
+	strcpy(&spi_devices[3][0],"/dev/spidev32765.3");
 
 	//Open INT gpio File Descriptors
 	strcpy(&int_val[0][0],"/sys/class/gpio/pioE6/value");
 	strcpy(&int_val[1][0],"/sys/class/gpio/pioD6/value");
 	strcpy(&int_val[2][0],"/sys/class/gpio/pioA4/value");
+	strcpy(&int_val[3][0],"/sys/class/gpio/pioE12/value");
 
 	//FD_ZERO(&int_fd_set);
 
@@ -189,9 +199,9 @@ int SPI_HALServer::SPIDispatch(Phoenix::Core::FSWPacket & packet){
 
 	destination = packet.GetDestination();
 	int source = packet.GetSource();
-	logger->Log("destination = %d\n", destination, LOGGER_LEVEL_DEBUG);
-	logger->Log("source = %d\n", source, LOGGER_LEVEL_DEBUG);
-	get_int_fds(destination-1, &fds);
+	logger->Log("SPI_Server: SPIDispatch(): destination = %d\n", destination, LOGGER_LEVEL_DEBUG);
+	logger->Log("SPI_Server: SPIDispatch(): source = %d\n", source, LOGGER_LEVEL_DEBUG);
+	get_int_fds(destination, &fds);
 	slave_fd = get_slave_fd(destination);
 
 	//take_lock
@@ -199,37 +209,35 @@ int SPI_HALServer::SPIDispatch(Phoenix::Core::FSWPacket & packet){
 	bytes_copied = this->spi_write(slave_fd, &fds, packetBuffer, packetLength);
 	logger->Log("SPI_Server: SPIDispatch(): Waiting on return message", LOGGER_LEVEL_DEBUG);
 	//give lock
-	nbytes = spi_read(slave_fd, &fds, &rx_buf);
-	logger->Log("SPI_Server: SPIDispatch(): Received return message!", LOGGER_LEVEL_DEBUG);
-	logger->Log("Packet = %2X\n", (uint32) rx_buf, LOGGER_LEVEL_DEBUG);
-
-	retPacket = new FSWPacket(rx_buf, nbytes);
-	logger->Log("Now putting that FSW Packet into the message queue using Dispatch!", LOGGER_LEVEL_DEBUG);
-	free(rx_buf);
-
-	if((retPacket->GetDestination() == LOCATION_ID_INVALID )|| (retPacket->GetSource() == LOCATION_ID_INVALID))
-	{
-		logger->Log("FSW Packet src or dest invalid. Not placing on queue", LOGGER_LEVEL_DEBUG);
-		logger->Log("Ret dest: %d", retPacket->GetDestination(), LOGGER_LEVEL_DEBUG);
-		logger->Log("Ret source: %d",retPacket->GetSource(), LOGGER_LEVEL_DEBUG);
-		//todo log error
-		delete retPacket;
-	}
-	else{
-
-		Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-
-		if(!dispatcher->Dispatch(*retPacket))
-		{
-			logger->Log("SPIServer: Error in dispatch", LOGGER_LEVEL_WARN);
-		}
-		logger->Log("SPIServer: Dispatched packet successfully", LOGGER_LEVEL_INFO);
-
-
-		system("echo \"Yay\" > Logfile.txt");
-
-		//delete retPacket;
-	}
+//	nbytes = spi_read(slave_fd, &fds, &rx_buf);
+//	logger->Log("SPI_Server: SPIDispatch(): Received return message!", LOGGER_LEVEL_DEBUG);
+//	logger->Log("Packet = %2X\n", (uint32) rx_buf, LOGGER_LEVEL_DEBUG);
+//
+//	retPacket = new FSWPacket(rx_buf, nbytes);
+//	logger->Log("Now putting that FSW Packet into the message queue using Dispatch!", LOGGER_LEVEL_DEBUG);
+//	free(rx_buf);
+//
+//	if((retPacket->GetDestination() == LOCATION_ID_INVALID )|| (retPacket->GetSource() == LOCATION_ID_INVALID))
+//	{
+//		logger->Log("FSW Packet src or dest invalid. Not placing on queue", LOGGER_LEVEL_DEBUG);
+//		logger->Log("Ret dest: %d", retPacket->GetDestination(), LOGGER_LEVEL_DEBUG);
+//		logger->Log("Ret source: %d",retPacket->GetSource(), LOGGER_LEVEL_DEBUG);
+//		//todo log error
+//		delete retPacket;
+//	}
+//	else{
+//
+//		Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+//
+//		if(!dispatcher->Dispatch(*retPacket))
+//		{
+//			logger->Log("SPIServer: Error in dispatch", LOGGER_LEVEL_WARN);
+//		}
+//		logger->Log("SPIServer: Dispatched packet successfully", LOGGER_LEVEL_INFO);
+//
+//
+//		//delete retPacket;
+//	}
 
 	return bytes_copied;
 }
@@ -247,12 +255,16 @@ int SPI_HALServer::spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, in
 	read(fds->fd, &dummy, 1);
 
 	while(buf_pt != len){
-		logger->Log("Writing byte %d", buf_pt, LOGGER_LEVEL_DEBUG);
+		logger->Log("Writin6g byte %d", buf_pt, LOGGER_LEVEL_DEBUG);
 		logger->Log("Byte value: ----------------------- 0x%x", *(buf + buf_pt), LOGGER_LEVEL_DEBUG);
+
+		printf("File descriptor: %d\n", slave_fd);
+
 		ret = write(slave_fd, buf + buf_pt, wr_size);
 		if(ret != wr_size){
 			logger->Log("spi_write: Failed to write byte!", LOGGER_LEVEL_WARN);
-			perror("Error sending byte\n");
+			printf("Ret: %d", ret);
+			perror("Error sending byte");
 		}
 		buf_pt++;
 
@@ -359,13 +371,49 @@ int SPI_HALServer::spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_bufp){
 
 int SPI_HALServer::get_int_fds(int subsystem, struct pollfd * poll_fds){
 	memset((void*)poll_fds, 0, sizeof(struct pollfd));
-	poll_fds->fd = int_fds[subsystem];
+	int index;
+	switch(subsystem){
+		case HARDWARE_LOCATION_EPS:
+			index = 0;
+			break;
+		case HARDWARE_LOCATION_COM:
+			index = 1;
+			break;
+		case HARDWARE_LOCATION_ACS:
+			index = 2;
+			break;
+		case HARDWARE_LOCATION_PLD:
+			index = 3;
+			break;
+		default:
+			printf("Fuck you Connor\n");
+			return -1;
+	}
+	poll_fds->fd = int_fds[index];
 	poll_fds->events = POLLPRI;
 	return 0;
 }
 
 int SPI_HALServer::get_slave_fd(int subsystem){
-	//subsystem = 1; // TODO: this breaks literally everything
+	int index;
+	switch(subsystem){
+		case HARDWARE_LOCATION_EPS:
+			index = 0;
+			break;
+		case HARDWARE_LOCATION_COM:
+			index = 1;
+			break;
+		case HARDWARE_LOCATION_ACS:
+			index = 2;
+			break;
+		case HARDWARE_LOCATION_PLD:
+			index = 3;
+			break;
+		default:
+			printf("Bad\n");
+			return -1;
+	}
+	printf("Index: %d\n", index);
 	return spi_fds[subsystem];
 }
 
