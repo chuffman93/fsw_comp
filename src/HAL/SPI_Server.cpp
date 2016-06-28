@@ -52,7 +52,7 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 	int i ,ret, len;
 
 	uint8_t mode = SPI_MODE_0;
-	uint32_t speed = 10000;
+	uint32_t speed = 1000000;
 	uint8_t buf;
 	int timeout = -1;
 	FSWPacket * packet;
@@ -75,7 +75,7 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 	system("echo \"in\" > /sys/class/gpio/pioA4/direction");
 	system("echo \"falling\" > /sys/class/gpio/pioA4/edge");
 
-	system("echo \"140\" > /sys/class/gpio/export");
+	system("echo \"25\" > /sys/class/gpio/export");
 	system("echo \"in\" > /sys/class/gpio/pioA25/direction");
 	system("echo \"falling\" > /sys/class/gpio/pioA25/edge");
 
@@ -255,9 +255,10 @@ int SPI_HALServer::spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, in
 	read(fds->fd, &dummy, 1);
 
 	while(buf_pt != len){
-		logger->Log("Writin6g byte %d", buf_pt, LOGGER_LEVEL_DEBUG);
+		logger->Log("Writing byte %d", buf_pt, LOGGER_LEVEL_DEBUG);
 		logger->Log("Byte value: ----------------------- 0x%x", *(buf + buf_pt), LOGGER_LEVEL_DEBUG);
 
+		printf("SPI FD: %d\n", spi_fds[3]);
 		printf("File descriptor: %d\n", slave_fd);
 
 		ret = write(slave_fd, buf + buf_pt, wr_size);
@@ -413,7 +414,6 @@ int SPI_HALServer::get_slave_fd(int subsystem){
 			printf("Bad\n");
 			return -1;
 	}
-	printf("Index: %d\n", index);
-	return spi_fds[subsystem];
+	return spi_fds[index];
 }
 
