@@ -32,12 +32,17 @@ using namespace Core;
 
 bool packetWaiting;
 int debugFile;
-char * SPI_HALServer::queueNameTX = (char *) "/queueHandleSPITX";
+char * SPI_HALServer::queueNameSPITX = (char *) "/queueHandleSPITX";
 
 SPI_HALServer::SPI_HALServer()
 {
-	mq_unlink(queueNameTX);
-	qInitTX = mqCreate(&queueHandleTX, &queueAttrTX, queueNameTX);
+	mq_unlink(queueNameSPITX);
+	qInitTX = mqCreate(&queueHandleTX, &queueAttrTX, queueNameSPITX);
+}
+
+SPI_HALServer::~SPI_HALServer()
+{
+	mq_unlink(queueNameSPITX);
 }
 
 // Enter this loop
@@ -47,7 +52,6 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 	char spi_devices[NUM_SLAVES][STR_LEN];
 	char int_val[NUM_SLAVES][STR_LEN];
 	fd_set int_fd_set;
-	struct pollfd poll_fds[NUM_SLAVES];
 
 	int i ,ret, len;
 
@@ -109,9 +113,9 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 		read(int_fds[i], &buf, 1);
 	}
 
-	logger->Log("\n*****************************************************", LOGGER_LEVEL_INFO);
-	logger->Log("SPI_HAL Server: Entering Loop", LOGGER_LEVEL_INFO);
-	logger->Log("\n*****************************************************", LOGGER_LEVEL_INFO);
+	logger->Log("*****************************************************", LOGGER_LEVEL_INFO);
+	logger->Log("SPI_HAL Server: Entering Loop --------------------- *", LOGGER_LEVEL_INFO);
+	logger->Log("*****************************************************", LOGGER_LEVEL_INFO);
 
 	int enterTime;
 	int slave_fd;
@@ -121,14 +125,13 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 	FSWPacket * rxPacket;
 	while (1) {
 		errno = 0;
-		logger->Log("SPI_HAL Server: Preparing for TX/RX", LOGGER_LEVEL_DEBUG);
 		enterTime = getTimeInMilis();
 
 		// ---- TX ----------------------------------------------------------------------------------------------------------------
 		FSWPacket * txPacket;
 		if(true == this->TakeLock(MAX_BLOCK_TIME)){
-			if(mq_size > 0){
-				if(mq_timed_receive(queueNameTX, &txPacket, 0, DISPATCHER_MAX_DELAY)){
+			if(mq_size(queueHandleTX, queueAttrTX) > 0){
+				if(mq_timed_receive(queueNameSPITX, &txPacket, 0, DISPATCHER_MAX_DELAY)){
 					SPIDispatch(*txPacket);
 				}else{
 					logger->Log("SPI_HAL Server: Queue receive for TX failed!", LOGGER_LEVEL_WARN);
@@ -142,6 +145,7 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 		}
 
 		// ---- RX ----------------------------------------------------------------------------------------------------------------
+		poll(poll_fds, NUM_SLAVES, 10);
 		if (true == this->TakeLock(MAX_BLOCK_TIME)){
 			//Figure out if there was an interrupt
 			for (int i = 0; i < NUM_SLAVES; i++){
@@ -163,13 +167,17 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 						Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 						while (!mq_timed_send(dispatcher->queueNameRX, &rxPacket, MAX_BLOCK_TIME, 0));
 					}
+				}else{
+					logger->Log("SPI_HAL Server: No RX interrupts found", LOGGER_LEVEL_DEBUG);
 				}
 			}
 			this->GiveLock();
+		}else{
+			logger->Log("SPI_HAL Server: RX semaphore failed", LOGGER_LEVEL_WARN);
 		}
 
-		// TODO: is this necessary/is the wait appropriate?
-		waitUntil(enterTime, 50); // wait 50 ms
+		// FIXME: decrease wait time
+		waitUntil(enterTime, 500); // wait 500 ms
 	}
 }
 
@@ -185,20 +193,20 @@ int SPI_HALServer::SPIDispatch(Phoenix::Core::FSWPacket & packet){
 	int destination = 0;
 
 	packetLength = packet.GetFlattenSize();
-	logger->Log("SPI_Server: SPIDispatch(): Hardware dispatch packet size %d", (uint32) packetLength, LOGGER_LEVEL_DEBUG);
+	logger->Log("SPI_Server: SPIDispatch(): Dispatching packet of size %d", (uint32) packetLength, LOGGER_LEVEL_DEBUG);
 
 	if(packetLength >= MAX_PACKET_SIZE)
 	{
-		//packet is too large
+		logger->Log("SPI_Server: SPIDispatch(): Packet too large!", LOGGER_LEVEL_ERROR);
 		return -1;
 	}
 
 	packetBuffer = (uint8_t *) malloc(packetLength);
+	ret = packet.Flatten(packetBuffer, packetLength);
+
 	//check if whole packet was copied
-	ret = packet.Flatten(packetBuffer,packetLength);
 	if (ret != packetLength)
 	{
-		//failed to flatten packet
 		logger->Log("SPI_Server: SPIDispatch(): Packet flatten fail", LOGGER_LEVEL_WARN);
 		return -2;
 	}
@@ -210,65 +218,29 @@ int SPI_HALServer::SPIDispatch(Phoenix::Core::FSWPacket & packet){
 	get_int_fds(destination-1, &fds);
 	slave_fd = get_slave_fd(destination);
 
-	// TODO: take_lock
 	logger->Log("SPI_Server: SPIDispatch(): Writing packet to SPI", LOGGER_LEVEL_DEBUG);
 	bytes_copied = this->spi_write(slave_fd, &fds, packetBuffer, packetLength);
 	logger->Log("SPI_Server: SPIDispatch(): Waiting on return message", LOGGER_LEVEL_DEBUG);
-	// TODO: give lock
 
 	return bytes_copied;
-
-	/* Outdated: waits for return message
-	nbytes = spi_read(slave_fd, &fds, &rx_buf);
-	logger->Log("SPI_Server: SPIDispatch(): Received return message!", LOGGER_LEVEL_DEBUG);
-	logger->Log("Packet = %2X\n", (uint32) rx_buf, LOGGER_LEVEL_DEBUG);
-
-	retPacket = new FSWPacket(rx_buf, nbytes);
-	logger->Log("Now putting that FSW Packet into the message queue using Dispatch!", LOGGER_LEVEL_DEBUG);
-	free(rx_buf);
-
-	if((retPacket->GetDestination() == LOCATION_ID_INVALID )|| (retPacket->GetSource() == LOCATION_ID_INVALID))
-	{
-		logger->Log("FSW Packet src or dest invalid. Not placing on queue", LOGGER_LEVEL_DEBUG);
-		logger->Log("Ret dest: %d", retPacket->GetDestination(), LOGGER_LEVEL_DEBUG);
-		logger->Log("Ret source: %d",retPacket->GetSource(), LOGGER_LEVEL_DEBUG);
-		//todo log error
-		delete retPacket;
-	}
-	else{
-
-		Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-
-		if(!dispatcher->Dispatch(*retPacket))
-		{
-			logger->Log("SPIServer: Error in dispatch", LOGGER_LEVEL_WARN);
-		}
-		logger->Log("SPIServer: Dispatched packet successfully", LOGGER_LEVEL_INFO);
-
-
-		system("echo \"Yay\" > Logfile.txt");
-
-		//delete retPacket;
-	}
-	*/
 }
 
 int SPI_HALServer::spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, int len){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	int buf_pt = 0;
 	int wr_size = 1;
-	int timeout = -1;
 	int ret;
 	uint8_t dummy;
-	//char dummy[64];
-	int fd = fds->fd;
-	//TODO Add timeout
 	read(fds->fd, &dummy, 1);
 
 	while(buf_pt != len){
 		logger->Log("Writing byte %d", buf_pt, LOGGER_LEVEL_DEBUG);
 		logger->Log("Byte value: ----------------------- 0x%x", *(buf + buf_pt), LOGGER_LEVEL_DEBUG);
-		ret = write(slave_fd, buf + buf_pt, wr_size);
+		if (true == this->TakeLock(2000)){
+			ret = write(slave_fd, buf + buf_pt, wr_size);
+		}else{
+			logger->Log("Error writing byte, semaphore failed!", LOGGER_LEVEL_WARN);
+		}
 		if(ret != wr_size){
 			logger->Log("spi_write: Failed to write byte!", LOGGER_LEVEL_WARN);
 			perror("Error sending byte\n");

@@ -44,7 +44,7 @@ void sendComplete(int signum);
 class SPI_HALServer: public Phoenix::Core::Singleton
 {
 	public:
-		struct pollfd poll_fds;
+		struct pollfd poll_fds[NUM_SLAVES];
 		int spi_fds[NUM_SLAVES];
 		int int_fds[NUM_SLAVES];
 
@@ -52,6 +52,8 @@ class SPI_HALServer: public Phoenix::Core::Singleton
 
 		// Constructor
 		SPI_HALServer();
+
+		~SPI_HALServer();
 
 		void SPI_HALServerLoop(void);
 
