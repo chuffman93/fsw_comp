@@ -209,8 +209,6 @@ namespace Phoenix
 
             DispatcherStatusEnum WaitForDispatchResponse(const FSWPacket & packet, FSWPacket ** retPacketin);
 
-            void printString(const uint8 * str);
-
             /*! \brief Checks for a FSWPacket Addressed to a Given Server
              *
              *  Checks the message queue for a message for the given server.
@@ -237,7 +235,7 @@ namespace Phoenix
              */
 
             uint32_t DispatchToHardware(FSWPacket & packet);
-
+            static char * queueNameRX;
 
         private:
             /*! \brief Struct for Holding Server Message Handler Information */
@@ -268,31 +266,17 @@ namespace Phoenix
             /*! \brief Struct for Passing Parameters to InvokeHandler */
             struct DispatcherTaskParameter
             {
-            	/*! \brief Registry from which to Invoke Handler */
             	MessageHandlerRegistry * registry;
-
-            	/*! \brief FSWPacket to Pass to the MessageHandler */
             	FSWPacket * packet;
-
-            	/*! \brief Return Value of the MessageHandler */
             	FSWPacket * retPacket;
-
             	sem_t syncSem;
-
             	sem_t doneSem;
             };
 
-            /*! \brief Handle to the Dispatcher Subsystem Task Queue */
-            mqd_t subsystemQueueHandle;
-            struct mq_attr subsystemQueueAttr;
-            static  char * subsystemQueueName;
-            int subQinit;
-
             /*! \brief Handle to the Dispatcher Message Queue */
-            mqd_t queueHandle;
-            struct mq_attr queueAttr;
-            static char * queueName;
-            int qInit;
+            mqd_t queueHandleRX;
+            struct mq_attr queueAttrRX;
+            int qInitRX;
 
             /*! \brief MessageHandler Registry Map */
             std::map<LocationIDType, DispatcherHandlerType *> registryMap;
@@ -382,23 +366,6 @@ namespace Phoenix
             		                         FSWPacket * &packetOut,
             		                         PacketCheckFunctionType Check);
 
-            /*! \brief Sends an Error Response to a FSWPacket
-             *
-             *  Sends a response packet to the source field in the given
-             *  packet.  The message in the packet is a ReturnMessage
-             *  that wraps an ErrorMessage with the given opcode.
-             *
-             *  \param errorCode ErrorMessage opcode.
-             *  \param packet FSWPacket that is being responded to.
-             *
-             *  \return true if the response was sent successfully and false
-             *  otherwise.
-             *
-             *  \note If the response fails, then the original packet is put
-             *  back on the message queue so that it can be handled again.
-             */
-            bool SendErrorResponse(ErrorOpcodeEnum errorCode, FSWPacket * packet,VariableTypeData data);
-
             /*! \brief Invokes a MessageHandler in a New Task
              *
              *  \param parameters Pointer to DispatcherTaskParameter struct.
@@ -408,63 +375,11 @@ namespace Phoenix
              */
             static void * InvokeHandler(void * parameters);
 
-#ifndef WIN32
-            /*! \brief Handles SIGUSR1 when send is complete
-             *
-             *	Changes value of sent to true to indicate that a packet has been
-             *	sent so that DispatchToHardware can return
-             *
-             */
-          //  void sendComplete(int signum);
-
-            /*! \brief Signal handler that Places packet from hardware on queue
-             *
-             *	Copies message that was received over SPI onto the dispatcherQueue
-             *
-             */
-            //void receivedPacket(int signum);
-
-
-
-            /*! \brief Returns the Device and Chip for a Hardware Location
-             *
-             *  \param loc Location of Hardware Device.
-             *  \param dev SPI Device for Given Location (Return Value).
-             *  \param chip Chip Number for Given Location (Return Value).
-             *
-             *  \return true if successful and false otherwise.
-             */
-           // bool GetHardwareDeviceFromLocation(HardwareLocationIDEnum loc, SPIDeviceEnum & dev, uint8_t & chip);
-
-            /*! \brief Sends a FSWPacket to the Specified Hardware.
-             *
-             *  \param loc Hardware Location to Write to.
-             *  \param packet FSWPacket to Send.
-             *
-             *  \return 0 if successful and the line number of failure otherwise.
-             */
-           // uint32_t SendPacketToHardware(SPIDeviceEnum dev, const FSWPacket & packet);
-
-            /*! \brief Receives a FSWPacket from Hardware and Dispatches it.
-             *
-             *  \param loc Hardware Location to Read From.
-             *
-             *  \return 0 if successful and the line number of failure otherwise.
-             */
-           // uint32_t GetPacketFromHardware(SPIDeviceEnum dev, FSWPacket & packetOut);
-
-
-
-#endif // WIN32
-
 			/*! \brief Destructor for Dispatcher */
 			virtual ~Dispatcher(void );
 
             /*! \brief Constructor for Dispatcher */
             Dispatcher(void);
-
-            /*! \brief Copy Constructor for Dispatcher */
-            Dispatcher(const Dispatcher & source);
 
             /*! \brief Assignment Operator for Dispatcher */
             Dispatcher & operator=(const Dispatcher & source);
