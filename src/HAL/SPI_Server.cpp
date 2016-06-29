@@ -145,10 +145,9 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 		}
 
 		// ---- RX ----------------------------------------------------------------------------------------------------------------
-		poll(poll_fds, NUM_SLAVES, 10);
 		if (true == this->TakeLock(MAX_BLOCK_TIME)){
-			//Figure out if there was an interrupt
 			for (int i = 0; i < NUM_SLAVES; i++){
+				poll(poll_fds+i, 1, timeout);
 				read(int_fds[i], &buf, 1);
 				if (poll_fds[i].revents & POLLPRI){
 					logger->Log("SPI_HAL Server: found interrupt on fds %d\n", i, LOGGER_LEVEL_DEBUG);
