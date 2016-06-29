@@ -46,16 +46,13 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 	logger->Log("Entered SPI_HAL Server Loop", LOGGER_LEVEL_INFO);
 	char spi_devices[NUM_SLAVES][STR_LEN];
 	char int_val[NUM_SLAVES][STR_LEN];
-	fd_set int_fd_set;
 	struct pollfd poll_fds[NUM_SLAVES];
 
-	int i ,ret, len;
+	int i ,ret;
 
-	uint8_t mode = SPI_MODE_0;
+	uint8_t mode = SPI_MODE_1;
 	uint32_t speed = 1000000;
 	uint8_t buf;
-	int timeout = -1;
-	FSWPacket * packet;
 
 	memset((void*)poll_fds, 0, sizeof(poll_fds));
 
@@ -63,22 +60,28 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 
 	//Initalize GPIO INT Pins TODO EXPORT PINS AND SET INTS
 	logger->Log("SPI_Server: Loop(): Initializing GPIO INT pins", LOGGER_LEVEL_DEBUG);
-	system("echo \"134\" > /sys/class/gpio/export");
-	system("echo \"in\" > /sys/class/gpio/pioE6/direction");
-	system("echo \"falling\" > /sys/class/gpio/pioE6/edge");
+	bool gpioCheck = true;
 
-	system("echo \"102\" > /sys/class/gpio/export");
-	system("echo \"in\" > /sys/class/gpio/pioD6/direction");
-	system("echo \"falling\" > /sys/class/gpio/pioD6/edge");
+	gpioCheck &= (-1 != system("echo \"134\" > /sys/class/gpio/export"));
+	gpioCheck &= (-1 != system("echo \"in\" > /sys/class/gpio/pioE6/direction"));
+	gpioCheck &= (-1 != system("echo \"falling\" > /sys/class/gpio/pioE6/edge"));
 
-	system("echo \"4\" > /sys/class/gpio/export");
-	system("echo \"in\" > /sys/class/gpio/pioA4/direction");
-	system("echo \"falling\" > /sys/class/gpio/pioA4/edge");
+	gpioCheck &= (-1 != system("echo \"102\" > /sys/class/gpio/export"));
+	gpioCheck &= (-1 != system("echo \"in\" > /sys/class/gpio/pioD6/direction"));
+	gpioCheck &= (-1 != system("echo \"falling\" > /sys/class/gpio/pioD6/edge"));
 
-	system("echo \"25\" > /sys/class/gpio/export");
-	system("echo \"in\" > /sys/class/gpio/pioA25/direction");
-	system("echo \"falling\" > /sys/class/gpio/pioA25/edge");
+	gpioCheck &= (-1 != system("echo \"4\" > /sys/class/gpio/export"));
+	gpioCheck &= (-1 != system("echo \"in\" > /sys/class/gpio/pioA4/direction"));
+	gpioCheck &= (-1 != system("echo \"falling\" > /sys/class/gpio/pioA4/edge"));
 
+	gpioCheck &= (-1 != system("echo \"25\" > /sys/class/gpio/export"));
+	gpioCheck &= (-1 != system("echo \"in\" > /sys/class/gpio/pioA25/direction"));
+	gpioCheck &= (-1 != system("echo \"falling\" > /sys/class/gpio/pioA25/edge"));
+
+	if(!gpioCheck){
+		// TODO: figure out if this needs handling
+		logger->Log("SPI_Server: Loop(): Bad return on GPIO pin", LOGGER_LEVEL_WARN);
+	}
 
 	//Open spi device File Descriptors
 	strcpy(&spi_devices[0][0],"/dev/spidev32765.0");
@@ -90,7 +93,7 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 	strcpy(&int_val[0][0],"/sys/class/gpio/pioE6/value");
 	strcpy(&int_val[1][0],"/sys/class/gpio/pioD6/value");
 	strcpy(&int_val[2][0],"/sys/class/gpio/pioA4/value");
-	strcpy(&int_val[3][0],"/sys/class/gpio/pioE12/value");
+	strcpy(&int_val[3][0],"/sys/class/gpio/pioA25/value");
 
 	//FD_ZERO(&int_fd_set);
 
@@ -209,35 +212,35 @@ int SPI_HALServer::SPIDispatch(Phoenix::Core::FSWPacket & packet){
 	bytes_copied = this->spi_write(slave_fd, &fds, packetBuffer, packetLength);
 	logger->Log("SPI_Server: SPIDispatch(): Waiting on return message", LOGGER_LEVEL_DEBUG);
 	//give lock
-//	nbytes = spi_read(slave_fd, &fds, &rx_buf);
-//	logger->Log("SPI_Server: SPIDispatch(): Received return message!", LOGGER_LEVEL_DEBUG);
-//	logger->Log("Packet = %2X\n", (uint32) rx_buf, LOGGER_LEVEL_DEBUG);
-//
-//	retPacket = new FSWPacket(rx_buf, nbytes);
-//	logger->Log("Now putting that FSW Packet into the message queue using Dispatch!", LOGGER_LEVEL_DEBUG);
-//	free(rx_buf);
-//
-//	if((retPacket->GetDestination() == LOCATION_ID_INVALID )|| (retPacket->GetSource() == LOCATION_ID_INVALID))
-//	{
-//		logger->Log("FSW Packet src or dest invalid. Not placing on queue", LOGGER_LEVEL_DEBUG);
-//		logger->Log("Ret dest: %d", retPacket->GetDestination(), LOGGER_LEVEL_DEBUG);
-//		logger->Log("Ret source: %d",retPacket->GetSource(), LOGGER_LEVEL_DEBUG);
-//		//todo log error
-//		delete retPacket;
-//	}
-//	else{
-//
-//		Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-//
-//		if(!dispatcher->Dispatch(*retPacket))
-//		{
-//			logger->Log("SPIServer: Error in dispatch", LOGGER_LEVEL_WARN);
-//		}
-//		logger->Log("SPIServer: Dispatched packet successfully", LOGGER_LEVEL_INFO);
-//
-//
-//		//delete retPacket;
-//	}
+	nbytes = spi_read(slave_fd, &fds, &rx_buf);
+	logger->Log("SPI_Server: SPIDispatch(): Received return message!", LOGGER_LEVEL_DEBUG);
+	logger->Log("Packet = %2X\n", (uint32) rx_buf, LOGGER_LEVEL_DEBUG);
+
+	retPacket = new FSWPacket(rx_buf, nbytes);
+	logger->Log("Now putting that FSW Packet into the message queue using Dispatch!", LOGGER_LEVEL_DEBUG);
+	free(rx_buf);
+
+	if((retPacket->GetDestination() == LOCATION_ID_INVALID )|| (retPacket->GetSource() == LOCATION_ID_INVALID))
+	{
+		logger->Log("FSW Packet src or dest invalid. Not placing on queue", LOGGER_LEVEL_DEBUG);
+		logger->Log("Ret dest: %d", retPacket->GetDestination(), LOGGER_LEVEL_DEBUG);
+		logger->Log("Ret source: %d",retPacket->GetSource(), LOGGER_LEVEL_DEBUG);
+		//todo log error
+		delete retPacket;
+	}
+	else{
+
+		Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+
+		if(!dispatcher->Dispatch(*retPacket))
+		{
+			logger->Log("SPIServer: Error in dispatch", LOGGER_LEVEL_WARN);
+		}
+		logger->Log("SPIServer: Dispatched packet successfully", LOGGER_LEVEL_INFO);
+
+
+		//delete retPacket;
+	}
 
 	return bytes_copied;
 }
