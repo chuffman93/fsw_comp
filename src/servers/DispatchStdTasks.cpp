@@ -65,7 +65,7 @@ namespace Phoenix
 			FSWPacket * response;
 			//Wait for return message, if it fails return status response from dispatcher
 			logger->Log("DispatchStdTasks: Waiting for return message\n", LOGGER_LEVEL_DEBUG);
-			if(DISPATCHER_STATUS_OK != (stat = dispatcher->WaitForDispatchResponse(*query, &response)))
+			if(DISPATCHER_STATUS_OK != (stat = WaitForDispatchResponse(*query, &response)))
 			{
 				logger->Log("DispatchStdTasks: Did not receive response\n", LOGGER_LEVEL_WARN);
 				FSWPacket * ret = new FSWPacket(0, DISPATCHER_STATUS_ERR, false, false, MESSAGE_TYPE_ERROR);
@@ -119,7 +119,7 @@ namespace Phoenix
 					DispatcherStatusEnum stat;
 					FSWPacket * responsePacket;
 					//Wait for return message, if it fails return status response from dispatcher
-					if(DISPATCHER_STATUS_OK != (stat = dispatcher->WaitForDispatchResponse(*retPacket, &responsePacket)))
+					if(DISPATCHER_STATUS_OK != (stat = WaitForDispatchResponse(*retPacket, &responsePacket)))
 					{
 						logger->Log("DispatchStdTasks: no response from error octopus (NOTE: check ERRServer Handler return)", LOGGER_LEVEL_ERROR);
 						FSWPacket * ret = new FSWPacket(0, DISPATCH_FAILED, false, false, MESSAGE_TYPE_ERROR);
@@ -182,6 +182,42 @@ namespace Phoenix
 			delete retPacket;
 		}
 
+		DispatcherStatusEnum WaitForDispatchResponse(const FSWPacket & packet, FSWPacket ** retPacketin)
+		{
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+			size_t i;
+			FSWPacket * retPacket;
+			logger->Log("    Dispatcher: WaitForDispatchResponse() called", LOGGER_LEVEL_DEBUG);
+			logger->Log("    Dispatcher: Checking queue for matching packet", LOGGER_LEVEL_DEBUG);
+			for (i = 0; i < DISPATCHER_MAX_RESPONSE_TRIES; ++i)
+			{
+				if (dispatcher->CheckQueueForMatchingPacket(packet, retPacket, dispatcher->CHECK_MATCHING_RESPONSE))
+				{
+					logger->Log("    Dispatcher: WaitForDispatchResponse(): Matching FSWPacket found.", LOGGER_LEVEL_DEBUG);
+
+					*retPacketin = retPacket;
+					return DISPATCHER_STATUS_OK;
+				}
+				usleep(DISPATCHER_WAIT_TIME);
+			}
+
+			// At this point, see if the command we sent has been received at least.
+			logger->Log("   Dispatch:  No response, see if the packet we sent has been received.", LOGGER_LEVEL_DEBUG);
+			//debug_led_set_led(6, LED_ON);
+
+			if (dispatcher->CheckQueueForMatchingPacket(packet, retPacket, dispatcher->CHECK_SAME))
+			{
+				logger->Log("   Dispatch: Command not received, removed from queue", LOGGER_LEVEL_ERROR);
+				return DISPATCHER_STATUS_MSG_NOT_RCVD;
+			}
+
+			// The command was received, but no response has been placed in
+			// the queue, so return that the operation failed.
+			logger->Log("   Dispatch: Command received, but no response sent", LOGGER_LEVEL_ERROR);
+			return DISPATCHER_STATUS_MSG_RCVD_NO_RESP_SENT;
+		}
+
 		uint32 GetUInt(uint8 * buffer){
 			uint32 result;
 			uint8 littleEndian[] = {buffer[3],buffer[2],buffer[1],buffer[0]};
@@ -221,12 +257,10 @@ namespace Phoenix
 			return result;
 		}
 
-		// FIXME: check endianness
 		void AddUInt32(uint8 * buffer, uint32 data){
 			memcpy(buffer, &data, sizeof(uint32));
 		}
 
-		// FIXME: check endianness
 		void AddFloat(uint8 * buffer, float data){
 			memcpy(buffer, &data, sizeof(float));
 		}

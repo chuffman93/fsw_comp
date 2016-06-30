@@ -167,7 +167,7 @@ namespace Phoenix
                 this->mode->OnEntry();
 
                 NotifyAll();
-				//need mode logger here
+				// TODO: need mode logger here
 #ifdef HARDWARE
 				fileHandler->logAppend(LOG_MODE, prevMode, newMode);
 #endif //HARDWARE

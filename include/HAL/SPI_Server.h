@@ -48,6 +48,10 @@ class SPI_HALServer: public Phoenix::Core::Singleton
 		int spi_fds[NUM_SLAVES];
 		int int_fds[NUM_SLAVES];
 
+		// SPI Dispatch Queue
+		mqd_t queueHandleTX;
+		struct mq_attr queueAttrTX;
+		int qInitTX;
 		static char * queueNameSPITX;
 
 		// Constructor
@@ -57,13 +61,11 @@ class SPI_HALServer: public Phoenix::Core::Singleton
 
 		void SPI_HALServerLoop(void);
 
-//		void spi_reset(void);
+	private:
 
-		int SPIDispatch(Phoenix::Core::FSWPacket & packet);
+		void GPIOsetup(void);
 
-//		static void spi_rx_handler(int signum);
-//
-//		static void spi_tx_complete(int signum);
+		bool SPIDispatch(Phoenix::Core::FSWPacket & packet);
 
 		int spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, int len);
 
@@ -72,14 +74,6 @@ class SPI_HALServer: public Phoenix::Core::Singleton
 		int get_int_fds(int subsystem, struct pollfd * poll_fds);
 
 		int get_slave_fd(int subsystem);
-
-	private:
-		// SPI Dispatch Queue
-		mqd_t queueHandleTX;
-		struct mq_attr queueAttrTX;
-		int qInitTX;
 };
-
-//static bool SPI_HALServer::packetWaiting;
 
 #endif /* ETHERNET_SERVER_H_ */

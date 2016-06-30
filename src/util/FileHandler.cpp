@@ -521,12 +521,14 @@ uint32 FileHandler::FileWrite(const char * fileName, char * buffer, size_t numBy
                 fp = fopen(fileName, "a");
                 if (!fp)
 				{
-						this->GiveLock();
-						return -1;
+					logger->Log("FileWrite(): Failed on file pointer", LOGGER_LEVEL_WARN);
+                	this->GiveLock();
+					return -1;
 				}
                 result = fwrite(buffer,1,numBytes,fp);
 
                 if(result!=numBytes){
+                	logger->Log("FileWrite(): Wrote the wrong number of bytes!", LOGGER_LEVEL_WARN);
                 	fclose(fp);
                 	this->GiveLock();
                 	return -2;

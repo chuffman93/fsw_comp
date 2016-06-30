@@ -1,4 +1,5 @@
 #include "POSIX.h"
+#include "util/Logger.h"
 
 using namespace std;
 
@@ -23,19 +24,18 @@ namespace Phoenix
 
 		size_t mqCreate(mqd_t * queueHandle, struct mq_attr * queueAttr, char * mqName)
 		{
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 			mode_t mode  = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 			queueAttr->mq_flags = 0;
 			queueAttr->mq_maxmsg = QUEUE_LENGTH;
 			queueAttr->mq_msgsize = MAX_MESSAGE_SIZE;
-			//printf("Opening Queue with %lu bytes max message size\n", MAX_MESSAGE_SIZE);
 			queueAttr->mq_curmsgs = 0;
 
 			if(-1 == ((*queueHandle)= mq_open(mqName, O_RDWR | O_NONBLOCK | O_CREAT, mode, queueAttr)))
 			{
-				printf("mq_open failed with ERRORNO = %s\n", strerror(errno));
+				logger->Log("mqCreate: mq_open failed with ERRORNO = %s", strerror(errno), LOGGER_LEVEL_WARN);
 				return liFAILURE;
 			}
-			//printf("Queue %s Init Successful\n", mqName);
 			return liSUCCESS;
 		}
 
@@ -47,6 +47,7 @@ namespace Phoenix
 
 		bool mq_timed_send(char * queueName, FSWPacket ** inPacket, size_t sec, uint64_t nSec)
 		{
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 			struct timespec ts;
 			semWaitDelay(&ts, sec, nSec);
 
@@ -56,7 +57,7 @@ namespace Phoenix
 //			mq_getattr(queueHandle, &queueAttr);
 			if(-1 == mq_timedsend(queueHandle, (char *) inPacket, sizeof(*inPacket), MSG_PRIO, &ts))
 			{
-				printf("mq_timed_Send failed with ERRORNO = %s\n", strerror(errno));
+				logger->Log("POSIX: mq_timed_Send failed with ERRORNO = %s", strerror(errno), LOGGER_LEVEL_WARN);
 				mq_close(queueHandle);
 				return false;
 			}
@@ -66,6 +67,7 @@ namespace Phoenix
 
 		bool mq_timed_receive(char * queueName, FSWPacket ** packetOut, size_t sec, uint64_t nSec)
 		{
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 			struct timespec ts;
 			semWaitDelay(&ts, sec, nSec);
 
@@ -77,13 +79,11 @@ namespace Phoenix
 
 			if((msg_len = mq_timedreceive(queueHandle,(char *) packetOut, (queueAttr.mq_msgsize), MSG_PRIO, &ts)) < 0)
 			{
-
-				//printf("mq_timed_recieve failed with ERRORNO = %s\n", strerror(errno));
+				//logger->Log("POSIX: mq_timed_recieve failed with ERRORNO = %s\n", strerror(errno), LOGGER_LEVEL_WARN);
 				mq_close(queueHandle);
 				return false;
 			}
 			mq_close(queueHandle);
-			//printf("Received %ld bytes from the queue\n", msg_len);
 			return true;
 		}
 
@@ -94,11 +94,12 @@ namespace Phoenix
 
 		bool xSemaphoreTake(sem_t *sem, size_t sec, uint64_t nSec)
 		{
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 			struct timespec ts;
 			semWaitDelay(&ts, sec, nSec);
 			if(liSUCCESS != sem_timedwait(sem, &ts))
 			{
-				printf("ERRORNO = %s\n", strerror(errno));
+				logger->Log("xSemaphoreTake: Failed with ERRORNO = %s", strerror(errno), LOGGER_LEVEL_WARN);
 				return false;
 			}
 			return true;

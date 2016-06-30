@@ -120,7 +120,6 @@ namespace Phoenix
 			*need to exit current mode and enter next mode
 			*zip all open files
 			*/
-
 		}
 
 		bool PLDServer::RegisterHandlers()
@@ -163,7 +162,6 @@ namespace Phoenix
 			return success;
 		}
 
-
 		void PLDServer::SubsystemLoop(void)
 		{
 			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
@@ -201,51 +199,27 @@ namespace Phoenix
 			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 			const SystemMode * mode = AccessMode::GetInstance();
 			const SystemMode * currentMode = mode;
-			uint32 seconds = 0;
+			uint8 timeUnit = 1;
 
-			FSWPacket * PicRet;
 			FSWPacket * HSRet;
-			FSWPacket * DatRet;
-			FSWPacket * ChunkSize;
-			bool getPic = false;
 			
 			while(mode == currentMode)
 			{
 				uint64_t LastWakeTime = getTimeInMilis();
 				//wdm->Kick();
 				//while(dispatcher->Listen(id));
-				//debug_led_set_led(3, LED_TOGGLE);
 
-				// Functions
-				
-
-				if(seconds % 3 == 0 && getPic == false)
-				{
-					printf("Received CDH CMD, initiating PLD data retrieval\n");
-					PLDGetData();
-					getPic = true;
-					pthread_exit(0);
+				if(timeUnit % 60 == 0){
+					timeUnit = 0;
 				}
 
-// 				if ((seconds % 600) == 0 ) //Use this to change frequency.
-// 				{
-//					HSRet = PLDHealthStatus();
-//					PacketProcess(SERVER_LOCATION_PLD, HSRet);
-//					ChunkSize = PLDConfigChunkSize(150);
-//					PacketProcess(SERVER_LOCATION_PLD, ChunkSize);
-//					PicRet = PLDPicture();
-//					PacketProcess(SERVER_LOCATION_PLD, PicRet);
-//					DatRet = PLDGetPicture();
-//					PacketProcess(SERVER_LOCATION_PLD, DatRet);
-//
-// 					seconds = 0;
-// 				}
- 				seconds++;
+				if(timeUnit % 10 == 0){
+					HSRet = PLDHealthStatus();
+					PacketProcess(SERVER_LOCATION_PLD, HSRet);
+				}
 
-				// Delay
+ 				timeUnit++;
 				waitUntil(LastWakeTime, 1000);
-				
-				// Check current mode
 				currentMode = modeManager->GetMode();
 			}
 		}
@@ -271,8 +245,6 @@ namespace Phoenix
 				currentMode = modeManager->GetMode();
 			}
 		}
-
-
 
 		void PLDServer::PLDBusMode(ModeManager * modeManager)
 		{
@@ -310,8 +282,6 @@ namespace Phoenix
 
 		}
 
-
-
 		void PLDServer::PLDPayloadMode(ModeManager * modeManager)
 		{
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
@@ -345,8 +315,6 @@ namespace Phoenix
 				currentMode = modeManager->GetMode();
 			}
 		}
-
-
 
 		void PLDServer::PLDErrorMode(ModeManager * modeManager)
 		{

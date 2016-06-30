@@ -26,7 +26,7 @@ namespace Phoenix
     namespace Core
     {
         /*! \brief Length of the Dispatcher Queue */
-        #define DISPATCHER_QUEUE_LENGTH 		10 //FIXME:should be 32
+        #define DISPATCHER_QUEUE_LENGTH 		32
 
         /*! \brief Length of the Subsystem Queue */
         #define DISPATCHER_SUBSYS_QUEUE_LENGTH          6
@@ -77,23 +77,6 @@ namespace Phoenix
 		#define SENT_COMPLETE_SIG		SIGUSR1
 		#define RECEIVED_PACKET_SIG		SIGUSR2
 
-        /*! \brief Dispatcher Status Enumeration
-         *
-         *  Enumerates the possible return values from the
-         *  WaitForDispatchResponse method.
-         */
-        enum DispatcherStatusEnum
-        {
-                /*! \brief Response Receive Successful */
-                DISPATCHER_STATUS_OK = 0,
-                /*! \brief Dispatched FSWPacket Not Received by Destination*/
-                DISPATCHER_STATUS_MSG_NOT_RCVD,
-                /*! \brief Dispatched FSWPacket Received But No Response Received */
-                DISPATCHER_STATUS_MSG_RCVD_NO_RESP_SENT,
-                /*! \brief Maximum Return Value */
-                DISPATCHER_STATUS_MAX
-        };
-
         /*! \brief Class that Dispatches Packets From One Server to Another
          *
          *  This Singleton class allows one Phoenix server to send Packets
@@ -108,22 +91,15 @@ namespace Phoenix
 			friend class Factory;
 			
         public:
-//			static char * getQueueName(void);
-//			static mqd_t * getQueueHandle(void);
-//			static struct mq_attr * getQueueAttr(void);
-			/*! \brief Give the semaphore to the Dispatcher Task from
-             *  an ISR.
-             *
-             *  \param woken Pointer to a portBASE_TYPE that indicates
-             *  whether a task was woken due to the call.  If it was,
-             *  the ISR should cause a context switch.
-             *
-             *  \note This method must ONLY be called from an ISR.
-             */
-			//TODO:FIX THIS
-           // static void EnqueueSubsystemIntFromISR(uint8 pin, uint32 time, portBASE_TYPE * woken);
 
+			typedef enum DispatcherCheckEnum{
+				CHECK_MATCHING_RESPONSE,
+				CHECK_DEST_SOURCE,
+				CHECK_SAME
+			}DispatcherCheckType;
 
+			/*! \brief Typedef for a FSWPacket Comparison Function */
+			typedef bool (Dispatcher::* PacketCheckFunctionType)(const FSWPacket & packetIn, const FSWPacket & packetOut) const;
 
             /*! \brief Dispatcher Task for Handling Subsystem Messages
              *
@@ -179,36 +155,6 @@ namespace Phoenix
              */
             bool Dispatch(FSWPacket & packet);
 
-            /*! \brief Waits for a Response after a FSWPacket Has Been Dispatched
-             *
-             *  Waits for the response to packet, which should have been
-             *  previously sent to another server by calling Dispatch.
-             *  If the response is in the queue, then it is removed from the
-             *  queue and returned in returnMessage.  Otherwise, if the initial
-             *  packet is still in the queue, it is removed.
-             *
-             *  \param packet FSWPacket sent via Dispatch.
-             *  \param returnMessage Output variable that is set to the
-             *  response, if the operation was successful.
-             *  \return \ref DISPATCHER_STATUS_OK if a response was
-             *  successfully obtained,<br>
-			 *  \ref DISPATCHER_STATUS_MSG_NOT_RCVD if the packet that was
-			 *  previously Dispatched was not received by the other server,<br>
-			 *  \ref DISPATCHER_STATUS_MSG_RCVD_NO_RESP_SENT if the packet
-			 *  that was previously Dispatched was received by the other
-			 *  server but not response was received.
-             *
-             *  \note returnMessage is only guaranteed to contain useful
-             *  information if DISPATCHER_STATUS_OK is returned.
-             *
-             *  \note If this method finds that the previously Dispatched
-             *  packet was not received, it removes that packet from
-             *  the internal message queue.
-             */
-            DispatcherStatusEnum WaitForDispatchResponse(const FSWPacket & packet, ReturnMessage & returnMessage);
-
-            DispatcherStatusEnum WaitForDispatchResponse(const FSWPacket & packet, FSWPacket ** retPacketin);
-
             /*! \brief Checks for a FSWPacket Addressed to a Given Server
              *
              *  Checks the message queue for a message for the given server.
@@ -234,7 +180,68 @@ namespace Phoenix
              *
              */
 
+            /*! \brief Checks if a FSWPacket is a Response to Another FSWPacket
+			 *
+			 *  Checks if packetOut is a response to the message sent in
+			 *  packetIn.
+			 *
+			 *  \param packetIn FSWPacket that was sent.
+			 *  \param packetOut FSWPacket to check against packetIn.
+			 *  \return true if packetOut is a response to packetIn and false
+			 *  otherwise.
+			 */
+			inline bool IsPacketMatchingResponse(const FSWPacket & packetIn, const FSWPacket & packetOut) const;
+
+			/*! \brief Checks if a FSWPacket's Destination Matches Another's Source
+			 *
+			 *  Checks if packetOut's destination is the same as packetIn's
+			 *  source.
+			 *
+			 *  \param packetIn FSWPacket to check source in.
+			 *  \param packetOut FSWPacket to check destination in.
+			 *  \return true if packetOut's destination equals packetIn's
+			 *  source and false otherwise.
+			 */
+			inline bool IsPacketDestMatchingSource(const FSWPacket & packetIn, const FSWPacket & packetOut) const;
+
+			/*! \brief Checks if Two Packets Are Equivalent
+			 *
+			 *  Checks if packetOut is equivalent to packetIn.
+			 *
+			 *  \param packetIn FSWPacket #1
+			 *  \param packetOut FSWPacket #2
+			 *  \return true if packetOut is equivalent to packetIn and false
+			 *  otherwise.
+			 */
+			inline bool IsPacketSame(const FSWPacket & packetIn, const FSWPacket & packetOut) const;
+
+			/*! \brief Checks the Message Queue for a Matching FSWPacket
+			 *
+			 *  Checks the internal message queue for a packet that matches
+			 *  packetIn using the comparison function given by Check.  If
+			 *  a matching packet is found, a pointer to the packet is
+			 *  returned in packetOut.
+			 *
+			 *  \param packetIn FSWPacket to compare other packets with.
+			 *  \param packetOut Returns a pointer to the matching packet.
+			 *  \param Check Comparison function used to compare packetIn
+			 *  and the other packets in the internal message queue.
+			 *  \return true if a matching packet was found and false
+			 *  otherwise.
+			 *
+			 *  \note packetOut is only guaranteed to point to a valid
+			 *  packet if this function returns true.
+			 */
+			bool CheckQueueForMatchingPacket(const FSWPacket & packetIn,
+											 FSWPacket * &packetOut,
+											 DispatcherCheckType type);
+
             uint32_t DispatchToHardware(FSWPacket & packet);
+
+            /*! \brief Handle to the Dispatcher Message Queue */
+			mqd_t queueHandleRX;
+			struct mq_attr queueAttrRX;
+			int qInitRX;
             static char * queueNameRX;
 
         private:
@@ -260,9 +267,6 @@ namespace Phoenix
             /*! \brief Typedef for the Iterator Type of the Registry Map */
             typedef std::map<LocationIDType, DispatcherHandlerType *>::iterator IteratorType;
 
-            /*! \brief Typedef for a FSWPacket Comparison Function */
-            typedef bool (Dispatcher::* PacketCheckFunctionType)(const FSWPacket & packetIn, const FSWPacket & packetOut) const;
-
             /*! \brief Struct for Passing Parameters to InvokeHandler */
             struct DispatcherTaskParameter
             {
@@ -272,11 +276,6 @@ namespace Phoenix
             	sem_t syncSem;
             	sem_t doneSem;
             };
-
-            /*! \brief Handle to the Dispatcher Message Queue */
-            mqd_t queueHandleRX;
-            struct mq_attr queueAttrRX;
-            int qInitRX;
 
             /*! \brief MessageHandler Registry Map */
             std::map<LocationIDType, DispatcherHandlerType *> registryMap;
@@ -309,62 +308,6 @@ namespace Phoenix
              *  false otherwise.
              */
 			bool IsFullyInitialized(void);
-
-            /*! \brief Checks if a FSWPacket is a Response to Another FSWPacket
-             *
-             *  Checks if packetOut is a response to the message sent in
-             *  packetIn.
-             *
-             *  \param packetIn FSWPacket that was sent.
-             *  \param packetOut FSWPacket to check against packetIn.
-             *  \return true if packetOut is a response to packetIn and false
-             *  otherwise.
-             */
-            inline bool IsPacketMatchingResponse(const FSWPacket & packetIn, const FSWPacket & packetOut) const;
-
-            /*! \brief Checks if a FSWPacket's Destination Matches Another's Source
-             *
-             *  Checks if packetOut's destination is the same as packetIn's
-             *  source.
-             *
-             *  \param packetIn FSWPacket to check source in.
-             *  \param packetOut FSWPacket to check destination in.
-             *  \return true if packetOut's destination equals packetIn's
-             *  source and false otherwise.
-             */
-            inline bool IsPacketDestMatchingSource(const FSWPacket & packetIn, const FSWPacket & packetOut) const;
-
-            /*! \brief Checks if Two Packets Are Equivalent
-             *
-             *  Checks if packetOut is equivalent to packetIn.
-             *
-             *  \param packetIn FSWPacket #1
-             *  \param packetOut FSWPacket #2
-             *  \return true if packetOut is equivalent to packetIn and false
-             *  otherwise.
-             */
-            inline bool IsPacketSame(const FSWPacket & packetIn, const FSWPacket & packetOut) const;
-
-            /*! \brief Checks the Message Queue for a Matching FSWPacket
-             *
-             *  Checks the internal message queue for a packet that matches
-             *  packetIn using the comparison function given by Check.  If
-             *  a matching packet is found, a pointer to the packet is
-             *  returned in packetOut.
-             *
-             *  \param packetIn FSWPacket to compare other packets with.
-             *  \param packetOut Returns a pointer to the matching packet.
-             *  \param Check Comparison function used to compare packetIn
-             *  and the other packets in the internal message queue.
-             *  \return true if a matching packet was found and false
-             *  otherwise.
-             *
-             *  \note packetOut is only guaranteed to point to a valid
-             *  packet if this function returns true.
-             */
-            bool CheckQueueForMatchingPacket(const FSWPacket & packetIn,
-            		                         FSWPacket * &packetOut,
-            		                         PacketCheckFunctionType Check);
 
             /*! \brief Invokes a MessageHandler in a New Task
              *

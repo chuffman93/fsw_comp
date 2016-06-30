@@ -110,19 +110,19 @@ void Logger::GetInfo(LoggerLevelType level_in){
 	// Display the log level
 	switch(level_in){
 	case LOGGER_LEVEL_DEBUG:
-		printf("DEBUG:\t");
+		printf("DEBUG:    ");
 		break;
 	case LOGGER_LEVEL_INFO:
-		printf("INFO:\t");
+		printf("INFO:     ");
 		break;
 	case LOGGER_LEVEL_WARN:
-		printf("WARN:\t");
+		printf("WARN:     ");
 		break;
 	case LOGGER_LEVEL_ERROR:
-		printf("ERROR:\t");
+		printf("ERROR:    ");
 		break;
 	case LOGGER_LEVEL_FATAL:
-		printf("FATAL:\t");
+		printf("FATAL:    ");
 		break;
 	default:
 		// maybe add assert on bounds

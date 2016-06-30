@@ -195,7 +195,7 @@ namespace Phoenix
 					}
 					else
 					{
-						printf("Dispatcher::Dispatch() Queue is full\n");
+						logger->Log("Dispatcher::Dispatch() Queue is full", LOGGER_LEVEL_WARN);
 						delete tmpPacket;
 						this->GiveLock();
 						return false;
@@ -204,46 +204,138 @@ namespace Phoenix
 				}
 				else
 				{
+					logger->Log("Dispatch(): Semaphore failed", LOGGER_LEVEL_WARN);
 					return false;
 				}
 			}
 		}
 
-		DispatcherStatusEnum Dispatcher::WaitForDispatchResponse(const FSWPacket & packet, FSWPacket ** retPacketin)
+		bool Dispatcher::CheckQueueForMatchingPacket(const FSWPacket & packetIn, FSWPacket * &packetOut, DispatcherCheckType type)
 		{
+			size_t numPackets, i;
+			FSWPacket * tmpPacket;
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-			//ReturnMessage * retMsg;
-			size_t i;
-			FSWPacket * retPacket;
-			logger->Log("   Dispatcher: WaitForDispatchResponse() called", LOGGER_LEVEL_DEBUG);
-			for (i = 0; i < DISPATCHER_MAX_RESPONSE_TRIES; ++i)
+			PacketCheckFunctionType Check;
+			//logger->Log("Dispatcher: CheckQueueForMatchingPacket(): Called", LOGGER_LEVEL_DEBUG);
+
+			switch(type){
+				case CHECK_MATCHING_RESPONSE:
+					Check = &Dispatcher::IsPacketMatchingResponse;
+					break;
+				case CHECK_DEST_SOURCE:
+					Check = &Dispatcher::IsPacketDestMatchingSource;
+					break;
+				case CHECK_SAME:
+					Check = &Dispatcher::IsPacketSame;
+					break;
+				default:
+					break;
+			}
+
+
+			// Get the semaphore
+			if (true == this->TakeLock(MAX_BLOCK_TIME))
 			{
-				if (CheckQueueForMatchingPacket(packet, retPacket,
-						&Dispatcher::IsPacketMatchingResponse))
+				// Check for the first message in the queue
+
+				if (mq_timed_receive(queueNameRX, &packetOut, 0, DISPATCHER_MAX_DELAY) == false)
 				{
-					logger->Log("    Dispatcher: WaitForDispatchResponse(): Matching FSWPacket found.", LOGGER_LEVEL_DEBUG);
-
-					*retPacketin = retPacket;
-					return DISPATCHER_STATUS_OK;
+					this->GiveLock();
+					return false;
 				}
-				usleep(DISPATCHER_WAIT_TIME);
+				else
+				{
+					//debug_led_set_led(2, LED_ON);
+					// There's at least one packet, so check if it matches packetIn.
+
+					logger->Log("Dispatcher: CheckQueueForMatchingPacket(): There is at least one packet", LOGGER_LEVEL_DEBUG);
+					if(packetOut == NULL)
+					{
+						this->GiveLock();
+						return false;
+					}
+
+					if ((this->*Check)(packetIn, *packetOut))
+					{
+						//debug_led_set_led(3, LED_ON);
+						this->GiveLock();
+						return true;
+					}
+					else
+					{
+						// Check the number of packets waiting in the queue.
+						logger->Log("Dispatcher: CheckQueueForMatchingPacket(): checking more packets", LOGGER_LEVEL_DEBUG);
+						numPackets = mq_size(queueHandleRX, queueAttrRX);
+						logger->Log("Dispatcher: CheckQueueForMatchingPacket(): there are %u more packets", (uint32) numPackets, LOGGER_LEVEL_DEBUG);
+
+						// Get each packet and check it against packetIn.
+						for (i = 0; i < numPackets; ++i)
+						{
+							// Get the next packet.
+							//mqd_t tmpqueueHandle = open(queueName, O_RDONLY);
+							if (mq_timed_receive(queueNameRX, &tmpPacket, 0, 0)
+									== false)
+							{
+								//debug_led_set_led(4, LED_ON);
+								// Error: There should have been a packet in
+								// the queue, but there wasn't, so put
+								// packetOut back.
+								if (mq_timed_send(queueNameRX, &packetOut, 1, 0)
+										== false)
+								{
+									// Error: This is really bad because we
+									// can't even preserve the state of
+									// the queue.
+									this->GiveLock();
+									throw(0);
+									break;
+								}
+								this->GiveLock();
+								throw(1);
+								break;
+							}
+							// Put packetOut back on the queue since it didn't
+							// match packetIn.
+							if (mq_timed_send(queueNameRX, &packetOut, 1, 0)
+									== false)
+							{
+								// Error
+								this->GiveLock();
+								throw(2);
+								break;
+							}
+							packetOut = tmpPacket;
+
+							// Check if packetOut matches packetIn
+							if ((this->*Check)(packetIn, *packetOut))
+							{
+								//debug_led_set_led(6, LED_ON);
+								// Found one!  Time to return!
+								this->GiveLock();
+								return true;
+							}
+
+						}
+						// No packets were found, so put the last packet
+						// back on the queue.
+						if (mq_timed_send(queueNameRX, &packetOut, 1, 0) == false)
+						{
+							// Error: This is really bad because we
+							// can't even preserve the state of
+							// the queue.
+							this->GiveLock();
+							throw(3);
+						}
+						this->GiveLock();
+						return false;
+					}
+				}
 			}
-
-			// At this point, see if the command we sent has been received at least.
-			logger->Log("   Dispatch:  See if the packet we sent has been received.", LOGGER_LEVEL_DEBUG);
-			//debug_led_set_led(6, LED_ON);
-
-			if (CheckQueueForMatchingPacket(packet, retPacket,
-					&Dispatcher::IsPacketSame))
+			else
 			{
-				logger->Log("   Dispatch: Command not received, removed from queue", LOGGER_LEVEL_ERROR);
-				return DISPATCHER_STATUS_MSG_NOT_RCVD;
+				logger->Log("Dispatcher: CheckQueueForMatchingPacket(): Sem Failed - ", LOGGER_LEVEL_ERROR);
+				return false;
 			}
-
-			// The command was received, but no response has been placed in
-			// the queue, so return that the operation failed.
-			logger->Log("   Dispatch: Command received, but no response sent", LOGGER_LEVEL_ERROR);
-			return DISPATCHER_STATUS_MSG_RCVD_NO_RESP_SENT;
 		}
 
 		bool Dispatcher::Listen(LocationIDType serverID)
@@ -258,7 +350,7 @@ namespace Phoenix
 
 			tmpPacket.SetSource(serverID); // temp packet to check for response
 
-			if (!CheckQueueForMatchingPacket(tmpPacket, packet, &Dispatcher::IsPacketDestMatchingSource)){
+			if (!CheckQueueForMatchingPacket(tmpPacket, packet, CHECK_DEST_SOURCE)){
 				logger->Log("   Dispatcher: Listen(): No packets have been sent to this server.", LOGGER_LEVEL_DEBUG);
 				return false;
 			}
@@ -382,122 +474,6 @@ namespace Phoenix
 			return packetIn == packetOut;
 		}
 
-		bool Dispatcher::CheckQueueForMatchingPacket(const FSWPacket & packetIn,
-				FSWPacket * &packetOut, PacketCheckFunctionType Check)
-		{
-			size_t numPackets, i;
-			FSWPacket * tmpPacket;
-			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-			logger->Log("Dispatcher: CheckQueueForMatchingPacket(): Called", LOGGER_LEVEL_DEBUG);
-
-			// Get the semaphore
-			if (true == this->TakeLock(MAX_BLOCK_TIME))
-			{
-				// Check for the first message in the queue
-
-				if (mq_timed_receive(queueNameRX, &packetOut, 0, DISPATCHER_MAX_DELAY) == false)
-				{
-					this->GiveLock();
-					return false;
-				}
-				else
-				{
-					//debug_led_set_led(2, LED_ON);
-					// There's at least one packet, so check if it matches packetIn.
-
-					logger->Log("Dispatcher: CheckQueueForMatchingPacket(): There is at least one packet", LOGGER_LEVEL_DEBUG);
-					if(packetOut == NULL)
-					{
-						this->GiveLock();
-						return false;
-					}
-
-					if ((this->*Check)(packetIn, *packetOut))
-					{
-						//debug_led_set_led(3, LED_ON);
-						DEBUG_PRINT("Match 1 - ", packetOut);
-						this->GiveLock();
-						return true;
-					}
-					else
-					{
-						// Check the number of packets waiting in the queue.
-						logger->Log("Dispatcher: CheckQueueForMatchingPacket(): checking more packets", LOGGER_LEVEL_DEBUG);
-						numPackets = mq_size(queueHandleRX, queueAttrRX);
-						logger->Log("Dispatcher: CheckQueueForMatchingPacket(): there are %u more packets", (uint32) numPackets, LOGGER_LEVEL_DEBUG);
-
-						// Get each packet and check it against packetIn.
-						for (i = 0; i < numPackets; ++i)
-						{
-							// Get the next packet.
-							//mqd_t tmpqueueHandle = open(queueName, O_RDONLY);
-							if (mq_timed_receive(queueNameRX, &tmpPacket, 0, 0)
-									== false)
-							{
-								//debug_led_set_led(4, LED_ON);
-								// Error: There should have been a packet in
-								// the queue, but there wasn't, so put
-								// packetOut back.
-								if (mq_timed_send(queueNameRX, &packetOut, 1, 0)
-										== false)
-								{
-									// Error: This is really bad because we
-									// can't even preserve the state of
-									// the queue.
-									this->GiveLock();
-									throw(0);
-									break;
-								}
-								this->GiveLock();
-								throw(1);
-								break;
-							}
-							// Put packetOut back on the queue since it didn't
-							// match packetIn.
-							if (mq_timed_send(queueNameRX, &packetOut, 1, 0)
-									== false)
-							{
-								// Error
-								this->GiveLock();
-								throw(2);
-								break;
-							}
-							packetOut = tmpPacket;
-							DEBUG_PRINT("Loop - ", packetOut);
-
-							// Check if packetOut matches packetIn
-							if ((this->*Check)(packetIn, *packetOut))
-							{
-								//debug_led_set_led(6, LED_ON);
-								// Found one!  Time to return!
-								DEBUG_PRINT("Match 2 - ", packetOut);
-								this->GiveLock();
-								return true;
-							}
-
-						}
-						// No packets were found, so put the last packet
-						// back on the queue.
-						if (mq_timed_send(queueNameRX, &packetOut, 1, 0) == false)
-						{
-							// Error: This is really bad because we
-							// can't even preserve the state of
-							// the queue.
-							this->GiveLock();
-							throw(3);
-						}
-						this->GiveLock();
-						return false;
-					}
-				}
-			}
-			else
-			{
-				logger->Log("Dispatcher: CheckQueueForMatchingPacket(): Sem Failed - ", LOGGER_LEVEL_ERROR);
-				return false;
-			}
-		}
-
 		void * Dispatcher::InvokeHandler(void * parameters)
 		{
 			DispatcherTaskParameter * parms =
@@ -555,21 +531,41 @@ namespace Phoenix
 			protocolChoice = cmdServer->subsystem_acp_protocol[packet.GetDestination()];
 
 			FSWPacket * txPacket = &packet;
+			bool sendSuccess = false;
+			size_t numPackets;
 			switch(protocolChoice){
 				case ACP_PROTOCOL_SPI:
-					//logger->Log("DispatchToHardware(): Dispatch over SPI", LOGGER_LEVEL_DEBUG);
-					while (!mq_timed_send(spi_server->queueNameSPITX, &txPacket, MAX_BLOCK_TIME, 0));
+					if(true == this->TakeLock(MAX_BLOCK_TIME)){
+						numPackets = mq_size(spi_server->queueHandleTX, spi_server->queueAttrTX);
+						if(numPackets < DISPATCHER_QUEUE_LENGTH){ // same length as all queues
+							sendSuccess = mq_timed_send(spi_server->queueNameSPITX, &txPacket, MAX_BLOCK_TIME, 0);
+							this->GiveLock();
+						}else{
+							logger->Log("Dispatcher: SPI TX Queue full!", LOGGER_LEVEL_FATAL);
+							sendSuccess = false;
+							this->GiveLock();
+						}
+					}else{
+						logger->Log("DispatchToHardware: Semaphore failed!", LOGGER_LEVEL_WARN);
+						sendSuccess = false;
+					}
 					break;
 				case ACP_PROTOCOL_ETH:
 					logger->Log("DispatchToHardware(): Dispatch over SPI", LOGGER_LEVEL_DEBUG);
 					bytesCopied = eth_server->ETHDispatch(packet);
+					sendSuccess = (bytesCopied == packet.GetFlattenSize());
 					break;
 				default:
 					logger->Log("DispatchToHardware(): ACP Protocol out of bounds!", LOGGER_LEVEL_ERROR); // TODO: assert?
+					sendSuccess = false;
 					break;
 			}
 
-			return 0;
+			if(sendSuccess){
+				return 0;
+			}else{
+				return -3;
+			}
 		}
     }
 }
