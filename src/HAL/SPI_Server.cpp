@@ -103,7 +103,7 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 					fds.fd = int_fds[i];
 					fds.events = POLLPRI;
 					nbytes = spi_read(slave_fd, &fds, &rxBuf);
-					if(nbytes < 14){
+					if(nbytes < 16){
 						rxPacket = NULL;
 					}else{
 						rxPacket = new FSWPacket(rxBuf, nbytes);
@@ -133,7 +133,7 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 			logger->Log("SPI_HAL Server: RX semaphore failed", LOGGER_LEVEL_WARN);
 		}
 
-		// FIXME: decrease wait time
+		// FIXME: figure out wait time
 		waitUntil(enterTime, 5); // wait 5 ms
 	}
 }

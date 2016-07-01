@@ -516,9 +516,6 @@ int main(int argc, char * argv[])
 
 	logger->Log("All servers created!", LOGGER_LEVEL_INFO);
 
-	//CREATE_TASK(taskRunSCH, (const signed char* const)"SCH task", 5000, NULL, 0, NULL);
-	//CREATE_TASK(taskRunCMD, (const signed char* const)"CMD task", 5000, NULL, 0, NULL);
-
 	// Suspend execution of main until the following threads exit
 #if ACS_EN
 	pthread_join(ACSThread, NULL);
@@ -544,7 +541,7 @@ int main(int argc, char * argv[])
 	pthread_join(CDHThread, NULL);
 #endif //CDH_EN
 
-	logger->Log("Flight Software exiting from main!", LOGGER_LEVEL_FATAL);
+	logger->Log("Flight Software exiting from main! All relevant threads have exited!", LOGGER_LEVEL_FATAL);
 
 	return 42;
 }

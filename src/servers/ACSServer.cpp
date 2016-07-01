@@ -28,11 +28,8 @@
 #include "core/StdTypes.h"
 #include "core/DataMessage.h"
 
-//#include "POSIX.h"
-
 #include "util/FileHandler.h"
-
-//#include "boards/backplane/dbg_led.h"
+#include "util/Logger.h"
 
 #define HARDWARE
 
@@ -100,6 +97,7 @@ namespace Phoenix
 		// Message handler for an error.
 		static ACSErrorHandler * acsErrorHandler;
 		
+		// -------------------------------------- Necessary Methods --------------------------------------
 		ACSServer::ACSServer(string nameIn, LocationIDType idIn)
 				: SubsystemServer(nameIn, idIn), Singleton(), arby(idIn)
 		{
@@ -164,7 +162,6 @@ namespace Phoenix
 			acsGyroBiasHandler = new ACSUseGyroBiasHandler();
 			acsErrorHandler = new ACSErrorHandler();
 		}
-		
 #ifdef TEST
 		void ACSServer::Destroy(void)
 		{
@@ -207,40 +204,9 @@ namespace Phoenix
 			delete acsErrorHandler;
 		}
 #endif
-		
 		bool ACSServer::IsFullyInitialized(void)
 		{
 			return(Singleton::IsFullyInitialized());
-		}
-
-		void ACSServer::SubsystemLoop(void)
-		{
-			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-			
-			const SystemMode * mode;
-			SystemModeEnum modeIndex;
-
-			modeArray[0] = &ACSServer::ACSAccessMode;
-			modeArray[1] = &ACSServer::ACSStartupMode;
-			modeArray[2] = &ACSServer::ACSBusMode;
-			modeArray[3] = &ACSServer::ACSPayloadMode;
-			modeArray[4] = &ACSServer::ACSErrorMode;
-			modeArray[5] = &ACSServer::ACSComMode;
-
-			while(1)
-			{
-				mode = modeManager->GetMode();
-				if (mode == NULL)
-				{
-					// modeManagerError
-					// Store Error to Data File
-					// Recommend Reboot to Ground
-					return;
-				}
-
-				modeIndex = mode->GetID();
-				(this->*modeArray[modeIndex]) (modeManager);
-			}
 		}
 
 		void ACSServer::Update(const SystemMode * mode)
@@ -322,6 +288,40 @@ namespace Phoenix
 			return success;
 		}
 
+		// -------------------------------------------- Loop ---------------------------------------------
+		void ACSServer::SubsystemLoop(void)
+		{
+			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+			logger->Log("ACSServer: Subsystem Loop entered!", LOGGER_LEVEL_INFO);
+
+			const SystemMode * mode;
+			SystemModeEnum modeIndex;
+
+			modeArray[0] = &ACSServer::ACSAccessMode;
+			modeArray[1] = &ACSServer::ACSStartupMode;
+			modeArray[2] = &ACSServer::ACSBusMode;
+			modeArray[3] = &ACSServer::ACSPayloadMode;
+			modeArray[4] = &ACSServer::ACSErrorMode;
+			modeArray[5] = &ACSServer::ACSComMode;
+
+			while(1)
+			{
+				mode = modeManager->GetMode();
+				if (mode == NULL)
+				{
+					// TODO: Handle this!
+					logger->Log("ACSServer: Mode Manager thinks mode is NULL!", LOGGER_LEVEL_FATAL);
+					return;
+				}
+
+				modeIndex = mode->GetID();
+				(this->*modeArray[modeIndex]) (modeManager);
+			}
+		}
+
+		// -------------------------------------------- Modes --------------------------------------------
 		void ACSServer::ACSAccessMode(ModeManager * modeManager)
 		{
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
@@ -362,7 +362,6 @@ namespace Phoenix
 			}
 		}
 
-
 		void ACSServer::ACSStartupMode(ModeManager * modeManager)
 		{
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
@@ -382,8 +381,6 @@ namespace Phoenix
 				currentMode = modeManager->GetMode();
 			}
 		}
-
-
 
 		void ACSServer::ACSBusMode(ModeManager * modeManager)
 		{
@@ -427,8 +424,6 @@ namespace Phoenix
 
 		}
 
-
-
 		void ACSServer::ACSPayloadMode(ModeManager * modeManager)
 		{
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
@@ -470,8 +465,6 @@ namespace Phoenix
 			}
 		}
 
-
-
 		void ACSServer::ACSErrorMode(ModeManager * modeManager)
 		{
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
@@ -511,8 +504,6 @@ namespace Phoenix
 				currentMode = modeManager->GetMode();
 			}
 		}
-
-
 
 		void ACSServer::ACSComMode(ModeManager * modeManager)
 		{
@@ -555,36 +546,6 @@ namespace Phoenix
 				currentMode = modeManager->GetMode();
 			}
 		}
-		
-		/*
-		ReturnMessage * ACSServer::ACSTakeLock(void)
-		{
-			if(pdTRUE == this->TakeLock(portMAX_DELAY))
-			{
-				DataMessage dat(ACS_TAKE_LOCK_SUCCESS);
-				ReturnMessage * ret = new ReturnMessage(&dat, true);
-				return ret;
-			}
-			ErrorMessage err(ACS_TAKE_LOCK_FAILURE);
-			ReturnMessage * ret = new ReturnMessage(&err, false);
-			return ret;
-		}
-		
-		ReturnMessage * ACSServer::ACSGiveLock(void)
-		{
-			this->GiveLock();
-			
-			DataMessage dat(ACS_GIVE_LOCK_SUCCESS);
-			ReturnMessage * ret = new ReturnMessage(&dat, true);
-			return ret;
-		}
-		*/
-		
-
-//		void ACSServer::SetRunTest(bool toSet)
-//		{
-//			runTest1 = toSet;
-// 		}
 
 	} // End Namespace servers
 } // End Namespace Phoenix

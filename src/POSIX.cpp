@@ -87,6 +87,13 @@ namespace Phoenix
 			return true;
 		}
 
+		bool mq_clean(char * queueName){
+			// open queue
+			// delete messages older than a threshold (variable or static?) (maybe last X messages?)
+			// close queue
+			return true;
+		}
+
 		bool xSemaphoreTake(sem_t *sem)
 		{
 			return (liSUCCESS == sem_wait(sem));

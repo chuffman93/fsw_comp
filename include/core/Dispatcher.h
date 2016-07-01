@@ -98,6 +98,9 @@ namespace Phoenix
 				CHECK_SAME
 			}DispatcherCheckType;
 
+			// Unique number for each packet so that we can track them.
+			static uint16 packetNumber;
+
 			/*! \brief Typedef for a FSWPacket Comparison Function */
 			typedef bool (Dispatcher::* PacketCheckFunctionType)(const FSWPacket & packetIn, const FSWPacket & packetOut) const;
 

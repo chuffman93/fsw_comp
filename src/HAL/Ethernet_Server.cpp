@@ -18,6 +18,7 @@
 
 #include "Ethernet_Server.h"
 #include "core/Dispatcher.h"
+#include "util/Logger.h"
 
 
 struct SessionInfo SS[N_SERVERS];
@@ -30,10 +31,10 @@ using namespace Core;
 void ETH_HALServer::ETH_HALServerLoop(void)
 {
 	struct sockaddr_in fsin;	/* the from address of a client	*/
-	fd_set	rfds;			/* read file descriptor set	*/
-	fd_set 	wfds;			/*	write file descriptor set*/
-	fd_set	afds;			/* active file descriptor set	*/
-	unsigned int alen;		/* from-address length		*/
+	fd_set	rfds;				/* read file descriptor set		*/
+	fd_set 	wfds;				/* write file descriptor set	*/
+	fd_set	afds;				/* active file descriptor set	*/
+	unsigned int alen;			/* from-address length			*/
 	int	fd, nfds;
 	int numbytes;
 	char args[BUFSIZE];
@@ -48,6 +49,7 @@ void ETH_HALServer::ETH_HALServerLoop(void)
 	FSWPacket * packet;
 
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	nfds = getdtablesize();
 	FD_ZERO(&afds);
@@ -62,9 +64,9 @@ void ETH_HALServer::ETH_HALServerLoop(void)
 		memcpy(&rfds, &afds, sizeof(rfds));
 
 		/* Makes the connections wait for the filedescriptor to be set*/
-		printf("\n*****************************************************\n");
-		printf("ETH_HAL Server: Waiting for messages\n ");
-		printf("\n*****************************************************\n");
+		logger->Log("*****************************************************", LOGGER_LEVEL_INFO);
+		logger->Log("ETH_HAL Server: Waiting for messages", LOGGER_LEVEL_INFO);
+		logger->Log("*****************************************************", LOGGER_LEVEL_INFO);
 		/*Waiting for a file descriptor to have its connection set*/
 		if (select(nfds, &rfds, (fd_set *)0, (fd_set *)0,
 				(struct timeval *)0) < 0)
@@ -73,7 +75,7 @@ void ETH_HALServer::ETH_HALServerLoop(void)
 
 		alen = sizeof(fsin);
 
-		printf("Recieving data\n");
+		logger->Log("ETH_HAL Server: Recieving data", LOGGER_LEVEL_DEBUG);
 		if ((numbytes = recvfrom(this->recv_sock, cmd, sizeof(cmd) , 0, (struct sockaddr *)&fsin, &alen)) == -1)
 		{
 			perror("recvfrom");
@@ -88,16 +90,16 @@ void ETH_HALServer::ETH_HALServerLoop(void)
 
 		buffer = (uint8_t*) malloc(numbytes);
 		memcpy((uint8_t *) buffer, cmd,numbytes);
-		printf("Converting a Pheonix Packet into a FSW packet\n");
+		logger->Log("ETH_HAL Server: Converting a Pheonix Packet into a FSW packet", LOGGER_LEVEL_DEBUG);
 
 		packet =new FSWPacket(buffer, numbytes);
-		printf("Now putting that FSW Packet into the message queue using Dispatch!\n");
+		logger->Log("ETH_HAL Server: Now putting that FSW Packet into the message queue using Dispatch!", LOGGER_LEVEL_DEBUG);
 
 		//packet->SetDestination(SERVER_LOCATION_ACS);
 
 		if((packet->GetDestination() == LOCATION_ID_INVALID )|| (packet->GetSource() == LOCATION_ID_INVALID))
 		{
-			printf("FSW Packet src or dest invalid. Not placing on queue\n");
+			logger->Log("ETH_HAL Server: FSW Packet src or dest invalid. Not placing on queue", LOGGER_LEVEL_DEBUG);
 			printf("src %d dest %d\n", packet->GetDestination(), packet->GetSource());
 			//todo log error
 			delete packet;
@@ -106,10 +108,10 @@ void ETH_HALServer::ETH_HALServerLoop(void)
 		else{
 			if(!dispatcher->Dispatch(*packet))
 			{
-				printf("\r\nError in dispatch\r\n");
+				// TODO: handle this?
 			}
 
-			printf("ETH_HAL Server: Dispatched packet successfully\n");
+			logger->Log("ETH_HAL Server: Dispatched packet successfully", LOGGER_LEVEL_INFO);
 
 			delete packet;
 			free(buffer);
@@ -140,8 +142,6 @@ void ETH_HALServer::ETH_HALServerLoop(void)
 					FD_CLR(fd, &afds);
 				}
 //		}
-
-	printf("\n*****************************************************\n ");
 
 	}
 
@@ -183,8 +183,7 @@ int ETH_HALServer::UDPsock(const char *portnum)
 
 	/* Bind the socket */
 		if (bind(s, (struct sockaddr *)&sin, sizeof(sin)) < 0) {
-			printf("can't bind to %s port: %s; Trying other port\n",
-				portnum, strerror(errno));
+			printf("can't bind to %s port: %s; Trying other port\n", portnum, strerror(errno));
 		}
 
 		if ( phe = gethostbyname(host) )
@@ -209,32 +208,32 @@ int ETH_HALServer::UDPsock(const char *host, const char *portnum, struct sockadd
  *      portnum   - server port number
  */
 {
-        struct hostent  *phe;   /* pointer to host information entry    */
-        int     s;              /* socket descriptor                    */
-		struct sockaddr_in sin;
+	struct hostent  *phe;   /* pointer to host information entry    */
+	int     s;              /* socket descriptor                    */
+	struct sockaddr_in sin;
 
-        memset(&sin, 0, sizeof(sin));
-        sin.sin_family = AF_INET;
+	memset(&sin, 0, sizeof(sin));
+	sin.sin_family = AF_INET;
 
-     /* Map port number (char string) to port number (int)*/
-        if ((sin.sin_port=htons((unsigned short)atoi(portnum))) == 0)
-                errexit("can't get \"%s\" port number\n", portnum);
-
-
-     /* Map host name to IP address, allowing for dotted decimal */
-        if ( phe = gethostbyname(host) )
-                memcpy(&sin.sin_addr, phe->h_addr, phe->h_length);
-        else if ( (sin.sin_addr.s_addr = inet_addr(host)) == INADDR_NONE )
-                errexit("can't get \"%s\" host entry\n", host);
+	/* Map port number (char string) to port number (int)*/
+	if ((sin.sin_port=htons((unsigned short)atoi(portnum))) == 0)
+			errexit("can't get \"%s\" port number\n", portnum);
 
 
-		/* Allocate a socket */
-        s = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-        if (s < 0)
-                errexit("can't create socket: %s\n", strerror(errno));
+	/* Map host name to IP address, allowing for dotted decimal */
+	if ( phe = gethostbyname(host) )
+			memcpy(&sin.sin_addr, phe->h_addr, phe->h_length);
+	else if ( (sin.sin_addr.s_addr = inet_addr(host)) == INADDR_NONE )
+			errexit("can't get \"%s\" host entry\n", host);
 
-		memcpy(fsin1,&sin,sizeof(sin));
-        return s;
+
+	/* Allocate a socket */
+	s = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	if (s < 0)
+			errexit("can't create socket: %s\n", strerror(errno));
+
+	memcpy(fsin1,&sin,sizeof(sin));
+	return s;
 }
 
 
@@ -331,8 +330,7 @@ int ETH_HALServer::ETHDispatch(FSWPacket & packet)
  * errexit - print an error message and exit
  *------------------------------------------------------------------------
  */
-int
-errexit(const char *format, ...)
+int errexit(const char *format, ...)
 {
         va_list args;
 

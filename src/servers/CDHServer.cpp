@@ -19,8 +19,10 @@
 #include "core/Factory.h"
 #include "core/ErrorMessage.h"
 #include "core/StdTypes.h"
-#include "core/ModeManager.h"
 #include "core/WatchdogManager.h"
+
+#include "core/ModeManager.h"
+#include "core/AccessMode.h"
 
 #include "util/Logger.h"
 #include "util/FileHandler.h"
@@ -53,6 +55,7 @@ namespace Phoenix
 		static CDHPowerMonitorsHandler * cdhPowerMonitorsHandler;
 		static CDHStartPMHandler * cdhStartPMHandler;
 
+		// -------------------------------------- Necessary Methods --------------------------------------
 		CDHServer::CDHServer(std::string nameIn, LocationIDType idIn)
 				: SubsystemServer(nameIn, idIn), Singleton(), arby(idIn)
 		{
@@ -87,7 +90,6 @@ namespace Phoenix
 			cdhPowerMonitorsHandler = new CDHPowerMonitorsHandler();
 			cdhStartPMHandler = new CDHStartPMHandler;
 		}
-
 #ifdef TEST
 		void CDHServer::Destroy(void)
 		{
@@ -101,7 +103,6 @@ namespace Phoenix
 			delete cdhStartPMHandler;
 		}
 #endif
-
 		bool CDHServer::IsFullyInitialized(void)
 		{
 			return(Singleton::IsFullyInitialized());
@@ -140,16 +141,16 @@ namespace Phoenix
 			return success;
 		}
 
+		// -------------------------------------------- Loop ---------------------------------------------
 		void CDHServer::SubsystemLoop(void)
 		{
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-			FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
 			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
 			logger->Log("CDHServer Subsystem loop entered", LOGGER_LEVEL_INFO);
 
-			//devMan = new I2CDeviceManager();
+			// TODO: should HS and PM initialization go here?
 #if HS_EN
 			bool initHS = devMan->initializeHS();
 			if(!initHS){
@@ -161,6 +162,110 @@ namespace Phoenix
 			devMan->initializePM();
 #endif //PM_EN
 
+
+			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+
+			const SystemMode * mode;
+			SystemModeEnum modeIndex;
+
+			// Define modes
+			modeArray[0] = &CDHServer::CDHAccessMode;	// Access
+			modeArray[1] = &CDHServer::CDHBusMode;		// Startup
+			modeArray[2] = &CDHServer::CDHBusMode;		// Bus
+			modeArray[3] = &CDHServer::CDHBusMode;		// Payload
+			modeArray[4] = &CDHServer::CDHBusMode;		// Error
+			modeArray[5] = &CDHServer::CDHBusMode;		// COM
+
+			while(1)
+			{
+				mode = modeManager->GetMode();
+				if (mode == NULL)
+				{
+					// FIXME: handle this!
+					logger->Log("CDHServer: Mode Manager thinks mode is NULL!", LOGGER_LEVEL_FATAL);
+					return;
+				}
+				modeIndex = mode->GetID();
+				(this->*modeArray[modeIndex]) (modeManager);
+			}
+		}
+
+		// -------------------------------------------- Modes --------------------------------------------
+		void CDHServer::CDHAccessMode(ModeManager * modeManager)
+		{
+			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+			const SystemMode * mode = AccessMode::GetInstance();
+			const SystemMode * currentMode = mode;
+
+			uint64_t LastWakeTime = 0;
+			uint8 timeUnit = 0;
+			uint8 readFrequency = 10;
+
+			logger->Log("CDHServer: Entered Access Mode!", LOGGER_LEVEL_INFO);
+
+			while(currentMode == mode)
+			{
+				currentMode = modeManager->GetMode();
+
+				while(dispatcher->Listen(id));
+
+				LastWakeTime = getTimeInMilis();
+				//wdm->Kick();
+
+				if((timeUnit % 180) == 0){
+					timeUnit = 0;
+				}
+
+				readHealth(readFrequency, timeUnit);
+
+				// Delay
+				waitUntil(LastWakeTime, 1000);
+				timeUnit++;
+			}
+		}
+
+		void CDHServer::CDHBusMode(ModeManager * modeManager)
+		{
+			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+			const SystemMode * mode = AccessMode::GetInstance();
+			const SystemMode * currentMode = mode;
+
+			uint64_t LastWakeTime = 0;
+			uint8 timeUnit = 0;
+			uint8 readFrequency = 60;
+
+			logger->Log("CDHServer: Entered Bus Priority Mode!", LOGGER_LEVEL_INFO);
+
+			while(currentMode == mode)
+			{
+				currentMode = modeManager->GetMode();
+
+				while(dispatcher->Listen(id));
+
+				LastWakeTime = getTimeInMilis();
+				//wdm->Kick();
+
+				if((timeUnit % 180) == 0){
+					timeUnit = 0;
+				}
+
+				readHealth(readFrequency, timeUnit);
+
+				// Delay
+				waitUntil(LastWakeTime, 1000);
+				timeUnit++;
+			}
+		}
+
+		// ----------------------------------------- CDH Methods -----------------------------------------
+		void CDHServer::readHealth(uint8 frequency, uint8 timeUnit)
+		{
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
 			FSWPacket * TSRet;
 			FSWPacket * TRRet;
 			FSWPacket * CPURet;
@@ -170,79 +275,60 @@ namespace Phoenix
 			FSWPacket * PMRet;
 			FSWPacket * SPMRet;
 
-			uint64_t LastWakeTime = 0;
-			uint8 timeUnit = 0;
-			//bool shouldReadTemp[4][16];
-			//float temperatures[4][16];
-			while(1)
-			{
-				while(dispatcher->Listen(id));
-				LastWakeTime = getTimeInMilis();
-				//wdm->Kick();
-
-				if((timeUnit % 60) == 0){
-					timeUnit = 0;
-				}
-
-				// Start sensors for reading next round
+			// Start sensors for reading next round
 #if PM_EN
-				if((timeUnit % 10) == 0){
-					SPMRet = CDHStartPM();
-					PacketProcess(SERVER_LOCATION_CDH, SPMRet);
-				}
+			if((timeUnit % 10) == 0){
+				SPMRet = CDHStartPM();
+				PacketProcess(SERVER_LOCATION_CDH, SPMRet);
+			}
 #endif //PM_EN
 
 #if TEMP_EN
-				if(((timeUnit-8) % 10) == 0){
-					TSRet = CDHTempStart();
-					PacketProcess(SERVER_LOCATION_CDH, TSRet);
-				}
+			if(((timeUnit - frequency - 2) % frequency) == 0){
+				TSRet = CDHTempStart();
+				PacketProcess(SERVER_LOCATION_CDH, TSRet);
+			}
 #endif //TEMP_EN
 
-				// Get all CDH information
-				if(((timeUnit - 9) % 10) == 0){
-					logger->Log("CDHServer: Gathering information", LOGGER_LEVEL_DEBUG);
+			// Get all CDH information
+			if(((timeUnit - frequency - 1) % frequency) == 0){
+				logger->Log("CDHServer: Gathering information", LOGGER_LEVEL_DEBUG);
 
 #if CPU_EN
-					// CPU usage
-					CPURet = CDHCPUUsage();
-					PacketProcess(SERVER_LOCATION_CDH, CPURet);
+				// CPU usage
+				CPURet = CDHCPUUsage();
+				PacketProcess(SERVER_LOCATION_CDH, CPURet);
 #endif //CPU_EN
 
 #if MEM_EN
-					// Memory usage
-					MemRet = CDHMemUsage();
-					PacketProcess(SERVER_LOCATION_CDH, MemRet);
+				// Memory usage
+				MemRet = CDHMemUsage();
+				PacketProcess(SERVER_LOCATION_CDH, MemRet);
 #endif //MEM_EN
 
 #if STOR_EN
-					// Storage in use
-					StrRet = CDHStorage();
-					PacketProcess(SERVER_LOCATION_CDH, StrRet);
+				// Storage in use
+				StrRet = CDHStorage();
+				PacketProcess(SERVER_LOCATION_CDH, StrRet);
 #endif //STOR_EN
 
 #if TEMP_EN
-					// Read Temp sensors
-					TRRet = CDHTempRead();
-					PacketProcess(SERVER_LOCATION_CDH, TRRet);
+				// Read Temp sensors
+				TRRet = CDHTempRead();
+				PacketProcess(SERVER_LOCATION_CDH, TRRet);
 #endif //TEMP_EN
 
 #if HS_EN
-					// Read Hot swaps
-					HtswRet = CDHHotSwaps();
-					PacketProcess(SERVER_LOCATION_CDH, HtswRet);
+				// Read Hot swaps
+				HtswRet = CDHHotSwaps();
+				PacketProcess(SERVER_LOCATION_CDH, HtswRet);
 #endif //HS_EN
 
 #if PM_EN
-					// Read Power Monitors
-					PMRet = CDHPowerMonitors();
-					PacketProcess(SERVER_LOCATION_CDH, PMRet);
+				// Read Power Monitors
+				PMRet = CDHPowerMonitors();
+				PacketProcess(SERVER_LOCATION_CDH, PMRet);
 #endif //PM_EN
-				}
-
-				// Delay
-				waitUntil(LastWakeTime, 1000);
-				timeUnit++;
 			}
 		}
 	}

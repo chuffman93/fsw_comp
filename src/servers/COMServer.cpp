@@ -27,6 +27,7 @@
 #include "core/SystemMode.h"
 
 #include "util/FileHandler.h"
+#include "util/Logger.h"
 
 //#include "boards/backplane/dbg_led.h"
 
@@ -54,6 +55,7 @@ namespace Phoenix
 		static COMResetHandler * comRstHandler;
 		static COMErrorHandler * comErrorHandler;
 		
+		// -------------------------------------- Necessary Methods --------------------------------------
 		COMServer::COMServer(string nameIn, LocationIDType idIn)
 				: SubsystemServer(nameIn, idIn), Singleton(), arby(idIn), COMCurrentState(BEACON_STATE), parseFlag(false), kermitRunFlag(false), beaconData()
 		{			
@@ -113,7 +115,6 @@ namespace Phoenix
 			comErrorHandler = new COMErrorHandler();
 #endif
 		}
-		
 #ifdef TEST
 		void COMServer::Destroy(void)
 		{
@@ -128,39 +129,9 @@ namespace Phoenix
 			delete comErrorHandler;
 		}
 #endif
-		
 		bool COMServer::IsFullyInitialized(void)
 		{
 			return(Singleton::IsFullyInitialized());
-		}
-
-		void COMServer::SubsystemLoop(void)
-		{
-			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-			const SystemMode * mode;
-			SystemModeEnum modeIndex;
-
-			modeArray[0] = &COMServer::COMAccessMode;
-			/*modeArray[1] = &COMServer::COMStartupMode;
-			modeArray[2] = &COMServer::COMBusMode;
-			modeArray[3] = &COMServer::COMPayloadMode;
-			modeArray[4] = &COMServer::COMErrorMode;
-			modeArray[5] = &COMServer::COMComMode;*/
-
-			while(1)
-			{
-				mode = modeManager->GetMode();
-				if (mode == NULL)
-				{
-					// modeManagerError
-					// Store Error to Data File
-					// Recommend Reboot to Ground
-					return;
-				}
-
-				modeIndex = mode->GetID();
-				(this->*modeArray[modeIndex]) (modeManager);
-			}
 		}
 
 		void COMServer::Update(const SystemMode * mode)
@@ -202,6 +173,38 @@ namespace Phoenix
         	return success;
         }
 
+        // -------------------------------------------- Loop ---------------------------------------------
+		void COMServer::SubsystemLoop(void)
+		{
+			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+			const SystemMode * mode;
+			SystemModeEnum modeIndex;
+
+			modeArray[0] = &COMServer::COMAccessMode;
+			modeArray[1] = &COMServer::COMAccessMode;
+			modeArray[2] = &COMServer::COMAccessMode;
+			modeArray[3] = &COMServer::COMAccessMode;
+			modeArray[4] = &COMServer::COMAccessMode;
+			modeArray[5] = &COMServer::COMAccessMode;
+
+			while(1)
+			{
+				mode = modeManager->GetMode();
+				if (mode == NULL)
+				{
+					// TODO: Handle this!
+					logger->Log("COMServer: Subsystem Loop entered", LOGGER_LEVEL_INFO);
+					return;
+				}
+
+				modeIndex = mode->GetID();
+				(this->*modeArray[modeIndex]) (modeManager);
+			}
+		}
+
+		// -------------------------------------------- Modes --------------------------------------------
 		void COMServer::COMAccessMode(ModeManager * modeManager)
 		{
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));

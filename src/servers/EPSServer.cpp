@@ -54,20 +54,10 @@ namespace Phoenix
 		static EPSHSHandler * epsHSHandler;
 		// Message handler for a power cycle command.
 		static EPSPowerCycleHandler * epsPowerCycleHandler;
-
-		/* OUTDATED HANDLERS
-		// Message handler for a battery pass through command.
-		static EPSStateofChargeHandler * epsSOCHandler;
-		// Message handler for a disable overcurrent protection command.
-		static EPSDisableOCHandler * epsDisHandler;
-		// Message handler for a enable overcurrent protection command.
-		static EPSEnableOCHandler * epsEnHandler;//Message handler for EPS power subsystems
-		static EPSPowerHandler * epsPowerHandler;
-		*/
-
 		// Message handler for EPS generated errors.
 		static EPSErrorHandler * epsErrorHandler;
 		
+		// -------------------------------------- Necessary Methods --------------------------------------
 		EPSServer::EPSServer(string nameIn, LocationIDType idIn)
 				: SubsystemServer(nameIn, idIn), Singleton(), arby(idIn), sensorThreshhold(0)
 		{
@@ -110,7 +100,6 @@ namespace Phoenix
 			epsErrorHandler = new EPSErrorHandler();
 
 		}
-	
 #ifdef TEST
 		void EPSServer::Destroy(void)
 		{
@@ -128,43 +117,9 @@ namespace Phoenix
 			delete epsErrorHandler;
 		}
 #endif
-		
 		bool EPSServer::IsFullyInitialized(void)
 		{
 			return(Singleton::IsFullyInitialized());
-		}
-
-		void EPSServer::SubsystemLoop(void)
-		{
-			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-			logger->Log("	EPSServer: Entering subsystem loop...", LOGGER_LEVEL_INFO);
-			
-			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-			
-			const SystemMode * mode;
-			SystemModeEnum modeIndex;
-		
-			modeArray[0] = &EPSServer::EPSAccessMode;
-			modeArray[1] = &EPSServer::EPSStartupMode;
-			modeArray[2] = &EPSServer::EPSBusMode;
-			modeArray[3] = &EPSServer::EPSPayloadMode;
-			modeArray[4] = &EPSServer::EPSErrorMode;
-			modeArray[5] = &EPSServer::EPSComMode;
-
-			while(1)
-			{
-				mode = modeManager->GetMode();
-				if (mode == NULL)
-				{
-					// modeManagerError
-					// Store Error to Data File
-					// Recommend Reboot to Ground
-					return;
-				}
-				modeIndex = mode->GetID();
-				(this->*modeArray[modeIndex]) (modeManager);
-			}
-
 		}
 
 		void EPSServer::Update(const SystemMode * mode)
@@ -175,8 +130,6 @@ namespace Phoenix
 			*/
 		}
 
-
-		// Creates Register handler entried for the local register reg - UP
 		bool EPSServer::RegisterHandlers()
 		{
 			bool success = true;
@@ -209,6 +162,40 @@ namespace Phoenix
 			return success;
 		}
 
+		// -------------------------------------------- Loop ---------------------------------------------
+		void EPSServer::SubsystemLoop(void)
+		{
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			logger->Log("	EPSServer: Entering subsystem loop...", LOGGER_LEVEL_INFO);
+
+			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+
+			const SystemMode * mode;
+			SystemModeEnum modeIndex;
+
+			modeArray[0] = &EPSServer::EPSAccessMode;
+			modeArray[1] = &EPSServer::EPSStartupMode;
+			modeArray[2] = &EPSServer::EPSBusMode;
+			modeArray[3] = &EPSServer::EPSPayloadMode;
+			modeArray[4] = &EPSServer::EPSErrorMode;
+			modeArray[5] = &EPSServer::EPSComMode;
+
+			while(1)
+			{
+				mode = modeManager->GetMode();
+				if (mode == NULL)
+				{
+					// FIXME: handle this!
+					logger->Log("EPSServer: Mode Manager thinks mode is NULL!", LOGGER_LEVEL_FATAL);
+					return;
+				}
+				modeIndex = mode->GetID();
+				(this->*modeArray[modeIndex]) (modeManager);
+			}
+
+		}
+
+		// -------------------------------------------- Modes --------------------------------------------
 		void EPSServer::EPSAccessMode(ModeManager * modeManager)
 		{
 
@@ -296,7 +283,6 @@ namespace Phoenix
 				waitUntil(LastWakeTime, 1000);
 			}
 		}
-
 
 		void EPSServer::EPSStartupMode(ModeManager * modeManager)
 		{
@@ -493,8 +479,6 @@ namespace Phoenix
 			}
 		}
 
-
-
 		void EPSServer::EPSErrorMode(ModeManager * modeManager)
 		{
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
@@ -533,8 +517,6 @@ namespace Phoenix
 				waitUntil(LastWakeTime, 1000);
 			}
 		}
-
-
 
 		void EPSServer::EPSComMode(ModeManager * modeManager)
 		{
@@ -579,6 +561,7 @@ namespace Phoenix
 	
 		}
 		
+		// ----------------------------------------- EPS Methods -----------------------------------------
 		bool EPSServer::getPowerSate(PowerSubsystemEnum subsystem)
 		{
 			switch (subsystem)
@@ -616,6 +599,7 @@ namespace Phoenix
 				break;
 			}
 		}
+
 		void EPSServer::setPowerState(PowerSubsystemEnum subsystem, bool state)
 		{
 			switch (subsystem)

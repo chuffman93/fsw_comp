@@ -15,7 +15,10 @@
 #include "core/MessageHandler.h"
 #include "core/Singleton.h"
 #include "core/VariableTypeEnum.h"
+#include "core/ModeManager.h"
+
 #include "servers/SubsystemServer.h"
+
 #include <sys/sysinfo.h>
 #include <sys/statvfs.h>
 #include "HAL/I2C/HotSwaps.h"
@@ -88,11 +91,12 @@ namespace Phoenix
 			Phoenix::Core::MessageHandlerRegistry reg;
 			Phoenix::Core::Arbitrator arby;
 
-//			HotSwap_Address adresses[16] = {COM_3V3_ADDR,COM_VBAT_ADDR,COM_12V0_ADDR,ACS_3V3_ADDR,ACS_VBAT_ADDR,ACS_12V0_ADDR,PROP_3V3_ADDR,PROP_VBAT_ADDR,PROP_12V0_ADDR,PLD_3V3_ADDR,PLD_VBAT_ADDR,PLD_12V0_ADDR,GPS_3V3_ADDR,GPS_VBAT_ADDR,AUXCOM_3V3_ADDR,AUXCOM_VBAT_ADDR};
-//			HotSwap_Fault faults[16] = {COM_3V3_FAULT,COM_VBAT_FAULT,COM_12V0_FAULT,ACS_3V3_FAULT,ACS_VBAT_FAULT,ACS_12V0_FAULT,PROP_3V3_FAULT,PROP_VBAT_FAULT,PROP_12V0_FAULT,PLD_3V3_FAULT,PLD_VBAT_FAULT,PLD_12V0_FAULT,GPS_3V3_FAULT,GPS_VBAT_FAULT,AUXCOM_3V3_FAULT,AUXCOM_VBAT_FAULT};
-//			float resistors[16] = {0.01,0.01,0.015,0.01,0.01,0.015,0.01,0.01,0.015,0.01,0.01,0.015,0.01,0.01,0.01,0.01};
-//
-//			PowerMonitor_Address PM_adresses[4] = {A5_1V8_ADDR,A5_1V2_ADDR,ETH_2V5_ADDR,ETH_1V2_ADDR};
+			void CDHAccessMode(Phoenix::Core::ModeManager * modeManager);
+			void CDHBusMode(Phoenix::Core::ModeManager * modeManager);
+			void(CDHServer::*modeArray[6])(Phoenix::Core::ModeManager * modeManager);
+
+			void readHealth(uint8 frequency, uint8 timeUnit);
+
 		};
 	}
 }

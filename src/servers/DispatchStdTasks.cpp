@@ -49,6 +49,9 @@ namespace Phoenix
 			
 			//grab dispatcher instance, if it fails return DISPATCHER_NO_INSTANCE
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+
+			//grab and increment the packet number
+			query->SetNumber(dispatcher->packetNumber++);
 			
 			//Dispatch packet, if it fails return DISPATCH_FAILED
 			if(!dispatcher->Dispatch(*query))
@@ -61,7 +64,6 @@ namespace Phoenix
 			//debug_led_set_led(1, LED_ON);
 
 			DispatcherStatusEnum stat;
-			// TODO: determine how to deal with response allocation
 			FSWPacket * response;
 			//Wait for return message, if it fails return status response from dispatcher
 			logger->Log("DispatchStdTasks: Waiting for return message\n", LOGGER_LEVEL_DEBUG);

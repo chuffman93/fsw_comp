@@ -51,6 +51,7 @@ namespace Phoenix
 
 		bool mq_timed_send(char * queueName, FSWPacket ** inPacket, size_t sec, uint64_t nSec);
 
+		bool mq_clean(char * queueName);
 
 		bool mq_timed_receive(char * queueName, FSWPacket ** packetOut, size_t sec, uint64_t nSec);
 

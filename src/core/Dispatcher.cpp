@@ -51,6 +51,7 @@ namespace Phoenix
     {
 		// Instantiate static members
 		char * Dispatcher::queueNameRX = (char *) "/queueHandleRX";
+		uint16 Dispatcher::packetNumber = 1;
 		size_t timer;
 
 		Dispatcher::Dispatcher(void)
@@ -157,15 +158,14 @@ namespace Phoenix
 				return false;
 			}
 		   if (packet.GetDestination() >= HARDWARE_LOCATION_MIN && packet.GetDestination() < HARDWARE_LOCATION_MAX)
-			{
-			   DEBUG_COUT("Hardware Dispatch: YAY!");
-				uint32_t ret;
-
-				ret=DispatchToHardware(packet);
-				return (0 == ret);
-			}
-			else
-			{
+		   {
+			   logger->Log("---- Hardware Dispatch ----", LOGGER_LEVEL_DEBUG);
+			   uint32_t ret;
+			   ret=DispatchToHardware(packet);
+			   return (0 == ret);
+		   }
+		   else
+		   {
 
 
 				logger->Log("Now sending the message to the queue", LOGGER_LEVEL_DEBUG);
@@ -342,7 +342,6 @@ namespace Phoenix
 		{
 			FSWPacket * packet;
 			FSWPacket tmpPacket;
-
 			IteratorType it;
 
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
@@ -428,8 +427,18 @@ namespace Phoenix
 			delete packet;
 
 			// Send the response back to the server that dispatched the original message.
-			while (!mq_timed_send(queueNameRX, &ret, MAX_BLOCK_TIME, 0));
-			return true;
+			int numPackets;
+			bool sendSuccess = false;
+			if(numPackets < DISPATCHER_QUEUE_LENGTH){
+				sendSuccess = mq_timed_send(queueNameRX, &ret, MAX_BLOCK_TIME, 0);
+				this->GiveLock();
+			}else{
+				logger->Log("Dispatcher: RX Queue full!", LOGGER_LEVEL_FATAL);
+				sendSuccess = false;
+				this->GiveLock();
+			}
+
+			return sendSuccess;
 		}
 
 		bool Dispatcher::IsPacketMatchingResponse(const FSWPacket & packetIn,
@@ -492,7 +501,7 @@ namespace Phoenix
 		uint32_t Dispatcher::DispatchToHardware(FSWPacket & packet)
 		{
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-			logger->Log("Dispatcher: DispatchtoHardware() called", LOGGER_LEVEL_DEBUG);
+			logger->Log("Dispatcher: DispatchtoHardware() called, packet number: %d", packet.GetNumber(), LOGGER_LEVEL_DEBUG);
 			//todo: add semaphores for locking & real error values
 			size_t packetLength;
 			uint8_t * packetBuffer;
@@ -551,7 +560,7 @@ namespace Phoenix
 					}
 					break;
 				case ACP_PROTOCOL_ETH:
-					logger->Log("DispatchToHardware(): Dispatch over SPI", LOGGER_LEVEL_DEBUG);
+					logger->Log("DispatchToHardware(): Dispatch over ETH", LOGGER_LEVEL_DEBUG);
 					bytesCopied = eth_server->ETHDispatch(packet);
 					sendSuccess = (bytesCopied == packet.GetFlattenSize());
 					break;

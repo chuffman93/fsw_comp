@@ -36,32 +36,25 @@ using namespace std;
 #define PORT_N_CLIENT "5002"         // Default socket used for client communication
 
 struct SessionInfo {
-    char name[server_name_len];    /*Name of the session Server*/
-    struct sockaddr_in fsin;    /* TCP addresses of the clients    */
-    pid_t s_pid;                /*Process id of the session*/
-    bool Initd;                    /*If true, means that the session exists*/
+    char name[server_name_len];		/*Name of the session Server*/
+    struct sockaddr_in fsin;		/* TCP addresses of the clients    */
+    pid_t s_pid;					/*Process id of the session*/
+    bool Initd;						/*If true, means that the session exists*/
 };
 
 
 class ETH_HALServer: public Phoenix::Core::Singleton
 {
 	public:
-    char port_num_server[6];                            // Storing the socket number in a char array
-    char port_num_client[HARDWARE_LOCATION_MAX][5];        // Storing the socket number in a char array
-    int recv_sock;                                        /* master server socket        */
-    int send_sock[HARDWARE_LOCATION_MAX];                // Client send socket
-    struct sockaddr_in fsin[HARDWARE_LOCATION_MAX];                            /* TCP addresses of the HARDWARE LOCATION SUBSYSTEMS    */
+		char port_num_server[6];							// Storing the socket number in a char array
+		char port_num_client[HARDWARE_LOCATION_MAX][5];		// Storing the socket number in a char array
+		int recv_sock;										// master server socket
+		int send_sock[HARDWARE_LOCATION_MAX];				// Client send socket
+		struct sockaddr_in fsin[HARDWARE_LOCATION_MAX];		// TCP addresses of the HARDWARE LOCATION SUBSYSTEMS
 
 
-    // The Host names are indexed by their HardwareLocationIDType
-    char host[HARDWARE_LOCATION_MAX][INET_ADDRSTRLEN]; // Stores the IP Address of the different servers in the char array format of size INET_ADDRSTRLEN each
-
-
-
-
-
-
-
+		// The Host names are indexed by their HardwareLocationIDType
+		char host[HARDWARE_LOCATION_MAX][INET_ADDRSTRLEN]; // Stores the IP Address of the different servers in the char array format of size INET_ADDRSTRLEN each
 
         // Constructor
         ETH_HALServer()

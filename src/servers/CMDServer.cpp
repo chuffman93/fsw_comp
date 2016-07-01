@@ -81,6 +81,40 @@ namespace Phoenix
 			return *this;
 		}
 
+		void CMDServer::Update(const SystemMode * mode)
+		{
+			// Called by mode manager each time mode changes
+			//* Ex: Needs to do things to close mode 1, enter mode 2
+			//* Setup and tear down between modes
+
+
+
+		}
+
+		bool CMDServer::RegisterHandlers()
+		{
+			bool success = true;
+
+			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+
+			// CMD Command Opcode
+			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CMD_ACP_SWITCH), cmdSwitchProtocolHandler);
+			success &= arby.ModifyPermission(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CMD_ACP_SWITCH), true);
+
+			/*
+			for(int opcode = EPS_SUB_ERROR_MIN; opcode < EPS_SUB_ERROR_MAX; opcode++)
+			{
+				success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_ERROR, opcode), epsErrorHandler);
+				success &= arby.ModifyPermission(MessageIdentifierType(MESSAGE_TYPE_COMMAND, opcode), true);
+			}
+			*/
+
+
+			success &= dispatcher->AddRegistry(id, &reg, &arby);
+
+			return success;
+		}
+
 		void CMDServer::SubsystemLoop(void)
 		{
 			FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
@@ -153,41 +187,5 @@ namespace Phoenix
 				
 			}
 		}
-
-
-		void CMDServer::Update(const SystemMode * mode)
-		{
-			// Called by mode manager each time mode changes
-			//* Ex: Needs to do things to close mode 1, enter mode 2
-			//* Setup and tear down between modes
-
-
-
-		}
-
-		bool CMDServer::RegisterHandlers()
-		{
-			bool success = true;
-
-			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-
-			// CMD Command Opcode
-			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CMD_ACP_SWITCH), cmdSwitchProtocolHandler);
-			success &= arby.ModifyPermission(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CMD_ACP_SWITCH), true);
-
-			/*
-			for(int opcode = EPS_SUB_ERROR_MIN; opcode < EPS_SUB_ERROR_MAX; opcode++)
-			{
-				success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_ERROR, opcode), epsErrorHandler);
-				success &= arby.ModifyPermission(MessageIdentifierType(MESSAGE_TYPE_COMMAND, opcode), true);
-			}
-			*/
-
-
-			success &= dispatcher->AddRegistry(id, &reg, &arby);
-
-			return success;
-		}
-
 	} // End Namespace servers
 } // End Namespace Phoenix

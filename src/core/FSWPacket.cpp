@@ -354,6 +354,9 @@ namespace Phoenix
             numCopied += 4;
             size -= 4;
 
+//            if(status != 0){
+//
+//            }
             *(buffer++) = status & 0xFF;
             *(buffer++) = opcode & 0xFF;
             numCopied += 2;
