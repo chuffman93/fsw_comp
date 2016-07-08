@@ -70,7 +70,7 @@ namespace Phoenix
 
 			const static char * portname;
 
-			double DistanceTo(double latitude, double longitude);
+			double DistanceTo(double latitude1, double longitude1);
 
 		private:
 			/*! \brief Initialize the GPSServer Class

@@ -200,6 +200,10 @@ namespace Phoenix
 
 			if(tcsetattr(portfd, TCSANOW, &port) < 0){
 				logger->Log("GPSServer: Problem setting port attributes!", LOGGER_LEVEL_ERROR);
+			}
+
+			return portfd;
+		}
 
 		double GPSServer::DistanceTo(double latitude1, double longitude1){
 			double R = 6371000.0; //Radius of earth in meters
@@ -218,18 +222,6 @@ namespace Phoenix
 			double a = sin(dlat/2) * sin(dlat/2) + cos(latitude1)*cos(latitude2)*sin(dlong/2)*sin(dlong/2);
 			double c = 2*atan2(sqrt(a), sqrt(1-a));
 			return c*R;
-		}
-
-		bool GPSServer::SetGPSData(GPSData * gpsData)
-		{
-			if(true == this->TakeLock(MAX_BLOCK_TIME))
-			{
-				GPSDataHolder = gpsData;
-				this->GiveLock();
-				return true;
-			}
-
-			return portfd;
 		}
 
 		void GPSServer::ReadData(char * buffer, int fd){
