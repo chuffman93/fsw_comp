@@ -18,7 +18,8 @@ namespace Phoenix
 		Phoenix::Core::FSWPacket * GPSPostion();
 		bool GPSConversion();
 		Phoenix::Core::FSWPacket * GPSReset();
-		void GPSDataProcess(char * buffer,const size_t size);
+		bool BESTXYZProcess(char * buffer,const size_t size);
+		bool GPRMCProcess(char * buffer, const size_t size);
 	}
 }
 

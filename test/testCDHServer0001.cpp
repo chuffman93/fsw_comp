@@ -144,6 +144,47 @@ void readSensor(int bus, int sensor){
 	}
 }
 
+TEST(TestCDHServer, testPowerToggle){
+	// Grab instances / set mode ------------------------------------------------------------------------------------------------------
+	FileHandler * fileHandler = dynamic_cast<FileHandler *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	ModeManager * modeManager = dynamic_cast<ModeManager *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	modeManager->SetMode(MODE_ACCESS, LOCATION_ID_INVALID);
+
+
+	// Create CDHServer ---------------------------------------------------------------------------------------------------------------
+	pthread_t CDHThread;
+	bool threadCreated = pthread_create(&CDHThread, NULL, &taskRunCDH, NULL);
+	if (!threadCreated) {
+		printf("CDH Server Thread Creation Success\n");
+	} else {
+		printf("CDH Server Thread Creation Failed\n");
+	}
+
+
+	// Grab CDHServer, check it -------------------------------------------------------------------------------------------------------
+	CDHServer * cdhServer = dynamic_cast<CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
+
+	usleep(500000);
+	cdhServer->subPowerOn(HARDWARE_LOCATION_COM);
+	usleep(500000);
+	cdhServer->subPowerOn(HARDWARE_LOCATION_ACS);
+	usleep(500000);
+	cdhServer->subPowerOn(HARDWARE_LOCATION_PLD);
+	usleep(500000);
+	cdhServer->subPowerOn(HARDWARE_LOCATION_GPS);
+	usleep(500000);
+	cdhServer->subPowerOn(HARDWARE_LOCATION_EPS);
+	usleep(500000);
+
+	cdhServer->subPowerOff(HARDWARE_LOCATION_COM);
+	cdhServer->subPowerOff(HARDWARE_LOCATION_ACS);
+	cdhServer->subPowerOff(HARDWARE_LOCATION_PLD);
+	cdhServer->subPowerOff(HARDWARE_LOCATION_GPS);
+	cdhServer->subPowerOff(HARDWARE_LOCATION_EPS);
+
+	ASSERT_TRUE(true);
+}
+
 // Main Test for Message Handlers
 TEST(TestCDHServer, testHandlers) {
 

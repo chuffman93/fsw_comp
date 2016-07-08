@@ -150,7 +150,9 @@ namespace Phoenix
 
 			logger->Log("CDHServer Subsystem loop entered", LOGGER_LEVEL_INFO);
 
-			// TODO: should HS and PM initialization go here?
+			// GPIO file setup
+			prepPowerGPIOs();
+
 #if HS_EN
 			bool initHS = devMan->initializeHS();
 			if(!initHS){
@@ -162,7 +164,6 @@ namespace Phoenix
 			devMan->initializePM();
 #endif //PM_EN
 
-
 			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
 			const SystemMode * mode;
@@ -170,7 +171,7 @@ namespace Phoenix
 
 			// Define modes
 			modeArray[0] = &CDHServer::CDHAccessMode;	// Access
-			modeArray[1] = &CDHServer::CDHBusMode;		// Startup
+			modeArray[1] = &CDHServer::CDHStartupMode;		// Startup
 			modeArray[2] = &CDHServer::CDHBusMode;		// Bus
 			modeArray[3] = &CDHServer::CDHBusMode;		// Payload
 			modeArray[4] = &CDHServer::CDHBusMode;		// Error
@@ -221,6 +222,34 @@ namespace Phoenix
 				readHealth(readFrequency, timeUnit);
 
 				// Delay
+				waitUntil(LastWakeTime, 1000);
+				timeUnit++;
+			}
+		}
+
+		void CDHServer::CDHStartupMode(ModeManager * modeManager){
+			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+			const SystemMode * mode = AccessMode::GetInstance();
+			const SystemMode * currentMode = mode;
+
+			uint64_t LastWakeTime = 0;
+			uint8 timeUnit = 0;
+
+			logger->Log("CDHServer: Entered Bus Priority Mode!", LOGGER_LEVEL_INFO);
+
+			while(currentMode == mode)
+			{
+				currentMode = modeManager->GetMode();
+
+				while(dispatcher->Listen(id));
+
+				LastWakeTime = getTimeInMilis();
+				//wdm->Kick();
+
+				// TODO: Take health and status in startup?
+
 				waitUntil(LastWakeTime, 1000);
 				timeUnit++;
 			}
@@ -330,6 +359,14 @@ namespace Phoenix
 				PacketProcess(SERVER_LOCATION_CDH, PMRet);
 #endif //PM_EN
 			}
+		}
+
+		void CDHServer::subPowerOn(HardwareLocationIDType subsystem){
+			toggleSubPower(subsystem, true);
+		}
+
+		void CDHServer::subPowerOff(HardwareLocationIDType subsystem){
+			toggleSubPower(subsystem, false);
 		}
 	}
 }

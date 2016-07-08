@@ -317,5 +317,62 @@ namespace Phoenix
 				return -301;
 			}
 		}
+
+		void prepPowerGPIOs(void){
+			// COM
+			system("echo 47 > \"/sys/class/gpio/export\"");
+			system("echo \"out\" > \"/sys/class/gpio/pioB15/direction\"");
+
+			// ACS
+			system("echo 57 > \"/sys/class/gpio/export\"");
+			system("echo \"out\" > \"/sys/class/gpio/pioB25/direction\"");
+
+			// PLD
+			system("echo 49 > \"/sys/class/gpio/export\"");
+			system("echo \"out\" > \"/sys/class/gpio/pioB17/direction\"");
+
+			// GPS
+			system("echo 59 > \"/sys/class/gpio/export\"");
+			system("echo \"out\" > \"/sys/class/gpio/pioB27/direction\"");
+
+			// AUXCOM
+			system("echo 43 > \"/sys/class/gpio/export\"");
+			system("echo \"out\" > \"/sys/class/gpio/pioB11/direction\"");
+		}
+
+		void toggleSubPower(HardwareLocationIDType subsystem, bool state){
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			string cmd = "echo ";
+
+			if(state){
+				cmd.append("1 > \"/sys/class/gpio/pioB");
+			}else{
+				cmd.append("0 > \"/sys/class/gpio/pioB");
+			}
+
+			switch(subsystem){
+			case HARDWARE_LOCATION_COM:
+				logger->Log("CDHStdTasks: Toggling power on COM", LOGGER_LEVEL_INFO);
+				cmd.append("15/value\"");
+				break;
+			case HARDWARE_LOCATION_ACS:
+				logger->Log("CDHStdTasks: Toggling power on ACS", LOGGER_LEVEL_INFO);
+				cmd.append("25/value\"");
+				break;
+			case HARDWARE_LOCATION_PLD:
+				logger->Log("CDHStdTasks: Toggling power on PLD", LOGGER_LEVEL_INFO);
+				cmd.append("17/value\"");
+				break;
+			case HARDWARE_LOCATION_GPS:
+				logger->Log("CDHStdTasks: Toggling power on GPS", LOGGER_LEVEL_INFO);
+				cmd.append("27/value\"");
+				break;
+			default:
+				logger->Log("CDHStdTasks: Invalid subsystem for power toggle", LOGGER_LEVEL_WARN);
+				break;
+			}
+
+			system(cmd.c_str());
+		}
 	}
 }

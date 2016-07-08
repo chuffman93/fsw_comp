@@ -7,6 +7,8 @@
 
 #include "core/StartupMode.h"
 
+#include "servers/CDHServer.h"
+
 namespace Phoenix
 {
 
@@ -44,6 +46,13 @@ namespace Phoenix
 
 		void StartupMode::OnEntry(void)
 		{
+			Servers::CDHServer * cdhServer = dynamic_cast<Servers::CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+
+			// all subsystems off in startup
+			cdhServer->subPowerOff(HARDWARE_LOCATION_COM);
+			cdhServer->subPowerOff(HARDWARE_LOCATION_ACS);
+			cdhServer->subPowerOff(HARDWARE_LOCATION_GPS);
+			cdhServer->subPowerOff(HARDWARE_LOCATION_PLD);
 		}
 
 		void StartupMode::OnExit(void)

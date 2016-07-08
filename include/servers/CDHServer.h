@@ -46,41 +46,22 @@ namespace Phoenix
 
 			void SubsystemLoop();
 
-			/*! \brief Sets up and initializes hot swaps
-			 *
-			 * 	Creates arrays for hot swaps and their information
-			 * 	Initializes each hot swap object
-			 */
-			void PrepHSPM(void);
+			// Turn a subsystem on  (only ACS, COM, PLD, GPS)
+			void subPowerOn(HardwareLocationIDType subsystem);
+
+			// Turn a subsystem off (only ACS, COM, PLD, GPS)
+			void subPowerOff(HardwareLocationIDType subsystem);
 
 			// Allows for easy look into memory usage
 			struct sysinfo si;
 			struct statvfs svfs;
-//			HotSwap * hotSwaps[16];
-//			PowerMonitor * powerMonitors[4];
 			I2CDeviceManager * devMan;
-		private:
-			/*! \brief Initialize the CDHServer Class
-			 *
-			 *  Initializes the operating system constructs needed for
-			 *  PLDServer to work properly.
-			 */
-			static void Initialize(void);
 
-			/*! \brief Static Destructor for CDHServer
-			 *
-			 *  Frees all internal memory use, frees all operating system
-			 *  objects used, and deletes the singleton instance pointer.
-			 */
+		private:
+			static void Initialize(void);
 #ifdef TEST
 			static void Destroy(void);
 #endif
-
-			/*! \brief Checks if CDHServer Class is initialized
-			 *
-			 *  \return true if the initialization was successful and
-			 *  false otherwise.
-			 */
 			bool IsFullyInitialized(void);
 
 			CDHServer(std::string nameIn, LocationIDType idIn);
@@ -91,12 +72,14 @@ namespace Phoenix
 			Phoenix::Core::MessageHandlerRegistry reg;
 			Phoenix::Core::Arbitrator arby;
 
+			// Modes
 			void CDHAccessMode(Phoenix::Core::ModeManager * modeManager);
+			void CDHStartupMode(Phoenix::Core::ModeManager * modeManager);
 			void CDHBusMode(Phoenix::Core::ModeManager * modeManager);
 			void(CDHServer::*modeArray[6])(Phoenix::Core::ModeManager * modeManager);
 
+			// Gather CDH data at a given frequency
 			void readHealth(uint8 frequency, uint8 timeUnit);
-
 		};
 	}
 }

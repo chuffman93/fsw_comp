@@ -3,6 +3,9 @@
 *
 *  Created on: July 3, 2012
 *      Author: Conrad Hougen
+*
+*     Updated: 7/7/16
+*      Author: Alex St. Clair
 */
 
 #ifndef GPSSERVER_H_
@@ -16,6 +19,9 @@
 #include "servers/GPSHandlers.h"
 #include "servers/GPSStdTasks.h"
 #include "util/FileHandler.h"
+
+#include <termios.h>
+#include <unistd.h>
 
 namespace Phoenix
 {
@@ -58,10 +64,11 @@ namespace Phoenix
 			*  with the member Arbitrator. Then those two members
 			*  are added to the Dispatcher.
 			*/
-			bool RegisterHandlers();
-			
-			bool SetGPSData(GPSData * gpsData);
+			bool RegisterHandlers(void);
+
 			GPSData * GetGPSDataPtr(void);
+
+			const static char * portname;
 
 		private:
 			/*! \brief Initialize the GPSServer Class
@@ -91,13 +98,18 @@ namespace Phoenix
 			~GPSServer();
 			GPSServer & operator=(const GPSServer & source);
 			
-			void GPSMessageProcess(Phoenix::Core::ReturnMessage * retMsg);
+			int CreatePort(void);
+
+			void ReadData(char * buffer, int fd);
 
 			// Member variables needed to register message handlers.
 			Phoenix::Core::MessageHandlerRegistry reg;
 			Phoenix::Core::Arbitrator arby;
 			
 			GPSData * GPSDataHolder;
+
+			/* GPS Port configurations */
+			struct termios port;
 
 		};
 	}
