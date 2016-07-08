@@ -91,7 +91,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactName="FSW" buildProperties="" description="Build using the arm-linux-gnueabihf compiler for the CDH processor" id="cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1577213963" name="ARM" parent="org.eclipse.cdt.build.core.emptycfg" postbuildStep="scp FSW root@10.14.134.204:">
+				<configuration artifactName="FSW" buildProperties="" description="Build using the arm-linux-gnueabihf compiler for the CDH processor" id="cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1577213963" name="ARM" parent="org.eclipse.cdt.build.core.emptycfg" postbuildStep="ssh root@10.14.134.204 rm FSW; scp FSW root@10.14.134.204:">
 					<folderInfo id="cdt.managedbuild.toolchain.gnu.cross.base.1870409512.247872199.1577213963." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.base.92241249" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.base">
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="cdt.managedbuild.target.gnu.platform.base.837373352" name="Debug Platform" osList="linux,hpux,aix,qnx" superClass="cdt.managedbuild.target.gnu.platform.base"/>

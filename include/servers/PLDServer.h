@@ -23,25 +23,25 @@ namespace Phoenix
 	namespace Servers
 	{
 		#define DEFAULT_RES_X		800
-		
+
 		#define DEFAULT_RES_Y		800
-		
+
 		#define DEFAULT_CHUNK_SIZE	100
 		
 		#define DEFAULT_GAIN		6
-		
+
 		#define DEFAULT_EXP_TIME	32
-		
+
 		#define MAX_RES_X			2592
-		
+
 		#define MAX_RES_Y			1944
-		
+
 		#define MAX_CHUNK_SIZE		65536
-		
+
 		#define MAX_GAIN			64
-		
+
 		#define MAX_EXP_TIME		65536
-		
+
 		class PLDServer : public SubsystemServer, public Phoenix::Core::Singleton
 		{
 			/*! \brief Declare Factory a friend class
@@ -77,7 +77,7 @@ namespace Phoenix
 			bool PLDGetChunkSize(uint32 * chunk);
 			bool PLDGetGain(uint32 * curGain);
 			bool PLDGetExpTime(uint32 * curExp);
-			
+
 		private:
 			
 			/*! \brief Initialize the PLDServer Class

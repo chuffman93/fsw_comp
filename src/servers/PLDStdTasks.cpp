@@ -31,15 +31,15 @@ namespace Phoenix
 	{
 		FSWPacket * PLDHealthStatus(void)
 		{
-			FSWPacket * HSQuery = new FSWPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, 0, PLD_HS_CMD, true, false, MESSAGE_TYPE_COMMAND);
+			FSWPacket * HSQuery = new FSWPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, 0, PLD_HS_CMD, true, false, MESSAGE_TYPE_COMMAND);
 			FSWPacket * HSRet = DispatchPacket(HSQuery);
 			return HSRet;
 		}
 
 		FSWPacket * PLDPicture(void)
 		{
-			FSWPacket * query = new FSWPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, 0, PLD_PIC_CMD, true, false, MESSAGE_TYPE_COMMAND);
-			return(DispatchPacket(query));
+			//FSWPacket * query = new FSWPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, 0, PLD_PIC_CMD, true, false, MESSAGE_TYPE_COMMAND);
+			//return(DispatchPacket(query));
 		}
 
 		FSWPacket * PLDGetPicture(void)

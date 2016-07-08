@@ -28,6 +28,7 @@
 #include "core/SystemMode.h"
 
 #include "util/FileHandler.h"
+#include "servers/CDHServer.h"
 
 //#include "boards/backplane/dbg_led.h"
 
@@ -130,32 +131,6 @@ namespace Phoenix
 			// Register PLD handlers
 
 			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, PLD_HS_CMD), pldHSHandler);
-			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, PLD_PIC_CMD), pldPicHandler);
-			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, PLD_PIC_GET_CMD), pldGetPicHandler);
-			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, PLD_DATA_CMD), pldGetDatHandler);
-			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, PLD_RESET_CMD), pldRstHandler);
-
-			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_CONFIG, PLD_RES_CONFIG), pldResSetHandler);
-			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_CONFIG, PLD_CHUNK_CONFIG), pldChuSetHandler);
-			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_CONFIG, PLD_GAIN_CONFIG), pldGainSetHandler);
-			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_CONFIG, PLD_EXPTIME_CONFIG), pldExpSetHandler);
-
-
-			for(int opcode = PLD_CMD_MIN; opcode < PLD_CMD_MAX; opcode++)
-			{
-				success &= arby.ModifyPermission(MessageIdentifierType(MESSAGE_TYPE_COMMAND, opcode), true);
-			}
-			
-			for(int opcode = PLD_CONFIG_MIN; opcode < PLD_CONFIG_MAX; opcode++)
-			{
-				success &= arby.ModifyPermission(MessageIdentifierType(MESSAGE_TYPE_COMMAND, opcode), true);
-			}
-
-			for(int opcode = PLD_SUB_ERROR_MIN; opcode < PLD_SUB_ERROR_MAX; opcode++)
-			{
-				success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_ERROR, opcode), pldErrorHandler);
-				success &= arby.ModifyPermission(MessageIdentifierType(MESSAGE_TYPE_COMMAND, opcode), true);
-			}
 
 			success &= dispatcher->AddRegistry(id, &reg, &arby);
 
@@ -176,6 +151,10 @@ namespace Phoenix
 			modeArray[3] = &PLDServer::PLDPayloadMode;
 			modeArray[4] = &PLDServer::PLDErrorMode;
 			modeArray[5] = &PLDServer::PLDComMode;
+
+			//TODO do this in a better way
+			system("echo 139 > /sys/class/gpio/export");
+			system("echo out > /sys/class/gpio/pioE11/direction");
 
 			while(1)
 			{
@@ -256,6 +235,9 @@ namespace Phoenix
 
 			FSWPacket * HSRet;
 
+			FSWPacket * turnOffPayload = new FSWPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, 0, PLD_STOP_SCIENCE, true, false, MESSAGE_TYPE_COMMAND);
+			DispatchPacket(turnOffPayload);
+
 			while(mode == currentMode)
 			{
 				uint64_t LastWakeTime = getTimeInMilis();
@@ -290,6 +272,10 @@ namespace Phoenix
 			const SystemMode * currentMode = mode;
 			uint8 seconds = 0;
 			FSWPacket * HSRet;
+
+			CDHServer * cdhserver = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+			FSWPacket * turnOnPayload = new FSWPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, 0, PLD_START_SCIENCE, true, false, MESSAGE_TYPE_COMMAND);
+			DispatchPacket(turnOnPayload);
 
 			while(mode == currentMode)
 			{
