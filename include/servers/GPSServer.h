@@ -63,6 +63,10 @@ namespace Phoenix
 			bool SetGPSData(GPSData * gpsData);
 			GPSData * GetGPSDataPtr(void);
 
+
+			double DistanceTo(double latitude, double longitude);
+
+
 		private:
 			/*! \brief Initialize the GPSServer Class
 			*
@@ -91,6 +95,8 @@ namespace Phoenix
 			~GPSServer();
 			GPSServer & operator=(const GPSServer & source);
 			
+			double latitude;
+			double longitude;
 			void GPSMessageProcess(Phoenix::Core::ReturnMessage * retMsg);
 
 			// Member variables needed to register message handlers.

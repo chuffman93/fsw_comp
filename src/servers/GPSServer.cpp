@@ -43,6 +43,7 @@ extern "C"
 
 #include "HAL/GPS.h"
 #include "HAL/RTC.h"
+#include <math.h>
 
 //#include "boards/backplane/dbg_led.h"
 
@@ -198,6 +199,25 @@ namespace Phoenix
 
 		}
 		
+		double GPSServer::DistanceTo(double latitude1, double longitude1){
+			double R = 6371000.0; //Radius of earth in meters
+			double latitude2 = this->latitude;
+			double longitude2 = this->longitude;
+
+			//to radians
+			latitude1 = latitude1*M_PI/180.0;
+			longitude1 = longitude1*M_PI/180.0;
+			latitude2 = latitude2*M_PI/180.0;
+			longitude2 = longitude2*M_PI/180.0;
+
+			double dlat = latitude2 - latitude1;
+			double dlong = longitude2 - longitude1;
+
+			double a = sin(dlat/2) * sin(dlat/2) + cos(latitude1)*cos(latitude2)*sin(dlong/2)*sin(dlong/2);
+			double c = 2*atan2(sqrt(a), sqrt(1-a));
+			return c*R;
+		}
+
 		bool GPSServer::SetGPSData(GPSData * gpsData)
 		{
 			if(true == this->TakeLock(MAX_BLOCK_TIME))

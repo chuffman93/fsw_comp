@@ -123,6 +123,26 @@ namespace Phoenix
         {
         	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 			logger->Log("SetMode called", LOGGER_LEVEL_DEBUG);
+			switch(newMode){
+			case MODE_ACCESS:
+				logger->Log("Setting mode to MODE_ACCESS", LOGGER_LEVEL_INFO);
+				break;
+			case MODE_STARTUP:
+				logger->Log("Setting mode to MODE_STARTUP", LOGGER_LEVEL_INFO);
+				break;
+			case MODE_BUS_PRIORITY:
+				logger->Log("Setting mode to MODE_BUS_PRIORITY", LOGGER_LEVEL_INFO);
+				break;
+			case MODE_PLD_PRIORITY:
+				logger->Log("Setting mode to MODE_PLD_PRIORITY", LOGGER_LEVEL_INFO);
+				break;
+			case MODE_ERROR:
+				logger->Log("Setting mode to MODE_ERROR", LOGGER_LEVEL_INFO);
+				break;
+			case MODE_COM:
+				logger->Log("Setting mode to MODE_COM", LOGGER_LEVEL_INFO);
+				break;
+			}
 #ifdef HARDWARE
 			FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
 #endif //HARDWARE

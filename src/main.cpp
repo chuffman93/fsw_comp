@@ -54,11 +54,12 @@ using namespace Phoenix::Servers;
 #define COM_EN 0
 #define EPS_EN 0
 #define ERR_EN 0
-#define PLD_EN 1
+#define PLD_EN 0
 #define THM_EN 0
+#define SCH_EN 1
 
 #define ETH_EN 0
-#define SPI_EN 1
+#define SPI_EN 0
 
 //----------------------- Create server tasks -----------------------
 //TODO:Add meaningful exit information to each server pthread_exit
@@ -244,7 +245,7 @@ void * taskRunSCH(void * params)
 	
 	modeManager->Attach(*schServer);
 	
-	for(int i = 0; i < 30; i++)
+	for(int i = 0; i < 1; i++)
 	{
 		//wdm->Kick();
 		usleep(1000000);
@@ -457,6 +458,20 @@ int main(int argc, char * argv[])
 	}
 #endif //THM_EN
 
+#if SCH_EN
+	// -------------------------------------SCH Thread-------------------------------------
+	pthread_t SCHThread;
+	threadCreated = pthread_create(&SCHThread, NULL, &taskRunSCH, NULL);
+	if(!threadCreated)
+	{
+		logger->Log("SCH Server Thread Creation Success", LOGGER_LEVEL_INFO);
+	}
+	else
+	{
+		logger->Log("SCH Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
+	}
+#endif
+
 #if CMD_EN
 	// ------------------------------------- CMD Thread -------------------------------------
 	pthread_t CMDThread;
@@ -532,6 +547,10 @@ int main(int argc, char * argv[])
 #if THM_EN
 	pthread_join(THMThread, NULL);
 #endif //THM_EN
+
+#if SCH_EN
+	pthread_join(SCHThread, NULL);
+#endif
 
 #if PLD_EN
 	pthread_join(PLDThread, NULL);
