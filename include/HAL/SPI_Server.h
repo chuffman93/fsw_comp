@@ -61,11 +61,12 @@ class SPI_HALServer: public Phoenix::Core::Singleton
 
 		void SPI_HALServerLoop(void);
 
+		bool SPIDispatch(Phoenix::Core::FSWPacket & packet);
+
 	private:
 
 		void GPIOsetup(void);
 
-		bool SPIDispatch(Phoenix::Core::FSWPacket & packet);
 
 		int spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, int len);
 

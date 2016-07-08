@@ -606,17 +606,6 @@ enum ScheduleSwitchTypeEnum
 	SCH_ST_END = SCH_ST_LOCATION
 };
 
-/// \brief Context (Payload Scheduler) Switch Type
-/// TIME = Wait a set amount of time before going onto next task
-/// LOCATION = Location. Wait unil all star hits a location before switching
-enum PayloadScheduleEventTypeEnum
-{
-	PLD_SCH_ST_START = 0,
-	PLD_SCH_ST_TIME = PLD_SCH_ST_START,
-	PLD_SCH_ST_LOCATION,
-	PLD_SCH_ST_END = PLD_SCH_ST_LOCATION
-};
-
 enum SystemModeEnum
 {
 	MODE_FIRST_MODE = 0,

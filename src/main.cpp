@@ -55,6 +55,7 @@ using namespace Phoenix::Servers;
 #define GPS_EN 1
 #define PLD_EN 0
 #define THM_EN 0
+#define SCH_EN 1
 
 #define ETH_EN 0
 #define SPI_EN 0
@@ -92,13 +93,13 @@ void * taskRunACS(void * params)
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
 	modeManager->Attach(*acsServer);
-	
+
 	for(int i = 0; i < 15; i++)
 	{
 		//wdm->Kick();
 		usleep(1000000);
 	}
-	
+
 	logger->Log("Kicking off the ACS server", LOGGER_LEVEL_INFO);
 
 	bool handlers = acsServer->RegisterHandlers();
@@ -116,9 +117,9 @@ void * taskRunPLD(void * params)
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-	
+
 	modeManager->Attach(*pldServer);
-	
+
 //	for(int i = 0; i < 20; i++)
 //	{
 //		//wdm->Kick();
@@ -141,15 +142,15 @@ void * taskRunCOM(void * params)
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-	
+
 	modeManager->Attach(*comServer);
-		
+
 	for(int i = 0; i < 25; i++)
 	{
 		//wdm->Kick();
 		usleep(1000000);
 	}
-	
+
 	logger->Log("Kicking off the COM server", LOGGER_LEVEL_INFO);
 
 	bool handlers = comServer->RegisterHandlers();
@@ -166,9 +167,9 @@ void * taskRunGPS(void * params)
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-	
+
 	modeManager->Attach(*gpsServer);
-	
+
 	for(int i = 0; i < 20; i++)
 	{
 		//wdm->Kick();
@@ -191,7 +192,7 @@ void * taskRunTHM(void * params)
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-	
+
 	modeManager->Attach(*thmServer);
 	//wdm->Kick();
 
@@ -211,7 +212,7 @@ void * taskRunERR(void * params)
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-	
+
 	modeManager->Attach(*errServer);
 	//wdm->Kick();
 
@@ -231,15 +232,15 @@ void * taskRunSCH(void * params)
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-	
+
 	modeManager->Attach(*schServer);
-	
-	for(int i = 0; i < 30; i++)
+
+	for(int i = 0; i < 1; i++)
 	{
 		//wdm->Kick();
 		usleep(1000000);
 	}
-	
+
 	logger->Log("Kicking off the SCH server", LOGGER_LEVEL_INFO);
 
 	bool handlers = schServer->RegisterHandlers();
@@ -256,9 +257,9 @@ void * taskRunCMD(void * params)
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-	
+
 	modeManager->Attach(*cmdServer);
-	
+
 	for(int i = 0; i < 10; i++)
 	{
 		//wdm->Kick();
@@ -461,6 +462,20 @@ int main(int argc, char * argv[])
 	}
 #endif //THM_EN
 
+#if SCH_EN
+	// -------------------------------------SCH Thread-------------------------------------
+	pthread_t SCHThread;
+	threadCreated = pthread_create(&SCHThread, NULL, &taskRunSCH, NULL);
+	if(!threadCreated)
+	{
+		logger->Log("SCH Server Thread Creation Success", LOGGER_LEVEL_INFO);
+	}
+	else
+	{
+		logger->Log("SCH Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
+	}
+#endif
+
 #if CMD_EN
 	// ------------------------------------- CMD Thread -------------------------------------
 	pthread_t CMDThread;
@@ -540,6 +555,10 @@ int main(int argc, char * argv[])
 #if THM_EN
 	pthread_join(THMThread, NULL);
 #endif //THM_EN
+
+#if SCH_EN
+	pthread_join(SCHThread, NULL);
+#endif
 
 #if PLD_EN
 	pthread_join(PLDThread, NULL);

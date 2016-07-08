@@ -7,10 +7,6 @@
 #include <list>
 
 #include "servers/SubsystemServer.h"
-#include "servers/SCHMode.h"
-#include "servers/SCHEvent.h"
-#include "servers/SCHHandlers.h"
-#include "servers/SCHStdTasks.h"
 
 #include "core/StdTypes.h"
 #include "core/Dispatcher.h"
@@ -24,19 +20,17 @@ namespace Phoenix
 {
 	namespace Servers
 	{
-		// Lat, Lon, Alt (GPS format?) m
-		//From Nicole
-		#define GROUND_STATION_X		-1280891
-		#define GROUND_STATION_Y		-4702971
-		#define GROUND_STATION_Z		4110321
-		
-		//Real one
-// 		#define GROUND_STATION_X		-1278064.576544036
-// 		#define GROUND_STATION_Y		-4699892.870631095
-// 		#define GROUND_STATION_Z		4106659.631408538
-		
-		#define DEFAULT_GROUND_STATION_RANGE	1500000
+//Real one
+#define GROUND_STATION_X		-1278064.576544036
+#define GROUND_STATION_Y		-4699892.870631095
+#define GROUND_STATION_Z		4106659.631408538
 
+#define DEFAULT_GROUND_STATION_RANGE	1500000
+
+#define SCHEDULE_MAX_SIZE 50
+
+#define SCH_CONFIG_FILE ".config/SCHConfig"
+#define SCH_SCHEDULE_FILE "uplink/Schedule"
 		class SCHServer : public SubsystemServer, public Phoenix::Core::Singleton
 		{
 			/*! \brief Declare Factory a friend class
@@ -44,7 +38,20 @@ namespace Phoenix
 			*	This allows factory to call SCHServer's private constructor
 			*/
 			friend class Phoenix::Core::Factory;
-			
+			typedef struct{
+				double latitude;
+				double longitude;
+				double radius;
+				uint32_t timeoutms;
+				SystemModeEnum mode;
+			}SCHItem;
+
+			typedef struct {
+				uint8_t sizeOfDefaultSchedule;
+				SCHItem defaultScheduleArray[SCHEDULE_MAX_SIZE];
+			}SCHConfig;
+
+
 		public:
 			
 			void SubsystemLoop(void);
@@ -62,12 +69,7 @@ namespace Phoenix
 			*/
 			bool RegisterHandlers();
 
-			bool SetCurrentSchedule(std::list<SCHMode *> * newSchedule);
-			bool SetNextSchedule(std::list<SCHMode *> * newSchedule);
-			bool SetCurrentPLDSchedule(std::list<SCHEvent *> * newPLDSchedule);
-			bool SetNextPLDSchedule(std::list<SCHEvent *> * newPLDSchedule);
-			bool RunCurrentSchedule(void);
-			bool SetNewDefaultRange(const float & newRange);
+			void LoadNextSchedule(void);
 
 		private:
 			/*! \brief Initialize the SCHServer Class
@@ -97,22 +99,18 @@ namespace Phoenix
 			~SCHServer();
 			SCHServer & operator=(const SCHServer & source);
 			
+			void ReadConfig();
+
 			// Member variables needed to register message handlers.
 			Phoenix::Core::MessageHandlerRegistry reg;
 			Phoenix::Core::Arbitrator arby;
 
 			bool scheduleRunning;
-			
-			float defaultScheduleRange;
 
 			/// \brief The vectors of mode schedules and payload schedules.
-			std::list<SCHMode *> * currentSchedule;
-			std::list<SCHMode *> * nextSchedule;
-
-			std::list<SCHEvent *> * currentPLDSchedule;
-			std::list<SCHEvent *> * nextPLDSchedule;
-			
-			std::list<SCHMode *> * defaultSchedule;
+			std::list<SCHItem> defaultSchedule;
+			std::list<SCHItem> currentSchedule;
+			std::list<SCHItem> nextSchedule;
 		};
 	}
 }

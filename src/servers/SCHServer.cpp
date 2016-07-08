@@ -1,13 +1,8 @@
 
 #include "servers/SCHServer.h"
-#include "servers/SCHEvent.h"
-#include "servers/SCHMode.h"
-#include "servers/SCHModePosition.h"
-#include "servers/SCHStdTasks.h"
-#include "servers/SCHHandlers.h"
 
-#include "core/CommandMessage.h"
-#include "core/ReturnMessage.h"
+#include "servers/GPSServer.h"
+
 #include "core/Dispatcher.h"
 #include "core/WatchdogManager.h"
 #include "core/ErrorMessage.h"
@@ -15,8 +10,9 @@
 #include "core/ModeManager.h"
 #include "core/PayloadPriorityMode.h"
 #include "core/SystemMode.h"
-
-//#include "boards/backplane/dbg_led.h"
+#include "util/Logger.h"
+#include <sys/mman.h>
+#include <stdio.h>
 
 using namespace std;
 using namespace Phoenix::Core;
@@ -25,25 +21,12 @@ namespace Phoenix
 {
 	namespace Servers
 	{
-		static SCHScheduleHandler * schScheduleHandler;
-		static SCHPldScheduleHandler * schPldScheduleHandler;
-		static SCHRunScheduleHandler * schRunScheduleHandler;
-		static SCHDefaultRangeHandler * schDefaultRangeHandler;
 		
 		SCHServer::SCHServer(string nameIn, LocationIDType idIn)
 				: SubsystemServer(nameIn, idIn), Singleton(), arby(idIn)
 		{
 			scheduleRunning = false;
-			defaultScheduleRange = DEFAULT_GROUND_STATION_RANGE;
-			defaultSchedule = new std::list<SCHMode *>;
-			defaultSchedule->push_back(new SCHModePosition(MODE_COM, defaultScheduleRange, GROUND_STATION_X, GROUND_STATION_Y,
-				GROUND_STATION_Z, true));
-			defaultSchedule->push_back(new SCHModePosition(MODE_BUS_PRIORITY, defaultScheduleRange, GROUND_STATION_X, 
-				GROUND_STATION_Y, GROUND_STATION_Z, false));
-			currentSchedule = NULL;
-			nextSchedule = NULL;
-			currentPLDSchedule = NULL;
-			nextPLDSchedule = NULL;
+			//TODO Setup default schedule
 		}
 
 		SCHServer::~SCHServer()
@@ -65,19 +48,11 @@ namespace Phoenix
 		
 		void SCHServer::Initialize(void)
 		{
-			schScheduleHandler = new SCHScheduleHandler();
-			schPldScheduleHandler = new SCHPldScheduleHandler();
-			schRunScheduleHandler = new SCHRunScheduleHandler();
-			schDefaultRangeHandler = new SCHDefaultRangeHandler();
 		}
 		
 #ifdef TEST
 		void SCHServer::Destroy(void)
 		{
-			delete schScheduleHandler;
-			delete schPldScheduleHandler;
-			delete schRunScheduleHandler;
-			delete schDefaultRangeHandler;
 		}
 #endif
 		
@@ -96,19 +71,6 @@ namespace Phoenix
 			volatile bool success = true;
 
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-
-			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, SCH_BUILD_SCHEDULE_CMD), schScheduleHandler);
-			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, SCH_BUILD_PLD_SCHEDULE_CMD), schPldScheduleHandler);
-			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, SCH_RUN_SCHEDULE_CMD), schRunScheduleHandler);
-			
-			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_CONFIG, SCH_DEFAULT_RANGE_CONFIG), schDefaultRangeHandler);
-			
-			success &= arby.ModifyPermission(MessageIdentifierType(MESSAGE_TYPE_COMMAND, SCH_BUILD_SCHEDULE_CMD), true);
-			success &= arby.ModifyPermission(MessageIdentifierType(MESSAGE_TYPE_COMMAND, SCH_BUILD_PLD_SCHEDULE_CMD), true);
-			success &= arby.ModifyPermission(MessageIdentifierType(MESSAGE_TYPE_COMMAND, SCH_RUN_SCHEDULE_CMD), true);
-			
-			success &= arby.ModifyPermission(MessageIdentifierType(MESSAGE_TYPE_CONFIG, SCH_DEFAULT_RANGE_CONFIG), true);
-
 			success &= dispatcher->AddRegistry(id, &reg, &arby);
 
 			return success;
@@ -116,169 +78,107 @@ namespace Phoenix
 		
 		void SCHServer::SubsystemLoop(void)
 		{
-			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));			
 			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			uint64_t LastTimeSwitched = getTimeInMilis();
+			currentSchedule = std::list<SCHItem>();
 
-			const SystemMode * mode;
+			ReadConfig();
 			while(1)
 			{
 				uint64_t LastWakeTime = getTimeInMilis();
-				//wdm->Kick();
-				while(dispatcher->Listen(id));
-				
-				
-				while(scheduleRunning)
-				{
-					//debug_led_set_led(4, LED_ON);
-					if(currentSchedule == NULL)
-					{
-						scheduleRunning = false;
-						break;
-					}
-					while(!(currentSchedule->empty()))
-					{
-						// Kick the dog?
-						uint64_t LastWakeTimeInner = getTimeInMilis();
-						//wdm->Kick();
-						while(dispatcher->Listen(id));
-						/*debug_led_set_led(2, LED_TOGGLE);*/
-						
-						if(currentSchedule->front()->CheckGoToNextMode())
-						{
-							currentSchedule->pop_front();
-						}
-						// Check current mode
-						mode = modeManager->GetMode();
-						// Payload schedule
-						if((mode == PayloadPriorityMode::GetInstance()) && (!(currentPLDSchedule == NULL)))
-						{
-							if((!(currentPLDSchedule->empty())) && (currentPLDSchedule->front()->CheckGoToNextEvent()))
-							{
-								currentPLDSchedule->pop_front();
-								if(currentPLDSchedule->empty())
-								{
-									delete currentPLDSchedule;
-									if(nextPLDSchedule != NULL)
-									{
-										if(!(nextPLDSchedule->empty()))
-										{
-											currentPLDSchedule = nextPLDSchedule;
-											nextPLDSchedule = NULL;
-										}
-									}
-								}
-							}
-						}
-						waitUntil(LastWakeTimeInner, 1000);
-					}
-					delete currentSchedule;
-					if(nextSchedule != NULL)
-					{
-						if(!(nextSchedule->empty()))
-						{
-							currentSchedule = nextSchedule;
-							nextSchedule = NULL;
-						}
-					}
-					scheduleRunning = false;
+				if(currentSchedule.empty()){
+					logger->Log("Fetching Next Schedule", LOGGER_LEVEL_INFO);
+					LoadNextSchedule();
+					LastTimeSwitched = getTimeInMilis();
+					modeManager->SetMode(currentSchedule.front().mode, LOCATION_ID_INVALID);
 				}
-				//debug_led_set_led(2, LED_TOGGLE);
-				if(defaultSchedule == NULL)
-				{
-					defaultSchedule = new std::list<SCHMode *>;
-					defaultSchedule->push_back(new SCHModePosition(MODE_COM, defaultScheduleRange, GROUND_STATION_X, GROUND_STATION_Y,
-						GROUND_STATION_Z, true));
-					defaultSchedule->push_back(new SCHModePosition(MODE_BUS_PRIORITY, defaultScheduleRange, GROUND_STATION_X,
-						GROUND_STATION_Y, GROUND_STATION_Z, false));
-				}
-				if(defaultSchedule != NULL)
-				{
-					if(!defaultSchedule->empty())
-					{
-						if(defaultSchedule->front()->CheckGoToNextMode())
-						{
-							defaultSchedule->pop_front();
-						}
+
+				GPSServer * gpsServer = dynamic_cast<GPSServer *>(Factory::GetInstance(GPS_SERVER_SINGLETON));
+				SCHItem CurrentEvent = currentSchedule.front();
+				bool inRange = gpsServer->DistanceTo(CurrentEvent.latitude, CurrentEvent.longitude) < CurrentEvent.radius;
+				bool timeout = CurrentEvent.timeoutms < (getTimeInMilis() - LastTimeSwitched);
+				if(inRange || timeout){
+					currentSchedule.pop_front();
+					if(currentSchedule.empty()){
+						modeManager->SetMode(MODE_BUS_PRIORITY, LOCATION_ID_INVALID);
+					}else{
+						modeManager->SetMode(currentSchedule.front().mode, LOCATION_ID_INVALID);
 					}
-					else
-					{
-						delete defaultSchedule;
-						defaultSchedule = NULL;
-					}
+					LastTimeSwitched = getTimeInMilis();
 				}
 				waitUntil(LastWakeTime, 1000);
 			}
 		}
 
-		bool SCHServer::SetCurrentSchedule(list<SCHMode *> * newSchedule)
-		{
-			if((currentSchedule != NULL) || (scheduleRunning))
-			{
-				//schedule is not complete fail
-				return false;
+		void SCHServer::LoadNextSchedule(){
+			bool failure = false;
+			currentSchedule = std::list<SCHItem>();
+			if(this->TakeLock(MAX_BLOCK_TIME)){
+				if(access(SCH_SCHEDULE_FILE, F_OK) != -1){
+					FILE *pFile;
+					pFile = fopen(SCH_SCHEDULE_FILE, "r");
+					if(pFile != NULL){
+						for(int i = 0; i < SCHEDULE_MAX_SIZE; i++){
+							SCHItem tmp;
+							if(fgets((char*) &tmp, (int) sizeof(tmp), pFile) != NULL){
+								if(tmp.mode >= MODE_FIRST_MODE && tmp.mode <= MODE_NUM_MODES)
+									currentSchedule.push_back(tmp);
+								else{
+									failure = true;
+									break;
+								}
+							}else{
+								failure = true;
+								break;
+							}
+						}
+						fclose(pFile);
+						remove(SCH_SCHEDULE_FILE);
+					}else{
+						failure = true;
+					}
+				}else{
+					failure = true;
+				}
+				this->GiveLock();
+			}else{
+				failure = true;
 			}
-			currentSchedule = newSchedule;
- 			return true;
-		}
-
-		bool SCHServer::SetNextSchedule(list<SCHMode *> * newSchedule)
-		{
-			if((nextSchedule != NULL))
-			{
-				//schedule is not complete fail
-				return false;
+			if(failure){
+				currentSchedule = defaultSchedule;
 			}
-			nextSchedule = newSchedule;
- 			return true;
-		}
-
-		bool SCHServer::SetCurrentPLDSchedule(list<SCHEvent *> * newPLDSchedule)
-		{
-			if(currentPLDSchedule != NULL)
-			{
-				//PLD schedule is not complete fail
-				return false;
-			}
-			currentPLDSchedule = newPLDSchedule;
- 			return true;
-		}
-
-		bool SCHServer::SetNextPLDSchedule(list<SCHEvent *> * newPLDSchedule)
-		{
-			if(nextPLDSchedule != NULL)
-			{
-				//PLD schedule is not complete fail
-				return false;
-			}
-			nextPLDSchedule = newPLDSchedule;
- 			return true;
-		}
-
-		bool SCHServer::RunCurrentSchedule()
-		{
-			if(currentSchedule == NULL)
-			{
-				return false;
-			}
-			if(currentSchedule->empty())
-			{
-				//schedule doesn't exist fail
-				return false;
-			}
-			if(scheduleRunning)
-			{
-				// schedule is already running
-				return false;
-			}
-			scheduleRunning = true;
- 			return true;
 		}
 		
-		bool SCHServer::SetNewDefaultRange(const float & newRange)
-		{
-			defaultScheduleRange = newRange;
-			return true;
+		void SCHServer::ReadConfig(){
+			int fd;
+			SCHConfig * configuration;
+			if(true == this->TakeLock(MAX_BLOCK_TIME)){
+				fd = open(SCH_CONFIG_FILE, O_RDWR);
+
+				if(fd != -1){
+					configuration = (SCHConfig*)mmap(0, sizeof(SCHConfig), PROT_READ, MAP_SHARED, fd, 0);
+					if(configuration != NULL && configuration != (void*)-1){
+						printf("Number of items: %d\n",configuration->sizeOfDefaultSchedule);
+						for(int i = 0; i < configuration->sizeOfDefaultSchedule; i++){
+							printf("Added item to default schedule: {%f, %f, %f, %d, %d}\n",
+									configuration->defaultScheduleArray[i].latitude,
+									configuration->defaultScheduleArray[i].longitude,
+									configuration->defaultScheduleArray[i].radius,
+									configuration->defaultScheduleArray[i].timeoutms,
+									configuration->defaultScheduleArray[i].mode);
+							defaultSchedule.push_back(configuration->defaultScheduleArray[i]);
+						}
+					}else
+						perror("MMap failure");
+					munmap(configuration, sizeof(SCHConfig));
+					close(fd);
+				}else{
+					perror("FD error");
+					printf("path is %s\n", SCH_CONFIG_FILE);
+				}
+				this->GiveLock();
+			}
 		}
 	}
 }

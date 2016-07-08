@@ -33,7 +33,7 @@
 using namespace Phoenix;
 using namespace Core;
 
-static int timeout = 50;
+static int timeout = -1;
 char * SPI_HALServer::queueNameSPITX = (char *) "/queueHandleSPITX";
 
 SPI_HALServer::SPI_HALServer()

@@ -68,7 +68,7 @@ namespace Phoenix
 			void StartMeasurement();
 
 		private:
-			float SenseResistorValue = 0.02;
+			float SenseResistorValue;//TODO Fix = 0.02;
 
 			typedef enum{
 				PWRMON_CONTROL				=0x00,

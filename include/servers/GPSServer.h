@@ -39,7 +39,7 @@ namespace Phoenix
 			float posECIX, posECIY, posECIZ, velECIX, velECIY, velECIZ;
 			float latency,diffAge,solAge;
 		};
-		
+
 		class GPSServer : public SubsystemServer, public Phoenix::Core::Singleton
 		{
 			/*! \brief Declare Factory a friend class
@@ -47,7 +47,7 @@ namespace Phoenix
 			*	This allows factory to call GPSServer's private constructor
 			*/
 			friend class Phoenix::Core::Factory;
-			
+
 		public:
 
 			void SubsystemLoop(void);
@@ -70,6 +70,8 @@ namespace Phoenix
 
 			const static char * portname;
 
+			double DistanceTo(double latitude, double longitude);
+
 		private:
 			/*! \brief Initialize the GPSServer Class
 			*
@@ -77,7 +79,7 @@ namespace Phoenix
 			*  GPSServer to work properly.
 			*/
 			static void Initialize(void);
-			
+
 			/*! \brief Static Destructor for GPSServer
 			*
 			*  Frees all internal memory use, frees all operating system
@@ -86,26 +88,29 @@ namespace Phoenix
 #ifdef TEST
 			static void Destroy(void);
 #endif
-			
+
 			/*! \brief Checks if GPSServer Class is initialized
 			*
 			*  \return true if the initialization was successful and
 			*  false otherwise.
 			*/
 			bool IsFullyInitialized(void);
-			
+
 			GPSServer(std::string nameIn, LocationIDType idIn);
 			~GPSServer();
 			GPSServer & operator=(const GPSServer & source);
-			
+
 			int CreatePort(void);
 
 			void ReadData(char * buffer, int fd);
+			double latitude;
+			double longitude;
+			void GPSMessageProcess(Phoenix::Core::ReturnMessage * retMsg);
 
 			// Member variables needed to register message handlers.
 			Phoenix::Core::MessageHandlerRegistry reg;
 			Phoenix::Core::Arbitrator arby;
-			
+
 			GPSData * GPSDataHolder;
 
 			/* GPS Port configurations */
