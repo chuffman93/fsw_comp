@@ -23,7 +23,7 @@
 
 #include "util/Logger.h"
 
-//#include "boards/backplane/dbg_led.h"
+#define CRC32_POLYNOMIAL 0xEDB88320L
 
 using namespace std;
 using namespace Phoenix::Core;
@@ -485,15 +485,25 @@ namespace Phoenix
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 			GPRMC * data = gpsServer->GetGPSCoordsPtr();
-			char * token;
 			double doubleHolder;
 
 			logger->Log("GPSStdTasks: Processing GPRMC", LOGGER_LEVEL_DEBUG);
 
-			token = strtok(buffer, ","); // GPRMC
-			token = strtok(NULL, ","); // UTC
-			//data.utc = token;
+			char * token = strtok(buffer, "*");
+			char * message = token;
+			token = strtok(NULL, "*");
+			char checkHold[2] = {token[0], token[1]};
+			long check = strtol(checkHold, NULL, 16);
 
+			if(check != CalculateNMEAChecksum(buffer)){
+				logger->Log("GPSStdTasks: invalid checksum!", LOGGER_LEVEL_WARN);
+				printf("String: %d\n", check);
+				printf("Calculated: %d\n", CalculateNMEAChecksum(buffer));
+				return false;
+			}
+
+			token = strtok(message, ","); // GPRMC
+			token = strtok(NULL, ","); // UTC
 			token = strtok(NULL, ","); // status
 			if(*token != 'A'){
 				logger->Log("GPSStdTasks: invalid data from GPRMC", LOGGER_LEVEL_WARN);
@@ -546,6 +556,48 @@ namespace Phoenix
 			result += deg;
 
 			return result;
+		}
+
+		// modified slightly from page 32 of http://www.novatel.com/assets/Documents/Manuals/om-20000094.pdf
+		uint32 CRCValue_GPS(int i){
+			int j;
+			uint32 ulCRC;
+
+			ulCRC = i;
+			for(j = 8 ; j > 0; j--){
+				if(ulCRC & 1){
+					ulCRC = (ulCRC >> 1) ^ CRC32_POLYNOMIAL;
+				}else{
+					ulCRC >>= 1;
+				}
+			}
+			return ulCRC;
+		}
+
+		// modified slightly from page 32 of http://www.novatel.com/assets/Documents/Manuals/om-20000094.pdf
+		uint32 CalculateCRC_GPS(char * buffer){
+			uint32 temp1;
+			uint32 temp2;
+			uint32 CRC = 0;
+			uint32 count = strlen(buffer);
+
+			while(count-- != 0){
+				temp1 = (CRC >> 8) & 0x00FFFFFFL;
+				temp2 = CRCValue_GPS(((int) CRC ^ ((uint8) *buffer++)) & 0xff);
+				CRC = temp1 ^ temp2;
+			}
+			return CRC;
+		}
+
+		uint8 CalculateNMEAChecksum(char * buffer){
+			uint32 len = strlen(buffer);
+			uint8 checksum = 0;
+
+			for(uint8 it = 0; it < len; it++){
+				checksum ^= (uint8) *(buffer+it);
+			}
+
+			return checksum;
 		}
 	}
 }

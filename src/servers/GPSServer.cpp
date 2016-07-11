@@ -240,9 +240,9 @@ namespace Phoenix
 					buffer = {0};
 					c1 = c;
 					// read while there's more data, and ensure we don't overflow the buffer
-					while(counter != 350 && readRet != 0){
-						buffer[counter++] = c;
+					while(counter < 350 && readRet != 0){
 						readRet = read(fd,&c,1);
+						buffer[counter++] = c;
 					}
 
 					logger->Log("GPSServer: Read data from GPS, now processing...", LOGGER_LEVEL_DEBUG);
