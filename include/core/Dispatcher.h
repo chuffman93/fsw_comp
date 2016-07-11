@@ -53,7 +53,7 @@ namespace Phoenix
          *  sending server.
          */
         #ifndef DISPATCHER_LISTEN_MAX_DELAY
-        #define DISPATCHER_LISTEN_MAX_DELAY		(1000000) //was 1000
+        #define DISPATCHER_LISTEN_MAX_DELAY		(100000) //was 1000
         #endif // DISPATCHER_LISTEN_MAX_DELAY
 		
 		/*! \brief Delay Between Protocol SPI Bytes */
@@ -65,7 +65,7 @@ namespace Phoenix
          *  before failing when it is waiting for a response from a
          *  dispatched packet.
          */
-        #define DISPATCHER_MAX_RESPONSE_TRIES	100
+        #define DISPATCHER_MAX_RESPONSE_TRIES	5
 		
 		/*! \brief Dispatcher delay loop */
 		#define	MAX_DISPATCHER_LOOP		500

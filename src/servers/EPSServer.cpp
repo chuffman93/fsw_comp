@@ -396,12 +396,16 @@ namespace Phoenix
 		{
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
 			const SystemMode * mode = BusPriorityMode::GetInstance();
 			const SystemMode * currentMode = mode;
 			uint8 seconds = 0;
 
 			ReturnMessage * HSRet;
 			ReturnMessage * SOCRet;
+
+			logger->Log("EPSServer: Entered Bus Priority Mode!", LOGGER_LEVEL_INFO);
 
 			while(mode == currentMode)
 			{

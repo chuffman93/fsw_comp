@@ -7,6 +7,8 @@
 
 #include "core/PayloadPriorityMode.h"
 
+#include "servers/CDHServer.h"
+
 namespace Phoenix
 {
     namespace Core
@@ -43,10 +45,24 @@ namespace Phoenix
 
 		void PayloadPriorityMode::OnEntry(void)
 		{
+			Servers::CDHServer * cdhServer = dynamic_cast<Servers::CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+
+			// Subsystems on in this mode
+			cdhServer->subPowerOn(HARDWARE_LOCATION_PLD);
+			cdhServer->subPowerOn(HARDWARE_LOCATION_ACS);
+			cdhServer->subPowerOn(HARDWARE_LOCATION_GPS);
+
+			// Subsystems off in this mode
+			cdhServer->subPowerOff(HARDWARE_LOCATION_COM);
 		}
 
 		void PayloadPriorityMode::OnExit(void)
 		{
+			Servers::CDHServer * cdhServer = dynamic_cast<Servers::CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+
+			// Turn RAD off and COM back on
+			cdhServer->subPowerOff(HARDWARE_LOCATION_PLD);
+			cdhServer->subPowerOn(HARDWARE_LOCATION_COM);
 		}
 
 		PayloadPriorityMode::~PayloadPriorityMode( )

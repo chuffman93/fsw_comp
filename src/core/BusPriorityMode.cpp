@@ -7,6 +7,8 @@
 
 #include "core/BusPriorityMode.h"
 
+#include "servers/CDHServer.h"
+
 namespace Phoenix
 {
     namespace Core
@@ -43,6 +45,15 @@ namespace Phoenix
 
 		void BusPriorityMode::OnEntry(void)
 		{
+			Servers::CDHServer * cdhServer = dynamic_cast<Servers::CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+
+			// Subsystems on in this mode
+			cdhServer->subPowerOn(HARDWARE_LOCATION_COM);
+			cdhServer->subPowerOn(HARDWARE_LOCATION_ACS);
+			cdhServer->subPowerOn(HARDWARE_LOCATION_GPS);
+
+			// Subsystems off in this mode
+			cdhServer->subPowerOff(HARDWARE_LOCATION_PLD);
 		}
 
 		void BusPriorityMode::OnExit(void)

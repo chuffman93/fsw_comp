@@ -6,9 +6,14 @@
  */
 
 #include <iostream>
+
 #include "core/AccessMode.h"
 #include "core/Permission.h"
+
+#include "servers/CDHServer.h"
+
 using namespace std;
+
 namespace Phoenix
 {
     namespace Core
@@ -44,10 +49,20 @@ namespace Phoenix
 
         void AccessMode::OnEntry(void)
         {
+        	Servers::CDHServer * cdhServer = dynamic_cast<Servers::CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+        	cdhServer->subPowerOn(HARDWARE_LOCATION_COM);
+        	cdhServer->subPowerOn(HARDWARE_LOCATION_ACS);
+        	cdhServer->subPowerOn(HARDWARE_LOCATION_PLD);
+        	cdhServer->subPowerOn(HARDWARE_LOCATION_GPS);
         }
 
         void AccessMode::OnExit(void)
         {
+        	Servers::CDHServer * cdhServer = dynamic_cast<Servers::CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+        	cdhServer->subPowerOff(HARDWARE_LOCATION_COM);
+			cdhServer->subPowerOff(HARDWARE_LOCATION_ACS);
+			cdhServer->subPowerOff(HARDWARE_LOCATION_PLD);
+			cdhServer->subPowerOff(HARDWARE_LOCATION_GPS);
         }
 
         AccessMode::~AccessMode( )

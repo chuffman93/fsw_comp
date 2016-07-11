@@ -45,5 +45,5 @@ TEST(TestPLD, sendSPI){
 
 	SPI_HALServer * spi_server = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
 	FSWPacket * packet = new FSWPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, 0, 0, true, false, MESSAGE_TYPE_COMMAND);
-	spi_server->SPIDispatch(*packet);
+	//spi_server->SPIDispatch(*packet);
 }

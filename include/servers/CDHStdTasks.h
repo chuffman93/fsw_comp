@@ -26,6 +26,8 @@ namespace Phoenix
 		Phoenix::Core::FSWPacket * CDHStartPM(void);
 		bool StartTempSensor(int bus, int sensor);
 		float ReadTempSensor(int bus, int sensor);
+		void prepPowerGPIOs(void);
+		void toggleSubPower(HardwareLocationIDType subsystem, bool state);
 	}
 }
 

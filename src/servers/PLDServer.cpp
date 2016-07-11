@@ -28,6 +28,7 @@
 #include "core/SystemMode.h"
 
 #include "util/FileHandler.h"
+#include "util/Logger.h"
 #include "servers/CDHServer.h"
 
 //#include "boards/backplane/dbg_led.h"
@@ -175,6 +176,9 @@ namespace Phoenix
 		void PLDServer::PLDAccessMode(ModeManager * modeManager)
 		{
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			logger->Log("PLDServer: Entered Access Mode!", LOGGER_LEVEL_INFO);
+
 			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 			const SystemMode * mode = AccessMode::GetInstance();
 			const SystemMode * currentMode = mode;
@@ -207,6 +211,9 @@ namespace Phoenix
 		void PLDServer::PLDStartupMode(ModeManager * modeManager)
 		{
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			logger->Log("PLDServer: Entered Startup Mode!", LOGGER_LEVEL_INFO);
+
 			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 			const SystemMode * mode = StartupMode::GetInstance();
 			const SystemMode * currentMode = mode;
@@ -228,6 +235,9 @@ namespace Phoenix
 		void PLDServer::PLDBusMode(ModeManager * modeManager)
 		{
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			logger->Log("PLDServer: Entered Bus Mode!", LOGGER_LEVEL_INFO);
+
 			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 			const SystemMode * mode = BusPriorityMode::GetInstance();
 			const SystemMode * currentMode = mode;
@@ -235,15 +245,11 @@ namespace Phoenix
 
 			FSWPacket * HSRet;
 
-			FSWPacket * turnOffPayload = new FSWPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, 0, PLD_STOP_SCIENCE, true, false, MESSAGE_TYPE_COMMAND);
-			DispatchPacket(turnOffPayload);
-
 			while(mode == currentMode)
 			{
 				uint64_t LastWakeTime = getTimeInMilis();
 				//wdm->Kick();
 				while(dispatcher->Listen(id));
-
 				seconds++;
 				if ((seconds % 60) == 0 )
 				{
@@ -267,13 +273,18 @@ namespace Phoenix
 		void PLDServer::PLDPayloadMode(ModeManager * modeManager)
 		{
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			logger->Log("PLDServer: Entered Payload Mode!", LOGGER_LEVEL_INFO);
+
 			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 			const SystemMode * mode = PayloadPriorityMode::GetInstance();
 			const SystemMode * currentMode = mode;
 			uint8 seconds = 0;
 			FSWPacket * HSRet;
-
-			CDHServer * cdhserver = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+			//system("echo 0 > \"/sys/class/gpio/pioE11/value\"");
+			usleep(10000);
+			system("echo 1 > \"/sys/class/gpio/pioE11/value\"");
+			usleep(3000000);
 			FSWPacket * turnOnPayload = new FSWPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, 0, PLD_START_SCIENCE, true, false, MESSAGE_TYPE_COMMAND);
 			DispatchPacket(turnOnPayload);
 
@@ -284,7 +295,7 @@ namespace Phoenix
 				while(dispatcher->Listen(id));
 
 				seconds++;
-				if ((seconds % 10) == 0 )
+				if ((seconds % 1) == 0 )
 				{
 					// Functions
 
@@ -296,15 +307,20 @@ namespace Phoenix
 				}
 				// Delay
 				waitUntil(LastWakeTime, 1000);
-				
 				// Check current mode
 				currentMode = modeManager->GetMode();
 			}
+
+//			FSWPacket * turnOffPayload = new FSWPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, 0, PLD_STOP_SCIENCE, true, false, MESSAGE_TYPE_COMMAND);
+//			DispatchPacket(turnOffPayload);
 		}
 
 		void PLDServer::PLDErrorMode(ModeManager * modeManager)
 		{
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			logger->Log("PLDServer: Entered Error Mode!", LOGGER_LEVEL_INFO);
+
 			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 			const SystemMode * mode = ErrorMode::GetInstance();
 			const SystemMode * currentMode = mode;
@@ -344,6 +360,9 @@ namespace Phoenix
 		void PLDServer::PLDComMode(ModeManager * modeManager)
 		{
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			logger->Log("PLDServer: Entered COM Mode!", LOGGER_LEVEL_INFO);
+
 			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 			const SystemMode * mode = ComMode::GetInstance();
 			const SystemMode * currentMode = mode;

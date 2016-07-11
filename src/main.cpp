@@ -21,13 +21,12 @@
 #include "HAL/Ethernet_Server.h"
 #include "HAL/SPI_Server.h"
 
-#include "core/CommandMessage.h"
-#include "core/DataMessage.h"
-#include "core/ErrorMessage.h"
-#include "core/WatchdogManager.h"
 #include "core/StdTypes.h"
+#include "core/WatchdogManager.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
+#include "core/Dispatcher.h"
+
 #include "core/ModeManager.h"
 #include "core/SystemMode.h"
 #include "core/AccessMode.h"
@@ -36,7 +35,6 @@
 #include "core/ComMode.h"
 #include "core/PayloadPriorityMode.h"
 #include "core/ErrorMode.h"
-#include "core/Dispatcher.h"
 
 #include "util/Logger.h"
 
@@ -46,14 +44,15 @@ using namespace Phoenix::Servers;
 
 #define DEBUG
 
-//----------------------- Set which servers run ---------------------
+//---------------------------- Set which servers run --------------------------
 
 #define ACS_EN 0
-#define CDH_EN 0
+#define CDH_EN 1
 #define CMD_EN 0
 #define COM_EN 0
 #define EPS_EN 0
 #define ERR_EN 0
+#define GPS_EN 0
 #define PLD_EN 1
 #define THM_EN 0
 #define SCH_EN 1
@@ -61,7 +60,7 @@ using namespace Phoenix::Servers;
 #define ETH_EN 0
 #define SPI_EN 1
 
-//----------------------- Create server tasks -----------------------
+//---------------------------- Create server tasks ----------------------------
 //TODO:Add meaningful exit information to each server pthread_exit
 
 void * taskRunEPS(void * params)
@@ -94,13 +93,13 @@ void * taskRunACS(void * params)
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
 	modeManager->Attach(*acsServer);
-	
+
 	for(int i = 0; i < 15; i++)
 	{
 		//wdm->Kick();
 		usleep(1000000);
 	}
-	
+
 	logger->Log("Kicking off the ACS server", LOGGER_LEVEL_INFO);
 
 	bool handlers = acsServer->RegisterHandlers();
@@ -118,9 +117,9 @@ void * taskRunPLD(void * params)
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-	
+
 	modeManager->Attach(*pldServer);
-	
+
 //	for(int i = 0; i < 20; i++)
 //	{
 //		//wdm->Kick();
@@ -143,15 +142,15 @@ void * taskRunCOM(void * params)
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-	
+
 	modeManager->Attach(*comServer);
-		
+
 	for(int i = 0; i < 25; i++)
 	{
 		//wdm->Kick();
 		usleep(1000000);
 	}
-	
+
 	logger->Log("Kicking off the COM server", LOGGER_LEVEL_INFO);
 
 	bool handlers = comServer->RegisterHandlers();
@@ -168,18 +167,9 @@ void * taskRunGPS(void * params)
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-	
-	//GPSInit();
-	
-// 	GPSData * gpsData = gpsServer->GetGPSDataPtr();
-// 	gpsData->GPSWeek = 1000;
-// 	gpsData->posX = 0;
-// 	gpsData->posY = 0;
-// 	gpsData->posZ = 0;
-	
-	
+
 	modeManager->Attach(*gpsServer);
-	
+
 	for(int i = 0; i < 20; i++)
 	{
 		//wdm->Kick();
@@ -202,7 +192,7 @@ void * taskRunTHM(void * params)
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-	
+
 	modeManager->Attach(*thmServer);
 	//wdm->Kick();
 
@@ -222,7 +212,7 @@ void * taskRunERR(void * params)
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-	
+
 	modeManager->Attach(*errServer);
 	//wdm->Kick();
 
@@ -242,15 +232,15 @@ void * taskRunSCH(void * params)
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-	
+
 	modeManager->Attach(*schServer);
-	
+
 	for(int i = 0; i < 1; i++)
 	{
 		//wdm->Kick();
 		usleep(1000000);
 	}
-	
+
 	logger->Log("Kicking off the SCH server", LOGGER_LEVEL_INFO);
 
 	bool handlers = schServer->RegisterHandlers();
@@ -267,9 +257,9 @@ void * taskRunCMD(void * params)
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-	
+
 	modeManager->Attach(*cmdServer);
-	
+
 	for(int i = 0; i < 10; i++)
 	{
 		//wdm->Kick();
@@ -343,7 +333,7 @@ void * StartSPI_HAL(void * params)
 	pthread_exit(NULL);
 }
 
-//------------------------------ Main -------------------------------
+//----------------------------------- Main ------------------------------------
 
 int main(int argc, char * argv[])
 {
@@ -444,6 +434,20 @@ int main(int argc, char * argv[])
 	}
 #endif //ERR_EN
 
+#if GPS_EN
+	// ------------------------------------- GPS Thread -------------------------------------
+	pthread_t GPSThread;
+	threadCreated = pthread_create(&GPSThread, NULL, &taskRunGPS, NULL);
+	if(!threadCreated)
+	{
+		logger->Log("GPS Server Thread Creation Success", LOGGER_LEVEL_INFO);
+	}
+	else
+	{
+		logger->Log("GPS Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
+	}
+#endif //GPS_EN
+
 #if THM_EN
 	// ------------------------------------- THM Thread -------------------------------------
 	pthread_t THMThread;
@@ -543,6 +547,10 @@ int main(int argc, char * argv[])
 #if ERR_EN
 	pthread_join(ERRThread, NULL);
 #endif //ERR_EN
+
+#if GPS_EN
+	pthread_join(GPSThread, NULL);
+#endif
 
 #if THM_EN
 	pthread_join(THMThread, NULL);
