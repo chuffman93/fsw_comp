@@ -117,7 +117,7 @@ bool FileHandler::Log(FileHandlerIDEnum logType, MessageCodeType dataOne, Messag
         uint32 seconds;
 
 
-        Phoenix::Servers::GPSData * gpsData = gpsServer->GetGPSDataPtr();
+        Phoenix::Servers::BESTXYZ * gpsData = gpsServer->GetGPSDataPtr();
         int week = gpsData->GPSWeek;
 
 

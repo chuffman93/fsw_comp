@@ -44,7 +44,7 @@ namespace Phoenix
 				FSWPacket * ret = new FSWPacket(0, GPS_HS_FAILURE, false, true, MESSAGE_TYPE_ERROR);
 				return ret;
 			}
-			GPSData * gpsData = gpsServer->GetGPSDataPtr();
+			BESTXYZ * gpsData = gpsServer->GetGPSDataPtr();
 			if(gpsData == NULL)
 			{
 				FSWPacket * ret = new FSWPacket(0, GPS_HS_FAILURE, false, true, MESSAGE_TYPE_ERROR);
@@ -79,7 +79,7 @@ namespace Phoenix
 				FSWPacket * ret = new FSWPacket(0, GPS_TIME_FAILURE, false, true, MESSAGE_TYPE_ERROR);
 				return ret;
 			}
-			GPSData * gpsData = gpsServer->GetGPSDataPtr();
+			BESTXYZ * gpsData = gpsServer->GetGPSDataPtr();
 			if(gpsData == NULL)
 			{
 				FSWPacket * ret = new FSWPacket(0, GPS_TIME_FAILURE, false, true, MESSAGE_TYPE_ERROR);
@@ -111,7 +111,7 @@ namespace Phoenix
 				FSWPacket * ret = new FSWPacket(0, GPS_POSITION_FAILURE, false, true, MESSAGE_TYPE_ERROR);
 				return ret;
 			}
-			GPSData * gpsData = gpsServer->GetGPSDataPtr();
+			BESTXYZ * gpsData = gpsServer->GetGPSDataPtr();
 			if(gpsData == NULL)
 			{
 				FSWPacket * ret = new FSWPacket(0, GPS_POSITION_FAILURE, false, true, MESSAGE_TYPE_ERROR);
@@ -203,7 +203,7 @@ namespace Phoenix
 		bool BESTXYZProcess(char * buffer,const size_t size)
 		{
 			GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
-			GPSData * gpsData = gpsServer->GetGPSDataPtr();
+			BESTXYZ * gpsData = gpsServer->GetGPSDataPtr();
 			char * parseBuffer;
 			char * bufferPtr;
 			double doubleHolder;
@@ -254,6 +254,7 @@ namespace Phoenix
 				gpsData->MessageID[j++] = parseBuffer[i++];
 				if(j >= 10)
 				{
+					printf("Bad message id\n");
 					return false;
 				}
 			}
@@ -266,6 +267,7 @@ namespace Phoenix
 				gpsData->Port[j++] = parseBuffer[i++];
 				if(j >= 5)
 				{
+					printf("Bad port\n");
 					return false;
 				}
 			}
@@ -274,6 +276,7 @@ namespace Phoenix
 			gpsData->SequenceNum = strtol(&(parseBuffer[i]), (&bufferPtr), 10);
 			if(bufferPtr[0] != ',') //if we don't get a comma next the last value was not extracted correctly, return error.
 			{
+				printf("Bad sequence num\n");
 				return false;
 			}
 			parseBuffer = bufferPtr;
@@ -282,6 +285,7 @@ namespace Phoenix
 			gpsData->IdleTime = strtod(parseBuffer, &bufferPtr);
 			if(bufferPtr[0] != ',') //if we don't get a comma next the last value was not extracted correctly, return error.
 			{
+				printf("Bad idle time\n");
 				return false;
 			}
 			parseBuffer = bufferPtr;
@@ -294,7 +298,7 @@ namespace Phoenix
 				gpsData->TimeStatus[j++] = parseBuffer[i++];
 				if(j >= 15)
 				{
-					//debug_led_set_led(2, LED_TOGGLE);
+					printf("Bad time status\n");
 					return false;
 				}
 			}
@@ -303,6 +307,7 @@ namespace Phoenix
 			gpsData->GPSWeek = strtol(&(parseBuffer[i]), (&bufferPtr), 10);
 			if(bufferPtr[0] != ',') //if we don't get a comma next the last value was not extracted correctly, return error.
 			{
+				printf("Bad week\n");
 				return false;
 			}
 			parseBuffer = bufferPtr;
@@ -313,6 +318,7 @@ namespace Phoenix
 			//indexCounter += (parseBuffer) - (bufferPtr);
 			if(bufferPtr[0] != ',') //if we don't get a comma next the last value was not extracted correctly, return error.
 			{
+				printf("Bad sec\n");
 				return false;
 			}
 
@@ -475,7 +481,71 @@ namespace Phoenix
 		}
 
 		bool GPRMCProcess(char * buffer, const size_t size){
-			return false;
+			GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+			GPRMC * data = gpsServer->GetGPSCoordsPtr();
+			char * token;
+			double doubleHolder;
+
+			logger->Log("GPSStdTasks: Processing GPRMC", LOGGER_LEVEL_DEBUG);
+
+			token = strtok(buffer, ","); // GPRMC
+			token = strtok(NULL, ","); // UTC
+			//data.utc = token;
+
+			token = strtok(NULL, ","); // status
+			if(*token != 'A'){
+				logger->Log("GPSStdTasks: invalid data from GPRMC", LOGGER_LEVEL_WARN);
+				return false;
+			}
+
+			// latitude
+			token = strtok(NULL, ",");
+			doubleHolder = nmea_to_deg(token);
+
+			// latitude direction
+			token = strtok(NULL, ",");
+			if(*token == 'N'){
+				data->latitude = doubleHolder;
+			}else{
+				data->latitude = -1.0 * doubleHolder;
+			}
+
+			// longitude
+			token = strtok(NULL, ",");
+			doubleHolder = nmea_to_deg(token);
+
+			// longitude direction
+			token = strtok(NULL, ",");
+			if(*token == 'E'){
+				data->longitude = doubleHolder;
+			}else{
+				data->longitude = -1.0 * doubleHolder;
+			}
+
+			token = strtok(NULL, ","); // speed (knots)
+			token = strtok(NULL, ","); // track true
+			token = strtok(NULL, ","); // date
+			token = strtok(NULL, ","); // magnetic variation
+			token = strtok(NULL, ","); // magnetic variation direction
+			token = strtok(NULL, ","); // mode indicator AND checksum
+
+			return true;
+		}
+
+		double nmea_to_deg(char *nmea) {
+			int deg;
+			double result, raw;
+
+			raw = strtod(nmea, &nmea);
+
+			deg = raw/100;
+			result = (raw/100 - deg)*100 ;
+			result /= 60;
+			result += deg;
+
+			return result;
 		}
 	}
 }

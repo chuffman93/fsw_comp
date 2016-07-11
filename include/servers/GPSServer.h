@@ -27,8 +27,7 @@ namespace Phoenix
 {
 	namespace Servers
 	{
-		struct GPSData
-		{
+		struct BESTXYZ{
 			char header[100], message[250], crc[10], MessageID[10], Port[5], TimeStatus[15], pSolStatus[15], pSolType[15], vSolStatus[15],
 					vSolType[15], stnID[10];
 			int SequenceNum;
@@ -38,6 +37,12 @@ namespace Phoenix
 			float velX, velY, velZ, stdDevVX, stdDevVY, stdDevVZ;
 			float posECIX, posECIY, posECIZ, velECIX, velECIY, velECIZ;
 			float latency,diffAge,solAge;
+		};
+
+		struct GPRMC{
+			char utc[9];
+			double latitude;
+			double longitude;
 		};
 
 		class GPSServer : public SubsystemServer, public Phoenix::Core::Singleton
@@ -66,7 +71,8 @@ namespace Phoenix
 			*/
 			bool RegisterHandlers(void);
 
-			GPSData * GetGPSDataPtr(void);
+			BESTXYZ * GetGPSDataPtr(void);
+			GPRMC * GetGPSCoordsPtr(void);
 
 			const static char * portname;
 
@@ -111,7 +117,8 @@ namespace Phoenix
 			Phoenix::Core::MessageHandlerRegistry reg;
 			Phoenix::Core::Arbitrator arby;
 
-			GPSData * GPSDataHolder;
+			BESTXYZ * GPSDataHolder;
+			GPRMC * GPSCoordsHolder;
 
 			/* GPS Port configurations */
 			struct termios port;

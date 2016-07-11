@@ -1,6 +1,10 @@
-
+/*
+* SCHServer.cpp
+*
+*  Created on: July 7, 2016
+*      Author: Robert Belter
+*/
 #include "servers/SCHServer.h"
-
 #include "servers/GPSServer.h"
 
 #include "core/Dispatcher.h"
@@ -10,7 +14,9 @@
 #include "core/ModeManager.h"
 #include "core/PayloadPriorityMode.h"
 #include "core/SystemMode.h"
+
 #include "util/Logger.h"
+
 #include <sys/mman.h>
 #include <stdio.h>
 

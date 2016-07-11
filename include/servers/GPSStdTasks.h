@@ -20,6 +20,7 @@ namespace Phoenix
 		Phoenix::Core::FSWPacket * GPSReset();
 		bool BESTXYZProcess(char * buffer,const size_t size);
 		bool GPRMCProcess(char * buffer, const size_t size);
+		double nmea_to_deg(char *nmea);
 	}
 }
 
