@@ -78,6 +78,9 @@ namespace Phoenix
 
 			double DistanceTo(double latitude1, double longitude1);
 
+			double latitude;
+			double longitude;
+
 		private:
 			/*! \brief Initialize the GPSServer Class
 			*
@@ -109,8 +112,6 @@ namespace Phoenix
 			int CreatePort(void);
 
 			void ReadData(char * buffer, int fd);
-			double latitude;
-			double longitude;
 			void GPSMessageProcess(Phoenix::Core::ReturnMessage * retMsg);
 
 			// Member variables needed to register message handlers.

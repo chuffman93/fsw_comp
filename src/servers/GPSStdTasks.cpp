@@ -203,279 +203,84 @@ namespace Phoenix
 		bool BESTXYZProcess(char * buffer,const size_t size)
 		{
 			GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 			BESTXYZ * gpsData = gpsServer->GetGPSDataPtr();
-			char * parseBuffer;
-			char * bufferPtr;
-			double doubleHolder;
+			char * token;
 
-			int i = 0;
-			int j = 0;
-			while(buffer[i] != ';')
-			{
-				gpsData->header[j++] = buffer[i++];
-				if(j >= 100)
-				{
-					printf("Header too long\n");
-					return false;
-				}
-			}
-			i++;
-			j = 0;
+			logger->Log("GPSStdTasks: Processing BESTXYZ", LOGGER_LEVEL_DEBUG);
 
-			while(buffer[i] != '*')
-			{
-				gpsData->message[j++] = buffer[i++];
-				if(j >= 250)
-				{
-					printf("Message too long\n");
-					return false;
-				}
-			}
+			// split into message and crc
+			char * message = strtok(buffer, "*");
+			char * crcStr = strtok(NULL, "*");
+			uint32 crc = strtoul(crcStr, &token, 16);
 
-			i++;
-			j = 0;
-			while(buffer[i] != '\r')
-			{
-				gpsData->crc[j++] = buffer[i++];
-				if(j >= 10)
-				{
-					printf("CRC too long\n");
-					return false;
-				}
-			}
-
-			// ------- HEADER ----------------------------------------------------------------------------------------------------------------------------------------------
-			parseBuffer = gpsData->header;
-
-			i = 0;
-			j = 0;
-			while(parseBuffer[i] != ',')
-			{
-				gpsData->MessageID[j++] = parseBuffer[i++];
-				if(j >= 10)
-				{
-					printf("Bad message id\n");
-					return false;
-				}
-			}
-
-			i++;
-			j = 0;
-
-			while(parseBuffer[i] != ',')
-			{
-				gpsData->Port[j++] = parseBuffer[i++];
-				if(j >= 5)
-				{
-					printf("Bad port\n");
-					return false;
-				}
-			}
-			i++;
-
-			gpsData->SequenceNum = strtol(&(parseBuffer[i]), (&bufferPtr), 10);
-			if(bufferPtr[0] != ',') //if we don't get a comma next the last value was not extracted correctly, return error.
-			{
-				printf("Bad sequence num\n");
-				return false;
-			}
-			parseBuffer = bufferPtr;
-			parseBuffer++;
-
-			gpsData->IdleTime = strtod(parseBuffer, &bufferPtr);
-			if(bufferPtr[0] != ',') //if we don't get a comma next the last value was not extracted correctly, return error.
-			{
-				printf("Bad idle time\n");
-				return false;
-			}
-			parseBuffer = bufferPtr;
-			parseBuffer++;
-
-			i=0;
-			j=0;
-			while(parseBuffer[i] != ',')
-			{
-				gpsData->TimeStatus[j++] = parseBuffer[i++];
-				if(j >= 15)
-				{
-					printf("Bad time status\n");
-					return false;
-				}
-			}
-			i++;
-
-			gpsData->GPSWeek = strtol(&(parseBuffer[i]), (&bufferPtr), 10);
-			if(bufferPtr[0] != ',') //if we don't get a comma next the last value was not extracted correctly, return error.
-			{
-				printf("Bad week\n");
-				return false;
-			}
-			parseBuffer = bufferPtr;
-			parseBuffer++;
-
-
-			gpsData->GPSSec = strtod(parseBuffer, (&bufferPtr));
-			//indexCounter += (parseBuffer) - (bufferPtr);
-			if(bufferPtr[0] != ',') //if we don't get a comma next the last value was not extracted correctly, return error.
-			{
-				printf("Bad sec\n");
+			// validate crc
+			if(crc != CalculateCRC_GPS(message)){
+				logger->Log("GPSStdTasks: invalid checksum!", LOGGER_LEVEL_WARN);
 				return false;
 			}
 
-			printf("SequenceNum: %i\n", gpsData->SequenceNum);
-			printf("GPSWeek:     %i\n", gpsData->GPSWeek);
-			printf("GPSSec:      %f\n", gpsData->GPSSec);
+			// parse the message into header and log
+			char * header = strtok(message, ";");
+			char * log = strtok(NULL, ";");
 
-			// ------- BESTXYZ ---------------------------------------------------------------------------------------------------------------------------------------------
-			float params[5] = {0};
-			parseBuffer = gpsData->message;
-			i = 0;
-			j = 0;
-
-			while(parseBuffer[i] != ',')
-			{
-				gpsData->pSolStatus[j++] = parseBuffer[i++];
-				if(j >= 15)
-				{
-					return false;
-				}
-			}
-			i++;
-			j = 0;
-
-			while(parseBuffer[i] != ',')
-			{
-				gpsData->pSolType[j++] = parseBuffer[i++];
-				if(j >= 15)
-				{
-					return false;
-				}
-			}
-			i++;
-
-			gpsData->posX = strtod(&(parseBuffer[i]), (&bufferPtr));
-			if(bufferPtr[0] != ',')
-			{
+			// parse the message header
+			if(strcmp("BESTXYZA",strtok(header, ",")) != 0){
+				logger->Log("GPSStdTasks: Wrong message, expecting BESTXYZA", LOGGER_LEVEL_WARN);
 				return false;
 			}
-			parseBuffer = bufferPtr;
-			parseBuffer++;
+			token = strtok(NULL, ","); // (UNUSED) port
+			token = strtok(NULL, ","); // (UNUSED) sequence num
+			token = strtok(NULL, ","); // (UNUSED) idle time
+			token = strtok(NULL, ","); // (UNUSED) time status
+			gpsData->GPSWeek = strtoul(strtok(NULL, ","), NULL, 10);
+			gpsData->GPSSec = strtof(strtok(NULL, ","), NULL);
+			token = strtok(NULL, ","); // (UNUSED) receiver status
+			token = strtok(NULL, ","); // (UNUSED) port
+			token = strtok(NULL, ","); // (UNUSED) reserved for vendor
+			token = strtok(NULL, ","); // (UNUSED) software build
 
-			for(j = 0; j < 5; j++)
-			{
-				doubleHolder = strtod(parseBuffer, &bufferPtr);
-				if(bufferPtr[0] != ',')
-				{
-					return false;
-				}
-
-				parseBuffer = bufferPtr;
-				parseBuffer++;
-				params[j] = (float) doubleHolder;
+			// parse the position log part of the message
+			if(strcmp("SOL_COMPUTED",strtok(log, ",")) != 0){
+				logger->Log("GPSStdTasks: No position solution computed!", LOGGER_LEVEL_WARN);
+			}else{
+				logger->Log("GPSStdTasks: Valid position solution computed!", LOGGER_LEVEL_DEBUG);
+				token = strtok(NULL,","); // (UNUSED) position type
+				gpsData->posX = strtod(strtok(NULL, ","), NULL);
+				gpsData->posY = strtod(strtok(NULL, ","), NULL);
+				gpsData->posZ = strtod(strtok(NULL, ","), NULL);
+				gpsData->stdDevPX = strtod(strtok(NULL, ","), NULL);
+				gpsData->stdDevPY = strtod(strtok(NULL, ","), NULL);
+				gpsData->stdDevPZ = strtod(strtok(NULL, ","), NULL);
 			}
 
-			//gpsData->posX = params[0];
-			gpsData->posY = params[0];
-			gpsData->posZ = params[1];
-			gpsData->stdDevPX = params[2];
-			gpsData->stdDevPY = params[3];
-			gpsData->stdDevPZ = params[4];
-
-
-			i = 0;
-			j = 0;
-			while(parseBuffer[i] != ',')
-			{
-				gpsData->vSolStatus[j++] = parseBuffer[i++];
-				if(j >= 15)
-				{
-					return false;
-				}
-			}
-			i++;
-			j = 0;
-
-			while(parseBuffer[i] != ',')
-			{
-				gpsData->vSolType[j++] = parseBuffer[i++];
-				if(j >= 15)
-				{
-					return false;
-				}
-			}
-			i++;
-
-			gpsData->velX = strtod(&(parseBuffer[i]), (&bufferPtr));
-			if(bufferPtr[0] != ',')
-			{
-				return false;
-			}
-			parseBuffer = bufferPtr;
-			parseBuffer++;
-
-			for(j = 0; j < 5; j++)
-			{
-				doubleHolder = strtod(parseBuffer, &bufferPtr);
-				if(bufferPtr[0] != ',')
-				{
-					return false;
-				}
-
-				parseBuffer = bufferPtr;
-				parseBuffer++;
-				params[j] = (float) doubleHolder;
+			// parse the velocity log part of the message
+			if(strcmp("SOL_COMPUTED",strtok(NULL, ",")) != 0){
+				logger->Log("GPSStdTasks: No velocity solution computed!", LOGGER_LEVEL_WARN);
+			}else{
+				logger->Log("GPSStdTasks: Valid velocity solution computed!", LOGGER_LEVEL_DEBUG);
+				token = strtok(NULL,","); // (UNUSED) velocity type
+				gpsData->velX = strtod(strtok(NULL, ","), NULL);
+				gpsData->velY = strtod(strtok(NULL, ","), NULL);
+				gpsData->velZ = strtod(strtok(NULL, ","), NULL);
+				gpsData->stdDevVX = strtod(strtok(NULL, ","), NULL);
+				gpsData->stdDevVY = strtod(strtok(NULL, ","), NULL);
+				gpsData->stdDevVZ = strtod(strtok(NULL, ","), NULL);
 			}
 
-			gpsData->velY = params[0];
-			gpsData->velZ = params[1];
-			gpsData->stdDevVX = params[2];
-			gpsData->stdDevVY = params[3];
-			gpsData->stdDevVZ = params[4];
-
-			i = 0;
-			j = 0;
-			while(parseBuffer[i] != ',')
-			{
-				gpsData->stnID[j++] = parseBuffer[i++];
-				if(j >= 10)
-				{
-					return false;
-				}
-			}
-			i++;
-
-			gpsData->latency = strtod(&(parseBuffer[i]), (&bufferPtr));
-			if(bufferPtr[0] != ',')
-			{
-				return false;
-			}
-			parseBuffer = bufferPtr;
-			parseBuffer++;
-
-			gpsData->diffAge = strtod(parseBuffer, (&bufferPtr));
-			if(bufferPtr[0] != ',')
-			{
-				return false;
-			}
-			parseBuffer = bufferPtr;
-			parseBuffer++;
-
-			gpsData->solAge = strtod(parseBuffer, (&bufferPtr));
-			if(bufferPtr[0] != ',')
-			{
-				return false;
-			}
-			parseBuffer = bufferPtr;
-			parseBuffer++;
-
-			gpsData->numTracked = strtol(parseBuffer, (&bufferPtr), 10);
-			if(bufferPtr[0] != ',')
-			{
-				return false;
-			}
-			parseBuffer = bufferPtr;
-			parseBuffer++;
-			gpsData->numSolution = strtol(parseBuffer, (&bufferPtr), 10);
+			// parse the rest of the log
+			token = strtok(NULL, ","); // (UNUSED) base station
+			gpsData->latency = strtof(strtok(NULL, ","), NULL);
+			gpsData->diffAge = strtof(strtok(NULL, ","), NULL);
+			gpsData->solAge = strtof(strtok(NULL, ","), NULL);
+			gpsData->numTracked = (uint8) atoi(strtok(NULL, ","));
+			gpsData->numSolution = (uint8) atoi(strtok(NULL, ","));
+			token = strtok(NULL, ","); // (UNUSED) GPS + GLONASS L1
+			token = strtok(NULL, ","); // (UNUSED) GPS + GLONASS L1/L2
+			token = strtok(NULL, ","); // (UNUSED) reserved for vendor
+			token = strtok(NULL, ","); // (UNUSED) extended solution status
+			token = strtok(NULL, ","); // (UNUSED) reserved for vendor
+			token = strtok(NULL, ","); // (UNUSED) signals used
 
 			return true;
 		}
@@ -483,25 +288,23 @@ namespace Phoenix
 		bool GPRMCProcess(char * buffer, const size_t size){
 			GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-
-			GPRMC * data = gpsServer->GetGPSCoordsPtr();
 			double doubleHolder;
+			char * token;
 
 			logger->Log("GPSStdTasks: Processing GPRMC", LOGGER_LEVEL_DEBUG);
 
-			char * token = strtok(buffer, "*");
-			char * message = token;
-			token = strtok(NULL, "*");
-			char checkHold[2] = {token[0], token[1]};
-			long check = strtol(checkHold, NULL, 16);
+			// split into message and checksum
+			char * message = strtok(buffer, "*");
+			char * checkStr = strtok(NULL, "*");
+			long check = strtol(checkStr, NULL, 16);
 
+			// validate checksum
 			if(check != CalculateNMEAChecksum(buffer)){
 				logger->Log("GPSStdTasks: invalid checksum!", LOGGER_LEVEL_WARN);
-				printf("String: %d\n", check);
-				printf("Calculated: %d\n", CalculateNMEAChecksum(buffer));
 				return false;
 			}
 
+			// parse the message
 			token = strtok(message, ","); // GPRMC
 			token = strtok(NULL, ","); // UTC
 			token = strtok(NULL, ","); // status
@@ -517,9 +320,9 @@ namespace Phoenix
 			// latitude direction
 			token = strtok(NULL, ",");
 			if(*token == 'N'){
-				data->latitude = doubleHolder;
+				gpsServer->latitude = doubleHolder;
 			}else{
-				data->latitude = -1.0 * doubleHolder;
+				gpsServer->latitude = -1.0 * doubleHolder;
 			}
 
 			// longitude
@@ -529,9 +332,9 @@ namespace Phoenix
 			// longitude direction
 			token = strtok(NULL, ",");
 			if(*token == 'E'){
-				data->longitude = doubleHolder;
+				gpsServer->longitude = doubleHolder;
 			}else{
-				data->longitude = -1.0 * doubleHolder;
+				gpsServer->longitude = -1.0 * doubleHolder;
 			}
 
 			token = strtok(NULL, ","); // speed (knots)
