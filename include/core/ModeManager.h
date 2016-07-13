@@ -32,7 +32,7 @@ namespace Phoenix
             bool Attach(ModeListener & listener);
             bool Detach(ModeListener & listener);
 
-            const SystemMode * GetMode(void);
+            SystemModeEnum GetMode(void);
             bool SetMode(SystemModeEnum newMode, LocationIDType server);
 
         protected:
@@ -49,9 +49,9 @@ namespace Phoenix
 		
             std::set<ModeListener *> listeners;
 
-            static SystemMode * modeList[MODE_NUM_MODES];
+            static bool validTransition[MODE_NUM_MODES][MODE_NUM_MODES];
 
-            SystemMode * mode;
+            SystemModeEnum mode;
         };
     }
 }

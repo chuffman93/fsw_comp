@@ -42,23 +42,9 @@ namespace Phoenix
 	{
 		// Message handler for a health and status command.
 		static PLDHSHandler * pldHSHandler;
-		// Message handler for a picture command.
-		static PLDPictureTakeHandler * pldPicHandler;
-		// Message handler for a get picture command.
-		static PLDGetPictureHandler * pldGetPicHandler;
-		// Message handler for a data command.
-		static PLDDataHandler * pldGetDatHandler;
-		// Message handler for a reset command.
-		static PLDResetHandler * pldRstHandler;
-		static PLDResSetHandler * pldResSetHandler;
-		static PLDSetChunkSizeHandler * pldChuSetHandler;
-		static PLDSetGainHandler * pldGainSetHandler;
-		static PLDSetExpTimeHandler * pldExpSetHandler;
-		// Message handler for an error.
-		static PLDErrorHandler * pldErrorHandler;
 		
 		PLDServer::PLDServer(string nameIn, LocationIDType idIn) :
-				SubsystemServer(nameIn, idIn), Singleton(), arby(idIn), resolution(DEFAULT_RES_X*DEFAULT_RES_Y), chuckSize(DEFAULT_CHUNK_SIZE)
+				SubsystemServer(nameIn, idIn), Singleton(), arby(idIn)
 		{
 			//TODO: default gain and exposure
 		}
@@ -83,30 +69,12 @@ namespace Phoenix
 		void PLDServer::Initialize(void)
 		{
 			pldHSHandler = new PLDHSHandler();
-			pldPicHandler = new PLDPictureTakeHandler();
-			pldGetPicHandler = new PLDGetPictureHandler();
-			pldGetDatHandler = new PLDDataHandler();
-			pldRstHandler = new PLDResetHandler();
-			pldResSetHandler = new PLDResSetHandler();
-			pldChuSetHandler = new PLDSetChunkSizeHandler();
-			pldGainSetHandler = new PLDSetGainHandler();
-			pldExpSetHandler = new PLDSetExpTimeHandler();
-			pldErrorHandler = new PLDErrorHandler();
 		}
 		
 #ifdef TEST
 		void PLDServer::Destroy(void)
 		{
 			delete pldHSHandler;
-			delete pldPicHandler;
-			delete pldGetPicHandler;
-			delete pldGetDatHandler;
-			delete pldRstHandler;
-			delete pldResSetHandler;
-			delete pldChuSetHandler;
-			delete pldGainSetHandler;
-			delete pldExpSetHandler;
-			delete pldErrorHandler;
 		}
 #endif
 		
@@ -117,11 +85,6 @@ namespace Phoenix
 
 		void PLDServer::Update(const SystemMode * mode)
 		{
-			/*mode manager
-			*when mode changes this func is called
-			*need to exit current mode and enter next mode
-			*zip all open files
-			*/
 		}
 
 		bool PLDServer::RegisterHandlers()
@@ -138,40 +101,34 @@ namespace Phoenix
 			return success;
 		}
 
-		void PLDServer::SubsystemLoop(void)
-		{
+		void PLDServer::loopInit(){
+			//No need to do anything
 			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-			
-			const SystemMode * mode = modeManager->GetMode();
-			SystemModeEnum modeIndex = mode->GetID();
-
-			// Index assignments for functional array
-			modeArray[0] = &PLDServer::PLDAccessMode;
-			modeArray[1] = &PLDServer::PLDStartupMode;
-			modeArray[2] = &PLDServer::PLDBusMode;
-			modeArray[3] = &PLDServer::PLDPayloadMode;
-			modeArray[4] = &PLDServer::PLDErrorMode;
-			modeArray[5] = &PLDServer::PLDComMode;
-
-			//TODO do this in a better way
-			system("echo 139 > /sys/class/gpio/export");
-			system("echo out > /sys/class/gpio/pioE11/direction");
-
-			while(1)
-			{
-				mode = modeManager->GetMode();
-				if (mode == NULL)
-				{
-					// modeManagerError
-					// Store Error to Data File
-					// Recommend Reboot to Ground
-					return;
-				}
-				modeIndex = mode->GetID();
-				(this->*modeArray[modeIndex]) (modeManager);
+			while(ModeManager->GetMode() == MODE_STARTUP){
+				usleep(100000);
 			}
+			//Wait until we are not in startup mode, then transition to IDLE
+			currentState = ST_IDLE;
+		}
+
+		void PLDServer::loopIdle(){
+			//No need to do anything
+			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+			//Wait until we are in payload priority mode
+			while(ModeManager->GetMode() != MODE_PLD_PRIORITY){
+				usleep(100000);
+			}
+			currentState = ST_IDLE;
+		}
+
+
+		void loopStartup(){
+			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+
 
 		}
+		void loopShutdown();
+		void loopScience();
 
 		void PLDServer::PLDAccessMode(ModeManager * modeManager)
 		{

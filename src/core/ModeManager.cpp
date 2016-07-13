@@ -36,10 +36,10 @@ namespace Phoenix
 {
     namespace Core
     {
-        SystemMode * ModeManager::modeList[MODE_NUM_MODES];
+    	bool ModeManager::validTransisiton[MODE_NUM_MODES][MODE_NUM_MODES] = {false};
 
 		ModeManager::ModeManager(void) 
-				: Singleton(), mode(NULL) 
+				: Singleton(), mode(MODE_STARTUP)
 		{
 			
 		}
@@ -51,30 +51,19 @@ namespace Phoenix
 		
 		void ModeManager::Initialize(void)
 		{
-			SystemMode::Initialize();
-			
-			modeList[MODE_ACCESS] = AccessMode::GetInstance();
-			modeList[MODE_STARTUP] = StartupMode::GetInstance();
-			modeList[MODE_BUS_PRIORITY] = BusPriorityMode::GetInstance();
-			modeList[MODE_PLD_PRIORITY] = PayloadPriorityMode::GetInstance();
-			modeList[MODE_ERROR] = ErrorMode::GetInstance();
-			modeList[MODE_COM] = ComMode::GetInstance();
-#ifdef TEST
-			modeList[MODE_TEST] = TestMode::GetInstance(0);
-			modeList[MODE_TEST2] = TestMode::GetInstance(1);
-#endif
-
+			//For the time being, only allow transitions to and from bus priority
+			for(int i = MODE_FIRST_MODE; i< MODE_NUM_MODES; i++)
+				for(int j = MODE_FIRST_MODE; j< MODE_NUM_MODES; j++)
+					validTransition[i][j] = false;
+			for(int i = MODE_FIRST_MODE; i< MODE_NUM_MODES; i++){
+				validTransition[MODE_BUS_PRIORITY][i] = true;
+				validTransition[i][MODE_BUS_PRIORITY] = true;
+			}
 		}
 		
 		bool ModeManager::IsFullyInitialized(void)
 		{
-			bool isInit = Singleton::IsFullyInitialized();
-			for(int i = 0; i < MODE_NUM_MODES; i++)
-			{
-
-				isInit &= (modeList[i] != NULL);
-			}
-			return isInit;
+			return true;
 		}
 		
 #ifdef TEST
@@ -114,7 +103,7 @@ namespace Phoenix
             }
         }
 
-        const SystemMode * ModeManager::GetMode(void)
+        const SystemModeEnum ModeManager::GetMode(void)
         {
             return mode;
         }
@@ -148,43 +137,29 @@ namespace Phoenix
 #endif //HARDWARE
 
 			//Mode is null jackass
-			//SystemModeEnum prevMode = this->mode->GetID();
 			logger->Log("----SetMode: Before take lock", LOGGER_LEVEL_DEBUG);
             if (true == this->TakeLock(MAX_BLOCK_TIME))
             {
-				logger->Log("----SetMode: Checking for NULL mode", LOGGER_LEVEL_DEBUG);
-                if (NULL != this->mode)
-                {
-					logger->Log("----SetMode: Current Mode is not NULL", LOGGER_LEVEL_DEBUG);
-                    if (newMode == this->mode->GetID())
-                    {
-                        this->GiveLock();
-                        return false;
-                    }
+				logger->Log("----SetMode: Current Mode is not NULL", LOGGER_LEVEL_DEBUG);
 
-                    if (!this->mode->CheckValidTransition(newMode, server))
-                    {
-                        this->GiveLock();
-                        return false;
-                    }
-
-                    this->mode->OnExit( );
-                }
-				logger->Log("----SetMode: Current Mode is NULL", LOGGER_LEVEL_DEBUG);
-
-                if (newMode >= MODE_FIRST_MODE && newMode < MODE_NUM_MODES)
-				{
-					this->mode = modeList[newMode];
-				}
-				else
+                if (newMode < MODE_FIRST_MODE && newMode >= MODE_NUM_MODES)
 				{
 					logger->Log("----SetMode: Invalid mode", LOGGER_LEVEL_ERROR);
 					this->GiveLock();
 					return false;
 				}
-				
-				logger->Log("--------SetMode: Calling OnEntry and Notify all", LOGGER_LEVEL_DEBUG);
-                this->mode->OnEntry();
+
+				if (newMode == this->mode)
+				{
+					this->GiveLock();
+					return false;
+				}
+
+				if (!validTransition[this->mode][newMode])
+				{
+					this->GiveLock();
+					return false;
+				}
 
                 NotifyAll();
 				// TODO: need mode logger here

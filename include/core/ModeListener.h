@@ -17,7 +17,8 @@ namespace Phoenix
         class ModeListener
         {
         public:
-            virtual void Update(const SystemMode * mode) = 0;
+            virtual void Update(const SystemModeEnum mode) = 0;
+            virtual ~ModeListener();
         };
     }
 }

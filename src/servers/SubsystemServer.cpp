@@ -7,6 +7,7 @@
 
 #include "servers/SubsystemServer.h"
 
+#include "ModeManager.h"
 #include "core/Dispatcher.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
@@ -20,7 +21,7 @@ namespace Phoenix
 	namespace Servers 
 	{
 		SubsystemServer::SubsystemServer(string nameIn, LocationIDType idIn)
-						: Server(nameIn, idIn)
+						: Server(nameIn, idIn), currentState(0)
 		{
 			// Left Intentionally Blank
 		}
@@ -47,13 +48,6 @@ namespace Phoenix
 			return (name == check.GetName() && id == check.GetID());
 		}
 
-		void SubsystemServer::MainLoop(void )
-		{
-			//Check subsystem for a message, get the message, and then handle it
-
-			SubsystemLoop();
-		}
-
 		void SubsystemServer::SubsystemLoop(void)
 		{
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
@@ -62,11 +56,11 @@ namespace Phoenix
 			{
 				dispatcher->Listen(id);
 				
-				usleep(1000000);
+				GetStateMap()[currentState].function();
 			}
 		}
 
-		void SubsystemServer::Update(const SystemMode * mode)
+		void SubsystemServer::Update(const SystemModeEnum mode)
 		{
 
 		}

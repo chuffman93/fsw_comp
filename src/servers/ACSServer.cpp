@@ -296,7 +296,6 @@ namespace Phoenix
 
 			logger->Log("ACSServer: Subsystem Loop entered!", LOGGER_LEVEL_INFO);
 
-			const SystemMode * mode;
 			SystemModeEnum modeIndex;
 
 			modeArray[0] = &ACSServer::ACSAccessMode;
@@ -308,15 +307,7 @@ namespace Phoenix
 
 			while(1)
 			{
-				mode = modeManager->GetMode();
-				if (mode == NULL)
-				{
-					// TODO: Handle this!
-					logger->Log("ACSServer: Mode Manager thinks mode is NULL!", LOGGER_LEVEL_FATAL);
-					return;
-				}
-
-				modeIndex = mode->GetID();
+				modeIndex = modeManager->GetMode();
 				(this->*modeArray[modeIndex]) (modeManager);
 			}
 		}

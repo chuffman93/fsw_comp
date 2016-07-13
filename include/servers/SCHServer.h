@@ -20,13 +20,6 @@ namespace Phoenix
 {
 	namespace Servers
 	{
-//Real one
-#define GROUND_STATION_X		-1278064.576544036
-#define GROUND_STATION_Y		-4699892.870631095
-#define GROUND_STATION_Z		4106659.631408538
-
-#define DEFAULT_GROUND_STATION_RANGE	1500000
-
 #define SCHEDULE_MAX_SIZE 50
 
 #define SCH_CONFIG_FILE ".config/SCHConfig"
