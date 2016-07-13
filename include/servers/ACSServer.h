@@ -15,6 +15,7 @@
 #include "core/Arbitrator.h"
 #include "servers/ACSHandlers.h"
 #include "core/ModeManager.h"
+#include "core/Singleton.h"
 
 namespace Phoenix
 {
@@ -94,7 +95,8 @@ namespace Phoenix
 			void ACSPayloadMode(Phoenix::Core::ModeManager * modeManager);		// 3
 			void ACSErrorMode(Phoenix::Core::ModeManager * modeManager);			// 4
 			void ACSComMode(Phoenix::Core::ModeManager * modeManager);			// 5
-			
+
+			void(ACSServer::*modeArray[6])(Phoenix::Core::ModeManager * modeManager);
 			BEGIN_STATE_MAP
 			END_STATE_MAP
 

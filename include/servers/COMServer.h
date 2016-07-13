@@ -243,18 +243,27 @@ namespace Phoenix
 			char * fileOutputBuffer;
 			
 			/*! \brief COM mode functions. */
-			void COMAccessMode(Phoenix::Core::ModeManager * modeManager);		// 0
-			void COMStartupMode(Phoenix::Core::ModeManager * modeManager);		// 1
-			void COMBusMode(Phoenix::Core::ModeManager * modeManager);			// 2
-			void COMPayloadMode(Phoenix::Core::ModeManager * modeManager);		// 3
-			void COMErrorMode(Phoenix::Core::ModeManager * modeManager);		// 4
-			void COMComMode(Phoenix::Core::ModeManager * modeManager);			// 5
-			
-			/*! \brief COM mode functional array. */
-			void(COMServer::*modeArray[6])(Phoenix::Core::ModeManager * modeManager);
+			void loopInit();
+			void loopIdle();
+			void loopCOMStart();
+			void loopCOM();
+			void loopCOMStop();
 
 			BEGIN_STATE_MAP
+				STATE_MAP_ENTRY(&COMServer::loopInit)
+				STATE_MAP_ENTRY(&COMServer::loopIdle)
+				STATE_MAP_ENTRY(&COMServer::loopCOMStart)
+				STATE_MAP_ENTRY(&COMServer::loopCOM)
+				STATE_MAP_ENTRY(&COMServer::loopCOMStop)
 			END_STATE_MAP
+
+			enum COM_States {
+				ST_INIT = 0,
+				ST_IDLE,
+				ST_COM_START,
+				ST_COM,
+				ST_COM_STOP
+			};
 		};
 	}
 }

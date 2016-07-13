@@ -7,7 +7,7 @@
 
 #include "servers/SubsystemServer.h"
 
-#include "ModeManager.h"
+#include "core/ModeManager.h"
 #include "core/Dispatcher.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
@@ -56,7 +56,9 @@ namespace Phoenix
 			{
 				dispatcher->Listen(id);
 				
-				GetStateMap()[currentState].function();
+				StateFunc function = GetStateMap()[currentState].function;
+
+				(this->*function)();
 			}
 		}
 

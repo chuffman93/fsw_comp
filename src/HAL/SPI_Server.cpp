@@ -70,7 +70,7 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 
 	while (1) {
 		errno = 0;
-		enterTime = getTimeInMilis();
+		enterTime = getTimeInMillis();
 
 		// ---- TX ----------------------------------------------------------------------------------------------------------------
 		FSWPacket * txPacket;

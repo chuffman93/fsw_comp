@@ -152,7 +152,7 @@ public:
     	DEBUG_PRINT("At start() in PThread.");
     	tid = 1;
         err = pthread_create(&tid, attr, routine, arg);
-        startTime = getTimeInMilis();
+        startTime = getTimeInMillis();
         isRunning = true;
 
         if (err)
@@ -172,7 +172,7 @@ public:
 
     clock_t getTickCount()
     {
-    	return (getTimeInMilis() - this->startTime);
+    	return (getTimeInMillis() - this->startTime);
     }
 
 //    bool isSuspended;

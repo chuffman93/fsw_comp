@@ -142,154 +142,31 @@ namespace Phoenix
 			return success;
 		}
 
-		// -------------------------------------------- Loop ---------------------------------------------
-		void CDHServer::SubsystemLoop(void)
-		{
-			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-
-			logger->Log("CDHServer Subsystem loop entered", LOGGER_LEVEL_INFO);
-
-			// GPIO file setup
-			prepPowerGPIOs();
-
+		// -------------------------------------------- Loops ---------------------------------------------
+		void CDHServer::loopInit(){
+			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 #if HS_EN
 			bool initHS = devMan->initializeHS();
 			if(!initHS){
 				logger->Log("CDHServer: Error initializing hot swaps!", LOGGER_LEVEL_ERROR);
 			}
-#endif //HS_EN
+#endif
 
 #if PM_EN
 			devMan->initializePM();
 #endif //PM_EN
 
-			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+			prepPowerGPIOs();
+			currentState = ST_MONITOR;
 
-			const SystemMode * mode;
-			SystemModeEnum modeIndex;
-
-			// Define modes
-			modeArray[0] = &CDHServer::CDHAccessMode;	// Access
-			modeArray[1] = &CDHServer::CDHStartupMode;		// Startup
-			modeArray[2] = &CDHServer::CDHBusMode;		// Bus
-			modeArray[3] = &CDHServer::CDHBusMode;		// Payload
-			modeArray[4] = &CDHServer::CDHBusMode;		// Error
-			modeArray[5] = &CDHServer::CDHBusMode;		// COM
-
-			while(1)
-			{
-				mode = modeManager->GetMode();
-				if (mode == NULL)
-				{
-					// FIXME: handle this!
-					logger->Log("CDHServer: Mode Manager thinks mode is NULL!", LOGGER_LEVEL_FATAL);
-					return;
-				}
-				modeIndex = mode->GetID();
-				(this->*modeArray[modeIndex]) (modeManager);
-			}
 		}
 
-		// -------------------------------------------- Modes --------------------------------------------
-		void CDHServer::CDHAccessMode(ModeManager * modeManager)
-		{
-			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-
-			const SystemMode * mode = modeManager->GetMode();
-			const SystemMode * currentMode = mode;
-
-			uint64_t LastWakeTime = 0;
-			uint8 timeUnit = 0;
+		void CDHServer::loopMonitor(){
 			uint8 readFrequency = 10;
 
-			logger->Log("CDHServer: Entered Access Mode!", LOGGER_LEVEL_INFO);
-
-			while(currentMode == mode)
-			{
-				currentMode = modeManager->GetMode();
-
-				while(dispatcher->Listen(id));
-
-				LastWakeTime = getTimeInMilis();
-				//wdm->Kick();
-
-				if((timeUnit % 180) == 0){
-					timeUnit = 0;
-				}
-
-				readHealth(readFrequency, timeUnit);
-
-				// Delay
-				waitUntil(LastWakeTime, 1000);
-				timeUnit++;
-			}
+			readHealth(readFrequency, getTimeInMillis()/1000);
 		}
 
-		void CDHServer::CDHStartupMode(ModeManager * modeManager){
-			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-
-			const SystemMode * mode = modeManager->GetMode();
-			const SystemMode * currentMode = mode;
-
-			uint64_t LastWakeTime = 0;
-			uint8 timeUnit = 0;
-
-			logger->Log("CDHServer: Entered Bus Priority Mode!", LOGGER_LEVEL_INFO);
-
-			while(currentMode == mode)
-			{
-				currentMode = modeManager->GetMode();
-
-				while(dispatcher->Listen(id));
-
-				LastWakeTime = getTimeInMilis();
-				//wdm->Kick();
-
-				// TODO: Take health and status in startup?
-
-				waitUntil(LastWakeTime, 1000);
-				timeUnit++;
-			}
-		}
-
-		void CDHServer::CDHBusMode(ModeManager * modeManager)
-		{
-			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-
-			const SystemMode * mode = modeManager->GetMode();
-			const SystemMode * currentMode = mode;
-
-			uint64_t LastWakeTime = 0;
-			uint8 timeUnit = 0;
-			uint8 readFrequency = 60;
-
-			logger->Log("CDHServer: Entered Bus Priority Mode!", LOGGER_LEVEL_INFO);
-
-			while(currentMode == mode)
-			{
-				currentMode = modeManager->GetMode();
-
-				while(dispatcher->Listen(id));
-
-				LastWakeTime = getTimeInMilis();
-				//wdm->Kick();
-
-				if((timeUnit % 180) == 0){
-					timeUnit = 0;
-				}
-
-				readHealth(readFrequency, timeUnit);
-
-				// Delay
-				waitUntil(LastWakeTime, 1000);
-				timeUnit++;
-			}
-		}
 
 		// ----------------------------------------- CDH Methods -----------------------------------------
 		void CDHServer::readHealth(uint8 frequency, uint8 timeUnit)
@@ -368,6 +245,13 @@ namespace Phoenix
 
 		void CDHServer::subPowerOff(HardwareLocationIDType subsystem){
 			toggleSubPower(subsystem, false);
+		}
+
+		void CDHServer::resetAssert(HardwareLocationIDType subsystem){
+			toggleResetLine(subsystem, false);
+		}
+		void CDHServer::resetDeassert(HardwareLocationIDType subsystem){
+			toggleResetLine(subsystem, true);
 		}
 	}
 }

@@ -338,6 +338,23 @@ namespace Phoenix
 			// AUXCOM
 			system("echo 43 > \"/sys/class/gpio/export\"");
 			system("echo \"out\" > \"/sys/class/gpio/pioB11/direction\"");
+
+			//-----------------------RESET LINES--------------------------------------
+			//EPS
+			system("echo 138 > \"/sys/class/gpio/export\"");
+			system("echo \"out\" > \"/sys/class/gpio/pioE10/direction\"");
+
+			//COM
+			system("echo 11 > \"/sys/class/gpio/export\"");
+			system("echo \"out\" > \"/sys/class/gpio/pioA11/direction\"");
+
+			//ACS
+			system("echo 12 > \"/sys/class/gpio/export\"");
+			system("echo \"out\" > \"/sys/class/gpio/pioA12/direction\"");
+
+			//PLD
+			system("echo 139 > \"/sys/class/gpio/export\"");
+			system("echo \"out\" > \"/sys/class/gpio/pioE11/direction\"");
 		}
 
 		void toggleSubPower(HardwareLocationIDType subsystem, bool state){
@@ -370,6 +387,41 @@ namespace Phoenix
 			default:
 				logger->Log("CDHStdTasks: Invalid subsystem for power toggle", LOGGER_LEVEL_WARN);
 				break;
+			}
+
+			system(cmd.c_str());
+		}
+
+		void toggleResetLine(HardwareLocationIDType subsystem, bool state){
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			string cmd = "echo ";
+
+			if(state){
+				cmd.append("1 > \"/sys/class/gpio/pio");
+			}else{
+				cmd.append("0 > \"/sys/class/gpio/pio");
+			}
+
+			switch(subsystem){
+			case HARDWARE_LOCATION_EPS:
+				logger->Log("CDHStdTasks: Resetting EPS", LOGGER_LEVEL_INFO);
+				cmd.append("E10/value\"");
+				break;
+			case HARDWARE_LOCATION_COM:
+				logger->Log("CDHStdTasks: Resetting COM", LOGGER_LEVEL_INFO);
+				cmd.append("A11/value\"");
+				break;
+			case HARDWARE_LOCATION_ACS:
+				logger->Log("CDHStdTasks: Resetting ACS", LOGGER_LEVEL_INFO);
+				cmd.append("A12/value\"");
+				break;
+			case HARDWARE_LOCATION_PLD:
+				logger->Log("CDHStdTasks: Resetting PLD", LOGGER_LEVEL_INFO);
+				cmd.append("E11/value\"");
+				break;
+			default:
+				logger->Log("CDHStdTasks: Invalid subsystem for reset", LOGGER_LEVEL_WARN);
+				return;
 			}
 
 			system(cmd.c_str());

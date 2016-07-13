@@ -83,7 +83,7 @@ namespace Phoenix
 			return(Singleton::IsFullyInitialized());
 		}
 
-		void PLDServer::Update(const SystemMode * mode)
+		void PLDServer::Update(SystemModeEnum mode)
 		{
 		}
 
@@ -123,14 +123,15 @@ namespace Phoenix
 		void PLDServer::loopStartup(){
 			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
-
+			cdhServer->resetAssert(HARDWARE_LOCATION_PLD);
 			cdhServer->subPowerOn(HARDWARE_LOCATION_PLD);
-			//TODO handling reseting payload
+			usleep(100000);
+			cdhServer->resetDeassert(HARDWARE_LOCATION_PLD);
 
 			FSWPacket * turnOnScience = new FSWPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, 0, PLD_START_SCIENCE, true, false, MESSAGE_TYPE_COMMAND);
 			FSWPacket * ret = DispatchPacket(turnOnScience);
-			if(ret->opcode != PLD_START_SCIENCE){
-				//TODO Error handlinge
+			if(ret->GetOpcode() != PLD_START_SCIENCE){
+				//TODO Error handling
 				currentState = ST_IDLE;
 			}
 			delete ret;
@@ -157,227 +158,6 @@ namespace Phoenix
 			//Stay in science mode until we move out of PLD_PRIORITY
 			if(modeManager->GetMode() != MODE_PLD_PRIORITY){
 				currentState = ST_SHUTDOWN;
-			}
-		}
-
-		void PLDServer::PLDAccessMode(ModeManager * modeManager)
-		{
-			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-			logger->Log("PLDServer: Entered Access Mode!", LOGGER_LEVEL_INFO);
-
-			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-			const SystemMode * mode = AccessMode::GetInstance();
-			const SystemMode * currentMode = mode;
-			uint8 timeUnit = 1;
-
-			FSWPacket * HSRet;
-			
-			while(mode == currentMode)
-			{
-				uint64_t LastWakeTime = getTimeInMilis();
-				//wdm->Kick();
-				//while(dispatcher->Listen(id));
-
-				if(timeUnit % 60 == 0){
-					timeUnit = 0;
-				}
-
-				if(timeUnit % 10 == 0){
-					HSRet = PLDHealthStatus();
-					PacketProcess(SERVER_LOCATION_PLD, HSRet);
-				}
-
- 				timeUnit++;
-				waitUntil(LastWakeTime, 1000);
-				currentMode = modeManager->GetMode();
-			}
-		}
-
-
-		void PLDServer::PLDStartupMode(ModeManager * modeManager)
-		{
-			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-			logger->Log("PLDServer: Entered Startup Mode!", LOGGER_LEVEL_INFO);
-
-			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-			const SystemMode * mode = StartupMode::GetInstance();
-			const SystemMode * currentMode = mode;
-
-			while(mode == currentMode)
-			{
-				uint64_t LastWakeTime = getTimeInMilis();
-				//wdm->Kick();
-				while(dispatcher->Listen(id));
-
-				// Delay
-				waitUntil(LastWakeTime, 1000);
-				
-				// Check current mode
-				currentMode = modeManager->GetMode();
-			}
-		}
-
-		void PLDServer::PLDBusMode(ModeManager * modeManager)
-		{
-			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-			logger->Log("PLDServer: Entered Bus Mode!", LOGGER_LEVEL_INFO);
-
-			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-			const SystemMode * mode = BusPriorityMode::GetInstance();
-			const SystemMode * currentMode = mode;
-			uint8 seconds = 0;
-
-			FSWPacket * HSRet;
-
-			while(mode == currentMode)
-			{
-				uint64_t LastWakeTime = getTimeInMilis();
-				//wdm->Kick();
-				while(dispatcher->Listen(id));
-				seconds++;
-				if ((seconds % 60) == 0 )
-				{
-					// Functions
-
-					//HSRet = PLDHealthStatus();
-					//PacketProcess(SERVER_LOCATION_PLD, HSRet);
-
-					seconds = 0;
-
-				}
-				// Delay
-				waitUntil(LastWakeTime, 1000);
-				
-				// Check current mode
-				currentMode = modeManager->GetMode();
-			}
-
-		}
-
-		void PLDServer::PLDPayloadMode(ModeManager * modeManager)
-		{
-			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-			logger->Log("PLDServer: Entered Payload Mode!", LOGGER_LEVEL_INFO);
-
-			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-			const SystemMode * mode = PayloadPriorityMode::GetInstance();
-			const SystemMode * currentMode = mode;
-			uint8 seconds = 0;
-			FSWPacket * HSRet;
-			//system("echo 0 > \"/sys/class/gpio/pioE11/value\"");
-			usleep(10000);
-			system("echo 1 > \"/sys/class/gpio/pioE11/value\"");
-			usleep(3000000);
-
-			while(mode == currentMode)
-			{
-				uint64_t LastWakeTime = getTimeInMilis();
-				//wdm->Kick();
-				while(dispatcher->Listen(id));
-
-				seconds++;
-				if ((seconds % 1) == 0 )
-				{
-					// Functions
-
-					HSRet = PLDHealthStatus();
-					PacketProcess(SERVER_LOCATION_PLD, HSRet);
-					
-					seconds = 0;
-
-				}
-				// Delay
-				waitUntil(LastWakeTime, 1000);
-				// Check current mode
-				currentMode = modeManager->GetMode();
-			}
-
-//			FSWPacket * turnOffPayload = new FSWPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, 0, PLD_STOP_SCIENCE, true, false, MESSAGE_TYPE_COMMAND);
-//			DispatchPacket(turnOffPayload);
-		}
-
-		void PLDServer::PLDErrorMode(ModeManager * modeManager)
-		{
-			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-			logger->Log("PLDServer: Entered Error Mode!", LOGGER_LEVEL_INFO);
-
-			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-			const SystemMode * mode = ErrorMode::GetInstance();
-			const SystemMode * currentMode = mode;
-			uint8 seconds = 0;
-
-			FSWPacket * HSRet;
-
-			while(mode == currentMode)
-			{
-				uint64_t LastWakeTime = getTimeInMilis();
-				//wdm->Kick();
-				while(dispatcher->Listen(id));
-
-				// Check current mode
-				currentMode = modeManager->GetMode();
-
-				seconds++;
-
-				if ((seconds % 60) == 0 )
-				{
-					// Functions
-
-					HSRet = PLDHealthStatus();
-					PacketProcess(SERVER_LOCATION_PLD, HSRet);
-
-					seconds = 0;
-
-				}
-				// Delay
-				waitUntil(LastWakeTime, 1000);
-				
-				// Check current mode
-				currentMode = modeManager->GetMode();
-			}
-		}
-
-		void PLDServer::PLDComMode(ModeManager * modeManager)
-		{
-			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-			logger->Log("PLDServer: Entered COM Mode!", LOGGER_LEVEL_INFO);
-
-			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-			const SystemMode * mode = ComMode::GetInstance();
-			const SystemMode * currentMode = mode;
-			uint8 seconds = 0;
-
-			FSWPacket * HSRet;
-
-			while(mode == currentMode)
-			{
-				uint64_t LastWakeTime = getTimeInMilis();
-				//wdm->Kick();
-				while(dispatcher->Listen(id));
-
-				seconds++;
-				if ((seconds % 10) == 0 )
-				{
-					// Functions
-
-					HSRet = PLDHealthStatus();
-					PacketProcess(SERVER_LOCATION_PLD, HSRet);
-
-					seconds = 0;
-
-				}
-				// Delay
-				waitUntil(LastWakeTime, 1000);
-				
-				// Check current mode
-				currentMode = modeManager->GetMode();
-
 			}
 		}
 

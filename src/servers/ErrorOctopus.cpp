@@ -111,7 +111,7 @@ namespace Phoenix
 			while(1)
 			{
 				while(dispatcher->Listen(id));
-				LastWakeTime = getTimeInMilis();
+				LastWakeTime = getTimeInMillis();
 				//wdm->Kick();
 				//debug_led_set_led(2, LED_TOGGLE);
 				num = que->ErrorsWaiting();

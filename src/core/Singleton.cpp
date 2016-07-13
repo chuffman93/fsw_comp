@@ -13,7 +13,7 @@ namespace Phoenix
 {
 	namespace Core
 	{
-        bool Singleton::IsFullyInitialized( )
+        bool Singleton::IsFullyInitialized()
         {
 
 	        return (initVar == 0);

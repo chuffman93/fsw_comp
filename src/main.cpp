@@ -80,7 +80,7 @@ void * taskRunEPS(void * params)
 	if(!handlers){
 		logger->Log("EPS Handlers registration failed!", LOGGER_LEVEL_ERROR);
 	}
-	epsServer->SubsystemLoop();
+	static_cast<SubsystemServer*>(epsServer)->SubsystemLoop();
 	pthread_exit(NULL);
 
 }
@@ -106,7 +106,7 @@ void * taskRunACS(void * params)
 	if(!handlers){
 		logger->Log("ACS Handlers registration failed!", LOGGER_LEVEL_ERROR);
 	}
-	acsServer->SubsystemLoop();
+	static_cast<SubsystemServer*>(acsServer)->SubsystemLoop();
 	pthread_exit(NULL);
 
 }
@@ -132,7 +132,8 @@ void * taskRunPLD(void * params)
 	if(!handlers){
 		logger->Log("PLD Handlers registration failed!", LOGGER_LEVEL_ERROR);
 	}
-	pldServer->SubsystemLoop();
+
+	static_cast<SubsystemServer*>(pldServer)->SubsystemLoop();
 	pthread_exit(NULL);
 }
 
@@ -157,7 +158,8 @@ void * taskRunCOM(void * params)
 	if(!handlers){
 		logger->Log("COM Handlers registration failed!", LOGGER_LEVEL_ERROR);
 	}
-	comServer->SubsystemLoop();
+
+	static_cast<SubsystemServer*>(comServer)->SubsystemLoop();
 	pthread_exit(NULL);
 }
 
@@ -182,7 +184,8 @@ void * taskRunGPS(void * params)
 	if(!handlers){
 		logger->Log("GPS Handlers registration failed!", LOGGER_LEVEL_ERROR);
 	}
-	gpsServer->SubsystemLoop();
+
+	static_cast<SubsystemServer*>(gpsServer)->SubsystemLoop();
 	pthread_exit(NULL);
 }
 
@@ -296,7 +299,7 @@ void * taskRunCDH(void * params) {
 		logger->Log("Error starting CDH Handlers!", LOGGER_LEVEL_FATAL);
 	}
 	//cdhServer->PrepHSPM();
-	cdhServer->SubsystemLoop();
+	static_cast<SubsystemServer*>(cdhServer)->SubsystemLoop();
 	pthread_exit(NULL);
 }
 

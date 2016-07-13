@@ -19,6 +19,7 @@
 #include "servers/GPSHandlers.h"
 #include "servers/GPSStdTasks.h"
 #include "util/FileHandler.h"
+#include "servers/SubsystemServer.h"
 
 #include <termios.h>
 #include <unistd.h>

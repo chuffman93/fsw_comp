@@ -30,7 +30,7 @@ namespace Phoenix
 		public:
 			
 			void SubsystemLoop(void);
-			void Update(const SystemModeEnum mode);
+			void Update(SystemModeEnum mode);
 
 			bool RegisterHandlers();
 
@@ -57,11 +57,11 @@ namespace Phoenix
 			void loopScience();
 
 			BEGIN_STATE_MAP
-				STATE_MAP_ENTRY(loopInit)
-				STATE_MAP_ENTRY(loopIdle)
-				STATE_MAP_ENTRY(loopStartup)
-				STATE_MAP_ENTRY(loopScience)
-				STATE_MAP_ENTRY(loopShutdown)
+				STATE_MAP_ENTRY(&PLDServer::loopInit)
+				STATE_MAP_ENTRY(&PLDServer::loopIdle)
+				STATE_MAP_ENTRY(&PLDServer::loopStartup)
+				STATE_MAP_ENTRY(&PLDServer::loopScience)
+				STATE_MAP_ENTRY(&PLDServer::loopShutdown)
 			END_STATE_MAP
 
 			enum PLD_States {

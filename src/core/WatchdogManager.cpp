@@ -116,7 +116,7 @@ using namespace Phoenix::Core;
 
 		void * WatchdogManager::WatchdogManagerTask(void * parameters)
 		{
-			clock_t startTime = getTimeInMilis();
+			clock_t startTime = getTimeInMillis();
 			clock_t lastWakeTime = startTime;
 
 			WatchdogManager * watchdogManager = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
@@ -159,9 +159,9 @@ using namespace Phoenix::Core;
 					cout << "GiveLock return value: " << gaveLock << endl;
 				}
 
-				if ((lastWakeTime + WATCHDOG_MANAGER_DELAY) <= (getTimeInMilis() - startTime))
+				if ((lastWakeTime + WATCHDOG_MANAGER_DELAY) <= (getTimeInMillis() - startTime))
 				{
-					lastWakeTime = getTimeInMilis();
+					lastWakeTime = getTimeInMillis();
 				}
 				waitUntil( lastWakeTime, WATCHDOG_MANAGER_DELAY);
 			}
@@ -236,7 +236,7 @@ using namespace Phoenix::Core;
 				{
 					if (it->first->tid == tid)
 					{
-						it->first->lastKickTime = getTimeInMilis();
+						it->first->lastKickTime = getTimeInMillis();
 						it->second->SetTaskState(TASK_RUNSTATE_RUNNING);
 						it->second->SetKickState(true);
 					}

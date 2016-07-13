@@ -27,6 +27,7 @@
 #include "core/SystemMode.h"
 #include "core/StdTypes.h"
 #include "core/DataMessage.h"
+#include "core/Dispatcher.h"
 
 #include "util/FileHandler.h"
 #include "util/Logger.h"
@@ -206,7 +207,7 @@ namespace Phoenix
 #endif
 		bool ACSServer::IsFullyInitialized(void)
 		{
-			return(Singleton::IsFullyInitialized());
+			return Singleton::IsFullyInitialized();
 		}
 
 		void ACSServer::Update(const SystemMode * mode)
@@ -333,11 +334,11 @@ namespace Phoenix
 			while(mode == currentMode)
 			{
 				
-				uint64_t LastWakeTime = getTimeInMilis();
+				uint64_t LastWakeTime = getTimeInMillis();
 				while(dispatcher->Listen(id));
 
 				// Check current mode
-				currentMode = modeManager->GetMode();
+				//currentMode = modeManager->GetMode();
 				
 				//wdm->Kick();
 				
@@ -361,7 +362,7 @@ namespace Phoenix
 
 			while(mode == currentMode)
 			{
-				uint64_t LastWakeTime = getTimeInMilis();
+				uint64_t LastWakeTime = getTimeInMillis();
 				while(dispatcher->Listen(id));
 				
 
@@ -369,7 +370,7 @@ namespace Phoenix
 				waitUntil(LastWakeTime, 1000);
 				
 				// Check current mode
-				currentMode = modeManager->GetMode();
+				//currentMode = modeManager->GetMode();
 			}
 		}
 
@@ -386,7 +387,7 @@ namespace Phoenix
 
 			while(mode == currentMode)
 			{
-				uint64_t LastWakeTime = getTimeInMilis();
+				uint64_t LastWakeTime = getTimeInMillis();
 				while(dispatcher->Listen(id));
 				
 
@@ -410,7 +411,7 @@ namespace Phoenix
 				waitUntil(LastWakeTime, 1000);
 				
 				// Check current mode
-				currentMode = modeManager->GetMode();
+				//currentMode = modeManager->GetMode();
 			}
 
 		}
@@ -428,7 +429,7 @@ namespace Phoenix
 
 			while(mode == currentMode)
 			{
-				uint64_t LastWakeTime = getTimeInMilis();
+				uint64_t LastWakeTime = getTimeInMillis();
 				while(dispatcher->Listen(id));
 				
 				seconds++;
@@ -452,7 +453,7 @@ namespace Phoenix
 				waitUntil(LastWakeTime, 1000);
 				
 				// Check current mode
-				currentMode = modeManager->GetMode();
+				//currentMode = modeManager->GetMode();
 			}
 		}
 
@@ -469,7 +470,7 @@ namespace Phoenix
 
 			while(mode == currentMode)
 			{
-				uint64_t LastWakeTime = getTimeInMilis();
+				uint64_t LastWakeTime = getTimeInMillis();
 				while(dispatcher->Listen(id));
 
 				seconds++;
@@ -492,7 +493,7 @@ namespace Phoenix
 				waitUntil(LastWakeTime, 1000);
 				
 				// Check current mode
-				currentMode = modeManager->GetMode();
+				//currentMode = modeManager->GetMode();
 			}
 		}
 
@@ -510,7 +511,7 @@ namespace Phoenix
 
 			while(mode == currentMode)
 			{
-				uint64_t LastWakeTime = getTimeInMilis();
+				uint64_t LastWakeTime = getTimeInMillis();
 				while(dispatcher->Listen(id));
 
 				seconds++;
@@ -534,7 +535,7 @@ namespace Phoenix
 				waitUntil(LastWakeTime, 1000);
 				
 				// Check current mode
-				currentMode = modeManager->GetMode();
+				//currentMode = modeManager->GetMode();
 			}
 		}
 

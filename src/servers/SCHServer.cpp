@@ -80,24 +80,24 @@ namespace Phoenix
 		{
 			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-			uint64_t LastTimeSwitched = getTimeInMilis();
+			uint64_t LastTimeSwitched = getTimeInMillis();
 			currentSchedule = std::list<SCHItem>();
 
 			ReadConfig();
 			while(1)
 			{
-				uint64_t LastWakeTime = getTimeInMilis();
+				uint64_t LastWakeTime = getTimeInMillis();
 				if(currentSchedule.empty()){
 					logger->Log("Fetching Next Schedule", LOGGER_LEVEL_INFO);
 					LoadNextSchedule();
-					LastTimeSwitched = getTimeInMilis();
+					LastTimeSwitched = getTimeInMillis();
 					modeManager->SetMode(currentSchedule.front().mode, LOCATION_ID_INVALID);
 				}
 
 				GPSServer * gpsServer = dynamic_cast<GPSServer *>(Factory::GetInstance(GPS_SERVER_SINGLETON));
 				SCHItem CurrentEvent = currentSchedule.front();
 				bool inRange = gpsServer->DistanceTo(CurrentEvent.latitude, CurrentEvent.longitude) < CurrentEvent.radius;
-				bool timeout = CurrentEvent.timeoutms < (getTimeInMilis() - LastTimeSwitched);
+				bool timeout = CurrentEvent.timeoutms < (getTimeInMillis() - LastTimeSwitched);
 				if(inRange || timeout){
 					currentSchedule.pop_front();
 					if(currentSchedule.empty()){
@@ -105,7 +105,7 @@ namespace Phoenix
 					}else{
 						modeManager->SetMode(currentSchedule.front().mode, LOCATION_ID_INVALID);
 					}
-					LastTimeSwitched = getTimeInMilis();
+					LastTimeSwitched = getTimeInMillis();
 				}
 				waitUntil(LastWakeTime, 1000);
 			}

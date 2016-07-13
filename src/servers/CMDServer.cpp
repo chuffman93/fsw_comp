@@ -139,7 +139,7 @@ namespace Phoenix
 			while(1)
 			{
 				while(dispatcher->Listen(id));
-				uint64_t LastTimeTick = getTimeInMilis();
+				uint64_t LastTimeTick = getTimeInMillis();
 				//wdm->Kick();
 				//debug_led_set_led(2, LED_TOGGLE);
 				//check if there is a list of commands to execute

@@ -100,7 +100,6 @@
 							<tool command="arm-linux-gnueabihf-g++" id="cdt.managedbuild.tool.gnu.cpp.compiler.base.924137175" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
 								<option id="gnu.cpp.compiler.option.include.paths.1612848291" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cdh-fsw/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cdh-fsw/testing_lib}&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.other.other.875744819" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -D ARM -D DEBUG" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.83323647" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>

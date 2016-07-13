@@ -32,7 +32,7 @@ namespace Phoenix
             std::string GetName(void ) const;
             LocationIDType GetID(void ) const;
             virtual void MainLoop(void ) = 0;
-            virtual void Update(const Core::SystemMode * mode) = 0;
+            virtual void Update(SystemModeEnum mode) = 0;
         protected:
             std::string name;
             LocationIDType id;

@@ -7,7 +7,7 @@ namespace Phoenix
 {
 	namespace Core
 	{
-		int getTimeInMilis()
+		int getTimeInMillis()
 		{
 			struct timeval now;
 			gettimeofday(&now, NULL);
@@ -131,13 +131,13 @@ namespace Phoenix
 		{
 
 
-			clock_t this_time = getTimeInMilis();
+			clock_t this_time = getTimeInMillis();
 			clock_t last_time = this_time;
 			double time_counter = (this_time - LastTimeTick);
 
 			while(time_counter < (waitTimeMS))
 			{
-				this_time = getTimeInMilis();
+				this_time = getTimeInMillis();
 
 				time_counter += (this_time - last_time);
 
@@ -149,7 +149,7 @@ namespace Phoenix
 		//TODO: find a reasonable amount of time to wait to lock the mutex
 		bool pthread_mutex_timedlock(pthread_mutex_t * lockHandle, int waitTime)
 		{
-			clock_t this_time = getTimeInMilis();
+			clock_t this_time = getTimeInMillis();
 			clock_t last_time = this_time;
 			double time_counter = 0;
 
@@ -159,7 +159,7 @@ namespace Phoenix
 				{
 					return true;
 				}
-				this_time = getTimeInMilis();
+				this_time = getTimeInMillis();
 
 				time_counter += (this_time - last_time);
 

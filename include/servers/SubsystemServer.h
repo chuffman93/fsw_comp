@@ -28,7 +28,7 @@ namespace Phoenix
 			virtual bool operator ==(const Server & check) const;
             void SubsystemLoop(void);
             void MainLoop(void){}
-            virtual void Update(const SystemModeEnum mode);
+            virtual void Update(SystemModeEnum mode);
         protected:
             uint16_t currentState;
             virtual const StateStruct * GetStateMap() = 0;
@@ -39,18 +39,18 @@ namespace Phoenix
         	StateFunc function;
         };
 
-#define BEGIN_STATE_MAP \
-	public:\
-	const StateStruct* GetStateMap() {\
-		static const StateStruct StateMap[] = {
+		#define BEGIN_STATE_MAP \
+			public:\
+			const StateStruct* GetStateMap() {\
+				static const StateStruct StateMap[] = {
 
-#define STATE_MAP_ENTRY(entry)\
-		{reinterpret_cast<StateFunc>(entry)},
+		#define STATE_MAP_ENTRY(entry)\
+				{reinterpret_cast<StateFunc>(entry)},
 
-#define END_STATE_MAP \
-        {reinterpret_cast<StateFunc>(NULL)} \
-    };\
-    return &StateMap[0];}
+		#define END_STATE_MAP \
+			};\
+			return &StateMap[0];}
+    }
 }
 
 #endif /* SUBSYSTEMSERVER_H_ */

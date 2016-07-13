@@ -101,7 +101,7 @@ namespace Phoenix
 
 			while(1)
 			{
-				uint64_t LastTickTime = getTimeInMilis();
+				uint64_t LastTickTime = getTimeInMillis();
 
 				//wdm->Kick();
 				while(dispatcher->Listen(id));

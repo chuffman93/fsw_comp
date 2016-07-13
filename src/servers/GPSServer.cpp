@@ -160,7 +160,7 @@ namespace Phoenix
 
 			while(1)
 			{
-				uint64_t LastWakeTime = getTimeInMilis();
+				uint64_t LastWakeTime = getTimeInMillis();
 				//wdm->Kick();
 				while(dispatcher->Listen(id));
 

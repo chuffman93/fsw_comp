@@ -52,6 +52,10 @@ namespace Phoenix
 			// Turn a subsystem off (only ACS, COM, PLD, GPS)
 			void subPowerOff(HardwareLocationIDType subsystem);
 
+			//control the reset lines (ACS, COM, PLD, EPS only)
+			void resetAssert(HardwareLocationIDType subsystem);
+			void resetDeassert(HardwareLocationIDType subsystem);
+
 			// Allows for easy look into memory usage
 			struct sysinfo si;
 			struct statvfs svfs;
@@ -73,16 +77,21 @@ namespace Phoenix
 			Phoenix::Core::Arbitrator arby;
 
 			// Modes
-			void CDHAccessMode(Phoenix::Core::ModeManager * modeManager);
-			void CDHStartupMode(Phoenix::Core::ModeManager * modeManager);
-			void CDHBusMode(Phoenix::Core::ModeManager * modeManager);
-			void(CDHServer::*modeArray[6])(Phoenix::Core::ModeManager * modeManager);
+			void loopInit();
+			void loopMonitor();
 
 			// Gather CDH data at a given frequency
 			void readHealth(uint8 frequency, uint8 timeUnit);
 
 			BEGIN_STATE_MAP
+				STATE_MAP_ENTRY(&CDHServer::loopInit)
+				STATE_MAP_ENTRY(&CDHServer::loopMonitor)
 			END_STATE_MAP
+
+			enum CDH_States {
+				ST_INIT = 0,
+				ST_MONITOR
+			};
 		};
 	}
 }

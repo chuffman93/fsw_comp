@@ -63,29 +63,8 @@ namespace Phoenix
 			void SubsystemLoop(void);
 			void Update(const Core::SystemMode * mode);
 
-			/*! \brief Registers this server's message handlers.
-			*
-			*  \note Dispatcher must be initialized before this
-			*      function can be called.
-			*
-			*  Registers any message handlers with the member
-			*  MessageHandlerRegistry and modifies permissions
-			*  with the member Arbitrator. Then those two members
-			*  are added to the Dispatcher.
-			*/
-
 			bool RegisterHandlers();
-
-			bool getPowerSate(PowerSubsystemEnum subsystem);
-			uint32 getPowerOffTimer(PowerSubsystemEnum subsystem);
-			void setPowerOffTimer(PowerSubsystemEnum subsystem, uint32 time);
-			void setPowerState(PowerSubsystemEnum subsystem, bool state);
 			
-			uint32 ACSOffTimer;
-			uint32 PLDOffTimer;
-			uint32 GPSOffTimer;
-			uint32 COMOffTimer;
-			uint32 PROPOffTimer;
 		private:
 			/*! \brief Initialize the EPSServer Class
 			*
@@ -118,26 +97,19 @@ namespace Phoenix
 			Phoenix::Core::MessageHandlerRegistry reg;
 			Phoenix::Core::Arbitrator arby;
 			
-			float sensorThreshhold;
-
-			void EPSAccessMode(Phoenix::Core::ModeManager * modeManager);		// 0
-			void EPSStartupMode(Phoenix::Core::ModeManager * modeManager);		// 1
-			void EPSBusMode(Phoenix::Core::ModeManager * modeManager);			// 2
-			void EPSPayloadMode(Phoenix::Core::ModeManager * modeManager);		// 3
-			void EPSErrorMode(Phoenix::Core::ModeManager * modeManager);		// 4
-			void EPSComMode(Phoenix::Core::ModeManager * modeManager);			// 5
-			
-			void(EPSServer::*modeArray[6])(Phoenix::Core::ModeManager * modeManager);
-			
-			// Data regarding on/off state of each subsystem and max shutoff time
-            bool powerStateACS;
-			bool powerStatePLD;
-			bool powerStateGPS;
-			bool powerStateCOM;
-			bool powerStatePROP;
+			//Modes
+			void loopInit();
+			void loopMonitor();
 			
 			BEGIN_STATE_MAP
+				STATE_MAP_ENTRY(&EPSServer::loopInit)
+				STATE_MAP_ENTRY(&EPSServer::loopMonitor)
 			END_STATE_MAP
+
+			enum EPS_States{
+				ST_INIT = 0,
+				ST_MONITOR
+			};
 
 		};
 	}
