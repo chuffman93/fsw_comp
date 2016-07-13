@@ -27,6 +27,7 @@ namespace Phoenix
             SubsystemServer & operator=(const SubsystemServer & source);
 			virtual bool operator ==(const Server & check) const;
             void SubsystemLoop(void);
+            void MainLoop(void){}
             virtual void Update(const SystemModeEnum mode);
         protected:
             uint16_t currentState;

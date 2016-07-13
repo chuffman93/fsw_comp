@@ -80,6 +80,9 @@ namespace Phoenix
 
 			// Gather CDH data at a given frequency
 			void readHealth(uint8 frequency, uint8 timeUnit);
+
+			BEGIN_STATE_MAP
+			END_STATE_MAP
 		};
 	}
 }

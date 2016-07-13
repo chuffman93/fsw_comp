@@ -136,6 +136,9 @@ namespace Phoenix
 			bool powerStateCOM;
 			bool powerStatePROP;
 			
+			BEGIN_STATE_MAP
+			END_STATE_MAP
+
 		};
 	}
 }

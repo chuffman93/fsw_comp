@@ -36,7 +36,7 @@ namespace Phoenix
 {
     namespace Core
     {
-    	bool ModeManager::validTransisiton[MODE_NUM_MODES][MODE_NUM_MODES] = {false};
+    	bool ModeManager::validTransition[MODE_NUM_MODES][MODE_NUM_MODES] = {false};
 
 		ModeManager::ModeManager(void) 
 				: Singleton(), mode(MODE_STARTUP)
@@ -103,7 +103,7 @@ namespace Phoenix
             }
         }
 
-        const SystemModeEnum ModeManager::GetMode(void)
+        SystemModeEnum ModeManager::GetMode(void)
         {
             return mode;
         }

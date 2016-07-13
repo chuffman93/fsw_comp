@@ -74,6 +74,9 @@ namespace Phoenix
 			Phoenix::Core::Arbitrator arby;
 
 			char * CMDFiles [5];
+
+			BEGIN_STATE_MAP
+			END_STATE_MAP
 		};
 	}
 }

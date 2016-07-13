@@ -116,6 +116,9 @@ namespace Phoenix
 			/* GPS Port configurations */
 			struct termios port;
 
+			BEGIN_STATE_MAP
+			END_STATE_MAP
+
 		};
 	}
 }

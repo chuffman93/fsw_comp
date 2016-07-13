@@ -104,31 +104,61 @@ namespace Phoenix
 		void PLDServer::loopInit(){
 			//No need to do anything
 			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-			while(ModeManager->GetMode() == MODE_STARTUP){
-				usleep(100000);
+			if(modeManager->GetMode() != MODE_STARTUP){
+				//Wait until we are not in startup mode, then transition to IDLE
+				currentState = ST_IDLE;
 			}
-			//Wait until we are not in startup mode, then transition to IDLE
-			currentState = ST_IDLE;
 		}
 
 		void PLDServer::loopIdle(){
 			//No need to do anything
 			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 			//Wait until we are in payload priority mode
-			while(ModeManager->GetMode() != MODE_PLD_PRIORITY){
-				usleep(100000);
+			if(modeManager->GetMode() == MODE_PLD_PRIORITY){
+				currentState = ST_STARTUP;
 			}
-			currentState = ST_IDLE;
 		}
 
 
-		void loopStartup(){
+		void PLDServer::loopStartup(){
 			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
+			cdhServer->subPowerOn(HARDWARE_LOCATION_PLD);
+			//TODO handling reseting payload
+
+			FSWPacket * turnOnScience = new FSWPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, 0, PLD_START_SCIENCE, true, false, MESSAGE_TYPE_COMMAND);
+			FSWPacket * ret = DispatchPacket(turnOnScience);
+			if(ret->opcode != PLD_START_SCIENCE){
+				//TODO Error handlinge
+				currentState = ST_IDLE;
+			}
+			delete ret;
+			//PLD is on and in science mode. Goto science loop
+			currentState = ST_SCIENCE;
+		}
+
+		//Graceful shutdown
+		void PLDServer::loopShutdown(){
+			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+
+			FSWPacket * turnOffScience = new FSWPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, 0, PLD_STOP_SCIENCE, true, false, MESSAGE_TYPE_COMMAND);
+			FSWPacket * ret = DispatchPacket(turnOffScience);
+			delete ret;
+
+			cdhServer->subPowerOff(HARDWARE_LOCATION_PLD);
+			//PLD is off. Goto idle loop
+			currentState = ST_IDLE;
 
 		}
-		void loopShutdown();
-		void loopScience();
+		void PLDServer::loopScience(){
+			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+			//Stay in science mode until we move out of PLD_PRIORITY
+			if(modeManager->GetMode() != MODE_PLD_PRIORITY){
+				currentState = ST_SHUTDOWN;
+			}
+		}
 
 		void PLDServer::PLDAccessMode(ModeManager * modeManager)
 		{
@@ -242,8 +272,6 @@ namespace Phoenix
 			usleep(10000);
 			system("echo 1 > \"/sys/class/gpio/pioE11/value\"");
 			usleep(3000000);
-			FSWPacket * turnOnPayload = new FSWPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, 0, PLD_START_SCIENCE, true, false, MESSAGE_TYPE_COMMAND);
-			DispatchPacket(turnOnPayload);
 
 			while(mode == currentMode)
 			{
@@ -349,95 +377,8 @@ namespace Phoenix
 				
 				// Check current mode
 				currentMode = modeManager->GetMode();
-			}
-		}
 
-		bool PLDServer::PLDSetResolution(uint32 res)
-		{
-			if(true == this->TakeLock(MAX_BLOCK_TIME))
-			{
-				resolution = res;
-				this->GiveLock();
-				return true;
 			}
-			return false;
-		}
-
-		bool PLDServer::PLDSetChunkSize(uint32 chunk)
-		{
-			if(true == this->TakeLock(MAX_BLOCK_TIME))
-			{
-				chuckSize = chunk;
-				this->GiveLock();
-				return true;
-			}
-			return false;
-		}
-		
-		bool PLDServer::PLDSetGain(uint32 newGain)
-		{
-			if(true == this->TakeLock(MAX_BLOCK_TIME))
-			{
-				gain = newGain;
-				this->GiveLock();
-				return true;
-			}
-			return false;
-		}
-		
-		bool PLDServer::PLDSetExpTime(uint32 newExpTime)
-		{
-			if(true == this->TakeLock(MAX_BLOCK_TIME))
-			{
-				exposureTime = newExpTime;
-				this->GiveLock();
-				return true;
-			}
-			return false;
-		}
-
-		bool PLDServer::PLDGetResolution(uint32 * res)
-		{
-			if(true == this->TakeLock(MAX_BLOCK_TIME))
-			{
-				* res = resolution;
-				this->GiveLock();
-				return true;
-			}
-			return false;
-		}
-
-		bool PLDServer::PLDGetChunkSize(uint32 * chunk)
-		{
-			if(true == this->TakeLock(MAX_BLOCK_TIME))
-			{
-				* chunk = chuckSize;
-				this->GiveLock();
-				return true;
-			}
-			return false;
-		}
-		
-		bool PLDServer::PLDGetGain(uint32 * curGain)
-		{
-			if(true == this->TakeLock(MAX_BLOCK_TIME))
-			{
-				* curGain = gain;
-				this->GiveLock();
-				return true;
-			}
-			return false;
-		}
-
-		bool PLDServer::PLDGetExpTime(uint32 * curExp)
-		{
-			if(true == this->TakeLock(MAX_BLOCK_TIME))
-			{
-				* curExp = exposureTime;
-				this->GiveLock();
-				return true;
-			}
-			return false;
 		}
 
 	} // end namespace servers

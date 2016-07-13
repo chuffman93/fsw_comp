@@ -104,6 +104,9 @@ namespace Phoenix
 			std::list<SCHItem> defaultSchedule;
 			std::list<SCHItem> currentSchedule;
 			std::list<SCHItem> nextSchedule;
+
+			BEGIN_STATE_MAP
+			END_STATE_MAP
 		};
 	}
 }

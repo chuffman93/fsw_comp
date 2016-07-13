@@ -109,6 +109,9 @@ namespace Phoenix
 			// Member variables needed to register message handlers.
 			Phoenix::Core::MessageHandlerRegistry reg;
 			Phoenix::Core::Arbitrator arby;
+
+			BEGIN_STATE_MAP
+			END_STATE_MAP
 		};
 	}
 }

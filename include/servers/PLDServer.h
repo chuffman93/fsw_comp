@@ -22,6 +22,8 @@ namespace Phoenix
 {
 	namespace Servers
 	{
+#define PLD_ON_TIMEOUT 10000
+
 		class PLDServer : public SubsystemServer, public Phoenix::Core::Singleton
 		{
 			friend class Phoenix::Core::Factory;

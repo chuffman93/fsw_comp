@@ -95,7 +95,8 @@ namespace Phoenix
 			void ACSErrorMode(Phoenix::Core::ModeManager * modeManager);			// 4
 			void ACSComMode(Phoenix::Core::ModeManager * modeManager);			// 5
 			
-			void(ACSServer::*modeArray[6])(Phoenix::Core::ModeManager * modeManager);
+			BEGIN_STATE_MAP
+			END_STATE_MAP
 
 		};
 	}
