@@ -22,8 +22,6 @@
 #include "core/WatchdogManager.h"
 
 #include "core/ModeManager.h"
-#include "core/AccessMode.h"
-#include "core/BusPriorityMode.h"
 
 #include "util/Logger.h"
 #include "util/FileHandler.h"
@@ -109,7 +107,7 @@ namespace Phoenix
 			return(Singleton::IsFullyInitialized());
 		}
 
-		void CDHServer::Update(const SystemMode * mode)
+		void CDHServer::Update(SystemModeEnum mode)
 		{
 			/* Called by mode manager each time mode changes
 			 * Ex: Needs to do things to close mode 1, enter mode 2

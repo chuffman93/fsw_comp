@@ -40,7 +40,7 @@ namespace Phoenix
 			friend class Phoenix::Core::Factory;
 
 		public:
-			void Update(const Core::SystemMode * mode);
+			void Update(SystemModeEnum mode);
 
 			bool RegisterHandlers();
 

@@ -32,7 +32,7 @@ namespace Phoenix
 			
 		public:
 			void SubsystemLoop(void);
-			void Update(const Core::SystemMode * mode);
+			void Update(SystemModeEnum mode);
 
 			/*! \brief Registers this server's message handlers.
 			*
@@ -89,16 +89,36 @@ namespace Phoenix
 			~ACSServer(void);
 			ACSServer & operator=(const ACSServer & source);
 
-			void ACSAccessMode(Phoenix::Core::ModeManager * modeManager);		// 0
-			void ACSStartupMode(Phoenix::Core::ModeManager * modeManager);		// 1
-			void ACSBusMode(Phoenix::Core::ModeManager * modeManager);			// 2
-			void ACSPayloadMode(Phoenix::Core::ModeManager * modeManager);		// 3
-			void ACSErrorMode(Phoenix::Core::ModeManager * modeManager);			// 4
-			void ACSComMode(Phoenix::Core::ModeManager * modeManager);			// 5
+			void loopInit();
+			void loopDisabled();
+			void loopGNDStart();
+			void loopGNDPointing();
+			void loopGNDStop();
+			void loopPLDStart();
+			void loopPLDPointing();
+			void loopPLDStop();
 
-			void(ACSServer::*modeArray[6])(Phoenix::Core::ModeManager * modeManager);
 			BEGIN_STATE_MAP
+				STATE_MAP_ENTRY(&ACSServer::loopInit)
+				STATE_MAP_ENTRY(&ACSServer::loopDisabled)
+				STATE_MAP_ENTRY(&ACSServer::loopGNDStart)
+				STATE_MAP_ENTRY(&ACSServer::loopGNDPointing)
+				STATE_MAP_ENTRY(&ACSServer::loopGNDStop)
+				STATE_MAP_ENTRY(&ACSServer::loopPLDStart)
+				STATE_MAP_ENTRY(&ACSServer::loopPLDPointing)
+				STATE_MAP_ENTRY(&ACSServer::loopPLDStop)
 			END_STATE_MAP
+
+			enum ACS_State{
+				ST_INIT,
+				ST_DISABLED,
+				ST_GND_START,
+				ST_GND_POINTING,
+				ST_GND_STOP,
+				ST_PLD_START,
+				ST_PLD_POINTING,
+				ST_PLD_STOP
+			};
 
 		};
 	}

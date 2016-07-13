@@ -24,13 +24,6 @@
 #include "core/StdTypes.h"
 
 #include "core/ErrorMessage.h"
-#include "core/AccessMode.h"
-#include "core/StartupMode.h"
-#include "core/BusPriorityMode.h"
-#include "core/PayloadPriorityMode.h"
-#include "core/ErrorMode.h"
-#include "core/ComMode.h"
-#include "core/SystemMode.h"
 
 #include "util/FileHandler.h"
 #include "util/Logger.h"
@@ -114,7 +107,7 @@ namespace Phoenix
 			return(Singleton::IsFullyInitialized());
 		}
 
-		void GPSServer::Update(const SystemMode * mode)
+		void GPSServer::Update(SystemModeEnum mode)
 		{
 
 		}
@@ -151,8 +144,6 @@ namespace Phoenix
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-
-			const SystemMode * mode;
 			char buffer[350];
 			int fd;
 

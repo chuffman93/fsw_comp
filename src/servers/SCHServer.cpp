@@ -8,8 +8,6 @@
 #include "core/ErrorMessage.h"
 #include "core/StdTypes.h"
 #include "core/ModeManager.h"
-#include "core/PayloadPriorityMode.h"
-#include "core/SystemMode.h"
 #include "util/Logger.h"
 #include <sys/mman.h>
 #include <stdio.h>
@@ -61,7 +59,7 @@ namespace Phoenix
 			return(Singleton::IsFullyInitialized());
 		}
 
-		void SCHServer::Update(const SystemMode * mode)
+		void SCHServer::Update(SystemModeEnum mode)
 		{
 			//update mode stuff!
 		}

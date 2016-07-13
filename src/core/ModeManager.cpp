@@ -6,12 +6,6 @@
  */
 
 #include "core/ModeManager.h"
-#include "core/AccessMode.h"
-#include "core/StartupMode.h"
-#include "core/BusPriorityMode.h"
-#include "core/PayloadPriorityMode.h"
-#include "core/ErrorMode.h"
-#include "core/ComMode.h"
 #include "util/FileHandler.h"
 #include "util/Logger.h"
 #include <stdio.h>

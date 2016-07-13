@@ -7,8 +7,7 @@
 
 #ifndef MODELISTENER_H_
 #define MODELISTENER_H_
-
-#include "core/SystemMode.h"
+#include "StdTypes.h"
 
 namespace Phoenix
 {
@@ -17,7 +16,7 @@ namespace Phoenix
         class ModeListener
         {
         public:
-            virtual void Update(const SystemModeEnum mode) = 0;
+            virtual void Update(SystemModeEnum mode) = 0;
             virtual ~ModeListener(){};
         };
     }

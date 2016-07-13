@@ -53,7 +53,7 @@ namespace Phoenix
 
 			void SubsystemLoop(void);
 
-			void Update(const Core::SystemMode * mode);
+			void Update(SystemModeEnum mode);
 
 			/*! \brief Registers this server's message handlers.
 			*

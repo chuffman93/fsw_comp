@@ -148,7 +148,7 @@ namespace Phoenix
 			//void taskRunCOM(void * params);
 		
 			void SubsystemLoop(void);
-			void Update(const Phoenix::Core::SystemMode * mode);
+			void Update(SystemModeEnum mode);
 			bool RegisterHandlers(void);
 
 			bool SetState(COMStateEnum state);

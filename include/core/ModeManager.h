@@ -12,7 +12,6 @@
 
 #include "core/ModeListener.h"
 #include "core/StdTypes.h"
-#include "core/SystemMode.h"
 #include "core/Singleton.h"
 
 namespace Phoenix

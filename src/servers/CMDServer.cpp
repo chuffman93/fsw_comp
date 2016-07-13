@@ -17,8 +17,6 @@
 #include "core/Factory.h"
 #include "core/ErrorMessage.h"
 #include "core/StdTypes.h"
-#include "core/ComMode.h"
-#include "core/SystemMode.h"
 #include "POSIX.h"
 
 #include <iostream>
@@ -81,7 +79,7 @@ namespace Phoenix
 			return *this;
 		}
 
-		void CMDServer::Update(const SystemMode * mode)
+		void CMDServer::Update(SystemModeEnum mode)
 		{
 			// Called by mode manager each time mode changes
 			//* Ex: Needs to do things to close mode 1, enter mode 2
@@ -121,8 +119,8 @@ namespace Phoenix
 			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-			
-			const SystemMode * mode;  
+
+			SystemModeEnum mode;
 
 			uint8 * readBuffer;
 			size_t readSize = 0;
@@ -132,10 +130,10 @@ namespace Phoenix
 			CMDFiles[2] = (char *)"CMD_List_3.dat"; // EPS
 			CMDFiles[3] = (char *)"CMD_List_4.dat"; // GPS
 			CMDFiles[4] = (char *)"CMD_List_5.dat"; // PLD
-			
+
 			//VariableTypeData str_hold("test_schedule.dat");
-			//ReturnMessage * ret = DispatchPacket(SERVER_LOCATION_CMD, SERVER_LOCATION_SCH, 0, 1, MESSAGE_TYPE_COMMAND, SCH_BUILD_SCHEDULE_CMD, str_hold);			
-			
+			//ReturnMessage * ret = DispatchPacket(SERVER_LOCATION_CMD, SERVER_LOCATION_SCH, 0, 1, MESSAGE_TYPE_COMMAND, SCH_BUILD_SCHEDULE_CMD, str_hold);
+
 			while(1)
 			{
 				while(dispatcher->Listen(id));
@@ -167,7 +165,7 @@ namespace Phoenix
 //					//}
 //					usleep(1000);
 //				}
-				
+
 				/*
 				// For deleting files, shouldn't be executed in COM mode.
 				// Check current mode
@@ -177,14 +175,14 @@ namespace Phoenix
 					//read the file into a buffer
 					readBuffer = fileHandler->ReadFile(CMDFiles[4], &readSize);
 					//try to create packets from the buffer and send them
-					
+
 					CMDBufferParse(((char *) readBuffer), readSize);
 					//fileHandler->DeleteFile(CMDFiles[4]);
 				}
 				*/
-				
+
 				waitUntil(LastTimeTick, 1000);
-				
+
 			}
 		}
 	} // End Namespace servers

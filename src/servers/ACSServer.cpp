@@ -18,13 +18,6 @@
 #include "core/Factory.h"
 #include "core/WatchdogManager.h"
 #include "core/ErrorMessage.h"
-#include "core/AccessMode.h"
-#include "core/StartupMode.h"
-#include "core/BusPriorityMode.h"
-#include "core/PayloadPriorityMode.h"
-#include "core/ErrorMode.h"
-#include "core/ComMode.h"
-#include "core/SystemMode.h"
 #include "core/StdTypes.h"
 #include "core/DataMessage.h"
 #include "core/Dispatcher.h"
@@ -210,7 +203,7 @@ namespace Phoenix
 			return Singleton::IsFullyInitialized();
 		}
 
-		void ACSServer::Update(const SystemMode * mode)
+		void ACSServer::Update(SystemModeEnum mode)
 		{
 			/*// Test code creates a packet that gets handled by acsSlewHandler
 			ACSSlewHandler * acsSlewHandler = new ACSSlewHandler();
@@ -289,254 +282,42 @@ namespace Phoenix
 			return success;
 		}
 
-		// -------------------------------------------- Loop ---------------------------------------------
-		void ACSServer::SubsystemLoop(void)
-		{
-			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-
-			logger->Log("ACSServer: Subsystem Loop entered!", LOGGER_LEVEL_INFO);
-
-			SystemModeEnum modeIndex;
-
-			modeArray[0] = &ACSServer::ACSAccessMode;
-			modeArray[1] = &ACSServer::ACSStartupMode;
-			modeArray[2] = &ACSServer::ACSBusMode;
-			modeArray[3] = &ACSServer::ACSPayloadMode;
-			modeArray[4] = &ACSServer::ACSErrorMode;
-			modeArray[5] = &ACSServer::ACSComMode;
-
-			while(1)
-			{
-				modeIndex = modeManager->GetMode();
-				(this->*modeArray[modeIndex]) (modeManager);
-			}
+		// -------------------------------------------- State Machine --------------------------------------------
+		void ACSServer::loopInit(){
+			currentState = ST_DISABLED;
 		}
+		void ACSServer::loopDisabled(){
+			ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
-		// -------------------------------------------- Modes --------------------------------------------
-		void ACSServer::ACSAccessMode(ModeManager * modeManager)
-		{
-			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-			const SystemMode * mode = AccessMode::GetInstance();
-			const SystemMode * currentMode = mode;
-			uint8 arbTimeUnit = 0;
-			runTest1 = true;
-			bool runTest2 = true;
-			uint32 timeCount = 0;
+			if(modeManager->GetMode() == MODE_COM)
+				currentState = ST_GND_START;
 
-			FSWPacket * HSRet;
-			FSWPacket * RawADCRet;
-			FSWPacket * MrpRet;
-			FSWPacket * AttErrRet;
-			FSWPacket * starCamHS;
-
-			while(mode == currentMode)
-			{
-				
-				uint64_t LastWakeTime = getTimeInMillis();
-				while(dispatcher->Listen(id));
-
-				// Check current mode
-				//currentMode = modeManager->GetMode();
-				
-				//wdm->Kick();
-				
-#ifdef HARDWARE
-				printf("ACSServer: Sending Health and Status\n");
-				HSRet = ACSHealthStatus();
-				PacketProcess(SERVER_LOCATION_ACS, HSRet);
-#endif //HARDWARE
-				
-				
-				waitUntil(LastWakeTime, 1000);
-				continue;
-			}
+			if(modeManager->GetMode() == MODE_PLD_PRIORITY)
+				currentState = ST_PLD_START;
 		}
-
-		void ACSServer::ACSStartupMode(ModeManager * modeManager)
-		{
-			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-			const SystemMode * mode = StartupMode::GetInstance();
-			const SystemMode * currentMode = mode;
-
-			while(mode == currentMode)
-			{
-				uint64_t LastWakeTime = getTimeInMillis();
-				while(dispatcher->Listen(id));
-				
-
-				// Delay
-				waitUntil(LastWakeTime, 1000);
-				
-				// Check current mode
-				//currentMode = modeManager->GetMode();
-			}
+		void ACSServer::loopGNDStart(){
+			currentState = ST_GND_POINTING;
 		}
+		void ACSServer::loopGNDPointing(){
+			ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
-		void ACSServer::ACSBusMode(ModeManager * modeManager)
-		{
-			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-			const SystemMode * mode = BusPriorityMode::GetInstance();
-			const SystemMode * currentMode = BusPriorityMode::GetInstance();
-			uint8 seconds = 0;
-
-			FSWPacket * HSRet;
-			FSWPacket * RawADCRet;
-			FSWPacket * AttErrRet;
-
-			while(mode == currentMode)
-			{
-				uint64_t LastWakeTime = getTimeInMillis();
-				while(dispatcher->Listen(id));
-				
-
-				seconds++;
-#ifdef HARDWARE
-				if ((seconds % 10) == 0 )
-				{
-					// Functions
-
-					HSRet = ACSHealthStatus();
-					PacketProcess(SERVER_LOCATION_ACS, HSRet);
-					RawADCRet = ACSRawADC();
-					PacketProcess(SERVER_LOCATION_ACS, RawADCRet);
-					AttErrRet = ACSAttitudeError();
-					PacketProcess(SERVER_LOCATION_ACS, AttErrRet);
-
-					seconds = 0;
-				}
-#endif //HARDWARE
-				// Delay
-				waitUntil(LastWakeTime, 1000);
-				
-				// Check current mode
-				//currentMode = modeManager->GetMode();
-			}
-
+			if(modeManager->GetMode() != MODE_COM)
+				currentState = ST_GND_STOP;
 		}
-
-		void ACSServer::ACSPayloadMode(ModeManager * modeManager)
-		{
-			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-			const SystemMode * mode = PayloadPriorityMode::GetInstance();
-			const SystemMode * currentMode = mode;
-			uint8 seconds = 0;
-
-			FSWPacket * HSRet;
-			FSWPacket * RawADCRet;
-			FSWPacket * AttErrRet;
-
-			while(mode == currentMode)
-			{
-				uint64_t LastWakeTime = getTimeInMillis();
-				while(dispatcher->Listen(id));
-				
-				seconds++;
-#ifdef HARDWARE
-				if ((seconds % 10) == 0 )
-				{
-					// Functions
-
-					HSRet = ACSHealthStatus();
-					PacketProcess(SERVER_LOCATION_ACS, HSRet);
-					RawADCRet = ACSRawADC();
-					PacketProcess(SERVER_LOCATION_ACS, RawADCRet);
-					AttErrRet = ACSAttitudeError();
-					PacketProcess(SERVER_LOCATION_ACS, AttErrRet);
-
-					seconds = 0;
-
-				}
-#endif //HARDWARE
-				// Delay
-				waitUntil(LastWakeTime, 1000);
-				
-				// Check current mode
-				//currentMode = modeManager->GetMode();
-			}
+		void ACSServer::loopGNDStop(){
+			currentState = ST_DISABLED;
 		}
-
-		void ACSServer::ACSErrorMode(ModeManager * modeManager)
-		{
-			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-			const SystemMode * mode = ErrorMode::GetInstance();
-			const SystemMode * currentMode = mode;
-			uint8 seconds = 0;
-
-			FSWPacket * HSRet;
-			FSWPacket * RawADCRet;
-			FSWPacket * AttErrRet;
-
-			while(mode == currentMode)
-			{
-				uint64_t LastWakeTime = getTimeInMillis();
-				while(dispatcher->Listen(id));
-
-				seconds++;
-#ifdef HARDWARE
-				if ((seconds % 10) == 0 )
-				{
-					// Functions
-
-					HSRet = ACSHealthStatus();
-					PacketProcess(SERVER_LOCATION_ACS, HSRet);
-					RawADCRet = ACSRawADC();
-					PacketProcess(SERVER_LOCATION_ACS, RawADCRet);
-					AttErrRet = ACSAttitudeError();
-					PacketProcess(SERVER_LOCATION_ACS, AttErrRet);
-
-					seconds = 0;
-				}
-#endif //HARDWARE
-				// Delay
-				waitUntil(LastWakeTime, 1000);
-				
-				// Check current mode
-				//currentMode = modeManager->GetMode();
-			}
+		void ACSServer::loopPLDStart(){
+			currentState = ST_PLD_POINTING;
 		}
+		void ACSServer::loopPLDPointing(){
+			ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
-		void ACSServer::ACSComMode(ModeManager * modeManager)
-		{
-			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-			const SystemMode * mode = ComMode::GetInstance();
-			const SystemMode * currentMode = mode;
-			uint8 seconds = 0;
-
-
-			FSWPacket * HSRet;
-			FSWPacket * RawADCRet;
-			FSWPacket * AttErrRet;
-
-			while(mode == currentMode)
-			{
-				uint64_t LastWakeTime = getTimeInMillis();
-				while(dispatcher->Listen(id));
-
-				seconds++;
-#ifdef HARDWARE
-				if ((seconds % 10) == 0 )
-				{
-					// Functions
-
-					HSRet = ACSHealthStatus();
-					PacketProcess(SERVER_LOCATION_ACS, HSRet);
-					RawADCRet = ACSRawADC();
-					PacketProcess(SERVER_LOCATION_ACS, RawADCRet);
-					AttErrRet = ACSAttitudeError();
-					PacketProcess(SERVER_LOCATION_ACS, AttErrRet);
-
-					seconds = 0;
-
-				}
-#endif //HARDWARE
-				// Delay
-				waitUntil(LastWakeTime, 1000);
-				
-				// Check current mode
-				//currentMode = modeManager->GetMode();
-			}
+			if(modeManager->GetMode() != MODE_PLD_PRIORITY)
+				currentState = ST_PLD_STOP;
+		}
+		void ACSServer::loopPLDStop(){
+			currentState = ST_DISABLED;
 		}
 
 	} // End Namespace servers

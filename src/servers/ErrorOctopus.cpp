@@ -71,7 +71,7 @@ namespace Phoenix
 			return(Singleton::IsFullyInitialized());
 		}
 		
-		void ErrorOctopus::Update(const SystemMode * mode)
+		void ErrorOctopus::Update(SystemModeEnum mode)
 		{
 			/* Called by mode manager each time mode changes
 			* Ex: Needs to do things to close mode 1, enter mode 2

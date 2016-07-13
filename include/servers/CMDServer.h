@@ -36,7 +36,7 @@ namespace Phoenix
 			
 		public:
 			void SubsystemLoop(void);
-			void Update(const Core::SystemMode * mode);
+			void Update(SystemModeEnum mode);
 			bool RegisterHandlers();
 			static int subsystem_acp_protocol[HARDWARE_LOCATION_MAX];
 

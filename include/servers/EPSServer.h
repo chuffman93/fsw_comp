@@ -61,7 +61,7 @@ namespace Phoenix
 		public:
 			
 			void SubsystemLoop(void);
-			void Update(const Core::SystemMode * mode);
+			void Update(SystemModeEnum mode);
 
 			bool RegisterHandlers();
 			

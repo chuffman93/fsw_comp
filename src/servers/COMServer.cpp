@@ -18,13 +18,6 @@
 #include "core/ErrorMessage.h"
 #include "core/StdTypes.h"
 #include "core/ModeManager.h"
-#include "core/AccessMode.h"
-#include "core/StartupMode.h"
-#include "core/BusPriorityMode.h"
-#include "core/PayloadPriorityMode.h"
-#include "core/ErrorMode.h"
-#include "core/ComMode.h"
-#include "core/SystemMode.h"
 
 #include "util/FileHandler.h"
 #include "util/Logger.h"
@@ -134,7 +127,7 @@ namespace Phoenix
 			return(Singleton::IsFullyInitialized());
 		}
 
-		void COMServer::Update(const SystemMode * mode)
+		void COMServer::Update(SystemModeEnum mode)
 		{
 			//update mode stuff!
 		}

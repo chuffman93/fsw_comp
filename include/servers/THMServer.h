@@ -57,7 +57,7 @@ namespace Phoenix
      		public:
 			
 			void SubsystemLoop(void);
-			void Update(const Core::SystemMode * mode);
+			void Update(SystemModeEnum mode);
 			
 			uint16* getUpper(void);	
 			uint16* getLower(void);	

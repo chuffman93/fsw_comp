@@ -15,13 +15,6 @@
 #include "core/Singleton.h"
 #include "core/Factory.h"
 #include "core/WatchdogManager.h"
-#include "core/AccessMode.h"
-#include "core/StartupMode.h"
-#include "core/BusPriorityMode.h"
-#include "core/PayloadPriorityMode.h"
-#include "core/ErrorMode.h"
-#include "core/ComMode.h"
-#include "core/SystemMode.h"
 #include "core/ErrorMessage.h"
 #include "core/StdTypes.h"
 
@@ -117,7 +110,7 @@ namespace Phoenix
 			return(Singleton::IsFullyInitialized());
 		}
 
-		void EPSServer::Update(const SystemMode * mode)
+		void EPSServer::Update(SystemModeEnum mode)
 		{
 			/* Called by mode manager each time mode changes
 			* Ex: Needs to do things to close mode 1, enter mode 2

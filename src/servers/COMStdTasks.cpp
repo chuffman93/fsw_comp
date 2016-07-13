@@ -11,7 +11,6 @@
 #include "core/Singleton.h"
 #include "core/Factory.h"
 #include "core/ModeManager.h"
-#include "core/ComMode.h"
 #include "core/ConfigMessage.h"
 
 #include "util/Logger.h"

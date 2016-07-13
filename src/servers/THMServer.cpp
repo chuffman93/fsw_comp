@@ -14,7 +14,6 @@
 #include "core/WatchdogManager.h"
 #include "core/ErrorMessage.h"
 #include "core/StdTypes.h"
-#include "core/ComMode.h"
 
 #include "servers/THMServer.h"
 #include "servers/THMStdTasks.h"
@@ -130,7 +129,7 @@ namespace Phoenix
 			}
 		}
 
-		void THMServer::Update(const SystemMode * mode)
+		void THMServer::Update(SystemModeEnum mode)
 		{
 			// initialize the four buses
 		}
