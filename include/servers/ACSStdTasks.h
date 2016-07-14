@@ -42,8 +42,7 @@ namespace Phoenix
 		Phoenix::Core::FSWPacket * ACSReset(void);
 
 		// Send ECEF; Receive ECI Conversion
-		Phoenix::Core::FSWPacket * ACSSendGPS(const float & posX, const float & posY, const float & posZ, const float & velX,
-			const float & velY, const float & velZ, const float & seconds, const uint32 & week);
+		Phoenix::Core::FSWPacket * ACSSendGPS();
 							
 		Phoenix::Core::FSWPacket * ACSStarCameraHS(void);
 		Phoenix::Core::FSWPacket * ACSPointComGnd(void);

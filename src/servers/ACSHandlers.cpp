@@ -242,27 +242,7 @@ FSWPacket * ACSResetHandler::Handle(const FSWPacket & packet)
 
 FSWPacket * ACSGPSHandler::Handle(const FSWPacket & packet)
 {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("ACSStdTasks: ACSPointGNDHandler(): Unfinished method!", LOGGER_LEVEL_FATAL);
-
-//	void * outputArray[numParams] = {NULL};
-//	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
-//	{
-//		ErrorMessage err(ACS_GPS_FAILURE);
-//		ReturnMessage * ret = new ReturnMessage(&err, false);
-//		return ret;
-//	}
-//
-//	float posX = * (float *) outputArray[0];
-//	float posY = * (float *) outputArray[1];
-//	float posZ = * (float *) outputArray[2];
-//	float velX = * (float *) outputArray[3];
-//	float velY = * (float *) outputArray[4];
-//	float velZ = * (float *) outputArray[5];
-//	float sec = * (float *) outputArray[6];
-//	uint32 week = * (uint32 *) outputArray[7];
-//
-//	return (ACSSendGPS(posX, posY, posZ, velX, velY, velZ, sec, week));
+	return (ACSSendGPS());
 }
 
 FSWPacket * ACSStarCameraHSHandler::Handle(const FSWPacket & packet)

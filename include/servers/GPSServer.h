@@ -33,8 +33,8 @@ namespace Phoenix
 			int SequenceNum;
 			int GPSWeek, numTracked, numSolution;
 			float GPSSec, IdleTime, GPSTime;
-			float posX, posY, posZ, stdDevPX, stdDevPY, stdDevPZ;
-			float velX, velY, velZ, stdDevVX, stdDevVY, stdDevVZ;
+			double posX, posY, posZ, velX, velY, velZ;
+			float stdDevPX, stdDevPY, stdDevPZ, stdDevVX, stdDevVY, stdDevVZ;
 			float posECIX, posECIY, posECIZ, velECIX, velECIY, velECIZ;
 			float latency,diffAge,solAge;
 		};
