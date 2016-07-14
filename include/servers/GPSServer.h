@@ -28,17 +28,22 @@ namespace Phoenix
 {
 	namespace Servers
 	{
-		struct GPSData
-		{
+		struct BESTXYZ{
 			char header[100], message[250], crc[10], MessageID[10], Port[5], TimeStatus[15], pSolStatus[15], pSolType[15], vSolStatus[15],
 					vSolType[15], stnID[10];
 			int SequenceNum;
 			int GPSWeek, numTracked, numSolution;
 			float GPSSec, IdleTime, GPSTime;
-			float posX, posY, posZ, stdDevPX, stdDevPY, stdDevPZ;
-			float velX, velY, velZ, stdDevVX, stdDevVY, stdDevVZ;
+			double posX, posY, posZ, velX, velY, velZ;
+			float stdDevPX, stdDevPY, stdDevPZ, stdDevVX, stdDevVY, stdDevVZ;
 			float posECIX, posECIY, posECIZ, velECIX, velECIY, velECIZ;
 			float latency,diffAge,solAge;
+		};
+
+		struct GPRMC{
+			char utc[9];
+			double latitude;
+			double longitude;
 		};
 
 		class GPSServer : public SubsystemServer, public Phoenix::Core::Singleton
@@ -67,11 +72,15 @@ namespace Phoenix
 			*/
 			bool RegisterHandlers(void);
 
-			GPSData * GetGPSDataPtr(void);
+			BESTXYZ * GetGPSDataPtr(void);
+			GPRMC * GetGPSCoordsPtr(void);
 
 			const static char * portname;
 
 			double DistanceTo(double latitude1, double longitude1);
+
+			double latitude;
+			double longitude;
 
 		private:
 			/*! \brief Initialize the GPSServer Class
@@ -104,15 +113,14 @@ namespace Phoenix
 			int CreatePort(void);
 
 			void ReadData(char * buffer, int fd);
-			double latitude;
-			double longitude;
 			void GPSMessageProcess(Phoenix::Core::ReturnMessage * retMsg);
 
 			// Member variables needed to register message handlers.
 			Phoenix::Core::MessageHandlerRegistry reg;
 			Phoenix::Core::Arbitrator arby;
 
-			GPSData * GPSDataHolder;
+			BESTXYZ * GPSDataHolder;
+			GPRMC * GPSCoordsHolder;
 
 			/* GPS Port configurations */
 			struct termios port;

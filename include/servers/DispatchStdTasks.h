@@ -91,6 +91,7 @@ namespace Phoenix
 		// Functions for adding parameters to buffers
 		void AddUInt32(uint8 * buffer, uint32 data);
 		void AddFloat(uint8 * buffer, float data);
+		void AddDouble(uint8 * buffer, double data);
 	}
 }
 

@@ -266,5 +266,9 @@ namespace Phoenix
 		void AddFloat(uint8 * buffer, float data){
 			memcpy(buffer, &data, sizeof(float));
 		}
+
+		void AddDouble(uint8 * buffer, double data){
+			memcpy(buffer, &data, sizeof(double));
+		}
 	}
 }

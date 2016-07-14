@@ -7,6 +7,7 @@
 #include "servers/ACSStdTasks.h"
 #include "servers/DispatchStdTasks.h"
 #include "servers/ACSServer.h"
+#include "servers/GPSServer.h"
 
 #include "core/ModeManager.h"
 #include "core/Singleton.h"
@@ -21,6 +22,7 @@
 
 using namespace std;
 using namespace Phoenix::Core;
+using namespace Phoenix::Servers;
 
 namespace Phoenix
 {
@@ -190,32 +192,23 @@ namespace Phoenix
 			return(DispatchPacket(query));
 		}
 
-		FSWPacket * ACSSendGPS(const float & posX, const float & posY, const float & posZ, const float & velX, const float & velY, const float & velZ,
-					const float & seconds, const uint32 & week)
-		{
+		FSWPacket * ACSSendGPS(){
+			GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 			logger->Log("ACSStdTasks: ACSSendGPS(): Unfinished function!", LOGGER_LEVEL_FATAL);
 
-//			VariableTypeData posX_hold(posX);
-//			VariableTypeData posY_hold(posY);
-//			VariableTypeData posZ_hold(posZ);
-//			VariableTypeData velX_hold(velX);
-//			VariableTypeData velY_hold(velY);
-//			VariableTypeData velZ_hold(velZ);
-//			VariableTypeData sec_hold(seconds);
-//			VariableTypeData week_hold(week);
-//
-//			list<VariableTypeData *> params;
-//			params.push_back(&posX_hold);
-//			params.push_back(&posY_hold);
-//			params.push_back(&posZ_hold);
-//			params.push_back(&velX_hold);
-//			params.push_back(&velY_hold);
-//			params.push_back(&velZ_hold);
-//			params.push_back(&sec_hold);
-//			params.push_back(&week_hold);
-//
-//			return(DispatchPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, 1, 0, MESSAGE_TYPE_COMMAND, ACS_GPS_CMD, params));
+			uint8 * buffer = (uint8 *) malloc(6*sizeof(double)+sizeof(float)+sizeof(int));
+			AddDouble(buffer, gpsServer->GetGPSDataPtr()->posX);
+			AddDouble(buffer + 8, gpsServer->GetGPSDataPtr()->posY);
+			AddDouble(buffer + 16, gpsServer->GetGPSDataPtr()->posZ);
+			AddDouble(buffer + 24, gpsServer->GetGPSDataPtr()->velX);
+			AddDouble(buffer + 32, gpsServer->GetGPSDataPtr()->velY);
+			AddDouble(buffer + 40, gpsServer->GetGPSDataPtr()->velZ);
+			AddUInt32(buffer + 48, gpsServer->GetGPSDataPtr()->GPSWeek);
+			AddFloat(buffer + 52, gpsServer->GetGPSDataPtr()->GPSSec);
+
+			FSWPacket * send = new FSWPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, 0, ACS_GPS_CMD, true, false, MESSAGE_TYPE_COMMAND);
+			return(DispatchPacket(send));
 		}
 		
 		FSWPacket * ACSStarCameraHS(void)

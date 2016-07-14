@@ -62,7 +62,8 @@ namespace Phoenix
 		GPSServer::GPSServer(string nameIn, LocationIDType idIn)
 				: SubsystemServer(nameIn, idIn), Singleton(), arby(idIn)
 		{
-			GPSDataHolder = new GPSData();
+			GPSDataHolder = new BESTXYZ();
+			GPSCoordsHolder = new GPRMC();
 		}
 
 		GPSServer::~GPSServer()
@@ -142,8 +143,8 @@ namespace Phoenix
 		void GPSServer::SubsystemLoop(void)
 		{
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
+
 			char buffer[350];
 			int fd;
 
@@ -158,7 +159,6 @@ namespace Phoenix
 				// TODO: check where port is: ie. /dev/ttyS?
 				//		 Give the port the right permissions?
 				ReadData(buffer, fd);
-
 
 				waitUntil(LastWakeTime, 100);
 			}
@@ -233,9 +233,9 @@ namespace Phoenix
 					buffer = {0};
 					c1 = c;
 					// read while there's more data, and ensure we don't overflow the buffer
-					while(counter != 350 && readRet != 0){
-						buffer[counter++] = c;
+					while(counter < 350 && readRet != 0){
 						readRet = read(fd,&c,1);
+						buffer[counter++] = c;
 					}
 
 					logger->Log("GPSServer: Read data from GPS, now processing...", LOGGER_LEVEL_DEBUG);
@@ -251,13 +251,16 @@ namespace Phoenix
 					if(c1 == '#'){
 						if(!BESTXYZProcess(buffer, counter)){
 							logger->Log("GPSServer: Error processing BESTXYZ data!", LOGGER_LEVEL_ERROR);
+							return;
 						}
 					}else if(c1 == '$'){
 						if(!GPRMCProcess(buffer, counter)){
 							logger->Log("GPSServer: Error processing GPRMC data!", LOGGER_LEVEL_ERROR);
+							return;
 						}
 					}else{
-						logger->Log("GPSServer: error with message!", LOGGER_LEVEL_WARN);
+						logger->Log("GPSServer: error with first character!", LOGGER_LEVEL_WARN);
+						return;
 					}
 				}
 			}else{
@@ -265,12 +268,21 @@ namespace Phoenix
 			}
 		}
 
-		GPSData * GPSServer::GetGPSDataPtr(void)
+		BESTXYZ * GPSServer::GetGPSDataPtr(void)
 		{
 			if(true == this->TakeLock(MAX_BLOCK_TIME))
 			{
 				this->GiveLock();
 				return GPSDataHolder;
+			}
+			return NULL;
+		}
+
+		GPRMC * GPSServer::GetGPSCoordsPtr(void)
+		{
+			if(true == this->TakeLock(MAX_BLOCK_TIME)){
+				this->GiveLock();
+				return GPSCoordsHolder;
 			}
 			return NULL;
 		}
