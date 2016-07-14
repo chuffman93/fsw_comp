@@ -116,6 +116,7 @@ namespace Phoenix
 		void PLDServer::loopStartup(){
 			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+			printf("reached here");
 			cdhServer->resetAssert(HARDWARE_LOCATION_PLD);
 			cdhServer->subPowerOn(HARDWARE_LOCATION_PLD);
 			usleep(100000);

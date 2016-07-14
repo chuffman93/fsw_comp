@@ -15,100 +15,102 @@
 #include "core/MessageHandler.h"
 #include "core/Singleton.h"
 #include "core/VariableTypeEnum.h"
+#include "util/ConfigManager.h"
 
-namespace Phoenix
-{
-	namespace Servers
-	{
+namespace Phoenix{
+namespace Servers{
+
 #define SCHEDULE_MAX_SIZE 50
 
-#define SCH_CONFIG_FILE ".config/SCHConfig"
+#define SCH_CONFIG_FILE "SCHConfig"
 #define SCH_SCHEDULE_FILE "uplink/Schedule"
-		class SCHServer : public SubsystemServer, public Phoenix::Core::Singleton
-		{
-			/*! \brief Declare Factory a friend class
-			*
-			*	This allows factory to call SCHServer's private constructor
-			*/
-			friend class Phoenix::Core::Factory;
-			typedef struct{
-				double latitude;
-				double longitude;
-				double radius;
-				uint32_t timeoutms;
-				SystemModeEnum mode;
-			}SCHItem;
+class SCHServer : public SubsystemServer, public Phoenix::Core::Singleton
+{
+	/*! \brief Declare Factory a friend class
+	*
+	*	This allows factory to call SCHServer's private constructor
+	*/
+	friend class Phoenix::Core::Factory;
+	typedef struct{
+		double latitude;
+		double longitude;
+		double radius;
+		uint32_t timeoutms;
+		SystemModeEnum mode;
+	}SCHItem;
 
-			typedef struct {
-				uint8_t sizeOfDefaultSchedule;
-				SCHItem defaultScheduleArray[SCHEDULE_MAX_SIZE];
-			}SCHConfig;
+	typedef struct {
+		uint8_t sizeOfDefaultSchedule;
+		SCHItem defaultScheduleArray[SCHEDULE_MAX_SIZE];
+	}SCHConfig;
 
 
-		public:
-			
-			void SubsystemLoop(void);
-			void Update(SystemModeEnum mode);
+public:
 
-			/*! \brief Registers this server's message handlers.
-			*
-			*  \note Dispatcher must be initialized before this
-			*      function can be called.
-			*
-			*  Registers any message handlers with the member
-			*  MessageHandlerRegistry and modifies permissions
-			*  with the member Arbitrator. Then those two members
-			*  are added to the Dispatcher.
-			*/
-			bool RegisterHandlers();
+	void SubsystemLoop(void);
+	void Update(SystemModeEnum mode);
 
-			void LoadNextSchedule(void);
+	/*! \brief Registers this server's message handlers.
+	*
+	*  \note Dispatcher must be initialized before this
+	*      function can be called.
+	*
+	*  Registers any message handlers with the member
+	*  MessageHandlerRegistry and modifies permissions
+	*  with the member Arbitrator. Then those two members
+	*  are added to the Dispatcher.
+	*/
+	bool RegisterHandlers();
 
-		private:
-			/*! \brief Initialize the SCHServer Class
-			*
-			*  Initializes the operating system constructs needed for
-			*  PLDServer to work properly.
-			*/
-			static void Initialize(void);
-			
-			/*! \brief Static Destructor for SCHServer
-			*
-			*  Frees all internal memory use, frees all operating system
-			*  objects used, and deletes the singleton instance pointer.
-			*/
+	void LoadNextSchedule(void);
+
+private:
+	/*! \brief Initialize the SCHServer Class
+	*
+	*  Initializes the operating system constructs needed for
+	*  PLDServer to work properly.
+	*/
+	static void Initialize(void);
+
+	/*! \brief Static Destructor for SCHServer
+	*
+	*  Frees all internal memory use, frees all operating system
+	*  objects used, and deletes the singleton instance pointer.
+	*/
 #ifdef TEST
-			static void Destroy(void);
+	static void Destroy(void);
 #endif
-			
-			/*! \brief Checks if SCHServer Class is initialized
-			*
-			*  \return true if the initialization was successful and
-			*  false otherwise.
-			*/
-			bool IsFullyInitialized(void);
-			
-			SCHServer(std::string nameIn, LocationIDType idIn);
-			~SCHServer();
-			SCHServer & operator=(const SCHServer & source);
-			
-			void ReadConfig();
 
-			// Member variables needed to register message handlers.
-			Phoenix::Core::MessageHandlerRegistry reg;
-			Phoenix::Core::Arbitrator arby;
+	/*! \brief Checks if SCHServer Class is initialized
+	*
+	*  \return true if the initialization was successful and
+	*  false otherwise.
+	*/
+	bool IsFullyInitialized(void);
 
-			bool scheduleRunning;
+	SCHServer(std::string nameIn, LocationIDType idIn);
+	~SCHServer();
+	SCHServer & operator=(const SCHServer & source);
 
-			/// \brief The vectors of mode schedules and payload schedules.
-			std::list<SCHItem> defaultSchedule;
-			std::list<SCHItem> currentSchedule;
-			std::list<SCHItem> nextSchedule;
+	util::ConfigManager<SCHConfig> configManager;
 
-			BEGIN_STATE_MAP
-			END_STATE_MAP
-		};
-	}
+	// Member variables needed to register message handlers.
+	Phoenix::Core::MessageHandlerRegistry reg;
+	Phoenix::Core::Arbitrator arby;
+
+	bool scheduleRunning;
+
+	/// \brief The vectors of mode schedules and payload schedules.
+	std::list<SCHItem> defaultSchedule;
+	std::list<SCHItem> currentSchedule;
+	std::list<SCHItem> nextSchedule;
+
+	BEGIN_STATE_MAP
+	END_STATE_MAP
+};
+
+
+}
 }
 
 #endif /* SCHSERVER_H_ */
