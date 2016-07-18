@@ -103,7 +103,7 @@ void Logger::Log(string message, string str_in, LoggerLevelType level_in){
 }
 
 void Logger::GetInfo(LoggerLevelType level_in){
-	printf("(%u)", getTimeInMillis());
+	printf("(%lld)", getTimeInMillis());
 	printf("[PID: %d]", getpid());
 	printf("[TID: %u] ", (uint16) pthread_self());
 

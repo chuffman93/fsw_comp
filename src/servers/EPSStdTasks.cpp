@@ -38,7 +38,7 @@ namespace Phoenix
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 			logger->Log("EPSStdTasks: unfinished function entered!", LOGGER_LEVEL_FATAL);
 
-			FSWPacket * HSQuery = new FSWPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, 0, EPS_HS_CMD, true, false, MESSAGE_TYPE_COMMAND);
+			FSWPacket * HSQuery = new FSWPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, EPS_HS_CMD, true, false, MESSAGE_TYPE_COMMAND);
 			FSWPacket * HSRet = DispatchPacket(HSQuery);
 			logger->Log("EPSStdTasks: EPSHealthStat(): packet dispatched, HSRet acquired", LOGGER_LEVEL_INFO);
 			if(HSRet == NULL){
@@ -87,7 +87,7 @@ namespace Phoenix
 		FSWPacket * EPSPowerCycle()
 		{
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-			FSWPacket * query = new FSWPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, 0, EPS_POWER_CYCLE_CMD, true, false, MESSAGE_TYPE_COMMAND);
+			FSWPacket * query = new FSWPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, EPS_POWER_CYCLE_CMD, true, false, MESSAGE_TYPE_COMMAND);
 			FSWPacket * response = DispatchPacket(query);
 
 			usleep(5000000);
@@ -99,21 +99,21 @@ namespace Phoenix
 
 		FSWPacket * EPSStateOfCharge()
 		{
-			FSWPacket * query = new FSWPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, 0, EPS_SOC_CMD, true, false, MESSAGE_TYPE_COMMAND);
+			FSWPacket * query = new FSWPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, EPS_SOC_CMD, true, false, MESSAGE_TYPE_COMMAND);
 			return(DispatchPacket(query));
 		}
 
 
 		FSWPacket * EPSDisableOCProt()
 		{
-			FSWPacket * query = new FSWPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, 0, EPS_DISABLE_OC_PROT_CMD, true, false, MESSAGE_TYPE_COMMAND);
+			FSWPacket * query = new FSWPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, EPS_DISABLE_OC_PROT_CMD, true, false, MESSAGE_TYPE_COMMAND);
 			return(DispatchPacket(query));
 		}
 
 
 		FSWPacket * EPSEnableOCProt()
 		{
-			FSWPacket * query = new FSWPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, 0, EPS_ENABLE_OC_PROT_CMD, true, false, MESSAGE_TYPE_COMMAND);
+			FSWPacket * query = new FSWPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, EPS_ENABLE_OC_PROT_CMD, true, false, MESSAGE_TYPE_COMMAND);
 			return(DispatchPacket(query));
 		}
 		

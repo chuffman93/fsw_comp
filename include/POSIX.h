@@ -37,9 +37,8 @@ namespace Phoenix
 		#define MAX_MESSAGE_SIZE sizeof(Phoenix::Core::FSWPacket *)
 		#define QUEUE_PERMISSIONS 0644
 		#define MSG_PRIO 0
-		//TODO: find good replacement for usleep I think
 
-		int getTimeInMillis();
+		int64 getTimeInMillis();
 
 		inline bool vSemaphoreCreateBinary(sem_t * sem){ return (-1 !=sem_init(sem, SHARE_TO_THREADS, 1)); }
 

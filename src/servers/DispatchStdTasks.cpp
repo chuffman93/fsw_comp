@@ -42,7 +42,7 @@ namespace Phoenix
 				|| destination < HARDWARE_LOCATION_MIN || destination >= SERVER_LOCATION_MAX)
 			{
 				logger->Log("DispatcherStdTasks: DispatchPacket(): invalid src/dest!", LOGGER_LEVEL_ERROR);
-				FSWPacket * ret = new FSWPacket(0, PACKET_FORMAT_FAIL, false, false, MESSAGE_TYPE_ERROR);
+				FSWPacket * ret = new FSWPacket(PACKET_FORMAT_FAIL, false, false, MESSAGE_TYPE_ERROR);
 				delete query;
 				return ret;
 			}
@@ -57,7 +57,7 @@ namespace Phoenix
 			if(!dispatcher->Dispatch(*query))
 			{
 				logger->Log("DispatchStdTasks: Failed to dispatch packet\n", LOGGER_LEVEL_WARN);
-				FSWPacket * ret = new FSWPacket(0, DISPATCH_FAILED, false, false, MESSAGE_TYPE_ERROR);
+				FSWPacket * ret = new FSWPacket(DISPATCH_FAILED, false, false, MESSAGE_TYPE_ERROR);
 				delete query;
 				return ret;
 			}
@@ -70,7 +70,7 @@ namespace Phoenix
 			if(DISPATCHER_STATUS_OK != (stat = WaitForDispatchResponse(*query, &response)))
 			{
 				logger->Log("DispatchStdTasks: Did not receive response\n", LOGGER_LEVEL_WARN);
-				FSWPacket * ret = new FSWPacket(0, DISPATCHER_STATUS_ERR, false, false, MESSAGE_TYPE_ERROR);
+				FSWPacket * ret = new FSWPacket(DISPATCHER_STATUS_ERR, false, false, MESSAGE_TYPE_ERROR);
 				delete query;
 				return ret;
 			}
@@ -124,7 +124,7 @@ namespace Phoenix
 					if(DISPATCHER_STATUS_OK != (stat = WaitForDispatchResponse(*retPacket, &responsePacket)))
 					{
 						logger->Log("DispatchStdTasks: no response from error octopus (NOTE: check ERRServer Handler return)", LOGGER_LEVEL_ERROR);
-						FSWPacket * ret = new FSWPacket(0, DISPATCH_FAILED, false, false, MESSAGE_TYPE_ERROR);
+						FSWPacket * ret = new FSWPacket(DISPATCH_FAILED, false, false, MESSAGE_TYPE_ERROR);
 						PacketProcess(id, ret);
 						delete retPacket;
 						return;

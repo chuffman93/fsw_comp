@@ -44,7 +44,7 @@ namespace Phoenix
 			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 			if(sysinfo(&cdhServer->si) != 0){
 				logger->Log("CDHStdTasks: CDHCPUUsage(): Error", LOGGER_LEVEL_ERROR);
-				FSWPacket * ret = new FSWPacket(0, CDH_CPU_USAGE_FAILURE, false, true, MESSAGE_TYPE_ERROR);
+				FSWPacket * ret = new FSWPacket(CDH_CPU_USAGE_FAILURE, false, true, MESSAGE_TYPE_ERROR);
 				return ret;
 			}
 
@@ -58,7 +58,7 @@ namespace Phoenix
 			AddUInt32(buffer + 4, cdhServer->si.loads[1]);
 			AddUInt32(buffer + 8, cdhServer->si.loads[2]);
 
-			FSWPacket * ret = new FSWPacket(0, CDH_CPU_USAGE_SUCCESS, true, true, MESSAGE_TYPE_DATA, 12, buffer);
+			FSWPacket * ret = new FSWPacket(CDH_CPU_USAGE_SUCCESS, true, true, MESSAGE_TYPE_DATA, 12, buffer);
 			return ret;
 		}
 
@@ -67,7 +67,7 @@ namespace Phoenix
 			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 			if(sysinfo(&cdhServer->si) != 0){
 				logger->Log("CDHStdTasks: CDHMemUsage(): Error", LOGGER_LEVEL_ERROR);
-				FSWPacket * ret = new FSWPacket(0, CDH_MEM_USAGE_FAILURE, false, true, MESSAGE_TYPE_ERROR);
+				FSWPacket * ret = new FSWPacket(CDH_MEM_USAGE_FAILURE, false, true, MESSAGE_TYPE_ERROR);
 				return ret;
 			}
 
@@ -79,7 +79,7 @@ namespace Phoenix
 			uint8 * buffer = (uint8 *) malloc(4);
 			AddFloat(buffer, mem);
 
-			FSWPacket * ret = new FSWPacket(0, CDH_MEM_USAGE_SUCCESS, true, true, MESSAGE_TYPE_DATA, 4, buffer);
+			FSWPacket * ret = new FSWPacket(CDH_MEM_USAGE_SUCCESS, true, true, MESSAGE_TYPE_DATA, 4, buffer);
 			return ret;
 		}
 
@@ -89,7 +89,7 @@ namespace Phoenix
 			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 			if(statvfs((char *) "/", &cdhServer->svfs) != 0){
 				logger->Log("CDHStdTasks: CDHStorage(): Error", LOGGER_LEVEL_ERROR);
-				FSWPacket * ret = new FSWPacket(0, CDH_STORAGE_FAILURE, false, true, MESSAGE_TYPE_ERROR);
+				FSWPacket * ret = new FSWPacket(CDH_STORAGE_FAILURE, false, true, MESSAGE_TYPE_ERROR);
 				return ret;
 			}
 
@@ -99,7 +99,7 @@ namespace Phoenix
 			uint8 * buffer = (uint8 *) malloc(4);
 			AddUInt32(buffer, free);
 
-			FSWPacket * ret = new FSWPacket(0, CDH_STORAGE_SUCCESS, true, true, MESSAGE_TYPE_DATA, 4, buffer);
+			FSWPacket * ret = new FSWPacket(CDH_STORAGE_SUCCESS, true, true, MESSAGE_TYPE_DATA, 4, buffer);
 			return ret;
 		}
 
@@ -117,11 +117,11 @@ namespace Phoenix
 
 			if(success){
 				logger->Log("CDHStdTasks: CDHTempStart(): Started sensors", LOGGER_LEVEL_INFO);
-				FSWPacket * ret = new FSWPacket(0, CDH_TEMP_START_SUCCESS, true, true, MESSAGE_TYPE_DATA);
+				FSWPacket * ret = new FSWPacket(CDH_TEMP_START_SUCCESS, true, true, MESSAGE_TYPE_DATA);
 				return ret;
 			}else{
 				logger->Log("CDHStdTasks: CDHTempStart(): Error starting sensors!", LOGGER_LEVEL_ERROR);
-				FSWPacket * ret = new FSWPacket(0, CDH_TEMP_START_FAILURE, false, true, MESSAGE_TYPE_ERROR);
+				FSWPacket * ret = new FSWPacket(CDH_TEMP_START_FAILURE, false, true, MESSAGE_TYPE_ERROR);
 				return ret;
 			}
 		}
@@ -143,7 +143,7 @@ namespace Phoenix
 			}
 
 			// Send return
-			FSWPacket * ret = new FSWPacket(0, CDH_TEMP_READ_SUCCESS, true, true, MESSAGE_TYPE_DATA, 64*sizeof(float), buffer);
+			FSWPacket * ret = new FSWPacket(CDH_TEMP_READ_SUCCESS, true, true, MESSAGE_TYPE_DATA, 64*sizeof(float), buffer);
 			return ret;
 		}
 
@@ -162,7 +162,7 @@ namespace Phoenix
 				AddFloat(buffer + i, vcRead[i]);
 			}
 
-			FSWPacket * ret = new FSWPacket(0, CDH_HOT_SWAPS_SUCCESS, true, true, MESSAGE_TYPE_DATA, 64*sizeof(float), buffer);
+			FSWPacket * ret = new FSWPacket(CDH_HOT_SWAPS_SUCCESS, true, true, MESSAGE_TYPE_DATA, 64*sizeof(float), buffer);
 			return ret;
 		}
 
@@ -219,7 +219,7 @@ namespace Phoenix
 			cdhServer->devMan->startPMMeas();
 
 			logger->Log("CDHStdTasks: CDHStartPM(): Started PM measurement", LOGGER_LEVEL_INFO);
-			FSWPacket * ret = new FSWPacket(0, CDH_START_PM_SUCCESS, true, true, MESSAGE_TYPE_DATA);
+			FSWPacket * ret = new FSWPacket(CDH_START_PM_SUCCESS, true, true, MESSAGE_TYPE_DATA);
 			return ret;
 		}
 

@@ -57,7 +57,7 @@ namespace Phoenix
 
         	if (it == handlerMap.end() || it->second == NULL)
         	{
-        		FSWPacket * ret = new FSWPacket(0, ERROR_OPCODE_UNRECOGNIZED_TYPE, false, true, MESSAGE_TYPE_ERROR);
+        		FSWPacket * ret = new FSWPacket(ERROR_OPCODE_UNRECOGNIZED_TYPE, false, true, MESSAGE_TYPE_ERROR);
 				return ret;
         	}
         	else

@@ -122,7 +122,7 @@ namespace Phoenix
 			usleep(100000);
 			cdhServer->resetDeassert(HARDWARE_LOCATION_PLD);
 
-			FSWPacket * turnOnScience = new FSWPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, 0, PLD_START_SCIENCE, true, false, MESSAGE_TYPE_COMMAND);
+			FSWPacket * turnOnScience = new FSWPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, PLD_START_SCIENCE, true, false, MESSAGE_TYPE_COMMAND);
 			FSWPacket * ret = DispatchPacket(turnOnScience);
 			if(ret->GetOpcode() != PLD_START_SCIENCE){
 				//TODO Error handling
@@ -138,7 +138,7 @@ namespace Phoenix
 			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
-			FSWPacket * turnOffScience = new FSWPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, 0, PLD_STOP_SCIENCE, true, false, MESSAGE_TYPE_COMMAND);
+			FSWPacket * turnOffScience = new FSWPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, PLD_STOP_SCIENCE, true, false, MESSAGE_TYPE_COMMAND);
 			FSWPacket * ret = DispatchPacket(turnOffScience);
 			delete ret;
 

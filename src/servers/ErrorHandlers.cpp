@@ -31,10 +31,10 @@ FSWPacket * ErrorOctopusHandler::Handle(const FSWPacket & packet)
 	if(!(que->EnqueueError(quePacket)))
 	{
 		//Enqueue failed... errorception.
-		FSWPacket * ret = new FSWPacket(0, ERROR_QUEUE_FAILED, false, true, MESSAGE_TYPE_ERROR);
+		FSWPacket * ret = new FSWPacket(ERROR_QUEUE_FAILED, false, true, MESSAGE_TYPE_ERROR);
 		return ret;
 	}
 	//ReturnMessage * ret = new ReturnMessage(packet.GetMessagePtr(), true);
 	//return ret;
-	FSWPacket * ret = new FSWPacket(0, packet.GetOpcode(), true, true, MESSAGE_TYPE_DATA);
+	FSWPacket * ret = new FSWPacket(packet.GetOpcode(), true, true, MESSAGE_TYPE_DATA);
 }

@@ -53,7 +53,7 @@ void* taskRunCDH(void * params) {
 	{
 		cout<<"ERROR STARTING CDH HANDLERS"<<endl;
 	}
-	cdhServer->SubsystemLoop();
+	static_cast<SubsystemServer*>(cdhServer)->SubsystemLoop();
 	pthread_exit(NULL);
 }
 

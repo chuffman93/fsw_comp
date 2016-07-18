@@ -156,18 +156,20 @@ namespace Phoenix
 
 			prepPowerGPIOs();
 			currentState = ST_MONITOR;
-
 		}
 
 		void CDHServer::loopMonitor(){
 			uint8 readFrequency = 10;
+			uint64 lastWake = getTimeInMillis();
 
-			readHealth(readFrequency, getTimeInMillis()/1000);
+			readHealth(readFrequency, (uint32) lastWake/1000);
+
+			waitUntil(lastWake, 1000);
 		}
 
 
 		// ----------------------------------------- CDH Methods -----------------------------------------
-		void CDHServer::readHealth(uint8 frequency, uint8 timeUnit)
+		void CDHServer::readHealth(uint8 frequency, uint32 timeUnit)
 		{
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
@@ -248,6 +250,7 @@ namespace Phoenix
 		void CDHServer::resetAssert(HardwareLocationIDType subsystem){
 			toggleResetLine(subsystem, false);
 		}
+
 		void CDHServer::resetDeassert(HardwareLocationIDType subsystem){
 			toggleResetLine(subsystem, true);
 		}

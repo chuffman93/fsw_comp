@@ -30,25 +30,25 @@ namespace Phoenix
 	{
 		FSWPacket * ACSHealthStatus(void)
 		{
-			FSWPacket * HSQuery = new FSWPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, 0, ACS_HS_CMD, true, false, MESSAGE_TYPE_COMMAND);
+			FSWPacket * HSQuery = new FSWPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_HS_CMD, true, false, MESSAGE_TYPE_COMMAND);
 			return(DispatchPacket(HSQuery));
 		}
 
 		FSWPacket * ACSState(void)
 		{
-			FSWPacket * query = new FSWPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, 0, ACS_STATE_CMD, true, false, MESSAGE_TYPE_COMMAND);
+			FSWPacket * query = new FSWPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_STATE_CMD, true, false, MESSAGE_TYPE_COMMAND);
 			return(DispatchPacket(query));
 		}
 
 		FSWPacket * ACSRawADC(void)
 		{
-			FSWPacket * query = new FSWPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, 0, ACS_RAW_ADC_CMD, true, false, MESSAGE_TYPE_COMMAND);
+			FSWPacket * query = new FSWPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_RAW_ADC_CMD, true, false, MESSAGE_TYPE_COMMAND);
 			return(DispatchPacket(query));
 		}
 		
 		FSWPacket * ACSAttitudeError(void)
 		{
-			FSWPacket * query = new FSWPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, 0, ACS_ATTITUDE_ERROR_REQUEST_CMD, true, false, MESSAGE_TYPE_COMMAND);
+			FSWPacket * query = new FSWPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_ATTITUDE_ERROR_REQUEST_CMD, true, false, MESSAGE_TYPE_COMMAND);
 			return(DispatchPacket(query));
 
 		}
@@ -91,19 +91,19 @@ namespace Phoenix
 
 		FSWPacket * ACSRequestMRP(void)
 		{
-			FSWPacket * query = new FSWPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, 0, ACS_REQUEST_MRP_VECTOR_CMD, true, false, MESSAGE_TYPE_COMMAND);
+			FSWPacket * query = new FSWPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_REQUEST_MRP_VECTOR_CMD, true, false, MESSAGE_TYPE_COMMAND);
 			return(DispatchPacket(query));
 		}
 
 		FSWPacket * ACSRequestGND(void)
 		{
-			FSWPacket * query = new FSWPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, 0, ACS_REQUEST_GND_VECTOR_CMD, true, false, MESSAGE_TYPE_COMMAND);
+			FSWPacket * query = new FSWPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_REQUEST_GND_VECTOR_CMD, true, false, MESSAGE_TYPE_COMMAND);
 			return(DispatchPacket(query));
 		}
 
 		FSWPacket * ACSSunSoak(void)
 		{
-			FSWPacket * query = new FSWPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, 0, ACS_SUNSOAK_CMD, true, false, MESSAGE_TYPE_COMMAND);
+			FSWPacket * query = new FSWPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_SUNSOAK_CMD, true, false, MESSAGE_TYPE_COMMAND);
 			return(DispatchPacket(query));
 		}
 
@@ -176,19 +176,19 @@ namespace Phoenix
 
 		FSWPacket * ACSHold(void)
 		{
-			FSWPacket * query = new FSWPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, 0, ACS_HOLD_CMD, true, false, MESSAGE_TYPE_COMMAND);
+			FSWPacket * query = new FSWPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_HOLD_CMD, true, false, MESSAGE_TYPE_COMMAND);
 			return(DispatchPacket(query));
 		}
 
 		FSWPacket * ACSDisable(void)
 		{
-			FSWPacket * query = new FSWPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, 0, ACS_DISABLE_CMD, true, false, MESSAGE_TYPE_COMMAND);
+			FSWPacket * query = new FSWPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_DISABLE_CMD, true, false, MESSAGE_TYPE_COMMAND);
 			return(DispatchPacket(query));
 		}
 
 		FSWPacket * ACSReset(void)
 		{
-			FSWPacket * query = new FSWPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, 0, ACS_RESET_CMD, true, false, MESSAGE_TYPE_COMMAND);
+			FSWPacket * query = new FSWPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_RESET_CMD, true, false, MESSAGE_TYPE_COMMAND);
 			return(DispatchPacket(query));
 		}
 
@@ -207,19 +207,19 @@ namespace Phoenix
 			AddUInt32(buffer + 48, gpsServer->GetGPSDataPtr()->GPSWeek);
 			AddFloat(buffer + 52, gpsServer->GetGPSDataPtr()->GPSSec);
 
-			FSWPacket * send = new FSWPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, 0, ACS_GPS_CMD, true, false, MESSAGE_TYPE_COMMAND);
+			FSWPacket * send = new FSWPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_GPS_CMD, true, false, MESSAGE_TYPE_COMMAND);
 			return(DispatchPacket(send));
 		}
 		
 		FSWPacket * ACSStarCameraHS(void)
 		{
-			FSWPacket * query = new FSWPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, 0, ACS_STARCAMERA_HS_CMD, true, false, MESSAGE_TYPE_COMMAND);
+			FSWPacket * query = new FSWPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_STARCAMERA_HS_CMD, true, false, MESSAGE_TYPE_COMMAND);
 			return(DispatchPacket(query));
 		}
 		
 		FSWPacket * ACSPointComGnd(void)
 		{
-			FSWPacket * query = new FSWPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, 0, ACS_POINT_COM_GND_CMD, true, false, MESSAGE_TYPE_COMMAND);
+			FSWPacket * query = new FSWPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_POINT_COM_GND_CMD, true, false, MESSAGE_TYPE_COMMAND);
 			return(DispatchPacket(query));
 		}
 		
@@ -241,7 +241,7 @@ namespace Phoenix
 			if(!dispatcher->Dispatch(*forward))
 			{
 				delete forward;
-				FSWPacket * ret = new FSWPacket(0, DISPATCH_FAILED, false, true, MESSAGE_TYPE_ERROR);
+				FSWPacket * ret = new FSWPacket(DISPATCH_FAILED, false, true, MESSAGE_TYPE_ERROR);
 				return ret;
 			}
 			logger->Log("ACS Helloworld message sent", LOGGER_LEVEL_INFO);

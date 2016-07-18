@@ -46,12 +46,12 @@ using namespace Phoenix::Servers;
 #define EPS_EN 0
 #define ERR_EN 0
 #define GPS_EN 0
-#define PLD_EN 1
+#define PLD_EN 0
 #define THM_EN 0
 #define SCH_EN 1
 
 #define ETH_EN 0
-#define SPI_EN 1
+#define SPI_EN 0
 
 //---------------------------- Create server tasks ----------------------------
 //TODO:Add meaningful exit information to each server pthread_exit

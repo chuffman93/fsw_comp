@@ -9,6 +9,7 @@
 #include "gtest/gtest.h"
 #include "core/StdTypes.h"
 #include "core/Factory.h"
+#include <time.h>
 #include <string>
 
 using namespace std;

@@ -37,7 +37,7 @@ FSWPacket * CMDSwitchProtocolHandler::Handle(const FSWPacket & packet)
 
 	uint8 * msgPtr = packet.GetMessageBufPtr();
 	if(msgPtr == NULL){
-		FSWPacket * ret = new FSWPacket(0, CMD_ACP_SWITCH_FAILURE, false, true, MESSAGE_TYPE_ERROR);
+		FSWPacket * ret = new FSWPacket(CMD_ACP_SWITCH_FAILURE, false, true, MESSAGE_TYPE_ERROR);
 		return ret;
 	}
 
@@ -54,13 +54,13 @@ FSWPacket * CMDSwitchProtocolHandler::Handle(const FSWPacket & packet)
 	if((subsystem < HARDWARE_LOCATION_MIN) || (subsystem >= HARDWARE_LOCATION_MAX))
 	{
 		logger->Log("CMDSwitchProtocolHandler: Bad subsystem! Subsystem: %u", subsystem, LOGGER_LEVEL_DEBUG);
-		FSWPacket * ret = new FSWPacket(0, CMD_ACP_SWITCH_BAD_SUBSYS, false, true, MESSAGE_TYPE_ERROR);
+		FSWPacket * ret = new FSWPacket(CMD_ACP_SWITCH_BAD_SUBSYS, false, true, MESSAGE_TYPE_ERROR);
 		return ret;
 	}
 	if((protocol < ACP_PROTOCOL_MIN) || (protocol >= ACP_PROTOCOL_MAX))
 	{
 		logger->Log("CMDSwitchProtocolHandler: Bad protocol!", LOGGER_LEVEL_DEBUG);
-		FSWPacket * ret = new FSWPacket(0, CMD_ACP_SWITCH_BAD_PROTOCOL, false, true, MESSAGE_TYPE_ERROR);
+		FSWPacket * ret = new FSWPacket(CMD_ACP_SWITCH_BAD_PROTOCOL, false, true, MESSAGE_TYPE_ERROR);
 		return ret;
 	}
 
@@ -70,6 +70,6 @@ FSWPacket * CMDSwitchProtocolHandler::Handle(const FSWPacket & packet)
 	cmdServer->subsystem_acp_protocol[subsystem] = protocol;
 
 	logger->Log("CMDSwitchProtocolHandler: success", LOGGER_LEVEL_DEBUG);
-	FSWPacket * ret = new FSWPacket(0, CMD_ACP_SWITCH_SUCCESS, true, true, MESSAGE_TYPE_DATA);
+	FSWPacket * ret = new FSWPacket(CMD_ACP_SWITCH_SUCCESS, true, true, MESSAGE_TYPE_DATA);
 	return ret;
 }

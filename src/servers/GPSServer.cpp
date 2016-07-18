@@ -62,8 +62,10 @@ namespace Phoenix
 		GPSServer::GPSServer(string nameIn, LocationIDType idIn)
 				: SubsystemServer(nameIn, idIn), Singleton(), arby(idIn)
 		{
-			GPSDataHolder = new BESTXYZ();
-			GPSCoordsHolder = new GPRMC();
+			GPSDataHolder = new GPS_BESTXYZ();
+			GPSCoordsHolder = new GPS_GPRMC();
+			GPSDataHolder->GPSSec = -1.0;
+			GPSDataHolder->GPSWeek = -1;
 		}
 
 		GPSServer::~GPSServer()
@@ -268,7 +270,7 @@ namespace Phoenix
 			}
 		}
 
-		BESTXYZ * GPSServer::GetGPSDataPtr(void)
+		GPS_BESTXYZ * GPSServer::GetGPSDataPtr(void)
 		{
 			if(true == this->TakeLock(MAX_BLOCK_TIME))
 			{
@@ -278,7 +280,7 @@ namespace Phoenix
 			return NULL;
 		}
 
-		GPRMC * GPSServer::GetGPSCoordsPtr(void)
+		GPS_GPRMC * GPSServer::GetGPSCoordsPtr(void)
 		{
 			if(true == this->TakeLock(MAX_BLOCK_TIME)){
 				this->GiveLock();

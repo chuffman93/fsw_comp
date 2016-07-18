@@ -31,12 +31,12 @@ namespace Phoenix
             FSWPacket(uint8 * buffer, std::size_t size);
 
             // --- Constructors with for dispatching ---------------------------------------------------------------------------
-            FSWPacket(LocationIDType sourceIn, LocationIDType destIn, uint32 timestampIn, uint8 opcodeIn, bool success, bool response, MessageTypeEnum type);
-            FSWPacket(LocationIDType sourceIn, LocationIDType destIn, uint32 timestampIn, uint8 opcodeIn, bool success, bool response, MessageTypeEnum type, uint16 lengthIn, uint8 * messageIn);
+            FSWPacket(LocationIDType sourceIn, LocationIDType destIn, uint8 opcodeIn, bool success, bool response, MessageTypeEnum type);
+            FSWPacket(LocationIDType sourceIn, LocationIDType destIn, uint8 opcodeIn, bool success, bool response, MessageTypeEnum type, uint16 lengthIn, uint8 * messageIn);
 
             // --- Constructors for return messages ----------------------------------------------------------------------------
-            FSWPacket(uint32 timestampIn, uint8 opcodeIn, bool successIn, bool responseIn, MessageTypeEnum typeIn);
-            FSWPacket(uint32 timestampIn, uint8 opcodeIn, bool successIn, bool responseIn, MessageTypeEnum typeIn, uint16 lengthIn, uint8 * messageIn);
+            FSWPacket(uint8 opcodeIn, bool successIn, bool responseIn, MessageTypeEnum typeIn);
+            FSWPacket(uint8 opcodeIn, bool successIn, bool responseIn, MessageTypeEnum typeIn, uint16 lengthIn, uint8 * messageIn);
 
             // --- Constructor from existing packet ----------------------------------------------------------------------------
             FSWPacket(const FSWPacket & source);
@@ -67,6 +67,8 @@ namespace Phoenix
             void SetResponse(bool responseIn);
             void SetSuccess(bool successIn);
             void SetOpcode(uint8 opcodeIn);
+
+            uint32 MakeTimestamp();
 
             // --- Packet flattening -------------------------------------------------------------------------------------------
             virtual std::size_t GetFlattenSize(void ) const;

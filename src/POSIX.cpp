@@ -7,11 +7,11 @@ namespace Phoenix
 {
 	namespace Core
 	{
-		int getTimeInMillis()
+		int64 getTimeInMillis()
 		{
 			struct timeval now;
 			gettimeofday(&now, NULL);
-			return ((now.tv_sec) * 1000 + now.tv_usec / 1000);
+			return (((int64) now.tv_sec)*1000 + (int64) now.tv_usec / 1000);
 
 		}
 

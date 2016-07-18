@@ -41,13 +41,13 @@ namespace Phoenix
 			GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 			if (NULL == gpsServer)
 			{
-				FSWPacket * ret = new FSWPacket(0, GPS_HS_FAILURE, false, true, MESSAGE_TYPE_ERROR);
+				FSWPacket * ret = new FSWPacket(GPS_HS_FAILURE, false, true, MESSAGE_TYPE_ERROR);
 				return ret;
 			}
-			BESTXYZ * gpsData = gpsServer->GetGPSDataPtr();
+			GPS_BESTXYZ * gpsData = gpsServer->GetGPSDataPtr();
 			if(gpsData == NULL)
 			{
-				FSWPacket * ret = new FSWPacket(0, GPS_HS_FAILURE, false, true, MESSAGE_TYPE_ERROR);
+				FSWPacket * ret = new FSWPacket(GPS_HS_FAILURE, false, true, MESSAGE_TYPE_ERROR);
 				return ret;
 			}
 			
@@ -76,13 +76,13 @@ namespace Phoenix
 			GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 			if (NULL == gpsServer)
 			{
-				FSWPacket * ret = new FSWPacket(0, GPS_TIME_FAILURE, false, true, MESSAGE_TYPE_ERROR);
+				FSWPacket * ret = new FSWPacket(GPS_TIME_FAILURE, false, true, MESSAGE_TYPE_ERROR);
 				return ret;
 			}
-			BESTXYZ * gpsData = gpsServer->GetGPSDataPtr();
+			GPS_BESTXYZ * gpsData = gpsServer->GetGPSDataPtr();
 			if(gpsData == NULL)
 			{
-				FSWPacket * ret = new FSWPacket(0, GPS_TIME_FAILURE, false, true, MESSAGE_TYPE_ERROR);
+				FSWPacket * ret = new FSWPacket(GPS_TIME_FAILURE, false, true, MESSAGE_TYPE_ERROR);
 				return ret;
 			}
 
@@ -108,13 +108,13 @@ namespace Phoenix
 			GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 			if (NULL == gpsServer)
 			{
-				FSWPacket * ret = new FSWPacket(0, GPS_POSITION_FAILURE, false, true, MESSAGE_TYPE_ERROR);
+				FSWPacket * ret = new FSWPacket(GPS_POSITION_FAILURE, false, true, MESSAGE_TYPE_ERROR);
 				return ret;
 			}
-			BESTXYZ * gpsData = gpsServer->GetGPSDataPtr();
+			GPS_BESTXYZ * gpsData = gpsServer->GetGPSDataPtr();
 			if(gpsData == NULL)
 			{
-				FSWPacket * ret = new FSWPacket(0, GPS_POSITION_FAILURE, false, true, MESSAGE_TYPE_ERROR);
+				FSWPacket * ret = new FSWPacket(GPS_POSITION_FAILURE, false, true, MESSAGE_TYPE_ERROR);
 				return ret;
 			}
 			
@@ -196,7 +196,7 @@ namespace Phoenix
 		FSWPacket * GPSReset()
 		{
 			//TODO: Figure out how to reset the GPS chip
-			FSWPacket * ret = new FSWPacket(0, GPS_RESET_FAILURE, false, true, MESSAGE_TYPE_ERROR);
+			FSWPacket * ret = new FSWPacket(GPS_RESET_FAILURE, false, true, MESSAGE_TYPE_ERROR);
 			return ret;
 		}
 
@@ -204,7 +204,7 @@ namespace Phoenix
 		{
 			GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-			BESTXYZ * gpsData = gpsServer->GetGPSDataPtr();
+			GPS_BESTXYZ * gpsData = gpsServer->GetGPSDataPtr();
 			char * token;
 
 			logger->Log("GPSStdTasks: Processing BESTXYZ", LOGGER_LEVEL_DEBUG);

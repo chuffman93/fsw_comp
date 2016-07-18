@@ -27,27 +27,27 @@ using namespace rel_ops;
 using namespace Phoenix::Core;
 using namespace Phoenix::Servers;
 
-void* taskRunACS(void * params) {
-	ACSServer * acsServer = dynamic_cast<ACSServer *>(Factory::GetInstance(
-			ACS_SERVER_SINGLETON));
-	ModeManager * modeManager =
-			dynamic_cast<ModeManager *>(Factory::GetInstance(
-					MODE_MANAGER_SINGLETON));
-	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-
-	modeManager->Attach(*acsServer);
-
-	for (int i = 0; i < 0; i++) {
-		//wdm->Kick();
-		usleep(1000000);
-	}
-
-	printf("\r\nKicking off the ACS server\r\n");
-
-	bool success = acsServer->RegisterHandlers();
-	acsServer->SubsystemLoop();
-	pthread_exit(NULL);
-}
+//void* taskRunACS(void * params) {
+//	ACSServer * acsServer = dynamic_cast<ACSServer *>(Factory::GetInstance(
+//			ACS_SERVER_SINGLETON));
+//	ModeManager * modeManager =
+//			dynamic_cast<ModeManager *>(Factory::GetInstance(
+//					MODE_MANAGER_SINGLETON));
+//	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
+//
+//	modeManager->Attach(*acsServer);
+//
+//	for (int i = 0; i < 0; i++) {
+//		//wdm->Kick();
+//		usleep(1000000);
+//	}
+//
+//	printf("\r\nKicking off the ACS server\r\n");
+//
+//	bool success = acsServer->RegisterHandlers();
+//	acsServer->SubsystemLoop();
+//	pthread_exit(NULL);
+//}
 
 TEST(TestHandlers, test1){
 //	FileHandler * fileHandler =

@@ -37,7 +37,7 @@ namespace Phoenix
 	{
 		FSWPacket * COMHealthStatus(void)
 		{
-			FSWPacket * HSQuery = new FSWPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, 0, COM_HS_CMD, true, false, MESSAGE_TYPE_COMMAND);
+			FSWPacket * HSQuery = new FSWPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, COM_HS_CMD, true, false, MESSAGE_TYPE_COMMAND);
 			FSWPacket * HSRet = DispatchPacket(HSQuery);
 
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));

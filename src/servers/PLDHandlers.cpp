@@ -153,7 +153,7 @@ FSWPacket * PLDErrorHandler::Handle(const FSWPacket & packet)
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 	if (NULL == dispatcher)
 	{
-		FSWPacket * ret = new FSWPacket(0, DISPATCHER_NO_INSTANCE, false, true, MESSAGE_TYPE_ERROR);
+		FSWPacket * ret = new FSWPacket(DISPATCHER_NO_INSTANCE, false, true, MESSAGE_TYPE_ERROR);
 		return ret;
 	}
 	FSWPacket * forward = new FSWPacket(packet);
@@ -166,7 +166,7 @@ FSWPacket * PLDErrorHandler::Handle(const FSWPacket & packet)
 	if(!dispatcher->Dispatch(*forward))
 	{
 		delete forward;
-		FSWPacket * ret = new FSWPacket(0, DISPATCH_FAILED, false, true, MESSAGE_TYPE_ERROR);
+		FSWPacket * ret = new FSWPacket(DISPATCH_FAILED, false, true, MESSAGE_TYPE_ERROR);
 		return ret;
 	}
 
@@ -176,7 +176,7 @@ FSWPacket * PLDErrorHandler::Handle(const FSWPacket & packet)
 	if(DISPATCHER_STATUS_OK != (stat = WaitForDispatchResponse(*forward, &retPacket)))
 	{
 		delete forward;
-		FSWPacket * ret = new FSWPacket(0, DISPATCHER_STATUS_ERR, false, true, MESSAGE_TYPE_ERROR);
+		FSWPacket * ret = new FSWPacket(DISPATCHER_STATUS_ERR, false, true, MESSAGE_TYPE_ERROR);
 		return ret;
 	}
 

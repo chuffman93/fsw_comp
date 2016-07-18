@@ -102,195 +102,9 @@ FileHandler & FileHandler::operator=(const FileHandler & source)
 }
 
 
-
-
 /////////////////////////////////////
 /////////// Log Data/////////////////
 /////////////////////////////////////
-
-bool FileHandler::Log(FileHandlerIDEnum logType, MessageCodeType dataOne, MessageCodeType dataTwo)
-{
-        Phoenix::Servers::GPSServer * gpsServer =
-                        dynamic_cast<Phoenix::Servers::GPSServer *>(Factory::GetInstance(
-                                        GPS_SERVER_SINGLETON));
-        string file;
-        uint32 seconds;
-
-
-        Phoenix::Servers::BESTXYZ * gpsData = gpsServer->GetGPSDataPtr();
-        int week = gpsData->GPSWeek;
-
-
-        FetchFileName(logType, &file);
-
-		uint8 *buffer = new uint8[10];
-
-		buffer[0] = (uint8) ((week >> 24) & 0xff);
-		buffer[1] = (uint8) ((week >> 16) & 0xff);
-		buffer[2] = (uint8) ((week >> 8) & 0xff);
-		buffer[3] = (uint8) (week & 0xff);
-
-		if (!(Phoenix::HAL::RTCGetTime(&seconds, NULL)))
-		{
-				DEBUG_COUT("return false H");
-				delete[] buffer;
-				this->GiveLock();
-				return false;
-		}
-
-		buffer[4] = (uint8) ((seconds >> 24) & 0xff);
-		buffer[5] = (uint8) ((seconds >> 16) & 0xff);
-		buffer[6] = (uint8) ((seconds >> 8) & 0xff);
-		buffer[7] = (uint8) (seconds & 0xff);
-		buffer[8] = (uint8) dataOne;
-		buffer[9] = (uint8) dataTwo;
-
-
-
-    	FileWrite(file.c_str(), (char*) buffer, 10);
-        // Success!
-        DEBUG_COUT("LogAppend success!");
-        delete[] buffer;
-        return true;
-
-}
-
-uint8_t FileHandler::FetchFileName(FileHandlerIDEnum logType, string* file){
-	*file = writeDir;
-	string tempFile;
-    char *temp = new char[25];
-    string fileExtension = ".dat";
-    //int week;
-    int seconds;
-
-	//
-	if (logType == LOG_MODE)
-	{
-			DEBUG_VAL("modeLog", modeLog);
-			file->append(modeLog);
-	}
-	else
-	{
-			DEBUG_VAL("errLog", errLog);
-			file->append(errLog);
-	}
-
-	mkdir(writeDir, 0777);
-
-	//Retrieve Old file name and assign it to tempFile.
-	tempFile = *file;
-	//week = weekRef[subsystem][opCode];
-	itoa(week, temp, 10);
-	tempFile.append(temp);
-	tempFile.append(fileExtension);
-	delete temp;
-
-	// Check if Old file is full. If so, create new file with current time info,
-	// else assign tempFile to file.
-	if (fileSize(tempFile.c_str())>=MAXFILESIZE){
-		printf("file_size = %d\n", fileSize(tempFile.c_str()));
-		printf("file path= %s\n", tempFile.c_str());
-		puts("file full or nonexistent");
-		printf("week = %d\n", week);
-
-		//get current time in seconds and week
-		char *temp2 = new char[25];
-		itoa(week+2, temp2, 10);
-		file->append(temp2);
-		file->append(fileExtension);
-		//weekRef[subsystem][opCode] = week;
-	}
-	else{
-		*file = tempFile;
-	}
-
-
-	return 0;
-}
-
-bool FileHandler::Log(FileHandlerIDEnum subsystem, MessageCodeType opCode,
-                const MultiDataMessage & message)
-{
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("FileHandler: Log()", LOGGER_LEVEL_DEBUG);
-	string file;
-
-	/*Fetch Time*/
-	//TODO: add the GPS stuff back
-	//Phoenix::Servers::GPSData * gpsData = gpsServer->GetGPSDataPtr();
-	//Phoenix::Servers::GPSServer * gpsServer = dynamic_cast<Phoenix::Servers::GPSServer *>(Factory::GetInstance(GPS_SERVER_SINGLETON));
-	int week = 1;   // gpsData->GPSWeek;
-	int seconds = 1;
-	bool notPLDData = (subsystem != SUBSYSTEM_PLD) || (opCode != PLD_DATA_SUCCESS);
-	/*Create file name using subsystem, opcode, and time. If file exists and is full, create new file, else
-	 * append file.*/
-	FetchFileName(subsystem, opCode, &file);
-
-	/*Fill buffer with data to be written and write buffer to file*/
-	size_t size = 0;
-	if (notPLDData)
-	{
-			size += 9;
-	}
-
-	//Size holds the size of the buffer we will be storing the data to write//
-	//Extract message from MultiDataMessage an place into list params//
-	list<VariableTypeData *> params;
-	params = message.GetParameters();
-	uint8 numParams = 0;
-
-	//Iterate through the params list and increment size for each value in params//
-	std::list<VariableTypeData *>::iterator it = params.begin();
-	for (; it != params.end(); it++)
-	{
-			//cout<<"Data: "<<*((uint32 *) (*it)->GetData())<<endl; //  <-- easy way to check handler data (ensure correct type casting)
-			size += (*it)->GetFlattenSize();
-			numParams += 1;
-	}
-	uint8 *buffer = new uint8[size];
-
-	//buffer keeps pointer to the whole buffer, bufferPtr points to the next place to flattened data//
-	uint8 *bufferPtr = buffer;
-	if (notPLDData)
-	{
-			buffer[0] = (uint8) ((week >> 24) & 0xff);
-			buffer[1] = (uint8) ((week >> 16) & 0xff);
-			buffer[2] = (uint8) ((week >> 8) & 0xff);
-			buffer[3] = (uint8) (week & 0xff);
-			buffer[4] = (uint8) ((seconds >> 24) & 0xff);
-			buffer[5] = (uint8) ((seconds >> 16) & 0xff);
-			buffer[6] = (uint8) ((seconds >> 8) & 0xff);
-			buffer[7] = (uint8) (seconds & 0xff);
-
-			bufferPtr += 8;
-	}
-
-	buffer[8] = numParams;
-	bufferPtr += 1;
-
-	it = params.begin();
-	for (; it != params.end(); it++)
-	{
-			bufferPtr += (*it)->Flatten(bufferPtr, (*it)->GetFlattenSize());
-			//delete *it;
-	}
-
-	if (!notPLDData)
-	{
-			size -= 5;
-			bufferPtr = buffer + 5; //remove variable type data header
-			memmove(buffer, bufferPtr, size);
-	}
-
-	// Write into the file.
-	//puts("writing file..");
-	//printf("string = %s\n", file.c_str());
-	int err = FileWrite(file.c_str(), (char*) buffer, (long int) size);
-	//printf("%d\n", err);
-	delete[] buffer;
-	if (err < 0) return false;
-	return true;
-}
 
 bool FileHandler::Log(FileHandlerIDEnum subsystem, const Phoenix::Core::FSWPacket * packet){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
@@ -461,105 +275,105 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType 
 
 uint8 * FileHandler::ReadFile(const char * fileName, size_t * bufferSize)
 {
-		Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-		char * out = new char[150];
-		sprintf(out, "FileHandler: ReadFile(): %s", fileName);
-		logger->Log(out, LOGGER_LEVEL_DEBUG);
-		delete out;
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	char * out = new char[150];
+	sprintf(out, "FileHandler: ReadFile(): %s", fileName);
+	logger->Log(out, LOGGER_LEVEL_DEBUG);
+	delete out;
 
-		uint8 * buffer = NULL;
-        FILE * fp;
-        size_t result;
-        if (true == TakeLock(MAX_BLOCK_TIME))
-        {
-                fp = fopen(fileName, "r");
-                if (!fp)
-                {
-                        // error: failed to open the file
-                        buffer = NULL;
-                        this->GiveLock();
-                        return buffer;
-                }
+	uint8 * buffer = NULL;
+	FILE * fp;
+	size_t result;
+	if (true == TakeLock(MAX_BLOCK_TIME))
+	{
+		fp = fopen(fileName, "r");
+		if (!fp)
+		{
+			// error: failed to open the file
+			buffer = NULL;
+			this->GiveLock();
+			return buffer;
+		}
 
-                // Length of the file
-                *bufferSize = fileSize(fp);
+		// Length of the file
+		*bufferSize = fileSize(fp);
 
-				// Create buffer
-				buffer = new uint8[*bufferSize];
-                result = fread(buffer,1,*bufferSize,fp);
+		// Create buffer
+		buffer = new uint8[*bufferSize];
+		result = fread(buffer,1,*bufferSize,fp);
 
-                // Check for correct read
-                if (result != *bufferSize)
-                {
-                		fclose(fp);
-                        delete[] buffer;
-                        buffer = NULL;
-                        this->GiveLock();
-                        return buffer;
-                }
+		// Check for correct read
+		if (result != *bufferSize)
+		{
+			fclose(fp);
+			delete[] buffer;
+			buffer = NULL;
+			this->GiveLock();
+			return buffer;
+		}
 
-                // Cleanup
-                fclose(fp);
-                this->GiveLock();
-        }
-        return buffer;
+		// Cleanup
+		fclose(fp);
+		this->GiveLock();
+	}
+	return buffer;
 }
 
 //Append instead of writing?
 uint32 FileHandler::FileWrite(const char * fileName, char * buffer, size_t numBytes)
 {
-		Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-		logger->Log("FileHandler: FileWrite(): %s", fileName, LOGGER_LEVEL_DEBUG);
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("FileHandler: FileWrite(): %s", fileName, LOGGER_LEVEL_DEBUG);
 
-		uint32 rv = 0;
-        size_t result;
+	uint32 rv = 0;
+	size_t result;
 
-        //open file for write only
-        FILE * fp;
-        if (true == TakeLock(MAX_BLOCK_TIME))
-        {
-                fp = fopen(fileName, "a");
-                if (!fp)
-				{
-					logger->Log("FileWrite(): Failed on file pointer", LOGGER_LEVEL_WARN);
-                	this->GiveLock();
-					return -1;
-				}
-                result = fwrite(buffer,1,numBytes,fp);
+	//open file for write only
+	FILE * fp;
+	if (true == TakeLock(MAX_BLOCK_TIME))
+	{
+		fp = fopen(fileName, "a");
+		if (!fp)
+		{
+			logger->Log("FileWrite(): Failed on file pointer", LOGGER_LEVEL_WARN);
+			this->GiveLock();
+			return -1;
+		}
+		result = fwrite(buffer,1,numBytes,fp);
 
-                if(result!=numBytes){
-                	logger->Log("FileWrite(): Wrote the wrong number of bytes!", LOGGER_LEVEL_WARN);
-                	fclose(fp);
-                	this->GiveLock();
-                	return -2;
-                }
+		if(result!=numBytes){
+			logger->Log("FileWrite(): Wrote the wrong number of bytes!", LOGGER_LEVEL_WARN);
+			fclose(fp);
+			this->GiveLock();
+			return -2;
+		}
 
-                rv = (uint32) this->fileSize(fp);
-				fclose(fp);
-				this->GiveLock();
-        }
-        return rv;
+		rv = (uint32) this->fileSize(fp);
+		fclose(fp);
+		this->GiveLock();
+	}
+	return rv;
 }
 
 bool FileHandler::DeleteFile(const char * fileName)
 {
-		Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-		char * out = new char[150];
-		sprintf(out, "FileHandler: DeleteFile(): %s", fileName);
-		logger->Log(out, LOGGER_LEVEL_DEBUG);
-		delete out;
-        if (true == TakeLock(MAX_BLOCK_TIME))
-        {
-                if (remove(fileName) != 0)
-                {
-                        // error: failed to delete the file
-                        this->GiveLock();
-                        return false;
-                }
-                this->GiveLock();
-        }
-        // Success!
-        return true;
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	char * out = new char[150];
+	sprintf(out, "FileHandler: DeleteFile(): %s", fileName);
+	logger->Log(out, LOGGER_LEVEL_DEBUG);
+	delete out;
+	if (true == TakeLock(MAX_BLOCK_TIME))
+	{
+		if (remove(fileName) != 0)
+		{
+			// error: failed to delete the file
+			this->GiveLock();
+			return false;
+		}
+		this->GiveLock();
+	}
+	// Success!
+	return true;
 }
 
 uint32 FileHandler::fileSize(FILE * fp)
@@ -572,117 +386,111 @@ uint32 FileHandler::fileSize(FILE * fp)
 
 uint32 FileHandler::fileSize(const char * fileName)
 {
-        uint32 rv = 0;
-        //open file for read only
-        FILE * fp;
-        if (true == TakeLock(MAX_BLOCK_TIME))
-        {
-        		fp = fopen(fileName, "r");
-				if (!fp)
-				{
-						// error: failed to open the file
-						this->GiveLock();
-						return -1;
-				}
+	uint32 rv = 0;
+	//open file for read only
+	FILE * fp;
+	if (true == TakeLock(MAX_BLOCK_TIME)){
+		fp = fopen(fileName, "r");
+		if (!fp){
+			// error: failed to open the file
+			this->GiveLock();
+			return -1;
+		}
 
-				fseek(fp, 0L, SEEK_END);
-				rv = (uint32) ftell(fp);
-				fseek(fp, 0L, SEEK_SET);
+		fseek(fp, 0L, SEEK_END);
+		rv = (uint32) ftell(fp);
+		fseek(fp, 0L, SEEK_SET);
 
-				fclose(fp);
-                this->GiveLock();
-        }
-        return rv;
+		fclose(fp);
+		this->GiveLock();
+	}
+	return rv;
 }
 
 void FileHandler::zipFiles(const char * path, const char * zipName)
 {
-        struct stat buffer;
-        string cmd;
-        string zipPath = writeDir;
-        zipPath.append(zipName);
-        if (0 == stat(zipPath.c_str(), &buffer))
-                unzipFiles(path, zipName);
-        cmd = "zip -9 -j -qq -r -m ";
-        cmd.append(zipPath);
-        cmd.append(" ");
-        cmd.append(path);
-        cmd.append(" > /dev/null 2>&1");
-        system(cmd.c_str());
+	struct stat buffer;
+	string cmd;
+	string zipPath = writeDir;
+	zipPath.append(zipName);
+	if (0 == stat(zipPath.c_str(), &buffer))
+			unzipFiles(path, zipName);
+	cmd = "zip -9 -j -qq -r -m ";
+	cmd.append(zipPath);
+	cmd.append(" ");
+	cmd.append(path);
+	cmd.append(" > /dev/null 2>&1");
+	system(cmd.c_str());
 }
 
 //Look at application and see if only one can be used
 void FileHandler::unzipFiles(const char * path, const char * zipName)
 {
-        struct stat buffer;
-        string cmd;
-        string zipPath = writeDir;
-        zipPath.append(zipName);
-        cmd = "unzip -n -qq ";
-        cmd.append(zipPath);
-        cmd.append(" -d ");
-        cmd.append(path);
-        cmd.append(" > /dev/null 2>&1");
-        system(cmd.c_str());
+	struct stat buffer;
+	string cmd;
+	string zipPath = writeDir;
+	zipPath.append(zipName);
+	cmd = "unzip -n -qq ";
+	cmd.append(zipPath);
+	cmd.append(" -d ");
+	cmd.append(path);
+	cmd.append(" > /dev/null 2>&1");
+	system(cmd.c_str());
 }
 
 void FileHandler::unzipFile(const char * path, const char * file,
                 const char * zipName)
 {
-        struct stat buffer;
-        string cmd;
-        string zipPath = writeDir;
-        zipPath.append(zipName);
-        cmd = "unzip -n -qq ";
-        cmd.append(zipPath);
-        cmd.append(" ");
-        cmd.append(file);
-        cmd.append(" -d ");
-        cmd.append(path);
-        cmd.append(" > /dev/null 2>&1");
-        system(cmd.c_str());
+	struct stat buffer;
+	string cmd;
+	string zipPath = writeDir;
+	zipPath.append(zipName);
+	cmd = "unzip -n -qq ";
+	cmd.append(zipPath);
+	cmd.append(" ");
+	cmd.append(file);
+	cmd.append(" -d ");
+	cmd.append(path);
+	cmd.append(" > /dev/null 2>&1");
+	system(cmd.c_str());
 }
 
 //Check if necessecary
 unsigned int FileHandler::folderSize(const char * path)
 {
-        DIR *dp;
-        unsigned int size;
-        struct dirent *ep;
-        struct stat sbuffer;
+	DIR *dp;
+	unsigned int size;
+	struct dirent *ep;
+	struct stat sbuffer;
 
-        dp = opendir(path);
-        size = 0;
-        if (dp != NULL)
-        {
-                while ((ep = readdir(dp)))
-                {
-                        if (strcmp(ep->d_name, "..") != 0 && strcmp(ep->d_name, ".") != 0)
-                        {
-                                switch (ep->d_type)
-                                {
-                                        case DT_UNKNOWN:
-                                        case DT_REG:
-                                                break;
-                                        default:
-                                                break;
-                                }
-                                string file;
-                                file = path;
-                                file.append((char*) ep->d_name);
-                                stat(file.c_str(), &sbuffer);
-                                size = size + (unsigned int) sbuffer.st_size;
-                        }
-                }
-                closedir(dp);
-        }
-        return size;
+	dp = opendir(path);
+	size = 0;
+	if (dp != NULL){
+		while ((ep = readdir(dp))){
+			if (strcmp(ep->d_name, "..") != 0 && strcmp(ep->d_name, ".") != 0){
+				switch (ep->d_type){
+					case DT_UNKNOWN:
+					case DT_REG:
+						break;
+					default:
+						break;
+				}
+				string file;
+				file = path;
+				file.append((char*) ep->d_name);
+				stat(file.c_str(), &sbuffer);
+				size = size + (unsigned int) sbuffer.st_size;
+			}
+		}
+		closedir(dp);
+	}
+	return size;
 }
 
 void FileHandler::FileSizePLDPicture(uint32 resolution, uint32 chunckSize)
 {
-        numDataPointsMax[SUBSYSTEM_PLD][PLD_PIC_CMD] = resolution / chunckSize;
-        numDataPoints[SUBSYSTEM_PLD][PLD_PIC_CMD] = 0;
+	numDataPointsMax[SUBSYSTEM_PLD][PLD_PIC_CMD] = resolution / chunckSize;
+	numDataPoints[SUBSYSTEM_PLD][PLD_PIC_CMD] = 0;
 }
 
 
@@ -725,35 +533,35 @@ unsigned int FileHandler::generateCrc(uint8 *p, size_t n, unsigned int crcTable[
 //CRC-32 (0x04C11DB7)
 uint32 FileHandler::crcCheck(const char * fileName)
 {
-		uint32 crc = 0x00000000ul;
-		//uint32 crcTable[256];
-		//makeCrcTable(crcTable);
-		size_t bufferSize;
-		FILE* fp;
-		uint8 * buffer;
-		if (true == this->TakeLock(MAX_BLOCK_TIME))
-				{
-						fp = fopen(fileName, "r");
-						bufferSize = (size_t) this->fileSize(fp);
-						//Check BuffersSize for error
-						//crc = NULL;
-						//this->GiveLock();
-						//return crc;
-						buffer = new uint8[bufferSize];
-						buffer = ReadFile(fileName, &bufferSize);
-						//Check buffer output for error TODO
-						//delete buffer;
-						//buffer = NULL;
-						//this->GiveLock();
-						//return crc;
+	uint32 crc = 0x00000000ul;
+	//uint32 crcTable[256];
+	//makeCrcTable(crcTable);
+	size_t bufferSize;
+	FILE* fp;
+	uint8 * buffer;
+	if (true == this->TakeLock(MAX_BLOCK_TIME))
+		{
+			fp = fopen(fileName, "r");
+			bufferSize = (size_t) this->fileSize(fp);
+			//Check BuffersSize for error
+			//crc = NULL;
+			//this->GiveLock();
+			//return crc;
+			buffer = new uint8[bufferSize];
+			buffer = ReadFile(fileName, &bufferSize);
+			//Check buffer output for error TODO
+			//delete buffer;
+			//buffer = NULL;
+			//this->GiveLock();
+			//return crc;
 
-						//Calculate CRC
-						for(uint8 i=0; i<bufferSize; i++){
-							crc = generateCrc(buffer +  i,1,(unsigned int *) crcTable, (unsigned int)~crc);
-						}
+			//Calculate CRC
+			for(uint8 i=0; i<bufferSize; i++){
+				crc = generateCrc(buffer +  i,1,(unsigned int *) crcTable, (unsigned int)~crc);
+			}
 
-						delete[] buffer;
-						this->GiveLock();
-				}
-		return crc;
+			delete[] buffer;
+			this->GiveLock();
+		}
+	return crc;
 }

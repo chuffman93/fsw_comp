@@ -69,7 +69,7 @@ public:
          * and false otherwise
          *
          */
-        bool Log(FileHandlerIDEnum logType, MessageCodeType dataOne, MessageCodeType dataTwo);
+        //bool Log(FileHandlerIDEnum logType, MessageCodeType dataOne, MessageCodeType dataTwo);
 
         /*! \brief Adds the buffer to the file.
          *
@@ -85,8 +85,8 @@ public:
          *  \return true if the operation was successful and
          *  false otherwise.
          */
-        bool Log(FileHandlerIDEnum subsystem, MessageCodeType opCode,
-                        const Phoenix::Core::MultiDataMessage & message);
+        //bool Log(FileHandlerIDEnum subsystem, MessageCodeType opCode,
+                        //const Phoenix::Core::MultiDataMessage & message);
 
         bool Log(FileHandlerIDEnum subsystem, const Phoenix::Core::FSWPacket * packet);
 
@@ -186,7 +186,7 @@ private:
         //Comment on how it works
         uint8_t FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType opCode, string* file);
 
-        uint8_t FetchFileName(FileHandlerIDEnum logType, string* file);
+        //uint8_t FetchFileName(FileHandlerIDEnum logType, string* file);
         // Subsystem file designator reference tables
         // Allows quick reference to most recent file.
         uint32 secRef[SYSTEM_MAX][MAX_OPCODES];

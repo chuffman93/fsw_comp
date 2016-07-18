@@ -99,7 +99,7 @@ FSWPacket * COMErrorHandler::Handle(const FSWPacket & packet)
 	//Dispatch packet, if it fails return DISPATCH_FAILED
 	if(!dispatcher->Dispatch(*forward))
 	{
-		FSWPacket * ret = new FSWPacket(0, DISPATCH_FAILED, false, true, MESSAGE_TYPE_ERROR);
+		FSWPacket * ret = new FSWPacket(DISPATCH_FAILED, false, true, MESSAGE_TYPE_ERROR);
 		delete forward;
 		return ret;
 	}
@@ -109,7 +109,7 @@ FSWPacket * COMErrorHandler::Handle(const FSWPacket & packet)
 	//Wait for return message, if it fails return status response from dispatcher
 	if(DISPATCHER_STATUS_OK != (stat = WaitForDispatchResponse(*forward, &retMsg)))
 	{
-		FSWPacket * ret = new FSWPacket(0, DISPATCHER_STATUS_ERR, false, true, MESSAGE_TYPE_ERROR);
+		FSWPacket * ret = new FSWPacket(DISPATCHER_STATUS_ERR, false, true, MESSAGE_TYPE_ERROR);
 		delete forward;
 		return ret;
 	}

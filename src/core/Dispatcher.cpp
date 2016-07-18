@@ -345,12 +345,12 @@ namespace Phoenix
 			IteratorType it;
 
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-			logger->Log("Dispatcher: Listen() called with serverID: %u", serverID, LOGGER_LEVEL_DEBUG);
+			//logger->Log("Dispatcher: Listen() called with serverID: %u", serverID, LOGGER_LEVEL_DEBUG);
 
 			tmpPacket.SetSource(serverID); // temp packet to check for response
 
 			if (!CheckQueueForMatchingPacket(tmpPacket, packet, CHECK_DEST_SOURCE)){
-				logger->Log("   Dispatcher: Listen(): No packets have been sent to this server.", LOGGER_LEVEL_DEBUG);
+				//logger->Log("   Dispatcher: Listen(): No packets have been sent to this server.", LOGGER_LEVEL_DEBUG);
 				return false;
 			}
 
@@ -418,9 +418,9 @@ namespace Phoenix
 			sem_destroy(&(parameters.doneSem));
 
 			// Create a return packet from the handler response and the original query
-			FSWPacket * ret = new FSWPacket(packet->GetDestination(), packet->GetSource(), packet->GetTimestamp(),
-					parameters.retPacket->GetOpcode(), parameters.retPacket->IsSuccess(), true, parameters.retPacket->GetType(),
-					parameters.retPacket->GetMessageLength(), parameters.retPacket->GetMessageBufPtr());
+			FSWPacket * ret = new FSWPacket(packet->GetDestination(), packet->GetSource(), parameters.retPacket->GetOpcode(),
+					parameters.retPacket->IsSuccess(), true, parameters.retPacket->GetType(), parameters.retPacket->GetMessageLength(),
+					parameters.retPacket->GetMessageBufPtr());
 
 			// FIXME: make sure this doesn't cause a memory leak!
 			delete parameters.retPacket;

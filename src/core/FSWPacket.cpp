@@ -6,9 +6,11 @@
  */
 
 #include "core/FSWPacket.h"
+#include "servers/GPSServer.h"
 #include "util/Logger.h"
 #include "util/crc.h"
 #include <stdio.h>
+#include <math.h>
 
 using namespace std;
 
@@ -125,11 +127,11 @@ namespace Phoenix
             }
         }
 
-        FSWPacket::FSWPacket(LocationIDType sourceIn, LocationIDType destIn, uint32 timestampIn, uint8 opcodeIn, bool successIn, bool responseIn, MessageTypeEnum typeIn){
+        FSWPacket::FSWPacket(LocationIDType sourceIn, LocationIDType destIn, uint8 opcodeIn, bool successIn, bool responseIn, MessageTypeEnum typeIn){
         	destination = destIn;
 			source = sourceIn;
 			number = 0;
-			timestamp = timestampIn;
+			timestamp = MakeTimestamp();
 			type = typeIn;
 			success = successIn;
 			response = responseIn;
@@ -139,11 +141,11 @@ namespace Phoenix
 			messageBuf = NULL;
         }
 
-        FSWPacket::FSWPacket(LocationIDType sourceIn, LocationIDType destIn, uint32 timestampIn, uint8 opcodeIn, bool successIn, bool responseIn, MessageTypeEnum typeIn, uint16 lengthIn, uint8 * messageIn){
+        FSWPacket::FSWPacket(LocationIDType sourceIn, LocationIDType destIn, uint8 opcodeIn, bool successIn, bool responseIn, MessageTypeEnum typeIn, uint16 lengthIn, uint8 * messageIn){
 			destination = destIn;
 			source = sourceIn;
 			number = 0;
-			timestamp = timestampIn;
+			timestamp = MakeTimestamp();
 			type = typeIn;
 			success = successIn;
 			response = responseIn;
@@ -153,11 +155,11 @@ namespace Phoenix
 			messageBuf = messageIn;
 		}
 
-        FSWPacket::FSWPacket(uint32 timestampIn, uint8 opcodeIn, bool successIn, bool responseIn, MessageTypeEnum typeIn){
+        FSWPacket::FSWPacket(uint8 opcodeIn, bool successIn, bool responseIn, MessageTypeEnum typeIn){
 			destination = LOCATION_ID_INVALID;
 			source = LOCATION_ID_INVALID;
 			number = 0;
-			timestamp = timestampIn;
+			timestamp = MakeTimestamp();
 			type = typeIn;
 			success = successIn;
 			response = responseIn;
@@ -167,11 +169,11 @@ namespace Phoenix
 			messageBuf = NULL;
 		}
 
-        FSWPacket::FSWPacket(uint32 timestampIn, uint8 opcodeIn, bool successIn, bool responseIn, MessageTypeEnum typeIn, uint16 lengthIn, uint8 * messageIn){
+        FSWPacket::FSWPacket(uint8 opcodeIn, bool successIn, bool responseIn, MessageTypeEnum typeIn, uint16 lengthIn, uint8 * messageIn){
 			destination = LOCATION_ID_INVALID;
 			source = LOCATION_ID_INVALID;
 			number = 0;
-			timestamp = timestampIn;
+			timestamp = MakeTimestamp();
 			type = typeIn;
 			success = successIn;
 			response = responseIn;
@@ -316,6 +318,13 @@ namespace Phoenix
 
 		void FSWPacket::SetOpcode(uint8 opcodeIn){
 			opcode = opcodeIn;
+		}
+
+		uint32 FSWPacket::MakeTimestamp(){
+			struct timeval now;
+			gettimeofday(&now, NULL);
+
+			return(now.tv_sec);
 		}
 
 		// --- Flatten ----------------------------------------------------------------------------------------------

@@ -81,7 +81,7 @@ namespace Phoenix
 			void loopMonitor();
 
 			// Gather CDH data at a given frequency
-			void readHealth(uint8 frequency, uint8 timeUnit);
+			void readHealth(uint8 frequency, uint32 timeUnit);
 
 			BEGIN_STATE_MAP
 				STATE_MAP_ENTRY(&CDHServer::loopInit)
