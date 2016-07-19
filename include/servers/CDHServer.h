@@ -20,7 +20,6 @@
 #include "servers/SubsystemServer.h"
 
 #include <sys/sysinfo.h>
-#include <sys/statvfs.h>
 #include "HAL/I2C/HotSwaps.h"
 #include "HAL/I2C/PowerMonitor.h"
 #include "HAL/I2C/I2CDeviceManager.h"
@@ -58,7 +57,6 @@ namespace Phoenix
 
 			// Allows for easy look into memory usage
 			struct sysinfo si;
-			struct statvfs svfs;
 			I2CDeviceManager * devMan;
 
 		private:

@@ -28,15 +28,13 @@
 
 #include <iostream>
 #include <sys/sysinfo.h>
-#include <sys/statvfs.h>
 
 using namespace Phoenix::Core;
 using namespace Phoenix::HAL;
 using namespace std;
 
-#define CPU_EN 	0
+#define CPU_EN 	1
 #define MEM_EN 	0
-#define STOR_EN 0
 #define TEMP_EN 0
 #define HS_EN	0
 #define PM_EN	0
@@ -47,7 +45,6 @@ namespace Phoenix
 	{
 		static CDHCPUUsageHandler * cdhCPUUsageHandler;
 		static CDHMemUsageHandler * cdhMemUsageHandler;
-		static CDHStorageHandler * cdhStorageHandler;
 		static CDHTempStartHandler * cdhTempStartHandler;
 		static CDHTempReadHandler * cdhTempReadHandler;
 		static CDHHotSwapsHandler * cdhHotSwapsHandler;
@@ -82,7 +79,6 @@ namespace Phoenix
 		{
 			cdhCPUUsageHandler = new CDHCPUUsageHandler();
 			cdhMemUsageHandler = new CDHMemUsageHandler();
-			cdhStorageHandler = new CDHStorageHandler();
 			cdhTempStartHandler = new CDHTempStartHandler();
 			cdhTempReadHandler = new CDHTempReadHandler();
 			cdhHotSwapsHandler = new CDHHotSwapsHandler();
@@ -94,7 +90,6 @@ namespace Phoenix
 		{
 			delete cdhCPUUsageHandler;
 			delete cdhMemUsageHandler;
-			delete cdhStorageHandler;
 			delete cdhTempStartHandler;
 			delete cdhTempReadHandler;
 			delete cdhHotSwapsHandler;
@@ -123,7 +118,6 @@ namespace Phoenix
 			// ACS Command OpCodes
 			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CDH_CPU_USAGE_CMD), cdhCPUUsageHandler);
 			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CDH_MEM_USAGE_CMD), cdhMemUsageHandler);
-			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CDH_STORAGE_CMD), cdhStorageHandler);
 			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CDH_TEMP_START_CMD), cdhTempStartHandler);
 			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CDH_TEMP_READ_CMD), cdhTempReadHandler);
 			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CDH_HOT_SWAPS_CMD), cdhHotSwapsHandler);
@@ -177,7 +171,6 @@ namespace Phoenix
 			FSWPacket * TRRet;
 			FSWPacket * CPURet;
 			FSWPacket * MemRet;
-			FSWPacket * StrRet;
 			FSWPacket * HtswRet;
 			FSWPacket * PMRet;
 			FSWPacket * SPMRet;
@@ -212,12 +205,6 @@ namespace Phoenix
 				MemRet = CDHMemUsage();
 				PacketProcess(SERVER_LOCATION_CDH, MemRet);
 #endif //MEM_EN
-
-#if STOR_EN
-				// Storage in use
-				StrRet = CDHStorage();
-				PacketProcess(SERVER_LOCATION_CDH, StrRet);
-#endif //STOR_EN
 
 #if TEMP_EN
 				// Read Temp sensors

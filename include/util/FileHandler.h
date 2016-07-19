@@ -151,8 +151,6 @@ public:
 
         uint32 crcCheck(const char * filename);
 
-        int week;
-
 private:
         /*! \brief Initialize the File Handler Class
          *
@@ -177,26 +175,13 @@ private:
          */
         bool IsFullyInitialized(void);
 
-        /*! \brief Creates the file size reference table create function,
-         *      based on the maximum number of opcodes per subsystem, and the
-         *      maximum number of data points per opcode and error opcode.
-         */
-        void FileSizeReferenceCreate(void);
-
         //Comment on how it works
         uint8_t FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType opCode, string* file);
 
-        //uint8_t FetchFileName(FileHandlerIDEnum logType, string* file);
         // Subsystem file designator reference tables
         // Allows quick reference to most recent file.
-        uint32 secRef[SYSTEM_MAX][MAX_OPCODES];
-        uint32 weekRef[SYSTEM_MAX][MAX_OPCODES];
-        uint32 secRefLog[SYSTEM_MAX][MAX_OPCODES];
-        uint32 weekRefLog[SYSTEM_MAX][MAX_OPCODES];
-
-        // Subsystem file data size reference tables
-        uint32 numDataPoints[SYSTEM_MAX][MAX_OPCODES];
-        uint32 numDataPointsMax[SYSTEM_MAX][MAX_OPCODES];
+        uint16 secRef[SYSTEM_MAX][MAX_OPCODES] = {{0}};
+        uint16 weekRef[SYSTEM_MAX][MAX_OPCODES] = {{0}};
 
         /*! \brief Constructor for File Handler */
         FileHandler(void);
@@ -206,7 +191,6 @@ private:
 
         /*! \brief Assignment operator for File Handler */
         FileHandler & operator=(const FileHandler & source);
-        const static char * errLog;
         const static char * modeLog;
 };
 

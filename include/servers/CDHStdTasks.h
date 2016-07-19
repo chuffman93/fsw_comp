@@ -18,7 +18,6 @@ namespace Phoenix
 	{
 		Phoenix::Core::FSWPacket * CDHCPUUsage(void);
 		Phoenix::Core::FSWPacket * CDHMemUsage(void);
-		Phoenix::Core::FSWPacket * CDHStorage(void);
 		Phoenix::Core::FSWPacket * CDHTempStart(void);
 		Phoenix::Core::FSWPacket * CDHTempRead(void);
 		Phoenix::Core::FSWPacket * CDHHotSwaps(void);

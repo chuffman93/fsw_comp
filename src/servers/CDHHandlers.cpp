@@ -37,11 +37,6 @@ FSWPacket * CDHMemUsageHandler::Handle(const FSWPacket & packet)
 	return (CDHMemUsage());
 }
 
-FSWPacket * CDHStorageHandler::Handle(const FSWPacket & packet)
-{
-	return (CDHStorage());
-}
-
 FSWPacket * CDHTempStartHandler::Handle(const FSWPacket & packet)
 {
 	return (CDHTempStart());

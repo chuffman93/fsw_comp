@@ -321,10 +321,21 @@ namespace Phoenix
 		}
 
 		uint32 FSWPacket::MakeTimestamp(){
-			struct timeval now;
-			gettimeofday(&now, NULL);
+			Servers::GPSServer * gpsServer = dynamic_cast<Servers::GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
+			uint16 week_hold = (uint16) gpsServer->GetWeek();
+			uint16 seconds_hold = (uint16) gpsServer->GetRoundSeconds();
 
-			return(now.tv_sec);
+//			printf("Week: %u\n", week_hold);
+//			printf("Secs: %u\n", seconds_hold);
+//
+//			uint32 * stamp;
+//			printf("before 1\n");
+//			memcpy(stamp, &week_hold, 2);
+//			printf("before 2\n");
+//			memcpy(stamp+2, &seconds_hold, 2);
+//			printf("after\n");
+
+			return 0;
 		}
 
 		// --- Flatten ----------------------------------------------------------------------------------------------

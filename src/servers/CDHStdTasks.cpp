@@ -19,7 +19,6 @@
 #include "util/Logger.h"
 
 #include <sys/sysinfo.h>
-#include <sys/statvfs.h>
 #include <iostream>
 #include <stdlib.h>
 #include <cstring>
@@ -80,26 +79,6 @@ namespace Phoenix
 			AddFloat(buffer, mem);
 
 			FSWPacket * ret = new FSWPacket(CDH_MEM_USAGE_SUCCESS, true, true, MESSAGE_TYPE_DATA, 4, buffer);
-			return ret;
-		}
-
-		//TODO: Fix for updated SD card mounting
-		FSWPacket * CDHStorage(void)
-		{
-			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
-			if(statvfs((char *) "/", &cdhServer->svfs) != 0){
-				logger->Log("CDHStdTasks: CDHStorage(): Error", LOGGER_LEVEL_ERROR);
-				FSWPacket * ret = new FSWPacket(CDH_STORAGE_FAILURE, false, true, MESSAGE_TYPE_ERROR);
-				return ret;
-			}
-
-			logger->Log("CDHStdTasks: CDHStorage(): Checking storage", LOGGER_LEVEL_INFO);
-			uint32 free = cdhServer->svfs.f_bfree;
-
-			uint8 * buffer = (uint8 *) malloc(4);
-			AddUInt32(buffer, free);
-
-			FSWPacket * ret = new FSWPacket(CDH_STORAGE_SUCCESS, true, true, MESSAGE_TYPE_DATA, 4, buffer);
 			return ret;
 		}
 

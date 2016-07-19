@@ -3,8 +3,6 @@
  * Written by: Conrad Hougen
  * Created: 7/10/12
  */
-#include <string.h>
-//#include <stdio.h>
 
 #include "HAL/GPS.h"
 #include "HAL/RTC.h"
@@ -22,6 +20,9 @@
 #include "core/CommandMessage.h"
 
 #include "util/Logger.h"
+
+#include <string.h>
+#include <math.h>
 
 #define CRC32_POLYNOMIAL 0xEDB88320L
 
@@ -282,6 +283,7 @@ namespace Phoenix
 			token = strtok(NULL, ","); // (UNUSED) reserved for vendor
 			token = strtok(NULL, ","); // (UNUSED) signals used
 
+			gpsData->round_seconds = (uint16) lroundf(gpsData->GPSSec);
 			return true;
 		}
 

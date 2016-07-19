@@ -41,17 +41,6 @@ public:
         Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
-class CDHStorageHandler : public Phoenix::Core::MessageHandler
-{
-public:
-        /*! \brief Handle a request for CDH processor usage.
-         *
-         *  \param packet FSWPacket containing the message.
-         *  \return ReturnMessage that serves as a response.
-         */
-        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
-};
-
 class CDHTempStartHandler : public Phoenix::Core::MessageHandler
 {
 public:

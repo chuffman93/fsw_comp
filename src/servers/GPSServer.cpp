@@ -64,6 +64,7 @@ namespace Phoenix
 		{
 			GPSDataHolder = new GPS_BESTXYZ();
 			GPSCoordsHolder = new GPS_GPRMC();
+			GPSDataHolder->round_seconds = -1;
 			GPSDataHolder->GPSSec = -1.0;
 			GPSDataHolder->GPSWeek = -1;
 		}
@@ -215,6 +216,18 @@ namespace Phoenix
 			double a = sin(dlat/2) * sin(dlat/2) + cos(latitude1)*cos(latitude2)*sin(dlong/2)*sin(dlong/2);
 			double c = 2*atan2(sqrt(a), sqrt(1-a));
 			return c*R;
+		}
+
+		int GPSServer::GetWeek(void){
+			return GPSDataHolder->GPSWeek;
+		}
+
+		float GPSServer::GetSeconds(void){
+			return GPSDataHolder->GPSSec;
+		}
+
+		uint16 GPSServer::GetRoundSeconds(void){
+			return GPSDataHolder->round_seconds;
 		}
 
 		void GPSServer::ReadData(char * buffer, int fd){

@@ -49,7 +49,6 @@
 #define DEBUG_COUT(m) cout << m << endl;
 
 // Instantiate static members
-const char * FileHandler::errLog = NULL;
 const char * FileHandler::modeLog = NULL;
 const char * writeDir = "/home/root/filehandler/";
 const char * truDat = "/home/root/filehandler/tru.dat";
@@ -59,16 +58,16 @@ uint32 crcTable[256];
 
 using namespace Phoenix::HAL;
 using namespace Phoenix::Core;
+using namespace Phoenix::Servers;
 using namespace std;
 
 
 ////////////////////////////////
-//////////Initialization////////
+/////// Initialization /////////
 ////////////////////////////////
 
 void FileHandler::Initialize(void)
 {
-        errLog = "Error_Log.dat";
         modeLog = "Mode_Log.dat";
 }
 
@@ -87,7 +86,6 @@ bool FileHandler::IsFullyInitialized(void)
 FileHandler::FileHandler(void)
 {
         // If the File Handler is initialized, run max data point reference initialize
-        //FileSizeReferenceCreate();
         makeCrcTable(crcTable);
 }
 
@@ -103,21 +101,20 @@ FileHandler & FileHandler::operator=(const FileHandler & source)
 
 
 /////////////////////////////////////
-/////////// Log Data/////////////////
+/////////// Log Data ////////////////
 /////////////////////////////////////
 
 bool FileHandler::Log(FileHandlerIDEnum subsystem, const Phoenix::Core::FSWPacket * packet){
+	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	string file;
+
 	uint8 opcode = packet->GetOpcode();
 	bool notPLDData = (subsystem != SUBSYSTEM_PLD) || (opcode != PLD_DATA_SUCCESS);
+	string file;
 
-	/*Fetch Time*/
-	//FIXME: add the GPS stuff back
-	//Phoenix::Servers::GPSData * gpsData = gpsServer->GetGPSDataPtr();
-	//Phoenix::Servers::GPSServer * gpsServer = dynamic_cast<Phoenix::Servers::GPSServer *>(Factory::GetInstance(GPS_SERVER_SINGLETON));
-	int week = 1;   // gpsData->GPSWeek;
-	int seconds = 1;
+	// Fetch Time
+	int week = gpsServer->GetWeek();
+	int seconds = gpsServer->GetSeconds();
 
 	// Get filename from dedicated method
 	FetchFileName(subsystem, opcode, &file);
@@ -125,10 +122,7 @@ bool FileHandler::Log(FileHandlerIDEnum subsystem, const Phoenix::Core::FSWPacke
 
 	// Fill buffer with data to be written and write buffer to file
 	size_t size = packet->GetMessageLength();
-	if (notPLDData){
-		size += 8;
-	}
-
+	if(notPLDData) size += 8;
 	uint8 * buffer = new uint8[size];
 
 	// keep a pointer for current location in buffer
@@ -145,14 +139,13 @@ bool FileHandler::Log(FileHandlerIDEnum subsystem, const Phoenix::Core::FSWPacke
 		bufferPtr += 8;
 	}
 
-
 	if((size - (bufferPtr - buffer)) != packet->GetMessageLength()){
-		printf("%u != %u", (bufferPtr-buffer), packet->GetMessageLength());
 		logger->Log("FileHandler: Log(): Message length error!", LOGGER_LEVEL_ERROR);
 		delete[] buffer;
 		return false;
 	}
 
+	// Add message to the write buffer
 	memcpy(bufferPtr, packet->GetMessageBufPtr(), packet->GetMessageLength());
 
 	// Write into the file.
@@ -165,17 +158,16 @@ bool FileHandler::Log(FileHandlerIDEnum subsystem, const Phoenix::Core::FSWPacke
 	return true;
 }
 
-uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType opCode, string* file)
-{
+uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType opCode, string * file){
+	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
     string filePath;
     string tempFile;
     string fileExtension;
-    char *temp = new char[25];
     filePath = writeDir;
+    char *temp = new char[25];
     fileExtension = ".dat"; //Type of the files
-    //int week;
-    int seconds;
 
     //Build file and filepath name using subsystem name and opcode
 	switch (subsystem)
@@ -230,37 +222,26 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType 
 	itoa(opCode, temp, 10);
 	file->append(temp);
 	file->append("_");
-	itoa(epochNum, temp, 10);
-	file->append(temp);
-	file->append("_");
-
-
-	//Retrieve Old file name and assign it to tempFile.
+	// Create current file name
 	tempFile = *file;
-	int week2 = weekRef[subsystem][opCode];
-	itoa(week2, temp, 10);
-	tempFile.append(temp);
-	tempFile.append(fileExtension);
+	tempFile.append(itoa(weekRef[subsystem][opCode], temp, 10));
+	tempFile.append("_");
+	tempFile.append(itoa(secRef[subsystem][opCode], temp, 10));
 	tempFile.insert(0, filePath);
-	delete temp;
-
-	// Check if Old file is full. If so, create new file with current time info,
-	// else assign tempFile to file.
-	// TODO: Add GPS back in (de-globalize week)
-	if (fileSize(tempFile.c_str())>=MAXFILESIZE){
-
-		logger->Log("    file path= %s", tempFile, LOGGER_LEVEL_DEBUG);
+	tempFile.append(fileExtension);
+	// Check if old file is full
+	if (fileSize(tempFile.c_str()) >= MAXFILESIZE){
 		logger->Log("FileHandler: FetchFileName(): file full or nonexistent", LOGGER_LEVEL_DEBUG);
-
 		//get current time in seconds and week
-		char *temp2 = new char[25];
-		itoa(week, temp2, 10);
-		file->append(temp2);
-		delete temp2;
-		*file = filePath.append(file->append(fileExtension));
+		uint16 week = gpsServer->GetWeek();
+		uint16 secs = gpsServer->GetRoundSeconds();
 		weekRef[subsystem][opCode] = week;
-	}
-	else{
+		secRef[subsystem][opCode] = secs;
+		file->append(itoa(week, temp, 10));
+		file->append("_");
+		file->append(itoa(secs, temp, 10));
+		*file = filePath.append(file->append(fileExtension));
+	}else{
 		*file = tempFile;
 	}
 	return 0;
@@ -270,7 +251,7 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType 
 
 
 ////////////////////////////////
-////////Utilities///////////////
+//////// Utilities /////////////
 ////////////////////////////////
 
 uint8 * FileHandler::ReadFile(const char * fileName, size_t * bufferSize)
@@ -486,16 +467,6 @@ unsigned int FileHandler::folderSize(const char * path)
 	}
 	return size;
 }
-
-void FileHandler::FileSizePLDPicture(uint32 resolution, uint32 chunckSize)
-{
-	numDataPointsMax[SUBSYSTEM_PLD][PLD_PIC_CMD] = resolution / chunckSize;
-	numDataPoints[SUBSYSTEM_PLD][PLD_PIC_CMD] = 0;
-}
-
-
-
-
 
 //////////////////////
 ///////////CRC////////
