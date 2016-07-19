@@ -99,7 +99,7 @@ TEST(TestACP, protocolSwitch){
 		message[i] = temp[3-i];
 		message[i+4] = temp[7-i];
 	}
-	FSWPacket * query = new FSWPacket(SERVER_LOCATION_ACS, SERVER_LOCATION_CMD, 0, CMD_ACP_SWITCH, true, false, MESSAGE_TYPE_COMMAND, 8, message);
+	FSWPacket * query = new FSWPacket(SERVER_LOCATION_ACS, SERVER_LOCATION_CMD, CMD_ACP_SWITCH, true, false, MESSAGE_TYPE_COMMAND, 8, message);
 	FSWPacket * ret = DispatchPacket(query);
 
 	// Ensure that the change has been enacted

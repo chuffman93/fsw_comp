@@ -23,6 +23,7 @@ namespace Phoenix
 		Phoenix::Core::FSWPacket * CDHHotSwaps(void);
 		Phoenix::Core::FSWPacket * CDHPowerMonitors(void);
 		Phoenix::Core::FSWPacket * CDHStartPM(void);
+		Phoenix::Core::FSWPacket * CleanFiles(uint16 weekStart, uint16 weekEnd);
 		bool StartTempSensor(int bus, int sensor);
 		void toggleResetLine(HardwareLocationIDType subsystem, bool state);
 		float ReadTempSensor(int bus, int sensor);

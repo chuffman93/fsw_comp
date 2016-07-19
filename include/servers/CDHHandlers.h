@@ -96,4 +96,15 @@ public:
         Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
+class CleanFilesHandler : public Phoenix::Core::MessageHandler
+{
+public:
+        /*! \brief Handle a request for starting power monitor measurement.
+         *
+         *  \param packet FSWPacket containing the message.
+         *  \return ReturnMessage that serves as a response.
+         */
+        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+};
+
 #endif /* CDHHANDLERS_H_ */

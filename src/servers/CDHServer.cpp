@@ -25,6 +25,7 @@
 
 #include "util/Logger.h"
 #include "util/FileHandler.h"
+#include "util/StorageManager.h"
 
 #include <iostream>
 #include <sys/sysinfo.h>
@@ -33,7 +34,7 @@ using namespace Phoenix::Core;
 using namespace Phoenix::HAL;
 using namespace std;
 
-#define CPU_EN 	1
+#define CPU_EN 	0
 #define MEM_EN 	0
 #define TEMP_EN 0
 #define HS_EN	0
@@ -55,12 +56,14 @@ namespace Phoenix
 		CDHServer::CDHServer(std::string nameIn, LocationIDType idIn)
 				: SubsystemServer(nameIn, idIn), Singleton(), arby(idIn)
 		{
-			devMan = new I2CDeviceManager();
+			devMngr = new I2CDeviceManager();
+			storMngr = new StorageManager(0.9);
 		}
 
 		CDHServer::~CDHServer()
 		{
-			delete devMan;
+			delete devMngr;
+			delete storMngr;
 		}
 
 		CDHServer & CDHServer::operator=(const CDHServer & source)
@@ -137,15 +140,16 @@ namespace Phoenix
 		// -------------------------------------------- Loops ---------------------------------------------
 		void CDHServer::loopInit(){
 			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 #if HS_EN
-			bool initHS = devMan->initializeHS();
+			bool initHS = devMngr->initializeHS();
 			if(!initHS){
 				logger->Log("CDHServer: Error initializing hot swaps!", LOGGER_LEVEL_ERROR);
 			}
 #endif
 
 #if PM_EN
-			devMan->initializePM();
+			devMngr->initializePM();
 #endif //PM_EN
 
 			prepPowerGPIOs();
@@ -174,6 +178,19 @@ namespace Phoenix
 			FSWPacket * HtswRet;
 			FSWPacket * PMRet;
 			FSWPacket * SPMRet;
+			int ccRet;
+
+			// Check storage, and delete files if necessary
+			if(((timeUnit - 60 - 1) % 60) == 0){
+				ccRet = storMngr->CheckAndClean();
+				if(ccRet == 1){
+					FSWPacket * packet = new FSWPacket(CDH_CLEAN_FS_SUCCESS, true, false, MESSAGE_TYPE_COMMAND);
+					PacketProcess(SERVER_LOCATION_CDH, packet);
+				}else if(ccRet == -1){
+					FSWPacket * packet = new FSWPacket(CDH_CLEAN_FS_FAILURE, false, false, MESSAGE_TYPE_ERROR);
+					PacketProcess(SERVER_LOCATION_CDH, packet);
+				}
+			}
 
 			// Start sensors for reading next round
 #if PM_EN

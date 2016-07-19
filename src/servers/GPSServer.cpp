@@ -226,7 +226,7 @@ namespace Phoenix
 			return GPSDataHolder->GPSSec;
 		}
 
-		uint16 GPSServer::GetRoundSeconds(void){
+		uint32 GPSServer::GetRoundSeconds(void){
 			return GPSDataHolder->round_seconds;
 		}
 

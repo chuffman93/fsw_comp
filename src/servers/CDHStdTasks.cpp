@@ -136,7 +136,7 @@ namespace Phoenix
 			uint8 * buffer = (uint8 *) malloc(32*sizeof(float));
 
 			// Read and add to buffer
-			cdhServer->devMan->getHSStatus(vcRead);
+			cdhServer->devMngr->getHSStatus(vcRead);
 			for(uint8 i = 0; i < 32; i++){
 				AddFloat(buffer + i, vcRead[i]);
 			}
@@ -195,10 +195,18 @@ namespace Phoenix
 			Phoenix::Servers::CDHServer * cdhServer = dynamic_cast<Phoenix::Servers::CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
 
 			// Start all of the sensors
-			cdhServer->devMan->startPMMeas();
+			cdhServer->devMngr->startPMMeas();
 
 			logger->Log("CDHStdTasks: CDHStartPM(): Started PM measurement", LOGGER_LEVEL_INFO);
 			FSWPacket * ret = new FSWPacket(CDH_START_PM_SUCCESS, true, true, MESSAGE_TYPE_DATA);
+			return ret;
+		}
+
+		FSWPacket * CleanFiles(uint16 weekStart, uint16 weekEnd){
+			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+			cdhServer->storMngr->CleanFiles(weekStart, weekEnd);
+
+			FSWPacket * ret = new FSWPacket(CDH_CLEAN_FS_SUCCESS, true, true, MESSAGE_TYPE_DATA);
 			return ret;
 		}
 

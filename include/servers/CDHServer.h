@@ -19,6 +19,8 @@
 
 #include "servers/SubsystemServer.h"
 
+#include "util/StorageManager.h"
+
 #include <sys/sysinfo.h>
 #include "HAL/I2C/HotSwaps.h"
 #include "HAL/I2C/PowerMonitor.h"
@@ -57,7 +59,8 @@ namespace Phoenix
 
 			// Allows for easy look into memory usage
 			struct sysinfo si;
-			I2CDeviceManager * devMan;
+			I2CDeviceManager * devMngr;
+			StorageManager * storMngr;
 
 		private:
 			static void Initialize(void);

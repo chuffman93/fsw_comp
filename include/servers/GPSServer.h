@@ -38,7 +38,7 @@ namespace Phoenix
 			float stdDevPX, stdDevPY, stdDevPZ, stdDevVX, stdDevVY, stdDevVZ;
 			float posECIX, posECIY, posECIZ, velECIX, velECIY, velECIZ;
 			float latency,diffAge,solAge;
-			uint16 round_seconds;
+			uint32 round_seconds;
 		};
 
 		struct GPS_GPRMC{
@@ -82,7 +82,7 @@ namespace Phoenix
 
 			int GetWeek(void);
 			float GetSeconds(void);
-			uint16 GetRoundSeconds(void);
+			uint32 GetRoundSeconds(void);
 
 			double latitude;
 			double longitude;

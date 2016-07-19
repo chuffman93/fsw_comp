@@ -19,8 +19,8 @@ StorageManager::StorageManager(float threshold_in){
 	logger->Log("StorageManager started using GPS time as threshold", LOGGER_LEVEL_INFO);
 
 	storage_threshold = threshold_in;
-	last_week = gpsServer->GetWeek();
-	last_seconds = gpsServer->GetSeconds();
+	oldest_week = gpsServer->GetWeek();
+	oldest_seconds = gpsServer->GetSeconds();
 	errorMode = false;
 }
 
@@ -30,15 +30,15 @@ StorageManager::StorageManager(int week_start, float seconds_start, float thresh
 	logger->Log("StorageManager started using input threshold", LOGGER_LEVEL_INFO);
 
 	storage_threshold = threshold_in;
-	last_week = week_start;
-	last_seconds = seconds_start;
+	oldest_week = week_start;
+	oldest_seconds = seconds_start;
 	errorMode = false;
 
-	logger->Log("StorageManager week: %d", last_week, LOGGER_LEVEL_INFO);
-	logger->Log("StorageManager secs: %f", last_seconds, LOGGER_LEVEL_INFO);
+	logger->Log("StorageManager week: %d", oldest_week, LOGGER_LEVEL_INFO);
+	logger->Log("StorageManager secs: %f", oldest_seconds, LOGGER_LEVEL_INFO);
 }
 
-void StorageManager::CheckAndClean(void){
+int StorageManager::CheckAndClean(void){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	if(!errorMode){
@@ -49,13 +49,16 @@ void StorageManager::CheckAndClean(void){
 				CleanFiles();
 				if(CheckStorage()){
 					logger->Log("StorageManager: successfully cleaned storage", LOGGER_LEVEL_INFO);
-					return;
+					return 1;
 				}
 			}
 			logger->Log("StorageManager: cannot clean fs, entering error mode!", LOGGER_LEVEL_FATAL);
 			errorMode = true;
+			return -1; // entering error mode
 		}
+		return 0; // storage not full
 	}
+	return 0;
 }
 
 // TODO: update with SD cards
@@ -74,5 +77,59 @@ bool StorageManager::CheckStorage(){
 }
 
 void StorageManager::CleanFiles(void){
-	// do stuff
+	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
+	string subsystems[8] = {"ACS", "COM", "EPS", "GPS", "PLD", "SCH", "CMD", "CDH"};
+	string cmd;
+	char * temp = new char[16];
+	uint8 deleteWeeks = 2;
+	uint16 current_week = gpsServer->GetWeek();
+
+	// Determine how many weeks of data to delete
+	if((current_week - oldest_week) > 20){
+		deleteWeeks = 5;
+	}else if((current_week - oldest_week) > 10){
+		deleteWeeks = 2;
+	}
+	else if((current_week - oldest_week) > 5){
+		deleteWeeks = 1;
+	}
+
+	// Delete data
+	for(uint8 i = 0; i < deleteWeeks; i++){
+		if(current_week != oldest_week){
+			for(uint8 j = 0; j < 8; j++){
+				cmd = "rm filehandler/";
+				cmd.append(subsystems[j]);
+				cmd.append("/");
+				cmd.append(subsystems[j]);
+				cmd.append("_???_");
+				sprintf(temp, "%05d", oldest_week);
+				cmd.append(temp);
+				cmd.append("*");
+				system(cmd.c_str());
+			}
+			oldest_week++;
+			oldest_seconds = 0;
+		}
+	}
+}
+
+void StorageManager::CleanFiles(uint16 weekStart, uint16 weekEnd){
+	string subsystems[8] = {"ACS", "COM", "EPS", "GPS", "PLD", "SCH", "CMD", "CDH"};
+	string cmd;
+	char * temp = new char[16];
+
+	for(uint16 i = weekStart; i <= weekEnd; i++){
+		for(uint8 j = 0; j < 8; j++){
+			cmd = "rm filehandler/";
+			cmd.append(subsystems[j]);
+			cmd.append("/");
+			cmd.append(subsystems[j]);
+			cmd.append("_???_");
+			sprintf(temp, "%05d", i);
+			cmd.append(temp);
+			cmd.append("*");
+			system(cmd.c_str());
+		}
+	}
 }

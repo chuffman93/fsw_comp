@@ -9,6 +9,7 @@
 #ifndef _STORAGEMANAGER_H
 #define _STORAGEMANAGER_H
 
+#include "core/StdTypes.h"
 #include <sys/statvfs.h>
 
 class StorageManager{
@@ -20,7 +21,10 @@ public:
 	StorageManager(int week_start, float seconds_start, float threshold_in);
 
 	// Method called to perform a check
-	void CheckAndClean(void);
+	int CheckAndClean(void);
+
+	// Removes all files in weeks from weekStart to weekEnd
+	void CleanFiles(uint16 weekStart, uint16 weekEnd);
 
 	// Getters and setters
 	float getThreshold() const {
@@ -41,8 +45,8 @@ private:
 	float storage_threshold;
 
 	// current threshold for oldest files (there should be no older files)
-	int last_week;
-	float last_seconds;
+	int oldest_week;
+	float oldest_seconds;
 
 	/*
 	 * To prevent looping, if true, functionality will be stopped, and an error will be reported to ground

@@ -192,17 +192,9 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType 
 				filePath.append("PLD/");
 				*file = "PLD_";
 				break;
-		case SUBSYSTEM_THM:
-				filePath.append("THM/");
-				*file = "THM_";
-				break;
 		case SUBSYSTEM_SCH:
 				filePath.append("SCH/");
 				*file = "SCH_";
-				break;
-		case SUBSYSTEM_STR:
-				filePath.append("STR/");
-				*file = "STR_";
 				break;
 		case SUBSYSTEM_CMD:
 				filePath.append("CMD/");
@@ -213,20 +205,23 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType 
 				*file = "CDH_";
 				break;
 		default:
+				logger->Log("FileHandler: unknown server for file path", LOGGER_LEVEL_WARN);
 				delete temp;
 				return -1;
 	}
 
 	mkdir(filePath.c_str(), 0777);
 
-	itoa(opCode, temp, 10);
+	sprintf(temp, "%03d", opCode);
 	file->append(temp);
 	file->append("_");
 	// Create current file name
 	tempFile = *file;
-	tempFile.append(itoa(weekRef[subsystem][opCode], temp, 10));
+	sprintf(temp, "%05d", weekRef[subsystem][opCode]);
+	tempFile.append(temp);
 	tempFile.append("_");
-	tempFile.append(itoa(secRef[subsystem][opCode], temp, 10));
+	sprintf(temp, "%06d", secRef[subsystem][opCode]);
+	tempFile.append(temp);
 	tempFile.insert(0, filePath);
 	tempFile.append(fileExtension);
 	// Check if old file is full
@@ -234,16 +229,19 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType 
 		logger->Log("FileHandler: FetchFileName(): file full or nonexistent", LOGGER_LEVEL_DEBUG);
 		//get current time in seconds and week
 		uint16 week = gpsServer->GetWeek();
-		uint16 secs = gpsServer->GetRoundSeconds();
+		uint32 secs = gpsServer->GetRoundSeconds();
 		weekRef[subsystem][opCode] = week;
 		secRef[subsystem][opCode] = secs;
-		file->append(itoa(week, temp, 10));
+		sprintf(temp, "%05d", week);
+		file->append(temp);
 		file->append("_");
-		file->append(itoa(secs, temp, 10));
+		sprintf(temp, "%06d", secs);
+		file->append(temp);
 		*file = filePath.append(file->append(fileExtension));
 	}else{
 		*file = tempFile;
 	}
+	delete temp;
 	return 0;
 }
 

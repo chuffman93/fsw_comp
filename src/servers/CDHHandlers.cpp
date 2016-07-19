@@ -9,6 +9,7 @@
 #include "servers/CDHStdTasks.h"
 #include "servers/CDHServer.h"
 #include "servers/DispatchStdTasks.h"
+#include "servers/GPSServer.h"
 
 #include "core/CommandMessage.h"
 #include "core/ReturnMessage.h"
@@ -18,6 +19,8 @@
 #include "core/Dispatcher.h"
 #include "core/StdTypes.h"
 #include "core/ModeManager.h"
+
+#include "util/Logger.h"
 
 #include <iostream>
 
@@ -60,4 +63,32 @@ FSWPacket * CDHPowerMonitorsHandler::Handle(const FSWPacket & packet)
 FSWPacket * CDHStartPMHandler::Handle(const FSWPacket & packet)
 {
 	return (CDHStartPM());
+}
+
+FSWPacket * CleanFilesHandler::Handle(const FSWPacket & packet)
+{
+	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("CDHHandlers: CleanFilesHandler entered", LOGGER_LEVEL_DEBUG);
+
+	uint16 current_week = gpsServer->GetWeek();
+
+	uint8 * msgPtr = packet.GetMessageBufPtr();
+	if(msgPtr == NULL){
+		FSWPacket * ret = new FSWPacket(CDH_CLEAN_FS_FAILURE, false, true, MESSAGE_TYPE_ERROR);
+		return ret;
+	}
+
+	uint32 outputArray[2];
+	for(uint8 i = 0; i < 2; i++){
+		outputArray[i] = GetUInt(msgPtr);
+		msgPtr += 4;
+	}
+
+	if((outputArray[0] >= current_week) || (outputArray[1] >= current_week)){
+		FSWPacket * ret = new FSWPacket(CDH_CLEAN_FS_FAILURE, false, true, MESSAGE_TYPE_ERROR);
+		return ret;
+	}
+
+	return (CleanFiles(outputArray[0], outputArray[1]));
 }
