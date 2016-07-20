@@ -15,6 +15,12 @@ namespace Phoenix
 
 		}
 
+		int32 getTimeInSec(){
+			struct timeval now;
+			gettimeofday(&now, NULL);
+			return now.tv_sec;
+		}
+
 		void semWaitDelay(struct timespec *ts, size_t seconds, uint64_t nanoseconds)//inline this
 		{
 			clock_gettime(CLOCK_REALTIME, ts);

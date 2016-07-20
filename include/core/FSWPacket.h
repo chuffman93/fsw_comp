@@ -68,8 +68,6 @@ namespace Phoenix
             void SetSuccess(bool successIn);
             void SetOpcode(uint8 opcodeIn);
 
-            uint32 MakeTimestamp();
-
             // --- Packet flattening -------------------------------------------------------------------------------------------
             virtual std::size_t GetFlattenSize(void ) const;
             virtual std::size_t Flatten(uint8 * buffer, std::size_t size) const;

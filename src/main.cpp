@@ -17,6 +17,7 @@
 #include "servers/CDHServer.h"
 #include "servers/ErrorOctopus.h"
 #include "servers/ErrorQueue.h"
+#include "servers/DispatchStdTasks.h"
 
 #include "HAL/Ethernet_Server.h"
 #include "HAL/SPI_Server.h"
@@ -530,6 +531,16 @@ int main(int argc, char * argv[])
 #endif //SPI_EN
 
 	logger->Log("All servers created!", LOGGER_LEVEL_INFO);
+
+	usleep(3000000);
+	uint8 message[8];
+	uint32 weekStart = 20;
+	uint32 weekEnd = 25;
+	AddUInt32(message, weekStart);
+	AddUInt32(message+4, weekEnd);
+
+	FSWPacket * query = new FSWPacket(SERVER_LOCATION_ACS, SERVER_LOCATION_CDH, CDH_CLEAN_FS_CMD, true, false, MESSAGE_TYPE_COMMAND, 8, message);
+	DispatchPacket(query);
 
 	// Suspend execution of main until the following threads exit
 #if ACS_EN

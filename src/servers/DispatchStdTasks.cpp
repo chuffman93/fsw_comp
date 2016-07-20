@@ -222,22 +222,22 @@ namespace Phoenix
 
 		uint32 GetUInt(uint8 * buffer){
 			uint32 result;
-			uint8 littleEndian[] = {buffer[3],buffer[2],buffer[1],buffer[0]};
-			memcpy(&result, littleEndian, 4);
+			//uint8 littleEndian[] = {buffer[3],buffer[2],buffer[1],buffer[0]};
+			memcpy(&result, buffer, 4);
 			return result;
 		}
 
 		uint16 GetUInt16(uint8 * buffer){
 			uint32 result;
-			uint8 littleEndian[] = {buffer[1],buffer[0]};
-			memcpy(&result, littleEndian, 2);
+			//uint8 littleEndian[] = {buffer[1],buffer[0]};
+			memcpy(&result, buffer, 2);
 			return result;
 		}
 
 		int32 GetInt(uint8 * buffer){
 			int32 result;
-			uint8 littleEndian[] = {buffer[3],buffer[2],buffer[1],buffer[0]};
-			memcpy(&result, littleEndian, 4);
+			//uint8 littleEndian[] = {buffer[3],buffer[2],buffer[1],buffer[0]};
+			memcpy(&result, buffer, 4);
 			return result;
 		}
 
@@ -247,15 +247,15 @@ namespace Phoenix
 
 		float GetFloat(uint8 * buffer){
 			float result;
-			uint8 littleEndian[] = {buffer[3],buffer[2],buffer[1],buffer[0]};
-			memcpy(&result, littleEndian, 4);
+			//uint8 littleEndian[] = {buffer[3],buffer[2],buffer[1],buffer[0]};
+			memcpy(&result, buffer, 4);
 			return result;
 		}
 
 		double GetDouble(uint8 * buffer){
 			double result;
-			uint8 littleEndian[] = {buffer[7],buffer[6],buffer[5],buffer[4],buffer[3],buffer[2],buffer[1],buffer[0]};
-			memcpy(&result, littleEndian, 8);
+			//uint8 littleEndian[] = {buffer[7],buffer[6],buffer[5],buffer[4],buffer[3],buffer[2],buffer[1],buffer[0]};
+			memcpy(&result, buffer, 8);
 			return result;
 		}
 

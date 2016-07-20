@@ -65,15 +65,13 @@ int StorageManager::CheckAndClean(void){
 bool StorageManager::CheckStorage(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-	if(statvfs((char *) "/", &svfs) != 0){
+	if(statvfs((char *) "/media/sd1/filehandler/", &svfs) != 0){
 		// TODO: handle this
 		logger->Log("StorageManager: error reading svfs", LOGGER_LEVEL_ERROR);
 		return true;
 	}
 
-	uint32 free = svfs.f_bfree;
-
-	return true;
+	return (((float) svfs.f_blocks - (float) svfs.f_bfree )/(float) svfs.f_blocks * 100.0) < storage_threshold;
 }
 
 void StorageManager::CleanFiles(void){
@@ -98,7 +96,7 @@ void StorageManager::CleanFiles(void){
 	for(uint8 i = 0; i < deleteWeeks; i++){
 		if(current_week != oldest_week){
 			for(uint8 j = 0; j < 8; j++){
-				cmd = "rm filehandler/";
+				cmd = "rm /media/sd1/filehandler/";
 				cmd.append(subsystems[j]);
 				cmd.append("/");
 				cmd.append(subsystems[j]);
@@ -121,7 +119,7 @@ void StorageManager::CleanFiles(uint16 weekStart, uint16 weekEnd){
 
 	for(uint16 i = weekStart; i <= weekEnd; i++){
 		for(uint8 j = 0; j < 8; j++){
-			cmd = "rm filehandler/";
+			cmd = "rm /media/sd1/filehandler/";
 			cmd.append(subsystems[j]);
 			cmd.append("/");
 			cmd.append(subsystems[j]);

@@ -96,7 +96,7 @@ public:
         Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
 };
 
-class CleanFilesHandler : public Phoenix::Core::MessageHandler
+class CDHCleanFSHandler : public Phoenix::Core::MessageHandler
 {
 public:
         /*! \brief Handle a request for starting power monitor measurement.

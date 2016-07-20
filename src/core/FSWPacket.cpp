@@ -9,6 +9,7 @@
 #include "servers/GPSServer.h"
 #include "util/Logger.h"
 #include "util/crc.h"
+#include "POSIX.h"
 #include <stdio.h>
 #include <math.h>
 
@@ -131,7 +132,7 @@ namespace Phoenix
         	destination = destIn;
 			source = sourceIn;
 			number = 0;
-			timestamp = MakeTimestamp();
+			timestamp = getTimeInSec();
 			type = typeIn;
 			success = successIn;
 			response = responseIn;
@@ -145,7 +146,7 @@ namespace Phoenix
 			destination = destIn;
 			source = sourceIn;
 			number = 0;
-			timestamp = MakeTimestamp();
+			timestamp = getTimeInSec();
 			type = typeIn;
 			success = successIn;
 			response = responseIn;
@@ -159,7 +160,7 @@ namespace Phoenix
 			destination = LOCATION_ID_INVALID;
 			source = LOCATION_ID_INVALID;
 			number = 0;
-			timestamp = MakeTimestamp();
+			timestamp = getTimeInSec();
 			type = typeIn;
 			success = successIn;
 			response = responseIn;
@@ -173,7 +174,7 @@ namespace Phoenix
 			destination = LOCATION_ID_INVALID;
 			source = LOCATION_ID_INVALID;
 			number = 0;
-			timestamp = MakeTimestamp();
+			timestamp = getTimeInSec();
 			type = typeIn;
 			success = successIn;
 			response = responseIn;
@@ -318,24 +319,6 @@ namespace Phoenix
 
 		void FSWPacket::SetOpcode(uint8 opcodeIn){
 			opcode = opcodeIn;
-		}
-
-		uint32 FSWPacket::MakeTimestamp(){
-			Servers::GPSServer * gpsServer = dynamic_cast<Servers::GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
-			uint16 week_hold = (uint16) gpsServer->GetWeek();
-			uint16 seconds_hold = (uint16) gpsServer->GetRoundSeconds();
-
-//			printf("Week: %u\n", week_hold);
-//			printf("Secs: %u\n", seconds_hold);
-//
-//			uint32 * stamp;
-//			printf("before 1\n");
-//			memcpy(stamp, &week_hold, 2);
-//			printf("before 2\n");
-//			memcpy(stamp+2, &seconds_hold, 2);
-//			printf("after\n");
-
-			return 0;
 		}
 
 		// --- Flatten ----------------------------------------------------------------------------------------------

@@ -65,16 +65,17 @@ FSWPacket * CDHStartPMHandler::Handle(const FSWPacket & packet)
 	return (CDHStartPM());
 }
 
-FSWPacket * CleanFilesHandler::Handle(const FSWPacket & packet)
+FSWPacket * CDHCleanFSHandler::Handle(const FSWPacket & packet)
 {
 	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log("CDHHandlers: CleanFilesHandler entered", LOGGER_LEVEL_DEBUG);
 
-	uint16 current_week = gpsServer->GetWeek();
+	uint16 current_week = 50;//gpsServer->GetWeek();
 
 	uint8 * msgPtr = packet.GetMessageBufPtr();
 	if(msgPtr == NULL){
+		logger->Log("CDHHandlers: NULL msg", LOGGER_LEVEL_WARN);
 		FSWPacket * ret = new FSWPacket(CDH_CLEAN_FS_FAILURE, false, true, MESSAGE_TYPE_ERROR);
 		return ret;
 	}
@@ -85,10 +86,16 @@ FSWPacket * CleanFilesHandler::Handle(const FSWPacket & packet)
 		msgPtr += 4;
 	}
 
-	if((outputArray[0] >= current_week) || (outputArray[1] >= current_week)){
+	printf("Week start: %lu\n", outputArray[0]);
+	printf("Week end:   %lu\n", outputArray[1]);
+
+	if((outputArray[0] >= current_week) || (outputArray[1] >= current_week) || (outputArray[0] > outputArray[1])){
+		logger->Log("CDHHandlers: bad weeks", LOGGER_LEVEL_WARN);
 		FSWPacket * ret = new FSWPacket(CDH_CLEAN_FS_FAILURE, false, true, MESSAGE_TYPE_ERROR);
 		return ret;
 	}
+
+
 
 	return (CleanFiles(outputArray[0], outputArray[1]));
 }

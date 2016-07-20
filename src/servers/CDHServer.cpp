@@ -39,6 +39,7 @@ using namespace std;
 #define TEMP_EN 0
 #define HS_EN	0
 #define PM_EN	0
+#define STOR_EN 0
 
 namespace Phoenix
 {
@@ -51,6 +52,7 @@ namespace Phoenix
 		static CDHHotSwapsHandler * cdhHotSwapsHandler;
 		static CDHPowerMonitorsHandler * cdhPowerMonitorsHandler;
 		static CDHStartPMHandler * cdhStartPMHandler;
+		static CDHCleanFSHandler * cdhCleanFSHandler;
 
 		// -------------------------------------- Necessary Methods --------------------------------------
 		CDHServer::CDHServer(std::string nameIn, LocationIDType idIn)
@@ -86,7 +88,8 @@ namespace Phoenix
 			cdhTempReadHandler = new CDHTempReadHandler();
 			cdhHotSwapsHandler = new CDHHotSwapsHandler();
 			cdhPowerMonitorsHandler = new CDHPowerMonitorsHandler();
-			cdhStartPMHandler = new CDHStartPMHandler;
+			cdhStartPMHandler = new CDHStartPMHandler();
+			cdhCleanFSHandler = new CDHCleanFSHandler();
 		}
 #ifdef TEST
 		void CDHServer::Destroy(void)
@@ -98,6 +101,7 @@ namespace Phoenix
 			delete cdhHotSwapsHandler;
 			delete cdhPowerMonitorsHandler;
 			delete cdhStartPMHandler;
+			delete cdhCleanFSHandler;
 		}
 #endif
 		bool CDHServer::IsFullyInitialized(void)
@@ -126,6 +130,7 @@ namespace Phoenix
 			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CDH_HOT_SWAPS_CMD), cdhHotSwapsHandler);
 			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CDH_POWER_MONITORS_CMD), cdhPowerMonitorsHandler);
 			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CDH_START_PM_CMD), cdhStartPMHandler);
+			success &= reg.RegisterHandler(MessageIdentifierType(MESSAGE_TYPE_COMMAND, CDH_CLEAN_FS_CMD), cdhCleanFSHandler);
 
 			for(int opcode = CDH_CMD_MIN; opcode < CDH_CMD_MAX; opcode++)
 			{
@@ -139,7 +144,6 @@ namespace Phoenix
 
 		// -------------------------------------------- Loops ---------------------------------------------
 		void CDHServer::loopInit(){
-			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 #if HS_EN
 			bool initHS = devMngr->initializeHS();
@@ -181,7 +185,9 @@ namespace Phoenix
 			int ccRet;
 
 			// Check storage, and delete files if necessary
+#if STOR_EN
 			if(((timeUnit - 60 - 1) % 60) == 0){
+				logger->Log("------------------ Checking storage --------------------", LOGGER_LEVEL_DEBUG);
 				ccRet = storMngr->CheckAndClean();
 				if(ccRet == 1){
 					FSWPacket * packet = new FSWPacket(CDH_CLEAN_FS_SUCCESS, true, false, MESSAGE_TYPE_COMMAND);
@@ -191,6 +197,7 @@ namespace Phoenix
 					PacketProcess(SERVER_LOCATION_CDH, packet);
 				}
 			}
+#endif //STOR_EN
 
 			// Start sensors for reading next round
 #if PM_EN

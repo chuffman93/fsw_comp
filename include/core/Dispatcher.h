@@ -65,7 +65,7 @@ namespace Phoenix
          *  before failing when it is waiting for a response from a
          *  dispatched packet.
          */
-        #define DISPATCHER_MAX_RESPONSE_TRIES	5
+        #define DISPATCHER_MAX_RESPONSE_TRIES	20
 		
 		/*! \brief Dispatcher delay loop */
 		#define	MAX_DISPATCHER_LOOP		500

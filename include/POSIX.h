@@ -40,6 +40,8 @@ namespace Phoenix
 
 		int64 getTimeInMillis();
 
+		int32 getTimeInSec();
+
 		inline bool vSemaphoreCreateBinary(sem_t * sem){ return (-1 !=sem_init(sem, SHARE_TO_THREADS, 1)); }
 
 		void semWaitDelay(struct timespec *ts, size_t seconds, uint64_t nanoseconds);
