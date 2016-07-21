@@ -8,6 +8,7 @@
 #include "servers/DispatchStdTasks.h"
 
 #include "core/Dispatcher.h"
+#include "core/Arbitrator.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
 #include "core/ReturnMessage.h"
@@ -77,9 +78,59 @@ namespace Phoenix
 
 			logger->Log("DispatchStdTasks: Received return message\n", LOGGER_LEVEL_DEBUG);
 
-			//delete query;
 			assert(response != NULL);
 			return response;
+		}
+
+		bool Listen(LocationIDType serverID){
+			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+			MessageHandlerRegistry * registry;
+			FSWPacket * packet;
+			FSWPacket tmpPacket;
+
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			logger->Log("DispatchStdTasks: Listen() called with serverID: %u", serverID, LOGGER_LEVEL_DEBUG);
+
+			tmpPacket.SetSource(serverID); // temp packet to check for response
+
+			if (!dispatcher->CheckQueueForMatchingPacket(tmpPacket, packet, dispatcher->CHECK_DEST_SOURCE)){
+				logger->Log("   DispatchStdTasks: Listen(): No packets have been sent to this server.", LOGGER_LEVEL_DEBUG);
+				return false;
+			}
+
+			logger->Log(" DispatchStdTasks: Listen(): Found a packet, looking for a handler.", LOGGER_LEVEL_DEBUG);
+
+			if(NULL == (registry = dispatcher->FindHandler(serverID, packet))){
+				return false;
+			}
+
+			logger->Log("   DispatchStdTasks: Listen(): Permissions are correct, invoke the handler, and obtain the resulting message.", LOGGER_LEVEL_DEBUG);
+
+			FSWPacket * retPacket = registry->Invoke(*packet);
+
+			// Create a return packet from the handler response and the original query
+			FSWPacket * ret = new FSWPacket(packet->GetDestination(), packet->GetSource(), retPacket->GetOpcode(),
+					retPacket->IsSuccess(), true, retPacket->GetType(), retPacket->GetMessageLength(),
+					retPacket->GetMessageBufPtr());
+			ret->SetNumber(packet->GetNumber());
+
+			// FIXME: make sure this doesn't cause a memory leak!
+			delete retPacket;
+			//delete packet;
+
+			// Send the response back to the server that dispatched the original message.
+			int numPackets = mq_size(dispatcher->queueHandleRX, dispatcher->queueAttrRX);
+			bool sendSuccess = false;
+			if(numPackets < DISPATCHER_QUEUE_LENGTH){
+				sendSuccess = mq_timed_send(dispatcher->queueNameRX, &ret, MAX_BLOCK_TIME, 0);
+				//this->GiveLock();
+			}else{
+				logger->Log("DispatchStdTasks: RX Queue full!", LOGGER_LEVEL_FATAL);
+				sendSuccess = false;
+				//this->GiveLock();
+			}
+
+			return sendSuccess;
 		}
 
 		void PacketProcess(LocationIDType id, Phoenix::Core::FSWPacket * retPacket)
@@ -192,7 +243,7 @@ namespace Phoenix
 			FSWPacket * retPacket;
 			logger->Log("    Dispatcher: WaitForDispatchResponse() called", LOGGER_LEVEL_DEBUG);
 			logger->Log("    Dispatcher: Checking queue for matching packet", LOGGER_LEVEL_DEBUG);
-			for (i = 0; i < DISPATCHER_MAX_RESPONSE_TRIES; ++i)
+			for (i = 0; i < 50; ++i)
 			{
 				if (dispatcher->CheckQueueForMatchingPacket(packet, retPacket, dispatcher->CHECK_MATCHING_RESPONSE))
 				{

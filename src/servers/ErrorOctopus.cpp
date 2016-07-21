@@ -8,6 +8,7 @@
 #include "servers/ErrorOctopus.h"
 #include "servers/ErrorQueue.h"
 #include "servers/ErrorStdTasks.h"
+#include "servers/DispatchStdTasks.h"
 
 #include "core/CommandMessage.h"
 #include "core/ReturnMessage.h"
@@ -110,7 +111,7 @@ namespace Phoenix
 			uint64_t LastWakeTime = 0;
 			while(1)
 			{
-				while(dispatcher->Listen(id));
+				while(Listen(id));
 				LastWakeTime = getTimeInMillis();
 				//wdm->Kick();
 				//debug_led_set_led(2, LED_TOGGLE);

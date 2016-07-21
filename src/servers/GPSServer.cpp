@@ -64,9 +64,9 @@ namespace Phoenix
 		{
 			GPSDataHolder = new GPS_BESTXYZ();
 			GPSCoordsHolder = new GPS_GPRMC();
-			GPSDataHolder->round_seconds = -1;
-			GPSDataHolder->GPSSec = -1.0;
-			GPSDataHolder->GPSWeek = -1;
+			GPSDataHolder->round_seconds = 30;
+			GPSDataHolder->GPSSec = 30.0;
+			GPSDataHolder->GPSWeek = 30;
 		}
 
 		GPSServer::~GPSServer()
@@ -145,7 +145,6 @@ namespace Phoenix
 
 		void GPSServer::SubsystemLoop(void)
 		{
-			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
 			char buffer[350];
@@ -157,7 +156,7 @@ namespace Phoenix
 			{
 				uint64_t LastWakeTime = getTimeInMillis();
 				//wdm->Kick();
-				while(dispatcher->Listen(id));
+				while(Listen(id));
 
 				// TODO: check where port is: ie. /dev/ttyS?
 				//		 Give the port the right permissions?

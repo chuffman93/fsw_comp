@@ -6,6 +6,7 @@
  */
 
 #include "servers/SubsystemServer.h"
+#include "servers/DispatchStdTasks.h"
 
 #include "core/ModeManager.h"
 #include "core/Dispatcher.h"
@@ -50,11 +51,12 @@ namespace Phoenix
 
 		void SubsystemServer::SubsystemLoop(void)
 		{
-			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+			//Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 			
 			while(1)
 			{
-				dispatcher->Listen(id);
+				//dispatcher->Listen(id);
+				Listen(id);
 				
 				StateFunc function = GetStateMap()[currentState].function;
 

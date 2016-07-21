@@ -50,8 +50,7 @@
 
 // Instantiate static members
 const char * FileHandler::modeLog = NULL;
-const char * writeDir = "/home/root/filehandler/";
-const char * truDat = "/home/root/filehandler/tru.dat";
+const char * writeDir = "/media/sd1/filehandler/";
 const unsigned int sizeToZip = 10 * (1024);
 uint32 crcTable[256];
 

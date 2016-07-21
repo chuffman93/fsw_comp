@@ -173,7 +173,7 @@ namespace Phoenix
              *  registered handler for that message, then a standard
              *  unknown message response will be issued.
              */
-            bool Listen(LocationIDType serverID);
+            MessageHandlerRegistry * FindHandler(LocationIDType serverID, FSWPacket * packet);
 
             /*! \brief Dispatch a Message to Hardware
              *
@@ -241,6 +241,19 @@ namespace Phoenix
 
             uint32_t DispatchToHardware(FSWPacket & packet);
 
+            /*! \brief Struct for Holding Server Message Handler Information */
+			struct DispatcherHandlerType
+			{
+				DispatcherHandlerType(MessageHandlerRegistry * regIn, Arbitrator * arbyIn)
+					: registry(regIn), arby(arbyIn) { }
+
+				MessageHandlerRegistry * registry;
+				Arbitrator * arby;
+			};
+
+            /*! \brief MessageHandler Registry Map */
+			std::map<LocationIDType, DispatcherHandlerType *> registryMap;
+
             /*! \brief Handle to the Dispatcher Message Queue */
 			mqd_t queueHandleRX;
 			struct mq_attr queueAttrRX;
@@ -248,15 +261,6 @@ namespace Phoenix
             static char * queueNameRX;
 
         private:
-            /*! \brief Struct for Holding Server Message Handler Information */
-            struct DispatcherHandlerType
-            {
-            	DispatcherHandlerType(MessageHandlerRegistry * regIn, Arbitrator * arbyIn)
-					: registry(regIn), arby(arbyIn) { }
-
-            	MessageHandlerRegistry * registry;
-            	Arbitrator * arby;
-            };
 
             struct DispatcherInterruptAlertType
             {
@@ -279,9 +283,6 @@ namespace Phoenix
             	sem_t syncSem;
             	sem_t doneSem;
             };
-
-            /*! \brief MessageHandler Registry Map */
-            std::map<LocationIDType, DispatcherHandlerType *> registryMap;
 			
 			/*! \brief Initialize the Dispatcher Class
              *

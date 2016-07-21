@@ -10,6 +10,7 @@
 #define DISPATCHSTDTASKS_H_
 
 #include <list>
+#include <map>
 
 #include "core/ReturnMessage.h"
 #include "core/MultiDataMessage.h"
@@ -17,6 +18,8 @@
 #include "core/VariableTypeEnum.h"
 #include "core/FSWPacket.h"
 #include "core/Dispatcher.h"
+#include "core/MessageHandlerRegistry.h"
+#include "core/Arbitrator.h"
 
 #define DIS_DEBUG			0
 
@@ -46,8 +49,20 @@ namespace Phoenix
 		/*! \brief Typedef for a FSWPacket Comparison Function */
 		//typedef bool (Core::Dispatcher::* PacketCheckFunctionType)(const Core::FSWPacket & packetIn, const Core::FSWPacket & packetOut) const;
 
+		struct DispatcherHandlerType
+		{
+			DispatcherHandlerType(Core::MessageHandlerRegistry * regIn, Core::Arbitrator * arbyIn)
+				: registry(regIn), arby(arbyIn) { }
+
+			Core::MessageHandlerRegistry * registry;
+			Core::Arbitrator * arby;
+		};
+
 		// Send packet to the dispatcher
 		Phoenix::Core::FSWPacket * DispatchPacket(Phoenix::Core::FSWPacket * packet);
+
+		// Invoke message handlers for any messages sent to a server
+		bool Listen(LocationIDType serverID);
 
 		// Process a response packet
 		void PacketProcess(LocationIDType id, Phoenix::Core::FSWPacket * retPacket);

@@ -167,9 +167,7 @@ namespace Phoenix
 		   else
 		   {
 
-
 				logger->Log("Now sending the message to the queue", LOGGER_LEVEL_DEBUG);
-
 
 				if (true == this->TakeLock(MAX_BLOCK_TIME))
 				{
@@ -231,7 +229,6 @@ namespace Phoenix
 				default:
 					break;
 			}
-
 
 			// Get the semaphore
 			if (true == this->TakeLock(MAX_BLOCK_TIME))
@@ -338,23 +335,9 @@ namespace Phoenix
 			}
 		}
 
-		bool Dispatcher::Listen(LocationIDType serverID)
-		{
-			FSWPacket * packet;
-			FSWPacket tmpPacket;
-			IteratorType it;
-
+		MessageHandlerRegistry * Dispatcher::FindHandler(LocationIDType serverID, FSWPacket * packet){
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-			//logger->Log("Dispatcher: Listen() called with serverID: %u", serverID, LOGGER_LEVEL_DEBUG);
-
-			tmpPacket.SetSource(serverID); // temp packet to check for response
-
-			if (!CheckQueueForMatchingPacket(tmpPacket, packet, CHECK_DEST_SOURCE)){
-				//logger->Log("   Dispatcher: Listen(): No packets have been sent to this server.", LOGGER_LEVEL_DEBUG);
-				return false;
-			}
-
-			logger->Log(" Dispatcher: Listen(): Found a packet, looking for a handler.", LOGGER_LEVEL_DEBUG);
+			IteratorType it;
 
 			if (true == this->TakeLock(MAX_BLOCK_TIME)){
 				logger->Log("   Dispatcher: searching registry map for handler.", LOGGER_LEVEL_DEBUG);
@@ -362,13 +345,13 @@ namespace Phoenix
 				this->GiveLock();
 			}else{
 				delete packet;
-				return false;
+				return NULL;
 			}
 
 			if (registryMap.end( ) == it){
 				logger->Log("   Dispatcher: Listen(): Didn't find a handler.", LOGGER_LEVEL_DEBUG);
 				delete packet;
-				return false;
+				return NULL;
 			}
 
 			// A handler exists, so check the permissions
@@ -379,66 +362,12 @@ namespace Phoenix
 				logger->Log("   Dispatcher: Listen(): Don't have permissions, reject packet.", LOGGER_LEVEL_ERROR);
 				logger->Log("   Dispatcher: Listen(): Authenticate returned: %d", arbyRet, LOGGER_LEVEL_ERROR);
 				delete packet;
-				return false;
-			}
-			// Permissions are correct, so invoke it and obtain the resulting message.
-			logger->Log("   Dispatcher: Listen(): Permissions are correct, invoke the handler, and obtain the resulting message.", LOGGER_LEVEL_DEBUG);
-
-			DispatcherTaskParameter parameters;
-			parameters.registry = it->second->registry;
-			parameters.packet = packet;
-			pthread_t TaskHandle;
-			sem_init(&parameters.syncSem, SHARE_TO_THREADS, 1);
-			sem_init(&parameters.doneSem, SHARE_TO_THREADS, 1);
-
-			xSemaphoreTake(&parameters.syncSem, MAX_BLOCK_TIME, 0);
-			pthread_attr_t TaskAttr;
-			pthread_attr_init(&TaskAttr);
-			struct sched_param schedParam;
-			schedParam.__sched_priority = getpriority(PRIO_PROCESS, getpid())+1; //get priority of calling process and make this scheduler prio one lower
-			pthread_attr_setschedparam(&TaskAttr,&schedParam);
-			pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
-			pthread_create(&TaskHandle,&TaskAttr, &InvokeHandler, &parameters);
-			//printf("\r\nListening to the correct Access mode Dispatch Listen\r\n");
-
-			xSemaphoreTake(&(parameters.syncSem), MAX_BLOCK_TIME, 0);
-			usleep(1000);
-
-			if (true != xSemaphoreTake(&(parameters.doneSem), 1, 0)){
-				logger->Log("HANDLER TIMED OUT", LOGGER_LEVEL_ERROR);
-
-				pthread_cancel(TaskHandle);
-				sem_destroy(&(parameters.syncSem));
-				sem_destroy(&(parameters.doneSem));
-				delete packet;
-				return false;
-			}
-			pthread_join(TaskHandle, NULL);
-			sem_destroy(&(parameters.syncSem));
-			sem_destroy(&(parameters.doneSem));
-
-			// Create a return packet from the handler response and the original query
-			FSWPacket * ret = new FSWPacket(packet->GetDestination(), packet->GetSource(), parameters.retPacket->GetOpcode(),
-					parameters.retPacket->IsSuccess(), true, parameters.retPacket->GetType(), parameters.retPacket->GetMessageLength(),
-					parameters.retPacket->GetMessageBufPtr());
-
-			// FIXME: make sure this doesn't cause a memory leak!
-			delete parameters.retPacket;
-			delete packet;
-
-			// Send the response back to the server that dispatched the original message.
-			int numPackets;
-			bool sendSuccess = false;
-			if(numPackets < DISPATCHER_QUEUE_LENGTH){
-				sendSuccess = mq_timed_send(queueNameRX, &ret, MAX_BLOCK_TIME, 0);
-				this->GiveLock();
-			}else{
-				logger->Log("Dispatcher: RX Queue full!", LOGGER_LEVEL_FATAL);
-				sendSuccess = false;
-				this->GiveLock();
+				return NULL;
 			}
 
-			return sendSuccess;
+			// Permissions are correct
+			return it->second->registry;
+
 		}
 
 		bool Dispatcher::IsPacketMatchingResponse(const FSWPacket & packetIn,

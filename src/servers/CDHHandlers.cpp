@@ -86,9 +86,6 @@ FSWPacket * CDHCleanFSHandler::Handle(const FSWPacket & packet)
 		msgPtr += 4;
 	}
 
-	printf("Week start: %lu\n", outputArray[0]);
-	printf("Week end:   %lu\n", outputArray[1]);
-
 	if((outputArray[0] >= current_week) || (outputArray[1] >= current_week) || (outputArray[0] > outputArray[1])){
 		logger->Log("CDHHandlers: bad weeks", LOGGER_LEVEL_WARN);
 		FSWPacket * ret = new FSWPacket(CDH_CLEAN_FS_FAILURE, false, true, MESSAGE_TYPE_ERROR);

@@ -38,7 +38,7 @@ using namespace Phoenix::Servers;
 
 #define DEBUG
 
-//---------------------------- Set which servers run --------------------------
+//---------------------------- Set which servers run --------------------------------------------------------------
 
 #define ACS_EN 0
 #define CDH_EN 1
@@ -49,12 +49,12 @@ using namespace Phoenix::Servers;
 #define GPS_EN 0
 #define PLD_EN 0
 #define THM_EN 0
-#define SCH_EN 1
+#define SCH_EN 0
 
 #define ETH_EN 0
 #define SPI_EN 0
 
-//---------------------------- Create server tasks ----------------------------
+//---------------------------- Create server tasks ----------------------------------------------------------------
 //TODO:Add meaningful exit information to each server pthread_exit
 
 void * taskRunEPS(void * params)
@@ -330,7 +330,7 @@ void * StartSPI_HAL(void * params)
 	pthread_exit(NULL);
 }
 
-//----------------------------------- Main ------------------------------------
+//----------------------------------- Main ------------------------------------------------------------------------
 
 int main(int argc, char * argv[])
 {
@@ -374,7 +374,7 @@ int main(int argc, char * argv[])
 	bool threadCreated;
 
 #if ACS_EN
-	// ------------------------------------- ACS Thread -------------------------------------
+	// ------------------------------------- ACS Thread -------------------------------------------------------------------------
 	pthread_t ACSThread;
 	threadCreated = pthread_create(&ACSThread, NULL, &taskRunACS, NULL);
 	if(!threadCreated)
@@ -388,7 +388,7 @@ int main(int argc, char * argv[])
 #endif //ACS_EN
 
 #if EPS_EN
-	// ------------------------------------- EPS Thread -------------------------------------
+	// ------------------------------------- EPS Thread -------------------------------------------------------------------------
 	pthread_t EPSThread;
 	threadCreated = pthread_create(&EPSThread, NULL, &taskRunEPS, NULL);
 
@@ -403,7 +403,7 @@ int main(int argc, char * argv[])
 #endif //EPS_EN
 
 #if PLD_EN
-	// ------------------------------------- PLD Thread -------------------------------------
+	// ------------------------------------- PLD Thread -------------------------------------------------------------------------
 	pthread_t PLDThread;
 	threadCreated = pthread_create(&PLDThread, NULL, &taskRunPLD, NULL);
 	if(!threadCreated)
@@ -417,7 +417,7 @@ int main(int argc, char * argv[])
 #endif //PLD_EN
 
 #if ERR_EN
-	// ------------------------------------- ERR Thread -------------------------------------
+	// ------------------------------------- ERR Thread -------------------------------------------------------------------------
 	//CREATE_TASK(taskRunERR, (const signed char* const)"ERR task", 2000, NULL, 0, NULL);
 	pthread_t ERRThread;
 	threadCreated = pthread_create(&ERRThread, NULL, &taskRunERR, NULL);
@@ -432,7 +432,7 @@ int main(int argc, char * argv[])
 #endif //ERR_EN
 
 #if GPS_EN
-	// ------------------------------------- GPS Thread -------------------------------------
+	// ------------------------------------- GPS Thread -------------------------------------------------------------------------
 	pthread_t GPSThread;
 	threadCreated = pthread_create(&GPSThread, NULL, &taskRunGPS, NULL);
 	if(!threadCreated)
@@ -446,7 +446,7 @@ int main(int argc, char * argv[])
 #endif //GPS_EN
 
 #if THM_EN
-	// ------------------------------------- THM Thread -------------------------------------
+	// ------------------------------------- THM Thread -------------------------------------------------------------------------
 	pthread_t THMThread;
 	threadCreated = pthread_create(&THMThread ,NULL,&taskRunTHM, NULL );
 	if(!threadCreated)
@@ -460,7 +460,7 @@ int main(int argc, char * argv[])
 #endif //THM_EN
 
 #if SCH_EN
-	// -------------------------------------SCH Thread-------------------------------------
+	// -------------------------------------SCH Thread-------------------------------------------------------------------------
 	pthread_t SCHThread;
 	threadCreated = pthread_create(&SCHThread, NULL, &taskRunSCH, NULL);
 	if(!threadCreated)
@@ -474,7 +474,7 @@ int main(int argc, char * argv[])
 #endif
 
 #if CMD_EN
-	// ------------------------------------- CMD Thread -------------------------------------
+	// ------------------------------------- CMD Thread -------------------------------------------------------------------------
 	pthread_t CMDThread;
 	threadCreated = pthread_create(&CMDThread ,NULL,&taskRunCMD, NULL );
 	if(!threadCreated)
@@ -488,7 +488,7 @@ int main(int argc, char * argv[])
 #endif //CMD_EN
 
 #if CDH_EN
-	// ------------------------------------- CDH Thread -------------------------------------
+	// ------------------------------------- CDH Thread -------------------------------------------------------------------------
 	pthread_t CDHThread;
 	threadCreated = pthread_create(&CDHThread ,NULL,&taskRunCDH, NULL );
 	if(!threadCreated)
@@ -502,7 +502,7 @@ int main(int argc, char * argv[])
 #endif //CDH_EN
 
 #if ETH_EN
-	// ------------------------------------- ETH Thread -------------------------------------
+	// ------------------------------------- ETH Thread -------------------------------------------------------------------------
 	pthread_t ETHThread;
 	threadCreated = pthread_create(&ETHThread ,NULL,&StartETH_HAL, NULL );
 	if(!threadCreated)
@@ -516,7 +516,7 @@ int main(int argc, char * argv[])
 #endif //ETH_EN
 
 #if SPI_EN
-	// ------------------------------------- SPI Thread -------------------------------------
+	// ------------------------------------- SPI Thread -------------------------------------------------------------------------
 	pthread_t SPIThread;
 	threadCreated = pthread_create(&SPIThread ,NULL,&StartSPI_HAL, NULL );
 
@@ -531,16 +531,6 @@ int main(int argc, char * argv[])
 #endif //SPI_EN
 
 	logger->Log("All servers created!", LOGGER_LEVEL_INFO);
-
-	usleep(3000000);
-	uint8 message[8];
-	uint32 weekStart = 20;
-	uint32 weekEnd = 25;
-	AddUInt32(message, weekStart);
-	AddUInt32(message+4, weekEnd);
-
-	FSWPacket * query = new FSWPacket(SERVER_LOCATION_ACS, SERVER_LOCATION_CDH, CDH_CLEAN_FS_CMD, true, false, MESSAGE_TYPE_COMMAND, 8, message);
-	DispatchPacket(query);
 
 	// Suspend execution of main until the following threads exit
 #if ACS_EN

@@ -136,7 +136,7 @@ namespace Phoenix
 
 			while(1)
 			{
-				while(dispatcher->Listen(id));
+				while(Listen(id));
 				uint64_t LastTimeTick = getTimeInMillis();
 				//wdm->Kick();
 				//debug_led_set_led(2, LED_TOGGLE);

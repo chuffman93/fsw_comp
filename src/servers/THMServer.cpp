@@ -103,7 +103,7 @@ namespace Phoenix
 				uint64_t LastTickTime = getTimeInMillis();
 
 				//wdm->Kick();
-				while(dispatcher->Listen(id));
+				while(Listen(id));
 
 #ifdef HARDWARE
 				if(seconds % 5 == 0)
