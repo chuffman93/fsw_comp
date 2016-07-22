@@ -40,8 +40,8 @@ using namespace Phoenix::Servers;
 
 //---------------------------- Set which servers run --------------------------------------------------------------
 
-#define ACS_EN 0
-#define CDH_EN 1
+#define ACS_EN 1
+#define CDH_EN 0
 #define CMD_EN 0
 #define COM_EN 0
 #define EPS_EN 0
@@ -49,10 +49,10 @@ using namespace Phoenix::Servers;
 #define GPS_EN 0
 #define PLD_EN 0
 #define THM_EN 0
-#define SCH_EN 0
+#define SCH_EN 1
 
 #define ETH_EN 0
-#define SPI_EN 0
+#define SPI_EN 1
 
 //---------------------------- Create server tasks ----------------------------------------------------------------
 //TODO:Add meaningful exit information to each server pthread_exit
@@ -88,7 +88,7 @@ void * taskRunACS(void * params)
 
 	modeManager->Attach(*acsServer);
 
-	for(int i = 0; i < 15; i++)
+	for(int i = 0; i < 2; i++)
 	{
 		//wdm->Kick();
 		usleep(1000000);
@@ -114,11 +114,11 @@ void * taskRunPLD(void * params)
 
 	modeManager->Attach(*pldServer);
 
-//	for(int i = 0; i < 20; i++)
-//	{
-//		//wdm->Kick();
-//		usleep(1000000);
-//	}
+	for(int i = 0; i < 10; i++)
+	{
+		//wdm->Kick();
+		usleep(100000);
+	}
 
 	logger->Log("Kicking off the PLD server", LOGGER_LEVEL_INFO);
 
@@ -319,11 +319,11 @@ void * StartSPI_HAL(void * params)
 	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 	SPI_HALServer * spi_server = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
 
-	for(int i = 0; i < 10; i++)
-	{
-		//wdm->Kick();
-		usleep(100000);
-	}
+//	for(int i = 0; i < 10; i++)
+//	{
+//		//wdm->Kick();
+//		usleep(100000);
+//	}
 
 	logger->Log("Kicking off the SPI HAL server", LOGGER_LEVEL_INFO);
 	spi_server->SPI_HALServerLoop();
@@ -354,20 +354,22 @@ int main(int argc, char * argv[])
 	Factory::GetInstance(ERROR_QUEUE_SINGLETON);
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
-	uint8 input = 1;
-	//GetPin(EGSE_PRESENT, PIN_TYPE_GPIO, &input);
-	if(input == 1)
-	{
-		//EGSE is plugged in, go into access mode
-		modeManager->SetMode(MODE_ACCESS, LOCATION_ID_INVALID);
-		logger->Log("Access Mode Entered!", LOGGER_LEVEL_INFO);
-	}
-	else
-	{
-		//Flight go to startup mode
-		modeManager->SetMode(MODE_STARTUP, LOCATION_ID_INVALID);
-		logger->Log("Startup Mode Entered!", LOGGER_LEVEL_INFO);
-	}
+//	uint8 input = 1;
+//	//GetPin(EGSE_PRESENT, PIN_TYPE_GPIO, &input);
+//	if(input == 1)
+//	{
+//		//EGSE is plugged in, go into access mode
+//		modeManager->SetMode(MODE_ACCESS, LOCATION_ID_INVALID);
+//		logger->Log("Access Mode Entered!", LOGGER_LEVEL_INFO);
+//	}
+//	else
+//	{
+//		//Flight go to startup mode
+//		modeManager->SetMode(MODE_STARTUP, LOCATION_ID_INVALID);
+//		logger->Log("Startup Mode Entered!", LOGGER_LEVEL_INFO);
+//	}
+
+	modeManager->SetMode(MODE_STARTUP, LOCATION_ID_INVALID);
 
 	logger->Log("Flight software initialization complete! Starting servers!", LOGGER_LEVEL_FATAL);
 

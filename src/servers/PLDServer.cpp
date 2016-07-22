@@ -35,6 +35,7 @@ namespace Phoenix
 	{
 		// Message handler for a health and status command.
 		static PLDHSHandler * pldHSHandler;
+		static PLDDataHandler * pldDataHandler;
 		
 		PLDServer::PLDServer(string nameIn, LocationIDType idIn) :
 				SubsystemServer(nameIn, idIn), Singleton(), arby(idIn)
@@ -97,6 +98,7 @@ namespace Phoenix
 		void PLDServer::loopInit(){
 			//No need to do anything
 			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+			printf("--------------------------- In loop init\n");
 			if(modeManager->GetMode() != MODE_STARTUP){
 				//Wait until we are not in startup mode, then transition to IDLE
 				currentState = ST_IDLE;
@@ -108,6 +110,7 @@ namespace Phoenix
 			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 			//Wait until we are in payload priority mode
 			if(modeManager->GetMode() == MODE_PLD_PRIORITY){
+				printf("-------------------------------- Switching to startup mode\n");
 				currentState = ST_STARTUP;
 			}
 		}
@@ -141,6 +144,8 @@ namespace Phoenix
 			FSWPacket * turnOffScience = new FSWPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, PLD_STOP_SCIENCE, true, false, MESSAGE_TYPE_COMMAND);
 			FSWPacket * ret = DispatchPacket(turnOffScience);
 			delete ret;
+
+			usleep(1000000);
 
 			cdhServer->subPowerOff(HARDWARE_LOCATION_PLD);
 			//PLD is off. Goto idle loop

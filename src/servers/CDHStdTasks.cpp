@@ -376,6 +376,7 @@ namespace Phoenix
 				break;
 			}
 
+			printf("SYSTEM STRING: %s\n", cmd.c_str());
 			system(cmd.c_str());
 		}
 

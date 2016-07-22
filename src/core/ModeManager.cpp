@@ -156,6 +156,10 @@ namespace Phoenix
 				}
 
                 NotifyAll();
+
+                this->mode = newMode;
+                logger->Log("Switching mode!", LOGGER_LEVEL_INFO);
+
 				// TODO: need mode logger here
 #ifdef HARDWARE
 				fileHandler->logAppend(LOG_MODE, prevMode, newMode);

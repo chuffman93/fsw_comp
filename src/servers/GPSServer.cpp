@@ -65,8 +65,14 @@ namespace Phoenix
 			GPSDataHolder = new GPS_BESTXYZ();
 			GPSCoordsHolder = new GPS_GPRMC();
 			GPSDataHolder->round_seconds = 30;
-			GPSDataHolder->GPSSec = 30.0;
-			GPSDataHolder->GPSWeek = 30;
+			GPSDataHolder->GPSSec = 7.0;
+			GPSDataHolder->GPSWeek = 8;
+			GPSDataHolder->posX = 1.0;
+			GPSDataHolder->posY = 2.0;
+			GPSDataHolder->posZ = 3.0;
+			GPSDataHolder->velX = 4.0;
+			GPSDataHolder->velY = 5.0;
+			GPSDataHolder->velZ = 6.0;
 		}
 
 		GPSServer::~GPSServer()

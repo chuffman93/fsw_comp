@@ -207,7 +207,8 @@ namespace Phoenix
 			AddUInt32(buffer + 48, gpsServer->GetGPSDataPtr()->GPSWeek);
 			AddFloat(buffer + 52, gpsServer->GetGPSDataPtr()->GPSSec);
 
-			FSWPacket * send = new FSWPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_GPS_CMD, true, false, MESSAGE_TYPE_COMMAND);
+			printf("~~~~~~~~~~~~~~~~~ACS GPS: %d\n", ACS_GPS_CMD);
+			FSWPacket * send = new FSWPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_GPS_CMD, true, false, MESSAGE_TYPE_COMMAND, 6*sizeof(double)+sizeof(float)+sizeof(int), buffer);
 			return(DispatchPacket(send));
 		}
 		
