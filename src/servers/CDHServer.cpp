@@ -34,12 +34,12 @@ using namespace Phoenix::Core;
 using namespace Phoenix::HAL;
 using namespace std;
 
-#define CPU_EN 	1
-#define MEM_EN 	1
-#define TEMP_EN 1
-#define HS_EN	1
+#define CPU_EN 	0
+#define MEM_EN 	0
+#define TEMP_EN 0
+#define HS_EN	0
 #define PM_EN	0
-#define STOR_EN 1
+#define STOR_EN 0
 
 namespace Phoenix
 {
@@ -161,7 +161,7 @@ namespace Phoenix
 		}
 
 		void CDHServer::loopMonitor(){
-			uint8 readFrequency = 10;
+			uint8 readFrequency = 1;
 			uint64 lastWake = getTimeInMillis();
 
 			readHealth(readFrequency, (uint32) lastWake/1000);

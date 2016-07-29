@@ -316,13 +316,18 @@ void ACSServer::loopPLDStart(){
 }
 void ACSServer::loopPLDPointing(){
 	ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	FSWPacket * GPSRet;
+	FSWPacket * HSRet;
+
+	printf("-------------------- PLD pointing\n");
+	GPSRet = ACSSendGPS();
+	PacketProcess(SERVER_LOCATION_ACS, GPSRet);
 
 	usleep(1000000);
-	printf("-------------------- PLD pointing\n");
-	DispatchPacket(ACSSendGPS());
-//	FSWPacket * send = new FSWPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_HS_CMD, true, false, MESSAGE_TYPE_COMMAND);
-//	DispatchPacket(send);
-	usleep(2000000);
+
+	FSWPacket * HSSend = new FSWPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_HS_CMD, true, false, MESSAGE_TYPE_COMMAND);
+	HSRet = DispatchPacket(HSSend);
+	PacketProcess(SERVER_LOCATION_ACS, HSRet);
 
 	if(modeManager->GetMode() != MODE_PLD_PRIORITY)
 		currentState = ST_PLD_STOP;

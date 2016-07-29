@@ -119,11 +119,12 @@ namespace Phoenix
 		void PLDServer::loopStartup(){
 			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
-			printf("reached here");
 			cdhServer->resetAssert(HARDWARE_LOCATION_PLD);
 			cdhServer->subPowerOn(HARDWARE_LOCATION_PLD);
-			usleep(100000);
+			usleep(300000);
 			cdhServer->resetDeassert(HARDWARE_LOCATION_PLD);
+
+			usleep(1000000);
 
 			FSWPacket * turnOnScience = new FSWPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, PLD_START_SCIENCE, true, false, MESSAGE_TYPE_COMMAND);
 			FSWPacket * ret = DispatchPacket(turnOnScience);

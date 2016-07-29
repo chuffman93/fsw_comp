@@ -245,7 +245,7 @@ namespace Phoenix
 					//debug_led_set_led(2, LED_ON);
 					// There's at least one packet, so check if it matches packetIn.
 
-					logger->Log("Dispatcher: CheckQueueForMatchingPacket(): There is at least one packet", LOGGER_LEVEL_DEBUG);
+					logger->Log("Dispatcher: CheckQueueForMatchingPacket(): There is at least one packet", LOGGER_LEVEL_SUPER_DEBUG);
 					if(packetOut == NULL)
 					{
 						this->GiveLock();
@@ -261,9 +261,9 @@ namespace Phoenix
 					else
 					{
 						// Check the number of packets waiting in the queue.
-						logger->Log("Dispatcher: CheckQueueForMatchingPacket(): checking more packets", LOGGER_LEVEL_DEBUG);
+						logger->Log("Dispatcher: CheckQueueForMatchingPacket(): checking more packets", LOGGER_LEVEL_SUPER_DEBUG);
 						numPackets = mq_size(queueHandleRX, queueAttrRX);
-						logger->Log("Dispatcher: CheckQueueForMatchingPacket(): there are %u more packets", (uint32) numPackets, LOGGER_LEVEL_DEBUG);
+						logger->Log("Dispatcher: CheckQueueForMatchingPacket(): there are %u more packets", (uint32) numPackets, LOGGER_LEVEL_SUPER_DEBUG);
 
 						// Get each packet and check it against packetIn.
 						for (i = 0; i < numPackets; ++i)
@@ -399,7 +399,7 @@ namespace Phoenix
 			// packetIn->GetSource().
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 			logger->Log("IsPacketDestMatchingSource() result: %d", ((!packetOut.IsResponse( ))
-							&& (packetOut.GetDestination( ) == packetIn.GetSource( ))), LOGGER_LEVEL_DEBUG);
+							&& (packetOut.GetDestination( ) == packetIn.GetSource( ))), LOGGER_LEVEL_SUPER_DEBUG);
 			return ((!packetOut.IsResponse( ))
 					&& (packetOut.GetDestination( ) == packetIn.GetSource( )));
 		}
@@ -473,9 +473,12 @@ namespace Phoenix
 			size_t numPackets;
 			switch(protocolChoice){
 				case ACP_PROTOCOL_SPI:
+					printf("Taking lock\n");
 					if(true == this->TakeLock(MAX_BLOCK_TIME)){
+						printf("Took lock\n");
 						numPackets = mq_size(spi_server->queueHandleTX, spi_server->queueAttrTX);
 						if(numPackets < DISPATCHER_QUEUE_LENGTH){ // same length as all queues
+							logger->Log("Dispatcher: Placing message on SPI queue", LOGGER_LEVEL_INFO);
 							sendSuccess = mq_timed_send(spi_server->queueNameSPITX, &txPacket, MAX_BLOCK_TIME, 0);
 							this->GiveLock();
 						}else{

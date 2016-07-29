@@ -33,7 +33,7 @@
 using namespace Phoenix;
 using namespace Core;
 
-static int timeout = -1;
+static int timeout = 20;
 char * SPI_HALServer::queueNameSPITX = (char *) "/queueHandleSPITX";
 
 SPI_HALServer::SPI_HALServer()
@@ -74,7 +74,7 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 
 		// ---- TX ----------------------------------------------------------------------------------------------------------------
 		FSWPacket * txPacket;
-		if(true == this->TakeLock(MAX_BLOCK_TIME)){
+//		if(true == this->TakeLock(MAX_BLOCK_TIME)){
 			if(mq_size(queueHandleTX, queueAttrTX) > 0){
 				if(mq_timed_receive(queueNameSPITX, &txPacket, 0, DISPATCHER_MAX_DELAY)){
 					if(SPIDispatch(*txPacket)){
@@ -87,13 +87,13 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 					logger->Log("SPI_HAL Server: Queue receive for TX failed!", LOGGER_LEVEL_WARN);
 				}
 			}
-			this->GiveLock();
-		}else{
-			logger->Log("SPI_HAL Server: TX semaphore failed", LOGGER_LEVEL_WARN);
-		}
+			//this->GiveLock();
+//		}else{
+//			logger->Log("SPI_HAL Server: TX semaphore failed", LOGGER_LEVEL_WARN);
+//		}
 
 		// ---- RX ----------------------------------------------------------------------------------------------------------------
-		if (true == this->TakeLock(MAX_BLOCK_TIME)){
+//		if (true == this->TakeLock(MAX_BLOCK_TIME)){
 			for (int i = 0; i < NUM_SLAVES; i++){
 				poll(poll_fds+i, 1, 10); // quick timeout (only checking for events, not waiting)
 				read(int_fds[i], &clearBuf, 1);
@@ -121,6 +121,7 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 						Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 						queueSize = mq_size(dispatcher->queueHandleRX, dispatcher->queueAttrRX);
 						if(queueSize < DISPATCHER_QUEUE_LENGTH){
+							logger->Log("SPI_Server: placing RX message on dispatcher RX queue", LOGGER_LEVEL_INFO);
 							queueSuccess = mq_timed_send(dispatcher->queueNameRX, &rxPacket, MAX_BLOCK_TIME, 0);
 						}else{
 							logger->Log("SPI_Server: RX queue full!", LOGGER_LEVEL_FATAL); // FIXME: handle this!
@@ -128,10 +129,10 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 					}
 				}
 			}
-			this->GiveLock();
-		}else{
-			logger->Log("SPI_HAL Server: RX semaphore failed", LOGGER_LEVEL_WARN);
-		}
+			//this->GiveLock();
+//		}else{
+//			logger->Log("SPI_HAL Server: RX semaphore failed", LOGGER_LEVEL_WARN);
+//		}
 
 		// FIXME: figure out wait time
 		waitUntil(enterTime, 5); // wait 5 ms
@@ -190,7 +191,7 @@ int SPI_HALServer::spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, in
 	read(fds->fd, &clearBuf, 1);
 
 	while(buf_pt != len){
-		logger->Log("Writing byte %d", buf_pt, LOGGER_LEVEL_DEBUG);
+		logger->Log("Writing byte %d", buf_pt, LOGGER_LEVEL_SUPER_DEBUG);
 		logger->Log("Byte value: ----------------------- 0x%x", *(buf + buf_pt), LOGGER_LEVEL_DEBUG);
 		ret = write(slave_fd, buf + buf_pt, wr_size);
 
@@ -202,14 +203,14 @@ int SPI_HALServer::spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, in
 		buf_pt++;
 
 		//Wait for interrupt before sending next byte
-		logger->Log("Waiting for interrupt after byte send", LOGGER_LEVEL_DEBUG);
-		logger->Log("spi_write: Polling", LOGGER_LEVEL_DEBUG);
+		logger->Log("Waiting for interrupt after byte send", LOGGER_LEVEL_SUPER_DEBUG);
+		logger->Log("spi_write: Polling", LOGGER_LEVEL_SUPER_DEBUG);
 		int retval = poll(fds, 1, timeout);
 		if(!(fds->revents & POLLPRI) || retval == 0){
 			logger->Log("Poll timeout!", LOGGER_LEVEL_ERROR);
 			return -1;
 		}
-		logger->Log("spi_write: Poll return: %d", retval, LOGGER_LEVEL_DEBUG);
+		logger->Log("spi_write: Poll return: %d", retval, LOGGER_LEVEL_SUPER_DEBUG);
 		this->GiveLock();
 		logger->Log("spi_write: After poll", LOGGER_LEVEL_DEBUG);
 		ret = read(fds->fd, &clearBuf, 1);
@@ -254,7 +255,7 @@ int SPI_HALServer::spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_bufp){
 		for(i = 0; i < 14; i++){
 			//Wait for interrupt before sending next byte
 			if(i != 0){
-				logger->Log("spi_read: Waiting for interrupt", LOGGER_LEVEL_DEBUG);
+				logger->Log("spi_read: Waiting for interrupt", LOGGER_LEVEL_SUPER_DEBUG);
 				retval = poll(fds, 1, timeout);
 				if(!(fds->revents & POLLPRI) || retval == 0){
 					logger->Log("Poll timeout!", LOGGER_LEVEL_ERROR);
@@ -263,14 +264,14 @@ int SPI_HALServer::spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_bufp){
 			}
 
 			read(fds->fd, &clearBuf, 1);
-			logger->Log("spi_read: Reading byte %d: ", buf_pt, LOGGER_LEVEL_DEBUG);
+			logger->Log("spi_read: Reading byte %d: ", buf_pt, LOGGER_LEVEL_SUPER_DEBUG);
 			tr.tx_buf =  (unsigned long) &tx;
 			tr.rx_buf =  (unsigned long) &rx;
 
 			ioctl(slave_fd, SPI_IOC_MESSAGE(1), &tr);
 			rx_buf[buf_pt] = rx;
 
-			logger->Log("spi_read: byte value: ------------- 0x%X", rx, LOGGER_LEVEL_DEBUG);
+			logger->Log("spi_read: byte value: ------------- 0x%X", rx, LOGGER_LEVEL_SUPER_DEBUG);
 			buf_pt++;
 		}
 
@@ -283,21 +284,21 @@ int SPI_HALServer::spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_bufp){
 		//Read in remaining bytes
 		for(i = 0; i < packet_len - 14; i++){
 			//Wait for interrupt before sending next byte
-			logger->Log("spi_read: Waiting for interrupt", LOGGER_LEVEL_DEBUG);
+			logger->Log("spi_read: Waiting for interrupt", LOGGER_LEVEL_SUPER_DEBUG);
 			retval = poll(fds, 1, timeout);
 			if(!(fds->revents & POLLPRI) || retval == 0){
 				logger->Log("Poll timeout!", LOGGER_LEVEL_ERROR);
 				return 0;
 			}
 			read(fds->fd, &clearBuf, 1);
-			logger->Log("spi_read: Reading byte %d: ", buf_pt, LOGGER_LEVEL_DEBUG);
+			logger->Log("spi_read: Reading byte %d: ", buf_pt, LOGGER_LEVEL_SUPER_DEBUG);
 			tr.tx_buf =  (unsigned long) &tx;
 			tr.rx_buf =  (unsigned long) &rx;
 
 			ioctl(slave_fd, SPI_IOC_MESSAGE(1), &tr);
 			rx_buf[buf_pt] = rx;
 
-			logger->Log("spi_read: byte value: ------------- 0x%x", rx, LOGGER_LEVEL_DEBUG);
+			logger->Log("spi_read: byte value: ------------- 0x%x", rx, LOGGER_LEVEL_SUPER_DEBUG);
 			buf_pt++;
 		}
 

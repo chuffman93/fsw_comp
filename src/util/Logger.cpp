@@ -109,6 +109,9 @@ void Logger::GetInfo(LoggerLevelType level_in){
 
 	// Display the log level
 	switch(level_in){
+	case LOGGER_LEVEL_SUPER_DEBUG:
+		printf("SPR_DBG:  ");
+		break;
 	case LOGGER_LEVEL_DEBUG:
 		printf("DEBUG:    ");
 		break;

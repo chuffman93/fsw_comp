@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <cstring>
 #include <string.h>
+#include <sys/stat.h>
 
 //#include "boards/backplane/dbg_led.h"
 
@@ -34,6 +35,7 @@ namespace Phoenix
 {
 	namespace Servers
 	{
+		struct stat sb;
 		Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 		//------------------------------------------- Message Handlers -------------------------------------------
@@ -307,41 +309,59 @@ namespace Phoenix
 
 		void prepPowerGPIOs(void){
 			// COM
-			system("echo 47 > \"/sys/class/gpio/export\"");
-			system("echo \"out\" > \"/sys/class/gpio/pioB15/direction\"");
+			if(!(stat("/sys/class/gpio/pioB15/", &sb) == 0 && S_ISDIR(sb.st_mode))){
+				system("echo 47 > \"/sys/class/gpio/export\"");
+				system("echo \"out\" > \"/sys/class/gpio/pioB15/direction\"");
+			}
 
 			// ACS
-			system("echo 57 > \"/sys/class/gpio/export\"");
-			system("echo \"out\" > \"/sys/class/gpio/pioB25/direction\"");
+			if(!(stat("/sys/class/gpio/pioB25/", &sb) == 0 && S_ISDIR(sb.st_mode))){
+				system("echo 57 > \"/sys/class/gpio/export\"");
+				system("echo \"out\" > \"/sys/class/gpio/pioB25/direction\"");
+			}
 
 			// PLD
-			system("echo 49 > \"/sys/class/gpio/export\"");
-			system("echo \"out\" > \"/sys/class/gpio/pioB17/direction\"");
+			if(!(stat("/sys/class/gpio/pioB17/", &sb) == 0 && S_ISDIR(sb.st_mode))){
+				system("echo 49 > \"/sys/class/gpio/export\"");
+				system("echo \"out\" > \"/sys/class/gpio/pioB17/direction\"");
+			}
 
 			// GPS
-			system("echo 59 > \"/sys/class/gpio/export\"");
-			system("echo \"out\" > \"/sys/class/gpio/pioB27/direction\"");
+			if(!(stat("/sys/class/gpio/pioB27/", &sb) == 0 && S_ISDIR(sb.st_mode))){
+				system("echo 59 > \"/sys/class/gpio/export\"");
+				system("echo \"out\" > \"/sys/class/gpio/pioB27/direction\"");;
+			}
 
 			// AUXCOM
-			system("echo 43 > \"/sys/class/gpio/export\"");
-			system("echo \"out\" > \"/sys/class/gpio/pioB11/direction\"");
+			if(!(stat("/sys/class/gpio/pioB11/", &sb) == 0 && S_ISDIR(sb.st_mode))){
+				system("echo 43 > \"/sys/class/gpio/export\"");
+				system("echo \"out\" > \"/sys/class/gpio/pioB11/direction\"");;
+			}
 
 			//-----------------------RESET LINES--------------------------------------
 			//EPS
-			system("echo 138 > \"/sys/class/gpio/export\"");
-			system("echo \"out\" > \"/sys/class/gpio/pioE10/direction\"");
+			if(!(stat("/sys/class/gpio/pioE10/", &sb) == 0 && S_ISDIR(sb.st_mode))){
+				system("echo 138 > \"/sys/class/gpio/export\"");
+				system("echo \"out\" > \"/sys/class/gpio/pioE10/direction\"");;
+			}
 
 			//COM
-			system("echo 11 > \"/sys/class/gpio/export\"");
-			system("echo \"out\" > \"/sys/class/gpio/pioA11/direction\"");
+			if(!(stat("/sys/class/gpio/pioA11/", &sb) == 0 && S_ISDIR(sb.st_mode))){
+				system("echo 11 > \"/sys/class/gpio/export\"");
+				system("echo \"out\" > \"/sys/class/gpio/pioA11/direction\"");;
+			}
 
 			//ACS
-			system("echo 12 > \"/sys/class/gpio/export\"");
-			system("echo \"out\" > \"/sys/class/gpio/pioA12/direction\"");
+			if(!(stat("/sys/class/gpio/pioA12/", &sb) == 0 && S_ISDIR(sb.st_mode))){
+				system("echo 12 > \"/sys/class/gpio/export\"");
+				system("echo \"out\" > \"/sys/class/gpio/pioA12/direction\"");;
+			}
 
 			//PLD
-			system("echo 139 > \"/sys/class/gpio/export\"");
-			system("echo \"out\" > \"/sys/class/gpio/pioE11/direction\"");
+			if(!(stat("/sys/class/gpio/pioE11/", &sb) == 0 && S_ISDIR(sb.st_mode))){
+				system("echo 139 > \"/sys/class/gpio/export\"");
+				system("echo \"out\" > \"/sys/class/gpio/pioE11/direction\"");;
+			}
 		}
 
 		void toggleSubPower(HardwareLocationIDType subsystem, bool state){

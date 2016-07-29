@@ -207,17 +207,32 @@ namespace Phoenix
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 			GPS_BESTXYZ * gpsData = gpsServer->GetGPSDataPtr();
 			char * token;
+			char * buffPtr = buffer;
 
 			logger->Log("GPSStdTasks: Processing BESTXYZ", LOGGER_LEVEL_DEBUG);
+
+			bool containsDelimiter = false;
+			while((buffPtr - buffer != 350) && (*buffPtr != '\0')){
+				if(*buffPtr++ == '*'){
+					containsDelimiter = true;
+					break;
+				}
+			}
+
+			if(!containsDelimiter){
+				logger->Log("GPSStdTasks: BESTXYZ doesn't contain '*'", LOGGER_LEVEL_WARN);
+				return false;
+			}
 
 			// split into message and crc
 			char * message = strtok(buffer, "*");
 			char * crcStr = strtok(NULL, "*");
 			uint32 crc = strtoul(crcStr, &token, 16);
 
+
 			// validate crc
 			if(crc != CalculateCRC_GPS(message)){
-				logger->Log("GPSStdTasks: invalid checksum!", LOGGER_LEVEL_WARN);
+				logger->Log("GPSStdTasks: invalid CRC!", LOGGER_LEVEL_WARN);
 				return false;
 			}
 
@@ -284,6 +299,8 @@ namespace Phoenix
 			token = strtok(NULL, ","); // (UNUSED) signals used
 
 			gpsData->round_seconds = (uint16) lroundf(gpsData->GPSSec);
+
+			logger->Log("GPSStdTasks: Successfully processed BESTXYZ data", LOGGER_LEVEL_INFO);
 			return true;
 		}
 
@@ -292,8 +309,22 @@ namespace Phoenix
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 			double doubleHolder;
 			char * token;
+			char * buffPtr = buffer;
 
 			logger->Log("GPSStdTasks: Processing GPRMC", LOGGER_LEVEL_DEBUG);
+
+			bool containsDelimiter = false;
+			while((buffPtr - buffer != 350) && (*buffPtr != '\0')){
+				if(*buffPtr++ == '*'){
+					containsDelimiter = true;
+					break;
+				}
+			}
+
+			if(!containsDelimiter){
+				logger->Log("GPSStdTasks: GPRMC doesn't contain '*'", LOGGER_LEVEL_WARN);
+				return false;
+			}
 
 			// split into message and checksum
 			char * message = strtok(buffer, "*");
@@ -301,7 +332,7 @@ namespace Phoenix
 			long check = strtol(checkStr, NULL, 16);
 
 			// validate checksum
-			if(check != CalculateNMEAChecksum(buffer)){
+			if(check != CalculateNMEAChecksum(message)){
 				logger->Log("GPSStdTasks: invalid checksum!", LOGGER_LEVEL_WARN);
 				return false;
 			}
@@ -346,6 +377,7 @@ namespace Phoenix
 			token = strtok(NULL, ","); // magnetic variation direction
 			token = strtok(NULL, ","); // mode indicator AND checksum
 
+			logger->Log("GPSStdTasks: Successfully processed GPRMC data", LOGGER_LEVEL_INFO);
 			return true;
 		}
 
@@ -384,13 +416,13 @@ namespace Phoenix
 			uint32 temp1;
 			uint32 temp2;
 			uint32 CRC = 0;
-			uint32 count = strlen(buffer);
 
-			while(count-- != 0){
+			while(*buffer != '\0'){
 				temp1 = (CRC >> 8) & 0x00FFFFFFL;
 				temp2 = CRCValue_GPS(((int) CRC ^ ((uint8) *buffer++)) & 0xff);
 				CRC = temp1 ^ temp2;
 			}
+
 			return CRC;
 		}
 

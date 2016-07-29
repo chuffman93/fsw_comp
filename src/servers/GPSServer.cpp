@@ -46,7 +46,7 @@ namespace Phoenix
 	namespace Servers
 	{
 		// FIXME: find the right directory
-		const char * GPSServer::portname = (char *) "/dev/ttyS0";
+		const char * GPSServer::portname = (char *) "/dev/ttyS1";
 
 		// handler for Health and status measurements
 		static GPSHealthAndStatusHandler * gpsHSHandler;
@@ -152,17 +152,22 @@ namespace Phoenix
 		void GPSServer::SubsystemLoop(void)
 		{
 			//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
+			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+			logger->Log("GPSServer: entered subsystem loop", LOGGER_LEVEL_INFO);
 
 			char buffer[350];
 			int fd;
 
 			fd = CreatePort();
 
+			logger->Log("GPSServer: created port", LOGGER_LEVEL_INFO);
+
 			while(1)
 			{
 				uint64_t LastWakeTime = getTimeInMillis();
 				//wdm->Kick();
-				while(Listen(id));
+				//while(Listen(id));
 
 				// TODO: check where port is: ie. /dev/ttyS?
 				//		 Give the port the right permissions?
@@ -187,11 +192,14 @@ namespace Phoenix
 				logger->Log("GPSServer: Problem with initial port attributes.", LOGGER_LEVEL_ERROR);
 			}
 
-			port.c_iflag &= ~(IGNBRK | BRKINT | ICRNL | INLCR | PARMRK | INPCK | ISTRIP | IXON);
-			port.c_cflag |= CLOCAL | CREAD | CS8;
-			port.c_cflag &= ~(CSIZE | PARENB | CSTOPB);
-			port.c_lflag &= ~(ECHO | ECHONL | ISIG);
-			port.c_lflag |= ICANON;
+//			port.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | INPCK | ISTRIP | IXON);
+//			port.c_iflag |= IGNPAR | ICRNL;
+//			port.c_oflag |= OPOST | ONLCR;
+//			port.c_cflag |= CLOCAL | CREAD | CS8;
+//			port.c_cflag &= ~(CSIZE | PARENB);
+//			port.c_lflag &= ~(ECHO | ECHONL);
+			port.c_lflag &= ~ECHO;
+//			port.c_lflag |= ICANON;
 
 			if(cfsetispeed(&port, B115200) < 0 || cfsetospeed(&port, B115200) < 0){
 				logger->Log("GPSServer: Problem setting the baud rate!", LOGGER_LEVEL_FATAL);
@@ -239,34 +247,26 @@ namespace Phoenix
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 			char c, c1;
-			uint8 readRet = 1;
 			uint16 counter = 0;
 
-			// Check that there's data
-			if(read(fd,&c,1) != 0){
-				logger->Log("GPSServer: Reading data from GPS", LOGGER_LEVEL_DEBUG);
+			logger->Log("GPSServer: preparing to read data", LOGGER_LEVEL_SUPER_DEBUG);
 
+			// Check that there's data
+			if(read(fd,&c,1) == 1){
 				// Check the first character
-				if(c != '#' || c != '$'){
-					logger->Log("GPSServer: Data doesn't start with '#' or '$'", LOGGER_LEVEL_WARN);
+				if(c != 35 && c != 36){ // '#' or '$'
+					logger->Log("GPSServer: Data doesn't start with '#' or '$'", LOGGER_LEVEL_SUPER_DEBUG);
+					while(read(fd,&c,1) == 1); // if no data, clear the buffer
 				}else{
-					buffer = {0};
 					c1 = c;
+
 					// read while there's more data, and ensure we don't overflow the buffer
-					while(counter < 350 && readRet != 0){
-						readRet = read(fd,&c,1);
+					while(counter < 350 && read(fd,&c,1) == 1){
 						buffer[counter++] = c;
 					}
 
 					logger->Log("GPSServer: Read data from GPS, now processing...", LOGGER_LEVEL_DEBUG);
 
-					for(int i = 0; i < counter; i++){
-						if(i%30 == 0){
-							printf("\n");
-						}
-						printf("%c", buffer[i]);
-					}
-					printf("\n");
 
 					if(c1 == '#'){
 						if(!BESTXYZProcess(buffer, counter)){

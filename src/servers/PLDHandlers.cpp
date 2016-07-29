@@ -51,17 +51,7 @@ FSWPacket * PLDDataHandler::Handle(const FSWPacket & packet)
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log("PLDHandlers: PLDDataHandler(): Unfinished method!", LOGGER_LEVEL_FATAL);
 
-//	void * outputArray[numParams] = {NULL};
-//	if(!ExtractParameters(packet, enumArray, numParams, outputArray))
-//	{
-//		ErrorMessage err(PLD_DATA_FAILURE);
-//		ReturnMessage * ret = new ReturnMessage(&err, false);
-//		return ret;
-//	}
-//
-//	uint32 ChunkNum = *(uint32 *) outputArray[0];
-//
-//	return (PLDDataRequest(ChunkNum));
+
 }
 
 FSWPacket * PLDResSetHandler::Handle(const FSWPacket & packet)

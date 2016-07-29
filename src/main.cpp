@@ -40,19 +40,19 @@ using namespace Phoenix::Servers;
 
 //---------------------------- Set which servers run --------------------------------------------------------------
 
-#define ACS_EN 1
+#define ACS_EN 0
 #define CDH_EN 0
 #define CMD_EN 0
 #define COM_EN 0
 #define EPS_EN 0
 #define ERR_EN 0
-#define GPS_EN 0
+#define GPS_EN 1
 #define PLD_EN 0
 #define THM_EN 0
-#define SCH_EN 1
+#define SCH_EN 0
 
 #define ETH_EN 0
-#define SPI_EN 1
+#define SPI_EN 0
 
 //---------------------------- Create server tasks ----------------------------------------------------------------
 //TODO:Add meaningful exit information to each server pthread_exit
@@ -88,7 +88,7 @@ void * taskRunACS(void * params)
 
 	modeManager->Attach(*acsServer);
 
-	for(int i = 0; i < 2; i++)
+	for(int i = 0; i < 5; i++)
 	{
 		//wdm->Kick();
 		usleep(1000000);
@@ -166,7 +166,7 @@ void * taskRunGPS(void * params)
 
 	modeManager->Attach(*gpsServer);
 
-	for(int i = 0; i < 20; i++)
+	for(int i = 0; i < 3; i++)
 	{
 		//wdm->Kick();
 		usleep(1000000);
@@ -179,7 +179,7 @@ void * taskRunGPS(void * params)
 		logger->Log("GPS Handlers registration failed!", LOGGER_LEVEL_ERROR);
 	}
 
-	static_cast<SubsystemServer*>(gpsServer)->SubsystemLoop();
+	gpsServer->SubsystemLoop();
 	pthread_exit(NULL);
 }
 
