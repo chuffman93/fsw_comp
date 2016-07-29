@@ -196,6 +196,10 @@ namespace Phoenix
 
 		FSWPacket * GPSReset()
 		{
+			// log bestxyz ontime 1
+			// log gprmc ontime 1
+			// SAVECONFIG
+
 			//TODO: Figure out how to reset the GPS chip
 			FSWPacket * ret = new FSWPacket(GPS_RESET_FAILURE, false, true, MESSAGE_TYPE_ERROR);
 			return ret;
@@ -208,6 +212,7 @@ namespace Phoenix
 			GPS_BESTXYZ * gpsData = gpsServer->GetGPSDataPtr();
 			char * token;
 			char * buffPtr = buffer;
+			bool solSuccess = true;
 
 			logger->Log("GPSStdTasks: Processing BESTXYZ", LOGGER_LEVEL_DEBUG);
 
@@ -259,6 +264,7 @@ namespace Phoenix
 			// parse the position log part of the message
 			if(strcmp("SOL_COMPUTED",strtok(log, ",")) != 0){
 				logger->Log("GPSStdTasks: No position solution computed!", LOGGER_LEVEL_WARN);
+				solSuccess = false;
 			}else{
 				logger->Log("GPSStdTasks: Valid position solution computed!", LOGGER_LEVEL_DEBUG);
 				token = strtok(NULL,","); // (UNUSED) position type
@@ -273,6 +279,7 @@ namespace Phoenix
 			// parse the velocity log part of the message
 			if(strcmp("SOL_COMPUTED",strtok(NULL, ",")) != 0){
 				logger->Log("GPSStdTasks: No velocity solution computed!", LOGGER_LEVEL_WARN);
+				solSuccess = false;
 			}else{
 				logger->Log("GPSStdTasks: Valid velocity solution computed!", LOGGER_LEVEL_DEBUG);
 				token = strtok(NULL,","); // (UNUSED) velocity type
@@ -299,6 +306,10 @@ namespace Phoenix
 			token = strtok(NULL, ","); // (UNUSED) signals used
 
 			gpsData->round_seconds = (uint16) lroundf(gpsData->GPSSec);
+
+			if(!solSuccess){
+				logger->Log("GPSStdTasks: Number of satellites tracked: %d", gpsData->numTracked, LOGGER_LEVEL_DEBUG);
+			}
 
 			logger->Log("GPSStdTasks: Successfully processed BESTXYZ data", LOGGER_LEVEL_INFO);
 			return true;

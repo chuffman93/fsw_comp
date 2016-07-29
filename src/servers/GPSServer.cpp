@@ -248,6 +248,7 @@ namespace Phoenix
 
 			char c, c1;
 			uint16 counter = 0;
+			bool readSuccess = true;
 
 			logger->Log("GPSServer: preparing to read data", LOGGER_LEVEL_SUPER_DEBUG);
 
@@ -263,6 +264,34 @@ namespace Phoenix
 					// read while there's more data, and ensure we don't overflow the buffer
 					while(counter < 350 && read(fd,&c,1) == 1){
 						buffer[counter++] = c;
+
+						// if BESTXYZ, read crc and return
+						if(c == '*' && c1 == '#'){
+							for(uint8 i = 0; i < 10; i++){
+								readSuccess &= (read(fd,&c,1) == 1);
+								buffer[counter++] = c;
+							}
+							if(readSuccess){
+								break;
+							}else{
+								logger->Log("GPSServer: error reading CRC from serial", LOGGER_LEVEL_WARN);
+								return;
+							}
+						}
+
+						// if GPRMC, read checksum and return
+						if(c == '*' && c1 == '$'){
+							for(uint8 i = 0; i < 4; i++){
+								readSuccess &= (read(fd,&c,1) == 1);
+								buffer[counter++] = c;
+							}
+							if(readSuccess){
+								break;
+							}else{
+								logger->Log("GPSServer: error reading checksum from serial", LOGGER_LEVEL_WARN);
+								return;
+							}
+						}
 					}
 
 					logger->Log("GPSServer: Read data from GPS, now processing...", LOGGER_LEVEL_DEBUG);
