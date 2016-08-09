@@ -40,19 +40,19 @@ using namespace Phoenix::Servers;
 
 //---------------------------- Set which servers run --------------------------------------------------------------
 
-#define ACS_EN 0
-#define CDH_EN 0
+#define ACS_EN 1
+#define CDH_EN 1
 #define CMD_EN 0
 #define COM_EN 0
 #define EPS_EN 0
 #define ERR_EN 0
-#define GPS_EN 1
+#define GPS_EN 0
 #define PLD_EN 0
 #define THM_EN 0
-#define SCH_EN 0
+#define SCH_EN 1
 
 #define ETH_EN 0
-#define SPI_EN 0
+#define SPI_EN 1
 
 //---------------------------- Create server tasks ----------------------------------------------------------------
 //TODO:Add meaningful exit information to each server pthread_exit

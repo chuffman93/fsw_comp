@@ -172,7 +172,8 @@ namespace Phoenix
 				last_time =  this_time;
 
 			}
+			printf("\n\n~ ~ ~ ~ ~ ~ ~ ~ Lock Failed! ~ ~ ~ ~ ~ ~ ~ ~\n\n\n");
 			return false;
 		}
-		}// Core
+	}// Core
 }//Phoenix

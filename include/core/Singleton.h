@@ -22,16 +22,19 @@ namespace Phoenix
 			*/
 			friend class Factory;
 			
-	        protected:
-				Singleton();
-				virtual bool IsFullyInitialized(void);
-				virtual ~Singleton(void);
-				bool TakeLock(size_t xBlockTime);
-				bool GiveLock(void);
-	        
-	        private:				
-				pthread_mutex_t lockHandle;
-				int initVar;
+        public:
+			bool CheckLock(void);
+
+		protected:
+			Singleton();
+			virtual bool IsFullyInitialized(void);
+			virtual ~Singleton(void);
+			bool TakeLock(size_t xBlockTime);
+			bool GiveLock(void);
+
+		private:
+			pthread_mutex_t lockHandle;
+			int initVar;
         };
 	}
 }

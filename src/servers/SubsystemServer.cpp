@@ -55,8 +55,8 @@ namespace Phoenix
 			
 			while(1)
 			{
-				//dispatcher->Listen(id);
 				Listen(id);
+				usleep(50000);
 				
 				StateFunc function = GetStateMap()[currentState].function;
 

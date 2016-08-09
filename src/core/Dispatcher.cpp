@@ -180,6 +180,7 @@ namespace Phoenix
 					}
 					catch (bad_alloc & e)
 					{
+						this->GiveLock();
 						return false;
 					}
 					if (numPackets < DISPATCHER_QUEUE_LENGTH)
@@ -198,6 +199,7 @@ namespace Phoenix
 						this->GiveLock();
 						return false;
 					}
+					this->GiveLock();
 					return false;
 				}
 				else
@@ -234,7 +236,6 @@ namespace Phoenix
 			if (true == this->TakeLock(MAX_BLOCK_TIME))
 			{
 				// Check for the first message in the queue
-
 				if (mq_timed_receive(queueNameRX, &packetOut, 0, DISPATCHER_MAX_DELAY) == false)
 				{
 					this->GiveLock();
@@ -473,9 +474,7 @@ namespace Phoenix
 			size_t numPackets;
 			switch(protocolChoice){
 				case ACP_PROTOCOL_SPI:
-					printf("Taking lock\n");
 					if(true == this->TakeLock(MAX_BLOCK_TIME)){
-						printf("Took lock\n");
 						numPackets = mq_size(spi_server->queueHandleTX, spi_server->queueAttrTX);
 						if(numPackets < DISPATCHER_QUEUE_LENGTH){ // same length as all queues
 							logger->Log("Dispatcher: Placing message on SPI queue", LOGGER_LEVEL_INFO);

@@ -98,7 +98,7 @@ namespace Phoenix
 				return false;
 			}
 
-			logger->Log(" DispatchStdTasks: Listen(): Found a packet, looking for a handler.", LOGGER_LEVEL_DEBUG);
+			logger->Log(" DispatchStdTasks: Listen() w/ id %u: Found a packet, looking for a handler.", serverID, LOGGER_LEVEL_DEBUG);
 
 			if(NULL == (registry = dispatcher->FindHandler(serverID, packet))){
 				return false;

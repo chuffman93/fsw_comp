@@ -145,6 +145,7 @@ namespace Phoenix
 		// -------------------------------------------- Loops ---------------------------------------------
 		void CDHServer::loopInit(){
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
 #if HS_EN
 			bool initHS = devMngr->initializeHS();
 			if(!initHS){
