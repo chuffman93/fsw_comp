@@ -1,11 +1,11 @@
 /*
  * SPI_Server.cpp
  *
- *     Created: March 2016
- *      Author: Connor Kelleher
+ *	Created: March 2016
+ *		Author: Connor Kelleher
  *
- *  Updated: June, 2016
- *  	 By: Alex St. Clair, Robert Belter
+ *	Updated: June, 2016
+ *		Authors: Alex St. Clair, Robert Belter
  */
 
 #include <stdarg.h>
@@ -34,6 +34,7 @@ using namespace Phoenix;
 using namespace Core;
 
 static int timeout = 20;
+
 char * SPI_HALServer::queueNameSPITX = (char *) "/queueHandleSPITX";
 
 SPI_HALServer::SPI_HALServer()
@@ -74,65 +75,56 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 
 		// ---- TX ----------------------------------------------------------------------------------------------------------------
 		FSWPacket * txPacket;
-//		if(true == this->TakeLock(MAX_BLOCK_TIME)){
-			if(mq_size(queueHandleTX, queueAttrTX) > 0){
-				if(mq_timed_receive(queueNameSPITX, &txPacket, 0, DISPATCHER_MAX_DELAY)){
-					if(SPIDispatch(*txPacket)){
-						logger->Log("SPI_HAL Server: Successfully dispatched packet", LOGGER_LEVEL_INFO);
-					}else{
-						// TODO: send error to RX queue?
-						logger->Log("SPI_HAL Server: Packet dispatch failed!", LOGGER_LEVEL_WARN);
-					}
+		if(mq_size(queueHandleTX, queueAttrTX) > 0){
+			printf("Size is %d\n", mq_size(queueHandleTX, queueAttrTX));
+			if(mq_timed_receive(queueNameSPITX, &txPacket, 0, DISPATCHER_MAX_DELAY)){
+				if(SPIDispatch(*txPacket)){
+					logger->Log("SPI_HAL Server: Successfully dispatched packet", LOGGER_LEVEL_INFO);
 				}else{
-					logger->Log("SPI_HAL Server: Queue receive for TX failed!", LOGGER_LEVEL_WARN);
+					// TODO: send error to RX queue?
+					logger->Log("SPI_HAL Server: Packet dispatch failed!", LOGGER_LEVEL_WARN);
 				}
+			}else{
+				logger->Log("SPI_HAL Server: Queue receive for TX failed!", LOGGER_LEVEL_WARN);
 			}
-			//this->GiveLock();
-//		}else{
-//			logger->Log("SPI_HAL Server: TX semaphore failed", LOGGER_LEVEL_WARN);
-//		}
+		}
 
 		// ---- RX ----------------------------------------------------------------------------------------------------------------
-//		if (true == this->TakeLock(MAX_BLOCK_TIME)){
-			for (int i = 0; i < NUM_SLAVES; i++){
-				poll(poll_fds+i, 1, 10); // quick timeout (only checking for events, not waiting)
-				read(int_fds[i], &clearBuf, 1);
-				if (poll_fds[i].revents & POLLPRI){
-					logger->Log("SPI_HAL Server: found interrupt on fds %d", i, LOGGER_LEVEL_DEBUG);
-					slave_fd = spi_fds[i];
-					fds.fd = int_fds[i];
-					fds.events = POLLPRI;
-					nbytes = spi_read(slave_fd, &fds, &rxBuf);
-					if(nbytes < 16){
-						rxPacket = NULL;
-					}else{
-						rxPacket = new FSWPacket(rxBuf, nbytes);
-					}
+		for (int i = 0; i < NUM_SLAVES; i++){
+			poll(poll_fds+i, 1, 10); // quick timeout (only checking for events, not waiting)
+			read(int_fds[i], &clearBuf, 1);
+			if (poll_fds[i].revents & POLLPRI){
+				logger->Log("SPI_HAL Server: found interrupt on fds %d", i, LOGGER_LEVEL_DEBUG);
+				slave_fd = spi_fds[i];
+				fds.fd = int_fds[i];
+				fds.events = POLLPRI;
+				nbytes = spi_read(slave_fd, &fds, &rxBuf);
+				if(nbytes < 16){
+					rxPacket = NULL;
+				}else{
+					rxPacket = new FSWPacket(rxBuf, nbytes);
+				}
 
-					// Check bounds and send to dispatcher RX queue
-					if(rxPacket == NULL){
-						logger->Log("SPI_HAL Server: There was an error reading the packet. Not placing on queue!", LOGGER_LEVEL_ERROR);
-					}else if ((rxPacket->GetDestination() == LOCATION_ID_INVALID )|| (rxPacket->GetSource() == LOCATION_ID_INVALID)){
-						logger->Log("SPI_HAL Server: FSW Packet src or dest invalid. Not placing on queue!", LOGGER_LEVEL_WARN);
-						logger->Log("Ret dest: %d", rxPacket->GetDestination(), LOGGER_LEVEL_DEBUG);
-						logger->Log("Ret source: %d", rxPacket->GetSource(), LOGGER_LEVEL_DEBUG);
-						delete rxPacket;
+				// Check bounds and send to dispatcher RX queue
+				if(rxPacket == NULL){
+					logger->Log("SPI_HAL Server: There was an error reading the packet. Not placing on queue!", LOGGER_LEVEL_ERROR);
+				}else if ((rxPacket->GetDestination() == LOCATION_ID_INVALID )|| (rxPacket->GetSource() == LOCATION_ID_INVALID)){
+					logger->Log("SPI_HAL Server: FSW Packet src or dest invalid. Not placing on queue!", LOGGER_LEVEL_WARN);
+					logger->Log("Ret dest: %d", rxPacket->GetDestination(), LOGGER_LEVEL_DEBUG);
+					logger->Log("Ret source: %d", rxPacket->GetSource(), LOGGER_LEVEL_DEBUG);
+					delete rxPacket;
+				}else{
+					Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+					queueSize = mq_size(dispatcher->queueHandleRX, dispatcher->queueAttrRX);
+					if(queueSize < DISPATCHER_QUEUE_LENGTH){
+						logger->Log("SPI_Server: placing RX message on dispatcher RX queue", LOGGER_LEVEL_INFO);
+						queueSuccess = mq_timed_send(dispatcher->queueNameRX, &rxPacket, MAX_BLOCK_TIME, 0);
 					}else{
-						Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-						queueSize = mq_size(dispatcher->queueHandleRX, dispatcher->queueAttrRX);
-						if(queueSize < DISPATCHER_QUEUE_LENGTH){
-							logger->Log("SPI_Server: placing RX message on dispatcher RX queue", LOGGER_LEVEL_INFO);
-							queueSuccess = mq_timed_send(dispatcher->queueNameRX, &rxPacket, MAX_BLOCK_TIME, 0);
-						}else{
-							logger->Log("SPI_Server: RX queue full!", LOGGER_LEVEL_FATAL); // FIXME: handle this!
-						}
+						logger->Log("SPI_Server: RX queue full!", LOGGER_LEVEL_FATAL); // FIXME: handle this!
 					}
 				}
 			}
-			//this->GiveLock();
-//		}else{
-//			logger->Log("SPI_HAL Server: RX semaphore failed", LOGGER_LEVEL_WARN);
-//		}
+		}
 
 		// FIXME: figure out wait time
 		waitUntil(enterTime, 5); // wait 5 ms
@@ -148,7 +140,7 @@ bool SPI_HALServer::SPIDispatch(Phoenix::Core::FSWPacket & packet){
 	uint8_t * packetBuffer;
 	struct pollfd fds;
 	int destination = 0;
-
+	printf("packet is %x\n", &packet);
 	packetLength = packet.GetFlattenSize();
 	logger->Log("SPI_Server: SPIDispatch(): Dispatching packet of size %d", (uint32) packetLength, LOGGER_LEVEL_DEBUG);
 
@@ -375,8 +367,7 @@ void SPI_HALServer::GPIOsetup(void){
 	uint8_t mode = SPI_MODE_1;
 	uint32_t speed = 1000000;
 	uint8_t clearBuf;
-
-	memset((void*)poll_fds, 0, sizeof(poll_fds));
+	memset((void*)poll_fds, 0, sizeof(poll_fds));//
 
 	//Initalize GPIO INT Pins TODO EXPORT PINS AND SET INTS
 	logger->Log("SPI_Server: Loop(): Initializing GPIO INT pins", LOGGER_LEVEL_DEBUG);
