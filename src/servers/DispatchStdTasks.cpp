@@ -16,6 +16,8 @@
 #include "core/ErrorMessage.h"
 #include "core/ConfigMessage.h"
 
+#include "HAL/SPI_Server.h"
+
 #include "util/FileHandler.h"
 #include "util/Logger.h"
 #include <assert.h>
@@ -49,27 +51,38 @@ namespace Phoenix
 			
 			//grab dispatcher instance, if it fails return DISPATCHER_NO_INSTANCE
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+			SPI_HALServer * spiServer = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
 
 			//grab and increment the packet number
 			query->SetNumber(dispatcher->packetNumber++);
 			
 			//Dispatch packet, if it fails return DISPATCH_FAILED
-			if(!dispatcher->Dispatch(*query))
-			{
+			int dispatchRet = dispatcher->Dispatch(*query);
+			if(dispatchRet == -1){
 				logger->Log("DispatchStdTasks: Failed to dispatch packet\n", LOGGER_LEVEL_WARN);
 				FSWPacket * ret = new FSWPacket(0, DISPATCH_FAILED, false, false, MESSAGE_TYPE_ERROR);
 				delete query;
 				return ret;
 			}
-			//debug_led_set_led(1, LED_ON);
 
 			DispatcherStatusEnum stat;
 			FSWPacket * response;
 			//Wait for return message, if it fails return status response from dispatcher
 			logger->Log("DispatchStdTasks: Waiting for return message\n", LOGGER_LEVEL_DEBUG);
-			if(DISPATCHER_STATUS_OK != (stat = WaitForDispatchResponse(*query, &response)))
-			{
+			if(DISPATCHER_STATUS_OK != (stat = WaitForDispatchResponse(*query, &response))){
 				logger->Log("DispatchStdTasks: Did not receive response\n", LOGGER_LEVEL_WARN);
+				if(stat == DISPATCHER_STATUS_MSG_RCVD_NO_RESP_SENT){
+					if(dispatchRet == ACP_PROTOCOL_SPI){
+						if(dispatcher->CheckQueueForMatchingPacket(spiServer->queueNameSPITX, *query, response, dispatcher->CHECK_SAME)){
+							logger->Log("DispatchStdTasks: Removed packet from queue SPI TX queue", LOGGER_LEVEL_DEBUG);
+						}else{
+							logger->Log("DispatchStdTasks: Couldn't remove packet from SPI TX queue", LOGGER_LEVEL_ERROR);
+						}
+					}else{
+						// FIXME: once ethernet is brought up, figure this out
+						logger->Log("Ethernet server timeout! ------- FIX THIS -------", LOGGER_LEVEL_ERROR);
+					}
+				}
 				FSWPacket * ret = new FSWPacket(0, DISPATCHER_STATUS_ERR, false, false, MESSAGE_TYPE_ERROR);
 				delete query;
 				return ret;
@@ -88,6 +101,7 @@ namespace Phoenix
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 			logger->Log("DispatchStdTasks: PacketProcess() called", LOGGER_LEVEL_DEBUG);
 
+			if(retPacket == NULL) return;
 			// Get packet info
 			bool success = retPacket->IsSuccess();
 			MessageCodeType retOpcode = retPacket->GetOpcode();
@@ -194,7 +208,7 @@ namespace Phoenix
 			logger->Log("    Dispatcher: Checking queue for matching packet", LOGGER_LEVEL_DEBUG);
 			for (i = 0; i < DISPATCHER_MAX_RESPONSE_TRIES; ++i)
 			{
-				if (dispatcher->CheckQueueForMatchingPacket(packet, retPacket, dispatcher->CHECK_MATCHING_RESPONSE))
+				if (dispatcher->CheckQueueForMatchingPacket(dispatcher->queueNameRX, packet, retPacket, dispatcher->CHECK_MATCHING_RESPONSE))
 				{
 					logger->Log("    Dispatcher: WaitForDispatchResponse(): Matching FSWPacket found.", LOGGER_LEVEL_DEBUG);
 
@@ -208,9 +222,9 @@ namespace Phoenix
 			logger->Log("   Dispatch:  No response, see if the packet we sent has been received.", LOGGER_LEVEL_DEBUG);
 			//debug_led_set_led(6, LED_ON);
 
-			if (dispatcher->CheckQueueForMatchingPacket(packet, retPacket, dispatcher->CHECK_SAME))
+			if (dispatcher->CheckQueueForMatchingPacket(dispatcher->queueNameRX, packet, retPacket, dispatcher->CHECK_SAME))
 			{
-				logger->Log("   Dispatch: Command not received, removed from queue", LOGGER_LEVEL_ERROR);
+				logger->Log("   Dispatch: Command not received", LOGGER_LEVEL_ERROR);
 				return DISPATCHER_STATUS_MSG_NOT_RCVD;
 			}
 

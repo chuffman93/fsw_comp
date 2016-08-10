@@ -159,13 +159,12 @@ namespace Phoenix
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-#ifdef HARDWARE
 			FSWPacket * HSRet = EPSHealthStat();
-			MessageProcess(SERVER_LOCATION_EPS, HSRet);
+			printf("Here\n");
+			PacketProcess(SERVER_LOCATION_EPS, HSRet);
 
 			FSWPacket * SOCRet = EPSStateOfCharge();
-			MessageProcess(SERVER_LOCATION_EPS, SOCRet);
-#endif //HARDWARE
+			PacketProcess(SERVER_LOCATION_EPS, SOCRet);
 		}
 
 	} // End Namespace servers

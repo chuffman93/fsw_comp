@@ -33,7 +33,7 @@
 using namespace Phoenix;
 using namespace Core;
 
-static int timeout = 100;
+static int timeout = -1;
 char * SPI_HALServer::queueNameSPITX = (char *) "/queueHandleSPITX";
 
 SPI_HALServer::SPI_HALServer()
@@ -76,6 +76,7 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 		FSWPacket * txPacket;
 		if(true == this->TakeLock(MAX_BLOCK_TIME)){
 			if(mq_size(queueHandleTX, queueAttrTX) > 0){
+				printf("Size is %d\n", mq_size(queueHandleTX, queueAttrTX));
 				if(mq_timed_receive(queueNameSPITX, &txPacket, 0, DISPATCHER_MAX_DELAY)){
 					if(SPIDispatch(*txPacket)){
 						logger->Log("SPI_HAL Server: Successfully dispatched packet", LOGGER_LEVEL_INFO);
@@ -133,6 +134,7 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 			logger->Log("SPI_HAL Server: RX semaphore failed", LOGGER_LEVEL_WARN);
 		}
 
+
 		// FIXME: figure out wait time
 		waitUntil(enterTime, 5); // wait 5 ms
 	}
@@ -147,7 +149,7 @@ bool SPI_HALServer::SPIDispatch(Phoenix::Core::FSWPacket & packet){
 	uint8_t * packetBuffer;
 	struct pollfd fds;
 	int destination = 0;
-
+	printf("packet is %x\n", &packet);
 	packetLength = packet.GetFlattenSize();
 	logger->Log("SPI_Server: SPIDispatch(): Dispatching packet of size %d", (uint32) packetLength, LOGGER_LEVEL_DEBUG);
 
@@ -374,8 +376,7 @@ void SPI_HALServer::GPIOsetup(void){
 	uint8_t mode = SPI_MODE_1;
 	uint32_t speed = 1000000;
 	uint8_t clearBuf;
-
-	memset((void*)poll_fds, 0, sizeof(poll_fds));
+	memset((void*)poll_fds, 0, sizeof(poll_fds));//
 
 	//Initalize GPIO INT Pins TODO EXPORT PINS AND SET INTS
 	logger->Log("SPI_Server: Loop(): Initializing GPIO INT pins", LOGGER_LEVEL_DEBUG);

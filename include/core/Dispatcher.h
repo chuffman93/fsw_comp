@@ -65,7 +65,7 @@ namespace Phoenix
          *  before failing when it is waiting for a response from a
          *  dispatched packet.
          */
-        #define DISPATCHER_MAX_RESPONSE_TRIES	5
+        #define DISPATCHER_MAX_RESPONSE_TRIES	15
 		
 		/*! \brief Dispatcher delay loop */
 		#define	MAX_DISPATCHER_LOOP		500
@@ -146,8 +146,10 @@ namespace Phoenix
              *  the packet's destination field.
              *
              *  \param packet FSWPacket to be dispatched.
-             *  \return true if the operation was successful and
-             *  false otherwise.
+             *  \return -1: error
+             *  		 0: RX queue
+             *  		 1: SPI TX queue (ACP_PROTOCOL_SPI)
+             *  		 2: ETH TX queue (ACP_PROTOCOL_ETH)
              *
              *  \note This function call should always be followed by a call
              *  to WaitForDispatchResponse.  These functions have been
@@ -156,7 +158,7 @@ namespace Phoenix
              *  have a chance to Listen for a message before looking for
              *  the response to the Dispatched message.
              */
-            bool Dispatch(FSWPacket & packet);
+            int Dispatch(FSWPacket & packet);
 
             /*! \brief Checks for a FSWPacket Addressed to a Given Server
              *
@@ -235,9 +237,10 @@ namespace Phoenix
 			 *  \note packetOut is only guaranteed to point to a valid
 			 *  packet if this function returns true.
 			 */
-			bool CheckQueueForMatchingPacket(const FSWPacket & packetIn,
-											 FSWPacket * &packetOut,
-											 DispatcherCheckType type);
+			bool CheckQueueForMatchingPacket(char * queueName,
+					const FSWPacket & packetIn,
+					FSWPacket * &packetOut,
+					DispatcherCheckType type);
 
             uint32_t DispatchToHardware(FSWPacket & packet);
 

@@ -40,18 +40,18 @@ using namespace Phoenix::Servers;
 //---------------------------- Set which servers run --------------------------
 
 #define ACS_EN 0
-#define CDH_EN 1
-#define CMD_EN 0
+#define CDH_EN 0
+#define CMD_EN 1
 #define COM_EN 0
 #define EPS_EN 0
 #define ERR_EN 0
 #define GPS_EN 0
-#define PLD_EN 1
+#define PLD_EN 0
 #define THM_EN 0
-#define SCH_EN 1
+#define SCH_EN 0
 
 #define ETH_EN 0
-#define SPI_EN 1
+#define SPI_EN 0
 
 //---------------------------- Create server tasks ----------------------------
 //TODO:Add meaningful exit information to each server pthread_exit
@@ -256,9 +256,10 @@ void * taskRunCMD(void * params)
 
 	modeManager->Attach(*cmdServer);
 
-	for(int i = 0; i < 10; i++)
+	for(int i = 0; i < 1; i++)
 	{
 		//wdm->Kick();
+		printf("Here\n");
 		usleep(1000000);
 	}
 
@@ -564,6 +565,9 @@ int main(int argc, char * argv[])
 	pthread_join(CDHThread, NULL);
 #endif //CDH_EN
 
+#if CMD_EN
+	pthread_join(CMDThread, NULL);
+#endif
 	logger->Log("Flight Software exiting from main! All relevant threads have exited!", LOGGER_LEVEL_FATAL);
 
 	return 42;

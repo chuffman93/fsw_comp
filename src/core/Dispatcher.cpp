@@ -151,23 +151,21 @@ namespace Phoenix
 			}
 		}
 
-		bool Dispatcher::Dispatch(FSWPacket & packet)
+		int Dispatcher::Dispatch(FSWPacket & packet)
 		{
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 			if(packet.GetDestination() < HARDWARE_LOCATION_MIN || packet.GetDestination() > SERVER_LOCATION_MAX){
-				return false;
+				return -1;
 			}
 		   if (packet.GetDestination() >= HARDWARE_LOCATION_MIN && packet.GetDestination() < HARDWARE_LOCATION_MAX)
 		   {
 			   logger->Log("---- Hardware Dispatch ----", LOGGER_LEVEL_DEBUG);
-			   uint32_t ret;
+			   int ret;
 			   ret=DispatchToHardware(packet);
-			   return (0 == ret);
+			   return ret;
 		   }
 		   else
 		   {
-
-
 				logger->Log("Now sending the message to the queue", LOGGER_LEVEL_DEBUG);
 
 
@@ -182,7 +180,7 @@ namespace Phoenix
 					}
 					catch (bad_alloc & e)
 					{
-						return false;
+						return -1;
 					}
 					if (numPackets < DISPATCHER_QUEUE_LENGTH)
 					{
@@ -191,26 +189,30 @@ namespace Phoenix
 						bool ret = mq_timed_send(queueNameRX, (&tmpPacket), MAX_BLOCK_TIME, 0);
 						numPackets = mq_size(queueHandleRX, queueAttrRX);
 						this->GiveLock();
-						return ret;
+						if(ret){
+							return 3;
+						}else{
+							return -1;
+						}
 					}
 					else
 					{
 						logger->Log("Dispatcher::Dispatch() Queue is full", LOGGER_LEVEL_WARN);
 						delete tmpPacket;
 						this->GiveLock();
-						return false;
+						return -1;
 					}
-					return false;
+					return -1;
 				}
 				else
 				{
 					logger->Log("Dispatch(): Semaphore failed", LOGGER_LEVEL_WARN);
-					return false;
+					return -1;
 				}
 			}
 		}
 
-		bool Dispatcher::CheckQueueForMatchingPacket(const FSWPacket & packetIn, FSWPacket * &packetOut, DispatcherCheckType type)
+		bool Dispatcher::CheckQueueForMatchingPacket(char * queueName, const FSWPacket & packetIn, FSWPacket * &packetOut, DispatcherCheckType type)
 		{
 			size_t numPackets, i;
 			FSWPacket * tmpPacket;
@@ -238,7 +240,7 @@ namespace Phoenix
 			{
 				// Check for the first message in the queue
 
-				if (mq_timed_receive(queueNameRX, &packetOut, 0, DISPATCHER_MAX_DELAY) == false)
+				if (mq_timed_receive(queueName, &packetOut, 0, DISPATCHER_MAX_DELAY) == false)
 				{
 					this->GiveLock();
 					return false;
@@ -273,14 +275,14 @@ namespace Phoenix
 						{
 							// Get the next packet.
 							//mqd_t tmpqueueHandle = open(queueName, O_RDONLY);
-							if (mq_timed_receive(queueNameRX, &tmpPacket, 0, 0)
+							if (mq_timed_receive(queueName, &tmpPacket, 0, 0)
 									== false)
 							{
 								//debug_led_set_led(4, LED_ON);
 								// Error: There should have been a packet in
 								// the queue, but there wasn't, so put
 								// packetOut back.
-								if (mq_timed_send(queueNameRX, &packetOut, 1, 0)
+								if (mq_timed_send(queueName, &packetOut, 1, 0)
 										== false)
 								{
 									// Error: This is really bad because we
@@ -296,7 +298,7 @@ namespace Phoenix
 							}
 							// Put packetOut back on the queue since it didn't
 							// match packetIn.
-							if (mq_timed_send(queueNameRX, &packetOut, 1, 0)
+							if (mq_timed_send(queueName, &packetOut, 1, 0)
 									== false)
 							{
 								// Error
@@ -318,7 +320,7 @@ namespace Phoenix
 						}
 						// No packets were found, so put the last packet
 						// back on the queue.
-						if (mq_timed_send(queueNameRX, &packetOut, 1, 0) == false)
+						if (mq_timed_send(queueName, &packetOut, 1, 0) == false)
 						{
 							// Error: This is really bad because we
 							// can't even preserve the state of
@@ -349,7 +351,7 @@ namespace Phoenix
 
 			tmpPacket.SetSource(serverID); // temp packet to check for response
 
-			if (!CheckQueueForMatchingPacket(tmpPacket, packet, CHECK_DEST_SOURCE)){
+			if (!CheckQueueForMatchingPacket(queueNameRX, tmpPacket, packet, CHECK_DEST_SOURCE)){
 				logger->Log("   Dispatcher: Listen(): No packets have been sent to this server.", LOGGER_LEVEL_DEBUG);
 				return false;
 			}
@@ -571,7 +573,7 @@ namespace Phoenix
 			}
 
 			if(sendSuccess){
-				return 0;
+				return protocolChoice;
 			}else{
 				return -3;
 			}

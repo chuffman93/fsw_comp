@@ -39,6 +39,7 @@ namespace Phoenix
 			logger->Log("EPSStdTasks: unfinished function entered!", LOGGER_LEVEL_FATAL);
 
 			FSWPacket * HSQuery = new FSWPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, 0, EPS_HS_CMD, true, false, MESSAGE_TYPE_COMMAND);
+
 			FSWPacket * HSRet = DispatchPacket(HSQuery);
 			logger->Log("EPSStdTasks: EPSHealthStat(): packet dispatched, HSRet acquired", LOGGER_LEVEL_INFO);
 			if(HSRet == NULL){
