@@ -19,7 +19,7 @@
 #include "core/CommandMessage.h"
 
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 #define BUFFER_SIZE 100
 

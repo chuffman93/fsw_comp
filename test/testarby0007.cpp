@@ -19,7 +19,7 @@
 #include "core/ErrorMessage.h"
 
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 using namespace rel_ops;
 
 #define SERVER_ID	1

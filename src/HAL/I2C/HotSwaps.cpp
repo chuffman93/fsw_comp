@@ -11,10 +11,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace HAL
 	{

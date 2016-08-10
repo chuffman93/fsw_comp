@@ -5,7 +5,7 @@
 
 using namespace std;
 
-namespace Phoenix
+namespace AllStar
 {
     namespace Core
     {

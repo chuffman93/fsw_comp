@@ -17,7 +17,7 @@
 #include <string>
 #include <vector>
 
-namespace Phoenix
+namespace AllStar
 {
     namespace Core
     {

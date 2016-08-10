@@ -17,7 +17,7 @@
 #include "core/CommandMessage.h"
 
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 TEST(TestVariableTypeData, PacketConstructor) {
 	CommandMessage cmd(1);

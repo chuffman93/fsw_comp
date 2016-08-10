@@ -13,7 +13,7 @@
 #include "core/MessageHandler.h"
 
 // Split measurement handler into specific measurements
-class EPSHSHandler : public Phoenix::Core::MessageHandler
+class EPSHSHandler : public AllStar::Core::MessageHandler
 {
 public:
     /*! \brief Handle a request for power data.
@@ -21,10 +21,10 @@ public:
 	*  \param packet FSWPacket containing the message.
 	*  \return ReturnMessage that serves as a response.
 	*/
-    Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+    AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 };
 
-class EPSStateofChargeHandler : public Phoenix::Core::MessageHandler
+class EPSStateofChargeHandler : public AllStar::Core::MessageHandler
 {
 public:
 	/* \brief Handle a request for state of charge data
@@ -33,10 +33,10 @@ public:
 	 * \return ReturnMessage that serves as a response
 	 */
 
-	Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+	AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 };
 
-class EPSPowerCycleHandler : public Phoenix::Core::MessageHandler
+class EPSPowerCycleHandler : public AllStar::Core::MessageHandler
 {
 public:
         /*! \brief Handle the power cycle command.
@@ -44,10 +44,10 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+        AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 };
 
-class EPSDisableOCHandler : public Phoenix::Core::MessageHandler
+class EPSDisableOCHandler : public AllStar::Core::MessageHandler
 {
 public:
         /*! \brief Handle a disable overcurrent protection command.
@@ -55,10 +55,10 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+        AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 };
 
-class EPSEnableOCHandler : public Phoenix::Core::MessageHandler
+class EPSEnableOCHandler : public AllStar::Core::MessageHandler
 {
 public:
         /*! \brief Handle a enable overcurrent protection command.
@@ -66,10 +66,10 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+        AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 };
 
-class EPSErrorHandler : public Phoenix::Core::MessageHandler
+class EPSErrorHandler : public AllStar::Core::MessageHandler
 {
 public:
         /*! \brief Handle an error generated on EPS.
@@ -77,10 +77,10 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+        AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 };
 
-class EPSPowerHandler : public Phoenix::Core::MessageHandler
+class EPSPowerHandler : public AllStar::Core::MessageHandler
 {
 public:
 	/*! \brief Handle a subsystem power off request
@@ -88,7 +88,7 @@ public:
 	 * \param packet FSWPacket containing a message
 	 * \return ReturnMessage that serves as a respone
 	 */
-	Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+	AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 private:
 	const static uint32 numParams = 3;
 	static uint32 enumArray[numParams];

@@ -2,7 +2,7 @@
  *  \brief Header File for the FSWPacket Class
  *
  *  This file contains the implementation of the FSWPacket class, encapsulates a
- *  packet in the Phoenix Message Protocol.
+ *  packet in the AllStar Message Protocol.
  */
 
 #include "core/FSWPacket.h"
@@ -15,7 +15,7 @@
 
 using namespace std;
 
-namespace Phoenix
+namespace AllStar
 {
     namespace Core
     {

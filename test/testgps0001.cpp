@@ -6,7 +6,7 @@
 
 using namespace std;
 using namespace rel_ops;
-using namespace Phoenix::HAL;
+using namespace AllStar::HAL;
 
 
 TEST(TestGPS, TestUnixConversion) {

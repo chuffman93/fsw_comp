@@ -18,7 +18,7 @@
 #include "core/CommandMessage.h"
 
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 #define TEST_OPCODE1 23
 #define TEST_OPCODE2 78

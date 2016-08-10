@@ -6,7 +6,7 @@
 
 #include "core/Permission.h"
 
-namespace Phoenix
+namespace AllStar
 {
     namespace Core
     {
@@ -47,7 +47,7 @@ namespace Phoenix
         
         bool Permission::ServerHasPermission(LocationIDType server) const
         {
-        	if (!(server < PHOENIX_NUM_SERVERS))
+        	if (!(server < ALLSTAR_NUM_SERVERS))
         	{
         		return false;
         	}
@@ -65,7 +65,7 @@ namespace Phoenix
         
         void Permission::SetServerPermission(LocationIDType server, bool permission)
         {
-        	if (!(server < PHOENIX_NUM_SERVERS))
+        	if (!(server < ALLSTAR_NUM_SERVERS))
 			{
 				return;
 			}

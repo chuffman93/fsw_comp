@@ -11,7 +11,7 @@
 #include "HAL/I2C/HotSwaps.h"
 #include "HAL/I2C/PowerMonitor.h"
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace HAL
 	{

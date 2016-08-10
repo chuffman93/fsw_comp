@@ -10,7 +10,7 @@
 
 using namespace std;
 using namespace rel_ops;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 void createMessageBuffer(uint8 * buffer, int size){
 	for(int i = 0; i < 10; i++){
@@ -135,7 +135,7 @@ TEST(TestFSWPacket, testPacketProcess){
 
 	FSWPacket * testPacket = new FSWPacket(testBuf, 18);
 
-	Phoenix::Servers::PacketProcess(SERVER_LOCATION_EPS, testPacket);
+	AllStar::Servers::PacketProcess(SERVER_LOCATION_EPS, testPacket);
 
 	free(testBuf);
 	delete testPacket;

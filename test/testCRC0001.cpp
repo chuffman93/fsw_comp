@@ -8,8 +8,8 @@
 
 using namespace std;
 using namespace rel_ops;
-//using namespace Phoenix::HAL;
-using namespace Phoenix::Core;
+//using namespace AllStar::HAL;
+using namespace AllStar::Core;
 
 //ensure that the function correctly calculates the crc
 //the file "test1" should be in the home directory

@@ -27,9 +27,9 @@
 //#include "boards/backplane/dbg_led.h"
 
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Servers
 	{
@@ -162,4 +162,4 @@ namespace Phoenix
 		}
 
 	} // end namespace servers
-} // end namespace Phoenix
+} // end namespace AllStar

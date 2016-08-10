@@ -14,7 +14,7 @@
 #include "core/ModeManager.h"
 #include "core/WatchdogManager.h"
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 class TestListener : public ModeListener
 {

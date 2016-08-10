@@ -17,7 +17,7 @@
 #define VAR_TYPE_ENUM_STRING_SIZE		4
 #define VAR_TYPE_ENUM_ARRAY_SIZE		4
 
-namespace Phoenix
+namespace AllStar
 {
     namespace Core
     {

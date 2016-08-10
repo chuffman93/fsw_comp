@@ -12,7 +12,7 @@
 #include "core/MessageHandler.h"
 
 
-class THMDataHandler : public Phoenix::Core::MessageHandler
+class THMDataHandler : public AllStar::Core::MessageHandler
 {
 public:
 		/* \breif Handle a data request.
@@ -20,7 +20,7 @@ public:
 		 *	\param packet FSWPacket containing the command.
 		 *	\return ReturnMessage from THM hardware.
 		 */	
-		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+		AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 private:
 			const static uint32 numParams = 1;
 			static uint32 enumArray[numParams];

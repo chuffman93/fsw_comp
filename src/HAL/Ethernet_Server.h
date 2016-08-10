@@ -43,7 +43,7 @@ struct SessionInfo {
 };
 
 
-class ETH_HALServer: public Phoenix::Core::Singleton
+class ETH_HALServer: public AllStar::Core::Singleton
 {
 	public:
 		char port_num_server[6];							// Storing the socket number in a char array
@@ -134,7 +134,7 @@ class ETH_HALServer: public Phoenix::Core::Singleton
          */
         int     TCPsock(struct sockaddr_in *fsin,char *portnum, int qlen);
 
-        int ETHDispatch(Phoenix::Core::FSWPacket & packet);
+        int ETHDispatch(AllStar::Core::FSWPacket & packet);
 
 
 };

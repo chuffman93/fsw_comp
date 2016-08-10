@@ -30,8 +30,8 @@
 //#include "boards/backplane/dbg_led.h"
 
 using namespace std;
-using namespace Phoenix::Core;
-using namespace Phoenix::Servers;
+using namespace AllStar::Core;
+using namespace AllStar::Servers;
 
 uint32 ACSPointGNDHandler::enumArray[] = {VAR_TYPE_ENUM_FLOAT, VAR_TYPE_ENUM_FLOAT, VAR_TYPE_ENUM_FLOAT, VAR_TYPE_ENUM_UNSIGNED_INT};
 uint32 ACSPointMRPHandler::enumArray[] = {VAR_TYPE_ENUM_FLOAT, VAR_TYPE_ENUM_FLOAT, VAR_TYPE_ENUM_FLOAT};

@@ -11,7 +11,7 @@
 
 #include "core/Message.h"
 
-namespace Phoenix
+namespace AllStar
 {
     namespace Core
     {

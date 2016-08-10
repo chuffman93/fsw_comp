@@ -24,7 +24,7 @@
 #define ERROR_CHECK_MULTIPLIER 2
 
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Servers
 	{	
@@ -46,13 +46,13 @@ namespace Phoenix
 		//check BUS2:ALL, BUS3:1, 2, 3, 7, 8, 9
 		#define THERMAL_SENSORS_EXO_CHECK			22
 		
-		class THMServer : public SubsystemServer, public Phoenix::Core::Singleton
+		class THMServer : public SubsystemServer, public AllStar::Core::Singleton
 		{
 			/*! \brief Declare Factory a friend class
 			*
 			*	This allows factory to call THMServer's private constructor
 			*/
-			friend class Phoenix::Core::Factory;
+			friend class AllStar::Core::Factory;
 			
      		public:
 			
@@ -97,8 +97,8 @@ namespace Phoenix
 			*/
 			bool IsFullyInitialized(void);
 		
-			void THMComMode(Phoenix::Core::ModeManager * modeManager);
-			void THMDefaultMode(Phoenix::Core::ModeManager * modeManager);
+			void THMComMode(AllStar::Core::ModeManager * modeManager);
+			void THMDefaultMode(AllStar::Core::ModeManager * modeManager);
 				
 			THMServer(std::string nameIn, LocationIDType idIn);
 			~THMServer();
@@ -107,8 +107,8 @@ namespace Phoenix
 			uint16 LBOUND[16];			
 			
 			// Member variables needed to register message handlers.
-			Phoenix::Core::MessageHandlerRegistry reg;
-			Phoenix::Core::Arbitrator arby;
+			AllStar::Core::MessageHandlerRegistry reg;
+			AllStar::Core::Arbitrator arby;
 
 			BEGIN_STATE_MAP
 			END_STATE_MAP

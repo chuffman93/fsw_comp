@@ -16,7 +16,7 @@
 #endif // VERBOSE#include "core/WatchdogManager.h"#include "core/Factory.h"
 #include "core/Singleton.h"
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 #define WATCHDOG_MANAGER_DELAY	10000 // milliseconds
 #define WATCHDOG_MANAGER_TASK_RESET_TICKS  30000// milliseconds
@@ -32,7 +32,7 @@ using namespace Phoenix::Core;
 #else
 #define DEBUG_PRINT(m)
 #endif // HOST
-namespace Phoenix{	namespace Core	{
+namespace AllStar{	namespace Core	{
 
 		void WatchdogManager::Destroy(void )
 		{

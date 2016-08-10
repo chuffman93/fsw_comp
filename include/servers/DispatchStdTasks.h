@@ -30,7 +30,7 @@
 #define DEBUG_COUT(m)
 #endif // DEBUG
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Servers
 	{
@@ -59,13 +59,13 @@ namespace Phoenix
 		};
 
 		// Send packet to the dispatcher
-		Phoenix::Core::FSWPacket * DispatchPacket(Phoenix::Core::FSWPacket * packet);
+		AllStar::Core::FSWPacket * DispatchPacket(AllStar::Core::FSWPacket * packet);
 
 		// Invoke message handlers for any messages sent to a server
 		bool Listen(LocationIDType serverID);
 
 		// Process a response packet
-		void PacketProcess(LocationIDType id, Phoenix::Core::FSWPacket * retPacket);
+		void PacketProcess(LocationIDType id, AllStar::Core::FSWPacket * retPacket);
 
 		/*! \brief Waits for a Response after a FSWPacket Has Been Dispatched
 		 *

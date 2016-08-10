@@ -30,8 +30,8 @@
 #include <iostream>
 #include <sys/sysinfo.h>
 
-using namespace Phoenix::Core;
-using namespace Phoenix::HAL;
+using namespace AllStar::Core;
+using namespace AllStar::HAL;
 using namespace std;
 
 #define CPU_EN 	0
@@ -41,7 +41,7 @@ using namespace std;
 #define PM_EN	0
 #define STOR_EN 0
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Servers
 	{

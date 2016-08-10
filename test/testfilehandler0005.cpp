@@ -13,7 +13,7 @@
 #include <string>
 
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 extern const char * writeDir;
 

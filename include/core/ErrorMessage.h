@@ -11,7 +11,7 @@
 
 #include "core/MultiDataMessage.h"
 
-namespace Phoenix
+namespace AllStar
 {
     namespace Core
     {

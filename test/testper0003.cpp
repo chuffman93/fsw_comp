@@ -15,7 +15,7 @@
 
 #include "core/Permission.h"
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 TEST(TestPermission, ServerHasPermission) {
 	//Default constructor no parameter should set all permissions false
@@ -25,7 +25,7 @@ TEST(TestPermission, ServerHasPermission) {
 
 	size_t i;
 
-	for (i = 0; i < PHOENIX_NUM_SERVERS; i++) {
+	for (i = 0; i < ALLSTAR_NUM_SERVERS; i++) {
 		//Make sure all permissions of p1 initialized false
 		if (p1.ServerHasPermission(i)) {
 			cout << "Default permissions constructor failed to initialize all "
@@ -54,7 +54,7 @@ TEST(TestPermission, ServerHasPermission) {
 		}
 	}
 
-	for (i = 0; i < PHOENIX_NUM_SERVERS; i++) {
+	for (i = 0; i < ALLSTAR_NUM_SERVERS; i++) {
 		//Check every permission evenly divisible by 3 or 2
 		if (i % 3 == 0 || i % 2 == 0) {
 			//Check that the permission in p1 was correctly set and returned
@@ -100,7 +100,7 @@ TEST(TestPermission, ServerHasPermission) {
 		}
 	}
 
-	for (i = 0; i < PHOENIX_NUM_SERVERS; i++) {
+	for (i = 0; i < ALLSTAR_NUM_SERVERS; i++) {
 		//Set every permission evenly divisible by 4, to true
 		if (i % 4 == 0) {
 			p1.SetServerPermission(i, true);
@@ -113,7 +113,7 @@ TEST(TestPermission, ServerHasPermission) {
 		}
 	}
 
-	for (i = 0; i < PHOENIX_NUM_SERVERS; i++) {
+	for (i = 0; i < ALLSTAR_NUM_SERVERS; i++) {
 		//Check every permission evenly divisible by 4
 		if (i % 4 == 0) {
 			//Check that the permission in p1 was correctly set and returned

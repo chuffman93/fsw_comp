@@ -22,11 +22,11 @@
 #include "servers/SubsystemServer.h"
 #include "servers/THMServer.h"
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Servers
 	{
-		Phoenix::Core::ReturnMessage * DataCollect(uint32 busNumber);
+		AllStar::Core::ReturnMessage * DataCollect(uint32 busNumber);
 		void IsDark(void);
 		bool StartSensor(int bus, int sensor);
 		float ReadSensor(int bus, int sensor);

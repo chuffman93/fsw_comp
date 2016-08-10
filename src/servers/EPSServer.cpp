@@ -27,8 +27,8 @@
 //#include "boards/backplane/dbg_led.h"
 
 using namespace std;
-using namespace Phoenix::Core;
-using namespace Phoenix::HAL;
+using namespace AllStar::Core;
+using namespace AllStar::HAL;
 
 #define EPS_DEBUG			1
 
@@ -39,7 +39,7 @@ using namespace Phoenix::HAL;
 #define DEBUG_COUT(m)
 #endif // DEBUG
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Servers
 	{
@@ -168,4 +168,4 @@ namespace Phoenix
 		}
 
 	} // End Namespace servers
-} // End Namespace Phoenix
+} // End Namespace AllStar

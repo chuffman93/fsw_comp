@@ -15,7 +15,7 @@
 
 #include <map>
 
-namespace Phoenix
+namespace AllStar
 {
     namespace Core
     {
@@ -38,7 +38,7 @@ namespace Phoenix
 
 		/*! \brief Class that Checks FSWPacket Permissions for a Server
 		 *
-		 *  This class checks if a packet sent from one Phoenix server
+		 *  This class checks if a packet sent from one AllStar server
 		 *  to another meets the permissions defined for the destination
 		 *  server.
 		 */

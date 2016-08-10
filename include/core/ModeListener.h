@@ -9,7 +9,7 @@
 #define MODELISTENER_H_
 #include "StdTypes.h"
 
-namespace Phoenix
+namespace AllStar
 {
     namespace Core
     {

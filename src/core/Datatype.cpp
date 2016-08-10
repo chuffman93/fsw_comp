@@ -7,7 +7,7 @@
 
 #include "core/Datatype.h"
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Core
 	{

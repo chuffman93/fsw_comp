@@ -1,7 +1,7 @@
 /*! \file Message.h
  *  \brief Header File for the Message Class.
  *
- *  This class encapsulates the message field of a Phoenix message protocol
+ *  This class encapsulates the message field of a AllStar message protocol
  *  packet, and defines a superclass for the specific derivatives of Message to
  *  inherit from.
  *
@@ -12,13 +12,13 @@
 
 #include "core/StdTypes.h"
 
-namespace Phoenix
+namespace AllStar
 {
     namespace Core
     {
 		/*! \brief Superclass for all other messages.
 		 *
-		 *  This class encapsulates the message field of a Phoenix message protocol
+		 *  This class encapsulates the message field of a AllStar message protocol
 		 *  packet, and defines a superclass for the specific derivatives of Message
 		 *  to inherit from.
 		 *

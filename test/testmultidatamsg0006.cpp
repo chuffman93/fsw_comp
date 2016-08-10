@@ -19,7 +19,7 @@
 #include "core/DataMessage.h"
 
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 using namespace rel_ops;
 
 #define TEST_OPCODE1 ((MessageCodeType)37)

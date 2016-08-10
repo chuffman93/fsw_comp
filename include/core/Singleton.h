@@ -10,7 +10,7 @@
 #define SINGLETON_H_
 #include "POSIX.h"
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Core
 	{		

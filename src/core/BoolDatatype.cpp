@@ -6,7 +6,7 @@
 
 #include "core/BoolDatatype.h"
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Core
 	{

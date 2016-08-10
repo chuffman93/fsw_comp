@@ -17,7 +17,7 @@ typedef signed long int32;
 typedef unsigned long long uint64;
 typedef signed long long int64;
 
-// NOTE - A LocationIDType should always be < PHOENIX_NUM_SERVERS
+// NOTE - A LocationIDType should always be < ALLSTAR_NUM_SERVERS
 // 		  i.e. 0 will be considered a location.
 typedef uint16 LocationIDType;
 

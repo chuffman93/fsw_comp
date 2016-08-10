@@ -14,7 +14,7 @@
 #include "core/Permission.h"
 
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 TEST(TestPermission, CopyAndAssignmentConstructors) {
 	//Default constructor no parameter should set all permissions false
@@ -22,7 +22,7 @@ TEST(TestPermission, CopyAndAssignmentConstructors) {
 
 	size_t i;
 
-	for (i = 0; i < PHOENIX_NUM_SERVERS; i++) {
+	for (i = 0; i < ALLSTAR_NUM_SERVERS; i++) {
 		//Make sure all permissions of p1 initialized false
 		if (p1.ServerHasPermission(i) != 0) {
 			cout << "Default permissions constructor failed to initialize all "
@@ -45,7 +45,7 @@ TEST(TestPermission, CopyAndAssignmentConstructors) {
 	Permission p3;
 	p3 = p1;
 
-	for (i = 0; i < PHOENIX_NUM_SERVERS; i++) {
+	for (i = 0; i < ALLSTAR_NUM_SERVERS; i++) {
 		//Check every third permission
 		if (i % 3 == 0) {
 			//Check that copy constructor initialized permissions to be same as source

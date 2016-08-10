@@ -16,7 +16,7 @@
 #include "core/Permission.h"
 
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 using namespace rel_ops;
 
 TEST(TestPermission, DefaultAndBoolConstructors)

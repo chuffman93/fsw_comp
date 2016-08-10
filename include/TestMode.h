@@ -12,11 +12,11 @@
 //
 //#define TEST_MODE_NUM_INSTANCES 2
 //
-//namespace Phoenix
+//namespace AllStar
 //{
 //    namespace Core
 //    {
-//        class TestMode : public Phoenix::Core::SystemMode
+//        class TestMode : public AllStar::Core::SystemMode
 //        {
 //        public:
 //            static bool Initialize(void);

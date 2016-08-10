@@ -19,7 +19,7 @@
 #define LOCATION_ID_MAX 5
 
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 TEST(TestPacket, GetFlattenSize) {
 	MessageCodeType opCode = 6;

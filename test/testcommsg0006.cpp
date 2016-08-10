@@ -14,7 +14,7 @@
 #include "core/StdTypes.h"
 
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 #define TEST_OPCODE ((MessageCodeType)21)
 #define TEST_VALUE1 ((double)99.9)

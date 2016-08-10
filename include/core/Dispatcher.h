@@ -2,7 +2,7 @@
  *  \brief Header File for the Dispatcher Class
  *
  *  This file contains the definition of the Dispatcher class, which acts
- *  as the FSWPacket-routing entity in the Phoenix architecture.
+ *  as the FSWPacket-routing entity in the AllStar architecture.
  */
 
 #ifndef _DISPATCHER_H
@@ -21,7 +21,7 @@
 #include <map>
 #include <stdio.h>
 
-namespace Phoenix{
+namespace AllStar{
 namespace Core{
 
 /*! \brief Length of the Dispatcher Queue */
@@ -78,8 +78,8 @@ namespace Core{
 
 /*! \brief Class that Dispatches Packets From One Server to Another
  *
- *  This Singleton class allows one Phoenix server to send Packets
- *  to another Phoenix server.
+ *  This Singleton class allows one AllStar server to send Packets
+ *  to another AllStar server.
  */
 class Dispatcher : public Singleton
 {
@@ -103,88 +103,75 @@ public:
 	/*! \brief Typedef for a FSWPacket Comparison Function */
 	typedef bool (Dispatcher::* PacketCheckFunctionType)(const FSWPacket & packetIn, const FSWPacket & packetOut) const;
 
-    /*! \brief Dispatcher Task for Handling Subsystem Messages
-     *
-     *  Waits for a subsystem to indicate that it has a message
-     *  to send.  Then, the task receives the message and inserts
-     *  it into the message queue.
-     *
-     *  \param params Parameters to the task.  Currently, this
-     *  parameter can be NULL, as it is not used.
-     */
-    static void DispatcherTask(void * params);
+	/*! \brief Adds a MessageHandlerRegistry to the Dispatcher
+	 *
+	 *  Adds registry to the Dispatcher instance and associates it
+	 *  with the given server ID.  Whenever a Message corresponding
+	 *  to that ID is received, the given registry is searched for
+	 *  the correct MessageHandler.
+	 *
+	 *  \param serverID Server ID to associate registry with.
+	 *  \param registry Pointer to the MessageHandler registry.
+	 *  \param arby Arbitrator to guard the permissions for the server
+	 *  \return true if the operation was successful and
+	 *  false otherwise.
+	 *
+	 *  \note The registry is added by reference.  This means that
+	 *  the given pointer still points to the added registry.
+	 *  Because the Singleton instance can never go out of scope,
+	 *  the user does not have to work about deleting this data and
+	 *  SHOULD NOT DELETE THE REGISTRY AT ANY TIME.
+	 *
+	 *  \note To ensure that the registry never goes out of scope,
+	 *  it should either be a global variable or allocated on the
+	 *  heap.
+	 */
+	bool AddRegistry(LocationIDType serverID, MessageHandlerRegistry * registry, Arbitrator * arby);
 
-    /*! \brief Adds a MessageHandlerRegistry to the Dispatcher
-     *
-     *  Adds registry to the Dispatcher instance and associates it
-     *  with the given server ID.  Whenever a Message corresponding
-     *  to that ID is received, the given registry is searched for
-     *  the correct MessageHandler.
-     *
-     *  \param serverID Server ID to associate registry with.
-     *  \param registry Pointer to the MessageHandler registry.
-     *  \param arby Arbitrator to guard the permissions for the server
-     *  \return true if the operation was successful and
-     *  false otherwise.
-     *
-     *  \note The registry is added by reference.  This means that
-     *  the given pointer still points to the added registry.
-     *  Because the Singleton instance can never go out of scope,
-     *  the user does not have to work about deleting this data and
-     *  SHOULD NOT DELETE THE REGISTRY AT ANY TIME.
-     *
-     *  \note To ensure that the registry never goes out of scope,
-     *  it should either be a global variable or allocated on the
-     *  heap.
-     */
-    bool AddRegistry(LocationIDType serverID, MessageHandlerRegistry * registry, Arbitrator * arby);
+	/*! \brief Dispatches a FSWPacket to its Destination Location
+	 *
+	 *  Dispatches the given packet to the destination contained in
+	 *  the packet's destination field.
+	 *
+	 *  \param packet FSWPacket to be dispatched.
+	 *  \return true if the operation was successful and
+	 *  false otherwise.
+	 *
+	 *  \note This function call should always be followed by a call
+	 *  to WaitForDispatchResponse.  These functions have been
+	 *  separated so that if both the source and destination servers
+	 *  are trying to Dispatch messages to each other, each will
+	 *  have a chance to Listen for a message before looking for
+	 *  the response to the Dispatched message.
+	 */
+	bool Dispatch(FSWPacket & packet);
 
-    /*! \brief Dispatches a FSWPacket to its Destination Location
-     *
-     *  Dispatches the given packet to the destination contained in
-     *  the packet's destination field.
-     *
-     *  \param packet FSWPacket to be dispatched.
-     *  \return -1: error
-     *  		 0: RX queue
-     *  		 1: SPI TX queue (ACP_PROTOCOL_SPI)
-     *  		 2: ETH TX queue (ACP_PROTOCOL_ETH)
-     *
-     *  \note This function call should always be followed by a call
-     *  to WaitForDispatchResponse.  These functions have been
-     *  separated so that if both the source and destination servers
-     *  are trying to Dispatch messages to each other, each will
-     *  have a chance to Listen for a message before looking for
-     *  the response to the Dispatched message.
-     */
-    int Dispatch(FSWPacket & packet);
+	/*! \brief Checks for a FSWPacket Addressed to a Given Server
+	 *
+	 *  Checks the message queue for a message for the given server.
+	 *  If there is a message, then the corresponding message handler
+	 *  is called, if it has been registered with the Dispatcher.
+	 *
+	 *  \param serverID ID of the server.
+	 *  \return true if there was a message and a corresponding
+	 *  registered handler for the message or false otherwise.
+	 *
+	 *  \note This method will always return a message to the server
+	 *  that sends a command to the given server.  If there is no
+	 *  registered handler for that message, then a standard
+	 *  unknown message response will be issued.
+	 */
+	MessageHandlerRegistry * FindHandler(LocationIDType serverID, FSWPacket * packet);
 
-    /*! \brief Checks for a FSWPacket Addressed to a Given Server
-     *
-     *  Checks the message queue for a message for the given server.
-     *  If there is a message, then the corresponding message handler
-     *  is called, if it has been registered with the Dispatcher.
-     *
-     *  \param serverID ID of the server.
-     *  \return true if there was a message and a corresponding
-     *  registered handler for the message or false otherwise.
-     *
-     *  \note This method will always return a message to the server
-     *  that sends a command to the given server.  If there is no
-     *  registered handler for that message, then a standard
-     *  unknown message response will be issued.
-     */
-    MessageHandlerRegistry * FindHandler(LocationIDType serverID, FSWPacket * packet);
+	/*! \brief Dispatch a Message to Hardware
+	 *
+	 *  Sends a message to a hardware location and then receives the
+	 *  response and inserts it into the Dispatcher queue so that it
+	 *  can be handled by the appropriate server.
+	 *
+	 */
 
-    /*! \brief Dispatch a Message to Hardware
-     *
-     *  Sends a message to a hardware location and then receives the
-     *  response and inserts it into the Dispatcher queue so that it
-     *  can be handled by the appropriate server.
-     *
-     */
-
-    /*! \brief Checks if a FSWPacket is a Response to Another FSWPacket
+	/*! \brief Checks if a FSWPacket is a Response to Another FSWPacket
 	 *
 	 *  Checks if packetOut is a response to the message sent in
 	 *  packetIn.
@@ -236,14 +223,13 @@ public:
 	 *  \note packetOut is only guaranteed to point to a valid
 	 *  packet if this function returns true.
 	 */
-	bool CheckQueueForMatchingPacket(char * queueName,
-			const FSWPacket & packetIn,
-			FSWPacket * &packetOut,
-			DispatcherCheckType type);
+	bool CheckQueueForMatchingPacket(const FSWPacket & packetIn,
+									 FSWPacket * &packetOut,
+									 DispatcherCheckType type);
 
-    uint32_t DispatchToHardware(FSWPacket & packet);
+	uint32_t DispatchToHardware(FSWPacket & packet);
 
-    /*! \brief Struct for Holding Server Message Handler Information */
+	/*! \brief Struct for Holding Server Message Handler Information */
 	struct DispatcherHandlerType
 	{
 		DispatcherHandlerType(MessageHandlerRegistry * regIn, Arbitrator * arbyIn)
@@ -253,85 +239,85 @@ public:
 		Arbitrator * arby;
 	};
 
-    /*! \brief MessageHandler Registry Map */
+	/*! \brief MessageHandler Registry Map */
 	std::map<LocationIDType, DispatcherHandlerType *> registryMap;
 
-    /*! \brief Handle to the Dispatcher Message Queue */
+	/*! \brief Handle to the Dispatcher Message Queue */
 	mqd_t queueHandleRX;
 	struct mq_attr queueAttrRX;
 	int qInitRX;
-    static char * queueNameRX;
+	static char * queueNameRX;
 
 private:
 
-    struct DispatcherInterruptAlertType
-    {
-        uint8 pin;
-        uint32 time;
-    };
+	struct DispatcherInterruptAlertType
+	{
+		uint8 pin;
+		uint32 time;
+	};
 
-    /*! \brief Typedef for Pairs in the Registry Map */
-    typedef std::pair<LocationIDType, DispatcherHandlerType *> PairType;
+	/*! \brief Typedef for Pairs in the Registry Map */
+	typedef std::pair<LocationIDType, DispatcherHandlerType *> PairType;
 
-    /*! \brief Typedef for the Iterator Type of the Registry Map */
-    typedef std::map<LocationIDType, DispatcherHandlerType *>::iterator IteratorType;
+	/*! \brief Typedef for the Iterator Type of the Registry Map */
+	typedef std::map<LocationIDType, DispatcherHandlerType *>::iterator IteratorType;
 
-    /*! \brief Struct for Passing Parameters to InvokeHandler */
-    struct DispatcherTaskParameter
-    {
-    	MessageHandlerRegistry * registry;
-    	FSWPacket * packet;
-    	FSWPacket * retPacket;
-    	sem_t syncSem;
-    	sem_t doneSem;
-    };
+	/*! \brief Struct for Passing Parameters to InvokeHandler */
+	struct DispatcherTaskParameter
+	{
+		MessageHandlerRegistry * registry;
+		FSWPacket * packet;
+		FSWPacket * retPacket;
+		sem_t syncSem;
+		sem_t doneSem;
+	};
 
 	/*! \brief Initialize the Dispatcher Class
-     *
-     *  Initializes the operating system constructs needed for
-     *  Dispatcher to work properly.
-     *
-     *  \return true if the initialization was successful and
-     *  false otherwise.
-     *
-     *  \note This function MUST be called before GetInstance.
-     *  Otherwise, GetInstance will fail and return NULL.
-     */
-    static void Initialize(void);
+	 *
+	 *  Initializes the operating system constructs needed for
+	 *  Dispatcher to work properly.
+	 *
+	 *  \return true if the initialization was successful and
+	 *  false otherwise.
+	 *
+	 *  \note This function MUST be called before GetInstance.
+	 *  Otherwise, GetInstance will fail and return NULL.
+	 */
+	static void Initialize(void);
 
 	/*! \brief Static Destructor for Dispatcher
-     *
-     *  Frees all internal memory use, frees all operating system
-     *  objects used, and deletes the singleton instance pointer.
-     */
+	 *
+	 *  Frees all internal memory use, frees all operating system
+	 *  objects used, and deletes the singleton instance pointer.
+	 */
 
-    static void Destroy(void );
+	static void Destroy(void );
 
 
 	/*! \brief Checks if Dispatcher Class is initialized
-     *
-     *  \return true if the initialization was successful and
-     *  false otherwise.
-     */
+	 *
+	 *  \return true if the initialization was successful and
+	 *  false otherwise.
+	 */
 	bool IsFullyInitialized(void);
 
-    /*! \brief Invokes a MessageHandler in a New Task
-     *
-     *  \param parameters Pointer to DispatcherTaskParameter struct.
-     *
-     *  \note parameters must ALWAYS point to a DispatcherTaskParameter
-     *  struct.
-     */
-    static void * InvokeHandler(void * parameters);
+	/*! \brief Invokes a MessageHandler in a New Task
+	 *
+	 *  \param parameters Pointer to DispatcherTaskParameter struct.
+	 *
+	 *  \note parameters must ALWAYS point to a DispatcherTaskParameter
+	 *  struct.
+	 */
+	static void * InvokeHandler(void * parameters);
 
 	/*! \brief Destructor for Dispatcher */
 	virtual ~Dispatcher(void );
 
-    /*! \brief Constructor for Dispatcher */
-    Dispatcher(void);
+	/*! \brief Constructor for Dispatcher */
+	Dispatcher(void);
 
-    /*! \brief Assignment Operator for Dispatcher */
-    Dispatcher & operator=(const Dispatcher & source);
+	/*! \brief Assignment Operator for Dispatcher */
+	Dispatcher & operator=(const Dispatcher & source);
 };
 
 } // End of namespace Core

@@ -10,7 +10,7 @@
 
 #include "core/MessageHandler.h"
 
-class ErrorOctopusHandler : public Phoenix::Core::MessageHandler
+class ErrorOctopusHandler : public AllStar::Core::MessageHandler
 {
 public:
 	/* \brief Handle any error.
@@ -18,7 +18,7 @@ public:
 	 * \param packet FSWPacket containing the message
 	 * \return ReturnMessage that serves as a response
 	 */
-	Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+	AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 };
 
 #endif //ERRORHANDLERS_H_

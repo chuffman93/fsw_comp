@@ -27,10 +27,10 @@
 #define CRC32_POLYNOMIAL 0xEDB88320L
 
 using namespace std;
-using namespace Phoenix::Core;
-using namespace Phoenix::HAL;
+using namespace AllStar::Core;
+using namespace AllStar::HAL;
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Servers
 	{

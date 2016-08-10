@@ -27,8 +27,8 @@
 //#include "boards/backplane/dbg_led.h"
 
 using namespace std;
-using namespace Phoenix::Core;
-using namespace Phoenix::Servers;
+using namespace AllStar::Core;
+using namespace AllStar::Servers;
 
 FSWPacket * CDHCPUUsageHandler::Handle(const FSWPacket & packet)
 {

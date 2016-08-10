@@ -17,7 +17,7 @@
 
 using namespace std;
 using namespace rel_ops;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 #define TEST_VALUE "wow"
 #define TEST_CONFIG 234

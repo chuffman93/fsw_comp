@@ -8,7 +8,7 @@
 #include "HAL/I2C/PowerMonitor.h"
 #include "util/Logger.h"
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace HAL
 	{

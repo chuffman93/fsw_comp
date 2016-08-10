@@ -46,13 +46,13 @@ const size_t MAX_ERROR_DATA_POINTS = 100;
 
 const uint8 epochNum = 0;
 
-class FileHandler: public Phoenix::Core::Singleton
+class FileHandler: public AllStar::Core::Singleton
 {
         /*! \brief Declare Factory a friend class
          *
          *      This allows factory to call FileHandler's private constructor
          */
-        friend class Phoenix::Core::Factory;
+        friend class AllStar::Core::Factory;
 public:
 
         /*! \brief Append a buffer to the Error or Mode Log
@@ -86,9 +86,9 @@ public:
          *  false otherwise.
          */
         //bool Log(FileHandlerIDEnum subsystem, MessageCodeType opCode,
-                        //const Phoenix::Core::MultiDataMessage & message);
+                        //const AllStar::Core::MultiDataMessage & message);
 
-        bool Log(FileHandlerIDEnum subsystem, const Phoenix::Core::FSWPacket * packet);
+        bool Log(FileHandlerIDEnum subsystem, const AllStar::Core::FSWPacket * packet);
 
         /*! \brief Deletes the file from the SD card.
          *

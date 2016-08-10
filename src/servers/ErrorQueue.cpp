@@ -13,9 +13,9 @@
 #include "core/Singleton.h"
 #include "core/Factory.h"
 
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Servers
 	{

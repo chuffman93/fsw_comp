@@ -17,20 +17,20 @@
 #include "core/VariableTypeEnum.h"
 #include "util/ConfigManager.h"
 
-namespace Phoenix{
+namespace AllStar{
 namespace Servers{
 
 #define SCHEDULE_MAX_SIZE 50
 
 #define SCH_CONFIG_FILE "SCHConfig"
 #define SCH_SCHEDULE_FILE "uplink/Schedule"
-class SCHServer : public SubsystemServer, public Phoenix::Core::Singleton
+class SCHServer : public SubsystemServer, public AllStar::Core::Singleton
 {
 	/*! \brief Declare Factory a friend class
 	*
 	*	This allows factory to call SCHServer's private constructor
 	*/
-	friend class Phoenix::Core::Factory;
+	friend class AllStar::Core::Factory;
 	typedef struct{
 		double latitude;
 		double longitude;
@@ -95,8 +95,8 @@ private:
 	util::ConfigManager<SCHConfig> configManager;
 
 	// Member variables needed to register message handlers.
-	Phoenix::Core::MessageHandlerRegistry reg;
-	Phoenix::Core::Arbitrator arby;
+	AllStar::Core::MessageHandlerRegistry reg;
+	AllStar::Core::Arbitrator arby;
 
 	bool scheduleRunning;
 

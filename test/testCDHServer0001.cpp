@@ -27,9 +27,9 @@
 
 using namespace std;
 using namespace rel_ops;
-//using namespace Phoenix::HAL;
-using namespace Phoenix::Core;
-using namespace Phoenix::Servers;
+//using namespace AllStar::HAL;
+using namespace AllStar::Core;
+using namespace AllStar::Servers;
 
 //void * taskRunCDH(void * params) {
 //

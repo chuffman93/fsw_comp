@@ -18,7 +18,7 @@
 #include "core/DataMessage.h"
 
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 #define TEST_OPCODE1 ((MessageCodeType)76)
 #define TEST_OPCODE2 ((MessageCodeType)25)

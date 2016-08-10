@@ -15,7 +15,7 @@
 #include "core/SendMessage.h"
 #include "core/VariableTypeData.h"
 
-namespace Phoenix
+namespace AllStar
 {
     namespace Core
     {

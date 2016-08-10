@@ -12,7 +12,7 @@
 
 #include "core/Arbitrator.h"
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 #define SERVER_ID	1
 

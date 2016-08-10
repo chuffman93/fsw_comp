@@ -8,7 +8,7 @@
 #ifndef CMDSTDTASKS_H_
 #define CMDSTDTASKS_H_
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Servers
 	{

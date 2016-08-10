@@ -12,8 +12,8 @@
 
 using namespace std;
 using namespace rel_ops;
-//using namespace Phoenix::HAL;
-using namespace Phoenix::Core;
+//using namespace AllStar::HAL;
+using namespace AllStar::Core;
 
 
 TEST(TestFileHandler, testAppend) {

@@ -13,7 +13,7 @@
 
 #include "core/WatchdogManager.h"
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 #ifdef HOST
 #define DEBUG_PRINT(m) cout << m << endl

@@ -23,8 +23,8 @@
 //#include "boards/backplane/dbg_led.h"
 
 using namespace std;
-using namespace Phoenix::Core;
-using namespace Phoenix::Servers;
+using namespace AllStar::Core;
+using namespace AllStar::Servers;
 
 uint32 COMDataSendHandler::enumArray[] = {VAR_TYPE_ENUM_ARRAY};
 uint32 COMDataReceiveHandler::enumArray[] = {VAR_TYPE_ENUM_ARRAY};

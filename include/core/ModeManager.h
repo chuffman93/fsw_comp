@@ -14,7 +14,7 @@
 #include "core/StdTypes.h"
 #include "core/Singleton.h"
 
-namespace Phoenix
+namespace AllStar
 {
     namespace Core
     {

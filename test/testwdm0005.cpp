@@ -16,7 +16,7 @@
 
 #include "core/WatchdogManager.h"
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 PThread *task5A, *task5B;
 sem_t sync5A, sync5B, sync5C;

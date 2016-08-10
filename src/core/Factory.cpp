@@ -40,7 +40,7 @@
 #include "util/FileHandler.h"
 #include "util/Logger.h"
 
-using namespace Phoenix::Servers;
+using namespace AllStar::Servers;
 
 #define FACTORY_DEBUG			1
 
@@ -51,7 +51,7 @@ using namespace Phoenix::Servers;
 #define DEBUG_FACTORY_COUT(m)
 #endif // DEBUG
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Core
 	{
@@ -137,28 +137,28 @@ namespace Phoenix
 						break;
 #ifdef NOT
 					case RF_INTERFACE_SINGLETON:
-						Phoenix::Emulators::RFInterface::Initialize( );
-						instance = new Phoenix::Emulators::RFInterface();
+						AllStar::Emulators::RFInterface::Initialize( );
+						instance = new AllStar::Emulators::RFInterface();
 						break;
 					case GROUND_COM_SERVER_SINGLETON:
 						COMServer::Initialize( );
 						instance = new COMServer("Ground COM Server", SERVER_LOCATION_GND_COM);
 						break;
 					case FLIGHT_COM_MOCK_HARDWARE_SINGLETON:
-						Phoenix::Emulators::COMMockHardware::Initialize( );
-						instance = new Phoenix::Emulators::COMMockHardware("Flight COM Mock Emulator", HARDWARE_LOCATION_COM);
+						AllStar::Emulators::COMMockHardware::Initialize( );
+						instance = new AllStar::Emulators::COMMockHardware("Flight COM Mock Emulator", HARDWARE_LOCATION_COM);
 						break;
 					case GROUND_COM_MOCK_HARDWARE_SINGLETON:
-						Phoenix::Emulators::COMMockHardware::Initialize( );
-						instance = new Phoenix::Emulators::COMMockHardware("Ground COM Mock Emulator", HARDWARE_LOCATION_GND_COM);
+						AllStar::Emulators::COMMockHardware::Initialize( );
+						instance = new AllStar::Emulators::COMMockHardware("Ground COM Mock Emulator", HARDWARE_LOCATION_GND_COM);
 						break;
 					case EPS_EMULATOR_SERVER_SINGLETON:
-						Phoenix::Emulators::EPSEmulatorServer::Initialize( );
-						instance = new Phoenix::Emulators::EPSEmulatorServer("EPS Server Emulator", SERVER_LOCATION_EPS);
+						AllStar::Emulators::EPSEmulatorServer::Initialize( );
+						instance = new AllStar::Emulators::EPSEmulatorServer("EPS Server Emulator", SERVER_LOCATION_EPS);
 						break;
 					case EPS_EMULATOR_HARDWARE_SINGLETON:
-						Phoenix::Emulators::EPSMockHardware::Initialize( );
-						instance = new Phoenix::Emulators::EPSMockHardware("EPS Mock Emulator", HARDWARE_LOCATION_EPS);
+						AllStar::Emulators::EPSMockHardware::Initialize( );
+						instance = new AllStar::Emulators::EPSMockHardware("EPS Mock Emulator", HARDWARE_LOCATION_EPS);
 						break;
 #endif
 					default:
@@ -267,22 +267,22 @@ namespace Phoenix
 					break;
 #ifdef NOT
 				case RF_INTERFACE_SINGLETON:
-					Phoenix::Emulators::RFInterface::Destroy( );
+					AllStar::Emulators::RFInterface::Destroy( );
 					break;
 				case GROUND_COM_SERVER_SINGLETON:
 					//COMServer::Destroy( );
 					break;
 				case FLIGHT_COM_MOCK_HARDWARE_SINGLETON:
-					Phoenix::Emulators::COMMockHardware::Destroy( );
+					AllStar::Emulators::COMMockHardware::Destroy( );
 					break;
 				case GROUND_COM_MOCK_HARDWARE_SINGLETON:
-					//Phoenix::Emulators::COMMockHardware::Destroy( );
+					//AllStar::Emulators::COMMockHardware::Destroy( );
 					break;
 				case EPS_EMULATOR_SERVER_SINGLETON:
-					Phoenix::Emulators::EPSEmulatorServer::Destroy( );
+					AllStar::Emulators::EPSEmulatorServer::Destroy( );
 					break;
 				case EPS_EMULATOR_HARDWARE_SINGLETON:
-					Phoenix::Emulators::EPSMockHardware::Destroy( );
+					AllStar::Emulators::EPSMockHardware::Destroy( );
 					break;
 #endif
 				default:

@@ -10,7 +10,7 @@
 #ifndef POWERMONITOR_H_
 #define POWERMONITOR_H_
 
-namespace Phoenix
+namespace AllStar
 	{
 	namespace HAL
 		{

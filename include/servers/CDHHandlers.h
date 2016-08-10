@@ -19,7 +19,7 @@
  */
 
 
-class CDHCPUUsageHandler : public Phoenix::Core::MessageHandler
+class CDHCPUUsageHandler : public AllStar::Core::MessageHandler
 {
 public:
         /*! \brief Handle a request for CDH CPU usage.
@@ -27,10 +27,10 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+        AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 };
 
-class CDHMemUsageHandler : public Phoenix::Core::MessageHandler
+class CDHMemUsageHandler : public AllStar::Core::MessageHandler
 {
 public:
         /*! \brief Handle a request for CDH memory usage.
@@ -38,10 +38,10 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+        AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 };
 
-class CDHTempStartHandler : public Phoenix::Core::MessageHandler
+class CDHTempStartHandler : public AllStar::Core::MessageHandler
 {
 public:
         /*! \brief Handle a request for temperature bus starting.
@@ -49,10 +49,10 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+        AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 };
 
-class CDHTempReadHandler : public Phoenix::Core::MessageHandler
+class CDHTempReadHandler : public AllStar::Core::MessageHandler
 {
 public:
         /*! \brief Handle a request for temperature bus readings.
@@ -60,10 +60,10 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+        AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 };
 
-class CDHHotSwapsHandler : public Phoenix::Core::MessageHandler
+class CDHHotSwapsHandler : public AllStar::Core::MessageHandler
 {
 public:
         /*! \brief Handle a request for hot swap readings.
@@ -71,10 +71,10 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+        AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 };
 
-class CDHPowerMonitorsHandler : public Phoenix::Core::MessageHandler
+class CDHPowerMonitorsHandler : public AllStar::Core::MessageHandler
 {
 public:
         /*! \brief Handle a request for power monitor readings.
@@ -82,10 +82,10 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+        AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 };
 
-class CDHStartPMHandler : public Phoenix::Core::MessageHandler
+class CDHStartPMHandler : public AllStar::Core::MessageHandler
 {
 public:
         /*! \brief Handle a request for starting power monitor measurement.
@@ -93,10 +93,10 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+        AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 };
 
-class CDHCleanFSHandler : public Phoenix::Core::MessageHandler
+class CDHCleanFSHandler : public AllStar::Core::MessageHandler
 {
 public:
         /*! \brief Handle a request for starting power monitor measurement.
@@ -104,7 +104,7 @@ public:
          *  \param packet FSWPacket containing the message.
          *  \return ReturnMessage that serves as a response.
          */
-        Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+        AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 };
 
 #endif /* CDHHANDLERS_H_ */

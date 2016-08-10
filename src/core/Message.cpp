@@ -1,7 +1,7 @@
 ///*! \file Message.cpp
 // *  \brief Implementation File for the Message Class.
 // *
-// *  This class encapsulates the message field of a Phoenix message protocol
+// *  This class encapsulates the message field of a AllStar message protocol
 // *  packet, and defines a superclass for the specific derivatives of Message to
 // *  inherit from.
 // *
@@ -17,7 +17,7 @@
 //
 //using namespace std;
 //
-//namespace Phoenix
+//namespace AllStar
 //{
 //    namespace Core
 //    {

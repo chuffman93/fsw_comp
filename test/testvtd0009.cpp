@@ -16,7 +16,7 @@
 
 #include "core/VariableTypeData.h"
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 TEST(TestVariableTypeData, CopyAndAssignment) {
 	VariableTypeData * vin[VAR_TYPE_ENUM_NUM_TYPES],

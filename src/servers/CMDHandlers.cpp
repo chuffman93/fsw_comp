@@ -25,8 +25,8 @@
 #include <iostream>
 
 using namespace std;
-using namespace Phoenix::Core;
-using namespace Phoenix::Servers;
+using namespace AllStar::Core;
+using namespace AllStar::Servers;
 
 uint32 CMDSwitchProtocolHandler::enumArray[] = {VAR_TYPE_ENUM_UNSIGNED_INT, VAR_TYPE_ENUM_UNSIGNED_INT};
 

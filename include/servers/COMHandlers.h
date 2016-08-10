@@ -17,7 +17,7 @@
  */
 
 
-class COMHSHandler : public Phoenix::Core::MessageHandler
+class COMHSHandler : public AllStar::Core::MessageHandler
 {
 public:
         /* \brief Handle a health and status request.
@@ -25,10 +25,10 @@ public:
          *  \param packet FSWPacket containing the command.
          *  \return ReturnMessage from COM hardware.
          */
-		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+		AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 };
 
-class COMBeaconHandler : public Phoenix::Core::MessageHandler
+class COMBeaconHandler : public AllStar::Core::MessageHandler
 {
 public:
         /* \brief Handle a beacon command.
@@ -36,11 +36,11 @@ public:
          *  \param packet FSWPacket containing the command.
          *  \return ReturnMessage from COM hardware.
          */
-		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+		AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 };
 
 
-class COMDataSendHandler : public Phoenix::Core::MessageHandler
+class COMDataSendHandler : public AllStar::Core::MessageHandler
 {
 public:
         /* \brief Handle a packet send request.
@@ -48,13 +48,13 @@ public:
          *  \param packet FSWPacket containing the command.
          *  \return ReturnMessage from COM hardware.
          */
-		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+		AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 1;
 		static uint32 enumArray[numParams];
 };
 
-class COMLoginHandler : public Phoenix::Core::MessageHandler
+class COMLoginHandler : public AllStar::Core::MessageHandler
 {
 public:
         /* \brief Handle a login command.
@@ -62,10 +62,10 @@ public:
          *  \param packet FSWPacket containing the command.
          *  \return ReturnMessage from COM hardware.
          */
-		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+		AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 };
 
-class COMLogoutHandler : public Phoenix::Core::MessageHandler
+class COMLogoutHandler : public AllStar::Core::MessageHandler
 {
 public:
         /* \brief Handle a logout command.
@@ -73,10 +73,10 @@ public:
          *  \param packet FSWPacket containing the command.
          *  \return ReturnMessage from COM hardware.
          */
-		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+		AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 };
 
-class COMResetHandler : public Phoenix::Core::MessageHandler
+class COMResetHandler : public AllStar::Core::MessageHandler
 {
 public:
         /* \brief Handle a reset command.
@@ -84,10 +84,10 @@ public:
          *  \param packet FSWPacket containing the command.
          *  \return ReturnMessage from COM hardware.
          */
-		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+		AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 };
 
-class COMDataReceiveHandler : public Phoenix::Core::MessageHandler
+class COMDataReceiveHandler : public AllStar::Core::MessageHandler
 {
 public:
         /* \brief Handle a reset command.
@@ -95,13 +95,13 @@ public:
          *  \param packet FSWPacket containing the command.
          *  \return ReturnMessage from COM hardware.
          */
-		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+		AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 1;
 		static uint32 enumArray[numParams];
 };
 
-class COMErrorHandler : public Phoenix::Core::MessageHandler
+class COMErrorHandler : public AllStar::Core::MessageHandler
 {
 public:
         /* \brief Handle an error.
@@ -109,7 +109,7 @@ public:
          *  \param packet FSWPacket containing the command.
          *  \return ReturnMessage from COM hardware.
          */
-		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+		AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 };
 
 #endif  //COMHANDLERS_H_

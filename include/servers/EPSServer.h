@@ -23,7 +23,7 @@
 
 //#include "boards/board.h"
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Servers
 	{
@@ -50,13 +50,13 @@ namespace Phoenix
 		#define PLD_MAX_OFF_TIME					60000
 		#define PROP_MAX_OFF_TIME					60000      
 		
-		class EPSServer : public SubsystemServer, public Phoenix::Core::Singleton
+		class EPSServer : public SubsystemServer, public AllStar::Core::Singleton
 		{
 			/*! \brief Declare Factory a friend class
 			*
 			*	This allows factory to call EPSServer's private constructor
 			*/
-			friend class Phoenix::Core::Factory;
+			friend class AllStar::Core::Factory;
 			
 		public:
 			
@@ -94,8 +94,8 @@ namespace Phoenix
 			EPSServer & operator=(const EPSServer & source);
 			
 			// Member variables needed to register message handlers.
-			Phoenix::Core::MessageHandlerRegistry reg;
-			Phoenix::Core::Arbitrator arby;
+			AllStar::Core::MessageHandlerRegistry reg;
+			AllStar::Core::Arbitrator arby;
 			
 			//Modes
 			void loopInit();

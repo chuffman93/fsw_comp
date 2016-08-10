@@ -23,9 +23,9 @@
 #include <cmath>
 
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Servers
 	{
@@ -294,4 +294,4 @@ namespace Phoenix
 		   return NULL;
 	   }
 	} // end namespace servers
-} // end namespace phoenix
+} // end namespace AllStar

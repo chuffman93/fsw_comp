@@ -25,11 +25,11 @@
 
 //#include "boards/backplane/dbg_led.h"
 
-using namespace Phoenix::Core;
-using namespace Phoenix::HAL;
-using namespace Phoenix::Servers;
+using namespace AllStar::Core;
+using namespace AllStar::HAL;
+using namespace AllStar::Servers;
 
-namespace Phoenix{
+namespace AllStar{
 namespace Servers{
 
 FSWPacket * EPSHealthStat()
@@ -117,4 +117,4 @@ FSWPacket * EPSEnableOCProt()
 }
 
 } // End namespace Servers
-} // End namespace Phoenix
+} // End namespace AllStar

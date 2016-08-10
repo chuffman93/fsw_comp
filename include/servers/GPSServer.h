@@ -24,7 +24,7 @@
 #include <termios.h>
 #include <unistd.h>
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Servers
 	{
@@ -47,13 +47,13 @@ namespace Phoenix
 			double longitude;
 		};
 
-		class GPSServer : public SubsystemServer, public Phoenix::Core::Singleton
+		class GPSServer : public SubsystemServer, public AllStar::Core::Singleton
 		{
 			/*! \brief Declare Factory a friend class
 			*
 			*	This allows factory to call GPSServer's private constructor
 			*/
-			friend class Phoenix::Core::Factory;
+			friend class AllStar::Core::Factory;
 
 		public:
 
@@ -118,11 +118,11 @@ namespace Phoenix
 			int CreatePort(void);
 
 			void ReadData(char * buffer, int fd);
-			void GPSMessageProcess(Phoenix::Core::ReturnMessage * retMsg);
+			void GPSMessageProcess(AllStar::Core::ReturnMessage * retMsg);
 
 			// Member variables needed to register message handlers.
-			Phoenix::Core::MessageHandlerRegistry reg;
-			Phoenix::Core::Arbitrator arby;
+			AllStar::Core::MessageHandlerRegistry reg;
+			AllStar::Core::Arbitrator arby;
 
 			GPS_BESTXYZ * GPSDataHolder;
 			GPS_GPRMC * GPSCoordsHolder;

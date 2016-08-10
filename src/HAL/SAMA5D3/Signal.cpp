@@ -1,7 +1,7 @@
 #include "core/StdTypes.h"
 #include <signal.h>
 
-namespace Phoenix
+namespace AllStar
 {
     namespace HAL
     {

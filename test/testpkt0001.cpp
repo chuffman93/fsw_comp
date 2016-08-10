@@ -15,7 +15,7 @@
 #include "core/FSWPacket.h"
 
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 #define LOCATION_ID_MAX 5
 

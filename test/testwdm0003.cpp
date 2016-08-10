@@ -19,7 +19,7 @@
 
 #include "core/WatchdogManager.h"
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 PThread *task3A, *task3B, *task3C;
 sem_t sync3A;

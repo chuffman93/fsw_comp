@@ -26,19 +26,19 @@
 #include "HAL/I2C/PowerMonitor.h"
 #include "HAL/I2C/I2CDeviceManager.h"
 
-using namespace Phoenix::HAL;
+using namespace AllStar::HAL;
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Servers
 	{
-	class CDHServer : public SubsystemServer, public Phoenix::Core::Singleton
+	class CDHServer : public SubsystemServer, public AllStar::Core::Singleton
 		{
 			/*! \brief Declare Factory a friend class
 			*
 			*	This allows factory to call CDHServer's private constructor
 			*/
-			friend class Phoenix::Core::Factory;
+			friend class AllStar::Core::Factory;
 
 		public:
 			void Update(SystemModeEnum mode);
@@ -74,8 +74,8 @@ namespace Phoenix
 			CDHServer & operator=(const CDHServer & source);
 
 			// Member variables needed to register message handlers.
-			Phoenix::Core::MessageHandlerRegistry reg;
-			Phoenix::Core::Arbitrator arby;
+			AllStar::Core::MessageHandlerRegistry reg;
+			AllStar::Core::Arbitrator arby;
 
 			// Modes
 			void loopInit();

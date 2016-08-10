@@ -16,7 +16,7 @@
 #include "core/Dispatcher.h"
 
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 
 static void * taskTest(void * parameters)

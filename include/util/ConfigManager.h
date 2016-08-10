@@ -4,11 +4,11 @@
 #include "core/Factory.h"
 #include "sys/mman.h"
 #include "Logger.h"
-namespace Phoenix{
+namespace AllStar{
 namespace util{
 
 template <class ConfigStruct> class ConfigManager{
-	friend class Phoenix::Core::Factory;
+	friend class AllStar::Core::Factory;
 public:
 	ConfigManager(std::string fileName)
 		:fileName(fileName){}

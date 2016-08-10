@@ -11,20 +11,20 @@
 #include "core/MultiDataMessage.h"
 //#include "boards/board.h"
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Servers
 	{
-		void EPSError(int opcode, Phoenix::Core::FSWPacket * packet);
-		void COMError(int opcode, Phoenix::Core::FSWPacket * packet);
-		void PLDError(int opcode, Phoenix::Core::FSWPacket * packet);
-		void ACSError(int opcode, Phoenix::Core::FSWPacket * packet);
-		void GPSError(int opcode, Phoenix::Core::FSWPacket * packet);
-		void THMError(int opcode, Phoenix::Core::FSWPacket * packet);
-		void SCHError(int opcode, Phoenix::Core::FSWPacket * packet);
-		void CMDError(int opcode, Phoenix::Core::FSWPacket * packet);
-		void CDHError(int opcode, Phoenix::Core::FSWPacket * packet);
-		void FileHandlerError(int opcode, Phoenix::Core::FSWPacket * packet);
+		void EPSError(int opcode, AllStar::Core::FSWPacket * packet);
+		void COMError(int opcode, AllStar::Core::FSWPacket * packet);
+		void PLDError(int opcode, AllStar::Core::FSWPacket * packet);
+		void ACSError(int opcode, AllStar::Core::FSWPacket * packet);
+		void GPSError(int opcode, AllStar::Core::FSWPacket * packet);
+		void THMError(int opcode, AllStar::Core::FSWPacket * packet);
+		void SCHError(int opcode, AllStar::Core::FSWPacket * packet);
+		void CMDError(int opcode, AllStar::Core::FSWPacket * packet);
+		void CDHError(int opcode, AllStar::Core::FSWPacket * packet);
+		void FileHandlerError(int opcode, AllStar::Core::FSWPacket * packet);
 		
 		void THMPowerReset(PowerSubsystemEnum which);
 

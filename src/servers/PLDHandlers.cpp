@@ -21,8 +21,8 @@
 #include "util/Logger.h"
 
 using namespace std;
-using namespace Phoenix::Core;
-using namespace Phoenix::Servers;
+using namespace AllStar::Core;
+using namespace AllStar::Servers;
 
 uint32 PLDDataHandler::enumArray[] = {VAR_TYPE_ENUM_UNSIGNED_INT};
 uint32 PLDResSetHandler::enumArray[] = {VAR_TYPE_ENUM_UNSIGNED_INT, VAR_TYPE_ENUM_UNSIGNED_INT};

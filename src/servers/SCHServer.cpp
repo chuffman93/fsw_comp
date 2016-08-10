@@ -18,9 +18,9 @@
 #include <stdio.h>
 
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
-namespace Phoenix{
+namespace AllStar{
 namespace Servers{
 
 SCHServer::SCHServer(string nameIn, LocationIDType idIn)
@@ -162,4 +162,4 @@ void SCHServer::LoadNextSchedule(){
 }
 
 } // End Namespace servers
-} // End Namespace Phoenix
+} // End Namespace AllStar

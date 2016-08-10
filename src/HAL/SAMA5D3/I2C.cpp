@@ -10,7 +10,7 @@
 #include <sys/ioctl.h>
 #include <string.h>
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace HAL
 	{
@@ -105,4 +105,4 @@ namespace Phoenix
 
 
 	} //HAL
-} //Phoenix
+} //AllStar

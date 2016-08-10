@@ -14,7 +14,7 @@
 
 #include "core/RingBuffer.h"
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 #define SIZE 64
 

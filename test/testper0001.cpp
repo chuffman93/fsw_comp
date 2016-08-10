@@ -16,7 +16,7 @@
 #include "core/Permission.h"
 
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 TEST(TestPermission, DefaultConstructor) {
 	//Default constructor no parameter should set all permissions false
@@ -28,7 +28,7 @@ TEST(TestPermission, DefaultConstructor) {
 
 	size_t i;
 
-	for (i = 0; i < PHOENIX_NUM_SERVERS; i++) {
+	for (i = 0; i < ALLSTAR_NUM_SERVERS; i++) {
 		//Make sure all permissions of p1 initialized false
 		if (p1.ServerHasPermission(i)) {
 			cout << "Default permissions constructor failed to initialize all "

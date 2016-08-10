@@ -18,7 +18,7 @@
 #include "core/Singleton.h"
 #include "core/Factory.h"
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 static void * taskTest1A(void * parameters)
 {

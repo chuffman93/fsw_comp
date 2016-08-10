@@ -55,9 +55,9 @@ const unsigned int sizeToZip = 10 * (1024);
 uint32 crcTable[256];
 
 
-using namespace Phoenix::HAL;
-using namespace Phoenix::Core;
-using namespace Phoenix::Servers;
+using namespace AllStar::HAL;
+using namespace AllStar::Core;
+using namespace AllStar::Servers;
 using namespace std;
 
 
@@ -103,7 +103,7 @@ FileHandler & FileHandler::operator=(const FileHandler & source)
 /////////// Log Data ////////////////
 /////////////////////////////////////
 
-bool FileHandler::Log(FileHandlerIDEnum subsystem, const Phoenix::Core::FSWPacket * packet){
+bool FileHandler::Log(FileHandlerIDEnum subsystem, const AllStar::Core::FSWPacket * packet){
 	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 

@@ -15,7 +15,7 @@
 #include "util/Logger.h"
 #include "core/StdTypes.h"
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace HAL
 	{

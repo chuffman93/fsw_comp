@@ -9,7 +9,7 @@
 #ifndef I2C_DEVICE_H_
 #define I2C_DEVICE_H_
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace HAL
 	{

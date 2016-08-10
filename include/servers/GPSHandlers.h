@@ -10,7 +10,7 @@
 
 #include "core/MessageHandler.h"
 
-class GPSHealthAndStatusHandler: public Phoenix::Core::MessageHandler
+class GPSHealthAndStatusHandler: public AllStar::Core::MessageHandler
 {
 public:
 		/*! \brief Handle a request for H&S measurements.
@@ -18,10 +18,10 @@ public:
 		 *  \param packet FSWPacket containing the message.
 		 *  \return ReturnMessage that serves as a response.
 		 */
-		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+		AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 };
 
-class GPSTimeHandler: public Phoenix::Core::MessageHandler
+class GPSTimeHandler: public AllStar::Core::MessageHandler
 {
 public:
 		/*! \brief Handle a request for date/time data.
@@ -29,10 +29,10 @@ public:
 		 *  \param packet FSWPacket containing the message.
 		 *  \return ReturnMessage that serves as a response.
 		 */
-		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+		AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 };
 
-class GPSPositionHandler: public Phoenix::Core::MessageHandler
+class GPSPositionHandler: public AllStar::Core::MessageHandler
 {
 public:
 		/*! \brief Handle a request for position data.
@@ -40,10 +40,10 @@ public:
 		 *  \param packet FSWPacket containing the message.
 		 *  \return ReturnMessage that serves as a response.
 		 */
-		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+		AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 };
 
-class GPSResetHandler: public Phoenix::Core::MessageHandler
+class GPSResetHandler: public AllStar::Core::MessageHandler
 {
 public:
 		/*! \brief Handle a reset request.
@@ -51,10 +51,10 @@ public:
 		 *  \param packet FSWPacket containing the message.
 		 *  \return ReturnMessage that serves as a response.
 		 */
-		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+		AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 };
 
-class GPSErrorHandler: public Phoenix::Core::MessageHandler
+class GPSErrorHandler: public AllStar::Core::MessageHandler
 {
 public:
 		/*! \brief Handle an error.
@@ -62,7 +62,7 @@ public:
 		 *  \param packet FSWPacket containing the message.
 		 *  \return ReturnMessage that serves as a response.
 		 */
-		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+		AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 };
 
 #endif /* GPSHANDLERS_H */

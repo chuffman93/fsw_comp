@@ -14,7 +14,7 @@
 
 #include "core/WatchdogManager.h"
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 PThread *task8A, *task8B, *task8C;
 sem_t sync8A, sync8B, sync8C;

@@ -16,7 +16,7 @@
 
 using namespace std;
 using namespace rel_ops;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 #define TEST_VALUE1 "wow"
 #define TEST_VALUE2 ((double)2.2)

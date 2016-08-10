@@ -42,7 +42,7 @@ size_t UARTTxBufferRead(uint8 dev, uint8 * data, size_t size);
 #endif // __cplusplus
 
 #ifdef __cplusplus
-namespace Phoenix
+namespace AllStar
 {
     namespace HAL
     {

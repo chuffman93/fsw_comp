@@ -13,16 +13,16 @@
 
 //#include "boards/board.h"
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Servers
 	{
-		Phoenix::Core::FSWPacket * EPSHealthStat();
-		Phoenix::Core::FSWPacket * EPSStateOfCharge();
-		Phoenix::Core::FSWPacket * EPSPowerCycle();
-		Phoenix::Core::FSWPacket * EPSDisableOCProt();
-		Phoenix::Core::FSWPacket * EPSEnableOCProt();
-		Phoenix::Core::FSWPacket * EPSPowerSubsystems(PowerSubsystemEnum subsystem, bool onOff, uint32 time);
+		AllStar::Core::FSWPacket * EPSHealthStat();
+		AllStar::Core::FSWPacket * EPSStateOfCharge();
+		AllStar::Core::FSWPacket * EPSPowerCycle();
+		AllStar::Core::FSWPacket * EPSDisableOCProt();
+		AllStar::Core::FSWPacket * EPSEnableOCProt();
+		AllStar::Core::FSWPacket * EPSPowerSubsystems(PowerSubsystemEnum subsystem, bool onOff, uint32 time);
 		void CheckPowerTimers(void);
 		void SattyResetTimer(void);
 		void SattyReset(void);

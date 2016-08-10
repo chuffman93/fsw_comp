@@ -13,7 +13,7 @@
 #include "core/Factory.h"
 
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Servers
 	{
@@ -24,13 +24,13 @@ namespace Phoenix
 		/*! \brief Length of the Error Queue */
 		#define ERROR_QUEUE_LENGTH 100
 
-		class ErrorQueue : public Phoenix::Core::Singleton
+		class ErrorQueue : public AllStar::Core::Singleton
 		{
 			/*! \brief Declare Factory a friend class 
 			*	
 			*	This allows factory to call ErrorQueue's private constructor
 			*/
-			friend class Phoenix::Core::Factory;
+			friend class AllStar::Core::Factory;
 		public:
 			/*! \brief Enqueues error packet to the error queue.
 			 *
@@ -38,7 +38,7 @@ namespace Phoenix
 			 *      function can be called.
 			 */
 
-			 bool EnqueueError(Phoenix::Core::FSWPacket * packet);
+			 bool EnqueueError(AllStar::Core::FSWPacket * packet);
 
 			/*! \brief Returns the number of packets in the error queue.
 			 *
@@ -53,7 +53,7 @@ namespace Phoenix
 			 *  \note error queue must be initialized before this
 			 *      function can be called.
 			 */
-			 Phoenix::Core::FSWPacket * GetNextError(void);
+			 AllStar::Core::FSWPacket * GetNextError(void);
 
 		private:
 			 /*! \brief Initialize the ErrorQueue Class

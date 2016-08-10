@@ -18,15 +18,15 @@
 #include "core/Arbitrator.h"
 #include "servers/PLDHandlers.h"
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Servers
 	{
 #define PLD_ON_TIMEOUT 10000
 
-		class PLDServer : public SubsystemServer, public Phoenix::Core::Singleton
+		class PLDServer : public SubsystemServer, public AllStar::Core::Singleton
 		{
-			friend class Phoenix::Core::Factory;
+			friend class AllStar::Core::Factory;
 		public:
 			
 			void SubsystemLoop(void);
@@ -47,8 +47,8 @@ namespace Phoenix
 			~PLDServer();
 			PLDServer & operator=(const PLDServer & source); //possibly for firmware update
 			
-			Phoenix::Core::MessageHandlerRegistry reg;
-			Phoenix::Core::Arbitrator arby;
+			AllStar::Core::MessageHandlerRegistry reg;
+			AllStar::Core::Arbitrator arby;
 			
 			void loopInit();
 			void loopIdle();

@@ -21,8 +21,8 @@
 
 using namespace std;
 using namespace rel_ops;
-using namespace Phoenix::Core;
-using namespace Phoenix::Servers;
+using namespace AllStar::Core;
+using namespace AllStar::Servers;
 
 void* taskRunCMD(void * params)
 {

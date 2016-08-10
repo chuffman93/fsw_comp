@@ -13,7 +13,7 @@
 
 // Set desired threshold for logging here
 const LoggerLevelType Logger::threshold = LOGGER_LEVEL_DEBUG;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 using namespace std;
 
 

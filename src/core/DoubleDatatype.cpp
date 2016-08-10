@@ -7,7 +7,7 @@
 
 #include "core/DoubleDatatype.h"
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Core
 	{

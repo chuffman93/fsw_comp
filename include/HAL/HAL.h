@@ -8,7 +8,7 @@
 #ifndef _HAL_H_
 #define _HAL_H_
 
-namespace Phoenix
+namespace AllStar
 {
     namespace HAL
     {

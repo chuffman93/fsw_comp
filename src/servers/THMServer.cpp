@@ -30,11 +30,11 @@
 #include "HAL/Temperature.h"
 
 using namespace std;
-using namespace Phoenix::Core;
-using namespace Phoenix::HAL;
+using namespace AllStar::Core;
+using namespace AllStar::HAL;
 
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Servers
 	{

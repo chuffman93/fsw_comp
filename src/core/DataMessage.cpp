@@ -8,7 +8,7 @@
 //
 //#include "core/DataMessage.h"
 //
-//namespace Phoenix
+//namespace AllStar
 //{
 //    namespace Core
 //    {

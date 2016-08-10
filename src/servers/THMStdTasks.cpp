@@ -21,10 +21,10 @@
 ////#include "boards/board.h"
 //
 //using namespace std;
-//using namespace Phoenix::Core;
+//using namespace AllStar::Core;
 //
 //
-//namespace Phoenix
+//namespace AllStar
 //{
 //	namespace Servers
 //	{
@@ -201,4 +201,4 @@
 //		}
 //
 //	}//end namespace servers
-//}//end namespace phoenix
+//}//end namespace AllStar

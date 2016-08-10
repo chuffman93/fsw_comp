@@ -17,16 +17,14 @@
 #include "core/ErrorMessage.h"
 #include "core/ConfigMessage.h"
 
-#include "HAL/SPI_Server.h"
-
 #include "util/FileHandler.h"
 #include "util/Logger.h"
 #include <assert.h>
 
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
-namespace Phoenix{
+namespace AllStar{
 namespace Servers{
 
 FSWPacket * DispatchPacket(FSWPacket * query)
@@ -47,16 +45,15 @@ FSWPacket * DispatchPacket(FSWPacket * query)
 		return ret;
 	}
 
-	//grab dispatcher instance, if it fails return DISPATCHER_NO_INSTANCE
+	//grab dispatcher instance
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-	SPI_HALServer * spiServer = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
 
 	//grab and increment the packet number
 	query->SetNumber(dispatcher->packetNumber++);
 
 	//Dispatch packet, if it fails return DISPATCH_FAILED
-	int dispatchRet = dispatcher->Dispatch(*query);
-	if(dispatchRet == -1){
+	if(!dispatcher->Dispatch(*query))
+	{
 		logger->Log("DispatchStdTasks: Failed to dispatch packet\n", LOGGER_LEVEL_WARN);
 		FSWPacket * ret = new FSWPacket(DISPATCH_FAILED, false, false, MESSAGE_TYPE_ERROR);
 		delete query;
@@ -67,7 +64,8 @@ FSWPacket * DispatchPacket(FSWPacket * query)
 	FSWPacket * response;
 	//Wait for return message, if it fails return status response from dispatcher
 	logger->Log("DispatchStdTasks: Waiting for return message\n", LOGGER_LEVEL_DEBUG);
-	if(DISPATCHER_STATUS_OK != (stat = WaitForDispatchResponse(*query, &response))){
+	if(DISPATCHER_STATUS_OK != (stat = WaitForDispatchResponse(*query, &response)))
+	{
 		logger->Log("DispatchStdTasks: Did not receive response\n", LOGGER_LEVEL_WARN);
 		FSWPacket * ret = new FSWPacket(DISPATCHER_STATUS_ERR, false, false, MESSAGE_TYPE_ERROR);
 		delete query;
@@ -96,7 +94,7 @@ bool Listen(LocationIDType serverID){
 		return false;
 	}
 
-	logger->Log(" DispatchStdTasks: Listen() w/ id %u: Found a packet, looking for a handler.", serverID, LOGGER_LEVEL_DEBUG);
+	logger->Log("   DispatchStdTasks: Listen() w/ id %u: Found a packet, looking for a handler.", serverID, LOGGER_LEVEL_DEBUG);
 
 	if(NULL == (registry = dispatcher->FindHandler(serverID, packet))){
 		return false;
@@ -121,23 +119,20 @@ bool Listen(LocationIDType serverID){
 	bool sendSuccess = false;
 	if(numPackets < DISPATCHER_QUEUE_LENGTH){
 		sendSuccess = mq_timed_send(dispatcher->queueNameRX, &ret, MAX_BLOCK_TIME, 0);
-		//this->GiveLock();
 	}else{
 		logger->Log("DispatchStdTasks: RX Queue full!", LOGGER_LEVEL_FATAL);
 		sendSuccess = false;
-		//this->GiveLock();
 	}
 
 	return sendSuccess;
 }
 
-void PacketProcess(LocationIDType id, Phoenix::Core::FSWPacket * retPacket)
+void PacketProcess(LocationIDType id, AllStar::Core::FSWPacket * retPacket)
 {
 	FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log("DispatchStdTasks: PacketProcess() called", LOGGER_LEVEL_DEBUG);
 
-	if(retPacket == NULL) return;
 	// Get packet info
 	bool success = retPacket->IsSuccess();
 	MessageCodeType retOpcode = retPacket->GetOpcode();
@@ -186,8 +181,6 @@ void PacketProcess(LocationIDType id, Phoenix::Core::FSWPacket * retPacket)
 		}
 	}
 
-	//TODO: check bounds here!
-
 	FileHandlerIDEnum handlerID;
 	switch(id)
 	{
@@ -228,7 +221,7 @@ void PacketProcess(LocationIDType id, Phoenix::Core::FSWPacket * retPacket)
 	logger->Log("DispatchStdTasks: Got successful return message!", LOGGER_LEVEL_INFO);
 	if(!fileHandler->Log(handlerID, retPacket))
 	{
-		// write to error log
+		// TODO: write to error log
 		logger->Log("DispatchStdTasks: Failed to log message", LOGGER_LEVEL_WARN);
 	}
 	delete retPacket;
@@ -244,7 +237,7 @@ DispatcherStatusEnum WaitForDispatchResponse(const FSWPacket & packet, FSWPacket
 	logger->Log("    Dispatcher: Checking queue for matching packet", LOGGER_LEVEL_DEBUG);
 	for (i = 0; i < 50; ++i)
 	{
-		if (dispatcher->CheckQueueForMatchingPacket(dispatcher->queueNameRX, packet, retPacket, dispatcher->CHECK_MATCHING_RESPONSE))
+		if (dispatcher->CheckQueueForMatchingPacket(packet, retPacket, dispatcher->CHECK_MATCHING_RESPONSE))
 		{
 			logger->Log("    Dispatcher: WaitForDispatchResponse(): Matching FSWPacket found.", LOGGER_LEVEL_DEBUG);
 
@@ -258,9 +251,9 @@ DispatcherStatusEnum WaitForDispatchResponse(const FSWPacket & packet, FSWPacket
 	logger->Log("   Dispatch:  No response, see if the packet we sent has been received.", LOGGER_LEVEL_DEBUG);
 	//debug_led_set_led(6, LED_ON);
 
-	if (dispatcher->CheckQueueForMatchingPacket(dispatcher->queueNameRX, packet, retPacket, dispatcher->CHECK_SAME))
+	if (dispatcher->CheckQueueForMatchingPacket(packet, retPacket, dispatcher->CHECK_SAME))
 	{
-		logger->Log("   Dispatch: Command not received", LOGGER_LEVEL_ERROR);
+		logger->Log("   Dispatch: Command not received, removed from queue", LOGGER_LEVEL_ERROR);
 		return DISPATCHER_STATUS_MSG_NOT_RCVD;
 	}
 
@@ -272,21 +265,18 @@ DispatcherStatusEnum WaitForDispatchResponse(const FSWPacket & packet, FSWPacket
 
 uint32 GetUInt(uint8 * buffer){
 	uint32 result;
-	//uint8 littleEndian[] = {buffer[3],buffer[2],buffer[1],buffer[0]};
 	memcpy(&result, buffer, 4);
 	return result;
 }
 
 uint16 GetUInt16(uint8 * buffer){
 	uint32 result;
-	//uint8 littleEndian[] = {buffer[1],buffer[0]};
 	memcpy(&result, buffer, 2);
 	return result;
 }
 
 int32 GetInt(uint8 * buffer){
 	int32 result;
-	//uint8 littleEndian[] = {buffer[3],buffer[2],buffer[1],buffer[0]};
 	memcpy(&result, buffer, 4);
 	return result;
 }
@@ -297,14 +287,12 @@ bool GetBool(uint8 * buffer){
 
 float GetFloat(uint8 * buffer){
 	float result;
-	//uint8 littleEndian[] = {buffer[3],buffer[2],buffer[1],buffer[0]};
 	memcpy(&result, buffer, 4);
 	return result;
 }
 
 double GetDouble(uint8 * buffer){
 	double result;
-	//uint8 littleEndian[] = {buffer[7],buffer[6],buffer[5],buffer[4],buffer[3],buffer[2],buffer[1],buffer[0]};
 	memcpy(&result, buffer, 8);
 	return result;
 }
@@ -322,4 +310,4 @@ void AddDouble(uint8 * buffer, double data){
 }
 
 } // End of namespace Servers
-} // End of namespace Phoenix
+} // End of namespace AllStar

@@ -9,15 +9,15 @@
 
 #include "core/ReturnMessage.h"
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Servers
 	{
-		Phoenix::Core::FSWPacket * GPSHealthStatus();
-		Phoenix::Core::FSWPacket * GPSTime();
-		Phoenix::Core::FSWPacket * GPSPostion();
+		AllStar::Core::FSWPacket * GPSHealthStatus();
+		AllStar::Core::FSWPacket * GPSTime();
+		AllStar::Core::FSWPacket * GPSPostion();
 		bool GPSConversion();
-		Phoenix::Core::FSWPacket * GPSReset();
+		AllStar::Core::FSWPacket * GPSReset();
 		bool BESTXYZProcess(char * buffer,const size_t size);
 		bool GPRMCProcess(char * buffer, const size_t size);
 		double nmea_to_deg(char *nmea);

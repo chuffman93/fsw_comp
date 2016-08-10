@@ -15,58 +15,58 @@
 #include "POSIX.h"
 
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
-namespace Phoenix
+namespace AllStar{
+namespace Servers{
+
+SubsystemServer::SubsystemServer(string nameIn, LocationIDType idIn)
+				: Server(nameIn, idIn), currentState(0)
 {
-	namespace Servers 
+	// Left Intentionally Blank
+}
+
+SubsystemServer::~SubsystemServer()
+{
+	// Left Intentionally Blank
+}
+
+SubsystemServer & SubsystemServer::operator=(const SubsystemServer & source)
+{
+	if (this == &source)
 	{
-		SubsystemServer::SubsystemServer(string nameIn, LocationIDType idIn)
-						: Server(nameIn, idIn), currentState(0)
-		{
-			// Left Intentionally Blank
-		}
+		return *this;
+	}
 
-		SubsystemServer::~SubsystemServer()
-		{
-			// Left Intentionally Blank
-		}
+	Server::operator =(source);
 
-		SubsystemServer & SubsystemServer::operator=(const SubsystemServer & source)
-		{
-		    if (this == &source)
-		    {
-		        return *this;
-		    }
+	return *this;
+}
 
-		    Server::operator =(source);
+bool SubsystemServer::operator ==(const Server & check) const
+{
+	return (name == check.GetName() && id == check.GetID());
+}
 
-		    return *this;
-		}
+void SubsystemServer::SubsystemLoop(void)
+{
+	//Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+
+	while(1)
+	{
+		while(Listen(id));
+		usleep(50000);
 		
-		bool SubsystemServer::operator ==(const Server & check) const
-		{
-			return (name == check.GetName() && id == check.GetID());
-		}
+		StateFunc function = GetStateMap()[currentState].function;
 
-		void SubsystemServer::SubsystemLoop(void)
-		{
-			//Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-			
-			while(1)
-			{
-				Listen(id);
-				usleep(50000);
-				
-				StateFunc function = GetStateMap()[currentState].function;
-
-				(this->*function)();
-			}
-		}
-
-		void SubsystemServer::Update(const SystemModeEnum mode)
-		{
-
-		}
+		(this->*function)();
 	}
 }
+
+void SubsystemServer::Update(const SystemModeEnum mode)
+{
+
+}
+
+} // End of namespace Servers
+} // End of namespace AllStar

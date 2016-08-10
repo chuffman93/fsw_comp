@@ -26,7 +26,7 @@
 #define DEBUG_PRINT(m)
 #endif // HOST
 
-namespace Phoenix
+namespace AllStar
 {
 namespace Core
 {

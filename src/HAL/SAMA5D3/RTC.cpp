@@ -17,7 +17,7 @@ extern "C"
 // used to prevent multiple threads accessing aes hardware simultaneously
 static pthread_mutex_t Mutex;
 
-namespace Phoenix
+namespace AllStar
 {
     namespace HAL
     {

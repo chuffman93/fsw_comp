@@ -11,7 +11,7 @@
 #include "core/StdTypes.h"
 
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 TEST(TestFileHandler, LogAppend)
 {

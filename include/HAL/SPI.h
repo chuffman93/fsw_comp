@@ -14,7 +14,7 @@
 #define NUM_SPIS 2
 #define SPI_CHIP_MAX 1
 
-namespace Phoenix
+namespace AllStar
 {
     namespace HAL
     {

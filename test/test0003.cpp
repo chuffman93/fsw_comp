@@ -8,7 +8,7 @@
 #include <iostream>
 #include "POSIX.h"
 #include "gtest/gtest.h"
-using namespace Phoenix;
+using namespace AllStar;
 using namespace Core;
 using namespace std;
 

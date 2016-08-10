@@ -30,7 +30,7 @@
 #define STR_LEN	   50
 #define RX_BUF_LEN 300
 
-using namespace Phoenix;
+using namespace AllStar;
 using namespace Core;
 
 static int timeout = 20;
@@ -131,7 +131,7 @@ void SPI_HALServer::SPI_HALServerLoop(void)
 	}
 }
 
-bool SPI_HALServer::SPIDispatch(Phoenix::Core::FSWPacket & packet){
+bool SPI_HALServer::SPIDispatch(AllStar::Core::FSWPacket & packet){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	int bytes_copied;
 	int ret;

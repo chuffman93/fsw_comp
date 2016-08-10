@@ -10,7 +10,7 @@
 #define _HAL_GPIO_H_
 
 #ifdef __cplusplus
-namespace Phoenix
+namespace AllStar
 {
 	namespace HAL
 	{
@@ -23,7 +23,7 @@ namespace Phoenix
 
 		bool SetPin(unsigned int pin, PinType type);
 		bool ClearPin(unsigned int pin, PinType type);
-		bool GetPin(unsigned int pin, Phoenix::HAL::PinType type, unsigned char *value);
+		bool GetPin(unsigned int pin, AllStar::HAL::PinType type, unsigned char *value);
 	}
 }
 #endif //__cplusplus

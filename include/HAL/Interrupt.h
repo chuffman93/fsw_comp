@@ -10,7 +10,7 @@
 #include "core/StdTypes.h"
 #include <time.h>
 
-namespace Phoenix
+namespace AllStar
 {
     namespace HAL
     {

@@ -24,7 +24,7 @@
 struct SessionInfo SS[N_SERVERS];
 
 
-using namespace Phoenix;
+using namespace AllStar;
 using namespace Core;
 
 // Enter this loop

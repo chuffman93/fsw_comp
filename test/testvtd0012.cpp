@@ -15,7 +15,7 @@
 
 #include "core/VariableTypeData.h"
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 TEST(TestVariableTypeData, AssignmentOperatorVoid) {
 	VariableTypeData * v1, v2;

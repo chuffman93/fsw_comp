@@ -9,8 +9,8 @@
 #include "servers/GPSServer.h"
 #include <sys/statvfs.h>
 
-using namespace Phoenix::Core;
-using namespace Phoenix::Servers;
+using namespace AllStar::Core;
+using namespace AllStar::Servers;
 
 StorageManager::StorageManager(float threshold_in){
 	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));

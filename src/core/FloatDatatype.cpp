@@ -7,7 +7,7 @@
 
 #include "core/FloatDatatype.h"
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Core
 	{

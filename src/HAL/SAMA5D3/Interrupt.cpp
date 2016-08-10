@@ -42,9 +42,9 @@ int gpioIntPins[NUM_OF_INTERRUPTS] = {81,80};
 int gpioIntFds[NUM_OF_INTERRUPTS];
 pollfd gpioIntPoll[NUM_OF_INTERRUPTS];
 
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
-namespace Phoenix
+namespace AllStar
 {
     namespace HAL
     {

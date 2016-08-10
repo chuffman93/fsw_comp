@@ -21,10 +21,10 @@
 //#include "boards/backplane/dbg_led.h"
 
 using namespace std;
-using namespace Phoenix::Core;
-using namespace Phoenix::Servers;
+using namespace AllStar::Core;
+using namespace AllStar::Servers;
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Servers
 	{
@@ -224,7 +224,7 @@ namespace Phoenix
 			return(DispatchPacket(query));
 		}
 		
-		FSWPacket * ACSHelloworld(const Phoenix::Core::FSWPacket & packet)
+		FSWPacket * ACSHelloworld(const AllStar::Core::FSWPacket & packet)
 		{
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 			logger->Log("ACSStdTasks: ACSHelloworld(): Unfinished function!", LOGGER_LEVEL_FATAL);

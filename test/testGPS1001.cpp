@@ -8,8 +8,8 @@
 
 using namespace std;
 using namespace rel_ops;
-using namespace Phoenix::Servers;
-using namespace Phoenix::Core;
+using namespace AllStar::Servers;
+using namespace AllStar::Core;
 
 
 TEST(TestGPS, testDataParse){

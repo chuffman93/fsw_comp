@@ -20,21 +20,21 @@
 #include "servers/PLDServer.h"
 #include "servers/SubsystemServer.h"
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Servers
 	{
-		Phoenix::Core::FSWPacket * PLDHealthStatus(void);
-		Phoenix::Core::FSWPacket * PLDPicture(void);
-		Phoenix::Core::FSWPacket * PLDGetPicture(void);
-		Phoenix::Core::FSWPacket * PLDDataRequest(const uint32 &  packetNum);
-		Phoenix::Core::FSWPacket * PLDResSet(const uint32 & resX, const uint32 & resY);
-		Phoenix::Core::FSWPacket * PLDConfigChunkSize(const uint32 & chunkSize);
-		Phoenix::Core::FSWPacket * PLDSetGain(const uint32 & gain);
-		Phoenix::Core::FSWPacket * PLDSetExpTime(const uint32 & expTime);
-		Phoenix::Core::FSWPacket * PLDReset(void);
-		bool PLDPictureProcess(Phoenix::Core::ReturnMessage * retMsg);
-		Phoenix::Core::FSWPacket * PLDGetData(void);
+		AllStar::Core::FSWPacket * PLDHealthStatus(void);
+		AllStar::Core::FSWPacket * PLDPicture(void);
+		AllStar::Core::FSWPacket * PLDGetPicture(void);
+		AllStar::Core::FSWPacket * PLDDataRequest(const uint32 &  packetNum);
+		AllStar::Core::FSWPacket * PLDResSet(const uint32 & resX, const uint32 & resY);
+		AllStar::Core::FSWPacket * PLDConfigChunkSize(const uint32 & chunkSize);
+		AllStar::Core::FSWPacket * PLDSetGain(const uint32 & gain);
+		AllStar::Core::FSWPacket * PLDSetExpTime(const uint32 & expTime);
+		AllStar::Core::FSWPacket * PLDReset(void);
+		bool PLDPictureProcess(AllStar::Core::ReturnMessage * retMsg);
+		AllStar::Core::FSWPacket * PLDGetData(void);
 	}
 }
 

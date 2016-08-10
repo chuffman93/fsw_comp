@@ -28,10 +28,10 @@
 //#include "boards/backplane/dbg_led.h"
 
 using namespace std;
-using namespace Phoenix::Core;
-using namespace Phoenix::HAL;
+using namespace AllStar::Core;
+using namespace AllStar::HAL;
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Servers
 	{
@@ -133,7 +133,7 @@ namespace Phoenix
 			logger->Log("CDHStdTasks: CDHHotSwaps(): Reading hot swaps", LOGGER_LEVEL_INFO);
 
 			// Setup
-			Phoenix::Servers::CDHServer * cdhServer = dynamic_cast<Phoenix::Servers::CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
+			AllStar::Servers::CDHServer * cdhServer = dynamic_cast<AllStar::Servers::CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
 			float vcRead[32];
 			uint8 * buffer = (uint8 *) malloc(32*sizeof(float));
 
@@ -152,7 +152,7 @@ namespace Phoenix
 		{
 			logger->Log("CDHStdTasks: CDHPowerMonitors(): Unfinished function (variable type)!", LOGGER_LEVEL_FATAL);
 
-//			Phoenix::Servers::CDHServer * cdhServer = dynamic_cast<Phoenix::Servers::CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
+//			AllStar::Servers::CDHServer * cdhServer = dynamic_cast<AllStar::Servers::CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
 //			PowerMonitor_Data data[4];
 //			list<VariableTypeData *>params;
 //			VariableTypeData maxPHold[4];
@@ -194,7 +194,7 @@ namespace Phoenix
 		{
 			logger->Log("CDHStdTasks: CDHStartPM(): Unfinished function (variable type)!", LOGGER_LEVEL_FATAL);
 
-			Phoenix::Servers::CDHServer * cdhServer = dynamic_cast<Phoenix::Servers::CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
+			AllStar::Servers::CDHServer * cdhServer = dynamic_cast<AllStar::Servers::CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
 
 			// Start all of the sensors
 			cdhServer->devMngr->startPMMeas();

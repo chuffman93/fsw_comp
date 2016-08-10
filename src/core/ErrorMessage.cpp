@@ -8,7 +8,7 @@
 
 #include "core/ErrorMessage.h"
 
-namespace Phoenix
+namespace AllStar
 {
     namespace Core
     {

@@ -18,7 +18,7 @@ using namespace std;
 #include "core/WatchdogManager.h"
 #include "core/CommandMessage.h"
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 class Test0010MessageHandler : public MessageHandler
 {

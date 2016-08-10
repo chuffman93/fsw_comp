@@ -13,7 +13,7 @@
 #include "core/Datatype.h"
 #include "core/FSWPacket.h"
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Core
 	{

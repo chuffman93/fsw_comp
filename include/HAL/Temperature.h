@@ -9,7 +9,7 @@
 
 #include "core/StdTypes.h"
 
-namespace Phoenix
+namespace AllStar
 {
     namespace HAL
     {

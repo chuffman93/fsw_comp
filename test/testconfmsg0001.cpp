@@ -15,7 +15,7 @@
 
 using namespace std;
 using namespace rel_ops;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 TEST(TestConfigMessage, ConstructorEmpty)
 {

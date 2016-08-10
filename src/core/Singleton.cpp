@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-namespace Phoenix {
+namespace AllStar {
 namespace Core {
 
 bool Singleton::IsFullyInitialized() {
@@ -44,5 +44,5 @@ bool Singleton::CheckLock() {
 	}
 }
 
-}
-}
+} // End of namespace Core
+} // End of namespace AllStar

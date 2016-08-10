@@ -11,13 +11,14 @@
 #include "servers/CMDStdTasks.h"
 #include "servers/DispatchStdTasks.h"
 
-#include "core/CommandMessage.h"
-#include "core/ReturnMessage.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
-#include "core/ErrorMessage.h"
 #include "core/StdTypes.h"
+#include "core/WatchdogManager.h"
+
+#include "util/FileHandler.h"
 #include "util/Logger.h"
+
 #include "POSIX.h"
 
 #include <iostream>
@@ -25,15 +26,10 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-#include "core/WatchdogManager.h"
-#include "util/FileHandler.h"
-
-//#include "boards/backplane/dbg_led.h"
-
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
-namespace Phoenix{
+namespace AllStar{
 namespace Servers{
 
 //Message Handler for ACP Protocol Switches
@@ -90,6 +86,12 @@ void CMDServer::Initialize(void)
 	system(cmdString);
 	printf("%s\n", cmdString);
 
+	// ifconfig IP ADDRESS OF THIS MACHINE pointopoint IP ADDRESS OF REMOTE up
+	// ifconfig 1.1.1.1 pointopoint 1.1.1.2 up -CDH
+	// ifconfig 1.1.1.2 pointopoint 1.1.1.1 up - COMPUTER
+
+	// ping -I sl0 1.1.1.1
+
 	//--------------------------UFTP--------------------------------------
 	/*
 	 * -E     Only  allow incoming sessions if encryption is enabled.  Default
@@ -141,7 +143,8 @@ void CMDServer::Initialize(void)
 	char tmpDir[20] = "~/tmp";
 	char fileDir[20] = "~/dow";
 	char prvKey[20] = "~/rsakey.pem";
-	sprintf(cmdString, "./uftpd -T %s -I sl0 -D %s -k %s", tmpDir, fileDir, prvKey);
+	//sprintf(cmdString, "./uftpd -T %s -I sl0 -D %s -k %s", tmpDir, fileDir, prvKey);
+	sprintf(cmdString, "./uftpd -T %s -I sl0 -D %s", tmpDir, fileDir);
 	system(cmdString);
 }
 
@@ -205,29 +208,13 @@ bool CMDServer::RegisterHandlers()
 
 void CMDServer::SubsystemLoop(void)
 {
-	FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-	SystemModeEnum mode;
-
-	uint8 * readBuffer;
-	size_t readSize = 0;
-
-	CMDFiles[0] = (char *)"CMD_List_1.dat";	// ACS or ALL
-	CMDFiles[1] = (char *)"CMD_List_2.dat"; // COM
-	CMDFiles[2] = (char *)"CMD_List_3.dat"; // EPS
-	CMDFiles[3] = (char *)"CMD_List_4.dat"; // GPS
-	CMDFiles[4] = (char *)"CMD_List_5.dat"; // PLD
-
-	//VariableTypeData str_hold("test_schedule.dat");
-	//ReturnMessage * ret = DispatchPacket(SERVER_LOCATION_CMD, SERVER_LOCATION_SCH, 0, 1, MESSAGE_TYPE_COMMAND, SCH_BUILD_SCHEDULE_CMD, str_hold);
+	logger->Log("CMDServer: Entered Subsystem Loop", LOGGER_LEVEL_INFO);
 
 	while(1)
 	{
-		printf("Here");
-		while(dispatcher->Listen(id));
+		while(Listen(id));
 		uint64_t LastTimeTick = getTimeInMillis();
 
 
@@ -237,5 +224,5 @@ void CMDServer::SubsystemLoop(void)
 	}
 }
 
-} // End Namespace Servers
-} // End Namespace Phoenix
+} // End of namespace Servers
+} // End of namespace AllStar

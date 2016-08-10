@@ -17,7 +17,7 @@
  */
 
 
-class PLDHSHandler : public Phoenix::Core::MessageHandler
+class PLDHSHandler : public AllStar::Core::MessageHandler
 {
 public:
         /* \brief Handle a health and status request.
@@ -25,10 +25,10 @@ public:
          *  \param packet: FSWPacket containing the command.
          *  \return: ReturnMessage from PLD hardware.
          */
-		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+		AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 };
 
-class PLDPictureTakeHandler : public Phoenix::Core::MessageHandler
+class PLDPictureTakeHandler : public AllStar::Core::MessageHandler
 {
 public:
         /* \brief Handle a take picture request.
@@ -36,10 +36,10 @@ public:
          *  \param packet: FSWPacket containing the command.
          *  \return: ReturnMessage from PLD hardware.
          */
-		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+		AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 };
 
-class PLDGetPictureHandler : public Phoenix::Core::MessageHandler
+class PLDGetPictureHandler : public AllStar::Core::MessageHandler
 {
 public:
         /* \brief Handle a get picture request.
@@ -47,11 +47,11 @@ public:
          *  \param packet: FSWPacket containing the command.
          *  \return: ReturnMessage from PLD hardware.
          */
-		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+		AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 };
 #ifndef EDR_TEST
 
-class PLDDataHandler : public Phoenix::Core::MessageHandler
+class PLDDataHandler : public AllStar::Core::MessageHandler
 {
 public:
         /* \brief Handle a data request.
@@ -59,7 +59,7 @@ public:
          *  \param packet: FSWPacket containing the command.
          *  \return: ReturnMessage from PLD hardware.
          */
-		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+		AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 1;
 		static uint32 enumArray[numParams];
@@ -67,7 +67,7 @@ private:
 
 #endif
 
-class PLDResSetHandler : public Phoenix::Core::MessageHandler
+class PLDResSetHandler : public AllStar::Core::MessageHandler
 {
 public:
         /* \brief Handle a picture resolution resize request.
@@ -75,13 +75,13 @@ public:
          *  \param packet: FSWPacket containing the command.
          *  \return: ReturnMessage from PLD hardware.
          */
-		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+		AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 2;
 		static uint32 enumArray[numParams];
 };
 
-class PLDSetChunkSizeHandler : public Phoenix::Core::MessageHandler
+class PLDSetChunkSizeHandler : public AllStar::Core::MessageHandler
 {
 public:
         /* \brief Handle a picture chunk size request.
@@ -90,13 +90,13 @@ public:
          *  \param packet: FSWPacket containing the command.
          *  \return: ReturnMessage from PLD hardware.
          */
-		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+		AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 1;
 		static uint32 enumArray[numParams];
 };
 
-class PLDSetGainHandler : public Phoenix::Core::MessageHandler
+class PLDSetGainHandler : public AllStar::Core::MessageHandler
 {
 public:
         /* \brief Handle a gain change request.
@@ -104,13 +104,13 @@ public:
          *  \param packet: FSWPacket containing the command.
          *  \return: ReturnMessage from PLD hardware.
          */
-		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+		AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 1;
 		static uint32 enumArray[numParams];
 };
 
-class PLDSetExpTimeHandler : public Phoenix::Core::MessageHandler
+class PLDSetExpTimeHandler : public AllStar::Core::MessageHandler
 {
 public:
         /* \brief Handle a exposure time change request.
@@ -118,13 +118,13 @@ public:
          *  \param packet: FSWPacket containing the command.
          *  \return: ReturnMessage from PLD hardware.
          */
-		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+		AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 private:
 		const static uint32 numParams = 1;
 		static uint32 enumArray[numParams];
 };
 
-class PLDResetHandler : public Phoenix::Core::MessageHandler
+class PLDResetHandler : public AllStar::Core::MessageHandler
 {
 public:
         /* \brief Handle a reset request.
@@ -132,10 +132,10 @@ public:
          *  \param packet: FSWPacket containing the command.
          *  \return: ReturnMessage from PLD hardware.
          */
-		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+		AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 };
 
-class PLDErrorHandler : public Phoenix::Core::MessageHandler
+class PLDErrorHandler : public AllStar::Core::MessageHandler
 {
 public:
         /* \brief Handle an error.
@@ -143,12 +143,12 @@ public:
          *  \param packet: FSWPacket containing the command.
          *  \return: ReturnMessage from PLD hardware.
          */
-		Phoenix::Core::FSWPacket * Handle(const Phoenix::Core::FSWPacket & packet);
+		AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
 };
 
 #ifdef EDR_TEST
 
-class PLDDataHandler : public Phoenix::Core::MessageHandler
+class PLDDataHandler : public AllStar::Core::MessageHandler
 {
 public:
         /* \brief Handle data retrieval.
@@ -156,7 +156,7 @@ public:
          *  \param packet: FSWPacket containing the command.
          *  \return: ReturnMessage from PLD hardware.
          */
-		Phoenix::Core::ReturnMessage * Handle(const Phoenix::Core::FSWPacket & packet);
+		AllStar::Core::ReturnMessage * Handle(const AllStar::Core::FSWPacket & packet);
 };
 
 #endif

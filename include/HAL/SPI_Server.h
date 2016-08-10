@@ -41,7 +41,7 @@ void receivedComplete(int signum);
 void sendComplete(int signum);
 
 
-class SPI_HALServer: public Phoenix::Core::Singleton
+class SPI_HALServer: public AllStar::Core::Singleton
 {
 	public:
 		struct pollfd poll_fds[NUM_SLAVES];
@@ -61,7 +61,7 @@ class SPI_HALServer: public Phoenix::Core::Singleton
 
 		void SPI_HALServerLoop(void);
 
-		bool SPIDispatch(Phoenix::Core::FSWPacket & packet);
+		bool SPIDispatch(AllStar::Core::FSWPacket & packet);
 
 	private:
 

@@ -16,7 +16,7 @@
 #include "core/CommandMessage.h"
 
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 class Test0011MessageHandler : public MessageHandler
 {

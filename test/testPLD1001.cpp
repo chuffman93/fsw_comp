@@ -7,7 +7,7 @@
 
 using namespace std;
 using namespace rel_ops;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 void * StartSPI_HAL(void * params)
 {

@@ -29,9 +29,9 @@
 #define HARDWARE
 
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
-namespace Phoenix{
+namespace AllStar{
 namespace Servers{
 
 // Message handler for a measurement request.
@@ -337,4 +337,4 @@ void ACSServer::loopPLDStop(){
 }
 
 } // End Namespace servers
-} // End Namespace Phoenix
+} // End Namespace AllStar

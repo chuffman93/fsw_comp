@@ -38,10 +38,10 @@
 #include <fcntl.h>
 
 using namespace std;
-using namespace Phoenix::Core;
-using namespace Phoenix::HAL;
+using namespace AllStar::Core;
+using namespace AllStar::HAL;
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Servers
 	{
@@ -192,14 +192,7 @@ namespace Phoenix
 				logger->Log("GPSServer: Problem with initial port attributes.", LOGGER_LEVEL_ERROR);
 			}
 
-//			port.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | INPCK | ISTRIP | IXON);
-//			port.c_iflag |= IGNPAR | ICRNL;
-//			port.c_oflag |= OPOST | ONLCR;
-//			port.c_cflag |= CLOCAL | CREAD | CS8;
-//			port.c_cflag &= ~(CSIZE | PARENB);
-//			port.c_lflag &= ~(ECHO | ECHONL);
-			port.c_lflag &= ~ECHO;
-//			port.c_lflag |= ICANON;
+			port.c_lflag &= ~ECHO; // turn echo off
 
 			if(cfsetispeed(&port, B115200) < 0 || cfsetospeed(&port, B115200) < 0){
 				logger->Log("GPSServer: Problem setting the baud rate!", LOGGER_LEVEL_FATAL);
@@ -257,16 +250,20 @@ namespace Phoenix
 				// Check the first character
 				if(c != 35 && c != 36){ // '#' or '$'
 					logger->Log("GPSServer: Data doesn't start with '#' or '$'", LOGGER_LEVEL_SUPER_DEBUG);
-					while(read(fd,&c,1) == 1); // if no data, clear the buffer
+					while(read(fd,&c,1) == 1); // if wrong char, clear the buffer (ensures that we stay up-to-date and aligned)
 				}else{
 					c1 = c;
 
 					// read while there's more data, and ensure we don't overflow the buffer
-					while(counter < 350 && read(fd,&c,1) == 1){
+					while(read(fd,&c,1) == 1){
 						buffer[counter++] = c;
 
 						// if BESTXYZ, read crc and return
 						if(c == '*' && c1 == '#'){
+							if(counter > 339){
+								logger->Log("GPSServer: BESTXYZ too long!", LOGGER_LEVEL_WARN);
+								return;
+							}
 							for(uint8 i = 0; i < 10; i++){
 								readSuccess &= (read(fd,&c,1) == 1);
 								buffer[counter++] = c;
@@ -281,6 +278,10 @@ namespace Phoenix
 
 						// if GPRMC, read checksum and return
 						if(c == '*' && c1 == '$'){
+							if(counter > 345){
+								logger->Log("GPSServer: GPRMC too long!", LOGGER_LEVEL_WARN);
+								return;
+							}
 							for(uint8 i = 0; i < 4; i++){
 								readSuccess &= (read(fd,&c,1) == 1);
 								buffer[counter++] = c;
@@ -291,6 +292,12 @@ namespace Phoenix
 								logger->Log("GPSServer: error reading checksum from serial", LOGGER_LEVEL_WARN);
 								return;
 							}
+						}
+
+						// Ensure we don't overflow
+						if(counter == 350){
+							logger->Log("GPSServer: Data too long!", LOGGER_LEVEL_WARN);
+							return;
 						}
 					}
 

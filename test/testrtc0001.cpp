@@ -12,7 +12,7 @@
 
 #include "HAL/RTC.h"
 
-using namespace Phoenix::HAL;
+using namespace AllStar::HAL;
 using namespace std;
 
 TEST(rtc, SETandGET)
@@ -20,18 +20,18 @@ TEST(rtc, SETandGET)
 	{
 		uint32 sec;
 		uint16 nsec;
-		ASSERT_TRUE(Phoenix::HAL::RTCGetTime(&sec, &nsec));
+		ASSERT_TRUE(AllStar::HAL::RTCGetTime(&sec, &nsec));
 		cout <<"[----------] " << sec << "." << nsec << " seconds" << endl;
-		ASSERT_TRUE(Phoenix::HAL::RTCSetTime(0));
-		ASSERT_TRUE(Phoenix::HAL::RTCGetTime(&sec, &nsec));
+		ASSERT_TRUE(AllStar::HAL::RTCSetTime(0));
+		ASSERT_TRUE(AllStar::HAL::RTCGetTime(&sec, &nsec));
 		cout <<"[----------] " << sec << "." << nsec << " seconds" << endl;
-		ASSERT_TRUE(Phoenix::HAL::RTCGetTime(&sec, &nsec));
+		ASSERT_TRUE(AllStar::HAL::RTCGetTime(&sec, &nsec));
 		cout <<"[----------] " << sec << "." << nsec << " seconds" << endl;
-		ASSERT_TRUE(Phoenix::HAL::RTCGetTime(&sec, &nsec));
+		ASSERT_TRUE(AllStar::HAL::RTCGetTime(&sec, &nsec));
 		cout <<"[----------] " << sec << "." << nsec << " seconds" << endl;
-		ASSERT_TRUE(Phoenix::HAL::RTCGetTime(&sec, &nsec));
+		ASSERT_TRUE(AllStar::HAL::RTCGetTime(&sec, &nsec));
 		cout <<"[----------] " << sec << "." << nsec << " seconds" << endl;
-		ASSERT_TRUE(Phoenix::HAL::RTCGetTime(&sec, &nsec));
+		ASSERT_TRUE(AllStar::HAL::RTCGetTime(&sec, &nsec));
 		cout <<"[----------] " << sec << "." << nsec << " seconds" << endl;
 	}
 }

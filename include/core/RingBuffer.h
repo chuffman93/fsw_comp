@@ -7,7 +7,7 @@
 
 #include <cstring>
 
-namespace Phoenix
+namespace AllStar
 {
     namespace Core
     {

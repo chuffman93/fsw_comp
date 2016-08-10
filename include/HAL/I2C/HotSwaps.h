@@ -14,7 +14,7 @@
 #define IOPort(io) (io/32) + 'A'
 #define IOPin(io) io%32
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace HAL
 	{

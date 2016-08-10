@@ -2,7 +2,7 @@
  *  \brief Header File for the FSWPacket Class
  *
  *  This file contains the definition of the FSWPacket class, encapsulates a
- *  packet in the Phoenix Message Protocol.
+ *  packet in the AllStar Message Protocol.
  */
 
 #ifndef _FSWPACKET_H
@@ -11,13 +11,13 @@
 #include "core/StdTypes.h"
 #include "core/Message.h"
 
-namespace Phoenix
+namespace AllStar
 {
     namespace Core
     {
-        /*! \brief Class that Encapsulates a Phoenix FSWPacket
+        /*! \brief Class that Encapsulates a AllStar FSWPacket
          *
-         *  This class encapsulates a Phoenix message packet used to send
+         *  This class encapsulates a AllStar message packet used to send
          *  messages between servers.
          */
         class FSWPacket

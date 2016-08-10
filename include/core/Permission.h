@@ -14,7 +14,7 @@
 #include "core/Core.h"
 #include "core/StdTypes.h"
 
-namespace Phoenix
+namespace AllStar
 {
     namespace Core
     {
@@ -74,7 +74,7 @@ namespace Phoenix
             bool operator ==(const Permission & check) const;
         private:
             /*! \brief Bitset to hold the permissions for each server. */
-            std::bitset<PHOENIX_NUM_SERVERS> serverPermissions;
+            std::bitset<ALLSTAR_NUM_SERVERS> serverPermissions;
         };
     }
 }

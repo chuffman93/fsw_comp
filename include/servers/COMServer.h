@@ -30,7 +30,7 @@
 #define DEBUG_CHAR(c)
 #endif // DEBUG
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Servers
 	{
@@ -136,13 +136,13 @@ namespace Phoenix
 			//const static char eol[] = "eol";
 		};
 
-		class COMServer : public SubsystemServer, public Phoenix::Core::Singleton
+		class COMServer : public SubsystemServer, public AllStar::Core::Singleton
 		{
 			/*! \brief Declare Factory a friend class
 			*
 			*	This allows factory to call COMServer's private constructor
 			*/
-			friend class Phoenix::Core::Factory;
+			friend class AllStar::Core::Factory;
 			
 		public:
 			//void taskRunCOM(void * params);
@@ -212,8 +212,8 @@ namespace Phoenix
 			COMServer & operator=(const COMServer & source);
 
 			/*! \brief Member variables needed to register message handlers */
-			Phoenix::Core::MessageHandlerRegistry reg;
-			Phoenix::Core::Arbitrator arby;
+			AllStar::Core::MessageHandlerRegistry reg;
+			AllStar::Core::Arbitrator arby;
 
 			/*! \briefState of the COM State Machine */
 			COMStateEnum COMCurrentState;

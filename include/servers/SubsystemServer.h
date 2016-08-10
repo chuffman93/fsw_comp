@@ -14,43 +14,43 @@
 #include "core/StdTypes.h"
 #include <stdint.h>
 
-namespace Phoenix
+namespace AllStar{
+namespace Servers{
+
+struct StateStruct;
+class SubsystemServer : public Server
 {
-    namespace Servers
-    {
-    	struct StateStruct;
-        class SubsystemServer : public Server
-        {
-        public:
-            SubsystemServer(std::string nameIn, LocationIDType idIn);
-            virtual ~SubsystemServer();
-            SubsystemServer & operator=(const SubsystemServer & source);
-			virtual bool operator ==(const Server & check) const;
-            void SubsystemLoop(void);
-            void MainLoop(void){}
-            virtual void Update(SystemModeEnum mode);
-        protected:
-            uint16_t currentState;
-            virtual const StateStruct * GetStateMap() = 0;
-        };
+public:
+	SubsystemServer(std::string nameIn, LocationIDType idIn);
+	virtual ~SubsystemServer();
+	SubsystemServer & operator=(const SubsystemServer & source);
+	virtual bool operator ==(const Server & check) const;
+	void SubsystemLoop(void);
+	void MainLoop(void){}
+	virtual void Update(SystemModeEnum mode);
+protected:
+	uint16_t currentState;
+	virtual const StateStruct * GetStateMap() = 0;
+};
 
-        typedef void (SubsystemServer::*StateFunc)(void);
-        struct StateStruct{
-        	StateFunc function;
-        };
+typedef void (SubsystemServer::*StateFunc)(void);
+struct StateStruct{
+	StateFunc function;
+};
 
-		#define BEGIN_STATE_MAP \
-			public:\
-			const StateStruct* GetStateMap() {\
-				static const StateStruct StateMap[] = {
+#define BEGIN_STATE_MAP \
+	public:\
+	const StateStruct* GetStateMap() {\
+		static const StateStruct StateMap[] = {
 
-		#define STATE_MAP_ENTRY(entry)\
-				{reinterpret_cast<StateFunc>(entry)},
+#define STATE_MAP_ENTRY(entry)\
+		{reinterpret_cast<StateFunc>(entry)},
 
-		#define END_STATE_MAP \
-			};\
-			return &StateMap[0];}
-    }
-}
+#define END_STATE_MAP \
+	};\
+	return &StateMap[0];}
+
+} // End of namespace Servers
+} // End of namespace AllStar
 
 #endif /* SUBSYSTEMSERVER_H_ */

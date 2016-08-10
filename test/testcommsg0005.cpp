@@ -13,7 +13,7 @@
 
 using namespace std;
 using namespace rel_ops;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 #define TEST_OPCODE ((MessageCodeType)34)
 #define TEST_VALUE1 ((double)39.7)

@@ -29,10 +29,10 @@
 //#include "boards/backplane/dbg_led.h"
 
 using namespace std;
-using namespace Phoenix::Core;
-using namespace Phoenix::HAL;
+using namespace AllStar::Core;
+using namespace AllStar::HAL;
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Servers
 	{
@@ -169,7 +169,7 @@ namespace Phoenix
 
 >>>>>>> parent of 1824983... Almost finished Hot Swaps. Need to check bit order.
 			// Setup
-sdsd			Phoenix::Servers::CDHServer * cdhServer = dynamic_cast<Phoenix::Servers::CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
+sdsd			AllStar::Servers::CDHServer * cdhServer = dynamic_cast<AllStar::Servers::CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
 			float voltages[16];
 			float currents[16];
 			list<VariableTypeData *> params;

@@ -2,7 +2,7 @@
  *  \brief Implementation File for the Dispatcher Class
  *
  *  This file contains the implementation of the Dispatcher class, which acts
- *  as the FSWPacket-routing entity in the Phoenix architecture.
+ *  as the FSWPacket-routing entity in the AllStar architecture.
  */
 
 #include <utility>
@@ -26,26 +26,7 @@
 
 using namespace std;
 
-#define DISPATCHER_DEBUG			1
-
-#if DISPATCHER_DEBUG
-#include <iostream>
-#define DEBUG_PRINT(m, p) cout << m << "S: " << p->GetSource() \
-        << ", D: " << p->GetDestination() \
-        << ", N: " << p->GetNumber() \
-        << ", R: " << (p->IsResponse()) \
-		<< ", T: " << ((int)p->GetType()) \
-		<< ", O: " << ((int)p->GetOpcode()) \
-        << ", P: " << p << endl;
-#define DEBUG_COUT(m) cout << m << endl;
-#else
-#define DEBUG_COUT(m)
-#define DEBUG_PRINT(m, p)
-#endif // DEBUG
-
-
-
-namespace Phoenix{
+namespace AllStar{
 namespace Core{
 
 // Instantiate static members
@@ -92,25 +73,6 @@ void Dispatcher::Initialize(void)
 bool Dispatcher::IsFullyInitialized(void)
 {
 	return(Singleton::IsFullyInitialized() && (qInitRX == 0));
-}
-
-void Dispatcher::DispatcherTask(void * params)
-{
-	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-
-	while (1)
-	{
-		uint64_t LastWakeTime = getTimeInMillis();
-
-		DispatcherInterruptAlertType alert;
-
-		//wdm->Kick();
-
-		//TODO:ADD THREAD HANDLING and REMOVE RECIEVE COMPLETE STUFF and SIG_ACTION
-
-		waitUntil(LastWakeTime, 1000);
-	}
 }
 
 bool Dispatcher::AddRegistry(LocationIDType serverID,
@@ -234,7 +196,6 @@ bool Dispatcher::CheckQueueForMatchingPacket(const FSWPacket & packetIn, FSWPack
 		}
 		else
 		{
-			//debug_led_set_led(2, LED_ON);
 			// There's at least one packet, so check if it matches packetIn.
 
 			logger->Log("Dispatcher: CheckQueueForMatchingPacket(): There is at least one packet", LOGGER_LEVEL_SUPER_DEBUG);
@@ -246,7 +207,6 @@ bool Dispatcher::CheckQueueForMatchingPacket(const FSWPacket & packetIn, FSWPack
 
 			if ((this->*Check)(packetIn, *packetOut))
 			{
-				//debug_led_set_led(3, LED_ON);
 				this->GiveLock();
 				return true;
 			}
@@ -265,7 +225,6 @@ bool Dispatcher::CheckQueueForMatchingPacket(const FSWPacket & packetIn, FSWPack
 					if (mq_timed_receive(queueNameRX, &tmpPacket, 0, 0)
 							== false)
 					{
-						//debug_led_set_led(4, LED_ON);
 						// Error: There should have been a packet in
 						// the queue, but there wasn't, so put
 						// packetOut back.
@@ -298,7 +257,6 @@ bool Dispatcher::CheckQueueForMatchingPacket(const FSWPacket & packetIn, FSWPack
 					// Check if packetOut matches packetIn
 					if ((this->*Check)(packetIn, *packetOut))
 					{
-						//debug_led_set_led(6, LED_ON);
 						// Found one!  Time to return!
 						this->GiveLock();
 						return true;
@@ -374,10 +332,6 @@ bool Dispatcher::IsPacketMatchingResponse(const FSWPacket & packetIn,
 	logger->Log("IsPacketMatchingResponse dest/source: %d", packetOut.GetDestination( ) == packetIn.GetSource( ), LOGGER_LEVEL_DEBUG);
 	logger->Log("IsPacketMatchingResponse number: %d", packetOut.GetNumber( ) == packetIn.GetNumber( ), LOGGER_LEVEL_DEBUG);
 
-
-	//	DEBUG_PRINT("Original FSWPacket - ", (&packetIn));
-	//	DEBUG_PRINT("Queue FSWPacket    - ", (&packetOut));
-	//debug_led_set_led(5, LED_ON);
 	// Return true if *packetOut is a response to *packetIn.
 	return ((packetOut.IsResponse())
 			&& (packetOut.GetDestination( ) == packetIn.GetSource( ))
@@ -400,7 +354,6 @@ bool Dispatcher::IsPacketSame(const FSWPacket & packetIn,
 		const FSWPacket & packetOut) const
 {
 	// Return true if packetIn and packetOut are equivalent.
-	DEBUG_COUT("IsPacketSame called");
 	return packetIn == packetOut;
 }
 
@@ -500,4 +453,4 @@ uint32_t Dispatcher::DispatchToHardware(FSWPacket & packet)
 }
 
 } // End of namespace Core
-} // End of namespace Phoenix
+} // End of namespace AllStar

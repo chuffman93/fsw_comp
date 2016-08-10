@@ -32,9 +32,9 @@
 }*/
 
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Servers
 	{	

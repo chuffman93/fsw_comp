@@ -16,7 +16,7 @@
 #include "core/ReturnMessage.h"
 
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 TEST(TestReturnMessage, DefaultConstructor) {
 

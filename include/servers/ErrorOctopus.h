@@ -19,17 +19,17 @@
 
 #include "core/ReturnMessage.h"
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Servers
 	{
-		class ErrorOctopus : public SubsystemServer, public Phoenix::Core::Singleton
+		class ErrorOctopus : public SubsystemServer, public AllStar::Core::Singleton
 		{
 			/*! \brief Declare Factory a friend class
 			*
 			*	This allows factory to call ErrorOctopus's private constructor
 			*/
-			friend class Phoenix::Core::Factory;
+			friend class AllStar::Core::Factory;
 			
 		public:
 			
@@ -77,8 +77,8 @@ namespace Phoenix
 			ErrorOctopus & operator=(const ErrorOctopus & source);
 			
 			// Member variables needed to register message handlers.
-			Phoenix::Core::MessageHandlerRegistry reg;
-			Phoenix::Core::Arbitrator arby;
+			AllStar::Core::MessageHandlerRegistry reg;
+			AllStar::Core::Arbitrator arby;
 
 			BEGIN_STATE_MAP
 			END_STATE_MAP

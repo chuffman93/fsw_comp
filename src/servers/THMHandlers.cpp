@@ -14,8 +14,8 @@
 #include "core/ReturnMessage.h"
 
 using namespace std;
-using namespace Phoenix::Core;
-using namespace Phoenix::Servers;
+using namespace AllStar::Core;
+using namespace AllStar::Servers;
 
 uint32 THMDataHandler::enumArray[] = {VAR_TYPE_ENUM_UNSIGNED_INT};
 

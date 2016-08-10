@@ -3,7 +3,7 @@
 #include "HAL/I2C/PowerMonitor.h"
 #include "core/StdTypes.h"
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace HAL
 	{

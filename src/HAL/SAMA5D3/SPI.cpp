@@ -20,12 +20,12 @@
 
 #define ARRAY_SIZE(array) sizeof(array)/sizeof(array[0])
 
-using namespace Phoenix::HAL;
+using namespace AllStar::HAL;
 
 //static struct spi_chip_info spi_chip[NUM_SPIS][SPI_CHIP_MAX];
 //static struct spi_master_info spi_master[NUM_SPIS];
 
-namespace Phoenix
+namespace AllStar
 {
     namespace HAL
     {

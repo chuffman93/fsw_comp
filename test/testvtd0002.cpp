@@ -14,7 +14,7 @@
 
 #include "core/VariableTypeData.h"
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 #define TEST_VALUE ((int32)5)
 

@@ -6,7 +6,7 @@
 
 #include "core/Int32Datatype.h"
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Core
 	{

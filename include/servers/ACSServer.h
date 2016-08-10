@@ -17,18 +17,18 @@
 #include "core/ModeManager.h"
 #include "core/Singleton.h"
 
-namespace Phoenix
+namespace AllStar
 {
 	namespace Servers
 	{
 		
-		class ACSServer : public SubsystemServer, public Phoenix::Core::Singleton
+		class ACSServer : public SubsystemServer, public AllStar::Core::Singleton
 		{
 			/*! \brief Declare Factory a friend class
 			*
 			*	This allows factory to call ACSServer's private constructor
 			*/
-			friend class Phoenix::Core::Factory;
+			friend class AllStar::Core::Factory;
 			
 		public:
 			void SubsystemLoop(void);
@@ -46,8 +46,8 @@ namespace Phoenix
 			*/
 			bool RegisterHandlers();
 			
-			//Phoenix::Core::ReturnMessage * ACSTakeLock(void);
-			//Phoenix::Core::ReturnMessage * ACSGiveLock(void);
+			//AllStar::Core::ReturnMessage * ACSTakeLock(void);
+			//AllStar::Core::ReturnMessage * ACSGiveLock(void);
 			
 			//void SetRunTest(bool toSet);
 
@@ -55,8 +55,8 @@ namespace Phoenix
 			bool runTest1;
 		
 			// Member variables needed to register message handlers.
-			Phoenix::Core::MessageHandlerRegistry reg;
-			Phoenix::Core::Arbitrator arby;
+			AllStar::Core::MessageHandlerRegistry reg;
+			AllStar::Core::Arbitrator arby;
 			
 			// Targets to check range from
 			//Targets except ground station

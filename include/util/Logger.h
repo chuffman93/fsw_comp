@@ -14,13 +14,13 @@
 #include <string>
 
 using namespace std;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
-class Logger : public Phoenix::Core::Singleton{
+class Logger : public AllStar::Core::Singleton{
 	 /*! \brief Declare Factory a friend class
 	 *      This allows factory to call Logger's private constructor
 	 */
-	friend class Phoenix::Core::Factory;
+	friend class AllStar::Core::Factory;
 	public:
 		const static LoggerLevelType threshold;
 

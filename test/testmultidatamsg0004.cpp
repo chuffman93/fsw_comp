@@ -19,7 +19,7 @@
 
 using namespace std;
 using namespace rel_ops;
-using namespace Phoenix::Core;
+using namespace AllStar::Core;
 
 #define TEST_OPCODE1 23
 #define TEST_OPCODE2 43
