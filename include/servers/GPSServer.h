@@ -87,6 +87,8 @@ namespace AllStar
 			double latitude;
 			double longitude;
 
+			bool gpsResponsive;
+
 		private:
 			/*! \brief Initialize the GPSServer Class
 			*
@@ -117,7 +119,7 @@ namespace AllStar
 
 			int CreatePort(void);
 
-			void ReadData(char * buffer, int fd);
+			bool ReadData(char * buffer, int fd);
 			void GPSMessageProcess(AllStar::Core::ReturnMessage * retMsg);
 
 			// Member variables needed to register message handlers.

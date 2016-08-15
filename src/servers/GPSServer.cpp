@@ -155,7 +155,10 @@ namespace AllStar
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 			logger->Log("GPSServer: entered subsystem loop", LOGGER_LEVEL_INFO);
+			gpsResponsive = false;
 
+			bool check;
+			uint32 downCount = 0;
 			char buffer[350];
 			int fd;
 
@@ -169,9 +172,15 @@ namespace AllStar
 				//wdm->Kick();
 				//while(Listen(id));
 
-				// TODO: check where port is: ie. /dev/ttyS?
-				//		 Give the port the right permissions?
-				ReadData(buffer, fd);
+				check = ReadData(buffer, fd);
+
+				// if we haven't been reading data, set a flag
+				if(!check){
+					downCount++;
+					if(downCount > 10){
+
+					}
+				}
 
 				waitUntil(LastWakeTime, 100);
 			}
@@ -236,7 +245,7 @@ namespace AllStar
 			return GPSDataHolder->round_seconds;
 		}
 
-		void GPSServer::ReadData(char * buffer, int fd){
+		bool GPSServer::ReadData(char * buffer, int fd){
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 			char c, c1;
@@ -250,7 +259,7 @@ namespace AllStar
 				// Check the first character
 				if(c != 35 && c != 36){ // '#' or '$'
 					logger->Log("GPSServer: Data doesn't start with '#' or '$'", LOGGER_LEVEL_SUPER_DEBUG);
-					while(read(fd,&c,1) == 1); // if wrong char, clear the buffer (ensures that we stay up-to-date and aligned)
+					while(read(fd,&c,1) == 1); // if wrong char, clear the buffer (ensures that we stay up-to-date and aligned with the data stream)
 				}else{
 					c1 = c;
 
@@ -262,7 +271,7 @@ namespace AllStar
 						if(c == '*' && c1 == '#'){
 							if(counter > 339){
 								logger->Log("GPSServer: BESTXYZ too long!", LOGGER_LEVEL_WARN);
-								return;
+								return false;
 							}
 							for(uint8 i = 0; i < 10; i++){
 								readSuccess &= (read(fd,&c,1) == 1);
@@ -272,7 +281,7 @@ namespace AllStar
 								break;
 							}else{
 								logger->Log("GPSServer: error reading CRC from serial", LOGGER_LEVEL_WARN);
-								return;
+								return false;
 							}
 						}
 
@@ -280,7 +289,7 @@ namespace AllStar
 						if(c == '*' && c1 == '$'){
 							if(counter > 345){
 								logger->Log("GPSServer: GPRMC too long!", LOGGER_LEVEL_WARN);
-								return;
+								return false;
 							}
 							for(uint8 i = 0; i < 4; i++){
 								readSuccess &= (read(fd,&c,1) == 1);
@@ -290,14 +299,14 @@ namespace AllStar
 								break;
 							}else{
 								logger->Log("GPSServer: error reading checksum from serial", LOGGER_LEVEL_WARN);
-								return;
+								return false;
 							}
 						}
 
 						// Ensure we don't overflow
 						if(counter == 350){
 							logger->Log("GPSServer: Data too long!", LOGGER_LEVEL_WARN);
-							return;
+							return false;
 						}
 					}
 
@@ -307,21 +316,23 @@ namespace AllStar
 					if(c1 == '#'){
 						if(!BESTXYZProcess(buffer, counter)){
 							logger->Log("GPSServer: Error processing BESTXYZ data!", LOGGER_LEVEL_ERROR);
-							return;
+							return false;
 						}
 					}else if(c1 == '$'){
 						if(!GPRMCProcess(buffer, counter)){
 							logger->Log("GPSServer: Error processing GPRMC data!", LOGGER_LEVEL_ERROR);
-							return;
+							return false;
 						}
 					}else{
 						logger->Log("GPSServer: error with first character!", LOGGER_LEVEL_WARN);
-						return;
+						return false;
 					}
+					return true;
 				}
 			}else{
-				return;
+				return false;
 			}
+			return false;
 		}
 
 		GPS_BESTXYZ * GPSServer::GetGPSDataPtr(void)

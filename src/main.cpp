@@ -9,7 +9,6 @@
 #include "servers/EPSServer.h"
 #include "servers/ACSServer.h"
 #include "servers/COMServer.h"
-#include "servers/THMServer.h"
 #include "servers/CMDServer.h"
 #include "servers/SCHServer.h"
 #include "servers/GPSServer.h"
@@ -40,19 +39,18 @@ using namespace AllStar::Servers;
 
 //---------------------------- Set which servers run --------------------------------------------------------------
 
-#define ACS_EN 1
-#define CDH_EN 1
+#define ACS_EN 0
+#define CDH_EN 0
 #define CMD_EN 1
-#define COM_EN 1
-#define EPS_EN 1
-#define ERR_EN 1
-#define GPS_EN 1
-#define PLD_EN 1
-#define THM_EN 1
-#define SCH_EN 1
+#define COM_EN 0
+#define EPS_EN 0
+#define ERR_EN 0
+#define GPS_EN 0
+#define PLD_EN 0
+#define SCH_EN 0
 
-#define ETH_EN 1
-#define SPI_EN 1
+#define ETH_EN 0
+#define SPI_EN 0
 
 //---------------------------- Create server tasks ----------------------------------------------------------------
 //TODO:Add meaningful exit information to each server pthread_exit
@@ -183,26 +181,6 @@ void * taskRunGPS(void * params)
 	pthread_exit(NULL);
 }
 
-void * taskRunTHM(void * params)
-{
-	THMServer * thmServer = dynamic_cast<THMServer *> (Factory::GetInstance(THM_SERVER_SINGLETON));
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
-	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-
-	modeManager->Attach(*thmServer);
-	//wdm->Kick();
-
-	logger->Log("Kicking off the THM server", LOGGER_LEVEL_INFO);
-
-	bool handlers = thmServer->RegisterHandlers();
-	if(!handlers){
-		logger->Log("THM Handlers registration failed!", LOGGER_LEVEL_ERROR);
-	}
-	thmServer->SubsystemLoop();
-	pthread_exit(NULL);
-}
-
 void * taskRunERR(void * params)
 {
 	ErrorOctopus * errServer = dynamic_cast<ErrorOctopus *> (Factory::GetInstance(ERR_SERVER_SINGLETON));
@@ -260,7 +238,6 @@ void * taskRunCMD(void * params)
 	for(int i = 0; i < 1; i++)
 	{
 		//wdm->Kick();
-		printf("Here\n");
 		usleep(1000000);
 	}
 
@@ -448,20 +425,6 @@ int main(int argc, char * argv[])
 	}
 #endif //GPS_EN
 
-#if THM_EN
-	// ------------------------------------- THM Thread -------------------------------------------------------------------------
-	pthread_t THMThread;
-	threadCreated = pthread_create(&THMThread ,NULL,&taskRunTHM, NULL );
-	if(!threadCreated)
-	{
-		logger->Log("THM Server Thread Creation Success", LOGGER_LEVEL_INFO);
-	}
-	else
-	{
-		logger->Log("THM Server Thread Creation Failed!", LOGGER_LEVEL_FATAL);
-	}
-#endif //THM_EN
-
 #if SCH_EN
 	// -------------------------------------SCH Thread-------------------------------------------------------------------------
 	pthread_t SCHThread;
@@ -551,10 +514,6 @@ int main(int argc, char * argv[])
 #if GPS_EN
 	pthread_join(GPSThread, NULL);
 #endif
-
-#if THM_EN
-	pthread_join(THMThread, NULL);
-#endif //THM_EN
 
 #if SCH_EN
 	pthread_join(SCHThread, NULL);

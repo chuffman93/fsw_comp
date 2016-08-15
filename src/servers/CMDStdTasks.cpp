@@ -17,88 +17,71 @@
 #include "core/WatchdogManager.h"
 
 #include "util/FileHandler.h"
+#include "util/Logger.h"
+
 #include <cstdio>
+#include <iostream>
+#include <termios.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 //#include "boards/backplane/dbg_led.h"
 
 using namespace AllStar::Core;
 using namespace std;
 
-namespace AllStar
-{
-	namespace Servers
-	{
-		void CMDBufferParse(char * readBuffer, size_t bufferSize)
-		{
-//			if(readBuffer == NULL)
-//			{
-//				return;
-//			}
-//			////WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-//			//minimum size of a packet
-//
-//			packetLoop:
-//			while(6 < bufferSize)
-//			{
-//				//wdm->Kick();
-//				FSWPacket * packet = new FSWPacket((uint8 *) readBuffer, bufferSize);
-//				readBuffer += packet->GetFlattenSize();
-//				bufferSize -= packet->GetFlattenSize();
-//				LocationIDType packetDest = packet->GetDestination();
-//				ServerLocationIDEnum destination;
-//
-//				if(packetDest >= SERVER_LOCATION_MIN && packetDest < SERVER_LOCATION_MAX)
-//				{
-//					destination = static_cast<ServerLocationIDEnum>(packetDest);
-//				}
-//
-//				if(destination == SERVER_LOCATION_CMD)
-//				{
-//					FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
-//					uint32 enumArray[1] = {VAR_TYPE_ENUM_STRING};
-//					void * outputArray[1] = {NULL};
-//					if(ExtractParameters(*packet, enumArray, 1, outputArray))
-//					{
-//						continue;
-//					}
-//
-//					string * fileName = (string *) outputArray[0];
-//					const char * file = fileName->c_str();
-//					fileHandler->DeleteFile(file);
-//					return;
-//
-//				}
-//
-//				//uint8 opcode = packet->GetMessagePtr()->GetOpcode();
-//
-//				Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-//
-//				//Dispatch packet, if it fails return DISPATCH_FAILED
-//
-//				printf("\r\nCMDParse:: Dispatching the packet to destination %d\r\n",packet->GetDestination());
-//				printf("\r\nCMDParse:: Dispatching the packet to source %d\r\n",packet->GetSource());
-//
-//				if(!dispatcher->Dispatch(*packet))
-//				{
-//					delete packet;
-//					continue;
-//				}
-//
-//				ReturnMessage retMsg;
-//				DispatcherStatusEnum stat;
-//				//Wait for return message, if it fails return status response from dispatcher
-//				if(DISPATCHER_STATUS_OK != (stat = dispatcher->WaitForDispatchResponse(*packet, retMsg)))
-//				{
-//					delete packet;
-//					continue;
-//				}
-//				delete packet;
-//				ReturnMessage * ret = new ReturnMessage(retMsg);
-//				//process response
-//				MessageProcess(packetDest, ret);
-//				usleep(500000);
-//			}
-//			return;
-		}
+namespace AllStar{
+namespace Servers{
+
+void portSetup(void){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	char portname[20] = "/dev/ttyS2";
+	struct termios port;
+	int portfd = open(portname, O_RDWR | O_NOCTTY | O_NDELAY);
+
+	if(portfd == -1){
+		logger->Log("CMDServer: Failed to open serial port!", LOGGER_LEVEL_FATAL);
+	}
+
+	if(tcgetattr(portfd, &port) < 0) {
+		logger->Log("CMDServer: Problem with initial port attributes.", LOGGER_LEVEL_ERROR);
+	}
+
+	port.c_iflag &= ~IXON;
+
+	if(cfsetispeed(&port, B115200) < 0 || cfsetospeed(&port, B115200) < 0){
+		logger->Log("GPSServer: Problem setting the baud rate!", LOGGER_LEVEL_FATAL);
+	}
+
+	if(tcsetattr(portfd, TCSANOW, &port) < 0){
+		logger->Log("GPSServer: Problem setting port attributes!", LOGGER_LEVEL_ERROR);
 	}
 }
+
+void uftpSetup(void){
+	char cmdString[100];
+
+	//---------------------------SLIP------------------------------------
+	sprintf(cmdString, "slattach -L -m -p slip \"/dev/ttyS2\" &");
+	printf("%s\n", cmdString);
+	system(cmdString);
+
+	sprintf(cmdString, "ifconfig sl0 1.1.1.1 pointopoint 1.1.1.2 up");
+	printf("%s\n", cmdString);
+	system(cmdString);
+
+	//---------------------------UFTP-----------------------------------
+	//TODO add encryption
+	char tmpDir[20] = "~/tmp";
+	char fileDir[20] = "~/dow";
+	//char prvKey[20] = "~/rsakey.pem";
+	//sprintf(cmdString, "./uftpd -T %s -I sl0 -D %s -k %s -E", tmpDir, fileDir, prvKey);
+	sprintf(cmdString, "./uftpd -T %s -I sl0 -D %s", tmpDir, fileDir);
+	printf("%s\n", cmdString);
+	system(cmdString);
+
+}
+
+} // End of namespace Servers
+} // End of namespace AllStar

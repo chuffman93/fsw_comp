@@ -199,9 +199,6 @@ void PacketProcess(LocationIDType id, AllStar::Core::FSWPacket * retPacket)
 		case SERVER_LOCATION_GPS :
 			handlerID = SUBSYSTEM_GPS;
 			break;
-		case SERVER_LOCATION_THM :
-			handlerID = SUBSYSTEM_THM;
-			break;
 		case SERVER_LOCATION_SCH :
 			handlerID = SUBSYSTEM_SCH;
 			break;

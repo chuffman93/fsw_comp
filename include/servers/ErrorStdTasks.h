@@ -20,7 +20,6 @@ namespace AllStar
 		void PLDError(int opcode, AllStar::Core::FSWPacket * packet);
 		void ACSError(int opcode, AllStar::Core::FSWPacket * packet);
 		void GPSError(int opcode, AllStar::Core::FSWPacket * packet);
-		void THMError(int opcode, AllStar::Core::FSWPacket * packet);
 		void SCHError(int opcode, AllStar::Core::FSWPacket * packet);
 		void CMDError(int opcode, AllStar::Core::FSWPacket * packet);
 		void CDHError(int opcode, AllStar::Core::FSWPacket * packet);

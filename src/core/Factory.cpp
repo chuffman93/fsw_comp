@@ -13,7 +13,6 @@
 #include "servers/GPSServer.h"
 #include "servers/PLDServer.h"
 #include "servers/SCHServer.h"
-#include "servers/THMServer.h"
 #include "servers/CDHServer.h"
 #include "servers/ErrorQueue.h"
 
@@ -121,10 +120,6 @@ namespace AllStar
  						SCHServer::Initialize( );
  						instance = new SCHServer("SCH Server", SERVER_LOCATION_SCH);
  						break;
-					case THM_SERVER_SINGLETON:
-						THMServer::Initialize( );
-						instance = new THMServer("THM Server", SERVER_LOCATION_THM);
-						break;
 					case CDH_SERVER_SINGLETON:
 						CDHServer::Initialize( );
 						instance = new CDHServer("CDH Server", SERVER_LOCATION_CDH);
@@ -259,9 +254,6 @@ namespace AllStar
  				case SCH_SERVER_SINGLETON:
  					SCHServer::Destroy( );
  					break;
-				case THM_SERVER_SINGLETON:
-					THMServer::Destroy( );
-					break;
 				case CDH_SERVER_SINGLETON:
 					CDHServer::Destroy( );
 					break;

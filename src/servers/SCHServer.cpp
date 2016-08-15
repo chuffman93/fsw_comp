@@ -161,5 +161,5 @@ void SCHServer::LoadNextSchedule(){
 	}
 }
 
-} // End Namespace servers
-} // End Namespace AllStar
+} // End of namespace Servers
+} // End of namespace AllStar

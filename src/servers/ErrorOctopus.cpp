@@ -135,9 +135,6 @@ namespace AllStar
 						case HARDWARE_LOCATION_PROP:
 							//DAFAQ is prop?
 							break;
-						case HARDWARE_LOCATION_THM:
-							THMError(opcode, error);
-							break;
 						case HARDWARE_LOCATION_PLD:
 							PLDError(opcode, error);
 							break;
@@ -161,10 +158,6 @@ namespace AllStar
 							break;
 						case SERVER_LOCATION_GPS:
 							GPSError(opcode, error);
-							break;
-						case SERVER_LOCATION_THM:
-							printf("Thermal Error!\n");
-							THMError(opcode, error);
 							break;
 						case SERVER_LOCATION_SCH:
 							SCHError(opcode, error);

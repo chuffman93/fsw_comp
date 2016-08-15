@@ -110,7 +110,7 @@ private:
 };
 
 
-}
-}
+} // End of namespace Servers
+} // End of namespace AllStar
 
 #endif /* SCHSERVER_H_ */
