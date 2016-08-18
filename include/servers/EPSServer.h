@@ -59,8 +59,6 @@ namespace AllStar
 			friend class AllStar::Core::Factory;
 			
 		public:
-			
-			void SubsystemLoop(void);
 			void Update(SystemModeEnum mode);
 
 			bool RegisterHandlers();
@@ -89,7 +87,7 @@ namespace AllStar
 			*/
 			bool IsFullyInitialized(void);
 			
-			EPSServer(std::string nameIn, LocationIDType idIn); 
+			EPSServer(std::string nameIn, LocationIDType idIn);
 			~EPSServer();
 			EPSServer & operator=(const EPSServer & source);
 			

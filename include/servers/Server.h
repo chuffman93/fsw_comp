@@ -31,11 +31,10 @@ namespace AllStar
 			virtual bool operator ==(const Server & check) const = 0;
             std::string GetName(void ) const;
             LocationIDType GetID(void ) const;
-            virtual void MainLoop(void ) = 0;
             virtual void Update(SystemModeEnum mode) = 0;
-        protected:
             std::string name;
             LocationIDType id;
+            int startupWait;
         };
     }
 }

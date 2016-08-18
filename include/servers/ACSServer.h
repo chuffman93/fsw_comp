@@ -31,7 +31,6 @@ namespace AllStar
 			friend class AllStar::Core::Factory;
 			
 		public:
-			void SubsystemLoop(void);
 			void Update(SystemModeEnum mode);
 
 			/*! \brief Registers this server's message handlers.

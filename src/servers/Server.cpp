@@ -16,7 +16,7 @@ namespace AllStar
     namespace Servers
     {
         Server::Server(std::string nameIn, LocationIDType idIn)
-               : name(nameIn), id(idIn)
+               : name(nameIn), id(idIn), startupWait(0)
         {
 
         }

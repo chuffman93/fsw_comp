@@ -56,7 +56,6 @@ namespace AllStar
 			friend class AllStar::Core::Factory;
 
 		public:
-
 			void SubsystemLoop(void);
 
 			void Update(SystemModeEnum mode);

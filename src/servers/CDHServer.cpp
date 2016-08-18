@@ -119,6 +119,8 @@ namespace AllStar
 
 		bool CDHServer::RegisterHandlers()
 		{
+			printf("in register handlers\n");
+
 			bool success = true;
 			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 
@@ -145,6 +147,8 @@ namespace AllStar
 		// -------------------------------------------- Loops ---------------------------------------------
 		void CDHServer::loopInit(){
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+			logger->Log("CDHServer: Initializing", LOGGER_LEVEL_INFO);
 
 #if HS_EN
 			bool initHS = devMngr->initializeHS();

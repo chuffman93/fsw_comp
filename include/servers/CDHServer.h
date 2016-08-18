@@ -45,8 +45,6 @@ namespace AllStar
 
 			bool RegisterHandlers();
 
-			void SubsystemLoop();
-
 			// Turn a subsystem on  (only ACS, COM, PLD, GPS)
 			void subPowerOn(HardwareLocationIDType subsystem);
 

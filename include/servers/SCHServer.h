@@ -46,7 +46,6 @@ class SCHServer : public SubsystemServer, public AllStar::Core::Singleton
 
 
 public:
-
 	void SubsystemLoop(void);
 	void Update(SystemModeEnum mode);
 

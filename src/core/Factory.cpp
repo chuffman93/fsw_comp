@@ -33,7 +33,6 @@
 #include "core/ModeManager.h"
 #include "core/WatchdogManager.h"
 
-
 #include "../HAL/Ethernet_Server.h"
 #include "HAL/SPI_Server.h"
 #include "util/FileHandler.h"
@@ -73,8 +72,8 @@ namespace AllStar
 						instance = new ModeManager( );
 						break;
 					case WATCHDOG_MANAGER_SINGLETON:
-						//WatchdogManager::Initialize( );
-						//instance = new WatchdogManager( );
+						WatchdogManager::Initialize( );
+						instance = new WatchdogManager( );
 						break;
 					case ERROR_QUEUE_SINGLETON:
 						ErrorQueue::Initialize( );
@@ -90,39 +89,39 @@ namespace AllStar
 						break;
 					case ACS_SERVER_SINGLETON:
 						ACSServer::Initialize( );
-						instance = new ACSServer("ACS Server", SERVER_LOCATION_ACS);
+						instance = new ACSServer("ACS", SERVER_LOCATION_ACS);
 						break;
 					case CMD_SERVER_SINGLETON:
 						CMDServer::Initialize( );
-						instance = new CMDServer("CMD Server", SERVER_LOCATION_CMD);
+						instance = new CMDServer("CMD", SERVER_LOCATION_CMD);
 						break;
 					case COM_SERVER_SINGLETON:
 						COMServer::Initialize( );
-						instance = new COMServer("COM Server", SERVER_LOCATION_COM);
+						instance = new COMServer("COM", SERVER_LOCATION_COM);
 						break;
 					case EPS_SERVER_SINGLETON:
 						EPSServer::Initialize( );
-						instance = new EPSServer("EPS Server", SERVER_LOCATION_EPS);
+						instance = new EPSServer("EPS", SERVER_LOCATION_EPS);
 						break;
 					case ERR_SERVER_SINGLETON:
 						ErrorOctopus::Initialize( );
-						instance = new ErrorOctopus("Error Octopus", SERVER_LOCATION_ERR);
+						instance = new ErrorOctopus("ERR", SERVER_LOCATION_ERR);
 						break;
 					case GPS_SERVER_SINGLETON:
 						GPSServer::Initialize( );
-						instance = new GPSServer("GPS Server", SERVER_LOCATION_GPS);
+						instance = new GPSServer("GPS", SERVER_LOCATION_GPS);
 						break;
 					case PLD_SERVER_SINGLETON:
 						PLDServer::Initialize( );
-						instance = new PLDServer("PLD Server", SERVER_LOCATION_PLD);
+						instance = new PLDServer("PLD", SERVER_LOCATION_PLD);
 						break;
  					case SCH_SERVER_SINGLETON:
  						SCHServer::Initialize( );
- 						instance = new SCHServer("SCH Server", SERVER_LOCATION_SCH);
+ 						instance = new SCHServer("SCH", SERVER_LOCATION_SCH);
  						break;
 					case CDH_SERVER_SINGLETON:
 						CDHServer::Initialize( );
-						instance = new CDHServer("CDH Server", SERVER_LOCATION_CDH);
+						instance = new CDHServer("CDH", SERVER_LOCATION_CDH);
 						break;
 					case ETH_HALSERVER_SINGLETON:
 						instance = new ETH_HALServer();
@@ -218,9 +217,9 @@ namespace AllStar
 				case MODE_MANAGER_SINGLETON:
 					ModeManager::Destroy( );
 					break;
-//				case WATCHDOG_MANAGER_SINGLETON:
-//					WatchdogManager::Destroy( );
-//					break;
+				case WATCHDOG_MANAGER_SINGLETON:
+					WatchdogManager::Destroy( );
+					break;
 				case ERROR_QUEUE_SINGLETON:
 					ErrorQueue::Destroy( );
 					break;

@@ -25,6 +25,7 @@
 #include "core/FSWPacket.h"
 #include "core/Dispatcher.h"
 #include "util/Logger.h"
+#include "servers/SubsystemServer.h"
 
 #define NELEMS(x)  (sizeof(x) / sizeof((x)[0]))
 #define STR_LEN	   50
@@ -38,6 +39,7 @@ static int timeout = 20;
 char * SPI_HALServer::queueNameSPITX = (char *) "/queueHandleSPITX";
 
 SPI_HALServer::SPI_HALServer()
+	: AllStar::Servers::SubsystemServer("SPI", SERVER_LOCATION_SPI)
 {
 	mq_unlink(queueNameSPITX);
 	qInitTX = mqCreate(&queueHandleTX, &queueAttrTX, queueNameSPITX);
@@ -49,7 +51,7 @@ SPI_HALServer::~SPI_HALServer()
 }
 
 // Enter this loop
-void SPI_HALServer::SPI_HALServerLoop(void)
+void SPI_HALServer::SubsystemLoop(void)
 {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FSWPacket * rxPacket;

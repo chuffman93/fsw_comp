@@ -147,7 +147,6 @@ namespace AllStar
 		public:
 			//void taskRunCOM(void * params);
 		
-			void SubsystemLoop(void);
 			void Update(SystemModeEnum mode);
 			bool RegisterHandlers(void);
 

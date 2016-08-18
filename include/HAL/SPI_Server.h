@@ -9,6 +9,7 @@
 
 #include "core/Singleton.h"
 #include "core/Dispatcher.h"
+#include "servers/SubsystemServer.h"
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/time.h>
@@ -24,6 +25,7 @@
 #include <poll.h>
 
 using namespace std;
+using namespace AllStar::Servers;
 
 
 #define        QLEN        32    /* maximum connection queue length    */
@@ -41,7 +43,7 @@ void receivedComplete(int signum);
 void sendComplete(int signum);
 
 
-class SPI_HALServer: public AllStar::Core::Singleton
+class SPI_HALServer: public AllStar::Servers::SubsystemServer, public AllStar::Core::Singleton
 {
 	public:
 		struct pollfd poll_fds[NUM_SLAVES];
@@ -59,7 +61,7 @@ class SPI_HALServer: public AllStar::Core::Singleton
 
 		~SPI_HALServer();
 
-		void SPI_HALServerLoop(void);
+		void SubsystemLoop(void);
 
 		bool SPIDispatch(AllStar::Core::FSWPacket & packet);
 
@@ -75,6 +77,9 @@ class SPI_HALServer: public AllStar::Core::Singleton
 		int get_int_fds(int subsystem, struct pollfd * poll_fds);
 
 		int get_slave_fd(int subsystem);
+
+		BEGIN_STATE_MAP
+		END_STATE_MAP
 };
 
 #endif /* ETHERNET_SERVER_H_ */
