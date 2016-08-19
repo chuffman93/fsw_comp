@@ -6,20 +6,12 @@
  */
 
 #include "core/MessageHandler.h"
-#include "core/ReturnMessage.h"
-#include "core/FSWPacket.h"
-#include "core/VariableTypeEnum.h"
+#include "core/ACPPacket.h"
 
-class CMDSwitchProtocolHandler : public AllStar::Core::MessageHandler
-{
+class CMDSwitchProtocolHandler : public AllStar::Core::MessageHandler{
 public:
-        /*! \brief Handle a request for a protocol switch
-         *
-         *  \param packet FSWPacket containing the message.
-         *  \return ReturnMessage that serves as a response.
-         */
-		AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
+	AllStar::Core::ACPPacket * Handle(const AllStar::Core::ACPPacket & packet);
 private:
-		const static uint32 numParams = 2;
-		static uint32 enumArray[numParams];
+	const static uint32 numParams = 2;
+	static uint32 enumArray[numParams];
 };

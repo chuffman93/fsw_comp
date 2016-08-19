@@ -50,7 +50,7 @@ size_t mq_size(mqd_t queueHandle, struct mq_attr queueAttr)
 	return (size_t)queueAttr.mq_curmsgs;
 }
 
-bool mq_timed_send(char * queueName, FSWPacket ** inPacket, size_t sec, uint64_t nSec)
+bool mq_timed_send(char * queueName, ACPPacket ** inPacket, size_t sec, uint64_t nSec)
 {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	struct timespec ts;
@@ -68,7 +68,7 @@ bool mq_timed_send(char * queueName, FSWPacket ** inPacket, size_t sec, uint64_t
 	return true;
 }
 
-bool mq_timed_receive(char * queueName, FSWPacket ** packetOut, size_t sec, uint64_t nSec)
+bool mq_timed_receive(char * queueName, ACPPacket ** packetOut, size_t sec, uint64_t nSec)
 {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	struct timespec ts;

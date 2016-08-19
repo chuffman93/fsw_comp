@@ -2,7 +2,7 @@
  * Created on: Jul 9, 2014
  *    Author: fsw
  *
- *  \brief Test 2 of the FSWPacket Class.
+ *  \brief Test 2 of the ACPPacket Class.
  *
  *  This test verifies that GetFlattenSize works properly
  */
@@ -11,7 +11,7 @@
 #include "POSIX.h"
 #include "gtest/gtest.h"
 
-#include "core/FSWPacket.h"
+#include "core/ACPPacket.h"
 
 #include "core/ErrorMessage.h"
 #include "util/crc.h"
@@ -24,7 +24,7 @@ using namespace AllStar::Core;
 TEST(TestPacket, GetFlattenSize) {
 	MessageCodeType opCode = 6;
 	Message* msg = new ErrorMessage(opCode);
-	FSWPacket* pkt = new FSWPacket(LOCATION_ID_INVALID, LOCATION_ID_MAX, 42, 0, msg);
+	ACPPacket* pkt = new ACPPacket(LOCATION_ID_INVALID, LOCATION_ID_MAX, 42, 0, msg);
 
 	if (pkt->GetSource() != LOCATION_ID_INVALID) {
 		ASSERT_TRUE(false);

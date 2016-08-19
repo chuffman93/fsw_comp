@@ -18,7 +18,7 @@ CPP_SRCS += \
 ../src/core/DoubleDatatype.cpp \
 ../src/core/ErrorMessage.cpp \
 ../src/core/ErrorMode.cpp \
-../src/core/FSWPacket.cpp \
+../src/core/ACPPacket.cpp \
 ../src/core/Factory.cpp \
 ../src/core/FloatDatatype.cpp \
 ../src/core/Int32Datatype.cpp \
@@ -57,7 +57,7 @@ OBJS += \
 ./src/core/DoubleDatatype.o \
 ./src/core/ErrorMessage.o \
 ./src/core/ErrorMode.o \
-./src/core/FSWPacket.o \
+./src/core/ACPPacket.o \
 ./src/core/Factory.o \
 ./src/core/FloatDatatype.o \
 ./src/core/Int32Datatype.o \
@@ -96,7 +96,7 @@ CPP_DEPS += \
 ./src/core/DoubleDatatype.d \
 ./src/core/ErrorMessage.d \
 ./src/core/ErrorMode.d \
-./src/core/FSWPacket.d \
+./src/core/ACPPacket.d \
 ./src/core/Factory.d \
 ./src/core/FloatDatatype.d \
 ./src/core/Int32Datatype.d \

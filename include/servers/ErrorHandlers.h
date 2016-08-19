@@ -10,15 +10,9 @@
 
 #include "core/MessageHandler.h"
 
-class ErrorOctopusHandler : public AllStar::Core::MessageHandler
-{
+class ERRServerHandler : public AllStar::Core::MessageHandler{
 public:
-	/* \brief Handle any error.
-	 *
-	 * \param packet FSWPacket containing the message
-	 * \return ReturnMessage that serves as a response
-	 */
-	AllStar::Core::FSWPacket * Handle(const AllStar::Core::FSWPacket & packet);
+	AllStar::Core::ACPPacket * Handle(const AllStar::Core::ACPPacket & packet);
 };
 
 #endif //ERRORHANDLERS_H_

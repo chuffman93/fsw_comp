@@ -8,24 +8,6 @@
  *  	Authors: Alex St. Clair, Adam St. Amand
  */
 
-/*TODO List
- * 1.) Change over to C style file pointers XXXXXXFinishedXXXXX
- * 2.) Implement Time Retrieval (GPS)
- * 3.) Design Testing to exercise all the above
- * 4.) Storage Management (Delete things when needed/Recognize when storage is full).
- * Implement storage monitor
- *
- */
-
-/*
- *TODO
- * What happens if the GPS goes down? File naming
- * will retrieve same information and begin writing
- * files larger than they should
- *
- * ADD GPS BACK!
- */
-
 #include <cstring>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -34,7 +16,6 @@
 #include <string.h>
 #include <time.h>
 #include <stdlib.h>
-
 #include <iostream>
 #include "servers/GPSServer.h"
 #include "util/FileHandler.h"
@@ -43,7 +24,6 @@
 #include "HAL/RTC.h"
 
 //size in bytes that is required to compress the files
-
 #define FILE_HANDLER_DEBUG                      0
 #define DEBUG_VAL(m, val) cout << m << ": " << val << endl;
 #define DEBUG_COUT(m) cout << m << endl;
@@ -65,37 +45,24 @@ using namespace std;
 /////// Initialization /////////
 ////////////////////////////////
 
-void FileHandler::Initialize(void)
-{
-        modeLog = "Mode_Log.dat";
+void FileHandler::Initialize(void){
+	modeLog = "Mode_Log.dat";
 }
 
-#ifdef WIN32
-void FileHandler::Destroy(void)
-{
-
-}
-#endif
-
-bool FileHandler::IsFullyInitialized(void)
-{
-        return (Singleton::IsFullyInitialized());
+bool FileHandler::IsFullyInitialized(void){
+	return (Singleton::IsFullyInitialized());
 }
 
-FileHandler::FileHandler(void)
-{
-        // If the File Handler is initialized, run max data point reference initialize
-        makeCrcTable(crcTable);
+FileHandler::FileHandler(void){
+	// If the File Handler is initialized, run max data point reference initialize
+	makeCrcTable(crcTable);
 }
 
-FileHandler::~FileHandler()
-{
-        // Left Intentionally Blank
+FileHandler::~FileHandler(){
 }
 
-FileHandler & FileHandler::operator=(const FileHandler & source)
-{
-        return *this;
+FileHandler & FileHandler::operator=(const FileHandler & source){
+	return *this;
 }
 
 
@@ -103,11 +70,11 @@ FileHandler & FileHandler::operator=(const FileHandler & source)
 /////////// Log Data ////////////////
 /////////////////////////////////////
 
-bool FileHandler::Log(FileHandlerIDEnum subsystem, const AllStar::Core::FSWPacket * packet){
+bool FileHandler::Log(FileHandlerIDEnum subsystem, const AllStar::Core::ACPPacket * packet){
 	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-	uint8 opcode = packet->GetOpcode();
+	uint8 opcode = packet->getOpcode();
 	bool notPLDData = (subsystem != SUBSYSTEM_PLD) || (opcode != PLD_DATA_SUCCESS);
 	string file;
 
@@ -120,7 +87,7 @@ bool FileHandler::Log(FileHandlerIDEnum subsystem, const AllStar::Core::FSWPacke
 	logger->Log("FileHandler: Log(): Filename: %s", file, LOGGER_LEVEL_DEBUG);
 
 	// Fill buffer with data to be written and write buffer to file
-	size_t size = packet->GetMessageLength();
+	size_t size = packet->getLength();
 	if(notPLDData) size += 8;
 	uint8 * buffer = new uint8[size];
 
@@ -138,14 +105,14 @@ bool FileHandler::Log(FileHandlerIDEnum subsystem, const AllStar::Core::FSWPacke
 		bufferPtr += 8;
 	}
 
-	if((size - (bufferPtr - buffer)) != packet->GetMessageLength()){
+	if((size - (bufferPtr - buffer)) != packet->getLength()){
 		logger->Log("FileHandler: Log(): Message length error!", LOGGER_LEVEL_ERROR);
 		delete[] buffer;
 		return false;
 	}
 
 	// Add message to the write buffer
-	memcpy(bufferPtr, packet->GetMessageBufPtr(), packet->GetMessageLength());
+	memcpy(bufferPtr, packet->getMessageBuff(), packet->getLength());
 
 	// Write into the file.
 	logger->Log("FileHandler: Log(): File write size: %u", (uint32) size, LOGGER_LEVEL_DEBUG);
@@ -169,45 +136,44 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType 
     fileExtension = ".dat"; //Type of the files
 
     //Build file and filepath name using subsystem name and opcode
-	switch (subsystem)
-	{
-		case SUBSYSTEM_ACS:
-				filePath.append("ACS/");
-				file->append("ACS_");
-				break;
-		case SUBSYSTEM_COM:
-				filePath.append("COM/");
-				*file = "COM_";
-				break;
-		case SUBSYSTEM_EPS:
-				filePath.append("EPS/");
-				*file = "EPS_";
-				break;
-		case SUBSYSTEM_GPS:
-				filePath.append("GPS/");
-				*file = "GPS_";
-				break;
-		case SUBSYSTEM_PLD:
-				filePath.append("PLD/");
-				*file = "PLD_";
-				break;
-		case SUBSYSTEM_SCH:
-				filePath.append("SCH/");
-				*file = "SCH_";
-				break;
-		case SUBSYSTEM_CMD:
-				filePath.append("CMD/");
-				*file = "CMD_";
-				break;
-		case SYSTEM_CDH:
-				filePath.append("CDH/");
-				*file = "CDH_";
-				break;
-		default:
-				logger->Log("FileHandler: unknown server for file path", LOGGER_LEVEL_WARN);
-				delete temp;
-				return -1;
-	}
+    switch (subsystem){
+    case SUBSYSTEM_ACS:
+    	filePath.append("ACS/");
+    	file->append("ACS_");
+    	break;
+    case SUBSYSTEM_COM:
+    	filePath.append("COM/");
+    	*file = "COM_";
+    	break;
+    case SUBSYSTEM_EPS:
+    	filePath.append("EPS/");
+    	*file = "EPS_";
+    	break;
+    case SUBSYSTEM_GPS:
+    	filePath.append("GPS/");
+    	*file = "GPS_";
+    	break;
+    case SUBSYSTEM_PLD:
+    	filePath.append("PLD/");
+    	*file = "PLD_";
+    	break;
+    case SUBSYSTEM_SCH:
+    	filePath.append("SCH/");
+    	*file = "SCH_";
+    	break;
+    case SUBSYSTEM_CMD:
+    	filePath.append("CMD/");
+    	*file = "CMD_";
+    	break;
+    case SYSTEM_CDH:
+    	filePath.append("CDH/");
+    	*file = "CDH_";
+    	break;
+    default:
+    	logger->Log("FileHandler: unknown server for file path", LOGGER_LEVEL_WARN);
+    	delete temp;
+    	return -1;
+    }
 
 	mkdir(filePath.c_str(), 0777);
 

@@ -2,19 +2,17 @@
  *  \brief Header File for the Dispatcher Class
  *
  *  This file contains the definition of the Dispatcher class, which acts
- *  as the FSWPacket-routing entity in the AllStar architecture.
+ *  as the ACPPacket-routing entity in the AllStar architecture.
  */
 
 #ifndef _DISPATCHER_H
 #define _DISPATCHER_H
 
-#include "core/FSWPacket.h"
-#include "core/ErrorMessage.h"
+#include "core/ACPPacket.h"
 #include "core/Arbitrator.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
 #include "core/MessageHandlerRegistry.h"
-#include "core/ReturnMessage.h"
 #include "core/StdTypes.h"
 
 #include <stdint.h>
@@ -100,8 +98,8 @@ public:
 	// Unique number for each packet so that we can track them.
 	static uint16 packetNumber;
 
-	/*! \brief Typedef for a FSWPacket Comparison Function */
-	typedef bool (Dispatcher::* PacketCheckFunctionType)(const FSWPacket & packetIn, const FSWPacket & packetOut) const;
+	/*! \brief Typedef for a ACPPacket Comparison Function */
+	typedef bool (Dispatcher::* PacketCheckFunctionType)(const ACPPacket & packetIn, const ACPPacket & packetOut) const;
 
 	/*! \brief Adds a MessageHandlerRegistry to the Dispatcher
 	 *
@@ -128,12 +126,12 @@ public:
 	 */
 	bool AddRegistry(LocationIDType serverID, MessageHandlerRegistry * registry, Arbitrator * arby);
 
-	/*! \brief Dispatches a FSWPacket to its Destination Location
+	/*! \brief Dispatches a ACPPacket to its Destination Location
 	 *
 	 *  Dispatches the given packet to the destination contained in
 	 *  the packet's destination field.
 	 *
-	 *  \param packet FSWPacket to be dispatched.
+	 *  \param packet ACPPacket to be dispatched.
 	 *  \return true if the operation was successful and
 	 *  false otherwise.
 	 *
@@ -144,9 +142,9 @@ public:
 	 *  have a chance to Listen for a message before looking for
 	 *  the response to the Dispatched message.
 	 */
-	bool Dispatch(FSWPacket & packet);
+	bool Dispatch(ACPPacket & packet);
 
-	/*! \brief Checks for a FSWPacket Addressed to a Given Server
+	/*! \brief Checks for a ACPPacket Addressed to a Given Server
 	 *
 	 *  Checks the message queue for a message for the given server.
 	 *  If there is a message, then the corresponding message handler
@@ -161,7 +159,7 @@ public:
 	 *  registered handler for that message, then a standard
 	 *  unknown message response will be issued.
 	 */
-	MessageHandlerRegistry * FindHandler(LocationIDType serverID, FSWPacket * packet);
+	MessageHandlerRegistry * FindHandler(LocationIDType serverID, ACPPacket * packet);
 
 	/*! \brief Dispatch a Message to Hardware
 	 *
@@ -171,49 +169,49 @@ public:
 	 *
 	 */
 
-	/*! \brief Checks if a FSWPacket is a Response to Another FSWPacket
+	/*! \brief Checks if a ACPPacket is a Response to Another ACPPacket
 	 *
 	 *  Checks if packetOut is a response to the message sent in
 	 *  packetIn.
 	 *
-	 *  \param packetIn FSWPacket that was sent.
-	 *  \param packetOut FSWPacket to check against packetIn.
+	 *  \param packetIn ACPPacket that was sent.
+	 *  \param packetOut ACPPacket to check against packetIn.
 	 *  \return true if packetOut is a response to packetIn and false
 	 *  otherwise.
 	 */
-	inline bool IsPacketMatchingResponse(const FSWPacket & packetIn, const FSWPacket & packetOut) const;
+	inline bool IsPacketMatchingResponse(const ACPPacket & packetIn, const ACPPacket & packetOut) const;
 
-	/*! \brief Checks if a FSWPacket's Destination Matches Another's Source
+	/*! \brief Checks if a ACPPacket's Destination Matches Another's Source
 	 *
 	 *  Checks if packetOut's destination is the same as packetIn's
 	 *  source.
 	 *
-	 *  \param packetIn FSWPacket to check source in.
-	 *  \param packetOut FSWPacket to check destination in.
+	 *  \param packetIn ACPPacket to check source in.
+	 *  \param packetOut ACPPacket to check destination in.
 	 *  \return true if packetOut's destination equals packetIn's
 	 *  source and false otherwise.
 	 */
-	inline bool IsPacketDestMatchingSource(const FSWPacket & packetIn, const FSWPacket & packetOut) const;
+	inline bool IsPacketDestMatchingSource(const ACPPacket & packetIn, const ACPPacket & packetOut) const;
 
 	/*! \brief Checks if Two Packets Are Equivalent
 	 *
 	 *  Checks if packetOut is equivalent to packetIn.
 	 *
-	 *  \param packetIn FSWPacket #1
-	 *  \param packetOut FSWPacket #2
+	 *  \param packetIn ACPPacket #1
+	 *  \param packetOut ACPPacket #2
 	 *  \return true if packetOut is equivalent to packetIn and false
 	 *  otherwise.
 	 */
-	inline bool IsPacketSame(const FSWPacket & packetIn, const FSWPacket & packetOut) const;
+	inline bool IsPacketSame(const ACPPacket & packetIn, const ACPPacket & packetOut) const;
 
-	/*! \brief Checks the Message Queue for a Matching FSWPacket
+	/*! \brief Checks the Message Queue for a Matching ACPPacket
 	 *
 	 *  Checks the internal message queue for a packet that matches
 	 *  packetIn using the comparison function given by Check.  If
 	 *  a matching packet is found, a pointer to the packet is
 	 *  returned in packetOut.
 	 *
-	 *  \param packetIn FSWPacket to compare other packets with.
+	 *  \param packetIn ACPPacket to compare other packets with.
 	 *  \param packetOut Returns a pointer to the matching packet.
 	 *  \param Check Comparison function used to compare packetIn
 	 *  and the other packets in the internal message queue.
@@ -223,26 +221,23 @@ public:
 	 *  \note packetOut is only guaranteed to point to a valid
 	 *  packet if this function returns true.
 	 */
-	bool CheckQueueForMatchingPacket(const FSWPacket & packetIn,
-									 FSWPacket * &packetOut,
+	bool CheckQueueForMatchingPacket(const ACPPacket & packetIn,
+									 ACPPacket * &packetOut,
 									 DispatcherCheckType type);
 
-	uint32_t DispatchToHardware(FSWPacket & packet);
+	uint32_t DispatchToHardware(ACPPacket & packet);
 
-	/*! \brief Struct for Holding Server Message Handler Information */
-	struct DispatcherHandlerType
-	{
+	// --- Message handler information -------------------------------------
+	struct DispatcherHandlerType{
 		DispatcherHandlerType(MessageHandlerRegistry * regIn, Arbitrator * arbyIn)
 			: registry(regIn), arby(arbyIn) { }
 
 		MessageHandlerRegistry * registry;
 		Arbitrator * arby;
 	};
-
-	/*! \brief MessageHandler Registry Map */
 	std::map<LocationIDType, DispatcherHandlerType *> registryMap;
 
-	/*! \brief Handle to the Dispatcher Message Queue */
+	// --- Message queue for received messages ------------------------------
 	mqd_t queueHandleRX;
 	struct mq_attr queueAttrRX;
 	int qInitRX;
@@ -250,8 +245,7 @@ public:
 
 private:
 
-	struct DispatcherInterruptAlertType
-	{
+	struct DispatcherInterruptAlertType{
 		uint8 pin;
 		uint32 time;
 	};
@@ -266,8 +260,8 @@ private:
 	struct DispatcherTaskParameter
 	{
 		MessageHandlerRegistry * registry;
-		FSWPacket * packet;
-		FSWPacket * retPacket;
+		ACPPacket * packet;
+		ACPPacket * retPacket;
 		sem_t syncSem;
 		sem_t doneSem;
 	};
@@ -290,9 +284,7 @@ private:
 	 *  Frees all internal memory use, frees all operating system
 	 *  objects used, and deletes the singleton instance pointer.
 	 */
-
 	static void Destroy(void );
-
 
 	/*! \brief Checks if Dispatcher Class is initialized
 	 *
@@ -321,6 +313,6 @@ private:
 };
 
 } // End of namespace Core
-} // End of namespace Servers
+} // End of namespace AllStar
 
 #endif  //_DISPATCHER_H

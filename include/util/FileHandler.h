@@ -16,7 +16,6 @@
 #include "core/StdTypes.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
-#include "core/MultiDataMessage.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -88,7 +87,7 @@ public:
         //bool Log(FileHandlerIDEnum subsystem, MessageCodeType opCode,
                         //const AllStar::Core::MultiDataMessage & message);
 
-        bool Log(FileHandlerIDEnum subsystem, const AllStar::Core::FSWPacket * packet);
+        bool Log(FileHandlerIDEnum subsystem, const AllStar::Core::ACPPacket * packet);
 
         /*! \brief Deletes the file from the SD card.
          *

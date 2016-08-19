@@ -14,8 +14,7 @@
 #define _MESSAGEHANDLER_H
 
 #include "core/StdTypes.h"
-#include "core/FSWPacket.h"
-#include "core/ReturnMessage.h"
+#include "core/ACPPacket.h"
 
 #include <string>
 
@@ -35,7 +34,7 @@ namespace AllStar
             MessageHandler & operator=(const MessageHandler & source);
             std::string GetName() const;
             void SetName(std::string newName);
-            virtual FSWPacket * Handle(const FSWPacket & packet) = 0;
+            virtual ACPPacket * Handle(const ACPPacket & packet) = 0;
         private:
             std::string name;
         };

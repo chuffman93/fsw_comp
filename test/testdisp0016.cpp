@@ -19,21 +19,21 @@ using namespace AllStar::Core;
 class Test0016MessageHandler : public MessageHandler
 {
 public:
-	ReturnMessage * Handle(const FSWPacket & packet);
+	ReturnMessage * Handle(const ACPPacket & packet);
 } testHandler16;
 
 class ResponseMessageHandler : public MessageHandler
 {
 public:
-	ReturnMessage * Handle(const FSWPacket & packet);
+	ReturnMessage * Handle(const ACPPacket & packet);
 } respHandler;
 
-ReturnMessage * Test0016MessageHandler::Handle(const FSWPacket & packet)
+ReturnMessage * Test0016MessageHandler::Handle(const ACPPacket & packet)
 {
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 	DispatcherStatusEnum status;
 	CommandMessage * cmd = new CommandMessage(1);
-	FSWPacket * outPacket = new FSWPacket(2, 1, 0, 0, cmd);
+	ACPPacket * outPacket = new ACPPacket(2, 1, 0, 0, cmd);
 	ReturnMessage retMsg;
 	delete cmd;
 
@@ -66,7 +66,7 @@ ReturnMessage * Test0016MessageHandler::Handle(const FSWPacket & packet)
 	return ret;
 }
 
-ReturnMessage * ResponseMessageHandler::Handle(const FSWPacket & packet)
+ReturnMessage * ResponseMessageHandler::Handle(const ACPPacket & packet)
 {
 	cout << "Response Message!" << endl;
 	CommandMessage msg(packet.GetMessagePtr()->GetOpcode()+10);
@@ -82,7 +82,7 @@ static void * taskTest1(void * parameters)
 		Dispatcher * dispatcher;
 		MessageHandlerRegistry reg;
 		Arbitrator arby(1);
-		FSWPacket * packet;
+		ACPPacket * packet;
 		ReturnMessage retMsg;
 		size_t i;
 		bool ret;
@@ -105,7 +105,7 @@ static void * taskTest1(void * parameters)
 		}
 
 		CommandMessage * cmd = new CommandMessage(2);
-		packet = new FSWPacket(1, 2, 0, 0, cmd);
+		packet = new ACPPacket(1, 2, 0, 0, cmd);
 		delete cmd;
 
 		cout << "Task 1 Waiting for Synchronization" << endl;

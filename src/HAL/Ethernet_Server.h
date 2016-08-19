@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <iostream>
-#include "core/FSWPacket.h"
+#include "core/ACPPacket.h"
 
 
 using namespace std;
@@ -134,7 +134,7 @@ class ETH_HALServer: public AllStar::Core::Singleton
          */
         int     TCPsock(struct sockaddr_in *fsin,char *portnum, int qlen);
 
-        int ETHDispatch(AllStar::Core::FSWPacket & packet);
+        int ETHDispatch(AllStar::Core::ACPPacket & packet);
 
 
 };

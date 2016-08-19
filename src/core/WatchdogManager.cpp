@@ -15,7 +15,7 @@
 using namespace std;
 using namespace AllStar::Servers;
 
-#define WATCHDOG_MANAGER_DELAY 1000
+#define WATCHDOG_MANAGER_DELAY 5000
 namespace AllStar{namespace Core{
 
 // -------------------------------------- Necessary Methods --------------------------------------
@@ -63,7 +63,6 @@ bool WatchdogManager::StartServer(SubsystemServer * serverIn, int waitIn, bool r
 		if(!thread->isRunning){
 			delete thread;
 			return false;
-			//FIXME: what to do?
 		}
 
 		// Thread created, now add it to the task map
@@ -82,7 +81,7 @@ bool WatchdogManager::AddTask(PThread * thread){
 
 	// Get the semaphore.
 	if (watchdogManager->TakeLock(MAX_BLOCK_TIME) == true){
-		TaskState * newState = new TaskState(TASK_RUNSTATE_RUNNING, false);
+		TaskState * newState = new TaskState(TASK_RUNSTATE_RUNNING, true);
 
 		IteratorType it;
 		it = watchdogManager->taskMap.find(thread);
@@ -138,7 +137,8 @@ bool WatchdogManager::DeleteTask(PThread *&pThread){
 	}
 }
 
-void * WatchdogManager::WatchdogManagerTask(void * parameters){
+void * WatchdogManager::WatchdogManagerTask(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	clock_t startTime = getTimeInMillis();
 	clock_t lastWakeTime = startTime;
 
@@ -146,38 +146,25 @@ void * WatchdogManager::WatchdogManagerTask(void * parameters){
 	waitUntil(lastWakeTime, WATCHDOG_MANAGER_DELAY);
 
 	while (1){
-		watchdogManager->Kick();
 		if (watchdogManager->AllRunningTasksActive()){
 			// all running
 		}else{
-			//not all running
-
-			// Reset a task if it has exceeded the time limit
+			// Reset inactive tasks
 			if (watchdogManager->TakeLock(MAX_BLOCK_TIME) == true){
-				watchdogManager->Kick();
 				for (IteratorType it = watchdogManager->taskMap.begin(); it != watchdogManager->taskMap.end(); ++it){
-					printf("In WatchdogManagerTask for-loop\n");
-					TaskState * state = it->second;
-					if (state->GetTaskState() == TASK_RUNSTATE_RUNNING && !state->GetKickState()){
-						// Restart the task
-						printf("Inactive task found. Restarting thread.\n");
+					if (it->second->GetTaskState() == TASK_RUNSTATE_RUNNING && !it->second->GetKickState()){
 						it->first->stop();
-						printf("Stopped the thread.\n");
+						logger->Log("Restarting inactive task", LOGGER_LEVEL_WARN);
 						it->first->start();
-						printf("Restarted the thread.\n");
 					}
 				}
+				watchdogManager->GiveLock();
+			}else{
+				logger->Log("WatchdogManager: failed to take lock", LOGGER_LEVEL_WARN);
 			}
-			printf("WatchdogManagerTask calling GiveLock()\n");
-			bool gaveLock = watchdogManager->GiveLock();
-			printf("WatchdogManagerTask called GiveLock()\n");
-			cout << "GiveLock return value: " << gaveLock << endl;
 		}
-
-		if ((lastWakeTime + WATCHDOG_MANAGER_DELAY) <= (getTimeInMillis() - startTime)){
-			lastWakeTime = getTimeInMillis();
-		}
-		waitUntil( lastWakeTime, WATCHDOG_MANAGER_DELAY);
+		lastWakeTime = getTimeInMillis();
+		waitUntil(lastWakeTime, WATCHDOG_MANAGER_DELAY);
 	}
 
 	void * ret;
@@ -214,12 +201,10 @@ bool WatchdogManager::AllRunningTasksActive(void){
 
 	if (watchdogManager->TakeLock(MAX_BLOCK_TIME) == true){
 		for (ConstIteratorType it = watchdogManager->taskMap.begin(); it != watchdogManager->taskMap.end(); ++it){
-			TaskState * state = it->second;
-			if (state->GetTaskState() == TASK_RUNSTATE_RUNNING && !state->GetKickState()){
+			if (it->second->GetTaskState() == TASK_RUNSTATE_RUNNING && !it->second->GetKickState()){
 				watchdogManager->GiveLock();
 				return false;
 			}
-
 			it->second->SetKickState(false);
 		}
 

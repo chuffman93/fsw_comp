@@ -8,6 +8,7 @@
 #include "servers/SubsystemServer.h"
 #include "servers/DispatchStdTasks.h"
 
+#include "core/WatchdogManager.h"
 #include "core/ModeManager.h"
 #include "core/Dispatcher.h"
 #include "core/Singleton.h"
@@ -50,12 +51,14 @@ bool SubsystemServer::operator ==(const Server & check) const
 
 void SubsystemServer::SubsystemLoop(void)
 {
-	//Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+	WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
 	while(1)
 	{
+		uint64_t LastWakeTime = getTimeInMillis();
 		while(Listen(id));
-		usleep(50000);
+		wdm->Kick();
+		waitUntil(LastWakeTime, 400);
 		
 		StateFunc function = GetStateMap()[currentState].function;
 

@@ -9,7 +9,6 @@
 
 #include "core/Dispatcher.h"
 #include "core/WatchdogManager.h"
-#include "core/ErrorMessage.h"
 #include "core/StdTypes.h"
 #include "core/ModeManager.h"
 #include "util/Logger.h"
@@ -80,6 +79,7 @@ bool SCHServer::RegisterHandlers()
 void SCHServer::SubsystemLoop(void)
 {
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	uint64_t LastTimeSwitched = getTimeInMillis();
 	currentSchedule = std::list<SCHItem>();
@@ -98,6 +98,7 @@ void SCHServer::SubsystemLoop(void)
 	while(1)
 	{
 		uint64_t LastWakeTime = getTimeInMillis();
+		wdm->Kick();
 		if(currentSchedule.empty()){
 			logger->Log("Fetching Next Schedule", LOGGER_LEVEL_INFO);
 			LoadNextSchedule();

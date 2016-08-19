@@ -61,7 +61,7 @@ TEST(TestStorageManager, testClean){
 	AddUInt32(message, weekStart);
 	AddUInt32(message+4, weekEnd);
 
-	FSWPacket * query = new FSWPacket(SERVER_LOCATION_ACS, SERVER_LOCATION_CDH, CDH_CLEAN_FS_CMD, true, false, MESSAGE_TYPE_COMMAND, 8, message);
-	FSWPacket * ret = DispatchPacket(query);
+	ACPPacket * query = new ACPPacket(SERVER_LOCATION_ACS, SERVER_LOCATION_CDH, CDH_CLEAN_FS_CMD, true, false, MESSAGE_TYPE_COMMAND, 8, message);
+	ACPPacket * ret = DispatchPacket(query);
 	PacketProcess(SERVER_LOCATION_CDH, ret);
 }

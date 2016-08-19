@@ -22,8 +22,9 @@
 
 
 #include "HAL/SPI_Server.h"
-#include "core/FSWPacket.h"
+#include "core/ACPPacket.h"
 #include "core/Dispatcher.h"
+#include "core/WatchdogManager.h"
 #include "util/Logger.h"
 #include "servers/SubsystemServer.h"
 
@@ -53,8 +54,9 @@ SPI_HALServer::~SPI_HALServer()
 // Enter this loop
 void SPI_HALServer::SubsystemLoop(void)
 {
+	WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	FSWPacket * rxPacket;
+	ACPPacket * rxPacket;
 	struct pollfd fds;
 	int enterTime;
 	int slave_fd;
@@ -74,9 +76,10 @@ void SPI_HALServer::SubsystemLoop(void)
 	while (1) {
 		errno = 0;
 		enterTime = getTimeInMillis();
+		wdm->Kick();
 
 		// ---- TX ----------------------------------------------------------------------------------------------------------------
-		FSWPacket * txPacket;
+		ACPPacket * txPacket;
 		if(mq_size(queueHandleTX, queueAttrTX) > 0){
 			printf("Size is %d\n", mq_size(queueHandleTX, queueAttrTX));
 			if(mq_timed_receive(queueNameSPITX, &txPacket, 0, DISPATCHER_MAX_DELAY)){
@@ -101,19 +104,18 @@ void SPI_HALServer::SubsystemLoop(void)
 				fds.fd = int_fds[i];
 				fds.events = POLLPRI;
 				nbytes = spi_read(slave_fd, &fds, &rxBuf);
-				if(nbytes < 16){
+				if(nbytes < ACP_MIN_BYTES){
 					rxPacket = NULL;
 				}else{
-					rxPacket = new FSWPacket(rxBuf, nbytes);
+					rxPacket = new ACPPacket(rxBuf, nbytes);
+					set_packet_sourcedest(i, rxPacket);
 				}
 
 				// Check bounds and send to dispatcher RX queue
 				if(rxPacket == NULL){
 					logger->Log("SPI_HAL Server: There was an error reading the packet. Not placing on queue!", LOGGER_LEVEL_ERROR);
-				}else if ((rxPacket->GetDestination() == LOCATION_ID_INVALID )|| (rxPacket->GetSource() == LOCATION_ID_INVALID)){
-					logger->Log("SPI_HAL Server: FSW Packet src or dest invalid. Not placing on queue!", LOGGER_LEVEL_WARN);
-					logger->Log("Ret dest: %d", rxPacket->GetDestination(), LOGGER_LEVEL_DEBUG);
-					logger->Log("Ret source: %d", rxPacket->GetSource(), LOGGER_LEVEL_DEBUG);
+				}else if (rxPacket->getDestination() == LOCATION_ID_INVALID){
+					logger->Log("SPI_HAL Server: ACP Packet dest invalid (bit flip). Not placing on queue!", LOGGER_LEVEL_WARN);
 					delete rxPacket;
 				}else{
 					Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
@@ -133,7 +135,7 @@ void SPI_HALServer::SubsystemLoop(void)
 	}
 }
 
-bool SPI_HALServer::SPIDispatch(AllStar::Core::FSWPacket & packet){
+bool SPI_HALServer::SPIDispatch(AllStar::Core::ACPPacket & packet){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	int bytes_copied;
 	int ret;
@@ -142,7 +144,6 @@ bool SPI_HALServer::SPIDispatch(AllStar::Core::FSWPacket & packet){
 	uint8_t * packetBuffer;
 	struct pollfd fds;
 	int destination = 0;
-	printf("packet is %x\n", &packet);
 	packetLength = packet.GetFlattenSize();
 	logger->Log("SPI_Server: SPIDispatch(): Dispatching packet of size %d", (uint32) packetLength, LOGGER_LEVEL_DEBUG);
 
@@ -162,10 +163,8 @@ bool SPI_HALServer::SPIDispatch(AllStar::Core::FSWPacket & packet){
 		return -2;
 	}
 
-	destination = packet.GetDestination();
-	int source = packet.GetSource();
+	destination = packet.getDestination();
 	logger->Log("SPI_Server: SPIDispatch(): destination = %d", destination, LOGGER_LEVEL_DEBUG);
-	logger->Log("SPI_Server: SPIDispatch(): source = %d", source, LOGGER_LEVEL_DEBUG);
 	get_int_fds(destination, &fds);
 	slave_fd = get_slave_fd(destination);
 
@@ -267,6 +266,11 @@ int SPI_HALServer::spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_bufp){
 
 			logger->Log("spi_read: byte value: ------------- 0x%X", rx, LOGGER_LEVEL_SUPER_DEBUG);
 			buf_pt++;
+
+			if(i == 0 && rx != SYNC_VALUE){
+				logger->Log("spi_read: sync byte incorrect! Ending read", LOGGER_LEVEL_WARN);
+				return 0;
+			}
 		}
 
 		logger->Log("spi_read: Allocating memory for packet", LOGGER_LEVEL_DEBUG);
@@ -308,6 +312,7 @@ int SPI_HALServer::spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_bufp){
 		*rx_bufp = rx_buf;
 		return buf_pt;
 	}
+	return 0;
 }
 
 int SPI_HALServer::get_int_fds(int subsystem, struct pollfd * poll_fds){
@@ -357,6 +362,39 @@ int SPI_HALServer::get_slave_fd(int subsystem){
 			return -1;
 	}
 	return spi_fds[index];
+}
+
+void SPI_HALServer::set_packet_sourcedest(int index, ACPPacket * packet){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	LocationIDType source;
+	LocationIDType dest;
+
+	// set based on index from RX loop that corresponds to the fd
+	switch(index){
+	case 0:
+		source = HARDWARE_LOCATION_EPS;
+		dest = SERVER_LOCATION_EPS;
+		break;
+	case 1:
+		source = HARDWARE_LOCATION_COM;
+		dest = SERVER_LOCATION_COM;
+		break;
+	case 2:
+		source = HARDWARE_LOCATION_ACS;
+		dest = SERVER_LOCATION_ACS;
+		break;
+	case 3:
+		source = HARDWARE_LOCATION_PLD;
+		dest = SERVER_LOCATION_PLD;
+		break;
+	default:
+		logger->Log("set_packet_dest(): index out of range!", LOGGER_LEVEL_WARN);
+		source = LOCATION_ID_INVALID;
+		dest = LOCATION_ID_INVALID;
+		break;
+	}
+	packet->setSource(source);
+	packet->setDestination(dest);
 }
 
 void SPI_HALServer::GPIOsetup(void){

@@ -25,10 +25,10 @@ using namespace AllStar::Core;
 class TestMessageHandler : public MessageHandler
 {
 public:
-	ReturnMessage * Handle(const FSWPacket & packet);
+	ReturnMessage * Handle(const ACPPacket & packet);
 } testHandler7;
 
-//ReturnMessage * TestMessageHandler::Handle(const FSWPacket & packet)
+//ReturnMessage * TestMessageHandler::Handle(const ACPPacket & packet)
 //{
 //	CommandMessage msg(0);
 //	ReturnMessage *ret = new ReturnMessage(&msg, true);
@@ -41,7 +41,7 @@ static void * taskTest1(void * parameters)
 {
 	{
 		Dispatcher * dispatcher;
-		FSWPacket * packet;
+		ACPPacket * packet;
 		ReturnMessage retMsg;
 		size_t i;
 		DispatcherStatusEnum status;
@@ -60,7 +60,7 @@ static void * taskTest1(void * parameters)
 		for (i = 0; i < DISPATCHER_QUEUE_LENGTH; ++i)
 		{
 			cout << "placing packet with numberIn: " << i << endl;
-			packet = new FSWPacket(1, 2, i, 0, cmd);
+			packet = new ACPPacket(1, 2, i, 0, cmd);
 			if (!dispatcher->Dispatch(*packet))
 			{
 				ADD_FAILURE();
@@ -69,7 +69,7 @@ static void * taskTest1(void * parameters)
 			delete packet;
 		}
 
-		packet = new FSWPacket(1, 2, DISPATCHER_QUEUE_LENGTH, 0, cmd);
+		packet = new ACPPacket(1, 2, DISPATCHER_QUEUE_LENGTH, 0, cmd);
 		if (dispatcher->Dispatch(*packet))
 		{
 			ADD_FAILURE();
@@ -87,7 +87,7 @@ static void * taskTest1(void * parameters)
 
 		usleep(100000);
 
-		packet = new FSWPacket(1, 2, DISPATCHER_QUEUE_LENGTH, 0, cmd);
+		packet = new ACPPacket(1, 2, DISPATCHER_QUEUE_LENGTH, 0, cmd);
 		if (dispatcher->Dispatch(*packet))
 		{
 			ADD_FAILURE();
@@ -95,7 +95,7 @@ static void * taskTest1(void * parameters)
 		}
 		delete packet;
 
-		packet = new FSWPacket(1, 2, 0, 0, cmd);
+		packet = new ACPPacket(1, 2, 0, 0, cmd);
 
 		for (i = 0; i < DISPATCHER_QUEUE_LENGTH; ++i)
 		{

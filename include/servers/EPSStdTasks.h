@@ -9,29 +9,25 @@
 #ifndef EPSSTDTASKS_H_
 #define EPSSTDTASKS_H_
 
-#include "core/ReturnMessage.h"
+namespace AllStar{
+namespace Servers{
 
-//#include "boards/board.h"
+AllStar::Core::ACPPacket * EPSHealthStat();
+AllStar::Core::ACPPacket * EPSStateOfCharge();
+AllStar::Core::ACPPacket * EPSPowerCycle();
+AllStar::Core::ACPPacket * EPSDisableOCProt();
+AllStar::Core::ACPPacket * EPSEnableOCProt();
+AllStar::Core::ACPPacket * EPSPowerSubsystems(PowerSubsystemEnum subsystem, bool onOff, uint32 time);
+void CheckPowerTimers(void);
+void SattyResetTimer(void);
+void SattyReset(void);
+bool CheckDeploymentFlag(void);
+void BurnFrangiBolt(void);
+float SetStarCameraThreshold(void);
+bool CheckStarCameraDeployed(const float & sensorThreshhold);
+void SetDeploymentFlag(void);
 
-namespace AllStar
-{
-	namespace Servers
-	{
-		AllStar::Core::FSWPacket * EPSHealthStat();
-		AllStar::Core::FSWPacket * EPSStateOfCharge();
-		AllStar::Core::FSWPacket * EPSPowerCycle();
-		AllStar::Core::FSWPacket * EPSDisableOCProt();
-		AllStar::Core::FSWPacket * EPSEnableOCProt();
-		AllStar::Core::FSWPacket * EPSPowerSubsystems(PowerSubsystemEnum subsystem, bool onOff, uint32 time);
-		void CheckPowerTimers(void);
-		void SattyResetTimer(void);
-		void SattyReset(void);
-		bool CheckDeploymentFlag(void);
-		void BurnFrangiBolt(void);
-		float SetStarCameraThreshold(void);
-		bool CheckStarCameraDeployed(const float & sensorThreshhold);
-		void SetDeploymentFlag(void);
-	}
+}
 }
 
 #endif /* EPSSTDTASKS_H_ */

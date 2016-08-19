@@ -20,10 +20,10 @@ using namespace AllStar::Core;
 class Test0012MessageHandler : public MessageHandler
 {
 public:
-	ReturnMessage * Handle(const FSWPacket & packet);
+	ReturnMessage * Handle(const ACPPacket & packet);
 } testHandler12;
 
-ReturnMessage * Test0012MessageHandler::Handle(const FSWPacket & packet)
+ReturnMessage * Test0012MessageHandler::Handle(const ACPPacket & packet)
 {
 	CommandMessage msg(packet.GetMessagePtr()->GetOpcode()+10);
 	ReturnMessage * ret = new ReturnMessage(&msg, true);
@@ -36,7 +36,7 @@ static void * taskTest1(void * parameters)
 {
 	{
 		Dispatcher * dispatcher;
-		FSWPacket * packet1;
+		ACPPacket * packet1;
 		ReturnMessage retMsg;
 		DispatcherStatusEnum status;
 
@@ -50,7 +50,7 @@ static void * taskTest1(void * parameters)
 		cout << "Initialized" << endl;
 
 		CommandMessage * cmd = new CommandMessage(0);
-		packet1 = new FSWPacket(1, 2, 0, 0, cmd);
+		packet1 = new ACPPacket(1, 2, 0, 0, cmd);
 		delete cmd;
 
 		if (!dispatcher->Dispatch(*packet1))

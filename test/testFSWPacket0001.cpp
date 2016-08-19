@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 #include "core/StdTypes.h"
-#include "core/FSWPacket.h"
+#include "core/ACPPacket.h"
 #include "servers/DispatchStdTasks.h"
 #include "util/FileHandler.h"
 
@@ -28,13 +28,13 @@ void createMessageBuffer(uint8 * buffer, int size){
 	buffer[17] = 0x0C; // CRC
 }
 
-TEST(TestFSWPacket, testPacket){
+TEST(TestACPPacket, testPacket){
 	uint8 * testBuf;
 	testBuf = (uint8 *) malloc(18);
 
 	createMessageBuffer(testBuf, 18);
 
-	FSWPacket * testPacket = new FSWPacket(testBuf, 18);
+	ACPPacket * testPacket = new ACPPacket(testBuf, 18);
 
 	ASSERT_EQ(testPacket->GetMessageBufPtr()[0], 0x06);
 	ASSERT_EQ(testPacket->GetMessageBufPtr()[1], 0x06);
@@ -46,13 +46,13 @@ TEST(TestFSWPacket, testPacket){
 	ASSERT_TRUE(true);
 }
 
-TEST(TestFSWPacket, testNullMessage){
+TEST(TestACPPacket, testNullMessage){
 	uint8 * testBuf;
 	testBuf = (uint8 *) malloc(16);
 
 	createMessageBuffer(testBuf, 16);
 
-	FSWPacket * testPacket = new FSWPacket(testBuf, 16);
+	ACPPacket * testPacket = new ACPPacket(testBuf, 16);
 
 	ASSERT_EQ(testPacket->GetMessageLength(), 0);
 	ASSERT_EQ(testPacket->GetFlattenSize(), 16);
@@ -62,7 +62,7 @@ TEST(TestFSWPacket, testNullMessage){
 	ASSERT_TRUE(true);
 }
 
-TEST(TestFSWPacket, testFlatten){
+TEST(TestACPPacket, testFlatten){
 	uint8 * testBuf;
 	uint8 * flattenBuf;
 	size_t size = 18;
@@ -71,7 +71,7 @@ TEST(TestFSWPacket, testFlatten){
 
 	createMessageBuffer(testBuf, size);
 
-	FSWPacket * testPacket = new FSWPacket(testBuf, size);
+	ACPPacket * testPacket = new ACPPacket(testBuf, size);
 
 	size_t result = testPacket->Flatten(flattenBuf, testPacket->GetFlattenSize());
 	EXPECT_EQ(size, testPacket->GetFlattenSize());
@@ -91,7 +91,7 @@ TEST(TestFSWPacket, testFlatten){
 	ASSERT_TRUE(true);
 }
 
-TEST(TestFSWPacket, testBadLength){
+TEST(TestACPPacket, testBadLength){
 	uint8 * testBuf;
 	size_t size = 18;
 	testBuf = (uint8 *) malloc(size);
@@ -99,7 +99,7 @@ TEST(TestFSWPacket, testBadLength){
 	createMessageBuffer(testBuf, size);
 	testBuf[13] = 0x06; //incorrect length of message
 
-	FSWPacket * testPacket = new FSWPacket(testBuf, size);
+	ACPPacket * testPacket = new ACPPacket(testBuf, size);
 
 	ASSERT_TRUE(testPacket->GetMessageBufPtr()==NULL);
 	ASSERT_EQ(testPacket->GetDestination(), LOCATION_ID_INVALID);
@@ -110,7 +110,7 @@ TEST(TestFSWPacket, testBadLength){
 	ASSERT_TRUE(true);
 }
 
-TEST(TestFSWPacket, testPacketLog){
+TEST(TestACPPacket, testPacketLog){
 	FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
 
 	uint8 * testBuf;
@@ -118,7 +118,7 @@ TEST(TestFSWPacket, testPacketLog){
 
 	createMessageBuffer(testBuf, 18);
 
-	FSWPacket * testPacket = new FSWPacket(testBuf, 18);
+	ACPPacket * testPacket = new ACPPacket(testBuf, 18);
 
 	bool success = fileHandler->Log(SUBSYSTEM_EPS, testPacket);
 	ASSERT_TRUE(success);
@@ -127,13 +127,13 @@ TEST(TestFSWPacket, testPacketLog){
 	delete testPacket;
 }
 
-TEST(TestFSWPacket, testPacketProcess){
+TEST(TestACPPacket, testPacketProcess){
 	uint8 * testBuf;
 	testBuf = (uint8 *) malloc(18);
 
 	createMessageBuffer(testBuf, 18);
 
-	FSWPacket * testPacket = new FSWPacket(testBuf, 18);
+	ACPPacket * testPacket = new ACPPacket(testBuf, 18);
 
 	AllStar::Servers::PacketProcess(SERVER_LOCATION_EPS, testPacket);
 

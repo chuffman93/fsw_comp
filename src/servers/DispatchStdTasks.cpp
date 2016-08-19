@@ -11,11 +11,6 @@
 #include "core/Arbitrator.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
-#include "core/ReturnMessage.h"
-#include "core/CommandMessage.h"
-#include "core/DataMessage.h"
-#include "core/ErrorMessage.h"
-#include "core/ConfigMessage.h"
 
 #include "util/FileHandler.h"
 #include "util/Logger.h"
@@ -27,20 +22,20 @@ using namespace AllStar::Core;
 namespace AllStar{
 namespace Servers{
 
-FSWPacket * DispatchPacket(FSWPacket * query)
+ACPPacket * DispatchPacket(ACPPacket * query)
 {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("DispatchStdTasks: DispatchPacket() Called with FSWPacket", LOGGER_LEVEL_DEBUG);
+	logger->Log("DispatchStdTasks: DispatchPacket() Called with ACPPacket", LOGGER_LEVEL_DEBUG);
 
 	//check inputs
-	LocationIDType source = query->GetSource();
-	LocationIDType destination = query->GetDestination();
+	LocationIDType source = query->getSource();
+	LocationIDType destination = query->getDestination();
 
 	if(source < HARDWARE_LOCATION_MIN || source >= SERVER_LOCATION_MAX
 		|| destination < HARDWARE_LOCATION_MIN || destination >= SERVER_LOCATION_MAX)
 	{
 		logger->Log("DispatcherStdTasks: DispatchPacket(): invalid src/dest!", LOGGER_LEVEL_ERROR);
-		FSWPacket * ret = new FSWPacket(PACKET_FORMAT_FAIL, false, false, MESSAGE_TYPE_ERROR);
+		ACPPacket * ret = new ACPPacket(PACKET_FORMAT_FAIL);
 		delete query;
 		return ret;
 	}
@@ -49,25 +44,25 @@ FSWPacket * DispatchPacket(FSWPacket * query)
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 
 	//grab and increment the packet number
-	query->SetNumber(dispatcher->packetNumber++);
+	query->setPacketID(dispatcher->packetNumber++);
 
 	//Dispatch packet, if it fails return DISPATCH_FAILED
 	if(!dispatcher->Dispatch(*query))
 	{
 		logger->Log("DispatchStdTasks: Failed to dispatch packet\n", LOGGER_LEVEL_WARN);
-		FSWPacket * ret = new FSWPacket(DISPATCH_FAILED, false, false, MESSAGE_TYPE_ERROR);
+		ACPPacket * ret = new ACPPacket(DISPATCH_FAILED);
 		delete query;
 		return ret;
 	}
 
 	DispatcherStatusEnum stat;
-	FSWPacket * response;
+	ACPPacket * response;
 	//Wait for return message, if it fails return status response from dispatcher
 	logger->Log("DispatchStdTasks: Waiting for return message\n", LOGGER_LEVEL_DEBUG);
 	if(DISPATCHER_STATUS_OK != (stat = WaitForDispatchResponse(*query, &response)))
 	{
 		logger->Log("DispatchStdTasks: Did not receive response\n", LOGGER_LEVEL_WARN);
-		FSWPacket * ret = new FSWPacket(DISPATCHER_STATUS_ERR, false, false, MESSAGE_TYPE_ERROR);
+		ACPPacket * ret = new ACPPacket(DISPATCHER_STATUS_ERR);
 		delete query;
 		return ret;
 	}
@@ -81,13 +76,13 @@ FSWPacket * DispatchPacket(FSWPacket * query)
 bool Listen(LocationIDType serverID){
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 	MessageHandlerRegistry * registry;
-	FSWPacket * packet;
-	FSWPacket tmpPacket;
+	ACPPacket * packet;
+	ACPPacket tmpPacket;
 
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log("DispatchStdTasks: Listen() called with serverID: %u", serverID, LOGGER_LEVEL_SUPER_DEBUG);
 
-	tmpPacket.SetSource(serverID); // temp packet to check for response
+	tmpPacket.setSource(serverID); // temp packet to check for response
 
 	if (!dispatcher->CheckQueueForMatchingPacket(tmpPacket, packet, dispatcher->CHECK_DEST_SOURCE)){
 		logger->Log("   DispatchStdTasks: Listen(): No packets have been sent to this server.", LOGGER_LEVEL_SUPER_DEBUG);
@@ -102,13 +97,12 @@ bool Listen(LocationIDType serverID){
 
 	logger->Log("   DispatchStdTasks: Listen(): Permissions are correct, invoke the handler, and obtain the resulting message.", LOGGER_LEVEL_DEBUG);
 
-	FSWPacket * retPacket = registry->Invoke(*packet);
+	ACPPacket * retPacket = registry->Invoke(*packet);
 
 	// Create a return packet from the handler response and the original query
-	FSWPacket * ret = new FSWPacket(packet->GetDestination(), packet->GetSource(), retPacket->GetOpcode(),
-			retPacket->IsSuccess(), true, retPacket->GetType(), retPacket->GetMessageLength(),
-			retPacket->GetMessageBufPtr());
-	ret->SetNumber(packet->GetNumber());
+	ACPPacket * ret = new ACPPacket(packet->getDestination(), packet->getSource(), retPacket->getOpcode(),
+			retPacket->getLength(), retPacket->getMessageBuff());
+	ret->setPacketID(packet->getPacketID());
 
 	// FIXME: make sure this doesn't cause a memory leak!
 	delete retPacket;
@@ -127,15 +121,15 @@ bool Listen(LocationIDType serverID){
 	return sendSuccess;
 }
 
-void PacketProcess(LocationIDType id, AllStar::Core::FSWPacket * retPacket)
+void PacketProcess(LocationIDType id, AllStar::Core::ACPPacket * retPacket)
 {
 	FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log("DispatchStdTasks: PacketProcess() called", LOGGER_LEVEL_DEBUG);
 
 	// Get packet info
-	bool success = retPacket->IsSuccess();
-	MessageCodeType retOpcode = retPacket->GetOpcode();
+	MessageCodeType retOpcode = retPacket->getOpcode();
+	bool success = (retOpcode > 199) ^ (retOpcode < 100);
 
 	// Check if error message
 	if(!success)
@@ -164,12 +158,12 @@ void PacketProcess(LocationIDType id, AllStar::Core::FSWPacket * retPacket)
 			}
 
 			DispatcherStatusEnum stat;
-			FSWPacket * responsePacket;
+			ACPPacket * responsePacket;
 			//Wait for return message, if it fails return status response from dispatcher
 			if(DISPATCHER_STATUS_OK != (stat = WaitForDispatchResponse(*retPacket, &responsePacket)))
 			{
 				logger->Log("DispatchStdTasks: no response from error octopus (NOTE: check ERRServer Handler return)", LOGGER_LEVEL_ERROR);
-				FSWPacket * ret = new FSWPacket(DISPATCH_FAILED, false, false, MESSAGE_TYPE_ERROR);
+				ACPPacket * ret = new ACPPacket(DISPATCH_FAILED);
 				PacketProcess(id, ret);
 				delete retPacket;
 				return;
@@ -224,19 +218,19 @@ void PacketProcess(LocationIDType id, AllStar::Core::FSWPacket * retPacket)
 	delete retPacket;
 }
 
-DispatcherStatusEnum WaitForDispatchResponse(const FSWPacket & packet, FSWPacket ** retPacketin)
+DispatcherStatusEnum WaitForDispatchResponse(const ACPPacket & packet, ACPPacket ** retPacketin)
 {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 	size_t i;
-	FSWPacket * retPacket;
+	ACPPacket * retPacket;
 	logger->Log("    Dispatcher: WaitForDispatchResponse() called", LOGGER_LEVEL_DEBUG);
 	logger->Log("    Dispatcher: Checking queue for matching packet", LOGGER_LEVEL_DEBUG);
 	for (i = 0; i < 50; ++i)
 	{
 		if (dispatcher->CheckQueueForMatchingPacket(packet, retPacket, dispatcher->CHECK_MATCHING_RESPONSE))
 		{
-			logger->Log("    Dispatcher: WaitForDispatchResponse(): Matching FSWPacket found.", LOGGER_LEVEL_DEBUG);
+			logger->Log("    Dispatcher: WaitForDispatchResponse(): Matching ACPPacket found.", LOGGER_LEVEL_DEBUG);
 
 			*retPacketin = retPacket;
 			return DISPATCHER_STATUS_OK;

@@ -13,7 +13,7 @@
 #include "gtest/gtest.h"
 
 #include "core/VariableTypeData.h"
-#include "core/FSWPacket.h"
+#include "core/ACPPacket.h"
 #include "core/CommandMessage.h"
 
 using namespace std;
@@ -21,14 +21,14 @@ using namespace AllStar::Core;
 
 TEST(TestVariableTypeData, PacketConstructor) {
 	CommandMessage cmd(1);
-	FSWPacket packet(1, 2, 0, 0, &cmd);
+	ACPPacket packet(1, 2, 0, 0, &cmd);
 	VariableTypeData v1(packet);
 
 	if (v1.GetType() != VAR_TYPE_ENUM_PACKET) {
 		ASSERT_TRUE(false);
 	}
 
-	if (!(*((FSWPacket *) v1.GetData()) == packet)) {
+	if (!(*((ACPPacket *) v1.GetData()) == packet)) {
 		ASSERT_TRUE(false);
 	}
 }

@@ -5,839 +5,264 @@
  *      Author: Admin
  */
 
-#include <list>
-
 #include "core/StdTypes.h"
-#include "core/CommandMessage.h"
-#include "core/ErrorMessage.h"
 #include "core/ModeManager.h"
-#include "core/Message.h"
-#include "core/ReturnMessage.h"
 #include "core/Dispatcher.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
-
-
-
 #include "servers/ErrorStdTasks.h"
 #include "servers/DispatchStdTasks.h"
 #include "servers/EPSStdTasks.h"
-
 #include "HAL/Power.h"
 #include "HAL/Interrupt.h"
-
 #include "util/FileHandler.h"
+#include "util/Logger.h"
+#include <list>
 
 using namespace std;
 using namespace AllStar::Core;
 using namespace AllStar::HAL;
 
+namespace AllStar{
+namespace Servers{
 
-namespace AllStar
+void EPSError(int opcode, ACPPacket * packet){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
+
+	// File handler error
+	if((opcode >= FILE_HANDLER_ERR_START) && (opcode <= FILE_HANDLER_ERR_END))
+	{
+		FileHandlerError(opcode, packet);
+	}
+
+	switch(opcode){
+	case EPS_HS_FAILURE: //Health and Status request failure
+		if(!fileHandler->Log(SUBSYSTEM_EPS, packet)){/*do something?*/}
+		break;
+	case EPS_POWER_CYCLE_FAILURE: //power cycle request failure
+		if(!fileHandler->Log(SUBSYSTEM_EPS, packet)){/*do something?*/}
+		break;
+	default:
+		logger->Log("EPSError: Unknown error encountered!", LOGGER_LEVEL_WARN);
+		if(!fileHandler->Log(SUBSYSTEM_EPS, packet)){/*do something?*/}
+		break;
+	}
+}
+
+void COMError(int opcode, ACPPacket * packet){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
+
+	// File handler error
+	if((opcode >= FILE_HANDLER_ERR_START) && (opcode <= FILE_HANDLER_ERR_END)){
+		FileHandlerError(opcode, packet);
+	}
+
+	switch(opcode)
+	{
+	case COM_HS_FAILURE: //Health and Status request failure
+		if(!fileHandler->Log(SUBSYSTEM_COM, packet)){/*do something?*/}
+		break;
+	default:
+		logger->Log("COMError: Unknown error encountered!", LOGGER_LEVEL_WARN);
+		if(!fileHandler->Log(SUBSYSTEM_COM, packet)){/*do something?*/}
+		break;
+	}
+}
+
+void PLDError(int opcode, ACPPacket * packet){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
+
+	// File handler error
+	if((opcode >= FILE_HANDLER_ERR_START) && (opcode <= FILE_HANDLER_ERR_END)){
+		FileHandlerError(opcode, packet);
+	}
+
+	switch(opcode){
+	default:
+		logger->Log("PLDError: Unknown error encountered!", LOGGER_LEVEL_WARN);
+		if(!fileHandler->Log(SUBSYSTEM_PLD, packet)){/*do something?*/}
+		break;
+	}
+}
+
+void ACSError(int opcode, ACPPacket * packet){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
+
+	// File handler error
+	if((opcode >= FILE_HANDLER_ERR_START) && (opcode <= FILE_HANDLER_ERR_END)){
+		FileHandlerError(opcode, packet);
+	}
+
+	switch(opcode){
+	default:
+		logger->Log("ACSError: Unknown error encountered!", LOGGER_LEVEL_WARN);
+		if(!fileHandler->Log(SUBSYSTEM_ACS, packet)){/*do something?*/}
+		break;
+	}
+}
+
+void SCHError(int opcode, ACPPacket * packet)
 {
-    namespace Servers
-    {
-		void EPSError(int opcode, FSWPacket * packet)
+	// File handler error
+	if((opcode >= FILE_HANDLER_ERR_START) && (opcode <= FILE_HANDLER_ERR_END))
+	{
+		FileHandlerError(opcode, packet);
+	}
+
+	FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
+
+	switch(opcode)
+	{
+	case SCH_BUILD_SCHEDULE_FAILURE: //Health and Status request failure
+		if(!fileHandler->Log(SUBSYSTEM_SCH, packet))
 		{
-			// File handler error
-			if((opcode >= FILE_HANDLER_ERR_START) && (opcode <= FILE_HANDLER_ERR_END))
-			{
-				FileHandlerError(opcode, packet);
-			}
-
-			FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
-			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-			
-			switch(opcode)
-			{
-				case EPS_HS_FAILURE: //Health and Status request failure
-					if(!fileHandler->Log(SUBSYSTEM_EPS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case EPS_SOC_FAILURE: //State of Charge request failure
-					if(!fileHandler->Log(SUBSYSTEM_EPS, packet))
-					{
-						// write to error log
-					}
-					break;
-
-				case EPS_POWER_CYCLE_FAILURE: //power cycle request failure
-					if(!fileHandler->Log(SUBSYSTEM_EPS, packet))
-					{
-						// write to error log
-					}
-					break;
-				case EPS_DISABLE_OC_PROT_FAILURE: //Disable overcurrent protection failure
-					if(!fileHandler->Log(SUBSYSTEM_EPS, packet))
-					{
-						// write to error log
-					}
-					break;
-				case EPS_ENABLE_OC_PROT_FAILURE: //Enable overcurrent protection failure
-					if(!fileHandler->Log(SUBSYSTEM_EPS, packet))
-					{
-						// write to error log
-					}
-					break;
-				case EPS_OVERCURRENT_ERR: //Over-current rail trip
-					if(!fileHandler->Log(SUBSYSTEM_EPS, packet))
-					{
-						// write to error log
-					}
-					break;
-				case EPS_OVERVOLTAGE_ERR: //Over-voltage
-					if(!fileHandler->Log(SUBSYSTEM_EPS, packet))
-					{
-						// write to error log
-					}
-					break;
-				case EPS_LOW_VOLTAGE_ERR: //Low voltage
-					if(!fileHandler->Log(SUBSYSTEM_EPS, packet))
-					{
-						// write to error log
-					}
-					break;
-				case EPS_HIGH_TEMP_ERR: //High temperature
-					if(!fileHandler->Log(SUBSYSTEM_EPS, packet))
-					{
-						// write to error log
-					}
-					break;
-				case EPS_LOW_TEMP_ERR: //Low temperature
-					if(!fileHandler->Log(SUBSYSTEM_EPS, packet))
-					{
-						// write to error log
-					}
-					break;
-				case EPS_BATMAN_NO_ARRAY: //batshit
-					if(!fileHandler->Log(SUBSYSTEM_EPS, packet))
-					{
-						// write to error log
-					}
-					break;
-				default:
-					cout<<"ErrorStdTasks: EPSError: Unknown error encountered!"<<endl;
-					//PANIC!
-					if(!fileHandler->Log(SUBSYSTEM_EPS, packet))
-					{
-						// write to error log
-						cout<<"ErrorStdTasks: EPSError: Unknown error encountered!"<<endl;
-					}
-					break;
-			}
+			// write to error log
 		}
 
-		void COMError(int opcode, FSWPacket * packet)
+		break;
+
+	case SCH_BUILD_PLD_SCHEDULE_FAILURE: //Health and Status request failure
+		if(!fileHandler->Log(SUBSYSTEM_SCH, packet))
 		{
-			// File handler error
-			if((opcode >= FILE_HANDLER_ERR_START) && (opcode <= FILE_HANDLER_ERR_END))
-			{
-				FileHandlerError(opcode, packet);
-			}
-
-			FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
-			
-			switch(opcode)
-			{
-				case COM_HS_FAILURE: //Health and Status request failure
-					if(!fileHandler->Log(SUBSYSTEM_COM, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case COM_BEACON_FAILURE: //Beacon request failure
-					if(!fileHandler->Log(SUBSYSTEM_COM, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case COM_DATA_SEND_FAILURE: //Beacon rate request failure
-					if(!fileHandler->Log(SUBSYSTEM_COM, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case COM_LOGOUT_FAILURE: //Log out failure
-					if(!fileHandler->Log(SUBSYSTEM_COM, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case COM_LOGIN_FAILURE: //Kermit packet send request failure
-					if(!fileHandler->Log(SUBSYSTEM_COM, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case COM_RESET_FAILURE: //File downlink command failure
-					if(!fileHandler->Log(SUBSYSTEM_COM, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case COM_DATA_RECEIVE_FAILURE: //File uplink command failure
-					if(!fileHandler->Log(SUBSYSTEM_COM, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case COM_GND_LOGGED_OUT_FAILURE: //Ground logged out failure
-					if(!fileHandler->Log(SUBSYSTEM_COM, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case COM_CONNECTION_LOST_FAILURE: //Connection lost failure
-					if(!fileHandler->Log(SUBSYSTEM_COM, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case COM_PASSWORD_REFUSED_FAILURE: //Password refused failure
-					if(!fileHandler->Log(SUBSYSTEM_COM, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				default :
-					cout<<"ErrorStdTasks: COMError: Unknown error encountered!"<<endl;
-					//panic!
-					if(!fileHandler->Log(SUBSYSTEM_COM, packet))
-					{
-						// write to error log
-					}
-					break;
-			}
+			// write to error log
 		}
 
-		void PLDError(int opcode, FSWPacket * packet)
-		{
-			// File handler error
-			if((opcode >= FILE_HANDLER_ERR_START) && (opcode <= FILE_HANDLER_ERR_END))
-			{
-				//FileHandlerError(opcode, dataMessage);
-			}
-			ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));		
-			FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
-			
-			switch(opcode)
-			{
+		break;
 
-					break;
-				default :
-					// Panic
-					cout<<"ErrorStdTasks: PLDError: Unknown error encountered!"<<endl;
-					if(!fileHandler->Log(SUBSYSTEM_PLD, packet))
-					{
-						// write to error log
-					}
-					break;
-			}
+	case SCH_RUN_SCHEDULE_FAILURE: //Health and Status request failure
+		if(!fileHandler->Log(SUBSYSTEM_SCH, packet))
+		{
+			// write to error log
 		}
 
-		void ACSError(int opcode, FSWPacket * packet)
+		break;
+	case SCH_DEFAULT_RANGE_FAILURE:
+		if(!fileHandler->Log(SUBSYSTEM_SCH, packet))
 		{
-			// File handler error
-			if((opcode >= FILE_HANDLER_ERR_START) && (opcode <= FILE_HANDLER_ERR_END))
-			{
-				//FileHandlerError(opcode, dataMessage);
-			}
-
-			FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
-			
-			switch(opcode)
-			{
-
-				// Error returns from ACS to CDH-------------------------------------------------
-				case ACS_HS_FAILURE: //Health and Status request failure
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_STATE_FAILURE: //Current state request failure
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_RAW_ADC_FAILURE: //RAW ADC request failure
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_ATTITUDE_ERROR_REQUEST_FAILURE: //Distance from required attitude failure
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_POINT_MRP_VECTOR_FAILURE: //MRP point request failure
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_POINT_GND_VECTOR_FAILURE: //Ground station point request failure
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_REQUEST_MRP_VECTOR_FAILURE: //MRP point request failure
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_REQUEST_GND_VECTOR_FAILURE: //Ground station point request failure
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_SUNSOAK_FAILURE: //Sunsoak vector request failure
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_POINT_NADIR_FAILURE: //Point NADAR failure
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_SET_TARGET_FAILURE: //Set target request
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_RANGE_TO_TARGET_FAILURE: //Range request
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_HOLD_FAILURE: //Hold request failure
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_DISABLE_FAILURE: //MRP vector failure
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_RESET_FAILURE: //Ground vector failure
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_GPS_FAILURE: //GPS failure
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_STARCAMERA_LAST_LOCK_FAILURE:
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_POINT_COM_GND_FAILURE:
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_FUNCTIONAL_TEST_FAILURE:
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_FUNCTIONAL_TEST_COMPLETE_FAILURE:
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-
-
-				// Configuration Returns from ACS to CDH----------------------------------------
-				case ACS_CTRL_ORIENT_FAILURE:
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_MOI_WHEELS_FAILURE:
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_MOI_SAT_FAILURE:
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_COEFF_TORQUER_FAILURE:
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_ORBIT_EPHEM_FAILURE:
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_CTRL_LAW_GAINS_FAILURE:
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_CTRL_LAW_FREQ_FAILURE:
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_STARCAMERA_SETTINGS_FAILURE:
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_UPDATE_ROTATION_MODE_FAILURE:
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_NOTCH_FILTER_FAILURE:
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_GPS_LEAP_SEC_FAILURE:
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_GYRO_ZRV_FAILURE:
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_DEGAUSS_FAILURE:
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_UPDATE_GND_STATION_COORDS_FAILURE:
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_GYRO_BIAS_FAILURE:
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-
-				// Errors generated on ACS sent to CDH-----------------------------------------
-				case ACS_GYRO_STUCK_ERR: //Gyroscope stuck
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_NO_MOTOR_RESP_ERR: //Motor not responding
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_CAMERA_SATURATED_ERR: //Starcamera saturation
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_MAG_STUCK_ERR: //Magnetometer stuck
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case ACS_ATTITUDE_NOT_CONVERGE_ERR: //Attitude not converging
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				default :
-					cout<<"ErrorStdTasks: ACSError: Unknown error encountered!"<<endl;
-					//Cry a little bit
-					if(!fileHandler->Log(SUBSYSTEM_ACS, packet))
-					{
-						// write to error log
-					}
-					break;
-			}
+			// write to error log
 		}
 
-		void GPSError(int opcode, FSWPacket * packet)
+		break;
+	default:
+		cout<<"ErrorStdTasks: SCHError: Unknown error encountered!"<<endl;
+		if(!fileHandler->Log(SUBSYSTEM_SCH, packet))
 		{
-			// File handler error
-			if((opcode >= FILE_HANDLER_ERR_START) && (opcode <= FILE_HANDLER_ERR_END))
-			{
-				//FileHandlerError(opcode, dataMessage);
-			}
-
-			FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
-
-			switch(opcode)
-			{
-				case GPS_HS_FAILURE: //Health and Status request failure
-					if(!fileHandler->Log(SUBSYSTEM_GPS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case GPS_TIME_FAILURE: //Time request failure
-					if(!fileHandler->Log(SUBSYSTEM_GPS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case GPS_POSITION_FAILURE: //Position request failure
-					if(!fileHandler->Log(SUBSYSTEM_GPS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case GPS_RESET_FAILURE: //Position request failure
-					if(!fileHandler->Log(SUBSYSTEM_GPS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case GPS_INSUFFICIENT_SATELLITES: //Insufficient satellites
-					if(!fileHandler->Log(SUBSYSTEM_GPS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case GPS_INACURATE_DATA: //Inaccurate data
-					if(!fileHandler->Log(SUBSYSTEM_GPS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				default :
-					cout<<"ErrorStdTasks: GPSError: Unknown error encountered!"<<endl;
-					if(!fileHandler->Log(SUBSYSTEM_GPS, packet))
-					{
-						// write to error log
-					}
-
-					break;
-			}
-		}
-		
-		void SCHError(int opcode, FSWPacket * packet)
-		{
-			// File handler error
-			if((opcode >= FILE_HANDLER_ERR_START) && (opcode <= FILE_HANDLER_ERR_END))
-			{
-				FileHandlerError(opcode, packet);
-			}
-
-			FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
-
-			switch(opcode)
-			{
-				case SCH_BUILD_SCHEDULE_FAILURE: //Health and Status request failure
-					if(!fileHandler->Log(SUBSYSTEM_SCH, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				
-				case SCH_BUILD_PLD_SCHEDULE_FAILURE: //Health and Status request failure
-					if(!fileHandler->Log(SUBSYSTEM_SCH, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				
-				case SCH_RUN_SCHEDULE_FAILURE: //Health and Status request failure
-					if(!fileHandler->Log(SUBSYSTEM_SCH, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				case SCH_DEFAULT_RANGE_FAILURE:
-					if(!fileHandler->Log(SUBSYSTEM_SCH, packet))
-					{
-						// write to error log
-					}
-
-					break;
-				default:
-					cout<<"ErrorStdTasks: SCHError: Unknown error encountered!"<<endl;
-					if(!fileHandler->Log(SUBSYSTEM_SCH, packet))
-					{
-						// write to error log
-					}
-
-					break;
-			}
+			// write to error log
 		}
 
-		void CMDError(int opcode, FSWPacket * packet)
-				{
-					// File handler error
-					if((opcode >= FILE_HANDLER_ERR_START) && (opcode <= FILE_HANDLER_ERR_END))
-					{
-						FileHandlerError(opcode, packet);
-					}
+		break;
+	}
+}
 
-					FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
+void CMDError(int opcode, ACPPacket * packet)
+{
+	// File handler error
+	if((opcode >= FILE_HANDLER_ERR_START) && (opcode <= FILE_HANDLER_ERR_END))
+	{
+		FileHandlerError(opcode, packet);
+	}
 
-					switch(opcode)
-					{
-						case CMD_ACP_SWITCH_BAD_SUBSYS: //Bad Subsystem Index, ACP Switch Failure
-							if(!fileHandler->Log(SUBSYSTEM_CMD, packet))
-							{
-								// write to error log
-							}
+	FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
 
-							break;
-						case CMD_ACP_SWITCH_BAD_PROTOCOL: //Bad Protocol Index, ACP Switch Failure
-							if(!fileHandler->Log(SUBSYSTEM_CMD, packet))
-							{
-								// write to error log
-							}
-							break;
-						case CMD_ACP_SWITCH_FAILURE: //ACP Switch Failure upon packet extraction
-							if(!fileHandler->Log(SUBSYSTEM_CMD, packet))
-							{
-								// write to error log
-							}
-							break;
-						default:
-							cout<<"ErrorStdTasks: CMDError: Unknown error encountered!"<<endl;
-							if(!fileHandler->Log(SUBSYSTEM_CMD, packet))
-							{
-								// write to error log
-							}
-							break;
-					}
-				}
-
-		void CDHError(int opcode, FSWPacket * packet)
-				{
-					// File handler error
-					if((opcode >= CDH_CMD_ERROR_MIN) && (opcode <= CDH_CMD_ERROR_MAX))
-					{
-						FileHandlerError(opcode, packet);
-					}
-
-					FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
-
-					switch(opcode)
-					{
-						case CDH_CPU_USAGE_FAILURE: //Bad Subsystem Index, ACP Switch Failure
-							if(!fileHandler->Log(SYSTEM_CDH, packet))
-							{
-								// write to error log
-							}
-
-							break;
-						case CDH_MEM_USAGE_FAILURE:
-							if(!fileHandler->Log(SYSTEM_CDH, packet))
-							{
-								// write to error log
-							}
-							break;
-						case CDH_STORAGE_FAILURE:
-							if(!fileHandler->Log(SYSTEM_CDH, packet))
-							{
-								// write to error log
-							}
-							break;
-						case CDH_TEMP_START_FAILURE:
-							if(!fileHandler->Log(SYSTEM_CDH, packet))
-							{
-								// write to error log
-							}
-							break;
-						case CDH_TEMP_READ_FAILURE:
-							if(!fileHandler->Log(SYSTEM_CDH, packet))
-							{
-								// write to error log
-							}
-							break;
-						case CDH_HOT_SWAPS_FAILURE:
-							if(!fileHandler->Log(SYSTEM_CDH, packet))
-							{
-								// write to error log
-							}
-							break;
-						default:
-							cout<<"ErrorStdTasks: CDHError: Unknown error encountered!"<<endl;
-							if(!fileHandler->Log(SYSTEM_CDH, packet))
-							{
-								// write to error log
-							}
-							break;
-					}
-				}
-
-		void FileHandlerError(int opcode, FSWPacket * packet)
+	switch(opcode)
+	{
+	case CMD_ACP_SWITCH_BAD_SUBSYS: //Bad Subsystem Index, ACP Switch Failure
+		if(!fileHandler->Log(SUBSYSTEM_CMD, packet))
 		{
-			// Don't write to error log
-			// This is a writing error!
-
-			cout<<'ErrorStdTasks(): FileHandler Error!'<<endl;
-
+			// write to error log
 		}
 
-		bool SendEPSReset()
+		break;
+	case CMD_ACP_SWITCH_BAD_PROTOCOL: //Bad Protocol Index, ACP Switch Failure
+		if(!fileHandler->Log(SUBSYSTEM_CMD, packet))
 		{
-//			// Send message to subsystem server to reset subsystem hardware.
-//			ReturnMessage * ret = DispatchPacket(SERVER_LOCATION_ERR, SERVER_LOCATION_EPS, 1, 0, MESSAGE_TYPE_COMMAND, EPS_POWER_CYCLE_CMD);
-//			if(ret->GetSuccess() == true)
-//			{
-//				return true;
-//			}
-//			return false;
+			// write to error log
+		}
+		break;
+	case CMD_ACP_SWITCH_FAILURE: //ACP Switch Failure upon packet extraction
+		if(!fileHandler->Log(SUBSYSTEM_CMD, packet))
+		{
+			// write to error log
+		}
+		break;
+	default:
+		cout<<"ErrorStdTasks: CMDError: Unknown error encountered!"<<endl;
+		if(!fileHandler->Log(SUBSYSTEM_CMD, packet))
+		{
+			// write to error log
+		}
+		break;
+	}
+}
+
+void CDHError(int opcode, ACPPacket * packet)
+{
+	// File handler error
+	if((opcode >= CDH_CMD_ERROR_MIN) && (opcode <= CDH_CMD_ERROR_MAX))
+	{
+		FileHandlerError(opcode, packet);
+	}
+
+	FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
+
+	switch(opcode)
+	{
+	case CDH_CPU_USAGE_FAILURE: //Bad Subsystem Index, ACP Switch Failure
+		if(!fileHandler->Log(SYSTEM_CDH, packet))
+		{
+			// write to error log
 		}
 
-		bool SendCOMReset()
+		break;
+	case CDH_MEM_USAGE_FAILURE:
+		if(!fileHandler->Log(SYSTEM_CDH, packet))
 		{
-//			// Send message to subsystem server to reset subsystem hardware.
-//			ReturnMessage * ret = DispatchPacket(SERVER_LOCATION_ERR, SERVER_LOCATION_COM, 1, 0, MESSAGE_TYPE_COMMAND, COM_RESET_CMD);
-//			if(ret->GetSuccess() == true)
-//			{
-//				return true;
-//			}
-//			return false;
+			// write to error log
 		}
+		break;
+	case CDH_STORAGE_FAILURE:
+		if(!fileHandler->Log(SYSTEM_CDH, packet))
+		{
+			// write to error log
+		}
+		break;
+	case CDH_TEMP_START_FAILURE:
+		if(!fileHandler->Log(SYSTEM_CDH, packet))
+		{
+			// write to error log
+		}
+		break;
+	case CDH_TEMP_READ_FAILURE:
+		if(!fileHandler->Log(SYSTEM_CDH, packet))
+		{
+			// write to error log
+		}
+		break;
+	case CDH_HOT_SWAPS_FAILURE:
+		if(!fileHandler->Log(SYSTEM_CDH, packet))
+		{
+			// write to error log
+		}
+		break;
+	default:
+		cout<<"ErrorStdTasks: CDHError: Unknown error encountered!"<<endl;
+		if(!fileHandler->Log(SYSTEM_CDH, packet))
+		{
+			// write to error log
+		}
+		break;
+	}
+}
 
-		bool SendPLDReset()
-		{
-			// Send message to subsystem server to reset subsystem hardware.
-			//ReturnMessage * ret = DispatchPacket(SERVER_LOCATION_ERR, SERVER_LOCATION_PLD, 1, 0, MESSAGE_TYPE_COMMAND, PLD_RESET_CMD);
-//			if(ret->GetSuccess() == true)
-//			{
-//				return true;
-//			}
-//			return false;
-		}
+void FileHandlerError(int opcode, ACPPacket * packet){
+	// Don't write to error log
+	// This is a writing error!
+	cout<<'ErrorStdTasks(): FileHandler Error!'<<endl;
+}
 
-		bool SendACSReset()
-		{
-//			// Send message to subsystem server to reset subsystem hardware.
-//			ReturnMessage * ret = DispatchPacket(SERVER_LOCATION_ERR, SERVER_LOCATION_ACS, 1, 0, MESSAGE_TYPE_COMMAND, ACS_RESET_CMD);
-//			if(ret->GetSuccess() == true)
-//			{
-//				return true;
-//			}
-//			return false;
-		}
-
-		bool SendGPSReset()
-		{
-//			// Send message to subsystem server to reset subsystem hardware.
-//			ReturnMessage * ret = DispatchPacket(SERVER_LOCATION_ERR, SERVER_LOCATION_GPS, 1, 0, MESSAGE_TYPE_COMMAND, GPS_RESET_CMD);
-//			if(ret->GetSuccess() == true)
-//			{
-//				return true;
-//			}
-//			return false;
-		}
-    }
+}
 }

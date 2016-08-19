@@ -1,6 +1,7 @@
 #ifndef INC_POSIX_H_
 #define INC_POSIX_H_
 
+#include "core/ACPPacket.h"
 
 #include <time.h>
 #include <semaphore.h>
@@ -15,7 +16,6 @@
 #include <stdint.h>
 #include <sys/time.h>
 #include <sys/resource.h>
-#include "core/CommandMessage.h"
 #include "iostream"
 #include <errno.h>
 
@@ -33,7 +33,7 @@ namespace Core{
 //FIXME
 #define MAX_BLOCK_TIME 7
 #define QUEUE_LENGTH 32
-#define MAX_MESSAGE_SIZE sizeof(AllStar::Core::FSWPacket *)
+#define MAX_MESSAGE_SIZE sizeof(AllStar::Core::ACPPacket *)
 #define QUEUE_PERMISSIONS 0644
 #define MSG_PRIO 0
 
@@ -49,11 +49,11 @@ size_t mqCreate(mqd_t * queueHandle, struct mq_attr * queueAttr, char * mqName);
 
 size_t mq_size(mqd_t queueHandle, struct mq_attr queueAttr);
 
-bool mq_timed_send(char * queueName, FSWPacket ** inPacket, size_t sec, uint64_t nSec);
+bool mq_timed_send(char * queueName, ACPPacket ** inPacket, size_t sec, uint64_t nSec);
 
 bool mq_clean(char * queueName);
 
-bool mq_timed_receive(char * queueName, FSWPacket ** packetOut, size_t sec, uint64_t nSec);
+bool mq_timed_receive(char * queueName, ACPPacket ** packetOut, size_t sec, uint64_t nSec);
 
 bool xSemaphoreTake(sem_t *sem);
 

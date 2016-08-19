@@ -1,8 +1,12 @@
 /*
  * EPSStdTasks.cpp
- * Written by: Conrad Hougen
- * Created: 7/10/12
+ *
+ *	Written by: Conrad Hougen
+ * 		Created: 7/10/12
+ *
+ * 	Updated: Alex St. Clair
  */
+
 #include "HAL/RTC.h"
 
 #include "servers/EPSServer.h"
@@ -10,9 +14,6 @@
 #include "servers/DispatchStdTasks.h"
 #include "servers/COMServer.h"
 
-#include "core/ReturnMessage.h"
-#include "core/DataMessage.h"
-#include "core/CommandMessage.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
 
@@ -32,26 +33,26 @@ using namespace AllStar::Servers;
 namespace AllStar{
 namespace Servers{
 
-FSWPacket * EPSHealthStat()
+ACPPacket * EPSHealthStat()
 {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log("EPSStdTasks: unfinished function entered!", LOGGER_LEVEL_FATAL);
 
-	FSWPacket * HSQuery = new FSWPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, EPS_HS_CMD, true, false, MESSAGE_TYPE_COMMAND);
-	FSWPacket * HSRet = DispatchPacket(HSQuery);
+	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, EPS_HS_CMD);
+	ACPPacket * HSRet = DispatchPacket(HSQuery);
 	logger->Log("EPSStdTasks: EPSHealthStat(): packet dispatched, HSRet acquired", LOGGER_LEVEL_INFO);
 	if(HSRet == NULL){
 		logger->Log("EPSStdTasks: Null HSRet", LOGGER_LEVEL_ERROR);
 	}
 
-	if(HSRet->GetMessageLength() != 6*sizeof(uint16)){
+	if(HSRet->getLength() != 6*sizeof(uint16)){
 		logger->Log("EPSStdTasks: EPSHealthStat(): incorrect message length!", LOGGER_LEVEL_WARN);
 
 		//TODO: return error?
 		return HSRet;
 	}else{
 		// Parse buffer
-		uint8 * msgPtr = HSRet->GetMessageBufPtr();
+		uint8 * msgPtr = HSRet->getMessageBuff();
 		if(msgPtr==NULL){
 			//Error
 			return HSRet;
@@ -83,37 +84,17 @@ FSWPacket * EPSHealthStat()
 	}
 }
 
-FSWPacket * EPSPowerCycle()
+ACPPacket * EPSPowerCycle()
 {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	FSWPacket * query = new FSWPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, EPS_POWER_CYCLE_CMD, true, false, MESSAGE_TYPE_COMMAND);
-	FSWPacket * response = DispatchPacket(query);
+	ACPPacket * query = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, EPS_POWER_CYCLE_CMD);
+	ACPPacket * response = DispatchPacket(query);
 
 	usleep(5000000);
 
 	// if we are here then the power cycle likely didn't happen
 	logger->Log("Power didn't cycle!", LOGGER_LEVEL_FATAL);
 	// TODO: add more handling here!
-}
-
-FSWPacket * EPSStateOfCharge()
-{
-	FSWPacket * query = new FSWPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, EPS_SOC_CMD, true, false, MESSAGE_TYPE_COMMAND);
-	return(DispatchPacket(query));
-}
-
-
-FSWPacket * EPSDisableOCProt()
-{
-	FSWPacket * query = new FSWPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, EPS_DISABLE_OC_PROT_CMD, true, false, MESSAGE_TYPE_COMMAND);
-	return(DispatchPacket(query));
-}
-
-
-FSWPacket * EPSEnableOCProt()
-{
-	FSWPacket * query = new FSWPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, EPS_ENABLE_OC_PROT_CMD, true, false, MESSAGE_TYPE_COMMAND);
-	return(DispatchPacket(query));
 }
 
 } // End namespace Servers

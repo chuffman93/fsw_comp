@@ -1,15 +1,18 @@
 /*
- * ETHERNET_Server.h
+ * SPI_Server.h
  *
- *  Created on: Jun 26, 2015
- *      Author: Umang
+ *     Created: March 2016
+ *      Author: Connor Kelleher
+ *     Updated: Robert Belter, Alex St. Clair
  */
+
 #ifndef SPI_SERVER_H_
 #define SPI_SERVER_H_
 
 #include "core/Singleton.h"
 #include "core/Dispatcher.h"
 #include "servers/SubsystemServer.h"
+#include "core/ACPPacket.h"
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/time.h>
@@ -27,21 +30,7 @@
 using namespace std;
 using namespace AllStar::Servers;
 
-
-#define        QLEN        32    /* maximum connection queue length    */
-#define        BUFSIZE        512
-#define     CMDLEN        BUFSIZE
-#define     server_name_len    8
-#define     N_SERVERS    10
-
 #define NUM_SLAVES 4
-
-#define TXD_PACKET_SIG		SIGUSR1
-#define RXD_PACKET_SIG		SIGUSR2
-
-void receivedComplete(int signum);
-void sendComplete(int signum);
-
 
 class SPI_HALServer: public AllStar::Servers::SubsystemServer, public AllStar::Core::Singleton
 {
@@ -63,7 +52,7 @@ class SPI_HALServer: public AllStar::Servers::SubsystemServer, public AllStar::C
 
 		void SubsystemLoop(void);
 
-		bool SPIDispatch(AllStar::Core::FSWPacket & packet);
+		bool SPIDispatch(AllStar::Core::ACPPacket & packet);
 
 	private:
 
@@ -78,8 +67,10 @@ class SPI_HALServer: public AllStar::Servers::SubsystemServer, public AllStar::C
 
 		int get_slave_fd(int subsystem);
 
+		void set_packet_sourcedest(int subsystem, AllStar::Core::ACPPacket * packet);
+
 		BEGIN_STATE_MAP
 		END_STATE_MAP
 };
 
-#endif /* ETHERNET_SERVER_H_ */
+#endif // SPI_SERVER_H_

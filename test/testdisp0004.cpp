@@ -19,10 +19,10 @@ using namespace AllStar::Core;
 class TestMessageHandler : public MessageHandler
 {
 public:
-    ReturnMessage * Handle(const FSWPacket & packet);
+    ReturnMessage * Handle(const ACPPacket & packet);
 } testHandler4;
 
-//ReturnMessage * TestMessageHandler::Handle(const FSWPacket & packet)
+//ReturnMessage * TestMessageHandler::Handle(const ACPPacket & packet)
 //{
 //    CommandMessage msg(0);
 //    ReturnMessage * ret = new ReturnMessage(&msg, true);
@@ -37,7 +37,7 @@ static void * taskTest1(void * parameters)
 		Dispatcher * dispatcher;
 		MessageHandlerRegistry reg;
 		Arbitrator arby(1);
-		FSWPacket * packet;
+		ACPPacket * packet;
 		ReturnMessage retMsg;
 		size_t i;
 		bool ret;
@@ -62,7 +62,7 @@ static void * taskTest1(void * parameters)
 		}
 
 		CommandMessage * cmd = new CommandMessage(0);
-		packet = new FSWPacket(1, 2, 0, 0, cmd);
+		packet = new ACPPacket(1, 2, 0, 0, cmd);
 		delete cmd;
 
 		cout << "Task 1 Waiting for Synchronization" << endl;
@@ -135,7 +135,7 @@ static void * taskTest2(void * parameters)
 		Dispatcher * dispatcher;
 		MessageHandlerRegistry reg;
 		Arbitrator arby(2);
-		FSWPacket * packet;
+		ACPPacket * packet;
 		ReturnMessage retMsg;
 		size_t i;
 		bool ret;
@@ -160,7 +160,7 @@ static void * taskTest2(void * parameters)
 		}
 
 		CommandMessage * cmd = new CommandMessage(0);
-		packet = new FSWPacket(2, 1, 0, 0, cmd);
+		packet = new ACPPacket(2, 1, 0, 0, cmd);
 		delete cmd;
 
 		cout << "Task 2 Waiting for Synchronization" << endl;

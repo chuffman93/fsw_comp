@@ -2,14 +2,13 @@
  *  \brief Implementation File for the Dispatcher Class
  *
  *  This file contains the implementation of the Dispatcher class, which acts
- *  as the FSWPacket-routing entity in the AllStar architecture.
+ *  as the ACPPacket-routing entity in the AllStar architecture.
  */
 
 #include <utility>
 
 #include "core/Dispatcher.h"
 #include "core/Factory.h"
-#include "core/ErrorMessage.h"
 #include "core/Singleton.h"
 #include "core/WatchdogManager.h"
 #include "util/Logger.h"
@@ -18,7 +17,6 @@
 #include <signal.h>
 #include <fcntl.h>
 #include <string>
-#include "core/CommandMessage.h"
 #include "../src/HAL/Ethernet_Server.h"
 #include "HAL/SPI_Server.h"
 #include "servers/CMDServer.h"
@@ -86,7 +84,7 @@ bool Dispatcher::AddRegistry(LocationIDType serverID,
 		return false;
 	}
 
-	// Get the semaphore.
+	// get the semaphore.
 	if (true == this->TakeLock(MAX_BLOCK_TIME))
 	{
 		// Insert the registry into the map with serverID as the key.
@@ -107,13 +105,13 @@ bool Dispatcher::AddRegistry(LocationIDType serverID,
 	}
 }
 
-bool Dispatcher::Dispatch(FSWPacket & packet)
+bool Dispatcher::Dispatch(ACPPacket & packet)
 {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	if(packet.GetDestination() < HARDWARE_LOCATION_MIN || packet.GetDestination() > SERVER_LOCATION_MAX){
+	if(packet.getDestination() < HARDWARE_LOCATION_MIN || packet.getDestination() > SERVER_LOCATION_MAX){
 		return false;
 	}
-	if(packet.GetDestination() >= HARDWARE_LOCATION_MIN && packet.GetDestination() < HARDWARE_LOCATION_MAX)
+	if(packet.getDestination() >= HARDWARE_LOCATION_MIN && packet.getDestination() < HARDWARE_LOCATION_MAX)
 	{
 		logger->Log("---- Hardware Dispatch ----", LOGGER_LEVEL_DEBUG);
 		uint32_t ret;
@@ -126,10 +124,10 @@ bool Dispatcher::Dispatch(FSWPacket & packet)
 		{
 			logger->Log("Dispatcher: Took lock", LOGGER_LEVEL_DEBUG);
 			size_t numPackets = mq_size(queueHandleRX, queueAttrRX);
-			FSWPacket * tmpPacket;
+			ACPPacket * tmpPacket;
 			try
 			{
-				tmpPacket = new FSWPacket(packet);
+				tmpPacket = new ACPPacket(packet);
 			}
 			catch (bad_alloc & e)
 			{
@@ -163,10 +161,10 @@ bool Dispatcher::Dispatch(FSWPacket & packet)
 	}
 }
 
-bool Dispatcher::CheckQueueForMatchingPacket(const FSWPacket & packetIn, FSWPacket * &packetOut, DispatcherCheckType type)
+bool Dispatcher::CheckQueueForMatchingPacket(const ACPPacket & packetIn, ACPPacket * &packetOut, DispatcherCheckType type)
 {
 	size_t numPackets, i;
-	FSWPacket * tmpPacket;
+	ACPPacket * tmpPacket;
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	PacketCheckFunctionType Check;
 	//logger->Log("Dispatcher: CheckQueueForMatchingPacket(): Called", LOGGER_LEVEL_DEBUG);
@@ -185,7 +183,7 @@ bool Dispatcher::CheckQueueForMatchingPacket(const FSWPacket & packetIn, FSWPack
 			break;
 	}
 
-	// Get the semaphore
+	// get the semaphore
 	if (true == this->TakeLock(MAX_BLOCK_TIME))
 	{
 		// Check for the first message in the queue
@@ -217,10 +215,10 @@ bool Dispatcher::CheckQueueForMatchingPacket(const FSWPacket & packetIn, FSWPack
 				numPackets = mq_size(queueHandleRX, queueAttrRX);
 				logger->Log("Dispatcher: CheckQueueForMatchingPacket(): there are %u more packets", (uint32) numPackets, LOGGER_LEVEL_SUPER_DEBUG);
 
-				// Get each packet and check it against packetIn.
+				// get each packet and check it against packetIn.
 				for (i = 0; i < numPackets; ++i)
 				{
-					// Get the next packet.
+					// get the next packet.
 					//mqd_t tmpqueueHandle = open(queueName, O_RDONLY);
 					if (mq_timed_receive(queueNameRX, &tmpPacket, 0, 0)
 							== false)
@@ -285,7 +283,7 @@ bool Dispatcher::CheckQueueForMatchingPacket(const FSWPacket & packetIn, FSWPack
 	}
 }
 
-MessageHandlerRegistry * Dispatcher::FindHandler(LocationIDType serverID, FSWPacket * packet){
+MessageHandlerRegistry * Dispatcher::FindHandler(LocationIDType serverID, ACPPacket * packet){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	IteratorType it;
 
@@ -320,38 +318,36 @@ MessageHandlerRegistry * Dispatcher::FindHandler(LocationIDType serverID, FSWPac
 
 }
 
-bool Dispatcher::IsPacketMatchingResponse(const FSWPacket & packetIn,
-		const FSWPacket & packetOut) const
+bool Dispatcher::IsPacketMatchingResponse(const ACPPacket & packetIn,
+		const ACPPacket & packetOut) const
 {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("IsPacketMatchingResponse result: %d", ((packetOut.IsResponse())
-			&& (packetOut.GetDestination( ) == packetIn.GetSource( ))
-			&& (packetOut.GetNumber( ) == packetIn.GetNumber( ))), LOGGER_LEVEL_DEBUG);
+	logger->Log("IsPacketMatchingResponse result: %d", ((packetOut.isFromHardware())
+			&& (packetOut.getPacketID( ) == packetIn.getPacketID( ))), LOGGER_LEVEL_DEBUG);
 
-	logger->Log("IsPacketMatchingResponse response result: %d", packetOut.IsResponse(), LOGGER_LEVEL_DEBUG);
-	logger->Log("IsPacketMatchingResponse dest/source: %d", packetOut.GetDestination( ) == packetIn.GetSource( ), LOGGER_LEVEL_DEBUG);
-	logger->Log("IsPacketMatchingResponse number: %d", packetOut.GetNumber( ) == packetIn.GetNumber( ), LOGGER_LEVEL_DEBUG);
+	logger->Log("IsPacketMatchingResponse response result: %d", packetOut.isFromHardware(), LOGGER_LEVEL_DEBUG);
+	logger->Log("IsPacketMatchingResponse source/dest: %d", packetOut.getSource() == packetIn.getDestination(), LOGGER_LEVEL_DEBUG);
+	logger->Log("IsPacketMatchingResponse number: %d", packetOut.getPacketID( ) == packetIn.getPacketID( ), LOGGER_LEVEL_DEBUG);
 
 	// Return true if *packetOut is a response to *packetIn.
-	return ((packetOut.IsResponse())
-			&& (packetOut.GetDestination( ) == packetIn.GetSource( ))
-			&& (packetOut.GetNumber( ) == packetIn.GetNumber( )));
+	return ((packetOut.isFromHardware())
+			&& (packetOut.getSource() == packetIn.getDestination())
+			&& (packetOut.getPacketID() == packetIn.getPacketID()));
 }
 
-bool Dispatcher::IsPacketDestMatchingSource(const FSWPacket & packetIn,
-		const FSWPacket & packetOut) const
+bool Dispatcher::IsPacketDestMatchingSource(const ACPPacket & packetIn,
+		const ACPPacket & packetOut) const
 {
 	// Return true if *packetOut is being sent to the server in
-	// packetIn->GetSource().
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("IsPacketDestMatchingSource() result: %d", ((!packetOut.IsResponse( ))
-					&& (packetOut.GetDestination( ) == packetIn.GetSource( ))), LOGGER_LEVEL_SUPER_DEBUG);
-	return ((!packetOut.IsResponse( ))
-			&& (packetOut.GetDestination( ) == packetIn.GetSource( )));
+	logger->Log("IsPacketDestMatchingSource() result: %d", ((!packetOut.isFromHardware( ))
+					&& (packetOut.getDestination( ) == packetIn.getSource( ))), LOGGER_LEVEL_SUPER_DEBUG);
+	return ((!packetOut.isFromHardware( ))
+			&& (packetOut.getDestination( ) == packetIn.getSource( )));
 }
 
-bool Dispatcher::IsPacketSame(const FSWPacket & packetIn,
-		const FSWPacket & packetOut) const
+bool Dispatcher::IsPacketSame(const ACPPacket & packetIn,
+		const ACPPacket & packetOut) const
 {
 	// Return true if packetIn and packetOut are equivalent.
 	return packetIn == packetOut;
@@ -372,10 +368,10 @@ void * Dispatcher::InvokeHandler(void * parameters)
 	pthread_exit(0);
 }
 
-uint32_t Dispatcher::DispatchToHardware(FSWPacket & packet)
+uint32_t Dispatcher::DispatchToHardware(ACPPacket & packet)
 {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("Dispatcher: DispatchtoHardware() called, packet number: %d", packet.GetNumber(), LOGGER_LEVEL_DEBUG);
+	logger->Log("Dispatcher: DispatchtoHardware() called, packet number: %d", packet.getPacketID(), LOGGER_LEVEL_DEBUG);
 	//todo: add semaphores for locking & real error values
 	size_t packetLength;
 	uint8_t * packetBuffer;
@@ -406,14 +402,14 @@ uint32_t Dispatcher::DispatchToHardware(FSWPacket & packet)
 	}
 	printf("\n");
 
-	// Get the instances for the Ethernet and SPI Servers
+	// get the instances for the Ethernet and SPI Servers
 	ETH_HALServer * eth_server = dynamic_cast<ETH_HALServer *> (Factory::GetInstance(ETH_HALSERVER_SINGLETON));
 	SPI_HALServer * spi_server = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
 	Servers::CMDServer * cmdServer = dynamic_cast<Servers::CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
 
-	protocolChoice = cmdServer->subsystem_acp_protocol[packet.GetDestination()];
+	protocolChoice = cmdServer->subsystem_acp_protocol[packet.getDestination()];
 
-	FSWPacket * txPacket = &packet;
+	ACPPacket * txPacket = &packet;
 	bool sendSuccess = false;
 	size_t numPackets;
 	switch(protocolChoice){

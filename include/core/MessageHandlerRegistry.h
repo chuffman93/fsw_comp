@@ -17,7 +17,6 @@
 
 #include "core/StdTypes.h"
 #include "core/MessageHandler.h"
-#include "core/ReturnMessage.h"
 #include "servers/SubsystemServer.h"
 
 namespace AllStar
@@ -32,7 +31,7 @@ namespace AllStar
             virtual ~MessageHandlerRegistry(void);
             MessageHandlerRegistry & operator=(const MessageHandlerRegistry source);
             bool RegisterHandler(const MessageIdentifierType & key, MessageHandler * handler);
-            FSWPacket * Invoke(const FSWPacket & packet);
+            ACPPacket * Invoke(const ACPPacket & packet);
         private:
             std::map<MessageIdentifierType, MessageHandler *> handlerMap; // Local Mapping
         };

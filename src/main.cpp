@@ -8,7 +8,7 @@
 #include "servers/PLDServer.h"
 #include "servers/CDHServer.h"
 #include "servers/SubsystemServer.h"
-#include "servers/ErrorOctopus.h"
+#include "servers/ERRServer.h"
 #include "servers/ErrorQueue.h"
 #include "servers/DispatchStdTasks.h"
 #include "HAL/Ethernet_Server.h"
@@ -50,23 +50,23 @@ int main(int argc, char * argv[])
 	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
 	COMServer * comServer = dynamic_cast<COMServer *> (Factory::GetInstance(COM_SERVER_SINGLETON));
 	EPSServer * epsServer = dynamic_cast<EPSServer *> (Factory::GetInstance(EPS_SERVER_SINGLETON));
-	ErrorOctopus * errServer = dynamic_cast<ErrorOctopus *> (Factory::GetInstance(ERR_SERVER_SINGLETON));
+	ERRServer * errServer = dynamic_cast<ERRServer *> (Factory::GetInstance(ERR_SERVER_SINGLETON));
 	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 	PLDServer * pldServer = dynamic_cast<PLDServer *> (Factory::GetInstance(PLD_SERVER_SINGLETON));
 	SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
 	SPI_HALServer * spiServer = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
 
 	// ----------------------------- Start Servers -----------------------------------------------------------------
-	threadsCreated &= WatchdogManager::StartServer(acsServer, 100,	false);	//ACS
-	threadsCreated &= WatchdogManager::StartServer(cdhServer, 50,	true);	//CDH
-	threadsCreated &= WatchdogManager::StartServer(cmdServer, 50,	false);	//CMD
-	threadsCreated &= WatchdogManager::StartServer(comServer, 50,	false);	//COM
-	threadsCreated &= WatchdogManager::StartServer(epsServer, 0,	false);	//EPS
-	threadsCreated &= WatchdogManager::StartServer(errServer, 0,	false);	//ERR
-	threadsCreated &= WatchdogManager::StartServer(gpsServer, 50,	false);	//GPS
-	threadsCreated &= WatchdogManager::StartServer(pldServer, 50,	false);	//PLD
-	threadsCreated &= WatchdogManager::StartServer(schServer, 0,	false);	//SCH
-	threadsCreated &= WatchdogManager::StartServer(spiServer, 0,	true);	//SPI
+	threadsCreated &= WatchdogManager::StartServer(acsServer, 100,	false);	 //ACS
+	threadsCreated &= WatchdogManager::StartServer(cdhServer, 50,	true);	 //CDH
+	threadsCreated &= WatchdogManager::StartServer(cmdServer, 50,	false);	 //CMD
+	threadsCreated &= WatchdogManager::StartServer(comServer, 50,	false);	 //COM
+	threadsCreated &= WatchdogManager::StartServer(epsServer, 0,	false);	 //EPS
+	threadsCreated &= WatchdogManager::StartServer(errServer, 0,	false);	 //ERR
+	threadsCreated &= WatchdogManager::StartServer(gpsServer, 50,	false);	 //GPS
+	threadsCreated &= WatchdogManager::StartServer(pldServer, 50,	false);	 //PLD
+	threadsCreated &= WatchdogManager::StartServer(schServer, 0,	false);	 //SCH
+	threadsCreated &= WatchdogManager::StartServer(spiServer, 0,	true);	 //SPI
 
 	if(!threadsCreated){
 		logger->Log("Not all threads were created on startup!", LOGGER_LEVEL_FATAL);
@@ -75,7 +75,8 @@ int main(int argc, char * argv[])
 		logger->Log("All servers created!", LOGGER_LEVEL_INFO);
 	}
 
-	while(true){usleep(10000);}
+	//WatchdogManager::WatchdogManagerTask();
+	while(true){usleep(100000);}
 
 	logger->Log("Flight Software exiting from main! All relevant threads have exited!", LOGGER_LEVEL_FATAL);
 

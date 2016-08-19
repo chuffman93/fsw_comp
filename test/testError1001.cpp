@@ -19,7 +19,7 @@
 #include <sys/sysinfo.h>
 #include <sys/statvfs.h>
 
-#include "servers/ErrorOctopus.h"
+#include "servers/ERRServer.h"
 #include "servers/ErrorStdTasks.h"
 #include "servers/ErrorHandlers.h"
 
@@ -30,7 +30,7 @@ using namespace AllStar::Servers;
 
 void * taskRunERR(void * params)
 {
-	ErrorOctopus * errServer = dynamic_cast<ErrorOctopus *> (Factory::GetInstance(ERR_SERVER_SINGLETON));
+	ERRServer * errServer = dynamic_cast<ERRServer *> (Factory::GetInstance(ERR_SERVER_SINGLETON));
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
@@ -59,7 +59,7 @@ TEST(DISABLED_TestErrorHandling, testLog)
 //		printf("CDH Server Thread Creation Failed\n");
 //	}
 //
-//	ErrorOctopus * errServer = dynamic_cast<ErrorOctopus *>(Factory::GetInstance(ERR_SERVER_SINGLETON));
+//	ERRServer * errServer = dynamic_cast<ERRServer *>(Factory::GetInstance(ERR_SERVER_SINGLETON));
 //	EXPECT_TRUE(!threadCreated);
 //	usleep(5000000);
 //

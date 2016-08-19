@@ -14,7 +14,6 @@
 #include "core/Arbitrator.h"
 #include "core/MessageHandler.h"
 #include "core/Singleton.h"
-#include "core/VariableTypeEnum.h"
 #include "util/ConfigManager.h"
 
 namespace AllStar{

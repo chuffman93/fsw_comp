@@ -21,10 +21,10 @@ using namespace AllStar::Core;
 class Test0011MessageHandler : public MessageHandler
 {
 public:
-    ReturnMessage * Handle(const FSWPacket & packet);
+    ReturnMessage * Handle(const ACPPacket & packet);
 }testHandler11;
 
-ReturnMessage * Test0011MessageHandler::Handle(const FSWPacket & packet)
+ReturnMessage * Test0011MessageHandler::Handle(const ACPPacket & packet)
 {
     if (packet.GetMessagePtr()->GetOpcode() == 0)
     {
@@ -49,7 +49,7 @@ static void * taskTest1(void * parameters)
 {
     {
         Dispatcher * dispatcher;
-        FSWPacket * packet1, * packet2;
+        ACPPacket * packet1, * packet2;
         ReturnMessage retMsg;
         size_t i = 0;
         DispatcherStatusEnum status;
@@ -65,7 +65,7 @@ static void * taskTest1(void * parameters)
 
         CommandMessage * cmd = new CommandMessage(0);
 
-        packet1 = new FSWPacket(1, 2, 0, 0, cmd);
+        packet1 = new ACPPacket(1, 2, 0, 0, cmd);
         if (!dispatcher->Dispatch(*packet1))
         {
             ADD_FAILURE(); pthread_exit(0);
@@ -73,7 +73,7 @@ static void * taskTest1(void * parameters)
         delete cmd;
 
         cmd = new CommandMessage(1);
-        packet2 = new FSWPacket(1, 2, 1, 0, cmd);
+        packet2 = new ACPPacket(1, 2, 1, 0, cmd);
         if (!dispatcher->Dispatch(*packet2))
         {
             ADD_FAILURE(); pthread_exit(0);

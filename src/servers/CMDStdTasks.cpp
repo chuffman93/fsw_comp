@@ -5,27 +5,21 @@
  *      Author: Brian Campuzano
  */
 
-#include <list>
-
 #include "servers/SCHServer.h"
 #include "servers/CMDStdTasks.h"
 #include "servers/DispatchStdTasks.h"
-
 #include "core/StdTypes.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
 #include "core/WatchdogManager.h"
-
 #include "util/FileHandler.h"
 #include "util/Logger.h"
-
 #include <cstdio>
 #include <iostream>
 #include <termios.h>
 #include <unistd.h>
 #include <fcntl.h>
-
-//#include "boards/backplane/dbg_led.h"
+#include <list>
 
 using namespace AllStar::Core;
 using namespace std;

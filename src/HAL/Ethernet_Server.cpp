@@ -5,9 +5,6 @@
  *      Author: Umang
  */
 
-
-
-
 #include <stdarg.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -46,7 +43,7 @@ void ETH_HALServer::ETH_HALServerLoop(void)
 	// Declarations for FSW packet to Message queue
 	int packetSize;
 	uint8_t * buffer;
-	FSWPacket * packet;
+	ACPPacket * packet;
 
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
@@ -92,15 +89,15 @@ void ETH_HALServer::ETH_HALServerLoop(void)
 		memcpy((uint8_t *) buffer, cmd,numbytes);
 		logger->Log("ETH_HAL Server: Converting a Pheonix Packet into a FSW packet", LOGGER_LEVEL_DEBUG);
 
-		packet =new FSWPacket(buffer, numbytes);
+		packet =new ACPPacket(buffer, numbytes);
 		logger->Log("ETH_HAL Server: Now putting that FSW Packet into the message queue using Dispatch!", LOGGER_LEVEL_DEBUG);
 
 		//packet->SetDestination(SERVER_LOCATION_ACS);
 
-		if((packet->GetDestination() == LOCATION_ID_INVALID )|| (packet->GetSource() == LOCATION_ID_INVALID))
+		if((packet->getDestination() == LOCATION_ID_INVALID )|| (packet->getSource() == LOCATION_ID_INVALID))
 		{
 			logger->Log("ETH_HAL Server: FSW Packet src or dest invalid. Not placing on queue", LOGGER_LEVEL_DEBUG);
-			printf("src %d dest %d\n", packet->GetDestination(), packet->GetSource());
+			printf("src %d dest %d\n", packet->getDestination(), packet->getSource());
 			//todo log error
 			delete packet;
 			free(buffer);
@@ -285,7 +282,7 @@ int ETH_HALServer::TCPsock(struct sockaddr_in *fsin,char *portnum, int qlen)
 		return s;
 }
 
-int ETH_HALServer::ETHDispatch(FSWPacket & packet)
+int ETH_HALServer::ETHDispatch(ACPPacket & packet)
 {
 	struct sockaddr_in fsin;    /* the from address of a client    */
 	int alen= sizeof(fsin);
@@ -315,14 +312,14 @@ int ETH_HALServer::ETHDispatch(FSWPacket & packet)
 		return -2;
 	}
 
-	memcpy(&fsin,ETH_GetSendFSin(packet.GetDestination()),sizeof(*(ETH_GetSendFSin(packet.GetDestination()))));
+	memcpy(&fsin,ETH_GetSendFSin(packet.getDestination()),sizeof(*(ETH_GetSendFSin(packet.getDestination()))));
 	alen= sizeof(fsin);
 	// Code for sending the Pheonix Packet onto the UDP server
-	nbytes= sendto(ETH_GetSendSocket(packet.GetDestination()), packetBuffer, packetLength,0,(struct sockaddr *) &fsin,alen);
+	nbytes= sendto(ETH_GetSendSocket(packet.getDestination()), packetBuffer, packetLength,0,(struct sockaddr *) &fsin,alen);
 	printf("\r\nDispatched to UDP Hardware %d bytes\r\n",nbytes);
 
-	printf("\r\nDispatched to Hardware %d bytes to server number %d\r\n",nbytes,packet.GetDestination());
-	printf("\r\n Dispatching to IP Address %s and port number %s",host[packet.GetDestination()],port_num_client[packet.GetDestination()]);
+	printf("\r\nDispatched to Hardware %d bytes to server number %d\r\n",nbytes,packet.getDestination());
+	printf("\r\n Dispatching to IP Address %s and port number %s",host[packet.getDestination()],port_num_client[packet.getDestination()]);
 	return 0;
 }
 

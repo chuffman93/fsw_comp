@@ -13,7 +13,7 @@
 #include "gtest/gtest.h"
 
 #include "core/VariableTypeData.h"
-#include "core/FSWPacket.h"
+#include "core/ACPPacket.h"
 #include "core/CommandMessage.h"
 
 using namespace std;
@@ -37,7 +37,7 @@ TEST(TestVariableTypeData, BufferConstructorAndFlatten) {
 	expectedSizes[VAR_TYPE_ENUM_ARRAY] = 1 + vec.size() + sizeof(uint32);
 
 	CommandMessage cmd(1);
-	FSWPacket p1(1, 2, 0, 0, &cmd);
+	ACPPacket p1(1, 2, 0, 0, &cmd);
 	expectedSizes[VAR_TYPE_ENUM_PACKET] = 1 + p1.GetFlattenSize();
 
 	vin[VAR_TYPE_ENUM_INT] = new VariableTypeData((int32) -10);
@@ -137,8 +137,8 @@ TEST(TestVariableTypeData, BufferConstructorAndFlatten) {
 
 	cout << __LINE__ << endl;
 
-	if (!(*((FSWPacket *) (vout[VAR_TYPE_ENUM_PACKET]->GetData()))
-			== *((FSWPacket *) (vin[VAR_TYPE_ENUM_PACKET]->GetData())))) {
+	if (!(*((ACPPacket *) (vout[VAR_TYPE_ENUM_PACKET]->GetData()))
+			== *((ACPPacket *) (vin[VAR_TYPE_ENUM_PACKET]->GetData())))) {
 		cout << "FAIL AT " << VAR_TYPE_ENUM_PACKET;
 		ASSERT_TRUE(false);
 	}

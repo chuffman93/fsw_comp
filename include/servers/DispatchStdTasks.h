@@ -12,11 +12,8 @@
 #include <list>
 #include <map>
 
-#include "core/ReturnMessage.h"
-#include "core/MultiDataMessage.h"
 #include "core/StdTypes.h"
-#include "core/VariableTypeEnum.h"
-#include "core/FSWPacket.h"
+#include "core/ACPPacket.h"
 #include "core/Dispatcher.h"
 #include "core/MessageHandlerRegistry.h"
 #include "core/Arbitrator.h"
@@ -38,16 +35,16 @@ namespace AllStar
 		{
 				/*! \brief Response Receive Successful */
 				DISPATCHER_STATUS_OK = 0,
-				/*! \brief Dispatched FSWPacket Not Received by Destination*/
+				/*! \brief Dispatched ACPPacket Not Received by Destination*/
 				DISPATCHER_STATUS_MSG_NOT_RCVD,
-				/*! \brief Dispatched FSWPacket Received But No Response Received */
+				/*! \brief Dispatched ACPPacket Received But No Response Received */
 				DISPATCHER_STATUS_MSG_RCVD_NO_RESP_SENT,
 				/*! \brief Maximum Return Value */
 				DISPATCHER_STATUS_MAX
 		};
 
-		/*! \brief Typedef for a FSWPacket Comparison Function */
-		//typedef bool (Core::Dispatcher::* PacketCheckFunctionType)(const Core::FSWPacket & packetIn, const Core::FSWPacket & packetOut) const;
+		/*! \brief Typedef for a ACPPacket Comparison Function */
+		//typedef bool (Core::Dispatcher::* PacketCheckFunctionType)(const Core::ACPPacket & packetIn, const Core::ACPPacket & packetOut) const;
 
 		struct DispatcherHandlerType
 		{
@@ -59,15 +56,15 @@ namespace AllStar
 		};
 
 		// Send packet to the dispatcher
-		AllStar::Core::FSWPacket * DispatchPacket(AllStar::Core::FSWPacket * packet);
+		AllStar::Core::ACPPacket * DispatchPacket(AllStar::Core::ACPPacket * packet);
 
 		// Invoke message handlers for any messages sent to a server
 		bool Listen(LocationIDType serverID);
 
 		// Process a response packet
-		void PacketProcess(LocationIDType id, AllStar::Core::FSWPacket * retPacket);
+		void PacketProcess(LocationIDType id, AllStar::Core::ACPPacket * retPacket);
 
-		/*! \brief Waits for a Response after a FSWPacket Has Been Dispatched
+		/*! \brief Waits for a Response after a ACPPacket Has Been Dispatched
 		 *
 		 *  Waits for the response to packet, which should have been
 		 *  previously sent to another server by calling Dispatch.
@@ -75,7 +72,7 @@ namespace AllStar
 		 *  queue and returned in returnMessage.  Otherwise, if the initial
 		 *  packet is still in the queue, it is removed.
 		 *
-		 *  \param packet FSWPacket sent via Dispatch.
+		 *  \param packet ACPPacket sent via Dispatch.
 		 *  \param returnMessage Output variable that is set to the
 		 *  response, if the operation was successful.
 		 *  \return \ref DISPATCHER_STATUS_OK if a response was
@@ -93,7 +90,7 @@ namespace AllStar
 		 *  packet was not received, it removes that packet from
 		 *  the internal message queue.
 		 */
-		DispatcherStatusEnum WaitForDispatchResponse(const Core::FSWPacket & packet, Core::FSWPacket ** retPacketin);
+		DispatcherStatusEnum WaitForDispatchResponse(const Core::ACPPacket & packet, Core::ACPPacket ** retPacketin);
 
 		// Functions for extracting parameters into buffers
 		uint32 	GetUInt(uint8 * buffer);

@@ -13,7 +13,7 @@
 #include "core/Dispatcher.h"
 #include "core/Factory.h"
 #include "core/StdTypes.h"
-#include "core/FSWPacket.h"
+#include "core/ACPPacket.h"
 #include "stdlib.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -99,14 +99,13 @@ TEST(TestACP, protocolSwitch){
 		message[i] = temp[3-i];
 		message[i+4] = temp[7-i];
 	}
-	FSWPacket * query = new FSWPacket(SERVER_LOCATION_ACS, SERVER_LOCATION_CMD, CMD_ACP_SWITCH, true, false, MESSAGE_TYPE_COMMAND, 8, message);
-	FSWPacket * ret = DispatchPacket(query);
+	ACPPacket * query = new ACPPacket(SERVER_LOCATION_ACS, SERVER_LOCATION_CMD, CMD_ACP_SWITCH, 8, message);
+	ACPPacket * ret = DispatchPacket(query);
 
 	// Ensure that the change has been enacted
 	ASSERT_EQ(cmdServer->subsystem_acp_protocol[HARDWARE_LOCATION_EPS], ACP_PROTOCOL_ETH);
 	ASSERT_EQ(cmdServer->subsystem_acp_protocol[HARDWARE_LOCATION_ACS], ACP_PROTOCOL_SPI);
-	EXPECT_EQ(ret->IsSuccess(), true);
-	EXPECT_EQ(ret->GetOpcode(), CMD_ACP_SWITCH_SUCCESS);
+	EXPECT_EQ(ret->getOpcode(), CMD_ACP_SWITCH_SUCCESS);
 
 	/*
 	// Test for bad switch

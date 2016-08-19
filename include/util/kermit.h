@@ -323,12 +323,12 @@ struct k_data {                         /* The Kermit data structure */
     short s_next;			/* Encode lookahead byte */
     short s_seq;                        /* Sequence number sent */
     short r_seq;                        /* Sequence number received */
-    short s_type;                       /* FSWPacket type sent */
-    short r_type;                       /* FSWPacket type received */
-    short s_soh;                        /* FSWPacket start sent */
-    short r_soh;                        /* FSWPacket start received */
-    short s_eom;                        /* FSWPacket end sent */
-    short r_eom;                        /* FSWPacket end received */
+    short s_type;                       /* ACPPacket type sent */
+    short r_type;                       /* ACPPacket type received */
+    short s_soh;                        /* ACPPacket start sent */
+    short r_soh;                        /* ACPPacket start received */
+    short s_eom;                        /* ACPPacket end sent */
+    short r_eom;                        /* ACPPacket end received */
     int size;				/* Current size of output pkt data */
     int osize;				/* Previous output packet data size */
     int r_timo;                         /* Receive and send timers */
@@ -367,8 +367,8 @@ struct k_data {                         /* The Kermit data structure */
     struct packet opktinfo[P_WSLOTS];	/* Outbound packet info */
     UCHAR * xdata;			/* Pointer to data field of outpkt */
 #ifdef F_TSW
-    short r_pw[64];			/* FSWPacket Seq.No. to window-slot map */
-    short s_pw[64];			/* FSWPacket Seq.No. to window-slot map */
+    short r_pw[64];			/* ACPPacket Seq.No. to window-slot map */
+    short s_pw[64];			/* ACPPacket Seq.No. to window-slot map */
 #endif /* F_TSW */
     UCHAR ack_s[IDATALEN];		/* Our own init parameter string */
     UCHAR * obuf;

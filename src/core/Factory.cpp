@@ -9,7 +9,7 @@
 #include "servers/CMDServer.h"
 #include "servers/COMServer.h"
 #include "servers/EPSServer.h"
-#include "servers/ErrorOctopus.h"
+#include "servers/ERRServer.h"
 #include "servers/GPSServer.h"
 #include "servers/PLDServer.h"
 #include "servers/SCHServer.h"
@@ -104,8 +104,8 @@ namespace AllStar
 						instance = new EPSServer("EPS", SERVER_LOCATION_EPS);
 						break;
 					case ERR_SERVER_SINGLETON:
-						ErrorOctopus::Initialize( );
-						instance = new ErrorOctopus("ERR", SERVER_LOCATION_ERR);
+						ERRServer::Initialize( );
+						instance = new ERRServer("ERR", SERVER_LOCATION_ERR);
 						break;
 					case GPS_SERVER_SINGLETON:
 						GPSServer::Initialize( );
@@ -242,7 +242,7 @@ namespace AllStar
 					EPSServer::Destroy( );
 					break;
 				case ERR_SERVER_SINGLETON:
-					ErrorOctopus::Destroy( );
+					ERRServer::Destroy( );
 					break;
 				case GPS_SERVER_SINGLETON:
 					GPSServer::Destroy( );

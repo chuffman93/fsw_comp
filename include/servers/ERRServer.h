@@ -1,5 +1,5 @@
 /*
-* ErrorOctopus.h
+* ERRServer.h
 *
 *  Created on: Feb 27, 2013
 *      Author: Brian Campuzano
@@ -17,17 +17,15 @@
 #include "core/Arbitrator.h"
 #include "servers/ErrorHandlers.h"
 
-#include "core/ReturnMessage.h"
-
 namespace AllStar
 {
 	namespace Servers
 	{
-		class ErrorOctopus : public SubsystemServer, public AllStar::Core::Singleton
+		class ERRServer : public SubsystemServer, public AllStar::Core::Singleton
 		{
 			/*! \brief Declare Factory a friend class
 			*
-			*	This allows factory to call ErrorOctopus's private constructor
+			*	This allows factory to call ERRServer's private constructor
 			*/
 			friend class AllStar::Core::Factory;
 			
@@ -49,14 +47,14 @@ namespace AllStar
 			bool RegisterHandlers();
 
 		private:
-			/*! \brief Initialize the ErrorOctopus Class
+			/*! \brief Initialize the ERRServer Class
 			*
 			*  Initializes the operating system constructs needed for
-			*  ErrorOctopus to work properly.
+			*  ERRServer to work properly.
 			*/
 			static void Initialize(void);
 			
-			/*! \brief Static Destructor for ErrorOctopus
+			/*! \brief Static Destructor for ERRServer
 			*
 			*  Frees all internal memory use, frees all operating system
 			*  objects used, and deletes the singleton instance pointer.
@@ -65,16 +63,16 @@ namespace AllStar
 			static void Destroy(void);
 #endif
 			
-			/*! \brief Checks if ErrorOctopus Class is initialized
+			/*! \brief Checks if ERRServer Class is initialized
 			*
 			*  \return true if the initialization was successful and
 			*  false otherwise.
 			*/
 			bool IsFullyInitialized(void);
 			
-			ErrorOctopus(std::string nameIn, LocationIDType idIn);
-			~ErrorOctopus();
-			ErrorOctopus & operator=(const ErrorOctopus & source);
+			ERRServer(std::string nameIn, LocationIDType idIn);
+			~ERRServer();
+			ERRServer & operator=(const ERRServer & source);
 			
 			// Member variables needed to register message handlers.
 			AllStar::Core::MessageHandlerRegistry reg;

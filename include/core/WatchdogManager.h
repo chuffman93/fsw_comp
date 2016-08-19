@@ -51,7 +51,7 @@ public:
 
 	static bool DeleteTask(PThread *&pThread);
 
-	static void * WatchdogManagerTask(void * parameters);
+	static void * WatchdogManagerTask();
 
 	static bool AddTask(PThread * thread);
 

@@ -10,75 +10,49 @@
 #define CMDSERVER_H_
 
 #include "servers/SubsystemServer.h"
-
 #include "core/Dispatcher.h"
 #include "core/StdTypes.h"
 #include "core/ModeManager.h"
 #include "core/MessageHandlerRegistry.h"
 #include "core/Arbitrator.h"
-
 #include "util/FileHandler.h"
 
+namespace AllStar{
+namespace Servers{
 
+class CMDServer : public SubsystemServer, public AllStar::Core::Singleton{
+	friend class AllStar::Core::Factory;
 
-namespace AllStar
-{
-	namespace Servers
-	{
+public:
+	void SubsystemLoop(void);
+	void Update(SystemModeEnum mode){}
+	bool RegisterHandlers();
+	static int subsystem_acp_protocol[HARDWARE_LOCATION_MAX];
 
-		class CMDServer : public SubsystemServer, public AllStar::Core::Singleton
-		{
-			/*! \brief Declare Factory a friend class
-			*
-			*	This allows factory to call CMDServer's private constructor
-			*/
-			friend class AllStar::Core::Factory;
-			
-		public:
-			void SubsystemLoop(void);
-			void Update(SystemModeEnum mode);
-			bool RegisterHandlers();
-			static int subsystem_acp_protocol[HARDWARE_LOCATION_MAX];
+private:
+	static void Initialize(void);
 
-		private:
-
-			/*! \brief Initialize the CMDServer Class
-			*
-			*  Initializes the operating system constructs needed for
-			*  CMDServer to work properly.
-			*/
-			static void Initialize(void);
-			
-			/*! \brief Static Destructor for CMDServer
-			*
-			*  Frees all internal memory use, frees all operating system
-			*  objects used, and deletes the singleton instance pointer.
-			*/
 #ifdef TEST
-			static void Destroy(void);
+	static void Destroy(void);
 #endif
-			
-			/*! \brief Checks if CMDServer Class is initialized
-			*
-			*  \return true if the initialization was successful and
-			*  false otherwise.
-			*/
-			bool IsFullyInitialized(void);
-				
-			CMDServer(std::string nameIn, LocationIDType idIn);
-			~CMDServer();
-			CMDServer & operator=(const CMDServer & source);
 
-			// Member variables needed to register message handlers.
-			AllStar::Core::MessageHandlerRegistry reg;
-			AllStar::Core::Arbitrator arby;
+	bool IsFullyInitialized(void);
 
-			char * CMDFiles [5];
+	CMDServer(std::string nameIn, LocationIDType idIn);
+	~CMDServer();
+	CMDServer & operator=(const CMDServer & source);
 
-			BEGIN_STATE_MAP
-			END_STATE_MAP
-		};
-	}
+	// Member variables needed to register message handlers.
+	AllStar::Core::MessageHandlerRegistry reg;
+	AllStar::Core::Arbitrator arby;
+
+	char * CMDFiles [5];
+
+	BEGIN_STATE_MAP
+	END_STATE_MAP
+};
+
+}
 }
 
 #endif /* CMDSERVER_H_ */

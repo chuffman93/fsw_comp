@@ -33,8 +33,8 @@ TEST(TestArby, Authenticate)
 		CommandMessage * cmd = new CommandMessage(0);
 		CommandMessage * cmd2 = new CommandMessage(1);
 		ErrorMessage * err = new ErrorMessage(1);
-		FSWPacket pkt1(3, 2, 0, 0, cmd), pkt2(2, 1, 1, 0, err);
-		FSWPacket pkt3(2, 1, 2, 0, cmd), pkt4(2, 1, 3, 0, cmd2);
+		ACPPacket pkt1(3, 2, 0, 0, cmd), pkt2(2, 1, 1, 0, err);
+		ACPPacket pkt3(2, 1, 2, 0, cmd), pkt4(2, 1, 3, 0, cmd2);
 
 		delete cmd;
 		delete cmd2;

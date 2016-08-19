@@ -11,9 +11,6 @@
 #include "servers/DispatchStdTasks.h"
 #include "servers/GPSServer.h"
 
-#include "core/CommandMessage.h"
-#include "core/ReturnMessage.h"
-#include "core/ErrorMessage.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
 #include "core/Dispatcher.h"
@@ -24,59 +21,49 @@
 
 #include <iostream>
 
-//#include "boards/backplane/dbg_led.h"
-
 using namespace std;
 using namespace AllStar::Core;
 using namespace AllStar::Servers;
 
-FSWPacket * CDHCPUUsageHandler::Handle(const FSWPacket & packet)
-{
+ACPPacket * CDHCPUUsageHandler::Handle(const ACPPacket & packet){
 	return (CDHCPUUsage());
 }
 
-FSWPacket * CDHMemUsageHandler::Handle(const FSWPacket & packet)
-{
+ACPPacket * CDHMemUsageHandler::Handle(const ACPPacket & packet){
 	return (CDHMemUsage());
 }
 
-FSWPacket * CDHTempStartHandler::Handle(const FSWPacket & packet)
-{
+ACPPacket * CDHTempStartHandler::Handle(const ACPPacket & packet){
 	return (CDHTempStart());
 }
 
-FSWPacket * CDHTempReadHandler::Handle(const FSWPacket & packet)
-{
+ACPPacket * CDHTempReadHandler::Handle(const ACPPacket & packet){
 	return (CDHTempRead());
 }
 
-FSWPacket * CDHHotSwapsHandler::Handle(const FSWPacket & packet)
-{
+ACPPacket * CDHHotSwapsHandler::Handle(const ACPPacket & packet){
 	return (CDHHotSwaps());
 }
 
-FSWPacket * CDHPowerMonitorsHandler::Handle(const FSWPacket & packet)
-{
+ACPPacket * CDHPowerMonitorsHandler::Handle(const ACPPacket & packet){
 	return (CDHPowerMonitors());
 }
 
-FSWPacket * CDHStartPMHandler::Handle(const FSWPacket & packet)
-{
+ACPPacket * CDHStartPMHandler::Handle(const ACPPacket & packet){
 	return (CDHStartPM());
 }
 
-FSWPacket * CDHCleanFSHandler::Handle(const FSWPacket & packet)
-{
+ACPPacket * CDHCleanFSHandler::Handle(const ACPPacket & packet){
 	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log("CDHHandlers: CleanFilesHandler entered", LOGGER_LEVEL_DEBUG);
 
-	uint16 current_week = 50;//gpsServer->GetWeek();
+	uint16 current_week = 50; // TODO: gpsServer->GetWeek();
 
-	uint8 * msgPtr = packet.GetMessageBufPtr();
+	uint8 * msgPtr = packet.getMessageBuff();
 	if(msgPtr == NULL){
 		logger->Log("CDHHandlers: NULL msg", LOGGER_LEVEL_WARN);
-		FSWPacket * ret = new FSWPacket(CDH_CLEAN_FS_FAILURE, false, true, MESSAGE_TYPE_ERROR);
+		ACPPacket * ret = new ACPPacket(CDH_CLEAN_FS_FAILURE);
 		return ret;
 	}
 
@@ -88,11 +75,9 @@ FSWPacket * CDHCleanFSHandler::Handle(const FSWPacket & packet)
 
 	if((outputArray[0] >= current_week) || (outputArray[1] >= current_week) || (outputArray[0] > outputArray[1])){
 		logger->Log("CDHHandlers: bad weeks", LOGGER_LEVEL_WARN);
-		FSWPacket * ret = new FSWPacket(CDH_CLEAN_FS_FAILURE, false, true, MESSAGE_TYPE_ERROR);
+		ACPPacket * ret = new ACPPacket(CDH_CLEAN_FS_FAILURE);
 		return ret;
 	}
-
-
 
 	return (CleanFiles(outputArray[0], outputArray[1]));
 }

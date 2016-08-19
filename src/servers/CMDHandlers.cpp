@@ -9,35 +9,25 @@
 #include "servers/CMDStdTasks.h"
 #include "servers/CMDServer.h"
 #include "servers/DispatchStdTasks.h"
-
-#include "core/CommandMessage.h"
-#include "core/ReturnMessage.h"
-#include "core/ErrorMessage.h"
-#include "core/DataMessage.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
 #include "core/Dispatcher.h"
 #include "core/StdTypes.h"
 #include "core/ModeManager.h"
-
 #include "util/Logger.h"
-
 #include <iostream>
 
 using namespace std;
 using namespace AllStar::Core;
 using namespace AllStar::Servers;
 
-uint32 CMDSwitchProtocolHandler::enumArray[] = {VAR_TYPE_ENUM_UNSIGNED_INT, VAR_TYPE_ENUM_UNSIGNED_INT};
-
-FSWPacket * CMDSwitchProtocolHandler::Handle(const FSWPacket & packet)
-{
+ACPPacket * CMDSwitchProtocolHandler::Handle(const ACPPacket & packet){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log("CMDSwitchProtocolHandler: entered", LOGGER_LEVEL_DEBUG);
 
-	uint8 * msgPtr = packet.GetMessageBufPtr();
+	uint8 * msgPtr = packet.getMessageBuff();
 	if(msgPtr == NULL){
-		FSWPacket * ret = new FSWPacket(CMD_ACP_SWITCH_FAILURE, false, true, MESSAGE_TYPE_ERROR);
+		ACPPacket * ret = new ACPPacket(CMD_ACP_SWITCH_FAILURE);
 		return ret;
 	}
 
@@ -51,16 +41,15 @@ FSWPacket * CMDSwitchProtocolHandler::Handle(const FSWPacket & packet)
 	uint32 protocol = outputArray[1];
 
 	// Error Checking
-	if((subsystem < HARDWARE_LOCATION_MIN) || (subsystem >= HARDWARE_LOCATION_MAX))
-	{
+	if((subsystem < HARDWARE_LOCATION_MIN) || (subsystem >= HARDWARE_LOCATION_MAX)){
 		logger->Log("CMDSwitchProtocolHandler: Bad subsystem! Subsystem: %u", subsystem, LOGGER_LEVEL_DEBUG);
-		FSWPacket * ret = new FSWPacket(CMD_ACP_SWITCH_BAD_SUBSYS, false, true, MESSAGE_TYPE_ERROR);
+		ACPPacket * ret = new ACPPacket(CMD_ACP_SWITCH_BAD_SUBSYS);
 		return ret;
 	}
-	if((protocol < ACP_PROTOCOL_MIN) || (protocol >= ACP_PROTOCOL_MAX))
-	{
+
+	if((protocol < ACP_PROTOCOL_MIN) || (protocol >= ACP_PROTOCOL_MAX)){
 		logger->Log("CMDSwitchProtocolHandler: Bad protocol!", LOGGER_LEVEL_DEBUG);
-		FSWPacket * ret = new FSWPacket(CMD_ACP_SWITCH_BAD_PROTOCOL, false, true, MESSAGE_TYPE_ERROR);
+		ACPPacket * ret = new ACPPacket(CMD_ACP_SWITCH_BAD_PROTOCOL);
 		return ret;
 	}
 
@@ -70,6 +59,6 @@ FSWPacket * CMDSwitchProtocolHandler::Handle(const FSWPacket & packet)
 	cmdServer->subsystem_acp_protocol[subsystem] = protocol;
 
 	logger->Log("CMDSwitchProtocolHandler: success", LOGGER_LEVEL_DEBUG);
-	FSWPacket * ret = new FSWPacket(CMD_ACP_SWITCH_SUCCESS, true, true, MESSAGE_TYPE_DATA);
+	ACPPacket * ret = new ACPPacket(CMD_ACP_SWITCH_SUCCESS);
 	return ret;
 }

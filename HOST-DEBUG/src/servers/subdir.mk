@@ -17,7 +17,7 @@ CPP_SRCS += \
 ../src/servers/EPSServer.cpp \
 ../src/servers/EPSStdTasks.cpp \
 ../src/servers/ErrorHandlers.cpp \
-../src/servers/ErrorOctopus.cpp \
+../src/servers/ERRServer.cpp \
 ../src/servers/ErrorQueue.cpp \
 ../src/servers/ErrorStdTasks.cpp \
 ../src/servers/GPSHandlers.cpp \
@@ -55,7 +55,7 @@ OBJS += \
 ./src/servers/EPSServer.o \
 ./src/servers/EPSStdTasks.o \
 ./src/servers/ErrorHandlers.o \
-./src/servers/ErrorOctopus.o \
+./src/servers/ERRServer.o \
 ./src/servers/ErrorQueue.o \
 ./src/servers/ErrorStdTasks.o \
 ./src/servers/GPSHandlers.o \
@@ -93,7 +93,7 @@ CPP_DEPS += \
 ./src/servers/EPSServer.d \
 ./src/servers/EPSStdTasks.d \
 ./src/servers/ErrorHandlers.d \
-./src/servers/ErrorOctopus.d \
+./src/servers/ERRServer.d \
 ./src/servers/ErrorQueue.d \
 ./src/servers/ErrorStdTasks.d \
 ./src/servers/GPSHandlers.d \

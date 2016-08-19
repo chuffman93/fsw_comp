@@ -14,7 +14,6 @@
 #include "core/Arbitrator.h"
 #include "core/MessageHandler.h"
 #include "core/Singleton.h"
-#include "core/VariableTypeEnum.h"
 #include "core/ModeManager.h"
 
 #include "servers/SubsystemServer.h"
@@ -28,71 +27,65 @@
 
 using namespace AllStar::HAL;
 
-namespace AllStar
-{
-	namespace Servers
-	{
-	class CDHServer : public SubsystemServer, public AllStar::Core::Singleton
-		{
-			/*! \brief Declare Factory a friend class
-			*
-			*	This allows factory to call CDHServer's private constructor
-			*/
-			friend class AllStar::Core::Factory;
+namespace AllStar{
+namespace Servers{
 
-		public:
-			void Update(SystemModeEnum mode);
+class CDHServer : public SubsystemServer, public AllStar::Core::Singleton{
+	friend class AllStar::Core::Factory;
 
-			bool RegisterHandlers();
+public:
+	void Update(SystemModeEnum mode){}
+	bool RegisterHandlers();
 
-			// Turn a subsystem on  (only ACS, COM, PLD, GPS)
-			void subPowerOn(HardwareLocationIDType subsystem);
+	// Turn a subsystem on  (only ACS, COM, PLD, GPS)
+	void subPowerOn(HardwareLocationIDType subsystem);
 
-			// Turn a subsystem off (only ACS, COM, PLD, GPS)
-			void subPowerOff(HardwareLocationIDType subsystem);
+	// Turn a subsystem off (only ACS, COM, PLD, GPS)
+	void subPowerOff(HardwareLocationIDType subsystem);
 
-			//control the reset lines (ACS, COM, PLD, EPS only)
-			void resetAssert(HardwareLocationIDType subsystem);
-			void resetDeassert(HardwareLocationIDType subsystem);
+	//control the reset lines (ACS, COM, PLD, EPS only)
+	void resetAssert(HardwareLocationIDType subsystem);
+	void resetDeassert(HardwareLocationIDType subsystem);
 
-			// Allows for easy look into memory usage
-			struct sysinfo si;
-			I2CDeviceManager * devMngr;
-			StorageManager * storMngr;
+	// Allows for easy look into memory usage
+	struct sysinfo si;
+	I2CDeviceManager * devMngr;
+	StorageManager * storMngr;
 
-		private:
-			static void Initialize(void);
+private:
+	static void Initialize(void);
 #ifdef TEST
-			static void Destroy(void);
+	static void Destroy(void);
 #endif
-			bool IsFullyInitialized(void);
+	bool IsFullyInitialized(void);
 
-			CDHServer(std::string nameIn, LocationIDType idIn);
-			~CDHServer();
-			CDHServer & operator=(const CDHServer & source);
+	CDHServer(std::string nameIn, LocationIDType idIn);
+	~CDHServer();
+	CDHServer & operator=(const CDHServer & source);
 
-			// Member variables needed to register message handlers.
-			AllStar::Core::MessageHandlerRegistry reg;
-			AllStar::Core::Arbitrator arby;
+	// Member variables needed to register message handlers.
+	AllStar::Core::MessageHandlerRegistry reg;
+	AllStar::Core::Arbitrator arby;
 
-			// Modes
-			void loopInit();
-			void loopMonitor();
+	// Modes
+	void loopInit();
+	void loopMonitor();
 
-			// Gather CDH data at a given frequency
-			void readHealth(uint8 frequency, uint32 timeUnit);
+	// Gather CDH data at a given frequency
+	void readHealth(uint8 frequency, uint32 timeUnit);
 
-			BEGIN_STATE_MAP
-				STATE_MAP_ENTRY(&CDHServer::loopInit)
-				STATE_MAP_ENTRY(&CDHServer::loopMonitor)
-			END_STATE_MAP
+	BEGIN_STATE_MAP
+	STATE_MAP_ENTRY(&CDHServer::loopInit)
+	STATE_MAP_ENTRY(&CDHServer::loopMonitor)
+	END_STATE_MAP
 
-			enum CDH_States {
-				ST_INIT = 0,
-				ST_MONITOR
-			};
-		};
-	}
+	enum CDH_States {
+		ST_INIT = 0,
+		ST_MONITOR
+	};
+};
+
+}
 }
 
 #endif //CDHSERVER_H_

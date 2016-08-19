@@ -23,10 +23,10 @@ using namespace AllStar::Core;
 class Test0010MessageHandler : public MessageHandler
 {
 public:
-	ReturnMessage * Handle(const FSWPacket & packet);
+	ReturnMessage * Handle(const ACPPacket & packet);
 } testHandler10;
 
-ReturnMessage * Test0010MessageHandler::Handle(const FSWPacket & packet)
+ReturnMessage * Test0010MessageHandler::Handle(const ACPPacket & packet)
 {
 	CommandMessage msg(packet.GetMessagePtr()->GetOpcode()+10);
 	ReturnMessage *ret = new ReturnMessage(&msg, true);
@@ -42,7 +42,7 @@ static void * taskTest1(void * parameters)
 		Dispatcher * dispatcher;
 		MessageHandlerRegistry reg;
 		Arbitrator arby(1);
-		FSWPacket * packet1, * packet2;
+		ACPPacket * packet1, * packet2;
 		ReturnMessage retMsg;
 		size_t i;
 		bool ret;
@@ -65,10 +65,10 @@ static void * taskTest1(void * parameters)
 		}
 
 		CommandMessage * cmd = new CommandMessage(2);
-		packet1 = new FSWPacket(1, 2, 0, 0, cmd);
+		packet1 = new ACPPacket(1, 2, 0, 0, cmd);
 		delete cmd;
 		cmd = new CommandMessage(3);
-		packet2 = new FSWPacket(1, 3, 1, 0, cmd);
+		packet2 = new ACPPacket(1, 3, 1, 0, cmd);
 		delete cmd;
 
 		cout << "Task 1 Waiting for Synchronization" << endl;
@@ -194,7 +194,7 @@ static void * taskTest2(void * parameters)
 		Dispatcher * dispatcher;
 		MessageHandlerRegistry reg;
 		Arbitrator arby(2);
-		FSWPacket * packet;
+		ACPPacket * packet;
 		ReturnMessage retMsg;
 		size_t i;
 		bool ret;
@@ -217,7 +217,7 @@ static void * taskTest2(void * parameters)
 		}
 
 		CommandMessage * cmd = new CommandMessage(1);
-		packet = new FSWPacket(2, 1, 2, 0, cmd);
+		packet = new ACPPacket(2, 1, 2, 0, cmd);
 		delete cmd;
 
 		cout << "Task 2 Waiting for Synchronization" << endl;
@@ -278,7 +278,7 @@ static void * taskTest3(void * parameters)
 		Dispatcher * dispatcher;
 		MessageHandlerRegistry reg;
 		Arbitrator arby(3);
-		FSWPacket * packet;
+		ACPPacket * packet;
 		ReturnMessage retMsg;
 		size_t i;
 		bool ret;
@@ -301,7 +301,7 @@ static void * taskTest3(void * parameters)
 		}
 
 		CommandMessage * cmd = new CommandMessage(1);
-		packet = new FSWPacket(3, 1, 3, 0, cmd);
+		packet = new ACPPacket(3, 1, 3, 0, cmd);
 		delete cmd;
 
 		cout << "Task 3 Waiting for Synchronization" << endl;
