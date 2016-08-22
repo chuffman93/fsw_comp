@@ -8,6 +8,7 @@
 #include "servers/COMServer.h"
 #include "servers/COMHandlers.h"
 #include "servers/COMStdTasks.h"
+#include "servers/CDHServer.h"
 #include "servers/DispatchStdTasks.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
@@ -74,11 +75,26 @@ bool COMServer::RegisterHandlers(){
 
 	return success;
 }
-// on 3 off 4
+
 // -------------------------------------------- State Machine ---------------------------------------------
 void COMServer::loopInit(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log("COM Server: loop init", LOGGER_LEVEL_INFO);
+
+//	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+//	cdhServer->subPowerOn(HARDWARE_LOCATION_COM);
+//
+//	usleep(5000000);
+
+	ACPPacket * startPacket = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, 1);
+	ACPPacket * startRet = DispatchPacket(startPacket);
+
+	usleep(1000000);
+
+	ACPPacket * startPacket1 = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, 2);
+	ACPPacket * startRet1 = DispatchPacket(startPacket1);
+
+	usleep(1000000);
 
 	currentState = ST_IDLE;
 }
@@ -100,6 +116,11 @@ void COMServer::loopCOMStart(){
 
 	ACPPacket * startPacket = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, 3);
 	ACPPacket * startRet = DispatchPacket(startPacket);
+
+	usleep(1000000);
+
+	ACPPacket * startPacket1 = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, 1);
+	ACPPacket * startRet1 = DispatchPacket(startPacket1);
 
 	currentState = ST_COM;
 }
