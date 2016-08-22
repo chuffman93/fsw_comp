@@ -96,8 +96,6 @@ bool CDHServer::IsFullyInitialized(void){
 }
 
 bool CDHServer::RegisterHandlers(){
-	printf("in register handlers\n");
-
 	bool success = true;
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 

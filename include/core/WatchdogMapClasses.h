@@ -1,5 +1,5 @@
 /*
- * WatchdogMap.h
+ * WatchdogMapClasses.h
  *
  *  Created on: Aug 17, 2016
  *      Author: Alex St. Clair
@@ -26,7 +26,6 @@ class TaskState{
 	public:
 		TaskState(TaskRunStateEnum taskStateIn, bool kickStateIn = false)
 		: taskState(taskStateIn), kickState(kickStateIn){
-
 		}
 
 		bool GetKickState() const{
@@ -78,7 +77,8 @@ public:
 
     	logger->Log("Starting thread for %s Server!", serverName, LOGGER_LEVEL_INFO);
     	if(pthread_create(&tid, NULL, &runServer, (void *) server) == 0){
-			isRunning = true;
+			logger->Log("Thread created with tid: %u", tid, LOGGER_LEVEL_INFO);
+    		isRunning = true;
 		}else{
 			isRunning = false;
 			logger->Log("Error creating thread for %s server!", serverName, LOGGER_LEVEL_FATAL);

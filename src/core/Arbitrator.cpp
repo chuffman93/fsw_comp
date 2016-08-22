@@ -104,7 +104,7 @@ bool Arbitrator::ModifyPermission(const MessageIdentifierType & id, const Permis
 			pair<IteratorType, bool> ret = permissionMap.insert(PairType(id, p));
 			return ret.second;
 		}
-		catch (bad_alloc e)
+		catch (bad_alloc & e)
 		{
 			return false;
 		}
@@ -119,7 +119,7 @@ bool Arbitrator::ModifyPermission(const MessageIdentifierType & id, const Permis
 			it->second = new Permission(permission);
 			return true;
 		}
-		catch (bad_alloc e)
+		catch (bad_alloc & e)
 		{
 			return false;
 		}

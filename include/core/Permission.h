@@ -14,69 +14,30 @@
 #include "core/Core.h"
 #include "core/StdTypes.h"
 
-namespace AllStar
-{
-    namespace Core
-    {
-		/*! \brief Class to encapsulate server action permissions.
-		 *
-		 *  This class encapsulates the permissions for each server to perform
-		 *  some action.
-		 */
-        class Permission
-        {
-        public:
-            /*! \brief Constructor for Permission from a Bool.
-             *
-             *  \param allSet Bool for if all permissions should be set or unset.
-             */
-            Permission(bool allSet = false);
+namespace AllStar{
+namespace Core{
 
-            /*! \brief Copy Constructor for Permission.
-             *
-             *  \param source Object to be copied.
-             */
-            Permission(const Permission & source);
+class Permission{
+public:
+	Permission(bool allSet = false);
 
-            /*! \brief Destructor for Permission. */
-            virtual ~Permission(void );
+	Permission(const Permission & source);
 
-            /*! \brief Assignment Operator for Permission.
-             *
-             *  \param source Object to be copied.
-             *
-             *  \return Reference to the calling object.
-             */
-            Permission & operator=(const Permission & source);
+	virtual ~Permission(void );
 
-            /*! \brief Returns if the given server has permission.
-             *
-             *  \param server LocationIDType of the server to check.
-             *
-             *  \return Whether given server has permission.
-             */
-            bool ServerHasPermission(LocationIDType server) const;
+	Permission & operator=(const Permission & source);
 
-            /*! \brief Sets the given server to the given permission.
-             *
-             *  \param server LocationIDType of the server to set.
-             *  \param permission Bool to set the permission to.
-             *
-             *  \return Nothing.
-             */
-            void SetServerPermission(LocationIDType server, bool permission = true);
+	bool ServerHasPermission(LocationIDType server) const;
 
-            /*! \brief Equals Operator for Permission.
-             *
-             *  \param check Object to be compared against.
-             *  \return true if this object is equivalent to check.
-             */
-            bool operator ==(const Permission & check) const;
-        private:
-            /*! \brief Bitset to hold the permissions for each server. */
-            std::bitset<ALLSTAR_NUM_SERVERS> serverPermissions;
-        };
-    }
+	void SetServerPermission(LocationIDType server, bool permission = true);
+
+	bool operator ==(const Permission & check) const;
+
+private:
+	std::bitset<ALLSTAR_NUM_SERVERS> serverPermissions;
+};
+
+}
 }
 
 #endif  //_PERMISSION_H

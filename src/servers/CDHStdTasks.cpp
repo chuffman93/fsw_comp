@@ -313,38 +313,39 @@ void prepPowerGPIOs(void){
 	// GPS
 	if(!(stat("/sys/class/gpio/pioB27/", &sb) == 0 && S_ISDIR(sb.st_mode))){
 		system("echo 59 > \"/sys/class/gpio/export\"");
-		system("echo \"out\" > \"/sys/class/gpio/pioB27/direction\"");;
+		system("echo \"out\" > \"/sys/class/gpio/pioB27/direction\"");
 	}
 
 	// AUXCOM
 	if(!(stat("/sys/class/gpio/pioB11/", &sb) == 0 && S_ISDIR(sb.st_mode))){
 		system("echo 43 > \"/sys/class/gpio/export\"");
-		system("echo \"out\" > \"/sys/class/gpio/pioB11/direction\"");;
+		system("echo \"out\" > \"/sys/class/gpio/pioB11/direction\"");
 	}
 
 	//-----------------------RESET LINES--------------------------------------
 	//EPS
 	if(!(stat("/sys/class/gpio/pioE10/", &sb) == 0 && S_ISDIR(sb.st_mode))){
 		system("echo 138 > \"/sys/class/gpio/export\"");
-		system("echo \"out\" > \"/sys/class/gpio/pioE10/direction\"");;
+		system("echo \"out\" > \"/sys/class/gpio/pioE10/direction\"");
 	}
 
 	//COM
 	if(!(stat("/sys/class/gpio/pioA11/", &sb) == 0 && S_ISDIR(sb.st_mode))){
 		system("echo 11 > \"/sys/class/gpio/export\"");
-		system("echo \"out\" > \"/sys/class/gpio/pioA11/direction\"");;
+		system("echo \"out\" > \"/sys/class/gpio/pioA11/direction\"");
 	}
+	system("echo 1 > \"/sys/class/gpio/pioA11/value\"");
 
 	//ACS
 	if(!(stat("/sys/class/gpio/pioA12/", &sb) == 0 && S_ISDIR(sb.st_mode))){
 		system("echo 12 > \"/sys/class/gpio/export\"");
-		system("echo \"out\" > \"/sys/class/gpio/pioA12/direction\"");;
+		system("echo \"out\" > \"/sys/class/gpio/pioA12/direction\"");
 	}
 
 	//PLD
 	if(!(stat("/sys/class/gpio/pioE11/", &sb) == 0 && S_ISDIR(sb.st_mode))){
 		system("echo 139 > \"/sys/class/gpio/export\"");
-		system("echo \"out\" > \"/sys/class/gpio/pioE11/direction\"");;
+		system("echo \"out\" > \"/sys/class/gpio/pioE11/direction\"");
 	}
 }
 

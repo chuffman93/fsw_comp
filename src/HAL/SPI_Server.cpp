@@ -35,7 +35,7 @@
 using namespace AllStar;
 using namespace Core;
 
-static int timeout = 20;
+static int timeout = 10;
 
 char * SPI_HALServer::queueNameSPITX = (char *) "/queueHandleSPITX";
 
@@ -81,7 +81,6 @@ void SPI_HALServer::SubsystemLoop(void)
 		// ---- TX ----------------------------------------------------------------------------------------------------------------
 		ACPPacket * txPacket;
 		if(mq_size(queueHandleTX, queueAttrTX) > 0){
-			printf("Size is %d\n", mq_size(queueHandleTX, queueAttrTX));
 			if(mq_timed_receive(queueNameSPITX, &txPacket, 0, DISPATCHER_MAX_DELAY)){
 				if(SPIDispatch(*txPacket)){
 					logger->Log("SPI_HAL Server: Successfully dispatched packet", LOGGER_LEVEL_INFO);
@@ -146,6 +145,7 @@ bool SPI_HALServer::SPIDispatch(AllStar::Core::ACPPacket & packet){
 	int destination = 0;
 	packetLength = packet.GetFlattenSize();
 	logger->Log("SPI_Server: SPIDispatch(): Dispatching packet of size %d", (uint32) packetLength, LOGGER_LEVEL_DEBUG);
+	logger->Log("SPI_Server: SPIDispatch(): Opcode %u", (uint32) packet.getOpcode(), LOGGER_LEVEL_DEBUG);
 
 	if(packetLength >= MAX_PACKET_SIZE)
 	{
@@ -235,7 +235,7 @@ int SPI_HALServer::spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_bufp){
 	tr.len = 1;
 	tr.delay_usecs = 0;
 	tr.speed_hz = 1000000;
-	tr.cs_change = 1;
+	tr.cs_change = 0;
 	tr.bits_per_word = 8;
 
 	uint8 rx, tx = 0;
@@ -245,10 +245,10 @@ int SPI_HALServer::spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_bufp){
 	read(fds->fd, &clearBuf, 1);
 	while(rx_complete != true){
 
-		for(i = 0; i < 14; i++){
+		for(i = 0; i < 6; i++){
 			//Wait for interrupt before sending next byte
 			if(i != 0){
-				logger->Log("spi_read: Waiting for interrupt", LOGGER_LEVEL_SUPER_DEBUG);
+				logger->Log("spi_read: Waiting for interrupt", LOGGER_LEVEL_DEBUG);
 				retval = poll(fds, 1, timeout);
 				if(!(fds->revents & POLLPRI) || retval == 0){
 					logger->Log("Poll timeout!", LOGGER_LEVEL_ERROR);
@@ -257,14 +257,14 @@ int SPI_HALServer::spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_bufp){
 			}
 
 			read(fds->fd, &clearBuf, 1);
-			logger->Log("spi_read: Reading byte %d: ", buf_pt, LOGGER_LEVEL_SUPER_DEBUG);
+			logger->Log("spi_read: Reading byte %d: ", buf_pt, LOGGER_LEVEL_DEBUG);
 			tr.tx_buf =  (unsigned long) &tx;
 			tr.rx_buf =  (unsigned long) &rx;
 
 			ioctl(slave_fd, SPI_IOC_MESSAGE(1), &tr);
 			rx_buf[buf_pt] = rx;
 
-			logger->Log("spi_read: byte value: ------------- 0x%X", rx, LOGGER_LEVEL_SUPER_DEBUG);
+			logger->Log("spi_read: byte value: ------------- 0x%X", rx, LOGGER_LEVEL_DEBUG);
 			buf_pt++;
 
 			if(i == 0 && rx != SYNC_VALUE){
@@ -273,41 +273,41 @@ int SPI_HALServer::spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_bufp){
 			}
 		}
 
-		logger->Log("spi_read: Allocating memory for packet", LOGGER_LEVEL_DEBUG);
+		logger->Log("spi_read: Reallocating memory for packet + message", LOGGER_LEVEL_DEBUG);
 		//Allocate more memory based on length
-		packet_len = (rx_buf[12] << 8 | rx_buf[13]) + 16;
-		logger->Log("spi_read: allocating %d", packet_len, LOGGER_LEVEL_DEBUG);
+		packet_len = (rx_buf[4] << 8 | rx_buf[5]) + 8;
+		logger->Log("spi_read: message size = %d", packet_len - 8, LOGGER_LEVEL_DEBUG);
 		rx_buf = (uint8 *) realloc(rx_buf, packet_len * sizeof(uint8));
 
 		//Read in remaining bytes
-		for(i = 0; i < packet_len - 14; i++){
+		for(i = 0; i < packet_len - 6; i++){
 			//Wait for interrupt before sending next byte
-			logger->Log("spi_read: Waiting for interrupt", LOGGER_LEVEL_SUPER_DEBUG);
+			logger->Log("spi_read: Waiting for interrupt", LOGGER_LEVEL_DEBUG);
 			retval = poll(fds, 1, timeout);
 			if(!(fds->revents & POLLPRI) || retval == 0){
 				logger->Log("Poll timeout!", LOGGER_LEVEL_ERROR);
 				return 0;
 			}
 			read(fds->fd, &clearBuf, 1);
-			logger->Log("spi_read: Reading byte %d: ", buf_pt, LOGGER_LEVEL_SUPER_DEBUG);
+			logger->Log("spi_read: Reading byte %d: ", buf_pt, LOGGER_LEVEL_DEBUG);
 			tr.tx_buf =  (unsigned long) &tx;
 			tr.rx_buf =  (unsigned long) &rx;
 
 			ioctl(slave_fd, SPI_IOC_MESSAGE(1), &tr);
 			rx_buf[buf_pt] = rx;
 
-			logger->Log("spi_read: byte value: ------------- 0x%x", rx, LOGGER_LEVEL_SUPER_DEBUG);
+			logger->Log("spi_read: byte value: ------------- 0x%x", rx, LOGGER_LEVEL_DEBUG);
 			buf_pt++;
 		}
 
-		fds->fd = fd;
-		fds->events = POLLPRI;
-		retval = poll(fds, 1, timeout);
-		if(!(fds->revents & POLLPRI) || retval == 0){
-			logger->Log("Poll timeout!", LOGGER_LEVEL_ERROR);
-			return 0;
-		}
-		read(fds->fd, &clearBuf, 1);
+//		fds->fd = fd;
+//		fds->events = POLLPRI;
+//		retval = poll(fds, 1, timeout);
+//		if(!(fds->revents & POLLPRI) || retval == 0){
+//			logger->Log("Poll timeout!", LOGGER_LEVEL_ERROR);
+//			return 0;
+//		}
+//		read(fds->fd, &clearBuf, 1);
 
 		*rx_bufp = rx_buf;
 		return buf_pt;
@@ -404,7 +404,7 @@ void SPI_HALServer::GPIOsetup(void){
 
 	int i ,ret;
 
-	uint8_t mode = SPI_MODE_1;
+	uint8_t mode = SPI_MODE_0;
 	uint32_t speed = 1000000;
 	uint8_t clearBuf;
 	memset((void*)poll_fds, 0, sizeof(poll_fds));//

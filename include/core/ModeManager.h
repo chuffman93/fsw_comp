@@ -8,51 +8,44 @@
 #ifndef MODEMANAGER_H_
 #define MODEMANAGER_H_
 
-#include <set>
-
 #include "core/ModeListener.h"
 #include "core/StdTypes.h"
 #include "core/Singleton.h"
+#include <set>
 
-namespace AllStar
-{
-    namespace Core
-    {
-        class ModeManager : public Singleton
-        {
-			
-			/*! \brief Declare Factory a friend class 
-			*	
-			*	This allows factory to call ModeManager's private constructor
-			*/
-			friend class Factory;
-        public:
+namespace AllStar{
+namespace Core{
 
-            bool Attach(ModeListener & listener);
-            bool Detach(ModeListener & listener);
+class ModeManager : public Singleton{
+	friend class Factory;
+public:
 
-            SystemModeEnum GetMode(void);
-            bool SetMode(SystemModeEnum newMode, LocationIDType server);
+	bool Attach(ModeListener & listener);
+	bool Detach(ModeListener & listener);
 
-        protected:
-            ModeManager(void);
-            void NotifyAll(void);
+	SystemModeEnum GetMode(void);
+	bool SetMode(SystemModeEnum newMode, LocationIDType server);
 
-        private:
-			virtual ~ModeManager(void);
-			static void Initialize(void);
+protected:
+	ModeManager(void);
+	void NotifyAll(void);
+
+private:
+	virtual ~ModeManager(void);
+	static void Initialize(void);
 #ifdef TEST
-			static void Destroy(void);
+	static void Destroy(void);
 #endif
-			bool IsFullyInitialized(void);
-		
-            std::set<ModeListener *> listeners;
+	bool IsFullyInitialized(void);
 
-            static bool validTransition[MODE_NUM_MODES][MODE_NUM_MODES];
+std::set<ModeListener *> listeners;
 
-            SystemModeEnum mode;
-        };
-    }
+static bool validTransition[MODE_NUM_MODES][MODE_NUM_MODES];
+
+SystemModeEnum mode;
+};
+
+}
 }
 
-#endif /* MODEMANAGER_H_ */
+#endif // MODEMANAGER_H_

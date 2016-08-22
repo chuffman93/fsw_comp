@@ -14,7 +14,7 @@ namespace AllStar{
 namespace Core{
 
 #define ACP_MIN_BYTES 8
-#define SYNC_VALUE 0xFF
+#define SYNC_VALUE 0x76
 
 class ACPPacket
 {

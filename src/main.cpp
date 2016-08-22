@@ -58,14 +58,14 @@ int main(int argc, char * argv[])
 
 	// ----------------------------- Start Servers -----------------------------------------------------------------
 	threadsCreated &= WatchdogManager::StartServer(acsServer, 100,	false);	 //ACS
-	threadsCreated &= WatchdogManager::StartServer(cdhServer, 50,	true);	 //CDH
+	threadsCreated &= WatchdogManager::StartServer(cdhServer, 20,	true);	 //CDH
 	threadsCreated &= WatchdogManager::StartServer(cmdServer, 50,	false);	 //CMD
-	threadsCreated &= WatchdogManager::StartServer(comServer, 50,	false);	 //COM
+	threadsCreated &= WatchdogManager::StartServer(comServer, 10,	true);	 //COM
 	threadsCreated &= WatchdogManager::StartServer(epsServer, 0,	false);	 //EPS
 	threadsCreated &= WatchdogManager::StartServer(errServer, 0,	false);	 //ERR
 	threadsCreated &= WatchdogManager::StartServer(gpsServer, 50,	false);	 //GPS
 	threadsCreated &= WatchdogManager::StartServer(pldServer, 50,	false);	 //PLD
-	threadsCreated &= WatchdogManager::StartServer(schServer, 0,	false);	 //SCH
+	threadsCreated &= WatchdogManager::StartServer(schServer, 0,	true);	 //SCH
 	threadsCreated &= WatchdogManager::StartServer(spiServer, 0,	true);	 //SPI
 
 	if(!threadsCreated){

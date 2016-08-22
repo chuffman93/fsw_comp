@@ -10,7 +10,7 @@
 #define _WATCHDOGMANAGER_H
 
 #include "core/WatchdogStdTasks.h"
-#include "core/WatchdogMap.h"
+#include "core/WatchdogMapClasses.h"
 #include "core/StdTypes.h"
 #include "core/Core.h"
 #include "core/Singleton.h"

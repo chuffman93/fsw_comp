@@ -6,7 +6,7 @@
  *  and not stalled.
  */
 #include "core/WatchdogManager.h"
-#include "core/WatchdogMap.h"
+#include "core/WatchdogMapClasses.h"
 #include "core/WatchdogStdTasks.h"#include "core/Factory.h"
 #include "core/Singleton.h"
 #include "servers/SubsystemServer.h"
@@ -20,26 +20,22 @@ using namespace AllStar::Servers;
 
 // -------------------------------------- Necessary Methods --------------------------------------
 WatchdogManager::WatchdogManager(void)
-: Singleton(), taskMap( )
-{
-	// Intentionally left blank
+: Singleton(), taskMap( ){
 }
 
-WatchdogManager::WatchdogManager(const WatchdogManager & source)
-{
-	// Intentionally left blank
+WatchdogManager::WatchdogManager(const WatchdogManager & source){
 }
 
-WatchdogManager::~WatchdogManager(void)
-{
-//	while (!taskMap.empty()){
-//		taskMap.erase(it);
-//	}
+WatchdogManager::~WatchdogManager(void){
+	IteratorType it;
+	while (!taskMap.empty()){
+		it = taskMap.begin();
+		taskMap.erase(it);
+	}
 	taskMap.clear();
 }
 
-WatchdogManager & WatchdogManager::operator=(const WatchdogManager & source)
-{
+WatchdogManager & WatchdogManager::operator=(const WatchdogManager & source){
 	return *this;
 }
 
@@ -180,10 +176,8 @@ void WatchdogManager::Kick(void){
 		tid = pthread_self();
 
 		// Find the PThread with the correct tid
-		for (ConstIteratorType it = watchdogManager->taskMap.begin(); it != watchdogManager->taskMap.end(); ++it)
-		{
-			if (it->first->tid == tid)
-			{
+		for (ConstIteratorType it = watchdogManager->taskMap.begin(); it != watchdogManager->taskMap.end(); ++it){
+			if (it->first->tid == tid){
 				it->second->SetTaskState(TASK_RUNSTATE_RUNNING);
 				it->second->SetKickState(true);
 			}

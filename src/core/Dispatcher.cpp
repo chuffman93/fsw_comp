@@ -403,7 +403,7 @@ uint32_t Dispatcher::DispatchToHardware(ACPPacket & packet)
 	printf("\n");
 
 	// get the instances for the Ethernet and SPI Servers
-	ETH_HALServer * eth_server = dynamic_cast<ETH_HALServer *> (Factory::GetInstance(ETH_HALSERVER_SINGLETON));
+	//ETH_HALServer * eth_server = dynamic_cast<ETH_HALServer *> (Factory::GetInstance(ETH_HALSERVER_SINGLETON));
 	SPI_HALServer * spi_server = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
 	Servers::CMDServer * cmdServer = dynamic_cast<Servers::CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
 
@@ -432,8 +432,8 @@ uint32_t Dispatcher::DispatchToHardware(ACPPacket & packet)
 			break;
 		case ACP_PROTOCOL_ETH:
 			logger->Log("DispatchToHardware(): Dispatch over ETH", LOGGER_LEVEL_DEBUG);
-			bytesCopied = eth_server->ETHDispatch(packet);
-			sendSuccess = (bytesCopied == packet.GetFlattenSize());
+//			bytesCopied = eth_server->ETHDispatch(packet);
+//			sendSuccess = (bytesCopied == packet.GetFlattenSize());
 			break;
 		default:
 			logger->Log("DispatchToHardware(): ACP Protocol out of bounds!", LOGGER_LEVEL_ERROR); // TODO: assert?

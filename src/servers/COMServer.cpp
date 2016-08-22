@@ -74,13 +74,19 @@ bool COMServer::RegisterHandlers(){
 
 	return success;
 }
-
+// on 3 off 4
 // -------------------------------------------- State Machine ---------------------------------------------
 void COMServer::loopInit(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("COM Server: loop init", LOGGER_LEVEL_INFO);
+
 	currentState = ST_IDLE;
 }
 
 void COMServer::loopIdle(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("COM Server: loop idle", LOGGER_LEVEL_INFO);
+
 	ModeManager * modeManager = dynamic_cast<ModeManager *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
 	if(modeManager->GetMode() == MODE_COM){
@@ -89,6 +95,12 @@ void COMServer::loopIdle(){
 }
 
 void COMServer::loopCOMStart(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("COM Server: starting COM", LOGGER_LEVEL_INFO);
+
+	ACPPacket * startPacket = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, 3);
+	ACPPacket * startRet = DispatchPacket(startPacket);
+
 	currentState = ST_COM;
 }
 
@@ -101,6 +113,12 @@ void COMServer::loopCOM(){
 }
 
 void COMServer::loopCOMStop(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("COM Server: stopping COM", LOGGER_LEVEL_INFO);
+
+	ACPPacket * stopPacket = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, 4);
+	ACPPacket * stopRet = DispatchPacket(stopPacket);
+
 	currentState = ST_IDLE;
 }
 
