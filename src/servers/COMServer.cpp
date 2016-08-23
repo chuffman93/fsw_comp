@@ -81,20 +81,10 @@ void COMServer::loopInit(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log("COM Server: loop init", LOGGER_LEVEL_INFO);
 
-//	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
-//	cdhServer->subPowerOn(HARDWARE_LOCATION_COM);
-//
-//	usleep(5000000);
+	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	cdhServer->subPowerOn(HARDWARE_LOCATION_COM);
 
-	ACPPacket * startPacket = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, 1);
-	ACPPacket * startRet = DispatchPacket(startPacket);
-
-	usleep(1000000);
-
-	ACPPacket * startPacket1 = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, 2);
-	ACPPacket * startRet1 = DispatchPacket(startPacket1);
-
-	usleep(1000000);
+	usleep(5000000);
 
 	currentState = ST_IDLE;
 }
@@ -116,11 +106,6 @@ void COMServer::loopCOMStart(){
 
 	ACPPacket * startPacket = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, 3);
 	ACPPacket * startRet = DispatchPacket(startPacket);
-
-	usleep(1000000);
-
-	ACPPacket * startPacket1 = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, 1);
-	ACPPacket * startRet1 = DispatchPacket(startPacket1);
 
 	currentState = ST_COM;
 }

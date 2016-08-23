@@ -95,7 +95,7 @@ void SPI_HALServer::SubsystemLoop(void)
 
 		// ---- RX ----------------------------------------------------------------------------------------------------------------
 		for (int i = 0; i < NUM_SLAVES; i++){
-			poll(poll_fds+i, 1, 10); // quick timeout (only checking for events, not waiting)
+			poll(poll_fds+i, 1, 0); // quick timeout (only checking for events, not waiting)
 			read(int_fds[i], &clearBuf, 1);
 			if (poll_fds[i].revents & POLLPRI){
 				logger->Log("SPI_HAL Server: found interrupt on fds %d", i, LOGGER_LEVEL_DEBUG);
@@ -212,7 +212,6 @@ int SPI_HALServer::spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, in
 			perror("Err opening\n");
 		}
 	}
-
 	return buf_pt;
 }
 

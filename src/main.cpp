@@ -65,7 +65,7 @@ int main(int argc, char * argv[])
 	threadsCreated &= WatchdogManager::StartServer(errServer, 0,	false);	 //ERR
 	threadsCreated &= WatchdogManager::StartServer(gpsServer, 50,	false);	 //GPS
 	threadsCreated &= WatchdogManager::StartServer(pldServer, 50,	false);	 //PLD
-	threadsCreated &= WatchdogManager::StartServer(schServer, 0,	false);	 //SCH
+	threadsCreated &= WatchdogManager::StartServer(schServer, 0,	true);	 //SCH
 	threadsCreated &= WatchdogManager::StartServer(spiServer, 0,	true);	 //SPI
 
 	if(!threadsCreated){
