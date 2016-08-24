@@ -58,7 +58,7 @@ void SubsystemServer::SubsystemLoop(void)
 		uint64_t LastWakeTime = getTimeInMillis();
 		while(Listen(id));
 		wdm->Kick();
-		waitUntil(LastWakeTime, 400);
+		waitUntil(LastWakeTime, 1000);
 		
 		StateFunc function = GetStateMap()[currentState].function;
 
