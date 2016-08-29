@@ -93,6 +93,12 @@ void COMServer::loopIdle(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log("COM Server: loop idle", LOGGER_LEVEL_INFO);
 
+	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+
+	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_EPS]){
+		currentState = ST_INIT;
+	}
+
 	ModeManager * modeManager = dynamic_cast<ModeManager *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
 	if(modeManager->GetMode() == MODE_COM){
@@ -112,6 +118,12 @@ void COMServer::loopCOMStart(){
 
 void COMServer::loopCOM(){
 	ModeManager * modeManager = dynamic_cast<ModeManager *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
+
+	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+
+	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_EPS]){
+		currentState = ST_INIT;
+	}
 
 	if(modeManager->GetMode() != MODE_COM){
 		currentState = ST_COM_STOP;

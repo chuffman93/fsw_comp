@@ -12,6 +12,7 @@
 #include "servers/GPSServer.h"
 #include "servers/GPSStdTasks.h"
 #include "servers/DispatchStdTasks.h"
+#include "servers/CDHServer.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
 #include "core/ModeManager.h"
@@ -87,9 +88,12 @@ bool GPSServer::RegisterHandlers(){
 void GPSServer::SubsystemLoop(void){
 	WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
 	logger->Log("GPSServer: entered subsystem loop", LOGGER_LEVEL_INFO);
 	gpsResponsive = false;
+
+	cdhServer->subPowerOn(HARDWARE_LOCATION_GPS);
 
 	bool check;
 	uint32 downCount = 0;
@@ -103,6 +107,12 @@ void GPSServer::SubsystemLoop(void){
 	while(1){
 		uint64_t LastWakeTime = getTimeInMillis();
 		wdm->Kick();
+
+		// if the GPS has been powered off due to a fault, restart it.
+		if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_GPS]){
+			cdhServer->subPowerOn(HARDWARE_LOCATION_GPS);
+			usleep(2000000); // give it time to restart
+		}
 
 		check = ReadData(buffer, fd);
 

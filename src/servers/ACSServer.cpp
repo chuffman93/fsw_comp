@@ -107,6 +107,11 @@ void ACSServer::loopGNDStart(){
 }
 void ACSServer::loopGNDPointing(){
 	ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+
+	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS]){
+		currentState = ST_INIT;
+	}
 
 	if(modeManager->GetMode() != MODE_COM)
 		currentState = ST_GND_STOP;
@@ -122,6 +127,11 @@ void ACSServer::loopPLDPointing(){
 	ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	ACPPacket * GPSRet;
 	ACPPacket * HSRet;
+	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+
+	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS]){
+		currentState = ST_INIT;
+	}
 
 	printf("-------------------- PLD pointing\n");
 	GPSRet = ACSSendGPS();

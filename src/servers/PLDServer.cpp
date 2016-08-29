@@ -129,7 +129,14 @@ void PLDServer::loopShutdown(){
 }
 void PLDServer::loopScience(){
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-	//Stay in science mode until we move out of PLD_PRIORITY
+	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+
+	// Make sure PLD hasn't been turned off due to a fault, if it has, go back into startup
+	if(cdhServer->subsystemPowerStates[HARDWARE_LOCATION_PLD] == false){
+		currentState = ST_STARTUP;
+	}
+
+	// Stay in science mode until we move out of PLD_PRIORITY
 	if(modeManager->GetMode() != MODE_PLD_PRIORITY){
 		currentState = ST_SHUTDOWN;
 	}

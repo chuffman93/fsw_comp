@@ -51,6 +51,7 @@ public:
 	struct sysinfo si;
 	I2CDeviceManager * devMngr;
 	StorageManager * storMngr;
+	bool subsystemPowerStates[HARDWARE_LOCATION_MAX];
 
 private:
 	static void Initialize(void);

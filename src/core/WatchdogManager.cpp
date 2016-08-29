@@ -54,6 +54,7 @@ bool WatchdogManager::IsFullyInitialized(void){
 // -------------------------------------- Watchdog Methods ---------------------------------------
 bool WatchdogManager::StartServer(SubsystemServer * serverIn, int waitIn, bool run){
 	serverIn->startupWait = waitIn;
+	printf("here\n");
 	if(run){
 		PThread * thread = new PThread(serverIn);
 		if(!thread->isRunning){

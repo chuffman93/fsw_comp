@@ -15,6 +15,7 @@
 #include "servers/EPSServer.h"
 #include "servers/EPSStdTasks.h"
 #include "servers/DispatchStdTasks.h"
+#include "servers/CDHServer.h"
 #include "util/Logger.h"
 
 using namespace std;

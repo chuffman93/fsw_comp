@@ -50,6 +50,12 @@ CDHServer::CDHServer(std::string nameIn, LocationIDType idIn) :
 		SubsystemServer(nameIn, idIn), Singleton(), arby(idIn) {
 	devMngr = new I2CDeviceManager();
 	storMngr = new StorageManager(0.9);
+
+	// all subsystems are off on startup except for EPS
+	for (int i = HARDWARE_LOCATION_MIN; i < HARDWARE_LOCATION_MAX; i++) {
+		subsystemPowerStates[i] = false;
+	}
+	subsystemPowerStates[HARDWARE_LOCATION_EPS] = true;
 }
 
 CDHServer::~CDHServer(){
@@ -231,10 +237,12 @@ void CDHServer::readHealth(uint8 frequency, uint32 timeUnit){
 
 void CDHServer::subPowerOn(HardwareLocationIDType subsystem){
 	toggleSubPower(subsystem, true);
+	subsystemPowerStates[subsystem] = true;
 }
 
 void CDHServer::subPowerOff(HardwareLocationIDType subsystem){
 	toggleSubPower(subsystem, false);
+	subsystemPowerStates[subsystem] = false;
 }
 
 void CDHServer::resetAssert(HardwareLocationIDType subsystem){
