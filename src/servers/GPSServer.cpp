@@ -106,6 +106,7 @@ void GPSServer::SubsystemLoop(void){
 
 	while(1){
 		uint64_t LastWakeTime = getTimeInMillis();
+		printf("\t\t\t\t\tGPS kicking, TID: %lu\n", pthread_self());
 		wdm->Kick();
 
 		// if the GPS has been powered off due to a fault, restart it.

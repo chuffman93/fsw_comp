@@ -175,6 +175,7 @@ void WatchdogManager::Kick(void){
 	if (watchdogManager->TakeLock(MAX_BLOCK_TIME) == true){
 		pthread_t tid;
 		tid = pthread_self();
+		printf("\t\t\t\t\tWatchdog was kicked, TID: %lu\n", tid);
 
 		// Find the PThread with the correct tid
 		for (ConstIteratorType it = watchdogManager->taskMap.begin(); it != watchdogManager->taskMap.end(); ++it){

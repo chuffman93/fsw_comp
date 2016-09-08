@@ -77,6 +77,7 @@ void SPI_HALServer::SubsystemLoop(void)
 		errno = 0;
 		enterTime = getTimeInMillis();
 		wdm->Kick();
+		printf("\t\t\t\t\tSPI kicking, TID: %lu\n", pthread_self());
 
 		// ---- TX ----------------------------------------------------------------------------------------------------------------
 		ACPPacket * txPacket;
