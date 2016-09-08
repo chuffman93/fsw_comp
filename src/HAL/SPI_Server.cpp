@@ -406,7 +406,7 @@ void SPI_HALServer::GPIOsetup(void){
 	uint8_t mode = SPI_MODE_0;
 	uint32_t speed = 1000000;
 	uint8_t clearBuf;
-	memset((void*)poll_fds, 0, sizeof(poll_fds));//
+	memset((void*)poll_fds, 0, sizeof(poll_fds));
 
 	//Initalize GPIO INT Pins TODO EXPORT PINS AND SET INTS
 	logger->Log("SPI_Server: Loop(): Initializing GPIO INT pins", LOGGER_LEVEL_DEBUG);
@@ -455,10 +455,21 @@ void SPI_HALServer::GPIOsetup(void){
 			printf("%s\n", spi_devices[i]);
 			printf("Error opening spi fd %d\n", i);
 		}
-		ioctl(spi_fds[i], SPI_IOC_WR_MODE, &mode);
+		ret = ioctl(spi_fds[i], SPI_IOC_WR_MODE, &mode);
+		if(ret == -1){
+			perror("Failed to set write mode");
+		}
+		ret = ioctl(spi_fds[i], SPI_IOC_RD_MODE, &mode);
+		if(ret == -1){
+			perror("Failed to set read mode");
+		}
 		ret = ioctl(spi_fds[i],SPI_IOC_WR_MAX_SPEED_HZ, &speed);
 		if(ret == -1){
-			perror("Failed to set max speed");
+			perror("Failed to set write max speed");
+		}
+		ret = ioctl(spi_fds[i],SPI_IOC_RD_MAX_SPEED_HZ, &speed);
+		if(ret == -1){
+			perror("Failed to set read max speed");
 		}
 		int_fds[i] = open(int_val[i], O_RDONLY);
 		poll_fds[i].fd = int_fds[i];
