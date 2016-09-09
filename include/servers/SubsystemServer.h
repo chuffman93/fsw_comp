@@ -26,7 +26,6 @@ public:
 	SubsystemServer & operator=(const SubsystemServer & source);
 	virtual bool operator ==(const Server & check) const;
 	virtual void SubsystemLoop(void);
-	virtual void Update(SystemModeEnum mode);
 	virtual bool RegisterHandlers(void){return true;};
 protected:
 	uint16_t currentState;

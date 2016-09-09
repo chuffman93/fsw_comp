@@ -15,12 +15,9 @@ namespace AllStar{
 namespace Core{
 
 void * runServer(void * args){
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	SubsystemServer * server = (SubsystemServer *) args;
-
-	modeManager->Attach(*server);
 
 	// wait before starting the server
 	for(int i = 0; i < server->startupWait; i++){
@@ -28,7 +25,6 @@ void * runServer(void * args){
 	}
 
 	logger->Log("Kicking off the %s Server\n", server->name, LOGGER_LEVEL_INFO);
-
 	server->SubsystemLoop();
 
 	pthread_exit(NULL);

@@ -32,7 +32,6 @@ namespace AllStar
 		public:
 			
 			void SubsystemLoop(void);
-			void Update(SystemModeEnum mode);
 
 			/*! \brief Registers this server's message handlers.
 			*

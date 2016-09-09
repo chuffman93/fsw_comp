@@ -203,6 +203,9 @@ void CDHServer::readHealth(uint8 frequency, uint32 timeUnit){
 	if(((timeUnit - frequency - 1) % frequency) == 0){
 		logger->Log("CDHServer: Gathering information", LOGGER_LEVEL_DEBUG);
 
+		// ensure that no power faults have been detected, if they have, power off the subsystem
+		//devMngr->checkHS(); //TODO: this seg faults?
+
 #if CPU_EN
 		// CPU usage
 		CPURet = CDHCPUUsage();

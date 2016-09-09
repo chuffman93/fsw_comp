@@ -128,7 +128,6 @@ void SPI_HALServer::SubsystemLoop(void)
 				}
 			}
 		}
-
 		// FIXME: figure out wait time
 		waitUntil(enterTime, 5); // wait 5 ms
 	}

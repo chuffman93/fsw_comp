@@ -34,7 +34,6 @@ class CDHServer : public SubsystemServer, public AllStar::Core::Singleton{
 	friend class AllStar::Core::Factory;
 
 public:
-	void Update(SystemModeEnum mode){}
 	bool RegisterHandlers();
 
 	// Turn a subsystem on  (only ACS, COM, PLD, GPS)

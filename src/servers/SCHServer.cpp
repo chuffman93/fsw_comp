@@ -61,11 +61,6 @@ bool SCHServer::IsFullyInitialized(void)
 	return(Singleton::IsFullyInitialized());
 }
 
-void SCHServer::Update(SystemModeEnum mode)
-{
-	//update mode stuff!
-}
-
 bool SCHServer::RegisterHandlers()
 {
 	volatile bool success = true;

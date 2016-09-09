@@ -109,6 +109,7 @@ void ACSServer::loopGNDPointing(){
 	ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
+	// if ACS is powered off due to a fault, switch to the init state
 	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS]){
 		currentState = ST_INIT;
 	}
@@ -129,6 +130,7 @@ void ACSServer::loopPLDPointing(){
 	ACPPacket * HSRet;
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
+	// if ACS is powered off due to a fault, switch to the init state
 	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS]){
 		currentState = ST_INIT;
 	}

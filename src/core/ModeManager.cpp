@@ -15,15 +15,6 @@
 #include "TestMode.h"
 #endif
 
-#define MODE_DEBUG			1
-
-#if MODE_DEBUG
-#include <iostream>
-#define DEBUG_MODE_COUT(m) std::cout << m << std::endl;
-#else
-#define DEBUG_MODE_COUT(m)
-#endif // DEBUG
-
 using namespace std;
 
 namespace AllStar{
@@ -58,28 +49,6 @@ void ModeManager::Destroy(void){
 	//SystemMode::Destroy();
 }
 #endif
-
-bool ModeManager::Attach(ModeListener & listener){
-	if (true == this->TakeLock(MAX_BLOCK_TIME)){
-		pair<set<ModeListener *>::const_iterator,bool> result = listeners.insert(&listener);
-		this->GiveLock();
-		return result.second;
-	}else{
-		return false;
-	}
-}
-
-bool ModeManager::Detach(ModeListener & listener){
-	bool ret;
-
-	if (true == this->TakeLock(MAX_BLOCK_TIME)){
-		ret = (listeners.erase(&listener) > 0);
-		this->GiveLock();
-		return ret;
-	}else{
-		return false;
-	}
-}
 
 SystemModeEnum ModeManager::GetMode(void){
 	return mode;
@@ -132,8 +101,6 @@ bool ModeManager::SetMode(SystemModeEnum newMode, LocationIDType server){
 			return false;
 		}
 
-		NotifyAll();
-
 		// TODO: need mode logger here
 		this->mode = newMode;
 		logger->Log("Switching mode!", LOGGER_LEVEL_INFO);
@@ -143,12 +110,6 @@ bool ModeManager::SetMode(SystemModeEnum newMode, LocationIDType server){
 		return true;
 	}else{
 		return false;
-	}
-}
-
-void ModeManager::NotifyAll(void){
-	for (set<ModeListener *>::iterator i = listeners.begin(); i != listeners.end(); ++i){
-		(*i)->Update(this->mode);
 	}
 }
 

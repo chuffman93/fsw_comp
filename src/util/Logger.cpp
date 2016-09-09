@@ -104,13 +104,12 @@ void Logger::Log(string message, string str_in, LoggerLevelType level_in){
 
 void Logger::GetInfo(LoggerLevelType level_in){
 	printf("(%lld)", getTimeInMillis());
-	printf("[PID: %d]", getpid());
-	printf("[TID: %u] ", (uint16) pthread_self());
+	printf("[TID: %lu] ", pthread_self());
 
 	// Display the log level
 	switch(level_in){
 	case LOGGER_LEVEL_SUPER_DEBUG:
-		printf("SPR_DBG:  ");
+		printf("SUPER:  ");
 		break;
 	case LOGGER_LEVEL_DEBUG:
 		printf("DEBUG:    ");

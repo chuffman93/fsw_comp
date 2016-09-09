@@ -61,15 +61,6 @@ bool ERRServer::IsFullyInitialized(void)
 	return(Singleton::IsFullyInitialized());
 }
 
-void ERRServer::Update(SystemModeEnum mode)
-{
-	/* Called by mode manager each time mode changes
-	 * Ex: Needs to do things to close mode 1, enter mode 2
-	 * Setup and tear down between modes
-	 */
-}
-
-
 bool ERRServer::RegisterHandlers()
 {
 	bool success = true;

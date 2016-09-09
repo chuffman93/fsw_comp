@@ -8,7 +8,6 @@
 #ifndef MODEMANAGER_H_
 #define MODEMANAGER_H_
 
-#include "core/ModeListener.h"
 #include "core/StdTypes.h"
 #include "core/Singleton.h"
 #include <set>
@@ -18,31 +17,24 @@ namespace Core{
 
 class ModeManager : public Singleton{
 	friend class Factory;
-public:
+	public:
+		SystemModeEnum GetMode(void);
+		bool SetMode(SystemModeEnum newMode, LocationIDType server);
 
-	bool Attach(ModeListener & listener);
-	bool Detach(ModeListener & listener);
+	protected:
+		ModeManager(void);
+		void NotifyAll(void);
 
-	SystemModeEnum GetMode(void);
-	bool SetMode(SystemModeEnum newMode, LocationIDType server);
-
-protected:
-	ModeManager(void);
-	void NotifyAll(void);
-
-private:
-	virtual ~ModeManager(void);
-	static void Initialize(void);
+	private:
+		virtual ~ModeManager(void);
+		static void Initialize(void);
 #ifdef TEST
-	static void Destroy(void);
+		static void Destroy(void);
 #endif
-	bool IsFullyInitialized(void);
+		bool IsFullyInitialized(void);
 
-std::set<ModeListener *> listeners;
-
-static bool validTransition[MODE_NUM_MODES][MODE_NUM_MODES];
-
-SystemModeEnum mode;
+		static bool validTransition[MODE_NUM_MODES][MODE_NUM_MODES];
+		SystemModeEnum mode;
 };
 
 }
