@@ -145,6 +145,7 @@ bool SPI_HALServer::SPIDispatch(AllStar::Core::ACPPacket & packet){
 	packetLength = packet.GetFlattenSize();
 	logger->Log("SPI_Server: SPIDispatch(): Dispatching packet of size %d", (uint32) packetLength, LOGGER_LEVEL_DEBUG);
 	logger->Log("SPI_Server: SPIDispatch(): Opcode %u", (uint32) packet.getOpcode(), LOGGER_LEVEL_DEBUG);
+	logger->Log("SPI_Server: SPIDispatch(): Dispatch to %d", packet.getDestination(), LOGGER_LEVEL_DEBUG);
 
 	if(packetLength >= MAX_PACKET_SIZE)
 	{
@@ -184,7 +185,7 @@ int SPI_HALServer::spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, in
 
 	while(buf_pt != len){
 		logger->Log("Writing byte %d", buf_pt, LOGGER_LEVEL_SUPER_DEBUG);
-		logger->Log("Byte value: ----------------------- 0x%x", *(buf + buf_pt), LOGGER_LEVEL_DEBUG);
+		logger->Log("Byte value: ----------------------- 0x%x", *(buf + buf_pt), LOGGER_LEVEL_SUPER_DEBUG);
 		ret = write(slave_fd, buf + buf_pt, wr_size);
 
 		if(ret != wr_size){
@@ -204,9 +205,9 @@ int SPI_HALServer::spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, in
 		}
 		logger->Log("spi_write: Poll return: %d", retval, LOGGER_LEVEL_SUPER_DEBUG);
 		this->GiveLock();
-		logger->Log("spi_write: After poll", LOGGER_LEVEL_DEBUG);
+		logger->Log("spi_write: After poll", LOGGER_LEVEL_SUPER_DEBUG);
 		ret = read(fds->fd, &clearBuf, 1);
-		logger->Log("spi_write: revent = 0x%x", fds->revents, LOGGER_LEVEL_DEBUG);
+		logger->Log("spi_write: revent = 0x%x", fds->revents, LOGGER_LEVEL_SUPER_DEBUG);
 		if(fds->fd < 0){
 			perror("Err opening\n");
 		}
@@ -246,16 +247,16 @@ int SPI_HALServer::spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_bufp){
 		for(i = 0; i < 6; i++){
 			//Wait for interrupt before sending next byte
 			if(i != 0){
-				logger->Log("spi_read: Waiting for interrupt", LOGGER_LEVEL_DEBUG);
+				logger->Log("spi_read: Waiting for interrupt", LOGGER_LEVEL_SUPER_DEBUG);
 				retval = poll(fds, 1, timeout);
 				if(!(fds->revents & POLLPRI) || retval == 0){
-					logger->Log("Poll timeout!", LOGGER_LEVEL_ERROR);
+					logger->Log("Poll timeout!", LOGGER_LEVEL_WARN);
 					return 0;
 				}
 			}
 
 			read(fds->fd, &clearBuf, 1);
-			logger->Log("spi_read: Reading byte %d: ", buf_pt, LOGGER_LEVEL_DEBUG);
+			logger->Log("spi_read: Reading byte %d: ", buf_pt, LOGGER_LEVEL_SUPER_DEBUG);
 			tr.tx_buf =  (unsigned long) &tx;
 			tr.rx_buf =  (unsigned long) &rx;
 
@@ -280,21 +281,21 @@ int SPI_HALServer::spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_bufp){
 		//Read in remaining bytes
 		for(i = 0; i < packet_len - 6; i++){
 			//Wait for interrupt before sending next byte
-			logger->Log("spi_read: Waiting for interrupt", LOGGER_LEVEL_DEBUG);
+			logger->Log("spi_read: Waiting for interrupt", LOGGER_LEVEL_SUPER_DEBUG);
 			retval = poll(fds, 1, timeout);
 			if(!(fds->revents & POLLPRI) || retval == 0){
 				logger->Log("Poll timeout!", LOGGER_LEVEL_ERROR);
 				return 0;
 			}
 			read(fds->fd, &clearBuf, 1);
-			logger->Log("spi_read: Reading byte %d: ", buf_pt, LOGGER_LEVEL_DEBUG);
+			logger->Log("spi_read: Reading byte %d: ", buf_pt, LOGGER_LEVEL_SUPER_DEBUG);
 			tr.tx_buf =  (unsigned long) &tx;
 			tr.rx_buf =  (unsigned long) &rx;
 
 			ioctl(slave_fd, SPI_IOC_MESSAGE(1), &tr);
 			rx_buf[buf_pt] = rx;
 
-			logger->Log("spi_read: byte value: ------------- 0x%x", rx, LOGGER_LEVEL_DEBUG);
+			logger->Log("spi_read: byte value: ------------- 0x%x", rx, LOGGER_LEVEL_SUPER_DEBUG);
 			buf_pt++;
 		}
 
@@ -370,18 +371,22 @@ void SPI_HALServer::set_packet_sourcedest(int index, ACPPacket * packet){
 	// set based on index from RX loop that corresponds to the fd
 	switch(index){
 	case 0:
+		logger->Log("--------------------------------------------------------- SPI RX Packet from EPS received",LOGGER_LEVEL_INFO);
 		source = HARDWARE_LOCATION_EPS;
 		dest = SERVER_LOCATION_EPS;
 		break;
 	case 1:
+		logger->Log("--------------------------------------------------------- SPI RX Packet from COM received",LOGGER_LEVEL_INFO);
 		source = HARDWARE_LOCATION_COM;
 		dest = SERVER_LOCATION_COM;
 		break;
 	case 2:
+		logger->Log("--------------------------------------------------------- SPI RX Packet from ACS received",LOGGER_LEVEL_INFO);
 		source = HARDWARE_LOCATION_ACS;
 		dest = SERVER_LOCATION_ACS;
 		break;
 	case 3:
+		logger->Log("--------------------------------------------------------- SPI RX Packet from PLD received",LOGGER_LEVEL_INFO);
 		source = HARDWARE_LOCATION_PLD;
 		dest = SERVER_LOCATION_PLD;
 		break;

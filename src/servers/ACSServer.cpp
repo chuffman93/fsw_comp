@@ -139,7 +139,7 @@ void ACSServer::loopPLDPointing(){
 	GPSRet = ACSSendGPS();
 	PacketProcess(SERVER_LOCATION_ACS, GPSRet);
 
-	usleep(1000000);
+	usleep(3000000);
 
 	ACPPacket * HSSend = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_HS_CMD);
 	HSRet = DispatchPacket(HSSend);

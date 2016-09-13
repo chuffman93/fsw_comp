@@ -323,11 +323,11 @@ bool Dispatcher::IsPacketMatchingResponse(const ACPPacket & packetIn,
 {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log("IsPacketMatchingResponse result: %d", ((packetOut.isFromHardware())
-			&& (packetOut.getPacketID( ) == packetIn.getPacketID( ))), LOGGER_LEVEL_DEBUG);
+			&& (packetOut.getPacketID( ) == packetIn.getPacketID( ))), LOGGER_LEVEL_SUPER_DEBUG);
 
-	logger->Log("IsPacketMatchingResponse response result: %d", packetOut.isFromHardware(), LOGGER_LEVEL_DEBUG);
-	logger->Log("IsPacketMatchingResponse source/dest: %d", packetOut.getSource() == packetIn.getDestination(), LOGGER_LEVEL_DEBUG);
-	logger->Log("IsPacketMatchingResponse number: %d", packetOut.getPacketID( ) == packetIn.getPacketID( ), LOGGER_LEVEL_DEBUG);
+	logger->Log("IsPacketMatchingResponse response result: %d", packetOut.isFromHardware(), LOGGER_LEVEL_SUPER_DEBUG);
+	logger->Log("IsPacketMatchingResponse source/dest: %d", packetOut.getSource() == packetIn.getDestination(), LOGGER_LEVEL_SUPER_DEBUG);
+	logger->Log("IsPacketMatchingResponse number: %d", packetOut.getPacketID( ) == packetIn.getPacketID( ), LOGGER_LEVEL_SUPER_DEBUG);
 
 	// Return true if *packetOut is a response to *packetIn.
 	return ((packetOut.isFromHardware())
