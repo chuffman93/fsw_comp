@@ -431,8 +431,11 @@ void runDiagnostic(void){
 	if(fp == NULL){
 		logger->Log("Error opening diagnostic tests file", LOGGER_LEVEL_WARN);
 
-		FILE * fpr = fopen("diagnostics_results.txt", "w");
-		fwrite((char *) "No tests to run", 1, 15, fpr);
+		// TODO: should we run a pre-specified test?
+		FILE * fpr = fopen("diagnostic_results.txt", "a+");
+		char results[] = "No tests to run\n";
+		fwrite(results, 1, sizeof(results), fpr);
+		fclose(fpr);
 	}else{
 		uint8 i = 0;
 		bool activeTests[NUM_TESTS] = {false};
@@ -447,7 +450,7 @@ void runDiagnostic(void){
 			i++;
 		}
 
-		// Run tests here TODO: rewrite with function pointers
+		// Conditionally run tests here TODO: rewrite with function pointers
 		SampleTest0(activeTests[0]);
 		SampleTest1(activeTests[1]);
 		SampleTest2(activeTests[2]);
