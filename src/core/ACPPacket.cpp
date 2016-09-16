@@ -80,7 +80,7 @@ ACPPacket::ACPPacket(uint8 * buffer, std::size_t size_in){
 	// Check that the buffer is sized correctly.
 	if (NULL == buffer || size < ACP_MIN_BYTES){
 		messageBuff = NULL;
-		logger->Log("ACPPacket: Null or incomplete packet", LOGGER_LEVEL_DEBUG);
+		logger->Log("ACPPacket: Null or incomplete packet", LOGGER_LEVEL_WARN);
 		return;
 	}
 
@@ -102,12 +102,12 @@ ACPPacket::ACPPacket(uint8 * buffer, std::size_t size_in){
 	size -= 2;
 
 	opcode = buffer[0];
-	logger->Log("ACPPacket opcode: %u", (uint32) opcode, LOGGER_LEVEL_DEBUG);
+	logger->Log("ACPPacket opcode: %u", (uint32) opcode, LOGGER_LEVEL_INFO);
 	buffer += 1;
 	size -= 1;
 
 	length = ((uint16) buffer[0] << 8) | (uint16)buffer[1];
-	logger->Log("ACPPacket length: %u", (uint32) length, LOGGER_LEVEL_DEBUG);
+	logger->Log("ACPPacket message length: %u", (uint32) length, LOGGER_LEVEL_INFO);
 	buffer += 2;
 	size -= 2;
 

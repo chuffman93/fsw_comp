@@ -86,7 +86,7 @@ void SPI_HALServer::SubsystemLoop(void)
 					logger->Log("SPI_HAL Server: Successfully dispatched packet", LOGGER_LEVEL_INFO);
 				}else{
 					// TODO: send error to RX queue?
-					logger->Log("SPI_HAL Server: Packet dispatch failed!", LOGGER_LEVEL_WARN);
+					logger->Log("SPI_HAL Server: " "\x1b[31m" "Packet dispatch failed!" "\x1b[0m", LOGGER_LEVEL_WARN);
 				}
 			}else{
 				logger->Log("SPI_HAL Server: Queue receive for TX failed!", LOGGER_LEVEL_WARN);
@@ -112,7 +112,7 @@ void SPI_HALServer::SubsystemLoop(void)
 
 				// Check bounds and send to dispatcher RX queue
 				if(rxPacket == NULL){
-					logger->Log("SPI_HAL Server: There was an error reading the packet. Not placing on queue!", LOGGER_LEVEL_ERROR);
+					logger->Log("SPI_HAL Server: " "\x1b[31m" "There was an error reading the packet." "\x1b[0m" " Not placing on queue!", LOGGER_LEVEL_ERROR);
 				}else if (rxPacket->getDestination() == LOCATION_ID_INVALID){
 					logger->Log("SPI_HAL Server: ACP Packet dest invalid (bit flip). Not placing on queue!", LOGGER_LEVEL_WARN);
 					delete rxPacket;
@@ -192,6 +192,7 @@ int SPI_HALServer::spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, in
 			logger->Log("spi_write: Failed to write byte!", LOGGER_LEVEL_WARN);
 			printf("Ret: %d", ret);
 			perror("Error sending byte");
+			return -1;
 		}
 		buf_pt++;
 
@@ -371,22 +372,22 @@ void SPI_HALServer::set_packet_sourcedest(int index, ACPPacket * packet){
 	// set based on index from RX loop that corresponds to the fd
 	switch(index){
 	case 0:
-		logger->Log("--------------------------------------------------------- SPI RX Packet from EPS received",LOGGER_LEVEL_INFO);
+		logger->Log("--------------------------------------------------------- SPI RX Packet from " "\x1b[34m" "EPS" "\x1b[0m" " received",LOGGER_LEVEL_INFO);
 		source = HARDWARE_LOCATION_EPS;
 		dest = SERVER_LOCATION_EPS;
 		break;
 	case 1:
-		logger->Log("--------------------------------------------------------- SPI RX Packet from COM received",LOGGER_LEVEL_INFO);
+		logger->Log("--------------------------------------------------------- SPI RX Packet from " "\x1b[34m" "COM" "\x1b[0m" " received",LOGGER_LEVEL_INFO);
 		source = HARDWARE_LOCATION_COM;
 		dest = SERVER_LOCATION_COM;
 		break;
 	case 2:
-		logger->Log("--------------------------------------------------------- SPI RX Packet from ACS received",LOGGER_LEVEL_INFO);
+		logger->Log("--------------------------------------------------------- SPI RX Packet from " "\x1b[34m" "ACS" "\x1b[0m" " received",LOGGER_LEVEL_INFO);
 		source = HARDWARE_LOCATION_ACS;
 		dest = SERVER_LOCATION_ACS;
 		break;
 	case 3:
-		logger->Log("--------------------------------------------------------- SPI RX Packet from PLD received",LOGGER_LEVEL_INFO);
+		logger->Log("--------------------------------------------------------- SPI RX Packet from " "\x1b[34m" "PLD" "\x1b[0m" " received",LOGGER_LEVEL_INFO);
 		source = HARDWARE_LOCATION_PLD;
 		dest = SERVER_LOCATION_PLD;
 		break;
