@@ -89,6 +89,7 @@ void SCHServer::SubsystemLoop(void)
 				configManager.config.defaultScheduleArray[i].mode);
 		defaultSchedule.push_back(configManager.config.defaultScheduleArray[i]);
 	}
+	printf("\n");
 
 	while(1)
 	{
@@ -98,7 +99,7 @@ void SCHServer::SubsystemLoop(void)
 			logger->Log("Fetching Next Schedule", LOGGER_LEVEL_INFO);
 			LoadNextSchedule();
 			LastTimeSwitched = getTimeInMillis();
-			modeManager->SetMode(currentSchedule.front().mode, LOCATION_ID_INVALID);
+			modeManager->SetMode(currentSchedule.front().mode);
 		}
 
 		GPSServer * gpsServer = dynamic_cast<GPSServer *>(Factory::GetInstance(GPS_SERVER_SINGLETON));
@@ -108,9 +109,9 @@ void SCHServer::SubsystemLoop(void)
 		if(inRange || timeout){
 			currentSchedule.pop_front();
 			if(currentSchedule.empty()){
-				modeManager->SetMode(MODE_BUS_PRIORITY, LOCATION_ID_INVALID);
+				modeManager->SetMode(MODE_BUS_PRIORITY);
 			}else{
-				modeManager->SetMode(currentSchedule.front().mode, LOCATION_ID_INVALID);
+				modeManager->SetMode(currentSchedule.front().mode);
 			}
 			LastTimeSwitched = getTimeInMillis();
 		}

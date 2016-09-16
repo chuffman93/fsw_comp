@@ -109,22 +109,22 @@ void Logger::GetInfo(LoggerLevelType level_in){
 	// Display the log level
 	switch(level_in){
 	case LOGGER_LEVEL_SUPER_DEBUG:
-		printf("\x1b[47m" "SUPER:    " "\x1b[0m");
+		printf("\x1b[37m" "SUPER:    " "\x1b[0m");
 		break;
 	case LOGGER_LEVEL_DEBUG:
 		printf("DEBUG:    ");
 		break;
 	case LOGGER_LEVEL_INFO:
-		printf("\x1b[44m" "INFO:     " "\x1b[0m");
+		printf("\x1b[34m" "INFO:     " "\x1b[0m");
 		break;
 	case LOGGER_LEVEL_WARN:
-		printf("\x1b[43m" "WARN:     " "\x1b[0m");
+		printf("\x1b[33m" "WARN:     " "\x1b[0m");
 		break;
 	case LOGGER_LEVEL_ERROR:
-		printf("\x1b[41m" "ERROR:    " "\x1b[0m");
+		printf("\x1b[31m" "ERROR:    " "\x1b[0m");
 		break;
 	case LOGGER_LEVEL_FATAL:
-		printf("\x1b[45m" "FATAL:    " "\x1b[0m");
+		printf("\x1b[35m" "FATAL:    " "\x1b[0m");
 		break;
 	default:
 		// maybe add assert on bounds

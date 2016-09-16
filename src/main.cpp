@@ -93,7 +93,7 @@ int main(int argc, char * argv[])
 	Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON);
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
-	modeManager->SetMode(MODE_STARTUP, LOCATION_ID_INVALID);
+	modeManager->SetMode(MODE_STARTUP);
 
 	logger->Log("Flight software initialization complete! Starting servers!", LOGGER_LEVEL_FATAL);
 
@@ -112,16 +112,16 @@ int main(int argc, char * argv[])
 	SPI_HALServer * spiServer = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
 
 	// ----------------------------- Start Servers -----------------------------------------------------------------
-	threadsCreated &= WatchdogManager::StartServer(acsServer, 50,	true);	 //ACS
+	threadsCreated &= WatchdogManager::StartServer(acsServer, 50,	false);	 //ACS
 	threadsCreated &= WatchdogManager::StartServer(cdhServer, 20,	true);	 //CDH
 	threadsCreated &= WatchdogManager::StartServer(cmdServer, 50,	false);	 //CMD
-	threadsCreated &= WatchdogManager::StartServer(comServer, 10,	true);	 //COM
-	threadsCreated &= WatchdogManager::StartServer(epsServer, 0,	true);	 //EPS
+	threadsCreated &= WatchdogManager::StartServer(comServer, 10,	false);	 //COM
+	threadsCreated &= WatchdogManager::StartServer(epsServer, 0,	false);	 //EPS
 	threadsCreated &= WatchdogManager::StartServer(errServer, 0,	false);	 //ERR
 	threadsCreated &= WatchdogManager::StartServer(gpsServer, 50,	false);	 //GPS
 	threadsCreated &= WatchdogManager::StartServer(pldServer, 50,	false);	 //PLD
 	threadsCreated &= WatchdogManager::StartServer(schServer, 0,	true);	 //SCH
-	threadsCreated &= WatchdogManager::StartServer(spiServer, 0,	true);	 //SPI
+	threadsCreated &= WatchdogManager::StartServer(spiServer, 0,	false);	 //SPI
 
 	if(!threadsCreated){
 		logger->Log("Not all threads were created on startup!", LOGGER_LEVEL_FATAL);

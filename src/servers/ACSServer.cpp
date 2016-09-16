@@ -89,22 +89,30 @@ bool ACSServer::RegisterHandlers(){
 // -------------------------------------------- State Machine --------------------------------------------
 void ACSServer::loopInit(){
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
-	printf("------------------ Turning ACS on\n");
 	cdhServer->subPowerOn(HARDWARE_LOCATION_ACS);
 	currentState = ST_DISABLED;
 }
+
 void ACSServer::loopDisabled(){
 	ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
 	if(modeManager->GetMode() == MODE_COM)
 		currentState = ST_GND_START;
 
 	if(modeManager->GetMode() == MODE_PLD_PRIORITY)
 		currentState = ST_PLD_START;
+
+	// if ACS is powered off due to a fault, switch to the init state
+	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS]){
+		currentState = ST_INIT;
+	}
 }
+
 void ACSServer::loopGNDStart(){
 	currentState = ST_GND_POINTING;
 }
+
 void ACSServer::loopGNDPointing(){
 	ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
@@ -117,25 +125,25 @@ void ACSServer::loopGNDPointing(){
 	if(modeManager->GetMode() != MODE_COM)
 		currentState = ST_GND_STOP;
 }
+
 void ACSServer::loopGNDStop(){
 	currentState = ST_DISABLED;
 }
+
 void ACSServer::loopPLDStart(){
-	printf("-------------------- PLD Start\n");
 	currentState = ST_PLD_POINTING;
 }
 void ACSServer::loopPLDPointing(){
 	ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 	ACPPacket * GPSRet;
 	ACPPacket * HSRet;
-	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
 	// if ACS is powered off due to a fault, switch to the init state
 	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS]){
 		currentState = ST_INIT;
 	}
 
-	printf("-------------------- PLD pointing\n");
 	GPSRet = ACSSendGPS();
 	PacketProcess(SERVER_LOCATION_ACS, GPSRet);
 
@@ -148,6 +156,7 @@ void ACSServer::loopPLDPointing(){
 	if(modeManager->GetMode() != MODE_PLD_PRIORITY)
 		currentState = ST_PLD_STOP;
 }
+
 void ACSServer::loopPLDStop(){
 	currentState = ST_DISABLED;
 }

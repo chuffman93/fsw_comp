@@ -19,7 +19,7 @@ class ModeManager : public Singleton{
 	friend class Factory;
 	public:
 		SystemModeEnum GetMode(void);
-		bool SetMode(SystemModeEnum newMode, LocationIDType server);
+		bool SetMode(SystemModeEnum newMode);
 
 	protected:
 		ModeManager(void);
