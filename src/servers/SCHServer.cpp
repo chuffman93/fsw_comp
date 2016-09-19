@@ -95,7 +95,7 @@ void SCHServer::SubsystemLoop(void)
 	{
 		uint64_t LastWakeTime = getTimeInMillis();
 		wdm->Kick();
-		printf("\t\t\t\t\tSCH kicking, TID: %lu\n", pthread_self());
+		//printf("\t\t\t\t\tSCH kicking, TID: %lu\n", pthread_self());
 		if(currentSchedule.empty()){
 			logger->Log("Fetching Next Schedule", LOGGER_LEVEL_INFO);
 			LoadNextSchedule();

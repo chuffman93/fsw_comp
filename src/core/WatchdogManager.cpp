@@ -159,6 +159,11 @@ void * WatchdogManager::WatchdogManagerTask(){
 				logger->Log("WatchdogManager: failed to take lock", LOGGER_LEVEL_WARN);
 			}
 		}
+
+		if (!watchdogManager->ResetAllKickState()){
+			logger->Log("WatchdogManager: failed to take lock", LOGGER_LEVEL_WARN);
+		}
+
 		lastWakeTime = getTimeInMillis();
 		waitUntil(lastWakeTime, WATCHDOG_MANAGER_DELAY);
 	}
@@ -174,7 +179,6 @@ void WatchdogManager::Kick(void){
 	if (watchdogManager->TakeLock(MAX_BLOCK_TIME) == true){
 		pthread_t tid;
 		tid = pthread_self();
-		printf("\t\t\t\t\tWatchdog was kicked, TID: %lu\n", tid);
 
 		// Find the PThread with the correct tid
 		for (ConstIteratorType it = watchdogManager->taskMap.begin(); it != watchdogManager->taskMap.end(); ++it){
@@ -200,6 +204,20 @@ bool WatchdogManager::AllRunningTasksActive(void){
 				watchdogManager->GiveLock();
 				return false;
 			}
+		}
+
+		watchdogManager->GiveLock();
+		return true;
+	}else{
+		return false;
+	}
+}
+
+bool WatchdogManager::ResetAllKickState(void){
+	WatchdogManager * watchdogManager = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
+
+	if (watchdogManager->TakeLock(MAX_BLOCK_TIME) == true){
+		for (ConstIteratorType it = watchdogManager->taskMap.begin(); it != watchdogManager->taskMap.end(); ++it){
 			it->second->SetKickState(false);
 		}
 

@@ -112,15 +112,15 @@ int main(int argc, char * argv[])
 	SPI_HALServer * spiServer = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
 
 	// ----------------------------- Start Servers -----------------------------------------------------------------
-	threadsCreated &= WatchdogManager::StartServer(acsServer, 50,	true);	 //ACS
-	threadsCreated &= WatchdogManager::StartServer(cdhServer, 20,	true);	 //CDH
+	threadsCreated &= WatchdogManager::StartServer(acsServer, 50,	false);	 //ACS
+	threadsCreated &= WatchdogManager::StartServer(cdhServer, 20,	false);	 //CDH
 	threadsCreated &= WatchdogManager::StartServer(cmdServer, 50,	false);	 //CMD
 	threadsCreated &= WatchdogManager::StartServer(comServer, 10,	false);	 //COM
 	threadsCreated &= WatchdogManager::StartServer(epsServer, 0,	false);	 //EPS
 	threadsCreated &= WatchdogManager::StartServer(errServer, 0,	false);	 //ERR
-	threadsCreated &= WatchdogManager::StartServer(gpsServer, 50,	false);	 //GPS
+	threadsCreated &= WatchdogManager::StartServer(gpsServer, 50,	true);	 //GPS
 	threadsCreated &= WatchdogManager::StartServer(pldServer, 50,	false);	 //PLD
-	threadsCreated &= WatchdogManager::StartServer(schServer, 0,	true);	 //SCH
+	threadsCreated &= WatchdogManager::StartServer(schServer, 0,	false);	 //SCH
 	threadsCreated &= WatchdogManager::StartServer(spiServer, 0,	true);	 //SPI
 
 	if(!threadsCreated){
@@ -130,7 +130,7 @@ int main(int argc, char * argv[])
 		logger->Log("All servers created!", LOGGER_LEVEL_INFO);
 	}
 
-	//WatchdogManager::WatchdogManagerTask();
+	WatchdogManager::WatchdogManagerTask();
 	while(true){usleep(100000);}
 
 	logger->Log("Flight Software exiting from main! All relevant threads have exited!", LOGGER_LEVEL_FATAL);

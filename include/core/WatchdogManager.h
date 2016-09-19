@@ -59,6 +59,8 @@ public:
 
 	static bool AllRunningTasksActive(void);
 
+	static bool ResetAllKickState(void);
+
 	std::size_t GetNumberOfTasks(void) const;
 
 private:
