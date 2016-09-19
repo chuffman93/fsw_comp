@@ -20,8 +20,6 @@
 #include "servers/GPSServer.h"
 #include "util/FileHandler.h"
 #include "util/Logger.h"
-#include "util/itoa.h"
-#include "HAL/RTC.h"
 
 //size in bytes that is required to compress the files
 #define FILE_HANDLER_DEBUG                      0
@@ -35,7 +33,6 @@ const unsigned int sizeToZip = 10 * (1024);
 uint32 crcTable[256];
 
 
-using namespace AllStar::HAL;
 using namespace AllStar::Core;
 using namespace AllStar::Servers;
 using namespace std;

@@ -34,7 +34,6 @@ class CDHServer : public SubsystemServer, public AllStar::Core::Singleton{
 	friend class AllStar::Core::Factory;
 
 public:
-	void Update(SystemModeEnum mode){}
 	bool RegisterHandlers();
 
 	// Turn a subsystem on  (only ACS, COM, PLD, GPS)
@@ -71,6 +70,7 @@ private:
 	// Modes
 	void loopInit();
 	void loopMonitor();
+	void loopDiagnostic();
 
 	// Gather CDH data at a given frequency
 	void readHealth(uint8 frequency, uint32 timeUnit);
@@ -78,11 +78,13 @@ private:
 	BEGIN_STATE_MAP
 	STATE_MAP_ENTRY(&CDHServer::loopInit)
 	STATE_MAP_ENTRY(&CDHServer::loopMonitor)
+	STATE_MAP_ENTRY(&CDHServer::loopDiagnostic)
 	END_STATE_MAP
 
 	enum CDH_States {
 		ST_INIT = 0,
-		ST_MONITOR
+		ST_MONITOR,
+		ST_DIAGNOSTIC
 	};
 };
 

@@ -15,6 +15,7 @@
 #include "util/itoa.h"
 #include "util/FileHandler.h"
 #include "util/Logger.h"
+#include "util/Diagnostics.h"
 #include <sys/sysinfo.h>
 #include <iostream>
 #include <stdlib.h>
@@ -27,6 +28,8 @@ using namespace AllStar::Core;
 
 namespace AllStar{
 namespace Servers{
+
+#define NUM_TESTS 4
 
 struct stat sb;
 Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
@@ -418,6 +421,46 @@ void toggleResetLine(HardwareLocationIDType subsystem, bool state){
 	}
 
 	system(cmd.c_str());
+}
+
+void runDiagnostic(void){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("CDHServer: running diagnostics tests", LOGGER_LEVEL_INFO);
+	FILE * fp = fopen("diagnostics.txt", "r");
+
+	if(fp == NULL){
+		logger->Log("Error opening diagnostic tests file", LOGGER_LEVEL_WARN);
+
+		// TODO: should we run a pre-specified test?
+		FILE * fpr = fopen("diagnostic_results.txt", "a+");
+		char results[] = "No tests to run\n";
+		fwrite(results, 1, sizeof(results), fpr);
+		fclose(fpr);
+	}else{
+		uint8 i = 0;
+		bool activeTests[NUM_TESTS] = {false};
+		char c;
+		while(i < NUM_TESTS){
+			c = fgetc(fp);
+			if(c == EOF){
+				logger->Log("Diagnostic tests file too short!", LOGGER_LEVEL_WARN);
+				break;
+			}
+			activeTests[i] = (c == '1') ? true : false;
+			i++;
+		}
+
+		// Conditionally run tests here TODO: rewrite with function pointers
+		SampleTest0(activeTests[0]);
+		SampleTest1(activeTests[1]);
+		SampleTest2(activeTests[2]);
+		SampleTest3(activeTests[3]);
+
+		fclose(fp);
+
+		// TODO: decide on deletion/transfer scheme
+		//remove("diagnostics.txt");
+	}
 }
 
 }

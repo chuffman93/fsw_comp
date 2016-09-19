@@ -93,11 +93,12 @@ int main(int argc, char * argv[])
 	Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON);
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
-	modeManager->SetMode(MODE_STARTUP, LOCATION_ID_INVALID);
+	modeManager->SetMode(MODE_STARTUP);
 
 	logger->Log("Flight software initialization complete! Starting servers!", LOGGER_LEVEL_FATAL);
 
 	// ----------------------------- Grab Server Instances ---------------------------------------------------------
+	// TODO: more efficient way to do this? (ie. SubsystemServer array and no dynamic casting >>> one for loop?)
 	bool threadsCreated = true;
 	ACSServer * acsServer = dynamic_cast<ACSServer *> (Factory::GetInstance(ACS_SERVER_SINGLETON));
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
@@ -111,7 +112,7 @@ int main(int argc, char * argv[])
 	SPI_HALServer * spiServer = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
 
 	// ----------------------------- Start Servers -----------------------------------------------------------------
-	threadsCreated &= WatchdogManager::StartServer(acsServer, 100,	false);	 //ACS
+	threadsCreated &= WatchdogManager::StartServer(acsServer, 50,	true);	 //ACS
 	threadsCreated &= WatchdogManager::StartServer(cdhServer, 20,	true);	 //CDH
 	threadsCreated &= WatchdogManager::StartServer(cmdServer, 50,	false);	 //CMD
 	threadsCreated &= WatchdogManager::StartServer(comServer, 10,	false);	 //COM

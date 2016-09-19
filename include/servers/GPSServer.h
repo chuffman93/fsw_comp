@@ -51,8 +51,6 @@ class GPSServer : public SubsystemServer, public AllStar::Core::Singleton{
 public:
 	void SubsystemLoop(void);
 
-	void Update(SystemModeEnum mode){}
-
 	bool RegisterHandlers(void);
 
 	GPS_BESTXYZ * GetGPSDataPtr(void);

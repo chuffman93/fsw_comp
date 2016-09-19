@@ -147,12 +147,27 @@ void CDHServer::loopInit(){
 }
 
 void CDHServer::loopMonitor(){
+	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+
 	uint8 readFrequency = 5;
 	uint64 lastWake = getTimeInMillis();
 
 	readHealth(readFrequency, (uint32) lastWake/1000);
 
+	if(modeManager->GetMode() == MODE_DIAGNOSTIC){
+		currentState = ST_DIAGNOSTIC;
+	}
+
 	waitUntil(lastWake, 1000);
+}
+
+void CDHServer::loopDiagnostic(){
+	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+
+	runDiagnostic();
+
+	currentState = ST_MONITOR;
+	modeManager->SetMode(MODE_BUS_PRIORITY);
 }
 
 
@@ -202,6 +217,9 @@ void CDHServer::readHealth(uint8 frequency, uint32 timeUnit){
 	// Get all CDH information
 	if(((timeUnit - frequency - 1) % frequency) == 0){
 		logger->Log("CDHServer: Gathering information", LOGGER_LEVEL_DEBUG);
+
+		// ensure that no power faults have been detected, if they have, power off the subsystem
+		//devMngr->checkHS(); //TODO: this seg faults?
 
 #if CPU_EN
 		// CPU usage

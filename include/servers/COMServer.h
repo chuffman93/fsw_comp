@@ -62,7 +62,6 @@ class COMServer : public SubsystemServer, public AllStar::Core::Singleton{
 	friend class AllStar::Core::Factory;
 
 public:
-	void Update(SystemModeEnum mode){}
 	bool RegisterHandlers(void);
 
 private:

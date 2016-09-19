@@ -15,21 +15,12 @@
 #include "TestMode.h"
 #endif
 
-#define MODE_DEBUG			1
-
-#if MODE_DEBUG
-#include <iostream>
-#define DEBUG_MODE_COUT(m) std::cout << m << std::endl;
-#else
-#define DEBUG_MODE_COUT(m)
-#endif // DEBUG
-
 using namespace std;
 
 namespace AllStar{
 namespace Core{
 
-bool ModeManager::validTransition[MODE_NUM_MODES][MODE_NUM_MODES] = {false};
+bool ModeManager::validTransition[MODE_NUM_MODES][MODE_NUM_MODES] = {{false}};
 
 ModeManager::ModeManager(void)
 : Singleton(), mode(MODE_STARTUP){
@@ -59,53 +50,31 @@ void ModeManager::Destroy(void){
 }
 #endif
 
-bool ModeManager::Attach(ModeListener & listener){
-	if (true == this->TakeLock(MAX_BLOCK_TIME)){
-		pair<set<ModeListener *>::const_iterator,bool> result = listeners.insert(&listener);
-		this->GiveLock();
-		return result.second;
-	}else{
-		return false;
-	}
-}
-
-bool ModeManager::Detach(ModeListener & listener){
-	bool ret;
-
-	if (true == this->TakeLock(MAX_BLOCK_TIME)){
-		ret = (listeners.erase(&listener) > 0);
-		this->GiveLock();
-		return ret;
-	}else{
-		return false;
-	}
-}
-
 SystemModeEnum ModeManager::GetMode(void){
 	return mode;
 }
 
-bool ModeManager::SetMode(SystemModeEnum newMode, LocationIDType server){
+bool ModeManager::SetMode(SystemModeEnum newMode){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log("SetMode called", LOGGER_LEVEL_DEBUG);
 	switch(newMode){
 	case MODE_ACCESS:
-		logger->Log("Setting mode to MODE_ACCESS", LOGGER_LEVEL_INFO);
+		logger->Log("Setting mode to " "\x1b[32m" "MODE_ACCESS" "\x1b[0m", LOGGER_LEVEL_INFO);
 		break;
 	case MODE_STARTUP:
-		logger->Log("Setting mode to MODE_STARTUP", LOGGER_LEVEL_INFO);
+		logger->Log("Setting mode to " "\x1b[32m" "MODE_STARTUP" "\x1b[0m", LOGGER_LEVEL_INFO);
 		break;
 	case MODE_BUS_PRIORITY:
-		logger->Log("Setting mode to MODE_BUS_PRIORITY", LOGGER_LEVEL_INFO);
+		logger->Log("Setting mode to " "\x1b[32m" "MODE_BUS_PRIORITY" "\x1b[0m", LOGGER_LEVEL_INFO);
 		break;
 	case MODE_PLD_PRIORITY:
-		logger->Log("Setting mode to MODE_PLD_PRIORITY", LOGGER_LEVEL_INFO);
-		break;
-	case MODE_ERROR:
-		logger->Log("Setting mode to MODE_ERROR", LOGGER_LEVEL_INFO);
+		logger->Log("Setting mode to " "\x1b[32m" "MODE_PLD_PRIORITY" "\x1b[0m", LOGGER_LEVEL_INFO);
 		break;
 	case MODE_COM:
-		logger->Log("Setting mode to MODE_COM", LOGGER_LEVEL_INFO);
+		logger->Log("Setting mode to " "\x1b[32m" "MODE_COM" "\x1b[0m", LOGGER_LEVEL_INFO);
+		break;
+	case MODE_DIAGNOSTIC:
+		logger->Log("Setting mode to " "\x1b[32m" "MODE_DIAGNOSTIC" "\x1b[0m", LOGGER_LEVEL_INFO);
 		break;
 	default:
 		logger->Log("Unknown mode selected!", LOGGER_LEVEL_WARN);
@@ -132,8 +101,6 @@ bool ModeManager::SetMode(SystemModeEnum newMode, LocationIDType server){
 			return false;
 		}
 
-		NotifyAll();
-
 		// TODO: need mode logger here
 		this->mode = newMode;
 		logger->Log("Switching mode!", LOGGER_LEVEL_INFO);
@@ -143,12 +110,6 @@ bool ModeManager::SetMode(SystemModeEnum newMode, LocationIDType server){
 		return true;
 	}else{
 		return false;
-	}
-}
-
-void ModeManager::NotifyAll(void){
-	for (set<ModeListener *>::iterator i = listeners.begin(); i != listeners.end(); ++i){
-		(*i)->Update(this->mode);
 	}
 }
 

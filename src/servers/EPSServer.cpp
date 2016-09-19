@@ -81,7 +81,8 @@ void EPSServer::loopInit(){
 
 void EPSServer::loopMonitor(){
 	ACPPacket * HSRet = EPSHealthStat();
-	PacketProcess(SERVER_LOCATION_EPS, HSRet);
+	//PacketProcess(SERVER_LOCATION_EPS, HSRet);
+	usleep(2000000);
 }
 
 } // End Namespace servers

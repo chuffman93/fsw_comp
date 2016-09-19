@@ -66,10 +66,5 @@ void SubsystemServer::SubsystemLoop(void)
 	}
 }
 
-void SubsystemServer::Update(const SystemModeEnum mode)
-{
-
-}
-
 } // End of namespace Servers
 } // End of namespace AllStar

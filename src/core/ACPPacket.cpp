@@ -70,7 +70,7 @@ ACPPacket::ACPPacket(const ACPPacket & packetSource){
 // --- Construct from a buffer --------------------------------------------------------------------------------------
 ACPPacket::ACPPacket(uint8 * buffer, std::size_t size_in){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("Creating ACPPacket from buffer of size %d\n", (int) size_in, LOGGER_LEVEL_DEBUG);
+	logger->Log("Creating ACPPacket from buffer of size %d", (int) size_in, LOGGER_LEVEL_INFO);
 	std::size_t size = size_in;
 
 	source = LOCATION_ID_INVALID;
@@ -80,7 +80,7 @@ ACPPacket::ACPPacket(uint8 * buffer, std::size_t size_in){
 	// Check that the buffer is sized correctly.
 	if (NULL == buffer || size < ACP_MIN_BYTES){
 		messageBuff = NULL;
-		logger->Log("ACPPacket: Null or incomplete packet", LOGGER_LEVEL_DEBUG);
+		logger->Log("ACPPacket: Null or incomplete packet", LOGGER_LEVEL_WARN);
 		return;
 	}
 
@@ -96,21 +96,18 @@ ACPPacket::ACPPacket(uint8 * buffer, std::size_t size_in){
 		return;
 	}
 
-	// Get the destination
 	packetID = (uint16)(((uint16)(buffer[0]) << 8) | buffer[1]);
 	logger->Log("ACPPacket ID: %u", (uint32) packetID, LOGGER_LEVEL_DEBUG);
 	buffer += 2;
 	size -= 2;
 
-	// Get the number
 	opcode = buffer[0];
-	logger->Log("ACPPacket opcode: %u", (uint32) opcode, LOGGER_LEVEL_DEBUG);
+	logger->Log("ACPPacket opcode: %u", (uint32) opcode, LOGGER_LEVEL_INFO);
 	buffer += 1;
 	size -= 1;
 
-	// Get the length
 	length = ((uint16) buffer[0] << 8) | (uint16)buffer[1];
-	logger->Log("ACPPacket length: %u", (uint32) length, LOGGER_LEVEL_DEBUG);
+	logger->Log("ACPPacket message length: %u", (uint32) length, LOGGER_LEVEL_INFO);
 	buffer += 2;
 	size -= 2;
 
