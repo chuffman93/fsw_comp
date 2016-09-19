@@ -112,7 +112,7 @@ int main(int argc, char * argv[])
 	SPI_HALServer * spiServer = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
 
 	// ----------------------------- Start Servers -----------------------------------------------------------------
-	threadsCreated &= WatchdogManager::StartServer(acsServer, 50,	false);	 //ACS
+	threadsCreated &= WatchdogManager::StartServer(acsServer, 50,	true);	 //ACS
 	threadsCreated &= WatchdogManager::StartServer(cdhServer, 20,	true);	 //CDH
 	threadsCreated &= WatchdogManager::StartServer(cmdServer, 50,	false);	 //CMD
 	threadsCreated &= WatchdogManager::StartServer(comServer, 10,	false);	 //COM
@@ -121,7 +121,7 @@ int main(int argc, char * argv[])
 	threadsCreated &= WatchdogManager::StartServer(gpsServer, 50,	false);	 //GPS
 	threadsCreated &= WatchdogManager::StartServer(pldServer, 50,	false);	 //PLD
 	threadsCreated &= WatchdogManager::StartServer(schServer, 0,	true);	 //SCH
-	threadsCreated &= WatchdogManager::StartServer(spiServer, 0,	false);	 //SPI
+	threadsCreated &= WatchdogManager::StartServer(spiServer, 0,	true);	 //SPI
 
 	if(!threadsCreated){
 		logger->Log("Not all threads were created on startup!", LOGGER_LEVEL_FATAL);

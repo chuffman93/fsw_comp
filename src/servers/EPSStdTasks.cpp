@@ -36,7 +36,6 @@ namespace Servers{
 ACPPacket * EPSHealthStat()
 {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("EPSStdTasks: unfinished function entered!", LOGGER_LEVEL_FATAL);
 
 	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, EPS_HS_CMD);
 	ACPPacket * HSRet = DispatchPacket(HSQuery);

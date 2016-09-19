@@ -35,7 +35,7 @@
 using namespace AllStar;
 using namespace Core;
 
-static int timeout = -1;
+static int timeout = 50;
 
 char * SPI_HALServer::queueNameSPITX = (char *) "/queueHandleSPITX";
 
