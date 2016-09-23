@@ -56,6 +56,7 @@ private:
 	void loopPLDStart();
 	void loopPLDPointing();
 	void loopPLDStop();
+	void loopDiagnostic();
 
 	BEGIN_STATE_MAP
 	STATE_MAP_ENTRY(&ACSServer::loopInit)
@@ -66,6 +67,7 @@ private:
 	STATE_MAP_ENTRY(&ACSServer::loopPLDStart)
 	STATE_MAP_ENTRY(&ACSServer::loopPLDPointing)
 	STATE_MAP_ENTRY(&ACSServer::loopPLDStop)
+	STATE_MAP_ENTRY(&ACSServer::loopDiagnostic)
 	END_STATE_MAP
 
 	enum ACS_State{
@@ -76,7 +78,8 @@ private:
 		ST_GND_STOP,
 		ST_PLD_START,
 		ST_PLD_POINTING,
-		ST_PLD_STOP
+		ST_PLD_STOP,
+		ST_DIAGNOSTIC
 	};
 
 };

@@ -103,6 +103,10 @@ void ACSServer::loopDisabled(){
 	if(modeManager->GetMode() == MODE_PLD_PRIORITY)
 		currentState = ST_PLD_START;
 
+	if(modeManager->GetMode() == MODE_DIAGNOSTIC){
+		currentState = ST_DIAGNOSTIC;
+	}
+
 	// if ACS is powered off due to a fault, switch to the init state
 	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS]){
 		currentState = ST_INIT;
@@ -159,6 +163,17 @@ void ACSServer::loopPLDPointing(){
 
 void ACSServer::loopPLDStop(){
 	currentState = ST_DISABLED;
+}
+
+void ACSServer::loopDiagnostic(){
+	uint64 lastWake = getTimeInMillis();
+
+	ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	if(modeManager->GetMode() != MODE_DIAGNOSTIC){
+		currentState = ST_DISABLED;
+	}
+
+	waitUntil(lastWake, 1000);
 }
 
 } // End Namespace servers

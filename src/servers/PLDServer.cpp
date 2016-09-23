@@ -73,9 +73,11 @@ bool PLDServer::RegisterHandlers(){
 
 // ------------------------------------ State Machine ------------------------------------------------------------
 void PLDServer::loopInit(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("PLDServer: initializing", LOGGER_LEVEL_INFO);
+
 	//No need to do anything
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-	printf("--------------------------- In loop init\n");
 	if(modeManager->GetMode() != MODE_STARTUP){
 		//Wait until we are not in startup mode, then transition to IDLE
 		currentState = ST_IDLE;
@@ -87,8 +89,11 @@ void PLDServer::loopIdle(){
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	//Wait until we are in payload priority mode
 	if(modeManager->GetMode() == MODE_PLD_PRIORITY){
-		printf("-------------------------------- Switching to startup mode\n");
 		currentState = ST_STARTUP;
+	}
+
+	if(modeManager->GetMode() == MODE_DIAGNOSTIC){
+		currentState = ST_DIAGNOSTIC;
 	}
 }
 
@@ -140,6 +145,17 @@ void PLDServer::loopScience(){
 	if(modeManager->GetMode() != MODE_PLD_PRIORITY){
 		currentState = ST_SHUTDOWN;
 	}
+}
+
+void PLDServer::loopDiagnostic(){
+	uint64 lastWake = getTimeInMillis();
+
+	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	if(modeManager->GetMode() != MODE_DIAGNOSTIC){
+		currentState = ST_IDLE;
+	}
+
+	waitUntil(lastWake, 1000);
 }
 
 } // end namespace servers

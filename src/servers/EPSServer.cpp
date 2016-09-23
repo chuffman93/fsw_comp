@@ -82,7 +82,24 @@ void EPSServer::loopInit(){
 void EPSServer::loopMonitor(){
 	ACPPacket * HSRet = EPSHealthStat();
 	//PacketProcess(SERVER_LOCATION_EPS, HSRet);
+
+	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	if(modeManager->GetMode() == MODE_DIAGNOSTIC){
+		currentState = ST_DIAGNOSTIC;
+	}
+
 	usleep(2000000);
+}
+
+void EPSServer::loopDiagnostic(){
+	uint64 lastWake = getTimeInMillis();
+
+	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	if(modeManager->GetMode() != MODE_DIAGNOSTIC){
+		currentState = ST_MONITOR;
+	}
+
+	waitUntil(lastWake, 1000);
 }
 
 } // End Namespace servers

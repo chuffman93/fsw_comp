@@ -44,10 +44,6 @@ CMDServer::~CMDServer(){
 
 void CMDServer::Initialize(void){
 	cmdSwitchProtocolHandler = new CMDSwitchProtocolHandler();
-
-	// setup for uftp
-	portSetup();
-	uftpSetup();
 }
 
 #ifdef TEST
@@ -84,20 +80,37 @@ bool CMDServer::RegisterHandlers(){
 	return success;
 }
 
-void CMDServer::SubsystemLoop(void){
+// --------- State Machine -----------------------------------------------------------------------------------------
+
+void CMDServer::loopInit(void){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("CMDServer: Initializing", LOGGER_LEVEL_INFO);
 
-	logger->Log("CMDServer: Entered Subsystem Loop", LOGGER_LEVEL_INFO);
+	// setup for uftp
+	portSetup();
+	uftpSetup();
 
-	while(1){
-		//while(Listen(id));
-		uint64_t LastTimeTick = getTimeInMillis();
+	currentState = ST_IDLE;
+}
 
-		printf("loop\n");
+void CMDServer::loopIdle(void){
+	uint64_t LastTimeTick = getTimeInMillis();
+	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
-		waitUntil(LastTimeTick, 1000);
-
+	if(modeManager->GetMode() == MODE_DIAGNOSTIC){
+		currentState = ST_DIAGNOSTIC;
 	}
+
+	waitUntil(LastTimeTick, 1000);
+}
+
+void CMDServer::loopDiagnostic(){
+	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+
+	runDiagnostic();
+
+	currentState = ST_IDLE;
+	modeManager->SetMode(MODE_BUS_PRIORITY);
 }
 
 } // End of namespace Servers

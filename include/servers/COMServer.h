@@ -89,6 +89,7 @@ private:
 	void loopCOMStart();
 	void loopCOM();
 	void loopCOMStop();
+	void loopDiagnostic();
 
 	BEGIN_STATE_MAP
 	STATE_MAP_ENTRY(&COMServer::loopInit)
@@ -96,6 +97,7 @@ private:
 	STATE_MAP_ENTRY(&COMServer::loopCOMStart)
 	STATE_MAP_ENTRY(&COMServer::loopCOM)
 	STATE_MAP_ENTRY(&COMServer::loopCOMStop)
+	STATE_MAP_ENTRY(&COMServer::loopDiagnostic)
 	END_STATE_MAP
 
 	enum COM_States {
@@ -103,7 +105,8 @@ private:
 		ST_IDLE,
 		ST_COM_START,
 		ST_COM,
-		ST_COM_STOP
+		ST_COM_STOP,
+		ST_DIAGNOSTIC
 		// BEACON, RX, TX ...
 	};
 };

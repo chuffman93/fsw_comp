@@ -4,6 +4,9 @@
  *  Created on: Feb 12, 2013
  *      Author: Caitlyn
  *  Modified:
+ *
+ *     Updated: September 2016
+ *  	Author: Alex St. Clair
  */
 
 #ifndef CMDSERVER_H_
@@ -24,7 +27,6 @@ class CMDServer : public SubsystemServer, public AllStar::Core::Singleton{
 	friend class AllStar::Core::Factory;
 
 public:
-	void SubsystemLoop(void);
 	bool RegisterHandlers();
 	static int subsystem_acp_protocol[HARDWARE_LOCATION_MAX];
 
@@ -47,8 +49,22 @@ private:
 
 	char * CMDFiles [5];
 
+	// Modes
+	void loopInit();
+	void loopIdle();
+	void loopDiagnostic();
+
 	BEGIN_STATE_MAP
+	STATE_MAP_ENTRY(&CMDServer::loopInit)
+	STATE_MAP_ENTRY(&CMDServer::loopIdle)
+	STATE_MAP_ENTRY(&CMDServer::loopDiagnostic)
 	END_STATE_MAP
+
+	enum CMD_States {
+		ST_INIT = 0,
+		ST_IDLE,
+		ST_DIAGNOSTIC
+	};
 };
 
 }
