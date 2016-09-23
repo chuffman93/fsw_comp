@@ -15,7 +15,7 @@
 using namespace std;
 using namespace AllStar::Servers;
 
-#define WATCHDOG_MANAGER_DELAY 5000
+#define WATCHDOG_MANAGER_DELAY 10000
 namespace AllStar{namespace Core{
 
 // -------------------------------------- Necessary Methods --------------------------------------
@@ -150,7 +150,7 @@ void * WatchdogManager::WatchdogManagerTask(){
 				for (IteratorType it = watchdogManager->taskMap.begin(); it != watchdogManager->taskMap.end(); ++it){
 					if (it->second->GetTaskState() == TASK_RUNSTATE_RUNNING && !it->second->GetKickState()){
 						it->first->stop();
-						logger->Log("Restarting inactive task", LOGGER_LEVEL_WARN);
+						logger->Log("\x1b[31m" "Restarting inactive task" "\x1b[0m", LOGGER_LEVEL_ERROR);
 						it->first->start();
 					}
 				}

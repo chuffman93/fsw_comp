@@ -145,13 +145,13 @@ void ACSServer::loopPLDPointing(){
 	}
 
 	GPSRet = ACSSendGPS();
-	PacketProcess(SERVER_LOCATION_ACS, GPSRet);
+	//PacketProcess(SERVER_LOCATION_ACS, GPSRet);
 
 	usleep(3000000);
 
 	ACPPacket * HSSend = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_HS_CMD);
 	HSRet = DispatchPacket(HSSend);
-	PacketProcess(SERVER_LOCATION_ACS, HSRet);
+	//PacketProcess(SERVER_LOCATION_ACS, HSRet);
 
 	if(modeManager->GetMode() != MODE_PLD_PRIORITY)
 		currentState = ST_PLD_STOP;

@@ -78,9 +78,6 @@ bool COMServer::RegisterHandlers(){
 
 // -------------------------------------------- State Machine ---------------------------------------------
 void COMServer::loopInit(){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("COM Server: loop init", LOGGER_LEVEL_INFO);
-
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 	cdhServer->subPowerOn(HARDWARE_LOCATION_COM);
 
@@ -90,9 +87,6 @@ void COMServer::loopInit(){
 }
 
 void COMServer::loopIdle(){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("COM Server: loop idle", LOGGER_LEVEL_INFO);
-
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
 	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_EPS]){
@@ -107,9 +101,6 @@ void COMServer::loopIdle(){
 }
 
 void COMServer::loopCOMStart(){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("COM Server: starting COM", LOGGER_LEVEL_INFO);
-
 	ACPPacket * startPacket = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, 3);
 	ACPPacket * startRet = DispatchPacket(startPacket);
 
@@ -131,9 +122,6 @@ void COMServer::loopCOM(){
 }
 
 void COMServer::loopCOMStop(){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("COM Server: stopping COM", LOGGER_LEVEL_INFO);
-
 	ACPPacket * stopPacket = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, 4);
 	ACPPacket * stopRet = DispatchPacket(stopPacket);
 

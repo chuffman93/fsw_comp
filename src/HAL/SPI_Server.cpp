@@ -86,7 +86,7 @@ void SPI_HALServer::SubsystemLoop(void)
 					logger->Log("SPI_HAL Server: Successfully dispatched packet", LOGGER_LEVEL_INFO);
 				}else{
 					// TODO: send error to RX queue?
-					logger->Log("SPI_HAL Server: " "\x1b[31m" "Packet dispatch failed!" "\x1b[0m", LOGGER_LEVEL_WARN);
+					logger->Log("SPI_HAL Server: " "\x1b[33m" "Packet dispatch failed!" "\x1b[0m", LOGGER_LEVEL_WARN);
 				}
 			}else{
 				logger->Log("SPI_HAL Server: Queue receive for TX failed!", LOGGER_LEVEL_WARN);
@@ -112,7 +112,7 @@ void SPI_HALServer::SubsystemLoop(void)
 
 				// Check bounds and send to dispatcher RX queue
 				if(rxPacket == NULL){
-					logger->Log("SPI_HAL Server: " "\x1b[31m" "There was an error reading the packet." "\x1b[0m" " Not placing on queue!", LOGGER_LEVEL_ERROR);
+					logger->Log("SPI_HAL Server: " "\x1b[33m" "There was an error reading the packet." "\x1b[0m" " Not placing on queue!", LOGGER_LEVEL_ERROR);
 				}else if (rxPacket->getDestination() == LOCATION_ID_INVALID){
 					logger->Log("SPI_HAL Server: ACP Packet dest invalid (bit flip). Not placing on queue!", LOGGER_LEVEL_WARN);
 					delete rxPacket;
