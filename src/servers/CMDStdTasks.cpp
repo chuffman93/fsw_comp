@@ -106,15 +106,19 @@ void runDiagnostic(void){
 			i++;
 		}
 
+		FILE * fpr = fopen("diagnostic_results.txt", "w");
+		fprintf(fpr, "Diagnostics Test @ %lld\n", getTimeInMillis());
+		fclose(fpr);
+
 		// Conditionally run tests here TODO: rewrite with function pointers
-		SampleTest0(activeTests[0]);
-		SampleTest1(activeTests[1]);
+		BusLoadTest(activeTests[0]);
+		SPIStats(activeTests[1]);
 		SampleTest2(activeTests[2]);
 		SampleTest3(activeTests[3]);
 
 		fclose(fp);
 
-		// TODO: decide on deletion/transfer scheme
+		// FIXME: decide on deletion/transfer scheme
 		//remove("diagnostics.txt");
 	}
 }
