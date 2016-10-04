@@ -34,12 +34,7 @@ Logger::~Logger(void){
 	//Left intentionally blank
 }
 
-// TODO:
-// 1. X When writing out a logging line, prepend a timestamp to the line
-// 2. X When writing out a logging line, derive a thread ID and write it out, probably between the timestamp and the actual logging text
-// 3. X The logging method should have two parameters:  a string and the logging level, like "DEBUG" or "INFO" or "ERROR".  The logging level should be an enumerated type and part of the logging class.
-// 4.   The logging class can output to the screen, a file, or both
-// 5.   If logging to a file, the PID and process name should be part of the filename
+// TODO: The logging class should have the ability to output to the screen, a file, or both
 void Logger::Log(char const * message, LoggerLevelType level_in){
 
 	if(level_in >= threshold){
@@ -55,43 +50,27 @@ void Logger::Log(string message, LoggerLevelType level_in){
 }
 
 void Logger::Log(char const * message, int int_in, LoggerLevelType level_in){
-	if(level_in >= threshold){
-		GetInfo(level_in);
-
-		// Display the message
-		printf(message, int_in);
-		printf("\n");
-	}
+	char msg_out [50];
+	sprintf(msg_out, message, int_in);
+	Log(msg_out, level_in);
 }
 
 void Logger::Log(char const * message, uint32 uint_in, LoggerLevelType level_in){
-	if(level_in >= threshold){
-		GetInfo(level_in);
-
-		// Display the message
-		printf(message, uint_in);
-		printf("\n");
-	}
+	char msg_out [50];
+	sprintf(msg_out, message, uint_in);
+	Log(msg_out, level_in);
 }
 
 void Logger::Log(char const * message, float float_in, LoggerLevelType level_in){
-	if(level_in >= threshold){
-		GetInfo(level_in);
-
-		//Display the message
-		printf(message, float_in);
-		printf("\n");
-	}
+	char msg_out [50];
+	sprintf(msg_out, message, float_in);
+	Log(msg_out, level_in);
 }
 
 void Logger::Log(char const * message, const char * char_in, LoggerLevelType level_in){
-	if(level_in >= threshold){
-		GetInfo(level_in);
-
-		// Display the message
-		printf(message, char_in);
-		printf("\n");
-	}
+	char msg_out [50];
+	sprintf(msg_out, message, char_in);
+	Log(msg_out, level_in);
 }
 
 void Logger::Log(char const * message, string str_in, LoggerLevelType level_in){
