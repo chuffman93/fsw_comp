@@ -45,6 +45,18 @@ void Logger::Log(char const * message, LoggerLevelType level_in){
 	}
 }
 
+void Logger::Log(char const * message, LoggerLevelType level_in, LogFile file_out){
+
+	if(level_in >= threshold){
+		GetInfo(level_in);
+
+		// Display the message
+		printf("%s\n", message);
+
+		// Print the message to the appropriate file
+	}
+}
+
 void Logger::Log(string message, LoggerLevelType level_in){
 	Log(message.c_str(), level_in);
 }
