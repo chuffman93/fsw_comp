@@ -131,12 +131,10 @@ void CDHServer::loopInit(){
 
 	logger->Log("CDHServer: Initializing", LOGGER_LEVEL_INFO);
 
-#if HS_EN
 	bool initHS = devMngr->initializeHS();
 	if(!initHS){
 		logger->Log("CDHServer: Error initializing hot swaps!", LOGGER_LEVEL_ERROR);
 	}
-#endif
 
 #if PM_EN
 	devMngr->initializePM();
@@ -219,7 +217,7 @@ void CDHServer::readHealth(uint8 frequency, uint32 timeUnit){
 		logger->Log("CDHServer: Gathering information", LOGGER_LEVEL_DEBUG);
 
 		// ensure that no power faults have been detected, if they have, power off the subsystem
-		//devMngr->checkHS(); //TODO: this seg faults?
+		//devMngr->checkHS();
 
 #if CPU_EN
 		// CPU usage

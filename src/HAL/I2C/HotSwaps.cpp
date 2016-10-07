@@ -51,7 +51,7 @@ namespace AllStar
 				*Voltage = 26.35 * ((float)voltRaw/4096); //Volts
 				*Current = 0.10584 * ((float)currRaw/4096) / SenseResistorValue; //Current
 				logger->Log("    HotSwap Voltage: %f", *Voltage, LOGGER_LEVEL_DEBUG);
-				logger->Log("    HotSwap Current: %f", *Current , LOGGER_LEVEL_DEBUG);
+				logger->Log("    HotSwap Current: %f", *Current, LOGGER_LEVEL_DEBUG);
 			}else{
 				*Voltage = -1001;
 				*Current = -1001;
@@ -60,8 +60,6 @@ namespace AllStar
 		}
 
 		bool HotSwap::Fault(){
-			logger->Log("HotSwaps: Checking fault", LOGGER_LEVEL_DEBUG);
-
 			uint8_t readVal = 0;
 			read(fault_fd, &readVal, 1);
 			return !(readVal == 0);
