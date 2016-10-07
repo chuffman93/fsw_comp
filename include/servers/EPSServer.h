@@ -48,15 +48,18 @@ private:
 	//Modes
 	void loopInit();
 	void loopMonitor();
+	void loopDiagnostic();
 
 	BEGIN_STATE_MAP
 	STATE_MAP_ENTRY(&EPSServer::loopInit)
 	STATE_MAP_ENTRY(&EPSServer::loopMonitor)
+	STATE_MAP_ENTRY(&EPSServer::loopDiagnostic)
 	END_STATE_MAP
 
 	enum EPS_States{
 		ST_INIT = 0,
-		ST_MONITOR
+		ST_MONITOR,
+		ST_DIAGNOSTIC
 	};
 
 };

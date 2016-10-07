@@ -8,8 +8,8 @@
 #ifndef DIAGNOSTICS_H_
 #define DIAGNOSTICS_H_
 
-void SampleTest0(bool enable);
-void SampleTest1(bool enable);
+void BusLoadTest(bool enable);
+void SPIStats(bool enable);
 void SampleTest2(bool enable);
 void SampleTest3(bool enable);
 

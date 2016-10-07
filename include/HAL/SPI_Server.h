@@ -45,6 +45,10 @@ class SPI_HALServer: public AllStar::Servers::SubsystemServer, public AllStar::C
 		int qInitTX;
 		static char * queueNameSPITX;
 
+		// Statistics variables
+		uint32 packetsDroppedTX[4];
+		uint32 packetsSentTX[4];
+
 		// Constructor
 		SPI_HALServer();
 
@@ -54,10 +58,14 @@ class SPI_HALServer: public AllStar::Servers::SubsystemServer, public AllStar::C
 
 		bool SPIDispatch(AllStar::Core::ACPPacket & packet);
 
+		uint64 ResetStatsTime(void);
+
 	private:
 
-		void GPIOsetup(void);
+		// Statistics variables
+		uint64 lastStatsCheck;
 
+		void GPIOsetup(void);
 
 		int spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, int len);
 

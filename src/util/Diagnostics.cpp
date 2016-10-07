@@ -11,30 +11,54 @@
 
 #include "util/Diagnostics.h"
 #include "util/Logger.h"
+#include "servers/DispatchStdTasks.h"
+#include "HAL/SPI_Server.h"
 
 using namespace AllStar::Core;
+using namespace AllStar::Servers;
 
-void SampleTest0(bool enable){
+void BusLoadTest(bool enable){
 	if(enable){
 		Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-		logger->Log("Running Sample Test 0", LOGGER_LEVEL_INFO);
+		logger->Log("Running bus load test", LOGGER_LEVEL_INFO);
+
+		// Test SPI TX Speed
+		ACPPacket * query = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, EPS_NO_RESPONSE_CMD);
+
+		uint8 packets = 0;
+		uint64 currTime = 0;
+		uint64 endTime = getTimeInMillis() + 2000;
+		while(currTime < endTime){
+			DispatchPacket(query);
+			packets++;
+			currTime = getTimeInMillis();
+		}
 
 		FILE * fp = fopen("diagnostic_results.txt", "a+");
-		char results[] = "Ran sample test 0\n";
-		fwrite(results, 1, sizeof(results), fp);
+		fprintf(fp, "Bus Load Results: %d packets sent in 2 seconds\n", packets);
 		fclose(fp);
 	}
 }
 
-void SampleTest1(bool enable){
+void SPIStats(bool enable){
 	if(enable){
 		Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-		logger->Log("Running Sample Test 1", LOGGER_LEVEL_INFO);
+		logger->Log("Running SPI Statistics", LOGGER_LEVEL_INFO);
+
+		SPI_HALServer * spiServer = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
+		uint64 duration = spiServer->ResetStatsTime();
 
 		FILE * fp = fopen("diagnostic_results.txt", "a+");
-		char results[] = "Ran sample test 1\n";
-		fwrite(results, 1, sizeof(results), fp);
+		fprintf(fp, "SPI Stats:\n\tPackets Dropped: %lu %lu %lu %lu\n",
+				spiServer->packetsDroppedTX[0], spiServer->packetsDroppedTX[1], spiServer->packetsDroppedTX[2], spiServer->packetsDroppedTX[3]);
+		fprintf(fp, "\tPackets Sent: %lu %lu %lu %lu\n",
+				spiServer->packetsSentTX[0], spiServer->packetsSentTX[1], spiServer->packetsSentTX[2], spiServer->packetsSentTX[3]);
+		fprintf(fp, "\tDuration: %llu ms\n", duration);
 		fclose(fp);
+		for(uint8 i = 0; i < 4; i++){
+			spiServer->packetsDroppedTX[i] = 0;
+			spiServer->packetsSentTX[i] = 0;
+		}
 	}
 }
 

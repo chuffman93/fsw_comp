@@ -13,6 +13,7 @@ namespace Servers{
 
 void portSetup(void);
 void uftpSetup(void);
+void runDiagnostic(void);
 
 } // End of namespace Servers
 } // End of namespace AllStar

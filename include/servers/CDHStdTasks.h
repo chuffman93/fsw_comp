@@ -26,7 +26,6 @@ void toggleResetLine(HardwareLocationIDType subsystem, bool state);
 float ReadTempSensor(int bus, int sensor);
 void prepPowerGPIOs(void);
 void toggleSubPower(HardwareLocationIDType subsystem, bool state);
-void runDiagnostic(void);
 }
 }
 

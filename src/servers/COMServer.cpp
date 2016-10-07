@@ -98,6 +98,10 @@ void COMServer::loopIdle(){
 	if(modeManager->GetMode() == MODE_COM){
 		currentState = ST_COM_START;
 	}
+
+	if(modeManager->GetMode() == MODE_DIAGNOSTIC){
+		currentState = ST_DIAGNOSTIC;
+	}
 }
 
 void COMServer::loopCOMStart(){
@@ -126,6 +130,17 @@ void COMServer::loopCOMStop(){
 	ACPPacket * stopRet = DispatchPacket(stopPacket);
 
 	currentState = ST_IDLE;
+}
+
+void COMServer::loopDiagnostic(){
+	uint64 lastWake = getTimeInMillis();
+
+	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	if(modeManager->GetMode() != MODE_DIAGNOSTIC){
+		currentState = ST_IDLE;
+	}
+
+	waitUntil(lastWake, 1000);
 }
 
 }

@@ -68,6 +68,11 @@ void SPI_HALServer::SubsystemLoop(void)
 
 	// Setup the GPIOs for SPI
 	GPIOsetup();
+	lastStatsCheck = getTimeInMillis();
+	for(uint8 sub = 0; sub < 4; sub++){
+		packetsDroppedTX[sub] = 0;
+		packetsSentTX[sub] = 0;
+	}
 
 	logger->Log("*****************************************************", LOGGER_LEVEL_INFO);
 	logger->Log("SPI_HAL Server: Entering Loop --------------------- *", LOGGER_LEVEL_INFO);
@@ -82,11 +87,20 @@ void SPI_HALServer::SubsystemLoop(void)
 		ACPPacket * txPacket;
 		if(mq_size(queueHandleTX, queueAttrTX) > 0){
 			if(mq_timed_receive(queueNameSPITX, &txPacket, 0, DISPATCHER_MAX_DELAY)){
-				if(SPIDispatch(*txPacket)){
-					logger->Log("SPI_HAL Server: Successfully dispatched packet", LOGGER_LEVEL_INFO);
+				LocationIDType dest = txPacket->getDestination();
+				if(0 < dest && dest < 5){
+					packetsSentTX[dest-1]++; // increment packets sent counter for that subsystem
+					if(SPIDispatch(*txPacket)){
+						logger->Log("SPI_HAL Server: Successfully dispatched packet", LOGGER_LEVEL_INFO);
+					}else{
+						// TODO: send error to RX queue?
+						logger->Log("SPI_HAL Server: " "\x1b[33m" "Packet dispatch failed!" "\x1b[0m", LOGGER_LEVEL_WARN);
+
+						// increment dropped packets counter for that subsystem
+						packetsDroppedTX[dest-1]++;
+					}
 				}else{
-					// TODO: send error to RX queue?
-					logger->Log("SPI_HAL Server: " "\x1b[33m" "Packet dispatch failed!" "\x1b[0m", LOGGER_LEVEL_WARN);
+					logger->Log("SPI_HALServer: Invalid TX destination!", LOGGER_LEVEL_WARN);
 				}
 			}else{
 				logger->Log("SPI_HAL Server: Queue receive for TX failed!", LOGGER_LEVEL_WARN);
@@ -486,5 +500,12 @@ void SPI_HALServer::GPIOsetup(void){
 		poll_fds[i].events = POLLPRI;
 		read(int_fds[i], &clearBuf, 1);
 	}
+}
+
+uint64 SPI_HALServer::ResetStatsTime(void){
+	uint64 currTime = getTimeInMillis();
+	uint64 duration = currTime - lastStatsCheck;
+	lastStatsCheck = currTime;
+	return duration;
 }
 

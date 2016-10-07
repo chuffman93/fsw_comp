@@ -14,6 +14,7 @@
 #include "core/WatchdogManager.h"
 #include "util/FileHandler.h"
 #include "util/Logger.h"
+#include "util/Diagnostics.h"
 #include <cstdio>
 #include <iostream>
 #include <termios.h>
@@ -26,6 +27,8 @@ using namespace std;
 
 namespace AllStar{
 namespace Servers{
+
+#define NUM_DIAGNOSTIC_TESTS 4
 
 void portSetup(void){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
@@ -74,7 +77,50 @@ void uftpSetup(void){
 	sprintf(cmdString, "./uftpd -T %s -I sl0 -D %s", tmpDir, fileDir);
 	printf("%s\n", cmdString);
 	system(cmdString);
+}
 
+void runDiagnostic(void){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("CMDServer: running diagnostics tests", LOGGER_LEVEL_INFO);
+	FILE * fp = fopen("diagnostics.txt", "r");
+
+	if(fp == NULL){
+		logger->Log("Error opening diagnostic tests file", LOGGER_LEVEL_WARN);
+
+		// TODO: should we run a pre-specified test?
+		FILE * fpr = fopen("diagnostic_results.txt", "a+");
+		char results[] = "No tests to run\n";
+		fwrite(results, 1, sizeof(results), fpr);
+		fclose(fpr);
+	}else{
+		uint8 i = 0;
+		bool activeTests[NUM_DIAGNOSTIC_TESTS] = {false};
+		char c;
+		while(i < NUM_DIAGNOSTIC_TESTS){
+			c = fgetc(fp);
+			if(c == EOF){
+				logger->Log("Diagnostic tests file too short!", LOGGER_LEVEL_WARN);
+				break;
+			}
+			activeTests[i] = (c == '1') ? true : false;
+			i++;
+		}
+
+		FILE * fpr = fopen("diagnostic_results.txt", "w");
+		fprintf(fpr, "Diagnostics Test @ %lld\n", getTimeInMillis());
+		fclose(fpr);
+
+		// Conditionally run tests here TODO: rewrite with function pointers
+		BusLoadTest(activeTests[0]);
+		SPIStats(activeTests[1]);
+		SampleTest2(activeTests[2]);
+		SampleTest3(activeTests[3]);
+
+		fclose(fp);
+
+		// FIXME: decide on deletion/transfer scheme
+		//remove("diagnostics.txt");
+	}
 }
 
 } // End of namespace Servers
