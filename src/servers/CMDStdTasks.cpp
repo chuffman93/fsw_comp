@@ -94,7 +94,7 @@ void runDiagnostic(void){
 		fclose(fpr);
 	}else{
 		uint8 i = 0;
-		bool activeTests[NUM_DIAGNOSTIC_TESTS] = {false};
+		bool isActive[NUM_DIAGNOSTIC_TESTS] = {false};
 		char c;
 		while(i < NUM_DIAGNOSTIC_TESTS){
 			c = fgetc(fp);
@@ -102,19 +102,19 @@ void runDiagnostic(void){
 				logger->Log("Diagnostic tests file too short!", LOGGER_LEVEL_WARN);
 				break;
 			}
-			activeTests[i] = (c == '1') ? true : false;
+			isActive[i] = (c == '1') ? true : false;
 			i++;
 		}
 
-		FILE * fpr = fopen("diagnostic_results.txt", "w");
+		FILE * fpr = fopen("diagnostic_results.txt", "a+");
 		fprintf(fpr, "Diagnostics Test @ %lld\n", getTimeInMillis());
 		fclose(fpr);
 
 		// Conditionally run tests here TODO: rewrite with function pointers
-		BusLoadTest(activeTests[0]);
-		SPIStats(activeTests[1]);
-		SampleTest2(activeTests[2]);
-		SampleTest3(activeTests[3]);
+		BusLoadTest(false); // fixme: note, this will cause CDH to reboot for some reason
+		SPIStats(isActive[1]);
+		SampleTest2(isActive[2]);
+		SampleTest3(isActive[3]);
 
 		fclose(fp);
 

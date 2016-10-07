@@ -121,7 +121,7 @@ int main(int argc, char * argv[])
 	threadsCreated &= WatchdogManager::StartServer(gpsServer, 50,	false);	 //GPS
 	threadsCreated &= WatchdogManager::StartServer(pldServer, 50,	false);	 //PLD
 	threadsCreated &= WatchdogManager::StartServer(schServer, 0,	true);	 //SCH
-	threadsCreated &= WatchdogManager::StartServer(spiServer, 0,	false);	 //SPI
+	threadsCreated &= WatchdogManager::StartServer(spiServer, 0,	true);	 //SPI
 
 	if(!threadsCreated){
 		logger->Log("Not all threads were created on startup!", LOGGER_LEVEL_FATAL);

@@ -17,6 +17,7 @@
 using namespace AllStar::Core;
 using namespace AllStar::Servers;
 
+// FIXME: warning, this test will trigger a CDH reboot, need to figure out why...
 void BusLoadTest(bool enable){
 	if(enable){
 		Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));

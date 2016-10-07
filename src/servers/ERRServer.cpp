@@ -112,9 +112,6 @@ void ERRServer::SubsystemLoop(void)
 			case HARDWARE_LOCATION_ACS:
 				ACSError(opcode, error);
 				break;
-			case HARDWARE_LOCATION_PROP:
-				//DAFAQ is prop?
-				break;
 			case HARDWARE_LOCATION_PLD:
 				PLDError(opcode, error);
 				break;
