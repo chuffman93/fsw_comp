@@ -73,6 +73,35 @@ ACPPacket * DispatchPacket(ACPPacket * query)
 	return response;
 }
 
+bool DispatchNoResponse(ACPPacket * query){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("DispatchStdTasks: DispatchNoResponse() Called with ACPPacket", LOGGER_LEVEL_DEBUG);
+
+	//check inputs
+	LocationIDType source = query->getSource();
+	LocationIDType destination = query->getDestination();
+
+	if(source < HARDWARE_LOCATION_MIN || source >= SERVER_LOCATION_MAX
+		|| destination < HARDWARE_LOCATION_MIN || destination >= SERVER_LOCATION_MAX)
+	{
+		logger->Log("DispatcherStdTasks: DispatchPacket(): invalid src/dest!", LOGGER_LEVEL_ERROR);
+		return false;
+	}
+
+	//grab dispatcher instance
+	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+
+	//grab and increment the packet number
+	query->setPacketID(dispatcher->packetNumber++);
+
+	//Dispatch packet, if it fails return DISPATCH_FAILED
+	if(!dispatcher->Dispatch(*query)){
+		logger->Log("DispatchStdTasks: Failed to dispatch packet\n", LOGGER_LEVEL_WARN);
+		return false;
+	}
+	return true;
+}
+
 bool Listen(LocationIDType serverID){
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 	MessageHandlerRegistry * registry;

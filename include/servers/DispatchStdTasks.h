@@ -57,6 +57,7 @@ namespace AllStar
 
 		// Send packet to the dispatcher
 		AllStar::Core::ACPPacket * DispatchPacket(AllStar::Core::ACPPacket * packet);
+		bool DispatchNoResponse(AllStar::Core::ACPPacket * packet);
 
 		// Invoke message handlers for any messages sent to a server
 		bool Listen(LocationIDType serverID);

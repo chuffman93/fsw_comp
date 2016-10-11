@@ -111,7 +111,7 @@ void runDiagnostic(void){
 		fclose(fpr);
 
 		// Conditionally run tests here TODO: rewrite with function pointers
-		BusLoadTest(false); // fixme: note, this will cause CDH to reboot for some reason
+		BusLoadTest(isActive[0]);
 		SPIStats(isActive[1]);
 		SampleTest2(isActive[2]);
 		SampleTest3(isActive[3]);
