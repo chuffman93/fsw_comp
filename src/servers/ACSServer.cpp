@@ -90,14 +90,23 @@ bool ACSServer::RegisterHandlers(){
 void ACSServer::loopInit(){
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 	cdhServer->subPowerOn(HARDWARE_LOCATION_ACS);
+
+	// delay while ACS boots up6
+	usleep(1000000);
+
+	// Debug LED initialization
+	ACSToggleLED(true);
+	usleep(1000000);
+	ACSBlinkRate(1000);
+	usleep(1000000);
+	ACSLEDData();
+
 	currentState = ST_DISABLED;
 }
 
 void ACSServer::loopDisabled(){
 	ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
-
-	ACSToggleLED(true);
 
 	if(modeManager->GetMode() == MODE_COM)
 		currentState = ST_GND_START;
@@ -113,12 +122,6 @@ void ACSServer::loopDisabled(){
 	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS]){
 		currentState = ST_INIT;
 	}
-
-	ACSLEDData();
-	usleep(1000);
-	ACSBlinkRate(50);
-	usleep(1000);
-	ACSLEDData();
 }
 
 void ACSServer::loopGNDStart(){
@@ -176,8 +179,6 @@ void ACSServer::loopPLDStop(){
 
 void ACSServer::loopDiagnostic(){
 	uint64 lastWake = getTimeInMillis();
-
-	ACSToggleLED(false);
 
 	ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	if(modeManager->GetMode() != MODE_DIAGNOSTIC){
