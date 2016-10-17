@@ -31,6 +31,7 @@ static EPSPowerCycleHandler * epsPowerCycleHandler;
 // -------------------------------------- Necessary Methods --------------------------------------
 EPSServer::EPSServer(string nameIn, LocationIDType idIn) :
 		SubsystemServer(nameIn, idIn), Singleton(), arby(idIn) {
+	EPSState = {0,0,0,0,0,0,0,0};
 }
 
 EPSServer & EPSServer::operator=(const EPSServer & source){
@@ -67,7 +68,7 @@ bool EPSServer::RegisterHandlers() {
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *>(Factory::GetInstance(DISPATCHER_SINGLETON));
 
 	success &= reg.RegisterHandler(MessageIdentifierType(SERVER_LOCATION_EPS, EPS_HS_CMD),epsHSHandler);
-	success &= reg.RegisterHandler(MessageIdentifierType(SERVER_LOCATION_EPS, EPS_POWER_CYCLE_CMD),epsPowerCycleHandler);
+	success &= reg.RegisterHandler(MessageIdentifierType(SERVER_LOCATION_EPS, EPS_POWER_CYCLE),epsPowerCycleHandler);
 
 	success &= dispatcher->AddRegistry(id, &reg, &arby);
 
@@ -77,6 +78,13 @@ bool EPSServer::RegisterHandlers() {
 // -------------------------------------------- State Machine ---------------------------------------------
 void EPSServer::loopInit(){
 	currentState = ST_MONITOR;
+	EPSPowerCycle();
+	usleep(1000);
+	EPSToggleLED(true);
+	usleep(1000);
+	EPSBlinkRate(1000);
+	usleep(1000);
+	EPSLEDData();
 }
 
 void EPSServer::loopMonitor(){
@@ -94,12 +102,15 @@ void EPSServer::loopMonitor(){
 void EPSServer::loopDiagnostic(){
 	uint64 lastWake = getTimeInMillis();
 
+	EPSToggleLED(true);
+
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	if(modeManager->GetMode() != MODE_DIAGNOSTIC){
 		currentState = ST_MONITOR;
 	}
 
 	waitUntil(lastWake, 1000);
+	EPSToggleLED(false);
 }
 
 } // End Namespace servers

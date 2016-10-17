@@ -93,6 +93,16 @@ void COMServer::loopIdle(){
 		currentState = ST_INIT;
 	}
 
+	ACPPacket * ledOn = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, 1);
+	DispatchPacket(ledOn);
+
+	usleep(1000);
+
+	ACPPacket * ledOff = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, 2);
+	DispatchPacket(ledOff);
+
+	usleep(1000);
+
 	ModeManager * modeManager = dynamic_cast<ModeManager *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
 	if(modeManager->GetMode() == MODE_COM){

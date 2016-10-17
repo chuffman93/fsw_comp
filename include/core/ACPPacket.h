@@ -109,10 +109,19 @@ public:
 		this->fromHardware = fromHardware;
 	}
 
+	uint64 getTimestamp() const {
+		return timestamp;
+	}
+
+	void setTimestamp(uint64 timestamp) {
+		this->timestamp = timestamp;
+	}
+
 private:
 	// --- Internal Use ------------------------------------------------------------------------------------------------
 	LocationIDType source;
 	LocationIDType destination;
+	uint64 timestamp;
 	bool fromHardware;
 
 	// --- Packet Definition -------------------------------------------------------------------------------------------

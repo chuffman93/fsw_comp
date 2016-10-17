@@ -20,6 +20,122 @@ using namespace AllStar::Servers;
 namespace AllStar{
 namespace Servers{
 
+// Debug
+bool ACSToggleLED(bool state){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	uint8 * buffer = (uint8 *) malloc(sizeof(uint8));
+	uint8 stateOut;
+	if(state){
+		stateOut = 1;
+		memcpy(buffer, &stateOut, 1);
+	}else{
+		stateOut = 0;
+		memcpy(buffer, &stateOut, 1);
+	}
+
+	ACPPacket * query = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_TOGGLE_LED_CMD, 1, buffer);
+	ACPPacket * ret = DispatchPacket(query);
+
+	if(ret == NULL){
+		logger->Log("ACSStdTasks: NULL LED Toggle return", LOGGER_LEVEL_WARN);
+		return false;
+	}
+
+	if(ret->getLength() != sizeof(uint8)){
+		logger->Log("ACSStdTasks: Incorrect Toggle LED return length", LOGGER_LEVEL_WARN);
+		return false;
+	}else{
+		if(ret->getMessageBuff() == NULL){
+			logger->Log("ACSStdTasks: NULL LED Toggle message buffer", LOGGER_LEVEL_WARN);
+			return false;
+		}
+
+		uint8 result = GetUInt8(ret->getMessageBuff());
+		if(result == 1){
+			logger->Log("ACS LED Toggle successful", LOGGER_LEVEL_INFO);
+			return true;
+		}else{
+			logger->Log("ACS LED Toggle failed", LOGGER_LEVEL_WARN);
+			return false;
+		}
+	}
+}
+
+bool ACSBlinkRate(uint16 rate){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	uint8 * bufferOut = (uint8 *) malloc(sizeof(uint16));
+	AddUInt16(bufferOut, rate);
+
+	ACPPacket * query = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_LED_BLINK_RATE_CMD, 2, bufferOut);
+	ACPPacket * ret = DispatchPacket(query);
+
+	if(ret == NULL){
+		logger->Log("ACSStdTasks: NULL blink rate return", LOGGER_LEVEL_WARN);
+		return false;
+	}
+
+	if(ret->getLength() != sizeof(uint8)){
+		logger->Log("ACSStdTasks: Incorrect blink rate return length", LOGGER_LEVEL_WARN);
+		return false;
+	}else{
+		if(ret->getMessageBuff() == NULL){
+			logger->Log("ACSStdTasks: NULL blink rate message buffer", LOGGER_LEVEL_WARN);
+			return false;
+		}
+
+		uint8 result = GetUInt8(ret->getMessageBuff());
+		if(result == 1){
+			logger->Log("ACS blink rate successful", LOGGER_LEVEL_INFO);
+			return true;
+		}else{
+			logger->Log("ACS blink rate failed", LOGGER_LEVEL_WARN);
+			return false;
+		}
+	}
+}
+
+bool ACSLEDData(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	ACPPacket * query = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_LED_DATA);
+	ACPPacket * ret = DispatchPacket(query);
+
+	if(ret == NULL){
+		logger->Log("ACSStdTasks: NULL LED Data return", LOGGER_LEVEL_WARN);
+		return false;
+	}
+
+	if(ret->getLength() != sizeof(uint16)){
+		logger->Log("ACSStdTasks: Incorrect LED data return length", LOGGER_LEVEL_WARN);
+		return false;
+	}else{
+		if(ret->getMessageBuff() == NULL){
+			logger->Log("ACSStdTasks: NULL LED Data message buffer", LOGGER_LEVEL_WARN);
+			return false;
+		}
+
+		uint16 result = GetUInt16(ret->getMessageBuff());
+		logger->Log("LED blink rate: %u", result, LOGGER_LEVEL_INFO);
+		return true;
+	}
+}
+
+// Diagnostic
+ACPPacket * ACSTestAlive(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("ACSTestAlive: unfinished!", LOGGER_LEVEL_ERROR);
+	return NULL;
+}
+
+ACPPacket * ACSNoReturn(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("ACSNoReturn: unfinished!", LOGGER_LEVEL_ERROR);
+	return NULL;
+}
+
+// Command/Data
 ACPPacket * ACSHealthStatus(void){
 	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_HS_CMD);
 	return(DispatchPacket(HSQuery));

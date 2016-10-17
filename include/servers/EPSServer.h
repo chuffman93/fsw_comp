@@ -27,6 +27,19 @@ class EPSServer : public SubsystemServer, public AllStar::Core::Singleton{
 public:
 	bool RegisterHandlers();
 
+	struct EPSStatus{
+		uint16 current3v3;
+		uint16 voltage3v3;
+		uint16 currentBatt;
+		uint16 voltageBatt;
+		uint16 current12v;
+		uint16 voltage12v;
+		uint16 battStatus;
+		uint16 stateOfCharge;
+	};
+
+	EPSStatus EPSState;
+
 private:
 
 	static void Initialize(void);

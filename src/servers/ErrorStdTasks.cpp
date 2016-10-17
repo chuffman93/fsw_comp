@@ -36,18 +36,18 @@ void EPSError(int opcode, ACPPacket * packet){
 		FileHandlerError(opcode, packet);
 	}
 
-	switch(opcode){
-	case EPS_HS_FAILURE: //Health and Status request failure
-		if(!fileHandler->Log(SUBSYSTEM_EPS, packet)){/*do something?*/}
-		break;
-	case EPS_POWER_CYCLE_FAILURE: //power cycle request failure
-		if(!fileHandler->Log(SUBSYSTEM_EPS, packet)){/*do something?*/}
-		break;
-	default:
-		logger->Log("EPSError: Unknown error encountered!", LOGGER_LEVEL_WARN);
-		if(!fileHandler->Log(SUBSYSTEM_EPS, packet)){/*do something?*/}
-		break;
-	}
+//	switch(opcode){
+//	case EPS_HS_FAILURE: //Health and Status request failure
+//		if(!fileHandler->Log(SUBSYSTEM_EPS, packet)){/*do something?*/}
+//		break;
+//	case EPS_POWER_CYCLE_FAILURE: //power cycle request failure
+//		if(!fileHandler->Log(SUBSYSTEM_EPS, packet)){/*do something?*/}
+//		break;
+//	default:
+//		logger->Log("EPSError: Unknown error encountered!", LOGGER_LEVEL_WARN);
+//		if(!fileHandler->Log(SUBSYSTEM_EPS, packet)){/*do something?*/}
+//		break;
+//	}
 }
 
 void COMError(int opcode, ACPPacket * packet){

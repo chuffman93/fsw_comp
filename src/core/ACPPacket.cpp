@@ -23,6 +23,7 @@ uint8 ACPPacket::sync = SYNC_VALUE;
 // --- Constructors/Operators --------------------------------------------------------------------------------------
 ACPPacket::ACPPacket(void )
 	: source(LOCATION_ID_INVALID), destination(LOCATION_ID_INVALID), fromHardware(false), opcode(0), packetID(0), CRC(0), messageBuff(NULL), length(0){
+	timestamp = getTimeInMillis();
 }
 
 ACPPacket::~ACPPacket(void ){
@@ -41,19 +42,23 @@ bool ACPPacket::operator==(const ACPPacket & check) const{
 // --- Constructors for dispatching --------------------------------------------------------------------------------
 ACPPacket::ACPPacket(LocationIDType sourceIn, LocationIDType destIn, uint8 opcodeIn)
 	: source(sourceIn), destination(destIn), fromHardware(false), opcode(opcodeIn), packetID(0), CRC(0), messageBuff(NULL), length(0){
+	timestamp = getTimeInMillis();
 }
 
 ACPPacket::ACPPacket(LocationIDType sourceIn, LocationIDType destIn, uint8 opcodeIn, uint16 lengthIn, uint8 * messageIn)
 	: source(sourceIn), destination(destIn), fromHardware(false), opcode(opcodeIn), packetID(0), CRC(0), messageBuff(messageIn), length(lengthIn){
+	timestamp = getTimeInMillis();
 }
 
 // --- Constructors for return messages ----------------------------------------------------------------------------
 ACPPacket::ACPPacket(uint8 opcodeIn)
 	: source(LOCATION_ID_INVALID), destination(LOCATION_ID_INVALID), fromHardware(false), opcode(opcodeIn), packetID(0), CRC(0), messageBuff(NULL), length(0){
+	timestamp = getTimeInMillis();
 }
 
 ACPPacket::ACPPacket(uint8 opcodeIn, uint16 lengthIn, uint8 * messageIn)
 	: source(LOCATION_ID_INVALID), destination(LOCATION_ID_INVALID), fromHardware(false), opcode(opcodeIn), packetID(0), CRC(0), messageBuff(messageIn), length(lengthIn){
+	timestamp = getTimeInMillis();
 }
 
 ACPPacket::ACPPacket(const ACPPacket & packetSource){
@@ -65,6 +70,7 @@ ACPPacket::ACPPacket(const ACPPacket & packetSource){
 	messageBuff		= packetSource.getMessageBuff();
 	packetID		= packetSource.getPacketID();
 	CRC				= packetSource.getCRC();
+	timestamp = getTimeInMillis();
 }
 
 // --- Construct from a buffer --------------------------------------------------------------------------------------
@@ -133,6 +139,8 @@ ACPPacket::ACPPacket(uint8 * buffer, std::size_t size_in){
 	// Get the length
 	CRC = ((uint16) buffer[0] << 8) | (uint16)buffer[1];
 	logger->Log("ACPPacket CRC: %#04x", (uint32) CRC, LOGGER_LEVEL_DEBUG);
+
+	timestamp = getTimeInMillis();
 }
 
 // --- Flatten into buffer --------------------------------------------------------------------------------------

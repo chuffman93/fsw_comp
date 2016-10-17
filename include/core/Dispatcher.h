@@ -25,9 +25,6 @@ namespace Core{
 /*! \brief Length of the Dispatcher Queue */
 #define DISPATCHER_QUEUE_LENGTH 		32
 
-/*! \brief Length of the Subsystem Queue */
-#define DISPATCHER_SUBSYS_QUEUE_LENGTH          6
-
 /*! \brief Dispatcher Wait Time
  *
  *  Number of kernel ticks that the Dispatcher waits between checking
@@ -226,6 +223,8 @@ public:
 									 DispatcherCheckType type);
 
 	uint32_t DispatchToHardware(ACPPacket & packet);
+
+	void CleanRXQueue(void);
 
 	// --- Message handler information -------------------------------------
 	struct DispatcherHandlerType{

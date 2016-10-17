@@ -184,51 +184,38 @@ bool Dispatcher::CheckQueueForMatchingPacket(const ACPPacket & packetIn, ACPPack
 	}
 
 	// get the semaphore
-	if (true == this->TakeLock(MAX_BLOCK_TIME))
-	{
+	if (true == this->TakeLock(MAX_BLOCK_TIME)){
 		// Check for the first message in the queue
-		if (mq_timed_receive(queueNameRX, &packetOut, 0, DISPATCHER_MAX_DELAY) == false)
-		{
+		if (mq_timed_receive(queueNameRX, &packetOut, 0, DISPATCHER_MAX_DELAY) == false){
 			this->GiveLock();
 			return false;
-		}
-		else
-		{
+		}else{
 			// There's at least one packet, so check if it matches packetIn.
 
 			logger->Log("Dispatcher: CheckQueueForMatchingPacket(): There is at least one packet", LOGGER_LEVEL_SUPER_DEBUG);
-			if(packetOut == NULL)
-			{
+			if(packetOut == NULL){
 				this->GiveLock();
 				return false;
 			}
 
-			if ((this->*Check)(packetIn, *packetOut))
-			{
+			if ((this->*Check)(packetIn, *packetOut)){
 				this->GiveLock();
 				return true;
-			}
-			else
-			{
+			}else{
 				// Check the number of packets waiting in the queue.
 				logger->Log("Dispatcher: CheckQueueForMatchingPacket(): checking more packets", LOGGER_LEVEL_SUPER_DEBUG);
 				numPackets = mq_size(queueHandleRX, queueAttrRX);
 				logger->Log("Dispatcher: CheckQueueForMatchingPacket(): there are %u more packets", (uint32) numPackets, LOGGER_LEVEL_SUPER_DEBUG);
 
 				// get each packet and check it against packetIn.
-				for (i = 0; i < numPackets; ++i)
-				{
+				for (i = 0; i < numPackets; ++i){
 					// get the next packet.
 					//mqd_t tmpqueueHandle = open(queueName, O_RDONLY);
-					if (mq_timed_receive(queueNameRX, &tmpPacket, 0, 0)
-							== false)
-					{
+					if (mq_timed_receive(queueNameRX, &tmpPacket, 0, 0) == false){
 						// Error: There should have been a packet in
 						// the queue, but there wasn't, so put
 						// packetOut back.
-						if (mq_timed_send(queueNameRX, &packetOut, 1, 0)
-								== false)
-						{
+						if (mq_timed_send(queueNameRX, &packetOut, 1, 0) == false){
 							// Error: This is really bad because we
 							// can't even preserve the state of
 							// the queue.
@@ -242,9 +229,7 @@ bool Dispatcher::CheckQueueForMatchingPacket(const ACPPacket & packetIn, ACPPack
 					}
 					// Put packetOut back on the queue since it didn't
 					// match packetIn.
-					if (mq_timed_send(queueNameRX, &packetOut, 1, 0)
-							== false)
-					{
+					if (mq_timed_send(queueNameRX, &packetOut, 1, 0) == false){
 						// Error
 						this->GiveLock();
 						throw(2);
@@ -253,8 +238,7 @@ bool Dispatcher::CheckQueueForMatchingPacket(const ACPPacket & packetIn, ACPPack
 					packetOut = tmpPacket;
 
 					// Check if packetOut matches packetIn
-					if ((this->*Check)(packetIn, *packetOut))
-					{
+					if ((this->*Check)(packetIn, *packetOut)){
 						// Found one!  Time to return!
 						this->GiveLock();
 						return true;
@@ -263,8 +247,7 @@ bool Dispatcher::CheckQueueForMatchingPacket(const ACPPacket & packetIn, ACPPack
 				}
 				// No packets were found, so put the last packet
 				// back on the queue.
-				if (mq_timed_send(queueNameRX, &packetOut, 1, 0) == false)
-				{
+				if (mq_timed_send(queueNameRX, &packetOut, 1, 0) == false){
 					// Error: This is really bad because we
 					// can't even preserve the state of
 					// the queue.
@@ -445,6 +428,42 @@ uint32_t Dispatcher::DispatchToHardware(ACPPacket & packet)
 		return 0;
 	}else{
 		return -3;
+	}
+}
+
+void Dispatcher::CleanRXQueue(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	ACPPacket * iterator;
+	size_t numPackets;
+
+	uint64 thresholdTime = getTimeInMillis() - 15000;
+	if (true == this->TakeLock(MAX_BLOCK_TIME)){
+		numPackets = mq_size(queueHandleRX, queueAttrRX);
+		if(numPackets == 0){
+			// no packets to check, just return
+			this->GiveLock();
+			return;
+		}else{
+			for(size_t i = 0; i < numPackets; i++){
+				if(mq_timed_receive(queueNameRX, &iterator, 0, DISPATCHER_MAX_DELAY) == false){
+					logger->Log("Dispatcher::CleanRXQueue(): error getting packet", LOGGER_LEVEL_WARN);
+				}else{
+					if(iterator->getTimestamp() < thresholdTime){
+						// packet is too old, delete?
+						logger->Log("Dispatcher::CleanRXQueue(): deleting old packet from queue", LOGGER_LEVEL_WARN);
+						delete iterator;
+					}else{
+						// packet OK, so place it back on the queue
+						if(mq_timed_send(queueNameRX, &iterator, 1, 0) == false){
+							logger->Log("Dispatcher::CleanRXQueue(): Failed to replace message on the RX queue", LOGGER_LEVEL_WARN);
+						}
+					}
+				}
+			}
+			this->GiveLock();
+		}
+	}else{
+		logger->Log("Dispatcher: Can't take lock", LOGGER_LEVEL_WARN);
 	}
 }
 

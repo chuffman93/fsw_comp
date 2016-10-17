@@ -35,7 +35,7 @@
 using namespace AllStar;
 using namespace Core;
 
-static int timeout = 50;
+static int timeout = 75;
 
 char * SPI_HALServer::queueNameSPITX = (char *) "/queueHandleSPITX";
 
@@ -137,7 +137,7 @@ void SPI_HALServer::SubsystemLoop(void)
 						logger->Log("SPI_Server: placing RX message on dispatcher RX queue", LOGGER_LEVEL_INFO);
 						queueSuccess = mq_timed_send(dispatcher->queueNameRX, &rxPacket, MAX_BLOCK_TIME, 0);
 					}else{
-						logger->Log("SPI_Server: RX queue full!", LOGGER_LEVEL_FATAL); // FIXME: handle this!
+						logger->Log("SPI_Server: RX queue full!", LOGGER_LEVEL_FATAL);
 					}
 				}
 			}

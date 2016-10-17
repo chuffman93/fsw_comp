@@ -96,12 +96,14 @@ namespace AllStar
 		// Functions for extracting parameters into buffers
 		uint32 	GetUInt(uint8 * buffer);
 		uint16 	GetUInt16(uint8 * buffer);
+		uint8	GetUInt8(uint8 * buffer);
 		int32 	GetInt(uint8 * buffer);
 		bool 	GetBool(uint8 * buffer);
 		float 	GetFloat(uint8 * buffer);
 		double 	GetDouble(uint8 * buffer);
 
 		// Functions for adding parameters to buffers
+		void AddUInt16(uint8 * buffer, uint16 data);
 		void AddUInt32(uint8 * buffer, uint32 data);
 		void AddFloat(uint8 * buffer, float data);
 		void AddDouble(uint8 * buffer, double data);

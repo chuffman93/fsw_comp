@@ -96,10 +96,13 @@ void CMDServer::loopInit(void){
 void CMDServer::loopIdle(void){
 	uint64_t LastTimeTick = getTimeInMillis();
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 
 	if(modeManager->GetMode() == MODE_DIAGNOSTIC){
 		currentState = ST_DIAGNOSTIC;
 	}
+
+	dispatcher->CleanRXQueue();
 
 	waitUntil(LastTimeTick, 1000);
 }

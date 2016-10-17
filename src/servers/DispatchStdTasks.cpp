@@ -255,7 +255,7 @@ DispatcherStatusEnum WaitForDispatchResponse(const ACPPacket & packet, ACPPacket
 	ACPPacket * retPacket;
 	logger->Log("    Dispatcher: WaitForDispatchResponse() called", LOGGER_LEVEL_DEBUG);
 	logger->Log("    Dispatcher: Checking queue for matching packet", LOGGER_LEVEL_DEBUG);
-	for (i = 0; i < 50; ++i)
+	for (i = 0; i < DISPATCHER_MAX_RESPONSE_TRIES; ++i)
 	{
 		if (dispatcher->CheckQueueForMatchingPacket(packet, retPacket, dispatcher->CHECK_MATCHING_RESPONSE))
 		{
@@ -290,8 +290,14 @@ uint32 GetUInt(uint8 * buffer){
 }
 
 uint16 GetUInt16(uint8 * buffer){
-	uint32 result;
+	uint16 result;
 	memcpy(&result, buffer, 2);
+	return result;
+}
+
+uint8 GetUInt8(uint8 * buffer){
+	uint8 result;
+	memcpy(&result, buffer, 1);
 	return result;
 }
 
@@ -315,6 +321,10 @@ double GetDouble(uint8 * buffer){
 	double result;
 	memcpy(&result, buffer, 8);
 	return result;
+}
+
+void AddUInt16(uint8 * buffer, uint16 data){
+	memcpy(buffer, &data, sizeof(uint16));
 }
 
 void AddUInt32(uint8 * buffer, uint32 data){

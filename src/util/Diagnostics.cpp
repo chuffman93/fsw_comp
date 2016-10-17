@@ -24,7 +24,7 @@ void BusLoadTest(bool enable){
 		logger->Log("Running bus load test", LOGGER_LEVEL_INFO);
 
 		// Test SPI TX Speed
-		ACPPacket * query = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, EPS_NO_RESPONSE_CMD);
+		ACPPacket * query = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, EPS_NO_RETURN);
 
 		uint8 packetsSent = 0;
 		uint8 tries = 0;

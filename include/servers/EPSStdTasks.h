@@ -4,6 +4,9 @@
  *
  * Written by: Conrad Hougen
  * Created: 7/10/12
+ *
+ * Updated: Alex St. Clair
+ * Updated: 10/2016
  */
 
 #ifndef EPSSTDTASKS_H_
@@ -12,20 +15,18 @@
 namespace AllStar{
 namespace Servers{
 
+// Debug
+bool EPSToggleLED(bool state);
+bool EPSBlinkRate(uint16 rate);
+bool EPSLEDData();
+
+// Diagnostic
+AllStar::Core::ACPPacket * EPSTestAlive();
+AllStar::Core::ACPPacket * EPSNoReturn();
+
+// Command/Data
 AllStar::Core::ACPPacket * EPSHealthStat();
-AllStar::Core::ACPPacket * EPSStateOfCharge();
 AllStar::Core::ACPPacket * EPSPowerCycle();
-AllStar::Core::ACPPacket * EPSDisableOCProt();
-AllStar::Core::ACPPacket * EPSEnableOCProt();
-AllStar::Core::ACPPacket * EPSPowerSubsystems(PowerSubsystemEnum subsystem, bool onOff, uint32 time);
-void CheckPowerTimers(void);
-void SattyResetTimer(void);
-void SattyReset(void);
-bool CheckDeploymentFlag(void);
-void BurnFrangiBolt(void);
-float SetStarCameraThreshold(void);
-bool CheckStarCameraDeployed(const float & sensorThreshhold);
-void SetDeploymentFlag(void);
 
 }
 }
