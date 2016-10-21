@@ -107,7 +107,9 @@ void ACSServer::loopInit(){
 void ACSServer::loopDisabled(){
 	ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	ACPPacket * HSRet;
 
+	uint64 wakeTime = getTimeInMillis();
 	if(modeManager->GetMode() == MODE_COM)
 		currentState = ST_GND_START;
 
@@ -118,10 +120,14 @@ void ACSServer::loopDisabled(){
 		currentState = ST_DIAGNOSTIC;
 	}
 
+	ACPPacket * HSSend = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_HS_CMD);
+	HSRet = DispatchPacket(HSSend);
+
 	// if ACS is powered off due to a fault, switch to the init state
 	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS]){
 		currentState = ST_INIT;
 	}
+	waitUntil(wakeTime,1000);
 }
 
 void ACSServer::loopGNDStart(){
@@ -131,11 +137,22 @@ void ACSServer::loopGNDStart(){
 void ACSServer::loopGNDPointing(){
 	ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	ACPPacket * GPSRet;
+	ACPPacket * HSRet;
 
 	// if ACS is powered off due to a fault, switch to the init state
 	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS]){
 		currentState = ST_INIT;
 	}
+
+	GPSRet = ACSSendGPS();
+	//PacketProcess(SERVER_LOCATION_ACS, GPSRet);
+
+	usleep(1000000);
+
+	ACPPacket * HSSend = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_HS_CMD);
+	HSRet = DispatchPacket(HSSend);
+	//PacketProcess(SERVER_LOCATION_ACS, HSRet);
 
 	if(modeManager->GetMode() != MODE_COM)
 		currentState = ST_GND_STOP;
@@ -163,7 +180,7 @@ void ACSServer::loopPLDPointing(){
 	GPSRet = ACSSendGPS();
 	//PacketProcess(SERVER_LOCATION_ACS, GPSRet);
 
-	usleep(3000000);
+	usleep(1000000);
 
 	ACPPacket * HSSend = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_HS_CMD);
 	HSRet = DispatchPacket(HSSend);
