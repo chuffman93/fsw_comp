@@ -149,7 +149,7 @@ ACPPacket * EPSNoReturn(){
 }
 
 // Command/Data
-ACPPacket * EPSHealthStat()
+void EPSHealthStat()
 {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
@@ -159,20 +159,22 @@ ACPPacket * EPSHealthStat()
 
 	if(HSRet == NULL){
 		logger->Log("EPSStdTasks: NULL HSRet", LOGGER_LEVEL_ERROR);
-		return NULL;
+		return;
 	}
 
 	if(HSRet->getLength() != 8*sizeof(uint16)){
 		logger->Log("EPSStdTasks: EPSHealthStat(): incorrect message length!", LOGGER_LEVEL_WARN);
 
 		//TODO: return error?
-		return HSRet;
+		//PacketProcess(SERVER_LOCATION_EPS, HSRet);
+		return;
 	}else{
 		// Parse buffer
 		uint8 * msgPtr = HSRet->getMessageBuff();
 		if(msgPtr==NULL){
 			//Error
-			return HSRet;
+			//PacketProcess(SERVER_LOCATION_EPS, HSRet);
+			return;
 		}
 
 		uint16 outputArray[8];
@@ -201,7 +203,7 @@ ACPPacket * EPSHealthStat()
 		logger->Log("EPS H&S: Batt status:     %u", epsServer->EPSState.battStatus,    LOGGER_LEVEL_DEBUG);
 		logger->Log("EPS H&S: State of charge: %u", epsServer->EPSState.stateOfCharge, LOGGER_LEVEL_DEBUG);
 
-		return HSRet;
+		//PacketProcess(SERVER_LOCATION_EPS, HSRet);
 	}
 }
 

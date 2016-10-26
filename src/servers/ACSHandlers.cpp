@@ -22,10 +22,10 @@
 using namespace AllStar::Core;
 using namespace AllStar::Servers;
 
-ACPPacket * ACSMeasurementHandler::Handle(const ACPPacket & packet){
-	return (ACSHealthStatus());
-}
-
-ACPPacket * ACSGPSHandler::Handle(const ACPPacket & packet){
-	return (ACSSendGPS());
-}
+//ACPPacket * ACSMeasurementHandler::Handle(const ACPPacket & packet){
+//	return (ACSHealthStatus());
+//}
+//
+//ACPPacket * ACSGPSHandler::Handle(const ACPPacket & packet){
+//	return (ACSSendGPS());
+//}

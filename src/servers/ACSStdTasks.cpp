@@ -136,12 +136,13 @@ ACPPacket * ACSNoReturn(){
 }
 
 // Command/Data
-ACPPacket * ACSHealthStatus(void){
+void ACSHealthStatus(void){
 	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_HS_CMD);
-	return(DispatchPacket(HSQuery));
+	ACPPacket * HSRet = DispatchPacket(HSQuery);
+	//PacketProcess(SERVER_LOCATION_ACS, HSRet);
 }
 
-ACPPacket * ACSSendGPS(){
+void ACSSendGPS(){
 	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log("ACSStdTasks: ACSSendGPS(): Entered", LOGGER_LEVEL_DEBUG);
@@ -157,7 +158,48 @@ ACPPacket * ACSSendGPS(){
 	AddFloat(buffer + 52, gpsServer->GetGPSDataPtr()->GPSSec);
 
 	ACPPacket * send = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_GPS_CMD, 6*sizeof(double)+sizeof(float)+sizeof(int), buffer);
-	return(DispatchPacket(send));
+	ACPPacket * ret = DispatchPacket(send);
+	//PacketProcess(SERVER_LOCATION_ACS, ret);
+}
+
+bool ACSPointSun(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("ACS: commanding ACS to point towards the sun", LOGGER_LEVEL_INFO);
+
+	ACPPacket * command = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_POINT_SUN);
+	ACPPacket * response = DispatchPacket(command);
+
+	return(response->getOpcode() == ACS_POINT_SUN);
+}
+
+bool ACSPointNadir(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("ACS: commanding ACS to point towards nadir", LOGGER_LEVEL_INFO);
+
+	ACPPacket * command = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_POINT_NADIR);
+	ACPPacket * response = DispatchPacket(command);
+
+	return(response->getOpcode() == ACS_POINT_NADIR);
+}
+
+bool ACSPointGND(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("ACS: commanding ACS to point towards the ground station", LOGGER_LEVEL_INFO);
+
+	ACPPacket * command = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_POINT_GND);
+	ACPPacket * response = DispatchPacket(command);
+
+	return(response->getOpcode() == ACS_POINT_GND);
+}
+
+bool ACSPointDest(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("ACS: commanding ACS to point towards a given destination", LOGGER_LEVEL_INFO);
+
+	ACPPacket * command = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_POINT_DEST);
+	ACPPacket * response = DispatchPacket(command);
+
+	return(response->getOpcode() == ACS_POINT_DEST);
 }
 
 }

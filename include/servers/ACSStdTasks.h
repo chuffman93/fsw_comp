@@ -27,9 +27,12 @@ AllStar::Core::ACPPacket * ACSTestAlive();
 AllStar::Core::ACPPacket * ACSNoReturn();
 
 // Command/Data
-ACPPacket * ACSHealthStatus(void);
-ACPPacket * ACSSendGPS();
-
+void ACSHealthStatus(void);
+void ACSSendGPS();
+bool ACSPointSun();
+bool ACSPointNadir();
+bool ACSPointGND();
+bool ACSPointDest();
 
 }
 }

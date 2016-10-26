@@ -25,7 +25,7 @@ AllStar::Core::ACPPacket * EPSTestAlive();
 AllStar::Core::ACPPacket * EPSNoReturn();
 
 // Command/Data
-AllStar::Core::ACPPacket * EPSHealthStat();
+void EPSHealthStat();
 AllStar::Core::ACPPacket * EPSPowerCycle();
 
 }

@@ -86,8 +86,7 @@ void EPSServer::loopInit(){
 }
 
 void EPSServer::loopMonitor(){
-	ACPPacket * HSRet = EPSHealthStat();
-	//PacketProcess(SERVER_LOCATION_EPS, HSRet);
+	EPSHealthStat();
 
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	if(modeManager->GetMode() == MODE_DIAGNOSTIC){

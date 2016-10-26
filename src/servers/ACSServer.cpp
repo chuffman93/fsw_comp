@@ -22,20 +22,15 @@
 #include "util/FileHandler.h"
 #include "util/Logger.h"
 
-#define HARDWARE
-
 using namespace std;
 using namespace AllStar::Core;
 
 namespace AllStar{
 namespace Servers{
 
-static ACSMeasurementHandler * acsHSHandler;
-static ACSGPSHandler * acsGPSHandler;
-
 // -------------------------------------- Necessary Methods --------------------------------------
 ACSServer::ACSServer(string nameIn, LocationIDType idIn) :
-		SubsystemServer(nameIn, idIn), Singleton(), arby(idIn) {
+		SubsystemServer(nameIn, idIn), Singleton(), arby(idIn), ACSOrientation(ACS_UNORIENTED) {
 }
 
 ACSServer::~ACSServer() {
@@ -52,16 +47,12 @@ ACSServer & ACSServer::operator=(const ACSServer & source){
 }
 
 void ACSServer::Initialize(void){
-	//Initialize handlers
-	acsHSHandler = new ACSMeasurementHandler();
-	acsGPSHandler = new ACSGPSHandler();
+
 }
 
 #ifdef TEST
 void ACSServer::Destroy(void){
-	//delete handlers
-	delete acsHSHandler;
-	delete acsGPSHandler;
+
 }
 #endif
 
@@ -71,18 +62,6 @@ bool ACSServer::IsFullyInitialized(void){
 
 bool ACSServer::RegisterHandlers(){
 	bool success = true;
-	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-
-	// ACS Command OpCodes
-	success &= reg.RegisterHandler(MessageIdentifierType(SERVER_LOCATION_ACS, ACS_HS_CMD), acsHSHandler);
-	success &= reg.RegisterHandler(MessageIdentifierType(SERVER_LOCATION_ACS, ACS_GPS_CMD), acsGPSHandler);
-
-	for(int opcode = ACS_CMD_MIN; opcode < ACS_CMD_MAX; opcode++){
-		success &= arby.ModifyPermission(MessageIdentifierType(SERVER_LOCATION_ACS, opcode), true);
-	}
-
-	success &= dispatcher->AddRegistry(id, &reg, &arby);
-
 	return success;
 }
 
@@ -91,7 +70,7 @@ void ACSServer::loopInit(){
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 	cdhServer->subPowerOn(HARDWARE_LOCATION_ACS);
 
-	// delay while ACS boots up6
+	// delay while ACS boots up
 	usleep(1000000);
 
 	// Debug LED initialization
@@ -107,11 +86,16 @@ void ACSServer::loopInit(){
 void ACSServer::loopDisabled(){
 	ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
-	ACPPacket * HSRet;
+
+	if(ACSOrientation != ACS_SUN_ORIENTED){
+		if(ACSPointSun()){
+			ACSOrientation = ACS_SUN_ORIENTED;
+		}
+	}
 
 	uint64 wakeTime = getTimeInMillis();
 	if(modeManager->GetMode() == MODE_COM)
-		currentState = ST_GND_START;
+		currentState = ST_COM_START;
 
 	if(modeManager->GetMode() == MODE_PLD_PRIORITY)
 		currentState = ST_PLD_START;
@@ -120,8 +104,7 @@ void ACSServer::loopDisabled(){
 		currentState = ST_DIAGNOSTIC;
 	}
 
-	ACPPacket * HSSend = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_HS_CMD);
-	HSRet = DispatchPacket(HSSend);
+	ACSHealthStatus();
 
 	// if ACS is powered off due to a fault, switch to the init state
 	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS]){
@@ -130,67 +113,69 @@ void ACSServer::loopDisabled(){
 	waitUntil(wakeTime,1000);
 }
 
-void ACSServer::loopGNDStart(){
-	currentState = ST_GND_POINTING;
-}
-
-void ACSServer::loopGNDPointing(){
-	ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
-	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
-	ACPPacket * GPSRet;
-	ACPPacket * HSRet;
-
-	// if ACS is powered off due to a fault, switch to the init state
-	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS]){
-		currentState = ST_INIT;
-	}
-
-	GPSRet = ACSSendGPS();
-	//PacketProcess(SERVER_LOCATION_ACS, GPSRet);
-
-	usleep(1000000);
-
-	ACPPacket * HSSend = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_HS_CMD);
-	HSRet = DispatchPacket(HSSend);
-	//PacketProcess(SERVER_LOCATION_ACS, HSRet);
-
-	if(modeManager->GetMode() != MODE_COM)
-		currentState = ST_GND_STOP;
-}
-
-void ACSServer::loopGNDStop(){
-	currentState = ST_DISABLED;
-}
-
 void ACSServer::loopPLDStart(){
-	currentState = ST_PLD_POINTING;
+	if(ACSPointNadir()){
+		currentState = ST_PLD_POINTING;
+		ACSOrientation = ACS_NADIR_ORIENTED;
+	}else{
+		currentState = ST_DISABLED;
+	}
 }
 
 void ACSServer::loopPLDPointing(){
 	ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
-	ACPPacket * GPSRet;
-	ACPPacket * HSRet;
 
 	// if ACS is powered off due to a fault, switch to the init state
 	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS]){
 		currentState = ST_INIT;
 	}
 
-	GPSRet = ACSSendGPS();
-	//PacketProcess(SERVER_LOCATION_ACS, GPSRet);
+	uint64 lastWake = getTimeInMillis();
 
-	usleep(1000000);
+	ACSHealthStatus();
+	ACSSendGPS();
 
-	ACPPacket * HSSend = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_HS_CMD);
-	HSRet = DispatchPacket(HSSend);
-	//PacketProcess(SERVER_LOCATION_ACS, HSRet);
+	waitUntil(lastWake, 1000);
 
 	if(modeManager->GetMode() != MODE_PLD_PRIORITY)
 		currentState = ST_PLD_STOP;
 }
 
 void ACSServer::loopPLDStop(){
+	currentState = ST_DISABLED;
+}
+
+void ACSServer::loopCOMStart(){
+	if(ACSPointGND()){
+		currentState = ST_COM_POINTING;
+		ACSOrientation = ACS_GND_ORIENTED;
+	}else{
+		currentState = ST_DISABLED;
+	}
+}
+
+void ACSServer::loopCOMPointing(){
+	ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+
+	// if ACS is powered off due to a fault, switch to the init state
+	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS]){
+		currentState = ST_INIT;
+	}
+
+	uint64 lastWake = getTimeInMillis();
+
+	ACSHealthStatus();
+	ACSSendGPS();
+
+	waitUntil(lastWake, 5000);
+
+	if(modeManager->GetMode() != MODE_COM)
+		currentState = ST_COM_STOP;
+}
+
+void ACSServer::loopCOMStop(){
 	currentState = ST_DISABLED;
 }
 

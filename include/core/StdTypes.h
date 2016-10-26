@@ -123,6 +123,8 @@ enum EPSCommandEnum
 
 	EPS_HS_CMD = 16,
 	EPS_POWER_CYCLE,
+
+	EPS_BATTERY_CONFIG
 };
 
 enum ACSCommandEnum{
@@ -138,7 +140,11 @@ enum ACSCommandEnum{
 	ACS_POWER_CYCLE,
 
 	ACS_GPS_CMD = 19,
-	ACS_CMD_MAX,
+
+	ACS_POINT_SUN = 32,
+	ACS_POINT_NADIR,
+	ACS_POINT_GND,
+	ACS_POINT_DEST
 };
 
 enum COMCommandEnum{
