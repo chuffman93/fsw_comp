@@ -67,6 +67,11 @@ FileHandler & FileHandler::operator=(const FileHandler & source){
 /////////// Log Data ////////////////
 /////////////////////////////////////
 
+bool FileHandler::Log(LogFile destination, char const * message){
+	// Print the message to the proper file
+
+}
+
 bool FileHandler::Log(FileHandlerIDEnum subsystem, const AllStar::Core::ACPPacket * packet){
 	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
