@@ -37,7 +37,7 @@ ACPPacket * CDHCPUUsage(void){
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 	if(sysinfo(&cdhServer->si) != 0){
 		logger->Log("CDHStdTasks: CDHCPUUsage(): Error", LOGGER_LEVEL_ERROR);
-		ACPPacket * ret = new ACPPacket(CDH_CPU_USAGE_FAILURE);
+		ACPPacket * ret = new ACPPacket(CDH_CPU_USAGE_FAILURE, false);
 		return ret;
 	}
 
@@ -51,7 +51,7 @@ ACPPacket * CDHCPUUsage(void){
 	AddUInt32(buffer + 4, cdhServer->si.loads[1]);
 	AddUInt32(buffer + 8, cdhServer->si.loads[2]);
 
-	ACPPacket * ret = new ACPPacket(CDH_CPU_USAGE_SUCCESS, 12, buffer);
+	ACPPacket * ret = new ACPPacket(CDH_CPU_USAGE_SUCCESS, true, 12, buffer);
 	return ret;
 }
 
@@ -59,7 +59,7 @@ ACPPacket * CDHMemUsage(void){
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 	if(sysinfo(&cdhServer->si) != 0){
 		logger->Log("CDHStdTasks: CDHMemUsage(): Error", LOGGER_LEVEL_ERROR);
-		ACPPacket * ret = new ACPPacket(CDH_MEM_USAGE_FAILURE);
+		ACPPacket * ret = new ACPPacket(CDH_MEM_USAGE_FAILURE, false);
 		return ret;
 	}
 
@@ -71,7 +71,7 @@ ACPPacket * CDHMemUsage(void){
 	uint8 * buffer = (uint8 *) malloc(4);
 	AddFloat(buffer, mem);
 
-	ACPPacket * ret = new ACPPacket(CDH_MEM_USAGE_SUCCESS, 4, buffer);
+	ACPPacket * ret = new ACPPacket(CDH_MEM_USAGE_SUCCESS, true, 4, buffer);
 	return ret;
 }
 
@@ -88,11 +88,11 @@ ACPPacket * CDHTempStart(void){
 
 	if(success){
 		logger->Log("CDHStdTasks: CDHTempStart(): Started sensors", LOGGER_LEVEL_INFO);
-		ACPPacket * ret = new ACPPacket(CDH_TEMP_START_SUCCESS);
+		ACPPacket * ret = new ACPPacket(CDH_TEMP_START_SUCCESS, true);
 		return ret;
 	}else{
 		logger->Log("CDHStdTasks: CDHTempStart(): Error starting sensors!", LOGGER_LEVEL_ERROR);
-		ACPPacket * ret = new ACPPacket(CDH_TEMP_START_FAILURE);
+		ACPPacket * ret = new ACPPacket(CDH_TEMP_START_FAILURE, false);
 		return ret;
 	}
 }
@@ -113,7 +113,7 @@ ACPPacket * CDHTempRead(void){
 	}
 
 	// Send return
-	ACPPacket * ret = new ACPPacket(CDH_TEMP_READ_SUCCESS, 64*sizeof(float), buffer);
+	ACPPacket * ret = new ACPPacket(CDH_TEMP_READ_SUCCESS, true, 64*sizeof(float), buffer);
 	return ret;
 }
 
@@ -131,7 +131,7 @@ ACPPacket * CDHHotSwaps(void){
 		AddFloat(buffer + i, vcRead[i]);
 	}
 
-	ACPPacket * ret = new ACPPacket(CDH_HOT_SWAPS_SUCCESS, 64*sizeof(float), buffer);
+	ACPPacket * ret = new ACPPacket(CDH_HOT_SWAPS_SUCCESS, true, 64*sizeof(float), buffer);
 	return ret;
 }
 
@@ -186,7 +186,7 @@ ACPPacket * CDHStartPM(void){
 	cdhServer->devMngr->startPMMeas();
 
 	logger->Log("CDHStdTasks: CDHStartPM(): Started PM measurement", LOGGER_LEVEL_INFO);
-	ACPPacket * ret = new ACPPacket(CDH_START_PM_SUCCESS);
+	ACPPacket * ret = new ACPPacket(CDH_START_PM_SUCCESS, true);
 	return ret;
 }
 
@@ -194,7 +194,7 @@ ACPPacket * CleanFiles(uint16 weekStart, uint16 weekEnd){
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 	cdhServer->storMngr->CleanFiles(weekStart, weekEnd);
 
-	ACPPacket * ret = new ACPPacket(CDH_CLEAN_FS_SUCCESS);
+	ACPPacket * ret = new ACPPacket(CDH_CLEAN_FS_SUCCESS, true);
 	return ret;
 }
 

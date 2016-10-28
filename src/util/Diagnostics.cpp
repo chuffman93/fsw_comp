@@ -19,31 +19,8 @@ using namespace AllStar::Servers;
 
 void BusLoadTest(bool enable){
 	if(enable){
-		SPI_HALServer * spiServer = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
 		Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 		logger->Log("Running bus load test", LOGGER_LEVEL_INFO);
-
-		// Test SPI TX Speed
-		ACPPacket * query = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, EPS_NO_RETURN);
-
-		uint8 packetsSent = 0;
-		uint8 tries = 0;
-		uint64 currTime = 0;
-		uint64 endTime = getTimeInMillis() + 2000;
-		while(currTime < endTime){
-			if(mq_size(spiServer->queueHandleTX, spiServer->queueAttrTX) == 0){
-				tries++;
-				if(DispatchNoResponse(query)){
-					packetsSent++;
-				}
-				currTime = getTimeInMillis();
-				usleep(10000);
-			}
-		}
-
-		FILE * fp = fopen("diagnostic_results.txt", "a+");
-		fprintf(fp, "Bus Load Results: %d packets sent out of %d tries in 2 seconds\n", packetsSent, tries);
-		fclose(fp);
 	}
 }
 

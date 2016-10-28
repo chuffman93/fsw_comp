@@ -2,6 +2,8 @@
  * 	COMStdTasks.h
  * 	Written by: Brian Campuzano
  * 	   Created: 10/20/2012
+ *
+ * 	Updated: Alex St. Clair
  */
 
 #ifndef COMSTDTASKS_H_
@@ -17,6 +19,11 @@
 
 namespace AllStar{
 namespace Servers{
+
+// Debug
+bool COMToggleLED(bool state);
+bool COMBlinkRate(uint16 rate);
+bool COMLEDData();
 
 // \brief Collects health and status from COM.
 AllStar::Core::ACPPacket * COMHealthStatus(void);

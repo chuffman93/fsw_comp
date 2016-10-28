@@ -63,7 +63,7 @@ bool PLDServer::RegisterHandlers(){
 	bool success = true;
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 
-	success &= reg.RegisterHandler(MessageIdentifierType(SERVER_LOCATION_PLD, PLD_HS_CMD), pldHSHandler);
+	success &= reg.RegisterHandler(MessageIdentifierType(SERVER_LOCATION_PLD, HEALTH_STATUS_CMD), pldHSHandler);
 
 	success &= dispatcher->AddRegistry(id, &reg, &arby);
 

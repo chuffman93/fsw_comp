@@ -72,7 +72,7 @@ bool FileHandler::Log(FileHandlerIDEnum subsystem, const AllStar::Core::ACPPacke
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	uint8 opcode = packet->getOpcode();
-	bool notPLDData = (subsystem != SUBSYSTEM_PLD) || (opcode != PLD_DATA_SUCCESS);
+	bool notPLDData = (subsystem != SUBSYSTEM_PLD) || (opcode != PLD_DATA_CMD);
 	string file;
 
 	// Fetch Time

@@ -67,7 +67,7 @@ bool ERRServer::RegisterHandlers()
 
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 
-	for(int opcode = OPCODE_ERRORS_MIN; opcode < OPCODE_ERRORS_MAX; opcode++)
+	for(int opcode = 0; opcode < 255; opcode++)
 	{
 		success &= reg.RegisterHandler(MessageIdentifierType(SERVER_LOCATION_ERR, opcode), octErrorHandler);
 		success &= arby.ModifyPermission(MessageIdentifierType(SERVER_LOCATION_ERR, opcode), true);

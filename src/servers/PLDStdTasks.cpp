@@ -24,7 +24,7 @@ namespace Servers{
 
 ACPPacket * PLDHealthStatus(void)
 {
-	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, PLD_HS_CMD);
+	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, HEALTH_STATUS_CMD);
 	ACPPacket * HSRet = DispatchPacket(HSQuery);
 	return HSRet;
 }

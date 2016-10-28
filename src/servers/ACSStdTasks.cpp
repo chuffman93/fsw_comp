@@ -34,7 +34,7 @@ bool ACSToggleLED(bool state){
 		memcpy(buffer, &stateOut, 1);
 	}
 
-	ACPPacket * query = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_TOGGLE_LED_CMD, 1, buffer);
+	ACPPacket * query = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, LED_ON_CMD, 1, buffer);
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret == NULL){
@@ -68,7 +68,7 @@ bool ACSBlinkRate(uint16 rate){
 	uint8 * bufferOut = (uint8 *) malloc(sizeof(uint16));
 	AddUInt16(bufferOut, rate);
 
-	ACPPacket * query = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_LED_BLINK_RATE_CMD, 2, bufferOut);
+	ACPPacket * query = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, LED_RATE_CONFIG, 2, bufferOut);
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret == NULL){
@@ -99,7 +99,7 @@ bool ACSBlinkRate(uint16 rate){
 bool ACSLEDData(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-	ACPPacket * query = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_LED_DATA);
+	ACPPacket * query = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, LED_RATE_DATA);
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret == NULL){
@@ -137,7 +137,7 @@ ACPPacket * ACSNoReturn(){
 
 // Command/Data
 void ACSHealthStatus(void){
-	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_HS_CMD);
+	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, HEALTH_STATUS_CMD);
 	ACPPacket * HSRet = DispatchPacket(HSQuery);
 	//PacketProcess(SERVER_LOCATION_ACS, HSRet);
 }

@@ -63,7 +63,7 @@ ACPPacket * CDHCleanFSHandler::Handle(const ACPPacket & packet){
 	uint8 * msgPtr = packet.getMessageBuff();
 	if(msgPtr == NULL){
 		logger->Log("CDHHandlers: NULL msg", LOGGER_LEVEL_WARN);
-		ACPPacket * ret = new ACPPacket(CDH_CLEAN_FS_FAILURE);
+		ACPPacket * ret = new ACPPacket(CDH_CLEAN_FS_FAILURE, false);
 		return ret;
 	}
 
@@ -75,7 +75,7 @@ ACPPacket * CDHCleanFSHandler::Handle(const ACPPacket & packet){
 
 	if((outputArray[0] >= current_week) || (outputArray[1] >= current_week) || (outputArray[0] > outputArray[1])){
 		logger->Log("CDHHandlers: bad weeks", LOGGER_LEVEL_WARN);
-		ACPPacket * ret = new ACPPacket(CDH_CLEAN_FS_FAILURE);
+		ACPPacket * ret = new ACPPacket(CDH_CLEAN_FS_FAILURE, false);
 		return ret;
 	}
 

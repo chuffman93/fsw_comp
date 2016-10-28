@@ -47,7 +47,7 @@ bool EPSToggleLED(bool state){
 		memcpy(buffer, &stateOut, 1);
 	}
 
-	ACPPacket * query = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, EPS_TOGGLE_LED_CMD, 1, buffer);
+	ACPPacket * query = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, LED_ON_CMD, 1, buffer);
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret == NULL){
@@ -81,7 +81,7 @@ bool EPSBlinkRate(uint16 rate){
 	uint8 * bufferOut = (uint8 *) malloc(sizeof(uint16));
 	AddUInt16(bufferOut, rate);
 
-	ACPPacket * query = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, EPS_LED_BLINK_RATE_CONFIG, 2, bufferOut);
+	ACPPacket * query = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, LED_RATE_CONFIG, 2, bufferOut);
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret == NULL){
@@ -112,7 +112,7 @@ bool EPSBlinkRate(uint16 rate){
 bool EPSLEDData(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-	ACPPacket * query = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, EPS_LED_DATA);
+	ACPPacket * query = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, LED_RATE_DATA);
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret == NULL){
@@ -153,7 +153,7 @@ void EPSHealthStat()
 {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, EPS_HS_CMD);
+	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, HEALTH_STATUS_CMD);
 	ACPPacket * HSRet = DispatchPacket(HSQuery);
 	logger->Log("EPSStdTasks: EPSHealthStat(): packet dispatched, HSRet acquired", LOGGER_LEVEL_INFO);
 
@@ -210,7 +210,7 @@ void EPSHealthStat()
 ACPPacket * EPSPowerCycle()
 {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	ACPPacket * query = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, EPS_POWER_CYCLE);
+	ACPPacket * query = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, SUBSYSTEM_RESET_CMD);
 	ACPPacket * response = DispatchPacket(query);
 
 	usleep(5000000);

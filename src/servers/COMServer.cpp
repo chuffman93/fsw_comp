@@ -83,25 +83,24 @@ void COMServer::loopInit(){
 
 	usleep(5000000);
 
+	// Debug LED initialization
+	COMToggleLED(true);
+	usleep(1000000);
+	COMBlinkRate(1000);
+	usleep(1000000);
+	COMLEDData();
+
 	currentState = ST_IDLE;
 }
 
 void COMServer::loopIdle(){
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
+	uint64 startTime = getTimeInMillis();
+
 	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_EPS]){
 		currentState = ST_INIT;
 	}
-
-	ACPPacket * ledOn = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, 1);
-	DispatchPacket(ledOn);
-
-	usleep(1000);
-
-	ACPPacket * ledOff = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, 2);
-	DispatchPacket(ledOff);
-
-	usleep(1000);
 
 	ModeManager * modeManager = dynamic_cast<ModeManager *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
@@ -112,6 +111,8 @@ void COMServer::loopIdle(){
 	if(modeManager->GetMode() == MODE_DIAGNOSTIC){
 		currentState = ST_DIAGNOSTIC;
 	}
+
+	waitUntil(startTime, 1000);
 }
 
 void COMServer::loopCOMStart(){

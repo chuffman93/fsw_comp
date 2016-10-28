@@ -13,6 +13,13 @@
 namespace AllStar{
 namespace Core{
 
+typedef uint8 ErrorStatusType;
+
+enum ErrorStatusEnum{
+	INVALID_PACKET = 100,
+	NO_ERROR_BYTE
+};
+
 #define ACP_MIN_BYTES 8
 #define SYNC_VALUE 0x76
 
@@ -30,8 +37,8 @@ public:
 	ACPPacket(LocationIDType sourceIn, LocationIDType destIn, uint8 opcodeIn, uint16 lengthIn, uint8 * messageIn);
 
 	// --- Constructors for return messages ----------------------------------------------------------------------------
-	ACPPacket(uint8 opcodeIn);
-	ACPPacket(uint8 opcodeIn, uint16 lengthIn, uint8 * messageIn);
+	ACPPacket(uint8 opcodeIn, ErrorStatusType errorStatusIn);
+	ACPPacket(uint8 opcodeIn, ErrorStatusType errorStatusIn, uint16 lengthIn, uint8 * messageIn);
 
 	// --- Constructor from existing packet ----------------------------------------------------------------------------
 	ACPPacket(const ACPPacket & source);
@@ -117,11 +124,29 @@ public:
 		this->timestamp = timestamp;
 	}
 
+	ErrorStatusType getErrorStatus() const {
+		return errorStatus;
+	}
+
+	void setErrorStatus(ErrorStatusType errorStatus) {
+		this->errorStatus = errorStatus;
+	}
+
+	bool isSuccess() const {
+		return success;
+	}
+
+	void setSuccess(bool success) {
+		this->success = success;
+	}
+
 private:
 	// --- Internal Use ------------------------------------------------------------------------------------------------
 	LocationIDType source;
 	LocationIDType destination;
 	uint64 timestamp;
+	ErrorStatusType errorStatus;
+	bool success;
 	bool fromHardware;
 
 	// --- Packet Definition -------------------------------------------------------------------------------------------

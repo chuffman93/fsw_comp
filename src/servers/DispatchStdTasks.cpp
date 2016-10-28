@@ -35,7 +35,7 @@ ACPPacket * DispatchPacket(ACPPacket * query)
 		|| destination < HARDWARE_LOCATION_MIN || destination >= SERVER_LOCATION_MAX)
 	{
 		logger->Log("DispatcherStdTasks: DispatchPacket(): invalid src/dest!", LOGGER_LEVEL_ERROR);
-		ACPPacket * ret = new ACPPacket(PACKET_FORMAT_FAIL);
+		ACPPacket * ret = new ACPPacket(PACKET_FORMAT_FAIL, false);
 		delete query;
 		return ret;
 	}
@@ -50,7 +50,7 @@ ACPPacket * DispatchPacket(ACPPacket * query)
 	if(!dispatcher->Dispatch(*query))
 	{
 		logger->Log("DispatchStdTasks: Failed to dispatch packet\n", LOGGER_LEVEL_WARN);
-		ACPPacket * ret = new ACPPacket(DISPATCH_FAILED);
+		ACPPacket * ret = new ACPPacket(DISPATCH_FAILED, false);
 		delete query;
 		return ret;
 	}
@@ -62,7 +62,7 @@ ACPPacket * DispatchPacket(ACPPacket * query)
 	if(DISPATCHER_STATUS_OK != (stat = WaitForDispatchResponse(*query, &response)))
 	{
 		logger->Log("DispatchStdTasks: Did not receive response\n", LOGGER_LEVEL_WARN);
-		ACPPacket * ret = new ACPPacket(DISPATCHER_STATUS_ERR);
+		ACPPacket * ret = new ACPPacket(DISPATCHER_STATUS_ERR, false);
 		delete query;
 		return ret;
 	}
@@ -192,7 +192,7 @@ void PacketProcess(LocationIDType id, AllStar::Core::ACPPacket * retPacket)
 			if(DISPATCHER_STATUS_OK != (stat = WaitForDispatchResponse(*retPacket, &responsePacket)))
 			{
 				logger->Log("DispatchStdTasks: no response from error octopus (NOTE: check ERRServer Handler return)", LOGGER_LEVEL_ERROR);
-				ACPPacket * ret = new ACPPacket(DISPATCH_FAILED);
+				ACPPacket * ret = new ACPPacket(DISPATCH_FAILED, false);
 				PacketProcess(id, ret);
 				delete retPacket;
 				return;

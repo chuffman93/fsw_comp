@@ -67,8 +67,8 @@ bool EPSServer::RegisterHandlers() {
 
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *>(Factory::GetInstance(DISPATCHER_SINGLETON));
 
-	success &= reg.RegisterHandler(MessageIdentifierType(SERVER_LOCATION_EPS, EPS_HS_CMD),epsHSHandler);
-	success &= reg.RegisterHandler(MessageIdentifierType(SERVER_LOCATION_EPS, EPS_POWER_CYCLE),epsPowerCycleHandler);
+	success &= reg.RegisterHandler(MessageIdentifierType(SERVER_LOCATION_EPS, HEALTH_STATUS_CMD),epsHSHandler);
+	success &= reg.RegisterHandler(MessageIdentifierType(SERVER_LOCATION_EPS, SUBSYSTEM_RESET_CMD),epsPowerCycleHandler);
 
 	success &= dispatcher->AddRegistry(id, &reg, &arby);
 

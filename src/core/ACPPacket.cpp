@@ -22,7 +22,8 @@ uint8 ACPPacket::sync = SYNC_VALUE;
 
 // --- Constructors/Operators --------------------------------------------------------------------------------------
 ACPPacket::ACPPacket(void )
-	: source(LOCATION_ID_INVALID), destination(LOCATION_ID_INVALID), fromHardware(false), opcode(0), packetID(0), CRC(0), messageBuff(NULL), length(0){
+	: source(LOCATION_ID_INVALID), destination(LOCATION_ID_INVALID), fromHardware(false), opcode(0),
+	  packetID(0), CRC(0), messageBuff(NULL), length(0), success(true), errorStatus(0){
 	timestamp = getTimeInMillis();
 }
 
@@ -41,23 +42,27 @@ bool ACPPacket::operator==(const ACPPacket & check) const{
 
 // --- Constructors for dispatching --------------------------------------------------------------------------------
 ACPPacket::ACPPacket(LocationIDType sourceIn, LocationIDType destIn, uint8 opcodeIn)
-	: source(sourceIn), destination(destIn), fromHardware(false), opcode(opcodeIn), packetID(0), CRC(0), messageBuff(NULL), length(0){
+	: source(sourceIn), destination(destIn), fromHardware(false), opcode(opcodeIn), packetID(0),
+	  CRC(0), messageBuff(NULL), length(0), errorStatus(0), success(true){
 	timestamp = getTimeInMillis();
 }
 
 ACPPacket::ACPPacket(LocationIDType sourceIn, LocationIDType destIn, uint8 opcodeIn, uint16 lengthIn, uint8 * messageIn)
-	: source(sourceIn), destination(destIn), fromHardware(false), opcode(opcodeIn), packetID(0), CRC(0), messageBuff(messageIn), length(lengthIn){
+	: source(sourceIn), destination(destIn), fromHardware(false), opcode(opcodeIn), packetID(0),
+	  CRC(0), messageBuff(messageIn), length(lengthIn), errorStatus(0), success(true){
 	timestamp = getTimeInMillis();
 }
 
 // --- Constructors for return messages ----------------------------------------------------------------------------
-ACPPacket::ACPPacket(uint8 opcodeIn)
-	: source(LOCATION_ID_INVALID), destination(LOCATION_ID_INVALID), fromHardware(false), opcode(opcodeIn), packetID(0), CRC(0), messageBuff(NULL), length(0){
+ACPPacket::ACPPacket(uint8 opcodeIn, ErrorStatusType errorStatusIn)
+	: source(LOCATION_ID_INVALID), destination(LOCATION_ID_INVALID), fromHardware(false), opcode(opcodeIn),
+	  packetID(0), CRC(0), messageBuff(NULL), length(0), errorStatus(errorStatusIn), success(errorStatusIn == 0){
 	timestamp = getTimeInMillis();
 }
 
-ACPPacket::ACPPacket(uint8 opcodeIn, uint16 lengthIn, uint8 * messageIn)
-	: source(LOCATION_ID_INVALID), destination(LOCATION_ID_INVALID), fromHardware(false), opcode(opcodeIn), packetID(0), CRC(0), messageBuff(messageIn), length(lengthIn){
+ACPPacket::ACPPacket(uint8 opcodeIn, ErrorStatusType errorStatusIn, uint16 lengthIn, uint8 * messageIn)
+	: source(LOCATION_ID_INVALID), destination(LOCATION_ID_INVALID), fromHardware(false), opcode(opcodeIn),
+	  packetID(0), CRC(0), messageBuff(messageIn), length(lengthIn), errorStatus(errorStatusIn), success(errorStatusIn == 0){
 	timestamp = getTimeInMillis();
 }
 
@@ -70,6 +75,8 @@ ACPPacket::ACPPacket(const ACPPacket & packetSource){
 	messageBuff		= packetSource.getMessageBuff();
 	packetID		= packetSource.getPacketID();
 	CRC				= packetSource.getCRC();
+	errorStatus		= packetSource.getErrorStatus();
+	success			= packetSource.isSuccess();
 	timestamp = getTimeInMillis();
 }
 
@@ -86,6 +93,8 @@ ACPPacket::ACPPacket(uint8 * buffer, std::size_t size_in){
 	// Check that the buffer is sized correctly.
 	if (NULL == buffer || size < ACP_MIN_BYTES){
 		messageBuff = NULL;
+		errorStatus = INVALID_PACKET;
+		success = false;
 		logger->Log("ACPPacket: Null or incomplete packet", LOGGER_LEVEL_WARN);
 		return;
 	}
@@ -99,6 +108,8 @@ ACPPacket::ACPPacket(uint8 * buffer, std::size_t size_in){
 	if(syncIn != SYNC_VALUE){
 		logger->Log("ACPPacket: wrong sync! Packet invalid.", LOGGER_LEVEL_ERROR);
 		messageBuff = NULL;
+		errorStatus = INVALID_PACKET;
+		success = false;
 		return;
 	}
 
@@ -122,13 +133,27 @@ ACPPacket::ACPPacket(uint8 * buffer, std::size_t size_in){
 	if(size != length){
 		logger->Log("ACPPacket: length difference error! Packet invalid.", LOGGER_LEVEL_ERROR);
 		messageBuff = NULL;
+		errorStatus = NO_ERROR_BYTE;
+		success = false;
 		return;
 	}
 
+	// Set success and errorStatus
+	if(length == 0){ // errors byte not sent
+		errorStatus = NO_ERROR_BYTE;
+		success = false;
+		return;
+	}else{
+		errorStatus = buffer[0];
+		success = (errorStatus == 0);
+		buffer += 1;
+		size -=1;
+	}
+
 	// Allocate and fill in message buffer
-	messageBuff = (uint8*) malloc(length);
-	memcpy(messageBuff, buffer, length);
-	buffer += length;
+	messageBuff = (uint8*) malloc(length - 1);
+	memcpy(messageBuff, buffer, length - 1);
+	buffer += length - 1;
 
 	// Check that the allocation worked correctly.
 	if (NULL == messageBuff){
@@ -137,7 +162,7 @@ ACPPacket::ACPPacket(uint8 * buffer, std::size_t size_in){
 	}
 
 	// Get the length
-	CRC = ((uint16) buffer[0] << 8) | (uint16)buffer[1];
+	CRC = ((uint16) buffer[0] << 8) | (uint16) buffer[1];
 	logger->Log("ACPPacket CRC: %#04x", (uint32) CRC, LOGGER_LEVEL_DEBUG);
 
 	timestamp = getTimeInMillis();
