@@ -124,7 +124,7 @@ ACPPacket::ACPPacket(uint8 * buffer, std::size_t size_in){
 	size -= 1;
 
 	length = ((uint16) buffer[0] << 8) | (uint16)buffer[1];
-	logger->Log("ACPPacket message length: %u", (uint32) length, LOGGER_LEVEL_INFO);
+	logger->Log("ACPPacket message length: %u", (uint32) length - 1, LOGGER_LEVEL_INFO);
 	buffer += 2;
 	size -= 2;
 
@@ -165,6 +165,7 @@ ACPPacket::ACPPacket(uint8 * buffer, std::size_t size_in){
 	CRC = ((uint16) buffer[0] << 8) | (uint16) buffer[1];
 	logger->Log("ACPPacket CRC: %#04x", (uint32) CRC, LOGGER_LEVEL_DEBUG);
 
+	length--; // remove error byte from length
 	timestamp = getTimeInMillis();
 }
 

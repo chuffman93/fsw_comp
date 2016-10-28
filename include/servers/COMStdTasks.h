@@ -28,6 +28,11 @@ bool COMLEDData();
 // \brief Collects health and status from COM.
 AllStar::Core::ACPPacket * COMHealthStatus(void);
 
+// COM-specific
+bool COMSimplex();
+bool COMHalfDuplex();
+bool COMFullDuplex();
+
 }
 }
 

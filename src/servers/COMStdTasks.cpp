@@ -106,7 +106,7 @@ bool COMLEDData(){
 		return false;
 	}
 
-	if(ret->getLength() != sizeof(uint16)){
+	if(ret->getLength() != 3){
 		logger->Log("COMStdTasks: Incorrect LED data return length", LOGGER_LEVEL_WARN);
 		return false;
 	}else{
@@ -115,12 +115,56 @@ bool COMLEDData(){
 			return false;
 		}
 
-		uint16 result = GetUInt16(ret->getMessageBuff());
-		logger->Log("LED blink rate: %u", result, LOGGER_LEVEL_INFO);
+		uint8 * msgPtr = ret->getMessageBuff();
+		uint8 powerStatus = GetUInt8(msgPtr++);
+		uint16 result = GetUInt16(msgPtr);
+		logger->Log("COM LED power state: %u", powerStatus, LOGGER_LEVEL_INFO);
+		logger->Log("COM LED blink rate:  %u", result, LOGGER_LEVEL_INFO);
 		return true;
 	}
 }
 
+bool COMSimplex(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("COM: commanding COM into simplex", LOGGER_LEVEL_INFO);
+
+	ACPPacket * command = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, COM_SIMPLEX);
+	ACPPacket * response = DispatchPacket(command);
+
+	if(!response->isSuccess()){
+		logger->Log("COM: Error entering Simplex", LOGGER_LEVEL_WARN);
+	}
+
+	return(response->isSuccess());
+}
+
+bool COMHalfDuplex(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("COM: commanding COM into half duplex", LOGGER_LEVEL_INFO);
+
+	ACPPacket * command = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, COM_HALF_DUPLEX);
+	ACPPacket * response = DispatchPacket(command);
+
+	if(!response->isSuccess()){
+		logger->Log("COM: Error entering Half Duplex", LOGGER_LEVEL_WARN);
+	}
+
+	return(response->isSuccess());
+}
+
+bool COMFullDuplex(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log("COM: commanding COM into full duplex", LOGGER_LEVEL_INFO);
+
+	ACPPacket * command = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, COM_FULL_DUPLEX);
+	ACPPacket * response = DispatchPacket(command);
+
+	if(!response->isSuccess()){
+		logger->Log("COM: Error entering full duplex", LOGGER_LEVEL_WARN);
+	}
+
+	return(response->isSuccess());
+}
 
 //ACPPacket * COMHealthStatus(void){
 //	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, COM_HS_CMD);

@@ -120,7 +120,7 @@ bool EPSLEDData(){
 		return false;
 	}
 
-	if(ret->getLength() != sizeof(uint16)){
+	if(ret->getLength() != 3){
 		logger->Log("EPSStdTasks: Incorrect LED data return length", LOGGER_LEVEL_WARN);
 		return false;
 	}else{
@@ -129,23 +129,27 @@ bool EPSLEDData(){
 			return false;
 		}
 
-		uint16 result = GetUInt16(ret->getMessageBuff());
-		logger->Log("LED blink rate: %u", result, LOGGER_LEVEL_INFO);
+		uint8 * msgPtr = ret->getMessageBuff();
+		uint8 powerStatus = GetUInt8(msgPtr++);
+		uint16 result = GetUInt16(msgPtr);
+		logger->Log("EPS LED power state: %u", powerStatus, LOGGER_LEVEL_INFO);
+		logger->Log("EPS LED blink rate:  %u", result, LOGGER_LEVEL_INFO);
 		return true;
 	}
 }
 
 // Diagnostic
-ACPPacket * EPSTestAlive(){
+void EPSTestAlive(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("EPSTestAlive: unfinished!", LOGGER_LEVEL_ERROR);
-	return NULL;
-}
 
-ACPPacket * EPSNoReturn(){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("EPSNoReturn: unfinished!", LOGGER_LEVEL_ERROR);
-	return NULL;
+	ACPPacket * query = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, TEST_ALIVE_CMD);
+	ACPPacket * ret = DispatchPacket(query);
+
+	if(ret->isSuccess()){
+		logger->Log("EPS is alive", LOGGER_LEVEL_INFO);
+	}else{
+		logger->Log("EPS is not alive", LOGGER_LEVEL_FATAL);
+	}
 }
 
 // Command/Data
@@ -207,7 +211,7 @@ void EPSHealthStat()
 	}
 }
 
-ACPPacket * EPSPowerCycle()
+void EPSPowerCycle()
 {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	ACPPacket * query = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, SUBSYSTEM_RESET_CMD);

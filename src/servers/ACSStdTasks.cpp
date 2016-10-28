@@ -107,7 +107,7 @@ bool ACSLEDData(){
 		return false;
 	}
 
-	if(ret->getLength() != sizeof(uint16)){
+	if(ret->getLength() != 3){
 		logger->Log("ACSStdTasks: Incorrect LED data return length", LOGGER_LEVEL_WARN);
 		return false;
 	}else{
@@ -116,17 +116,27 @@ bool ACSLEDData(){
 			return false;
 		}
 
-		uint16 result = GetUInt16(ret->getMessageBuff());
-		logger->Log("LED blink rate: %u", result, LOGGER_LEVEL_INFO);
+		uint8 * msgPtr = ret->getMessageBuff();
+		uint8 powerStatus = GetUInt8(msgPtr++);
+		uint16 result = GetUInt16(msgPtr);
+		logger->Log("ACS LED power state: %u", powerStatus, LOGGER_LEVEL_INFO);
+		logger->Log("ACS LED blink rate:  %u", result, LOGGER_LEVEL_INFO);
 		return true;
 	}
 }
 
 // Diagnostic
-ACPPacket * ACSTestAlive(){
+void ACSTestAlive(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("ACSTestAlive: unfinished!", LOGGER_LEVEL_ERROR);
-	return NULL;
+
+	ACPPacket * query = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, TEST_ALIVE_CMD);
+	ACPPacket * ret = DispatchPacket(query);
+
+	if(ret->isSuccess()){
+		logger->Log("ACS is alive", LOGGER_LEVEL_INFO);
+	}else{
+		logger->Log("ACS is not alive", LOGGER_LEVEL_FATAL);
+	}
 }
 
 ACPPacket * ACSNoReturn(){
@@ -179,7 +189,7 @@ bool ACSPointNadir(){
 	ACPPacket * command = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_POINT_NADIR);
 	ACPPacket * response = DispatchPacket(command);
 
-	return(response->getOpcode() == ACS_POINT_NADIR);
+	return(response->isSuccess());
 }
 
 bool ACSPointGND(){
@@ -189,7 +199,7 @@ bool ACSPointGND(){
 	ACPPacket * command = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_POINT_GND);
 	ACPPacket * response = DispatchPacket(command);
 
-	return(response->getOpcode() == ACS_POINT_GND);
+	return(response->isSuccess());
 }
 
 bool ACSPointDest(){
@@ -199,7 +209,7 @@ bool ACSPointDest(){
 	ACPPacket * command = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_POINT_DEST);
 	ACPPacket * response = DispatchPacket(command);
 
-	return(response->getOpcode() == ACS_POINT_DEST);
+	return(response->isSuccess());
 }
 
 }

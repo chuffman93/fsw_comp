@@ -88,6 +88,8 @@ void EPSServer::loopInit(){
 void EPSServer::loopMonitor(){
 	EPSHealthStat();
 
+	EPSTestAlive();
+
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	if(modeManager->GetMode() == MODE_DIAGNOSTIC){
 		currentState = ST_DIAGNOSTIC;

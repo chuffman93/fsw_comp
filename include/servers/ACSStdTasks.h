@@ -23,8 +23,7 @@ bool ACSBlinkRate(uint16 rate);
 bool ACSLEDData();
 
 // Diagnostic
-AllStar::Core::ACPPacket * ACSTestAlive();
-AllStar::Core::ACPPacket * ACSNoReturn();
+void ACSTestAlive();
 
 // Command/Data
 void ACSHealthStatus(void);

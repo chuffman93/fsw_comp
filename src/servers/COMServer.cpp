@@ -116,8 +116,7 @@ void COMServer::loopIdle(){
 }
 
 void COMServer::loopCOMStart(){
-	ACPPacket * startPacket = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, 3);
-	ACPPacket * startRet = DispatchPacket(startPacket);
+	COMHalfDuplex();
 
 	currentState = ST_COM;
 }
@@ -137,8 +136,7 @@ void COMServer::loopCOM(){
 }
 
 void COMServer::loopCOMStop(){
-	ACPPacket * stopPacket = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, 4);
-	ACPPacket * stopRet = DispatchPacket(stopPacket);
+	COMSimplex();
 
 	currentState = ST_IDLE;
 }

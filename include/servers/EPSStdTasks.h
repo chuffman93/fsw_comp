@@ -21,12 +21,11 @@ bool EPSBlinkRate(uint16 rate);
 bool EPSLEDData();
 
 // Diagnostic
-AllStar::Core::ACPPacket * EPSTestAlive();
-AllStar::Core::ACPPacket * EPSNoReturn();
+void EPSTestAlive();
 
 // Command/Data
 void EPSHealthStat();
-AllStar::Core::ACPPacket * EPSPowerCycle();
+void EPSPowerCycle();
 
 }
 }
