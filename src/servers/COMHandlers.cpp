@@ -19,9 +19,9 @@ using namespace std;
 using namespace AllStar::Core;
 using namespace AllStar::Servers;
 
-ACPPacket * COMHSHandler::Handle(const ACPPacket & packet){
-	return (COMHealthStatus());
-}
+//ACPPacket * COMHSHandler::Handle(const ACPPacket & packet){
+//	return (COMHealthStatus());
+//}
 
 /*	TODO:
  * 		- Send files

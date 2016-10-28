@@ -19,15 +19,15 @@ using namespace AllStar::Core;
 namespace AllStar{
 namespace Servers{
 
-ACPPacket * COMHealthStatus(void){
-	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, COM_HS_CMD);
-	ACPPacket * HSRet = DispatchPacket(HSQuery);
-
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("COMStdTasks: unfinished function entered!", LOGGER_LEVEL_FATAL);
-
-	return HSRet;
-}
+//ACPPacket * COMHealthStatus(void){
+//	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, COM_HS_CMD);
+//	ACPPacket * HSRet = DispatchPacket(HSQuery);
+//
+//	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+//	logger->Log("COMStdTasks: unfinished function entered!", LOGGER_LEVEL_FATAL);
+//
+//	return HSRet;
+//}
 
 }
 }
