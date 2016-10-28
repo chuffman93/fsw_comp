@@ -60,11 +60,17 @@ void SPIStats(bool enable){
 				spiServer->packetsDroppedTX[0], spiServer->packetsDroppedTX[1], spiServer->packetsDroppedTX[2], spiServer->packetsDroppedTX[3]);
 		fprintf(fp, "\tPackets Sent: %lu %lu %lu %lu\n",
 				spiServer->packetsSentTX[0], spiServer->packetsSentTX[1], spiServer->packetsSentTX[2], spiServer->packetsSentTX[3]);
+		fprintf(fp, "\tBytes Dropped: %llu %llu %llu %llu\n",
+				spiServer->bytesDroppedTX[0], spiServer->bytesDroppedTX[1], spiServer->bytesDroppedTX[2], spiServer->bytesDroppedTX[3]);
+		fprintf(fp, "\tBytes Sent: %llu %llu %llu %llu\n",
+				spiServer->bytesSentTX[0], spiServer->bytesSentTX[1], spiServer->bytesSentTX[2], spiServer->bytesSentTX[3]);
 		fprintf(fp, "\tDuration: %llu ms\n", duration);
 		fclose(fp);
 		for(uint8 i = 0; i < 4; i++){
 			spiServer->packetsDroppedTX[i] = 0;
 			spiServer->packetsSentTX[i] = 0;
+			spiServer->bytesDroppedTX[i] = 0;
+			spiServer->bytesSentTX[i] = 0;
 		}
 	}
 }

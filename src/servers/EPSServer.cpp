@@ -46,8 +46,8 @@ EPSServer & EPSServer::operator=(const EPSServer & source){
 
 void EPSServer::Initialize(void){
 	//Initialize handlers
-	epsHSHandler = new EPSHSHandler();
-	epsPowerCycleHandler = new EPSPowerCycleHandler();
+//	epsHSHandler = new EPSHSHandler();
+//	epsPowerCycleHandler = new EPSPowerCycleHandler();
 }
 
 #ifdef TEST
