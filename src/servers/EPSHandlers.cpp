@@ -22,12 +22,12 @@
 using namespace AllStar::Core;
 using namespace AllStar::Servers;
 
-ACPPacket * EPSHSHandler::Handle(const ACPPacket & packet)
-{
-	return(EPSHealthStat());
-}
+//ACPPacket * EPSHSHandler::Handle(const ACPPacket & packet)
+//{
+//	return(EPSHealthStat());
+//}
 
-ACPPacket * EPSPowerCycleHandler::Handle(const ACPPacket & packet)
-{
-	return(EPSPowerCycle());
-}
+//ACPPacket * EPSPowerCycleHandler::Handle(const ACPPacket & packet)
+//{
+//	return(EPSPowerCycle());
+//}

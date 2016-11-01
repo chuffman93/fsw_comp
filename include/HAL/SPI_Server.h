@@ -48,6 +48,8 @@ class SPI_HALServer: public AllStar::Servers::SubsystemServer, public AllStar::C
 		// Statistics variables
 		uint32 packetsDroppedTX[4];
 		uint32 packetsSentTX[4];
+		uint64 bytesDroppedTX[4];
+		uint64 bytesSentTX[4];
 
 		// Constructor
 		SPI_HALServer();

@@ -59,16 +59,16 @@ void COMError(int opcode, ACPPacket * packet){
 		FileHandlerError(opcode, packet);
 	}
 
-	switch(opcode)
-	{
-	case COM_HS_FAILURE: //Health and Status request failure
-		if(!fileHandler->Log(SUBSYSTEM_COM, packet)){/*do something?*/}
-		break;
-	default:
-		logger->Log("COMError: Unknown error encountered!", LOGGER_LEVEL_WARN);
-		if(!fileHandler->Log(SUBSYSTEM_COM, packet)){/*do something?*/}
-		break;
-	}
+//	switch(opcode)
+//	{
+//	case COM_HS_FAILURE: //Health and Status request failure
+//		if(!fileHandler->Log(SUBSYSTEM_COM, packet)){/*do something?*/}
+//		break;
+//	default:
+//		logger->Log("COMError: Unknown error encountered!", LOGGER_LEVEL_WARN);
+//		if(!fileHandler->Log(SUBSYSTEM_COM, packet)){/*do something?*/}
+//		break;
+//	}
 }
 
 void PLDError(int opcode, ACPPacket * packet){

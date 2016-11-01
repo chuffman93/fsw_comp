@@ -72,6 +72,8 @@ void SPI_HALServer::SubsystemLoop(void)
 	for(uint8 sub = 0; sub < 4; sub++){
 		packetsDroppedTX[sub] = 0;
 		packetsSentTX[sub] = 0;
+		bytesDroppedTX[sub] = 0;
+		bytesSentTX[sub] = 0;
 	}
 
 	logger->Log("*****************************************************", LOGGER_LEVEL_INFO);
@@ -90,6 +92,7 @@ void SPI_HALServer::SubsystemLoop(void)
 				LocationIDType dest = txPacket->getDestination();
 				if(0 < dest && dest < 5){
 					packetsSentTX[dest-1]++; // increment packets sent counter for that subsystem
+					bytesSentTX[dest-1] += txPacket->getLength() + 8;
 					if(SPIDispatch(*txPacket)){
 						logger->Log("SPI_HAL Server: Successfully dispatched packet", LOGGER_LEVEL_INFO);
 					}else{
@@ -98,6 +101,7 @@ void SPI_HALServer::SubsystemLoop(void)
 
 						// increment dropped packets counter for that subsystem
 						packetsDroppedTX[dest-1]++;
+						bytesDroppedTX[dest-1] += txPacket->getLength() + 8;
 					}
 				}else{
 					logger->Log("SPI_HALServer: Invalid TX destination!", LOGGER_LEVEL_WARN);

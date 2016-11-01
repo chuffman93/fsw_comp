@@ -46,7 +46,7 @@ COMServer & COMServer::operator=(const COMServer & source){
 }
 
 void COMServer::Initialize(void){
-	comHSHandler = new COMHSHandler();
+	//comHSHandler = new COMHSHandler();
 }
 
 #ifdef TEST
@@ -63,15 +63,15 @@ bool COMServer::RegisterHandlers(){
 	bool success = true;
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 
-	// COM Command OpCodes
-	success &= reg.RegisterHandler(MessageIdentifierType(SERVER_LOCATION_COM, COM_HS_CMD), comHSHandler);
-
-	// COM Command OpCodes permissions
-	for(int opcode = COM_CMD_MIN; opcode < COM_CMD_MAX; opcode++){
-		success &= arby.ModifyPermission(MessageIdentifierType(SERVER_LOCATION_COM, opcode), true);
-	}
-
-	success &= dispatcher->AddRegistry(id, &reg, &arby);
+//	// COM Command OpCodes
+//	success &= reg.RegisterHandler(MessageIdentifierType(SERVER_LOCATION_COM, COM_HS_CMD), comHSHandler);
+//
+//	// COM Command OpCodes permissions
+//	for(int opcode = COM_CMD_MIN; opcode < COM_CMD_MAX; opcode++){
+//		success &= arby.ModifyPermission(MessageIdentifierType(SERVER_LOCATION_COM, opcode), true);
+//	}
+//
+//	success &= dispatcher->AddRegistry(id, &reg, &arby);
 
 	return success;
 }
