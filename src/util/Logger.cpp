@@ -35,17 +35,8 @@ Logger::~Logger(void){
 }
 
 // TODO: The logging class should have the ability to output to the screen, a file, or both
-void Logger::Log(char const * message, LoggerLevelType level_in){
 
-	if(level_in >= threshold){
-		GetInfo(level_in);
-
-		// Display the message
-		printf("%s\n", message);
-	}
-}
-
-void Logger::Log(char const * message, LoggerLevelType level_in, LogFile file_out){
+void Logger::Log(char const * message, LoggerLevelType level_in, LogFile file_out = LOG_FILE_GENERAL){
 
 	if(level_in >= threshold){
 		GetInfo(level_in);
@@ -57,39 +48,39 @@ void Logger::Log(char const * message, LoggerLevelType level_in, LogFile file_ou
 	}
 }
 
-void Logger::Log(string message, LoggerLevelType level_in){
+void Logger::Log(string message, LoggerLevelType level_in, LogFile file_out = LOG_FILE_GENERAL){
 	Log(message.c_str(), level_in);
 }
 
-void Logger::Log(char const * message, int int_in, LoggerLevelType level_in){
+void Logger::Log(char const * message, int int_in, LoggerLevelType level_in, LogFile file_out = LOG_FILE_GENERAL){
 	char msg_out [50];
 	sprintf(msg_out, message, int_in);
 	Log(msg_out, level_in);
 }
 
-void Logger::Log(char const * message, uint32 uint_in, LoggerLevelType level_in){
+void Logger::Log(char const * message, uint32 uint_in, LoggerLevelType level_in, LogFile file_out = LOG_FILE_GENERAL){
 	char msg_out [50];
 	sprintf(msg_out, message, uint_in);
 	Log(msg_out, level_in);
 }
 
-void Logger::Log(char const * message, float float_in, LoggerLevelType level_in){
+void Logger::Log(char const * message, float float_in, LoggerLevelType level_in, LogFile file_out = LOG_FILE_GENERAL){
 	char msg_out [50];
 	sprintf(msg_out, message, float_in);
 	Log(msg_out, level_in);
 }
 
-void Logger::Log(char const * message, const char * char_in, LoggerLevelType level_in){
+void Logger::Log(char const * message, const char * char_in, LoggerLevelType level_in, LogFile file_out = LOG_FILE_GENERAL){
 	char msg_out [50];
 	sprintf(msg_out, message, char_in);
 	Log(msg_out, level_in);
 }
 
-void Logger::Log(char const * message, string str_in, LoggerLevelType level_in){
+void Logger::Log(char const * message, string str_in, LoggerLevelType level_in, LogFile file_out = LOG_FILE_GENERAL){
 	Log(message, str_in.c_str(), level_in);
 }
 
-void Logger::Log(string message, string str_in, LoggerLevelType level_in){
+void Logger::Log(string message, string str_in, LoggerLevelType level_in, LogFile file_out = LOG_FILE_GENERAL){
 	Log(message.c_str(), str_in.c_str(), level_in);
 }
 

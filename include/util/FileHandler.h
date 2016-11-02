@@ -179,8 +179,11 @@ private:
 
         // Subsystem file designator reference tables
         // Allows quick reference to most recent file.
-        uint16 secRef[SYSTEM_MAX][MAX_OPCODES];
-        uint16 weekRef[SYSTEM_MAX][MAX_OPCODES];
+        uint16 secRef[SYSTEM_MAX];
+        uint16 weekRef[SYSTEM_MAX];
+        // Not using these anymore, but keeping them just in case
+        uint16 secRefOld[SYSTEM_MAX][MAX_OPCODES];
+        uint16 weekRefOld[SYSTEM_MAX][MAX_OPCODES];
 
         /*! \brief Constructor for File Handler */
         FileHandler(void);

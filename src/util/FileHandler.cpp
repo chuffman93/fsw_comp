@@ -70,11 +70,22 @@ FileHandler & FileHandler::operator=(const FileHandler & source){
 bool FileHandler::Log(LogFile destination, char const * message){
 	// Print the message to the proper file
 
+        string file;
+
+        // Grab filename to write to
+        FetchFileName(destination, $file);
+
+        // Write to the file
+	int err = FileWrite(file.c_str(), message, strlen(message);
+	if (err < 0){
+		return false;
+	}
+	return true;
+
 }
 
 bool FileHandler::Log(FileHandlerIDEnum subsystem, const AllStar::Core::ACPPacket * packet){
 	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	uint8 opcode = packet->getOpcode();
 	bool notPLDData = (subsystem != SUBSYSTEM_PLD) || (opcode != PLD_DATA_SUCCESS);
@@ -86,7 +97,7 @@ bool FileHandler::Log(FileHandlerIDEnum subsystem, const AllStar::Core::ACPPacke
 
 	// Get filename from dedicated method
 	FetchFileName(subsystem, opcode, &file);
-	logger->Log("FileHandler: Log(): Filename: %s", file, LOGGER_LEVEL_DEBUG);
+	printf("FileHandler: Log(): Filename: %s", file);
 
 	// Fill buffer with data to be written and write buffer to file
 	size_t size = packet->getLength();
@@ -117,7 +128,7 @@ bool FileHandler::Log(FileHandlerIDEnum subsystem, const AllStar::Core::ACPPacke
 	memcpy(bufferPtr, packet->getMessageBuff(), packet->getLength());
 
 	// Write into the file.
-	logger->Log("FileHandler: Log(): File write size: %u", (uint32) size, LOGGER_LEVEL_DEBUG);
+	printf("FileHandler: Log(): File write size: %u", (uint32) size);
 	int err = FileWrite(file.c_str(), (char*) buffer, (long int) size);
 	delete[] buffer;
 	if (err < 0){
@@ -184,10 +195,10 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType 
 	file->append("_");
 	// Create current file name
 	tempFile = *file;
-	sprintf(temp, "%05d", weekRef[subsystem][opCode]);
+	sprintf(temp, "%05d", weekRefOld[subsystem][opCode]);
 	tempFile.append(temp);
 	tempFile.append("_");
-	sprintf(temp, "%06d", secRef[subsystem][opCode]);
+	sprintf(temp, "%06d", secRefOld[subsystem][opCode]);
 	tempFile.append(temp);
 	tempFile.insert(0, filePath);
 	tempFile.append(fileExtension);
@@ -197,8 +208,8 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType 
 		//get current time in seconds and week
 		uint16 week = gpsServer->GetWeek();
 		uint32 secs = gpsServer->GetRoundSeconds();
-		weekRef[subsystem][opCode] = week;
-		secRef[subsystem][opCode] = secs;
+		weekRefOld[subsystem][opCode] = week;
+		secRefOld[subsystem][opCode] = secs;
 		sprintf(temp, "%05d", week);
 		file->append(temp);
 		file->append("_");
@@ -206,6 +217,86 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType 
 		file->append(temp);
 		*file = filePath.append(file->append(fileExtension));
 	}else{
+		*file = tempFile;
+	}
+	delete temp;
+	return 0;
+}
+
+
+
+uint8_t FileHandler::FetchFileName(LogFile logFile, string * file) {
+    GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
+    string filePath;
+    string tempFile;
+    string fileExtension;
+    filePath = writeDir;
+    char *temp = new char[25];
+    fileExtension = ".dat"; //Type of the files
+
+    //Build file and filepath name using logFile
+    switch (logFile){
+    case LOGFILE_HEALTH:
+    	filePath.append("HEALTH/");
+    	file->append("HEALTH_");
+    	break;
+    case LOGFILE_MODE:
+    	filePath.append("MODE/");
+    	*file = "MODE_";
+    	break;
+    case LOGFILE_WATCHDOG:
+    	filePath.append("WATCHDOG/");
+    	*file = "WATCHDOG_";
+    	break;
+    case LOGFILE_HOTSWAP:
+    	filePath.append("HOTSWAP/");
+    	*file = "HOTSWAP_";
+    	break;
+    case LOGFILE_RAD:
+    	filePath.append("RAD/");
+    	*file = "RAD_";
+    	break;
+    case LOGFILE_GENERAL:
+    	filePath.append("GENERAL/");
+    	*file = "GENERAL_";
+    	break;
+    default:
+        // If we use a log statement we could enter an infinite loop. Do we need a better way to log this error?
+        printf("WARNING: FileHandler could not find LogFile!\n")
+    	delete temp;
+    	return -1;
+    }
+
+        // Create the directory if it doesn't already exist
+	mkdir(filePath.c_str(), 0777);
+
+	// Create current file name
+	tempFile = *file;
+	sprintf(temp, "%05d", weekRef[logFile]);
+	tempFile.append(temp);
+	tempFile.append("_");
+	sprintf(temp, "%06d", secRef[logFile]);
+	tempFile.append(temp);
+	tempFile.insert(0, filePath);
+	tempFile.append(fileExtension);
+
+	// Check if old file is full
+	if (fileSize(tempFile.c_str()) >= MAXFILESIZE){
+		printf("FileHandler: FetchFileName(): file full or nonexistent\n");
+
+		//get current time in seconds and week
+		uint16 week = gpsServer->GetWeek();
+		uint32 secs = gpsServer->GetRoundSeconds();
+		weekRef[logFile] = week;
+		secRef[logFile] = secs;
+		sprintf(temp, "%05d", week);
+		file->append(temp);
+		file->append("_");
+		sprintf(temp, "%06d", secs);
+		file->append(temp);
+		*file = filePath.append(file->append(fileExtension));
+	}
+        else {
 		*file = tempFile;
 	}
 	delete temp;
@@ -269,7 +360,6 @@ uint8 * FileHandler::ReadFile(const char * fileName, size_t * bufferSize)
 uint32 FileHandler::FileWrite(const char * fileName, char * buffer, size_t numBytes)
 {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("FileHandler: FileWrite(): %s", fileName, LOGGER_LEVEL_DEBUG);
 
 	uint32 rv = 0;
 	size_t result;
@@ -281,14 +371,14 @@ uint32 FileHandler::FileWrite(const char * fileName, char * buffer, size_t numBy
 		fp = fopen(fileName, "a");
 		if (!fp)
 		{
-			logger->Log("FileWrite(): Failed on file pointer", LOGGER_LEVEL_WARN);
+			printf("FileWrite(): Failed on file pointer");
 			this->GiveLock();
 			return -1;
 		}
 		result = fwrite(buffer,1,numBytes,fp);
 
 		if(result!=numBytes){
-			logger->Log("FileWrite(): Wrote the wrong number of bytes!", LOGGER_LEVEL_WARN);
+			printf("FileWrite(): Wrote the wrong number of bytes!");
 			fclose(fp);
 			this->GiveLock();
 			return -2;
