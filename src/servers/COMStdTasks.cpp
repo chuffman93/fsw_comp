@@ -41,23 +41,12 @@ bool COMToggleLED(bool state){
 		return false;
 	}
 
-	if(ret->getLength() != sizeof(uint8)){
-		logger->Log("COMStdTasks: Incorrect Toggle LED return length", LOGGER_LEVEL_WARN);
-		return false;
+	if(ret->isSuccess()){
+		logger->Log("COM LED Toggle successful", LOGGER_LEVEL_INFO);
+		return true;
 	}else{
-		if(ret->getMessageBuff() == NULL){
-			logger->Log("COMStdTasks: NULL LED Toggle message buffer", LOGGER_LEVEL_WARN);
-			return false;
-		}
-
-		uint8 result = GetUInt8(ret->getMessageBuff());
-		if(result == 1){
-			logger->Log("COM LED Toggle successful", LOGGER_LEVEL_INFO);
-			return true;
-		}else{
-			logger->Log("COM LED Toggle failed", LOGGER_LEVEL_WARN);
-			return false;
-		}
+		logger->Log("COM LED Toggle failed", LOGGER_LEVEL_WARN);
+		return false;
 	}
 }
 
@@ -75,23 +64,12 @@ bool COMBlinkRate(uint16 rate){
 		return false;
 	}
 
-	if(ret->getLength() != sizeof(uint8)){
-		logger->Log("COMStdTasks: Incorrect blink rate return length", LOGGER_LEVEL_WARN);
-		return false;
+	if(ret->isSuccess()){
+		logger->Log("COM LED set rate successful", LOGGER_LEVEL_INFO);
+		return true;
 	}else{
-		if(ret->getMessageBuff() == NULL){
-			logger->Log("COMStdTasks: NULL blink rate message buffer", LOGGER_LEVEL_WARN);
-			return false;
-		}
-
-		uint8 result = GetUInt8(ret->getMessageBuff());
-		if(result == 1){
-			logger->Log("COM blink rate successful", LOGGER_LEVEL_INFO);
-			return true;
-		}else{
-			logger->Log("COM blink rate failed", LOGGER_LEVEL_WARN);
-			return false;
-		}
+		logger->Log("COM LED set rate failed", LOGGER_LEVEL_WARN);
+		return false;
 	}
 }
 
@@ -124,6 +102,23 @@ bool COMLEDData(){
 	}
 }
 
+//Diagnostic
+bool COMTestAlive(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	ACPPacket * query = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, TEST_ALIVE_CMD);
+	ACPPacket * ret = DispatchPacket(query);
+
+	if(ret->isSuccess()){
+		logger->Log("COM is alive", LOGGER_LEVEL_INFO);
+		return true;
+	}else{
+		logger->Log("COM is not alive", LOGGER_LEVEL_FATAL);
+		return false;
+	}
+}
+
+// COM Specific
 bool COMSimplex(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log("COM: commanding COM into simplex", LOGGER_LEVEL_INFO);

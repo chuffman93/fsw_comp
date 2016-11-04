@@ -372,6 +372,24 @@ uint32_t Dispatcher::DispatchToHardware(ACPPacket & packet)
 
 	packetBuffer = (uint8_t *) malloc(packetLength);
 
+	switch(packet.getDestination()){
+	case HARDWARE_LOCATION_EPS:
+		packet.setSync(SYNC_VALUE | 0x00);
+		break;
+	case HARDWARE_LOCATION_COM:
+		packet.setSync(SYNC_VALUE | 0x01);
+		break;
+	case HARDWARE_LOCATION_ACS:
+		packet.setSync(SYNC_VALUE | 0x02);
+		break;
+	case HARDWARE_LOCATION_PLD:
+		packet.setSync(SYNC_VALUE | 0x03);
+		break;
+	default:
+		logger->Log("DispatchToHardware: bad destination!", LOGGER_LEVEL_WARN);
+		return -2;
+	}
+
 	//check if whole packet was copied
 	if(packet.Flatten(packetBuffer,packetLength) != packetLength)
 	{
@@ -379,6 +397,7 @@ uint32_t Dispatcher::DispatchToHardware(ACPPacket & packet)
 		return -2;
 	}
 
+	printf("TX Packet: ");
 	for(uint16_t i = 0; i < packetLength; i++)
 	{
 		printf("0x%02x ",packetBuffer[i]);

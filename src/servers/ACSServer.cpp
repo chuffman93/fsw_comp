@@ -67,20 +67,25 @@ bool ACSServer::RegisterHandlers(){
 
 // -------------------------------------------- State Machine --------------------------------------------
 void ACSServer::loopInit(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 	cdhServer->subPowerOn(HARDWARE_LOCATION_ACS);
 
 	// delay while ACS boots up
 	usleep(1000000);
 
-	// Debug LED initialization
-	ACSToggleLED(true);
-	usleep(1000000);
-	ACSBlinkRate(1000);
-	usleep(1000000);
-	ACSLEDData();
+	if(ACSTestAlive()){
+		// Debug LED initialization
+		ACSToggleLED(true);
+		usleep(1000000);
+		ACSBlinkRate(1000);
+		usleep(1000000);
+		ACSLEDData();
 
-	currentState = ST_DISABLED;
+		currentState = ST_DISABLED;
+	}else{
+		logger->Log("ACS non-responsive in init", LOGGER_LEVEL_FATAL);
+	}
 }
 
 void ACSServer::loopDisabled(){

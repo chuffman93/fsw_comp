@@ -42,6 +42,7 @@ char * SPI_HALServer::queueNameSPITX = (char *) "/queueHandleSPITX";
 SPI_HALServer::SPI_HALServer()
 	: AllStar::Servers::SubsystemServer("SPI", SERVER_LOCATION_SPI)
 {
+	lastStatsCheck = 0;
 	mq_unlink(queueNameSPITX);
 	qInitTX = mqCreate(&queueHandleTX, &queueAttrTX, queueNameSPITX);
 }
@@ -203,7 +204,7 @@ int SPI_HALServer::spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, in
 
 	while(buf_pt != len){
 		logger->Log("Writing byte %d", buf_pt, LOGGER_LEVEL_SUPER_DEBUG);
-		logger->Log("Byte value: ----------------------- 0x%x", *(buf + buf_pt), LOGGER_LEVEL_SUPER_DEBUG);
+		logger->Log("Byte value: ----------------------- 0x%x", *(buf + buf_pt), LOGGER_LEVEL_DEBUG);
 		ret = write(slave_fd, buf + buf_pt, wr_size);
 
 		if(ret != wr_size){
@@ -285,7 +286,7 @@ int SPI_HALServer::spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_bufp){
 			logger->Log("spi_read: byte value: ------------- 0x%X", rx, LOGGER_LEVEL_DEBUG);
 			buf_pt++;
 
-			if(i == 0 && rx != SYNC_VALUE){
+			if(i == 0 && (rx & 0xFC) != SYNC_VALUE){
 				logger->Log("spi_read: sync byte incorrect! Ending read", LOGGER_LEVEL_WARN);
 				return 0;
 			}

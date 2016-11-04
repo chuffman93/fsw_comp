@@ -55,23 +55,12 @@ bool EPSToggleLED(bool state){
 		return false;
 	}
 
-	if(ret->getLength() != sizeof(uint8)){
-		logger->Log("EPSStdTasks: Incorrect Toggle LED return length", LOGGER_LEVEL_WARN);
-		return false;
+	if(ret->isSuccess()){
+		logger->Log("EPS LED Toggle successful", LOGGER_LEVEL_INFO);
+		return true;
 	}else{
-		if(ret->getMessageBuff() == NULL){
-			logger->Log("EPSStdTasks: NULL LED Toggle message buffer", LOGGER_LEVEL_WARN);
-			return false;
-		}
-
-		uint8 result = GetUInt8(ret->getMessageBuff());
-		if(result == 1){
-			logger->Log("EPS LED Toggle successful", LOGGER_LEVEL_INFO);
-			return true;
-		}else{
-			logger->Log("EPS LED Toggle failed", LOGGER_LEVEL_WARN);
-			return false;
-		}
+		logger->Log("EPS LED Toggle failed", LOGGER_LEVEL_WARN);
+		return false;
 	}
 }
 
@@ -89,23 +78,12 @@ bool EPSBlinkRate(uint16 rate){
 		return false;
 	}
 
-	if(ret->getLength() != sizeof(uint8)){
-		logger->Log("EPSStdTasks: Incorrect blink rate return length", LOGGER_LEVEL_WARN);
-		return false;
+	if(ret->isSuccess()){
+		logger->Log("EPS LED set rate successful", LOGGER_LEVEL_INFO);
+		return true;
 	}else{
-		if(ret->getMessageBuff() == NULL){
-			logger->Log("EPSStdTasks: NULL blink rate message buffer", LOGGER_LEVEL_WARN);
-			return false;
-		}
-
-		uint8 result = GetUInt8(ret->getMessageBuff());
-		if(result == 1){
-			logger->Log("EPS blink rate successful", LOGGER_LEVEL_INFO);
-			return true;
-		}else{
-			logger->Log("EPS blink rate failed", LOGGER_LEVEL_WARN);
-			return false;
-		}
+		logger->Log("EPS LED set rate failed", LOGGER_LEVEL_WARN);
+		return false;
 	}
 }
 
@@ -139,7 +117,7 @@ bool EPSLEDData(){
 }
 
 // Diagnostic
-void EPSTestAlive(){
+bool EPSTestAlive(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	ACPPacket * query = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, TEST_ALIVE_CMD);
@@ -147,8 +125,10 @@ void EPSTestAlive(){
 
 	if(ret->isSuccess()){
 		logger->Log("EPS is alive", LOGGER_LEVEL_INFO);
+		return true;
 	}else{
 		logger->Log("EPS is not alive", LOGGER_LEVEL_FATAL);
+		return false;
 	}
 }
 
@@ -159,7 +139,6 @@ void EPSHealthStat()
 
 	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, HEALTH_STATUS_CMD);
 	ACPPacket * HSRet = DispatchPacket(HSQuery);
-	logger->Log("EPSStdTasks: EPSHealthStat(): packet dispatched, HSRet acquired", LOGGER_LEVEL_INFO);
 
 	if(HSRet == NULL){
 		logger->Log("EPSStdTasks: NULL HSRet", LOGGER_LEVEL_ERROR);
@@ -173,6 +152,7 @@ void EPSHealthStat()
 		//PacketProcess(SERVER_LOCATION_EPS, HSRet);
 		return;
 	}else{
+		logger->Log("EPSStdTasks: EPSHealthStat(): packet dispatched, HSRet acquired", LOGGER_LEVEL_INFO);
 		// Parse buffer
 		uint8 * msgPtr = HSRet->getMessageBuff();
 		if(msgPtr==NULL){

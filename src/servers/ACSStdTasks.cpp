@@ -42,23 +42,12 @@ bool ACSToggleLED(bool state){
 		return false;
 	}
 
-	if(ret->getLength() != sizeof(uint8)){
-		logger->Log("ACSStdTasks: Incorrect Toggle LED return length", LOGGER_LEVEL_WARN);
-		return false;
+	if(ret->isSuccess()){
+		logger->Log("ACS LED Toggle successful", LOGGER_LEVEL_INFO);
+		return true;
 	}else{
-		if(ret->getMessageBuff() == NULL){
-			logger->Log("ACSStdTasks: NULL LED Toggle message buffer", LOGGER_LEVEL_WARN);
-			return false;
-		}
-
-		uint8 result = GetUInt8(ret->getMessageBuff());
-		if(result == 1){
-			logger->Log("ACS LED Toggle successful", LOGGER_LEVEL_INFO);
-			return true;
-		}else{
-			logger->Log("ACS LED Toggle failed", LOGGER_LEVEL_WARN);
-			return false;
-		}
+		logger->Log("ACS LED Toggle failed", LOGGER_LEVEL_WARN);
+		return false;
 	}
 }
 
@@ -76,23 +65,12 @@ bool ACSBlinkRate(uint16 rate){
 		return false;
 	}
 
-	if(ret->getLength() != sizeof(uint8)){
-		logger->Log("ACSStdTasks: Incorrect blink rate return length", LOGGER_LEVEL_WARN);
-		return false;
+	if(ret->isSuccess()){
+		logger->Log("ACS LED set rate successful", LOGGER_LEVEL_INFO);
+		return true;
 	}else{
-		if(ret->getMessageBuff() == NULL){
-			logger->Log("ACSStdTasks: NULL blink rate message buffer", LOGGER_LEVEL_WARN);
-			return false;
-		}
-
-		uint8 result = GetUInt8(ret->getMessageBuff());
-		if(result == 1){
-			logger->Log("ACS blink rate successful", LOGGER_LEVEL_INFO);
-			return true;
-		}else{
-			logger->Log("ACS blink rate failed", LOGGER_LEVEL_WARN);
-			return false;
-		}
+		logger->Log("ACS LED set rate failed", LOGGER_LEVEL_WARN);
+		return false;
 	}
 }
 
@@ -126,7 +104,7 @@ bool ACSLEDData(){
 }
 
 // Diagnostic
-void ACSTestAlive(){
+bool ACSTestAlive(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	ACPPacket * query = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, TEST_ALIVE_CMD);
@@ -134,8 +112,10 @@ void ACSTestAlive(){
 
 	if(ret->isSuccess()){
 		logger->Log("ACS is alive", LOGGER_LEVEL_INFO);
+		return true;
 	}else{
 		logger->Log("ACS is not alive", LOGGER_LEVEL_FATAL);
+		return false;
 	}
 }
 

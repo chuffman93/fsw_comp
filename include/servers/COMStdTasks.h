@@ -25,8 +25,8 @@ bool COMToggleLED(bool state);
 bool COMBlinkRate(uint16 rate);
 bool COMLEDData();
 
-// \brief Collects health and status from COM.
-AllStar::Core::ACPPacket * COMHealthStatus(void);
+// Diagnostic
+bool COMTestAlive();
 
 // COM-specific
 bool COMSimplex();

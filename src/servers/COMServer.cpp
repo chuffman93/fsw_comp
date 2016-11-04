@@ -78,25 +78,32 @@ bool COMServer::RegisterHandlers(){
 
 // -------------------------------------------- State Machine ---------------------------------------------
 void COMServer::loopInit(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 	cdhServer->subPowerOn(HARDWARE_LOCATION_COM);
 
 	usleep(5000000);
 
-	// Debug LED initialization
-	COMToggleLED(true);
-	usleep(1000000);
-	COMBlinkRate(1000);
-	usleep(1000000);
-	COMLEDData();
+	if(COMTestAlive()){
+		// Debug LED initialization
+		COMToggleLED(true);
+		usleep(1000000);
+		COMBlinkRate(1000);
+		usleep(1000000);
+		COMLEDData();
 
-	currentState = ST_IDLE;
+		currentState = ST_IDLE;
+	}else{
+		logger->Log("COM non-responsive in init", LOGGER_LEVEL_FATAL);
+	}
 }
 
 void COMServer::loopIdle(){
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
 	uint64 startTime = getTimeInMillis();
+
+	COMFullDuplex();
 
 	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_EPS]){
 		currentState = ST_INIT;
@@ -116,9 +123,11 @@ void COMServer::loopIdle(){
 }
 
 void COMServer::loopCOMStart(){
-	COMHalfDuplex();
-
-	currentState = ST_COM;
+	if(COMHalfDuplex()){
+		currentState = ST_COM;
+	}else{
+		currentState = ST_IDLE;
+	}
 }
 
 void COMServer::loopCOM(){

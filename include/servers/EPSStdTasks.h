@@ -21,7 +21,7 @@ bool EPSBlinkRate(uint16 rate);
 bool EPSLEDData();
 
 // Diagnostic
-void EPSTestAlive();
+bool EPSTestAlive();
 
 // Command/Data
 void EPSHealthStat();

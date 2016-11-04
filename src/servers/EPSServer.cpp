@@ -77,25 +77,30 @@ bool EPSServer::RegisterHandlers() {
 
 // -------------------------------------------- State Machine ---------------------------------------------
 void EPSServer::loopInit(){
-	EPSToggleLED(true);
-	usleep(1000000);
-	EPSBlinkRate(1000);
-	usleep(1000000);
-	EPSLEDData();
-	currentState = ST_MONITOR;
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	if(EPSTestAlive()){
+		EPSToggleLED(true);
+		usleep(1000000);
+		EPSBlinkRate(1000);
+		usleep(1000000);
+		EPSLEDData();
+		currentState = ST_MONITOR;
+	}else{
+		logger->Log("EPS non-responsive in init loop", LOGGER_LEVEL_FATAL);
+		usleep(3000000);
+	}
 }
 
 void EPSServer::loopMonitor(){
 	EPSHealthStat();
-
-	EPSTestAlive();
 
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	if(modeManager->GetMode() == MODE_DIAGNOSTIC){
 		currentState = ST_DIAGNOSTIC;
 	}
 
-	usleep(2000000);
+	//usleep(2000000);
 }
 
 void EPSServer::loopDiagnostic(){

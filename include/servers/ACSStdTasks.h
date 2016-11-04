@@ -23,7 +23,7 @@ bool ACSBlinkRate(uint16 rate);
 bool ACSLEDData();
 
 // Diagnostic
-void ACSTestAlive();
+bool ACSTestAlive();
 
 // Command/Data
 void ACSHealthStatus(void);
