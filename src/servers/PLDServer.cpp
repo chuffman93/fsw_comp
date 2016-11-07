@@ -74,7 +74,7 @@ bool PLDServer::RegisterHandlers(){
 // ------------------------------------ State Machine ------------------------------------------------------------
 void PLDServer::loopInit(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("PLDServer: initializing", LOGGER_LEVEL_INFO);
+	logger->Log(LOGGER_LEVEL_INFO, "PLDServer: initializing");
 
 	//No need to do anything
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));

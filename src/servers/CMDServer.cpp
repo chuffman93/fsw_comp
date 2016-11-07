@@ -84,7 +84,7 @@ bool CMDServer::RegisterHandlers(){
 
 void CMDServer::loopInit(void){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("CMDServer: Initializing", LOGGER_LEVEL_INFO);
+	logger->Log(LOGGER_LEVEL_INFO, "CMDServer: Initializing");
 
 	// setup for uftp
 	portSetup();

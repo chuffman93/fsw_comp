@@ -24,7 +24,7 @@ void * runServer(void * args){
 		usleep(100000);
 	}
 
-	logger->Log("Kicking off the %s Server\n", server->name, LOGGER_LEVEL_INFO);
+	logger->Log(LOGGER_LEVEL_INFO, "Kicking off the %s Server\n", server->name);
 	server->SubsystemLoop();
 
 	pthread_exit(NULL);

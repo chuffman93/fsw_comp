@@ -99,7 +99,7 @@ void I2CDeviceManager::checkHS(void){
 		comStatus &= hotSwaps[i]->Fault();
 	}
 	if(!comStatus){
-		logger->Log("I2CDeviceManager: COM hot swap fault detected! Turning COM off.", LOGGER_LEVEL_FATAL);
+		logger->Log(LOGGER_LEVEL_FATAL, "I2CDeviceManager: COM hot swap fault detected! Turning COM off.");
 		cdhServer->subPowerOff(HARDWARE_LOCATION_COM);
 	}
 
@@ -109,7 +109,7 @@ void I2CDeviceManager::checkHS(void){
 		acsStatus &= hotSwaps[i]->Fault();
 	}
 	if(!acsStatus){
-		logger->Log("I2CDeviceManager: ACS hot swap fault detected! Turning ACS off.", LOGGER_LEVEL_FATAL);
+		logger->Log(LOGGER_LEVEL_FATAL, "I2CDeviceManager: ACS hot swap fault detected! Turning ACS off.");
 		cdhServer->subPowerOff(HARDWARE_LOCATION_ACS);
 	}
 
@@ -119,7 +119,7 @@ void I2CDeviceManager::checkHS(void){
 		pldStatus &= hotSwaps[i]->Fault();
 	}
 	if(!pldStatus){
-		logger->Log("I2CDeviceManager: PLD hot swap fault detected! Turning PLD off.", LOGGER_LEVEL_FATAL);
+		logger->Log(LOGGER_LEVEL_FATAL, "I2CDeviceManager: PLD hot swap fault detected! Turning PLD off.");
 		cdhServer->subPowerOff(HARDWARE_LOCATION_PLD);
 	}
 
@@ -129,7 +129,7 @@ void I2CDeviceManager::checkHS(void){
 		gpsStatus &= hotSwaps[i]->Fault();
 	}
 	if(!gpsStatus){
-		logger->Log("I2CDeviceManager: GPS hot swap fault detected! Turning GPS off.", LOGGER_LEVEL_FATAL);
+		logger->Log(LOGGER_LEVEL_FATAL, "I2CDeviceManager: GPS hot swap fault detected! Turning GPS off.");
 		cdhServer->subPowerOff(HARDWARE_LOCATION_GPS);
 	}
 
@@ -139,7 +139,7 @@ void I2CDeviceManager::checkHS(void){
 		auxcomStatus &= hotSwaps[i]->Fault();
 	}
 	if(!auxcomStatus){
-		logger->Log("I2CDeviceManager: AUXCOM hot swap fault detected! No method to restart AUXCOM!", LOGGER_LEVEL_FATAL);
+		logger->Log(LOGGER_LEVEL_FATAL, "I2CDeviceManager: AUXCOM hot swap fault detected! No method to restart AUXCOM!");
 		// TODO: determine if we need to restart AUXCOM
 	}
 }

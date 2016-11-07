@@ -54,14 +54,14 @@ namespace AllStar
 
 		bool I2C_Device::I2C_read(uint8_t* buffer, int numBytes){
 			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-			logger->Log("I2CDevice Filename: %s", i2c_chip_info.filename, LOGGER_LEVEL_DEBUG);
+			logger->Log(LOGGER_LEVEL_DEBUG, "I2CDevice Filename: %s", i2c_chip_info.filename);
 			int fd = open(i2c_chip_info.filename, O_RDONLY);
 			if(fd < 0){
-				logger->Log("----I2C_Device: file descriptor error", LOGGER_LEVEL_DEBUG);
+				logger->Log(LOGGER_LEVEL_DEBUG, "----I2C_Device: file descriptor error");
 				return false;
 			}
 			if(ioctl(fd, I2C_SLAVE, i2c_chip_info.slave_addr) < 0){
-				logger->Log("----I2C_Device: ioctl error", LOGGER_LEVEL_DEBUG);
+				logger->Log(LOGGER_LEVEL_DEBUG, "----I2C_Device: ioctl error");
 				close(fd);
 				return false;
 			}
@@ -70,7 +70,7 @@ namespace AllStar
 			close(fd);
 
 			if(retval != numBytes){
-				logger->Log("----I2C_Device: Num bytes error", LOGGER_LEVEL_DEBUG);
+				logger->Log(LOGGER_LEVEL_DEBUG, "----I2C_Device: Num bytes error");
 				return false;
 			}
 			return true;

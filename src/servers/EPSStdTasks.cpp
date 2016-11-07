@@ -51,25 +51,25 @@ bool EPSToggleLED(bool state){
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret == NULL){
-		logger->Log("EPSStdTasks: NULL LED Toggle return", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "EPSStdTasks: NULL LED Toggle return");
 		return false;
 	}
 
 	if(ret->getLength() != sizeof(uint8)){
-		logger->Log("EPSStdTasks: Incorrect Toggle LED return length", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "EPSStdTasks: Incorrect Toggle LED return length");
 		return false;
 	}else{
 		if(ret->getMessageBuff() == NULL){
-			logger->Log("EPSStdTasks: NULL LED Toggle message buffer", LOGGER_LEVEL_WARN);
+			logger->Log(LOGGER_LEVEL_WARN, "EPSStdTasks: NULL LED Toggle message buffer");
 			return false;
 		}
 
 		uint8 result = GetUInt8(ret->getMessageBuff());
 		if(result == 1){
-			logger->Log("EPS LED Toggle successful", LOGGER_LEVEL_INFO);
+			logger->Log(LOGGER_LEVEL_INFO, "EPS LED Toggle successful");
 			return true;
 		}else{
-			logger->Log("EPS LED Toggle failed", LOGGER_LEVEL_WARN);
+			logger->Log(LOGGER_LEVEL_WARN, "EPS LED Toggle failed");
 			return false;
 		}
 	}
@@ -85,25 +85,25 @@ bool EPSBlinkRate(uint16 rate){
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret == NULL){
-		logger->Log("EPSStdTasks: NULL blink rate return", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "EPSStdTasks: NULL blink rate return");
 		return false;
 	}
 
 	if(ret->getLength() != sizeof(uint8)){
-		logger->Log("EPSStdTasks: Incorrect blink rate return length", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "EPSStdTasks: Incorrect blink rate return length");
 		return false;
 	}else{
 		if(ret->getMessageBuff() == NULL){
-			logger->Log("EPSStdTasks: NULL blink rate message buffer", LOGGER_LEVEL_WARN);
+			logger->Log(LOGGER_LEVEL_WARN, "EPSStdTasks: NULL blink rate message buffer");
 			return false;
 		}
 
 		uint8 result = GetUInt8(ret->getMessageBuff());
 		if(result == 1){
-			logger->Log("EPS blink rate successful", LOGGER_LEVEL_INFO);
+			logger->Log(LOGGER_LEVEL_INFO, "EPS blink rate successful");
 			return true;
 		}else{
-			logger->Log("EPS blink rate failed", LOGGER_LEVEL_WARN);
+			logger->Log(LOGGER_LEVEL_WARN, "EPS blink rate failed");
 			return false;
 		}
 	}
@@ -116,21 +116,21 @@ bool EPSLEDData(){
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret == NULL){
-		logger->Log("EPSStdTasks: NULL LED Data return", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "EPSStdTasks: NULL LED Data return");
 		return false;
 	}
 
 	if(ret->getLength() != sizeof(uint16)){
-		logger->Log("EPSStdTasks: Incorrect LED data return length", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "EPSStdTasks: Incorrect LED data return length");
 		return false;
 	}else{
 		if(ret->getMessageBuff() == NULL){
-			logger->Log("EPSStdTasks: NULL LED Data message buffer", LOGGER_LEVEL_WARN);
+			logger->Log(LOGGER_LEVEL_WARN, "EPSStdTasks: NULL LED Data message buffer");
 			return false;
 		}
 
 		uint16 result = GetUInt16(ret->getMessageBuff());
-		logger->Log("LED blink rate: %u", result, LOGGER_LEVEL_INFO);
+		logger->Log(LOGGER_LEVEL_INFO, "LED blink rate: %u", result);
 		return true;
 	}
 }
@@ -138,13 +138,13 @@ bool EPSLEDData(){
 // Diagnostic
 ACPPacket * EPSTestAlive(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("EPSTestAlive: unfinished!", LOGGER_LEVEL_ERROR);
+	logger->Log(LOGGER_LEVEL_ERROR, "EPSTestAlive: unfinished!");
 	return NULL;
 }
 
 ACPPacket * EPSNoReturn(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("EPSNoReturn: unfinished!", LOGGER_LEVEL_ERROR);
+	logger->Log(LOGGER_LEVEL_ERROR, "EPSNoReturn: unfinished!");
 	return NULL;
 }
 
@@ -155,15 +155,15 @@ void EPSHealthStat()
 
 	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, EPS_HS_CMD);
 	ACPPacket * HSRet = DispatchPacket(HSQuery);
-	logger->Log("EPSStdTasks: EPSHealthStat(): packet dispatched, HSRet acquired", LOGGER_LEVEL_INFO);
+	logger->Log(LOGGER_LEVEL_INFO, "EPSStdTasks: EPSHealthStat(): packet dispatched, HSRet acquired");
 
 	if(HSRet == NULL){
-		logger->Log("EPSStdTasks: NULL HSRet", LOGGER_LEVEL_ERROR);
+		logger->Log(LOGGER_LEVEL_ERROR, "EPSStdTasks: NULL HSRet");
 		return;
 	}
 
 	if(HSRet->getLength() != 8*sizeof(uint16)){
-		logger->Log("EPSStdTasks: EPSHealthStat(): incorrect message length!", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "EPSStdTasks: EPSHealthStat(): incorrect message length!");
 
 		//TODO: return error?
 		//PacketProcess(SERVER_LOCATION_EPS, HSRet);
@@ -194,14 +194,14 @@ void EPSHealthStat()
 		epsServer->EPSState.battStatus		= outputArray[6];
 		epsServer->EPSState.stateOfCharge	= outputArray[7];
 
-		logger->Log("EPS H&S: 3v3 Current:     %u", epsServer->EPSState.current3v3,    LOGGER_LEVEL_DEBUG);
-		logger->Log("EPS H&S: 3v3 Voltage:     %u", epsServer->EPSState.voltage3v3,    LOGGER_LEVEL_DEBUG);
-		logger->Log("EPS H&S: Batt Current:    %u", epsServer->EPSState.currentBatt,   LOGGER_LEVEL_DEBUG);
-		logger->Log("EPS H&S: Batt Voltage:    %u", epsServer->EPSState.voltageBatt,   LOGGER_LEVEL_DEBUG);
-		logger->Log("EPS H&S: 12v Current:     %u", epsServer->EPSState.current12v,    LOGGER_LEVEL_DEBUG);
-		logger->Log("EPS H&S: 12v Voltage:     %u", epsServer->EPSState.voltage12v,    LOGGER_LEVEL_DEBUG);
-		logger->Log("EPS H&S: Batt status:     %u", epsServer->EPSState.battStatus,    LOGGER_LEVEL_DEBUG);
-		logger->Log("EPS H&S: State of charge: %u", epsServer->EPSState.stateOfCharge, LOGGER_LEVEL_DEBUG);
+		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: 3v3 Current:     %u", epsServer->EPSState.current3v3);
+		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: 3v3 Voltage:     %u", epsServer->EPSState.voltage3v3);
+		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Batt Current:    %u", epsServer->EPSState.currentBatt);
+		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Batt Voltage:    %u", epsServer->EPSState.voltageBatt);
+		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: 12v Current:     %u", epsServer->EPSState.current12v);
+		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: 12v Voltage:     %u", epsServer->EPSState.voltage12v);
+		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Batt status:     %u", epsServer->EPSState.battStatus);
+		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: State of charge: %u", epsServer->EPSState.stateOfCharge);
 
 		//PacketProcess(SERVER_LOCATION_EPS, HSRet);
 	}
@@ -216,7 +216,7 @@ ACPPacket * EPSPowerCycle()
 	usleep(5000000);
 
 	// if we are here then the power cycle likely didn't happen
-	logger->Log("Power didn't cycle!", LOGGER_LEVEL_FATAL);
+	logger->Log(LOGGER_LEVEL_FATAL, "Power didn't cycle!", );
 	// TODO: add more handling here!
 }
 

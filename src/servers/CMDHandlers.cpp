@@ -23,7 +23,7 @@ using namespace AllStar::Servers;
 
 ACPPacket * CMDSwitchProtocolHandler::Handle(const ACPPacket & packet){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("CMDSwitchProtocolHandler: entered", LOGGER_LEVEL_DEBUG);
+	logger->Log(LOGGER_LEVEL_DEBUG, "CMDSwitchProtocolHandler: entered");
 
 	uint8 * msgPtr = packet.getMessageBuff();
 	if(msgPtr == NULL){
@@ -42,13 +42,13 @@ ACPPacket * CMDSwitchProtocolHandler::Handle(const ACPPacket & packet){
 
 	// Error Checking
 	if((subsystem < HARDWARE_LOCATION_MIN) || (subsystem >= HARDWARE_LOCATION_MAX)){
-		logger->Log("CMDSwitchProtocolHandler: Bad subsystem! Subsystem: %u", subsystem, LOGGER_LEVEL_DEBUG);
+		logger->Log(LOGGER_LEVEL_DEBUG, "CMDSwitchProtocolHandler: Bad subsystem! Subsystem: %u", subsystem);
 		ACPPacket * ret = new ACPPacket(CMD_ACP_SWITCH_BAD_SUBSYS);
 		return ret;
 	}
 
 	if((protocol < ACP_PROTOCOL_MIN) || (protocol >= ACP_PROTOCOL_MAX)){
-		logger->Log("CMDSwitchProtocolHandler: Bad protocol!", LOGGER_LEVEL_DEBUG);
+		logger->Log(LOGGER_LEVEL_DEBUG, "CMDSwitchProtocolHandler: Bad protocol!");
 		ACPPacket * ret = new ACPPacket(CMD_ACP_SWITCH_BAD_PROTOCOL);
 		return ret;
 	}
@@ -58,7 +58,7 @@ ACPPacket * CMDSwitchProtocolHandler::Handle(const ACPPacket & packet){
 	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
 	cmdServer->subsystem_acp_protocol[subsystem] = protocol;
 
-	logger->Log("CMDSwitchProtocolHandler: success", LOGGER_LEVEL_DEBUG);
+	logger->Log(LOGGER_LEVEL_DEBUG, "CMDSwitchProtocolHandler: success");
 	ACPPacket * ret = new ACPPacket(CMD_ACP_SWITCH_SUCCESS);
 	return ret;
 }

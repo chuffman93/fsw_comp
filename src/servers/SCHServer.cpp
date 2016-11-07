@@ -96,7 +96,7 @@ void SCHServer::SubsystemLoop(void)
 		uint64_t LastWakeTime = getTimeInMillis();
 		wdm->Kick();
 		if(currentSchedule.empty()){
-			logger->Log("Fetching Next Schedule", LOGGER_LEVEL_INFO);
+			logger->Log(LOGGER_LEVEL_INFO, "Fetching Next Schedule");
 			LoadNextSchedule();
 			LastTimeSwitched = getTimeInMillis();
 			modeManager->SetMode(currentSchedule.front().mode);

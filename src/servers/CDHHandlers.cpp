@@ -56,13 +56,13 @@ ACPPacket * CDHStartPMHandler::Handle(const ACPPacket & packet){
 ACPPacket * CDHCleanFSHandler::Handle(const ACPPacket & packet){
 	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("CDHHandlers: CleanFilesHandler entered", LOGGER_LEVEL_DEBUG);
+	logger->Log(LOGGER_LEVEL_DEBUG, "CDHHandlers: CleanFilesHandler entered");
 
 	uint16 current_week = 50; // TODO: gpsServer->GetWeek();
 
 	uint8 * msgPtr = packet.getMessageBuff();
 	if(msgPtr == NULL){
-		logger->Log("CDHHandlers: NULL msg", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "CDHHandlers: NULL msg");
 		ACPPacket * ret = new ACPPacket(CDH_CLEAN_FS_FAILURE);
 		return ret;
 	}
@@ -74,7 +74,7 @@ ACPPacket * CDHCleanFSHandler::Handle(const ACPPacket & packet){
 	}
 
 	if((outputArray[0] >= current_week) || (outputArray[1] >= current_week) || (outputArray[0] > outputArray[1])){
-		logger->Log("CDHHandlers: bad weeks", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "CDHHandlers: bad weeks");
 		ACPPacket * ret = new ACPPacket(CDH_CLEAN_FS_FAILURE);
 		return ret;
 	}

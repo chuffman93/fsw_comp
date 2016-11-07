@@ -25,7 +25,7 @@ namespace Servers{
 ACPPacket * DispatchPacket(ACPPacket * query)
 {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("DispatchStdTasks: DispatchPacket() Called with ACPPacket", LOGGER_LEVEL_DEBUG);
+	logger->Log(LOGGER_LEVEL_DEBUG, "DispatchStdTasks: DispatchPacket() Called with ACPPacket", );
 
 	//check inputs
 	LocationIDType source = query->getSource();
@@ -34,7 +34,7 @@ ACPPacket * DispatchPacket(ACPPacket * query)
 	if(source < HARDWARE_LOCATION_MIN || source >= SERVER_LOCATION_MAX
 		|| destination < HARDWARE_LOCATION_MIN || destination >= SERVER_LOCATION_MAX)
 	{
-		logger->Log("DispatcherStdTasks: DispatchPacket(): invalid src/dest!", LOGGER_LEVEL_ERROR);
+		logger->Log(LOGGER_LEVEL_ERROR, "DispatcherStdTasks: DispatchPacket(): invalid src/dest!");
 		ACPPacket * ret = new ACPPacket(PACKET_FORMAT_FAIL);
 		delete query;
 		return ret;
@@ -49,7 +49,7 @@ ACPPacket * DispatchPacket(ACPPacket * query)
 	//Dispatch packet, if it fails return DISPATCH_FAILED
 	if(!dispatcher->Dispatch(*query))
 	{
-		logger->Log("DispatchStdTasks: Failed to dispatch packet\n", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "DispatchStdTasks: Failed to dispatch packet\n);
 		ACPPacket * ret = new ACPPacket(DISPATCH_FAILED);
 		delete query;
 		return ret;
@@ -58,16 +58,16 @@ ACPPacket * DispatchPacket(ACPPacket * query)
 	DispatcherStatusEnum stat;
 	ACPPacket * response;
 	//Wait for return message, if it fails return status response from dispatcher
-	logger->Log("DispatchStdTasks: Waiting for return message\n", LOGGER_LEVEL_DEBUG);
+	logger->Log(LOGGER_LEVEL_DEBUG, "DispatchStdTasks: Waiting for return message\n");
 	if(DISPATCHER_STATUS_OK != (stat = WaitForDispatchResponse(*query, &response)))
 	{
-		logger->Log("DispatchStdTasks: Did not receive response\n", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "DispatchStdTasks: Did not receive response\n");
 		ACPPacket * ret = new ACPPacket(DISPATCHER_STATUS_ERR);
 		delete query;
 		return ret;
 	}
 
-	logger->Log("DispatchStdTasks: Received return message\n", LOGGER_LEVEL_DEBUG);
+	logger->Log(LOGGER_LEVEL_DEBUG, "DispatchStdTasks: Received return message\n");
 
 	assert(response != NULL);
 	return response;
@@ -75,7 +75,7 @@ ACPPacket * DispatchPacket(ACPPacket * query)
 
 bool DispatchNoResponse(ACPPacket * query){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("DispatchStdTasks: DispatchNoResponse() Called with ACPPacket", LOGGER_LEVEL_DEBUG);
+	logger->Log(LOGGER_LEVEL_DEBUG, "DispatchStdTasks: DispatchNoResponse() Called with ACPPacket");
 
 	//check inputs
 	LocationIDType source = query->getSource();
@@ -84,7 +84,7 @@ bool DispatchNoResponse(ACPPacket * query){
 	if(source < HARDWARE_LOCATION_MIN || source >= SERVER_LOCATION_MAX
 		|| destination < HARDWARE_LOCATION_MIN || destination >= SERVER_LOCATION_MAX)
 	{
-		logger->Log("DispatcherStdTasks: DispatchPacket(): invalid src/dest!", LOGGER_LEVEL_ERROR);
+		logger->Log(LOGGER_LEVEL_ERROR, "DispatcherStdTasks: DispatchPacket(): invalid src/dest!");
 		return false;
 	}
 
@@ -96,7 +96,7 @@ bool DispatchNoResponse(ACPPacket * query){
 
 	//Dispatch packet, if it fails return DISPATCH_FAILED
 	if(!dispatcher->Dispatch(*query)){
-		logger->Log("DispatchStdTasks: Failed to dispatch packet\n", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "DispatchStdTasks: Failed to dispatch packet\n");
 		return false;
 	}
 	return true;
@@ -109,22 +109,22 @@ bool Listen(LocationIDType serverID){
 	ACPPacket tmpPacket;
 
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("DispatchStdTasks: Listen() called with serverID: %u", serverID, LOGGER_LEVEL_SUPER_DEBUG);
+	logger->Log(LOGGER_LEVEL_SUPER_DEBUG, "DispatchStdTasks: Listen() called with serverID: %u", serverID);
 
 	tmpPacket.setSource(serverID); // temp packet to check for response
 
 	if (!dispatcher->CheckQueueForMatchingPacket(tmpPacket, packet, dispatcher->CHECK_DEST_SOURCE)){
-		logger->Log("   DispatchStdTasks: Listen(): No packets have been sent to this server.", LOGGER_LEVEL_SUPER_DEBUG);
+		logger->Log(LOGGER_LEVEL_SUPER_DEBUG, "   DispatchStdTasks: Listen(): No packets have been sent to this server.");
 		return false;
 	}
 
-	logger->Log("   DispatchStdTasks: Listen() w/ id %u: Found a packet, looking for a handler.", serverID, LOGGER_LEVEL_DEBUG);
+	logger->Log(LOGGER_LEVEL_DEBUG, "   DispatchStdTasks: Listen() w/ id %u: Found a packet, looking for a handler.", serverID);
 
 	if(NULL == (registry = dispatcher->FindHandler(serverID, packet))){
 		return false;
 	}
 
-	logger->Log("   DispatchStdTasks: Listen(): Permissions are correct, invoke the handler, and obtain the resulting message.", LOGGER_LEVEL_DEBUG);
+	logger->Log(LOGGER_LEVEL_DEBUG, "   DispatchStdTasks: Listen(): Permissions are correct, invoke the handler, and obtain the resulting message.");
 
 	ACPPacket * retPacket = registry->Invoke(*packet);
 
@@ -143,7 +143,7 @@ bool Listen(LocationIDType serverID){
 	if(numPackets < DISPATCHER_QUEUE_LENGTH){
 		sendSuccess = mq_timed_send(dispatcher->queueNameRX, &ret, MAX_BLOCK_TIME, 0);
 	}else{
-		logger->Log("DispatchStdTasks: RX Queue full!", LOGGER_LEVEL_FATAL);
+		logger->Log(LOGGER_LEVEL_FATAL, "DispatchStdTasks: RX Queue full!");
 		sendSuccess = false;
 	}
 
@@ -154,7 +154,7 @@ void PacketProcess(LocationIDType id, AllStar::Core::ACPPacket * retPacket)
 {
 	FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("DispatchStdTasks: PacketProcess() called", LOGGER_LEVEL_DEBUG);
+	logger->Log(LOGGER_LEVEL_DEBUG, "DispatchStdTasks: PacketProcess() called");
 
 	// Get packet info
 	MessageCodeType retOpcode = retPacket->getOpcode();
@@ -163,13 +163,13 @@ void PacketProcess(LocationIDType id, AllStar::Core::ACPPacket * retPacket)
 	// Check if error message
 	if(!success)
 	{
-		logger->Log("DispatchStdTasks: Got error return message", LOGGER_LEVEL_INFO);
+		logger->Log(LOGGER_LEVEL_INFO, "DispatchStdTasks: Got error return message");
 		if((retOpcode >= DISPATCHER_ERR_START) && (retOpcode <= DISPATCHER_ERR_END))
 		{
 			//dispatcher error! Log it
 			if(!fileHandler->Log(SYSTEM_CDH, retPacket))
 			{
-				logger->Log("DispatchStdTasks: Failed to log error!", LOGGER_LEVEL_ERROR);
+				logger->Log(LOGGER_LEVEL_ERROR, "DispatchStdTasks: Failed to log error!");
 			}
 			delete retPacket;
 			return;
@@ -181,7 +181,7 @@ void PacketProcess(LocationIDType id, AllStar::Core::ACPPacket * retPacket)
 			//Dispatch packet, if it fails return DISPATCH_FAILED
 			if(!dispatcher->Dispatch(*retPacket)) {
 				// TODO: handle this
-				logger->Log("DispatchStdTasks: Failed to dispatch error to octopus", LOGGER_LEVEL_ERROR);
+				logger->Log(LOGGER_LEVEL_ERROR, "DispatchStdTasks: Failed to dispatch error to octopus");
 				delete retPacket;
 				return;
 			}
@@ -191,14 +191,14 @@ void PacketProcess(LocationIDType id, AllStar::Core::ACPPacket * retPacket)
 			//Wait for return message, if it fails return status response from dispatcher
 			if(DISPATCHER_STATUS_OK != (stat = WaitForDispatchResponse(*retPacket, &responsePacket)))
 			{
-				logger->Log("DispatchStdTasks: no response from error octopus (NOTE: check ERRServer Handler return)", LOGGER_LEVEL_ERROR);
+				logger->Log(LOGGER_LEVEL_ERROR, "DispatchStdTasks: no response from error octopus (NOTE: check ERRServer Handler return)");
 				ACPPacket * ret = new ACPPacket(DISPATCH_FAILED);
 				PacketProcess(id, ret);
 				delete retPacket;
 				return;
 			}
 
-			logger->Log("DispatchStdTasks: error octopus now has error", LOGGER_LEVEL_DEBUG);
+			logger->Log(LOGGER_LEVEL_DEBUG, "DispatchStdTasks: error octopus now has error");
 			delete retPacket;
 			return;
 		}
@@ -232,17 +232,17 @@ void PacketProcess(LocationIDType id, AllStar::Core::ACPPacket * retPacket)
 			handlerID = SYSTEM_CDH;
 			break;
 		default:
-			logger->Log("DispatchStdTasks: Unknown Server!", LOGGER_LEVEL_ERROR);
+			logger->Log(LOGGER_LEVEL_ERROR, "DispatchStdTasks: Unknown Server!");
 			delete retPacket;
 			return;
 	}
 
 	// Successful return message
-	logger->Log("DispatchStdTasks: Got successful return message!", LOGGER_LEVEL_INFO);
+	logger->Log(LOGGER_LEVEL_INFO, "DispatchStdTasks: Got successful return message!");
 	if(!fileHandler->Log(handlerID, retPacket))
 	{
 		// TODO: write to error log
-		logger->Log("DispatchStdTasks: Failed to log message", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "DispatchStdTasks: Failed to log message");
 	}
 	delete retPacket;
 }
@@ -253,13 +253,13 @@ DispatcherStatusEnum WaitForDispatchResponse(const ACPPacket & packet, ACPPacket
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 	size_t i;
 	ACPPacket * retPacket;
-	logger->Log("    Dispatcher: WaitForDispatchResponse() called", LOGGER_LEVEL_DEBUG);
-	logger->Log("    Dispatcher: Checking queue for matching packet", LOGGER_LEVEL_DEBUG);
+	logger->Log(LOGGER_LEVEL_DEBUG, "    Dispatcher: WaitForDispatchResponse() called");
+	logger->Log(LOGGER_LEVEL_DEBUG, "    Dispatcher: Checking queue for matching packet");
 	for (i = 0; i < DISPATCHER_MAX_RESPONSE_TRIES; ++i)
 	{
 		if (dispatcher->CheckQueueForMatchingPacket(packet, retPacket, dispatcher->CHECK_MATCHING_RESPONSE))
 		{
-			logger->Log("    Dispatcher: WaitForDispatchResponse(): Matching ACPPacket found.", LOGGER_LEVEL_DEBUG);
+			logger->Log(LOGGER_LEVEL_DEBUG, "    Dispatcher: WaitForDispatchResponse(): Matching ACPPacket found.");
 
 			*retPacketin = retPacket;
 			return DISPATCHER_STATUS_OK;
@@ -268,18 +268,18 @@ DispatcherStatusEnum WaitForDispatchResponse(const ACPPacket & packet, ACPPacket
 	}
 
 	// At this point, see if the command we sent has been received at least.
-	logger->Log("   Dispatch:  No response, see if the packet we sent has been received.", LOGGER_LEVEL_DEBUG);
+	logger->Log(LOGGER_LEVEL_DEBUG, "   Dispatch:  No response, see if the packet we sent has been received.");
 	//debug_led_set_led(6, LED_ON);
 
 	if (dispatcher->CheckQueueForMatchingPacket(packet, retPacket, dispatcher->CHECK_SAME))
 	{
-		logger->Log("   Dispatch: Command not received, removed from queue", LOGGER_LEVEL_ERROR);
+		logger->Log(LOGGER_LEVEL_ERROR, "   Dispatch: Command not received, removed from queue");
 		return DISPATCHER_STATUS_MSG_NOT_RCVD;
 	}
 
 	// The command was received, but no response has been placed in
 	// the queue, so return that the operation failed.
-	logger->Log("   Dispatch: Command received, but no response sent", LOGGER_LEVEL_ERROR);
+	logger->Log(LOGGER_LEVEL_ERROR, "   Dispatch: Command received, but no response sent");
 	return DISPATCHER_STATUS_MSG_RCVD_NO_RESP_SENT;
 }
 

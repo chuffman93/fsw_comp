@@ -26,7 +26,7 @@ namespace AllStar
 
 		bool HotSwap::Init(){
 			//Initialize the fault line GPIO
-			logger->Log("HotSwap: Initializing", LOGGER_LEVEL_DEBUG);
+			logger->Log(LOGGER_LEVEL_DEBUG, "HotSwap: Initializing");
 			char cmdString[100];
 			sprintf(cmdString, "echo \"%d\" > /sys/class/gpio/export", faultLine);
 			system(cmdString);
@@ -50,12 +50,12 @@ namespace AllStar
 
 				*Voltage = 26.35 * ((float)voltRaw/4096); //Volts
 				*Current = 0.10584 * ((float)currRaw/4096) / SenseResistorValue; //Current
-				logger->Log("    HotSwap Voltage: %f", *Voltage, LOGGER_LEVEL_DEBUG);
-				logger->Log("    HotSwap Current: %f", *Current, LOGGER_LEVEL_DEBUG);
+				logger->Log(LOGGER_LEVEL_DEBUG, "    HotSwap Voltage: %f", *Voltage);
+				logger->Log(LOGGER_LEVEL_DEBUG, "    HotSwap Current: %f", *Current);
 			}else{
 				*Voltage = -1001;
 				*Current = -1001;
-				logger->Log("----HotSwaps: Error reading hot swap!", LOGGER_LEVEL_ERROR);
+				logger->Log(LOGGER_LEVEL_ERROR, "----HotSwaps: Error reading hot swap!");
 			}
 		}
 

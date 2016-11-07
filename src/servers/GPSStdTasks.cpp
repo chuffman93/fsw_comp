@@ -48,7 +48,7 @@ bool BESTXYZProcess(char * buffer,const size_t size)
 	char * buffPtr = buffer;
 	bool solSuccess = true;
 
-	logger->Log("GPSStdTasks: Processing BESTXYZ", LOGGER_LEVEL_DEBUG);
+	logger->Log(LOGGER_LEVEL_DEBUG, "GPSStdTasks: Processing BESTXYZ");
 
 	bool containsDelimiter = false;
 	while((buffPtr - buffer != 350) && (*buffPtr != '\0')){
@@ -59,7 +59,7 @@ bool BESTXYZProcess(char * buffer,const size_t size)
 	}
 
 	if(!containsDelimiter){
-		logger->Log("GPSStdTasks: BESTXYZ doesn't contain '*'", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "GPSStdTasks: BESTXYZ doesn't contain '*'");
 		return false;
 	}
 
@@ -71,7 +71,7 @@ bool BESTXYZProcess(char * buffer,const size_t size)
 
 	// validate crc
 	if(crc != CalculateCRC_GPS(message)){
-		logger->Log("GPSStdTasks: invalid CRC!", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "GPSStdTasks: invalid CRC!");
 		return false;
 	}
 
@@ -81,7 +81,7 @@ bool BESTXYZProcess(char * buffer,const size_t size)
 
 	// parse the message header
 	if(strcmp("BESTXYZA",strtok(header, ",")) != 0){
-		logger->Log("GPSStdTasks: Wrong message, expecting BESTXYZA", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "GPSStdTasks: Wrong message, expecting BESTXYZA");
 		return false;
 	}
 	token = strtok(NULL, ","); // (UNUSED) port
@@ -97,10 +97,10 @@ bool BESTXYZProcess(char * buffer,const size_t size)
 
 	// parse the position log part of the message
 	if(strcmp("SOL_COMPUTED",strtok(log, ",")) != 0){
-		logger->Log("GPSStdTasks: No position solution computed!", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "GPSStdTasks: No position solution computed!");
 		solSuccess = false;
 	}else{
-		logger->Log("GPSStdTasks: Valid position solution computed!", LOGGER_LEVEL_DEBUG);
+		logger->Log(LOGGER_LEVEL_DEBUG, "GPSStdTasks: Valid position solution computed!");
 		token = strtok(NULL,","); // (UNUSED) position type
 		gpsData->posX = strtod(strtok(NULL, ","), NULL);
 		gpsData->posY = strtod(strtok(NULL, ","), NULL);
@@ -112,10 +112,10 @@ bool BESTXYZProcess(char * buffer,const size_t size)
 
 	// parse the velocity log part of the message
 	if(strcmp("SOL_COMPUTED",strtok(NULL, ",")) != 0){
-		logger->Log("GPSStdTasks: No velocity solution computed!", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "GPSStdTasks: No velocity solution computed!");
 		solSuccess = false;
 	}else{
-		logger->Log("GPSStdTasks: Valid velocity solution computed!", LOGGER_LEVEL_DEBUG);
+		logger->Log(LOGGER_LEVEL_DEBUG, "GPSStdTasks: Valid velocity solution computed!");
 		token = strtok(NULL,","); // (UNUSED) velocity type
 		gpsData->velX = strtod(strtok(NULL, ","), NULL);
 		gpsData->velY = strtod(strtok(NULL, ","), NULL);
@@ -142,10 +142,10 @@ bool BESTXYZProcess(char * buffer,const size_t size)
 	gpsData->round_seconds = (uint16) lroundf(gpsData->GPSSec);
 
 	if(!solSuccess){
-		logger->Log("GPSStdTasks: Number of satellites tracked: %d", gpsData->numTracked, LOGGER_LEVEL_DEBUG);
+		logger->Log(LOGGER_LEVEL_DEBUG, "GPSStdTasks: Number of satellites tracked: %d", gpsData->numTracked);
 	}
 
-	logger->Log("GPSStdTasks: Successfully processed BESTXYZ data", LOGGER_LEVEL_INFO);
+	logger->Log(LOGGER_LEVEL_INFO, "GPSStdTasks: Successfully processed BESTXYZ data");
 	return true;
 }
 
@@ -156,7 +156,7 @@ bool GPRMCProcess(char * buffer, const size_t size){
 	char * token;
 	char * buffPtr = buffer;
 
-	logger->Log("GPSStdTasks: Processing GPRMC", LOGGER_LEVEL_DEBUG);
+	logger->Log(LOGGER_LEVEL_DEBUG, "GPSStdTasks: Processing GPRMC");
 
 	bool containsDelimiter = false;
 	while((buffPtr - buffer != 350) && (*buffPtr != '\0')){
@@ -167,7 +167,7 @@ bool GPRMCProcess(char * buffer, const size_t size){
 	}
 
 	if(!containsDelimiter){
-		logger->Log("GPSStdTasks: GPRMC doesn't contain '*'", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "GPSStdTasks: GPRMC doesn't contain '*'");
 		return false;
 	}
 
@@ -178,7 +178,7 @@ bool GPRMCProcess(char * buffer, const size_t size){
 
 	// validate checksum
 	if(check != CalculateNMEAChecksum(message)){
-		logger->Log("GPSStdTasks: invalid checksum!", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "GPSStdTasks: invalid checksum!");
 		return false;
 	}
 
@@ -187,7 +187,7 @@ bool GPRMCProcess(char * buffer, const size_t size){
 	token = strtok(NULL, ","); // UTC
 	token = strtok(NULL, ","); // status
 	if(*token != 'A'){
-		logger->Log("GPSStdTasks: invalid data from GPRMC", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "GPSStdTasks: invalid data from GPRMC");
 		return false;
 	}
 
@@ -222,7 +222,7 @@ bool GPRMCProcess(char * buffer, const size_t size){
 	token = strtok(NULL, ","); // magnetic variation direction
 	token = strtok(NULL, ","); // mode indicator AND checksum
 
-	logger->Log("GPSStdTasks: Successfully processed GPRMC data", LOGGER_LEVEL_INFO);
+	logger->Log(LOGGER_LEVEL_INFO, "GPSStdTasks: Successfully processed GPRMC data");
 	return true;
 }
 

@@ -76,9 +76,9 @@ void SPI_HALServer::SubsystemLoop(void)
 		bytesSentTX[sub] = 0;
 	}
 
-	logger->Log("*****************************************************", LOGGER_LEVEL_INFO);
-	logger->Log("SPI_HAL Server: Entering Loop --------------------- *", LOGGER_LEVEL_INFO);
-	logger->Log("*****************************************************", LOGGER_LEVEL_INFO);
+	logger->Log(LOGGER_LEVEL_INFO, "*****************************************************");
+	logger->Log(LOGGER_LEVEL_INFO, "SPI_HAL Server: Entering Loop --------------------- *");
+	logger->Log(LOGGER_LEVEL_INFO, "*****************************************************");
 
 	while (1) {
 		errno = 0;
@@ -94,20 +94,20 @@ void SPI_HALServer::SubsystemLoop(void)
 					packetsSentTX[dest-1]++; // increment packets sent counter for that subsystem
 					bytesSentTX[dest-1] += txPacket->getLength() + 8;
 					if(SPIDispatch(*txPacket)){
-						logger->Log("SPI_HAL Server: Successfully dispatched packet", LOGGER_LEVEL_INFO);
+						logger->Log(LOGGER_LEVEL_INFO, "SPI_HAL Server: Successfully dispatched packet");
 					}else{
 						// TODO: send error to RX queue?
-						logger->Log("SPI_HAL Server: " "\x1b[33m" "Packet dispatch failed!" "\x1b[0m", LOGGER_LEVEL_WARN);
+						logger->Log(LOGGER_LEVEL_WARN, "SPI_HAL Server: " "\x1b[33m" "Packet dispatch failed!" "\x1b[0m");
 
 						// increment dropped packets counter for that subsystem
 						packetsDroppedTX[dest-1]++;
 						bytesDroppedTX[dest-1] += txPacket->getLength() + 8;
 					}
 				}else{
-					logger->Log("SPI_HALServer: Invalid TX destination!", LOGGER_LEVEL_WARN);
+					logger->Log(LOGGER_LEVEL_WARN, "SPI_HALServer: Invalid TX destination!");
 				}
 			}else{
-				logger->Log("SPI_HAL Server: Queue receive for TX failed!", LOGGER_LEVEL_WARN);
+				logger->Log(LOGGER_LEVEL_WARN, "SPI_HAL Server: Queue receive for TX failed!");
 			}
 		}
 
@@ -116,7 +116,7 @@ void SPI_HALServer::SubsystemLoop(void)
 			poll(poll_fds+i, 1, 0); // quick timeout (only checking for events, not waiting)
 			read(int_fds[i], &clearBuf, 1);
 			if (poll_fds[i].revents & POLLPRI){
-				logger->Log("SPI_HAL Server: found interrupt on fds %d", i, LOGGER_LEVEL_DEBUG);
+				logger->Log(LOGGER_LEVEL_DEBUG, "SPI_HAL Server: found interrupt on fds %d", i);
 				slave_fd = spi_fds[i];
 				fds.fd = int_fds[i];
 				fds.events = POLLPRI;
@@ -130,18 +130,18 @@ void SPI_HALServer::SubsystemLoop(void)
 
 				// Check bounds and send to dispatcher RX queue
 				if(rxPacket == NULL){
-					logger->Log("SPI_HAL Server: " "\x1b[33m" "There was an error reading the packet." "\x1b[0m" " Not placing on queue!", LOGGER_LEVEL_ERROR);
+					logger->Log(LOGGER_LEVEL_ERROR, "SPI_HAL Server: " "\x1b[33m" "There was an error reading the packet." "\x1b[0m" " Not placing on queue!");
 				}else if (rxPacket->getDestination() == LOCATION_ID_INVALID){
-					logger->Log("SPI_HAL Server: ACP Packet dest invalid (bit flip). Not placing on queue!", LOGGER_LEVEL_WARN);
+					logger->Log(LOGGER_LEVEL_WARN, "SPI_HAL Server: ACP Packet dest invalid (bit flip). Not placing on queue!");
 					delete rxPacket;
 				}else{
 					Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 					queueSize = mq_size(dispatcher->queueHandleRX, dispatcher->queueAttrRX);
 					if(queueSize < DISPATCHER_QUEUE_LENGTH){
-						logger->Log("SPI_Server: placing RX message on dispatcher RX queue", LOGGER_LEVEL_INFO);
+						logger->Log(LOGGER_LEVEL_INFO, "SPI_Server: placing RX message on dispatcher RX queue");
 						queueSuccess = mq_timed_send(dispatcher->queueNameRX, &rxPacket, MAX_BLOCK_TIME, 0);
 					}else{
-						logger->Log("SPI_Server: RX queue full!", LOGGER_LEVEL_FATAL);
+						logger->Log(LOGGER_LEVEL_FATAL, "SPI_Server: RX queue full!");
 					}
 				}
 			}
@@ -161,13 +161,13 @@ bool SPI_HALServer::SPIDispatch(AllStar::Core::ACPPacket & packet){
 	struct pollfd fds;
 	int destination = 0;
 	packetLength = packet.GetFlattenSize();
-	logger->Log("SPI_Server: SPIDispatch(): Dispatching packet of size %d", (uint32) packetLength, LOGGER_LEVEL_DEBUG);
-	logger->Log("SPI_Server: SPIDispatch(): Opcode %u", (uint32) packet.getOpcode(), LOGGER_LEVEL_DEBUG);
-	logger->Log("SPI_Server: SPIDispatch(): Dispatch to %d", packet.getDestination(), LOGGER_LEVEL_DEBUG);
+	logger->Log(LOGGER_LEVEL_DEBUG, "SPI_Server: SPIDispatch(): Dispatching packet of size %d", (uint32) packetLength);
+	logger->Log(LOGGER_LEVEL_DEBUG, "SPI_Server: SPIDispatch(): Opcode %u", (uint32) packet.getOpcode());
+	logger->Log(LOGGER_LEVEL_DEBUG, "SPI_Server: SPIDispatch(): Dispatch to %d", packet.getDestination());
 
 	if(packetLength >= MAX_PACKET_SIZE)
 	{
-		logger->Log("SPI_Server: SPIDispatch(): Packet too large!", LOGGER_LEVEL_ERROR);
+		logger->Log(LOGGER_LEVEL_ERROR, "SPI_Server: SPIDispatch(): Packet too large!");
 		return -1;
 	}
 
@@ -177,18 +177,18 @@ bool SPI_HALServer::SPIDispatch(AllStar::Core::ACPPacket & packet){
 	//check if whole packet was copied
 	if (ret != packetLength)
 	{
-		logger->Log("SPI_Server: SPIDispatch(): Packet flatten fail", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "SPI_Server: SPIDispatch(): Packet flatten fail");
 		return -2;
 	}
 
 	destination = packet.getDestination();
-	logger->Log("SPI_Server: SPIDispatch(): destination = %d", destination, LOGGER_LEVEL_DEBUG);
+	logger->Log(LOGGER_LEVEL_DEBUG, "SPI_Server: SPIDispatch(): destination = %d", destination);
 	get_int_fds(destination, &fds);
 	slave_fd = get_slave_fd(destination);
 
-	logger->Log("SPI_Server: SPIDispatch(): Writing packet to SPI", LOGGER_LEVEL_DEBUG);
+	logger->Log(LOGGER_LEVEL_DEBUG, "SPI_Server: SPIDispatch(): Writing packet to SPI");
 	bytes_copied = this->spi_write(slave_fd, &fds, packetBuffer, packetLength);
-	logger->Log("SPI_Server: SPIDispatch(): Waiting on return message", LOGGER_LEVEL_DEBUG);
+	logger->Log(LOGGER_LEVEL_DEBUG, "SPI_Server: SPIDispatch(): Waiting on return message");
 
 	return (bytes_copied == packetLength);
 }
@@ -202,12 +202,12 @@ int SPI_HALServer::spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, in
 	read(fds->fd, &clearBuf, 1);
 
 	while(buf_pt != len){
-		logger->Log("Writing byte %d", buf_pt, LOGGER_LEVEL_SUPER_DEBUG);
-		logger->Log("Byte value: ----------------------- 0x%x", *(buf + buf_pt), LOGGER_LEVEL_SUPER_DEBUG);
+		logger->Log(LOGGER_LEVEL_SUPER_DEBUG, "Writing byte %d", buf_pt);
+		logger->Log(LOGGER_LEVEL_SUPER_DEBUG, "Byte value: ----------------------- 0x%x", *(buf + buf_pt));
 		ret = write(slave_fd, buf + buf_pt, wr_size);
 
 		if(ret != wr_size){
-			logger->Log("spi_write: Failed to write byte!", LOGGER_LEVEL_WARN);
+			logger->Log(LOGGER_LEVEL_WARN, "spi_write: Failed to write byte!");
 			printf("Ret: %d", ret);
 			perror("Error sending byte");
 			return -1;
@@ -215,18 +215,18 @@ int SPI_HALServer::spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, in
 		buf_pt++;
 
 		//Wait for interrupt before sending next byte
-		logger->Log("Waiting for interrupt after byte send", LOGGER_LEVEL_SUPER_DEBUG);
-		logger->Log("spi_write: Polling", LOGGER_LEVEL_SUPER_DEBUG);
+		logger->Log(LOGGER_LEVEL_SUPER_DEBUG, "Waiting for interrupt after byte send");
+		logger->Log(LOGGER_LEVEL_SUPER_DEBUG, "spi_write: Polling");
 		int retval = poll(fds, 1, timeout);
 		if(!(fds->revents & POLLPRI) || retval == 0){
-			logger->Log("Poll timeout!", LOGGER_LEVEL_ERROR);
+			logger->Log(LOGGER_LEVEL_ERROR, "Poll timeout!");
 			return -1;
 		}
-		logger->Log("spi_write: Poll return: %d", retval, LOGGER_LEVEL_SUPER_DEBUG);
+		logger->Log(LOGGER_LEVEL_SUPER_DEBUG, "spi_write: Poll return: %d", retval);
 		this->GiveLock();
-		logger->Log("spi_write: After poll", LOGGER_LEVEL_SUPER_DEBUG);
+		logger->Log(LOGGER_LEVEL_SUPER_DEBUG, "spi_write: After poll");
 		ret = read(fds->fd, &clearBuf, 1);
-		logger->Log("spi_write: revent = 0x%x", fds->revents, LOGGER_LEVEL_SUPER_DEBUG);
+		logger->Log(LOGGER_LEVEL_SUPER_DEBUG, "spi_write: revent = 0x%x", fds->revents);
 		if(fds->fd < 0){
 			perror("Err opening\n");
 		}
@@ -266,55 +266,55 @@ int SPI_HALServer::spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_bufp){
 		for(i = 0; i < 6; i++){
 			//Wait for interrupt before sending next byte
 			if(i != 0){
-				logger->Log("spi_read: Waiting for interrupt", LOGGER_LEVEL_SUPER_DEBUG);
+				logger->Log(LOGGER_LEVEL_SUPER_DEBUG, "spi_read: Waiting for interrupt");
 				retval = poll(fds, 1, timeout);
 				if(!(fds->revents & POLLPRI) || retval == 0){
-					logger->Log("Poll timeout!", LOGGER_LEVEL_WARN);
+					logger->Log(LOGGER_LEVEL_WARN, "Poll timeout!");
 					return 0;
 				}
 			}
 
 			read(fds->fd, &clearBuf, 1);
-			logger->Log("spi_read: Reading byte %d: ", buf_pt, LOGGER_LEVEL_SUPER_DEBUG);
+			logger->Log(LOGGER_LEVEL_SUPER_DEBUG, "spi_read: Reading byte %d: ", buf_pt);
 			tr.tx_buf =  (unsigned long) &tx;
 			tr.rx_buf =  (unsigned long) &rx;
 
 			ioctl(slave_fd, SPI_IOC_MESSAGE(1), &tr);
 			rx_buf[buf_pt] = rx;
 
-			logger->Log("spi_read: byte value: ------------- 0x%X", rx, LOGGER_LEVEL_DEBUG);
+			logger->Log(LOGGER_LEVEL_DEBUG, "spi_read: byte value: ------------- 0x%X", rx);
 			buf_pt++;
 
 			if(i == 0 && rx != SYNC_VALUE){
-				logger->Log("spi_read: sync byte incorrect! Ending read", LOGGER_LEVEL_WARN);
+				logger->Log(LOGGER_LEVEL_WARN, "spi_read: sync byte incorrect! Ending read");
 				return 0;
 			}
 		}
 
-		logger->Log("spi_read: Reallocating memory for packet + message", LOGGER_LEVEL_DEBUG);
+		logger->Log(LOGGER_LEVEL_DEBUG, "spi_read: Reallocating memory for packet + message");
 		//Allocate more memory based on length
 		packet_len = (rx_buf[4] << 8 | rx_buf[5]) + 8;
-		logger->Log("spi_read: message size = %d", packet_len - 8, LOGGER_LEVEL_DEBUG);
+		logger->Log(LOGGER_LEVEL_DEBUG, "spi_read: message size = %d", packet_len - 8);
 		rx_buf = (uint8 *) realloc(rx_buf, packet_len * sizeof(uint8));
 
 		//Read in remaining bytes
 		for(i = 0; i < packet_len - 6; i++){
 			//Wait for interrupt before sending next byte
-			logger->Log("spi_read: Waiting for interrupt", LOGGER_LEVEL_SUPER_DEBUG);
+			logger->Log(LOGGER_LEVEL_SUPER_DEBUG, "spi_read: Waiting for interrupt");
 			retval = poll(fds, 1, timeout);
 			if(!(fds->revents & POLLPRI) || retval == 0){
-				logger->Log("Poll timeout!", LOGGER_LEVEL_ERROR);
+				logger->Log(LOGGER_LEVEL_ERROR, "Poll timeout!");
 				return 0;
 			}
 			read(fds->fd, &clearBuf, 1);
-			logger->Log("spi_read: Reading byte %d: ", buf_pt, LOGGER_LEVEL_SUPER_DEBUG);
+			logger->Log(LOGGER_LEVEL_SUPER_DEBUG, "spi_read: Reading byte %d: ", buf_pt);
 			tr.tx_buf =  (unsigned long) &tx;
 			tr.rx_buf =  (unsigned long) &rx;
 
 			ioctl(slave_fd, SPI_IOC_MESSAGE(1), &tr);
 			rx_buf[buf_pt] = rx;
 
-			logger->Log("spi_read: byte value: ------------- 0x%x", rx, LOGGER_LEVEL_SUPER_DEBUG);
+			logger->Log(LOGGER_LEVEL_SUPER_DEBUG, "spi_read: byte value: ------------- 0x%x", rx);
 			buf_pt++;
 		}
 
@@ -322,7 +322,7 @@ int SPI_HALServer::spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_bufp){
 //		fds->events = POLLPRI;
 //		retval = poll(fds, 1, timeout);
 //		if(!(fds->revents & POLLPRI) || retval == 0){
-//			logger->Log("Poll timeout!", LOGGER_LEVEL_ERROR);
+//			logger->Log(LOGGER_LEVEL_ERROR, "Poll timeout!");
 //			return 0;
 //		}
 //		read(fds->fd, &clearBuf, 1);
@@ -351,7 +351,7 @@ int SPI_HALServer::get_int_fds(int subsystem, struct pollfd * poll_fds){
 			index = 3;
 			break;
 		default:
-			logger->Log("get_int_fds(): index out of range!", LOGGER_LEVEL_WARN);
+			logger->Log(LOGGER_LEVEL_WARN, "get_int_fds(): index out of range!");
 			return -1;
 	}
 	poll_fds->fd = int_fds[index];
@@ -376,7 +376,7 @@ int SPI_HALServer::get_slave_fd(int subsystem){
 			index = 3;
 			break;
 		default:
-			logger->Log("get_slave_fd(): index out of range!", LOGGER_LEVEL_WARN);
+			logger->Log(LOGGER_LEVEL_WARN, "get_slave_fd(): index out of range!");
 			return -1;
 	}
 	return spi_fds[index];
@@ -390,27 +390,27 @@ void SPI_HALServer::set_packet_sourcedest(int index, ACPPacket * packet){
 	// set based on index from RX loop that corresponds to the fd
 	switch(index){
 	case 0:
-		logger->Log("--------------------------------------------------------- SPI RX Packet from " "\x1b[34m" "EPS" "\x1b[0m" " received",LOGGER_LEVEL_INFO);
+		logger->Log(LOGGER_LEVEL_INFO, "--------------------------------------------------------- SPI RX Packet from " "\x1b[34m" "EPS" "\x1b[0m" " received");
 		source = HARDWARE_LOCATION_EPS;
 		dest = SERVER_LOCATION_EPS;
 		break;
 	case 1:
-		logger->Log("--------------------------------------------------------- SPI RX Packet from " "\x1b[34m" "COM" "\x1b[0m" " received",LOGGER_LEVEL_INFO);
+		logger->Log(LOGGER_LEVEL_INFO, "--------------------------------------------------------- SPI RX Packet from " "\x1b[34m" "COM" "\x1b[0m" " received");
 		source = HARDWARE_LOCATION_COM;
 		dest = SERVER_LOCATION_COM;
 		break;
 	case 2:
-		logger->Log("--------------------------------------------------------- SPI RX Packet from " "\x1b[34m" "ACS" "\x1b[0m" " received",LOGGER_LEVEL_INFO);
+		logger->Log(LOGGER_LEVEL_INFO, "--------------------------------------------------------- SPI RX Packet from " "\x1b[34m" "ACS" "\x1b[0m" " received");
 		source = HARDWARE_LOCATION_ACS;
 		dest = SERVER_LOCATION_ACS;
 		break;
 	case 3:
-		logger->Log("--------------------------------------------------------- SPI RX Packet from " "\x1b[34m" "PLD" "\x1b[0m" " received",LOGGER_LEVEL_INFO);
+		logger->Log(LOGGER_LEVEL_INFO, "--------------------------------------------------------- SPI RX Packet from " "\x1b[34m" "PLD" "\x1b[0m" " received");
 		source = HARDWARE_LOCATION_PLD;
 		dest = SERVER_LOCATION_PLD;
 		break;
 	default:
-		logger->Log("set_packet_dest(): index out of range!", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "set_packet_dest(): index out of range!");
 		source = LOCATION_ID_INVALID;
 		dest = LOCATION_ID_INVALID;
 		break;
@@ -432,7 +432,7 @@ void SPI_HALServer::GPIOsetup(void){
 	memset((void*)poll_fds, 0, sizeof(poll_fds));
 
 	//Initalize GPIO INT Pins TODO EXPORT PINS AND SET INTS
-	logger->Log("SPI_Server: Loop(): Initializing GPIO INT pins", LOGGER_LEVEL_DEBUG);
+	logger->Log(LOGGER_LEVEL_DEBUG, "SPI_Server: Loop(): Initializing GPIO INT pins");
 	bool gpioCheck = true;
 
 	gpioCheck &= (-1 != system("echo \"134\" > /sys/class/gpio/export"));
@@ -453,7 +453,7 @@ void SPI_HALServer::GPIOsetup(void){
 
 	if(!gpioCheck){
 		// TODO: figure out if this needs handling
-		logger->Log("SPI_Server: Loop(): Bad return on GPIO pin", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "SPI_Server: Loop(): Bad return on GPIO pin");
 	}
 
 	//Open spi device File Descriptors
@@ -470,7 +470,7 @@ void SPI_HALServer::GPIOsetup(void){
 
 	//FD_ZERO(&int_fd_set);
 
-	logger->Log("SPI_Server: Loop(): Opening file descriptors", LOGGER_LEVEL_DEBUG);
+	logger->Log(LOGGER_LEVEL_DEBUG, "SPI_Server: Loop(): Opening file descriptors");
 
 	for(i = 0; i < NUM_SLAVES; i++){
 		spi_fds[i] = open(spi_devices[i], O_RDWR);

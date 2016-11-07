@@ -129,11 +129,11 @@ bool CDHServer::RegisterHandlers(){
 void CDHServer::loopInit(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-	logger->Log("CDHServer: Initializing", LOGGER_LEVEL_INFO);
+	logger->Log(LOGGER_LEVEL_INFO, "CDHServer: Initializing");
 
 	bool initHS = devMngr->initializeHS();
 	if(!initHS){
-		logger->Log("CDHServer: Error initializing hot swaps!", LOGGER_LEVEL_ERROR);
+		logger->Log(LOGGER_LEVEL_ERROR, "CDHServer: Error initializing hot swaps!");
 	}
 
 #if PM_EN
@@ -186,7 +186,7 @@ void CDHServer::readHealth(uint8 frequency, uint32 timeUnit){
 	// Check storage, and delete files if necessary
 #if STOR_EN
 	if(((timeUnit - 60 - 1) % 60) == 0){
-		logger->Log("------------------ Checking storage --------------------", LOGGER_LEVEL_DEBUG);
+		logger->Log(LOGGER_LEVEL_DEBUG, "------------------ Checking storage --------------------");
 		ccRet = storMngr->CheckAndClean();
 		if(ccRet == 1){
 			ACPPacket * packet = new ACPPacket(CDH_CLEAN_FS_SUCCESS);
@@ -215,7 +215,7 @@ void CDHServer::readHealth(uint8 frequency, uint32 timeUnit){
 
 	// Get all CDH information
 	if(((timeUnit - frequency - 1) % frequency) == 0){
-		logger->Log("CDHServer: Gathering information", LOGGER_LEVEL_DEBUG);
+		logger->Log(LOGGER_LEVEL_DEBUG, "CDHServer: Gathering information");
 
 		// ensure that no power faults have been detected, if they have, power off the subsystem
 		//devMngr->checkHS();

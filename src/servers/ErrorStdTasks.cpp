@@ -44,7 +44,7 @@ void EPSError(int opcode, ACPPacket * packet){
 //		if(!fileHandler->Log(SUBSYSTEM_EPS, packet)){/*do something?*/}
 //		break;
 //	default:
-//		logger->Log("EPSError: Unknown error encountered!", LOGGER_LEVEL_WARN);
+//		logger->Log(LOGGER_LEVEL_WARN, "EPSError: Unknown error encountered!");
 //		if(!fileHandler->Log(SUBSYSTEM_EPS, packet)){/*do something?*/}
 //		break;
 //	}
@@ -65,7 +65,7 @@ void COMError(int opcode, ACPPacket * packet){
 //		if(!fileHandler->Log(SUBSYSTEM_COM, packet)){/*do something?*/}
 //		break;
 //	default:
-//		logger->Log("COMError: Unknown error encountered!", LOGGER_LEVEL_WARN);
+//		logger->Log(LOGGER_LEVEL_WARN, "COMError: Unknown error encountered!");
 //		if(!fileHandler->Log(SUBSYSTEM_COM, packet)){/*do something?*/}
 //		break;
 //	}
@@ -82,7 +82,7 @@ void PLDError(int opcode, ACPPacket * packet){
 
 	switch(opcode){
 	default:
-		logger->Log("PLDError: Unknown error encountered!", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "PLDError: Unknown error encountered!");
 		if(!fileHandler->Log(SUBSYSTEM_PLD, packet)){/*do something?*/}
 		break;
 	}
@@ -99,7 +99,7 @@ void ACSError(int opcode, ACPPacket * packet){
 
 	switch(opcode){
 	default:
-		logger->Log("ACSError: Unknown error encountered!", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "ACSError: Unknown error encountered!");
 		if(!fileHandler->Log(SUBSYSTEM_ACS, packet)){/*do something?*/}
 		break;
 	}

@@ -38,25 +38,25 @@ bool ACSToggleLED(bool state){
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret == NULL){
-		logger->Log("ACSStdTasks: NULL LED Toggle return", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "ACSStdTasks: NULL LED Toggle return");
 		return false;
 	}
 
 	if(ret->getLength() != sizeof(uint8)){
-		logger->Log("ACSStdTasks: Incorrect Toggle LED return length", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "ACSStdTasks: Incorrect Toggle LED return length");
 		return false;
 	}else{
 		if(ret->getMessageBuff() == NULL){
-			logger->Log("ACSStdTasks: NULL LED Toggle message buffer", LOGGER_LEVEL_WARN);
+			logger->Log(LOGGER_LEVEL_WARN, "ACSStdTasks: NULL LED Toggle message buffer");
 			return false;
 		}
 
 		uint8 result = GetUInt8(ret->getMessageBuff());
 		if(result == 1){
-			logger->Log("ACS LED Toggle successful", LOGGER_LEVEL_INFO);
+			logger->Log(LOGGER_LEVEL_INFO, "ACS LED Toggle successful");
 			return true;
 		}else{
-			logger->Log("ACS LED Toggle failed", LOGGER_LEVEL_WARN);
+			logger->Log(LOGGER_LEVEL_WARN, "ACS LED Toggle failed");
 			return false;
 		}
 	}
@@ -72,25 +72,25 @@ bool ACSBlinkRate(uint16 rate){
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret == NULL){
-		logger->Log("ACSStdTasks: NULL blink rate return", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "ACSStdTasks: NULL blink rate return");
 		return false;
 	}
 
 	if(ret->getLength() != sizeof(uint8)){
-		logger->Log("ACSStdTasks: Incorrect blink rate return length", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "ACSStdTasks: Incorrect blink rate return length");
 		return false;
 	}else{
 		if(ret->getMessageBuff() == NULL){
-			logger->Log("ACSStdTasks: NULL blink rate message buffer", LOGGER_LEVEL_WARN);
+			logger->Log(LOGGER_LEVEL_WARN, "ACSStdTasks: NULL blink rate message buffer");
 			return false;
 		}
 
 		uint8 result = GetUInt8(ret->getMessageBuff());
 		if(result == 1){
-			logger->Log("ACS blink rate successful", LOGGER_LEVEL_INFO);
+			logger->Log(LOGGER_LEVEL_INFO, "ACS blink rate successful");
 			return true;
 		}else{
-			logger->Log("ACS blink rate failed", LOGGER_LEVEL_WARN);
+			logger->Log(LOGGER_LEVEL_WARN, "ACS blink rate failed");
 			return false;
 		}
 	}
@@ -103,21 +103,21 @@ bool ACSLEDData(){
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret == NULL){
-		logger->Log("ACSStdTasks: NULL LED Data return", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "ACSStdTasks: NULL LED Data return");
 		return false;
 	}
 
 	if(ret->getLength() != sizeof(uint16)){
-		logger->Log("ACSStdTasks: Incorrect LED data return length", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "ACSStdTasks: Incorrect LED data return length");
 		return false;
 	}else{
 		if(ret->getMessageBuff() == NULL){
-			logger->Log("ACSStdTasks: NULL LED Data message buffer", LOGGER_LEVEL_WARN);
+			logger->Log(LOGGER_LEVEL_WARN, "ACSStdTasks: NULL LED Data message buffer");
 			return false;
 		}
 
 		uint16 result = GetUInt16(ret->getMessageBuff());
-		logger->Log("LED blink rate: %u", result, LOGGER_LEVEL_INFO);
+		logger->Log(LOGGER_LEVEL_INFO, "LED blink rate: %u", result);
 		return true;
 	}
 }
@@ -125,13 +125,13 @@ bool ACSLEDData(){
 // Diagnostic
 ACPPacket * ACSTestAlive(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("ACSTestAlive: unfinished!", LOGGER_LEVEL_ERROR);
+	logger->Log(LOGGER_LEVEL_ERROR, "ACSTestAlive: unfinished!");
 	return NULL;
 }
 
 ACPPacket * ACSNoReturn(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("ACSNoReturn: unfinished!", LOGGER_LEVEL_ERROR);
+	logger->Log(LOGGER_LEVEL_ERROR, "ACSNoReturn: unfinished!");
 	return NULL;
 }
 
@@ -145,7 +145,7 @@ void ACSHealthStatus(void){
 void ACSSendGPS(){
 	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("ACSStdTasks: ACSSendGPS(): Entered", LOGGER_LEVEL_DEBUG);
+	logger->Log(LOGGER_LEVEL_DEBUG, "ACSStdTasks: ACSSendGPS(): Entered");
 
 	uint8 * buffer = (uint8 *) malloc(6*sizeof(double)+sizeof(float)+sizeof(int));
 	AddDouble(buffer, gpsServer->GetGPSDataPtr()->posX);
@@ -164,7 +164,7 @@ void ACSSendGPS(){
 
 bool ACSPointSun(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("ACS: commanding ACS to point towards the sun", LOGGER_LEVEL_INFO);
+	logger->Log(LOGGER_LEVEL_INFO, "ACS: commanding ACS to point towards the sun");
 
 	ACPPacket * command = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_POINT_SUN);
 	ACPPacket * response = DispatchPacket(command);
@@ -174,7 +174,7 @@ bool ACSPointSun(){
 
 bool ACSPointNadir(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("ACS: commanding ACS to point towards nadir", LOGGER_LEVEL_INFO);
+	logger->Log(LOGGER_LEVEL_INFO, "ACS: commanding ACS to point towards nadir");
 
 	ACPPacket * command = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_POINT_NADIR);
 	ACPPacket * response = DispatchPacket(command);
@@ -184,7 +184,7 @@ bool ACSPointNadir(){
 
 bool ACSPointGND(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("ACS: commanding ACS to point towards the ground station", LOGGER_LEVEL_INFO);
+	logger->Log(LOGGER_LEVEL_INFO, "ACS: commanding ACS to point towards the ground station");
 
 	ACPPacket * command = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_POINT_GND);
 	ACPPacket * response = DispatchPacket(command);
@@ -194,7 +194,7 @@ bool ACSPointGND(){
 
 bool ACSPointDest(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("ACS: commanding ACS to point towards a given destination", LOGGER_LEVEL_INFO);
+	logger->Log(LOGGER_LEVEL_INFO, "ACS: commanding ACS to point towards a given destination");
 
 	ACPPacket * command = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_POINT_DEST);
 	ACPPacket * response = DispatchPacket(command);

@@ -56,37 +56,37 @@ SystemModeEnum ModeManager::GetMode(void){
 
 bool ModeManager::SetMode(SystemModeEnum newMode){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("SetMode called", LOGGER_LEVEL_DEBUG);
+	logger->Log(LOGGER_LEVEL_DEBUG, "SetMode called");
 	switch(newMode){
 	case MODE_ACCESS:
-		logger->Log("Setting mode to " "\x1b[32m" "MODE_ACCESS" "\x1b[0m", LOGGER_LEVEL_INFO);
+		logger->Log(LOGGER_LEVEL_INFO, "Setting mode to " "\x1b[32m" "MODE_ACCESS" "\x1b[0m");
 		break;
 	case MODE_STARTUP:
-		logger->Log("Setting mode to " "\x1b[32m" "MODE_STARTUP" "\x1b[0m", LOGGER_LEVEL_INFO);
+		logger->Log(LOGGER_LEVEL_INFO, "Setting mode to " "\x1b[32m" "MODE_STARTUP" "\x1b[0m");
 		break;
 	case MODE_BUS_PRIORITY:
-		logger->Log("Setting mode to " "\x1b[32m" "MODE_BUS_PRIORITY" "\x1b[0m", LOGGER_LEVEL_INFO);
+		logger->Log(LOGGER_LEVEL_INFO, "Setting mode to " "\x1b[32m" "MODE_BUS_PRIORITY" "\x1b[0m");
 		break;
 	case MODE_PLD_PRIORITY:
-		logger->Log("Setting mode to " "\x1b[32m" "MODE_PLD_PRIORITY" "\x1b[0m", LOGGER_LEVEL_INFO);
+		logger->Log(LOGGER_LEVEL_INFO, "Setting mode to " "\x1b[32m" "MODE_PLD_PRIORITY" "\x1b[0m");
 		break;
 	case MODE_COM:
-		logger->Log("Setting mode to " "\x1b[32m" "MODE_COM" "\x1b[0m", LOGGER_LEVEL_INFO);
+		logger->Log(LOGGER_LEVEL_INFO, "Setting mode to " "\x1b[32m" "MODE_COM" "\x1b[0m");
 		break;
 	case MODE_DIAGNOSTIC:
-		logger->Log("Setting mode to " "\x1b[32m" "MODE_DIAGNOSTIC" "\x1b[0m", LOGGER_LEVEL_INFO);
+		logger->Log(LOGGER_LEVEL_INFO, "Setting mode to " "\x1b[32m" "MODE_DIAGNOSTIC" "\x1b[0m");
 		break;
 	default:
-		logger->Log("Unknown mode selected!", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "Unknown mode selected!");
 		break;
 	}
 
-	logger->Log("----SetMode: Before take lock", LOGGER_LEVEL_DEBUG);
+	logger->Log(LOGGER_LEVEL_DEBUG, "----SetMode: Before take lock");
 	if (true == this->TakeLock(MAX_BLOCK_TIME)){
-		logger->Log("----SetMode: Current Mode is not NULL", LOGGER_LEVEL_DEBUG);
+		logger->Log(LOGGER_LEVEL_DEBUG, "----SetMode: Current Mode is not NULL");
 
 		if (newMode < MODE_FIRST_MODE && newMode >= MODE_NUM_MODES){
-			logger->Log("----SetMode: Invalid mode", LOGGER_LEVEL_ERROR);
+			logger->Log(LOGGER_LEVEL_ERROR, "----SetMode: Invalid mode");
 			this->GiveLock();
 			return false;
 		}
@@ -103,10 +103,10 @@ bool ModeManager::SetMode(SystemModeEnum newMode){
 
 		// TODO: need mode logger here
 		this->mode = newMode;
-		logger->Log("Switching mode!", LOGGER_LEVEL_INFO);
+		logger->Log(LOGGER_LEVEL_INFO, "Switching mode!");
 
 		this->GiveLock();
-		logger->Log("------------SetMode: success", LOGGER_LEVEL_DEBUG);
+		logger->Log(LOGGER_LEVEL_DEBUG, "------------SetMode: success");
 		return true;
 	}else{
 		return false;

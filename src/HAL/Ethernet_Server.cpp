@@ -61,9 +61,9 @@ void ETH_HALServer::ETH_HALServerLoop(void)
 		memcpy(&rfds, &afds, sizeof(rfds));
 
 		/* Makes the connections wait for the filedescriptor to be set*/
-		logger->Log("*****************************************************", LOGGER_LEVEL_INFO);
-		logger->Log("ETH_HAL Server: Waiting for messages", LOGGER_LEVEL_INFO);
-		logger->Log("*****************************************************", LOGGER_LEVEL_INFO);
+		logger->Log(LOGGER_LEVEL_INFO, "*****************************************************");
+		logger->Log(LOGGER_LEVEL_INFO, "ETH_HAL Server: Waiting for messages");
+		logger->Log(LOGGER_LEVEL_INFO, "*****************************************************");
 		/*Waiting for a file descriptor to have its connection set*/
 		if (select(nfds, &rfds, (fd_set *)0, (fd_set *)0,
 				(struct timeval *)0) < 0)
@@ -72,7 +72,7 @@ void ETH_HALServer::ETH_HALServerLoop(void)
 
 		alen = sizeof(fsin);
 
-		logger->Log("ETH_HAL Server: Recieving data", LOGGER_LEVEL_DEBUG);
+		logger->Log(LOGGER_LEVEL_DEBUG, "ETH_HAL Server: Recieving data");
 		if ((numbytes = recvfrom(this->recv_sock, cmd, sizeof(cmd) , 0, (struct sockaddr *)&fsin, &alen)) == -1)
 		{
 			perror("recvfrom");
@@ -87,16 +87,16 @@ void ETH_HALServer::ETH_HALServerLoop(void)
 
 		buffer = (uint8_t*) malloc(numbytes);
 		memcpy((uint8_t *) buffer, cmd,numbytes);
-		logger->Log("ETH_HAL Server: Converting a Pheonix Packet into a FSW packet", LOGGER_LEVEL_DEBUG);
+		logger->Log(LOGGER_LEVEL_DEBUG, "ETH_HAL Server: Converting a Pheonix Packet into a FSW packet");
 
 		packet =new ACPPacket(buffer, numbytes);
-		logger->Log("ETH_HAL Server: Now putting that FSW Packet into the message queue using Dispatch!", LOGGER_LEVEL_DEBUG);
+		logger->Log(LOGGER_LEVEL_DEBUG, "ETH_HAL Server: Now putting that FSW Packet into the message queue using Dispatch!");
 
 		//packet->SetDestination(SERVER_LOCATION_ACS);
 
 		if((packet->getDestination() == LOCATION_ID_INVALID )|| (packet->getSource() == LOCATION_ID_INVALID))
 		{
-			logger->Log("ETH_HAL Server: FSW Packet src or dest invalid. Not placing on queue", LOGGER_LEVEL_DEBUG);
+			logger->Log(LOGGER_LEVEL_DEBUG, "ETH_HAL Server: FSW Packet src or dest invalid. Not placing on queue");
 			printf("src %d dest %d\n", packet->getDestination(), packet->getSource());
 			//todo log error
 			delete packet;
@@ -108,7 +108,7 @@ void ETH_HALServer::ETH_HALServerLoop(void)
 				// TODO: handle this?
 			}
 
-			logger->Log("ETH_HAL Server: Dispatched packet successfully", LOGGER_LEVEL_INFO);
+			logger->Log(LOGGER_LEVEL_INFO, "ETH_HAL Server: Dispatched packet successfully");
 
 			delete packet;
 			free(buffer);

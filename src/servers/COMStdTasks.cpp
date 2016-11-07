@@ -24,7 +24,7 @@ namespace Servers{
 //	ACPPacket * HSRet = DispatchPacket(HSQuery);
 //
 //	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-//	logger->Log("COMStdTasks: unfinished function entered!", LOGGER_LEVEL_FATAL);
+//	logger->Log(LOGGER_LEVEL_FATAL, "COMStdTasks: unfinished function entered!");
 //
 //	return HSRet;
 //}

@@ -86,10 +86,10 @@ bool WatchdogManager::AddTask(PThread * thread){
 			// thread not there, add the pair
 			ret = watchdogManager->taskMap.insert(PairType(thread, newState));
 			if (!ret.second){
-				logger->Log("WatchdogManager: failed to insert new task into the map", LOGGER_LEVEL_WARN);
+				logger->Log(LOGGER_LEVEL_WARN, "WatchdogManager: failed to insert new task into the map");
 				delete newState;
 			}
-			logger->Log("WatchdogManager: Inserted new task into the map", LOGGER_LEVEL_INFO);
+			logger->Log(LOGGER_LEVEL_INFO, "WatchdogManager: Inserted new task into the map");
 			watchdogManager->GiveLock();
 			return ret.second;
 		}else{
@@ -150,18 +150,18 @@ void * WatchdogManager::WatchdogManagerTask(){
 				for (IteratorType it = watchdogManager->taskMap.begin(); it != watchdogManager->taskMap.end(); ++it){
 					if (it->second->GetTaskState() == TASK_RUNSTATE_RUNNING && !it->second->GetKickState()){
 						it->first->stop();
-						logger->Log("\x1b[31m" "Restarting inactive task" "\x1b[0m", LOGGER_LEVEL_ERROR);
+						logger->Log(LOGGER_LEVEL_ERROR, "\x1b[31m" "Restarting inactive task" "\x1b[0m");
 						it->first->start();
 					}
 				}
 				watchdogManager->GiveLock();
 			}else{
-				logger->Log("WatchdogManager: failed to take lock", LOGGER_LEVEL_WARN);
+				logger->Log(LOGGER_LEVEL_WARN, "WatchdogManager: failed to take lock");
 			}
 		}
 
 		if (!watchdogManager->ResetAllKickState()){
-			logger->Log("WatchdogManager: failed to take lock", LOGGER_LEVEL_WARN);
+			logger->Log(LOGGER_LEVEL_WARN, "WatchdogManager: failed to take lock");
 		}
 
 		lastWakeTime = getTimeInMillis();

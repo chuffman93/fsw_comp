@@ -38,21 +38,21 @@ void portSetup(void){
 	int portfd = open(portname, O_RDWR | O_NOCTTY | O_NDELAY);
 
 	if(portfd == -1){
-		logger->Log("CMDServer: Failed to open serial port!", LOGGER_LEVEL_FATAL);
+		logger->Log(LOGGER_LEVEL_FATAL, "CMDServer: Failed to open serial port!");
 	}
 
 	if(tcgetattr(portfd, &port) < 0) {
-		logger->Log("CMDServer: Problem with initial port attributes.", LOGGER_LEVEL_ERROR);
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: Problem with initial port attributes.");
 	}
 
 	port.c_iflag &= ~IXON;
 
 	if(cfsetispeed(&port, B115200) < 0 || cfsetospeed(&port, B115200) < 0){
-		logger->Log("GPSServer: Problem setting the baud rate!", LOGGER_LEVEL_FATAL);
+		logger->Log(LOGGER_LEVEL_FATAL, "GPSServer: Problem setting the baud rate!");
 	}
 
 	if(tcsetattr(portfd, TCSANOW, &port) < 0){
-		logger->Log("GPSServer: Problem setting port attributes!", LOGGER_LEVEL_ERROR);
+		logger->Log(LOGGER_LEVEL_ERROR, "GPSServer: Problem setting port attributes!");
 	}
 }
 
@@ -81,11 +81,11 @@ void uftpSetup(void){
 
 void runDiagnostic(void){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("CMDServer: running diagnostics tests", LOGGER_LEVEL_INFO);
+	logger->Log(LOGGER_LEVEL_INFO, "CMDServer: running diagnostics tests");
 	FILE * fp = fopen("diagnostics.txt", "r");
 
 	if(fp == NULL){
-		logger->Log("Error opening diagnostic tests file", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "Error opening diagnostic tests file");
 
 		// TODO: should we run a pre-specified test?
 		FILE * fpr = fopen("diagnostic_results.txt", "a+");
@@ -99,7 +99,7 @@ void runDiagnostic(void){
 		while(i < NUM_DIAGNOSTIC_TESTS){
 			c = fgetc(fp);
 			if(c == EOF){
-				logger->Log("Diagnostic tests file too short!", LOGGER_LEVEL_WARN);
+				logger->Log(LOGGER_LEVEL_WARN, "Diagnostic tests file too short!");
 				break;
 			}
 			isActive[i] = (c == '1') ? true : false;
