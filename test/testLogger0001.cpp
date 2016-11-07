@@ -21,11 +21,11 @@ using namespace AllStar::Core;
 TEST(TestLogger, testSingleton){
 	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 
-	logger->Log("Test info", LOGGER_LEVEL_INFO);
-	logger->Log("Test debug", LOGGER_LEVEL_DEBUG);
-	logger->Log("Test warning", LOGGER_LEVEL_WARN);
-	logger->Log("Test error", LOGGER_LEVEL_ERROR);
-	logger->Log("Test fatal", LOGGER_LEVEL_FATAL);
+	logger->Log(LOGGER_LEVEL_INFO, "Test info");
+	logger->Log(LOGGER_LEVEL_DEBUG, "Test debug");
+	logger->Log(LOGGER_LEVEL_WARN, "Test warning");
+	logger->Log(LOGGER_LEVEL_ERROR, "Test error");
+	logger->Log(LOGGER_LEVEL_FATAL, "Test fatal");
 }
 
 TEST(TestLogger, testOverload){
@@ -34,11 +34,11 @@ TEST(TestLogger, testOverload){
 	string str = "string";
 	string str2 = "Test string 2: %s";
 
-	logger->Log("Test normal", LOGGER_LEVEL_INFO);
-	logger->Log(str, LOGGER_LEVEL_INFO);
-	logger->Log("Test int: %d", (int) -10, LOGGER_LEVEL_INFO);
-	logger->Log("Test uint: %u", (uint32) 10, LOGGER_LEVEL_INFO);
-	logger->Log("Test char[]: %s", "Test", LOGGER_LEVEL_INFO);
-	logger->Log("Test string: %s", str, LOGGER_LEVEL_INFO);
-	logger->Log(str2, str, LOGGER_LEVEL_INFO);
+	logger->Log(LOGGER_LEVEL_INFO, "Test normal");
+	logger->Log(LOGGER_LEVEL_INFO, str);
+	logger->Log(LOGGER_LEVEL_INFO, "Test int: %d", (int) -10);
+	logger->Log(LOGGER_LEVEL_INFO, "Test uint: %u", (uint32) 10);
+	logger->Log(LOGGER_LEVEL_INFO, "Test char[]: %s", "Test");
+	logger->Log(LOGGER_LEVEL_INFO, "Test string: %s", str);
+	logger->Log(LOGGER_LEVEL_INFO, str2, str);
 }

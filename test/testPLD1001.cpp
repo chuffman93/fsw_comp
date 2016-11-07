@@ -20,7 +20,7 @@ void * StartSPI_HAL(void * params)
 		usleep(100000);
 	}
 
-	logger->Log("Kicking off the SPI HAL server", LOGGER_LEVEL_INFO);
+	logger->Log(LOGGER_LEVEL_INFO, "Kicking off the SPI HAL server");
 	spi_server->SPI_HALServerLoop();
 	pthread_exit(NULL);
 }
@@ -34,11 +34,11 @@ TEST(TestPLD, sendSPI){
 
 	if(!threadCreated)
 	{
-		logger->Log("SPI HALServer Thread Creation Success", LOGGER_LEVEL_INFO);
+		logger->Log(LOGGER_LEVEL_INFO, "SPI HALServer Thread Creation Success");
 	}
 	else
 	{
-		logger->Log("SPI HALServer Thread Creation Failed", LOGGER_LEVEL_FATAL);
+		logger->Log(LOGGER_LEVEL_FATAL, "SPI HALServer Thread Creation Failed");
 	}
 
 	usleep(1500000);

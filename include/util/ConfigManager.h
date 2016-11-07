@@ -25,12 +25,12 @@ public:
 			if(configuration != NULL && configuration != (void*)-1){
 				memcpy(&config, configuration, sizeof(ConfigStruct));
 			}else
-				logger->Log("CONFIG Manager Mmap fail", LOGGER_LEVEL_INFO);
+				logger->Log(LOGGER_LEVEL_INFO, "CONFIG Manager Mmap fail");
 
 			munmap(configuration, sizeof(ConfigStruct));
 			close(fd);
 		}else{
-			logger->Log("CONFIG Manager bad file", LOGGER_LEVEL_INFO);
+			logger->Log(LOGGER_LEVEL_INFO, "CONFIG Manager bad file");
 		}
 	}
 private:

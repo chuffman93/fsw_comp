@@ -119,7 +119,7 @@ bool FileHandler::Log(FileHandlerIDEnum subsystem, const AllStar::Core::ACPPacke
 	}
 
 	if((size - (bufferPtr - buffer)) != packet->getLength()){
-		logger->Log("FileHandler: Log(): Message length error!", LOGGER_LEVEL_ERROR);
+		logger->Log(LOGGER_LEVEL_ERROR, "FileHandler: Log(): Message length error!");
 		delete[] buffer;
 		return false;
 	}
@@ -183,7 +183,7 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType 
     	*file = "CDH_";
     	break;
     default:
-    	logger->Log("FileHandler: unknown server for file path", LOGGER_LEVEL_WARN);
+    	logger->Log(LOGGER_LEVEL_WARN, "FileHandler: unknown server for file path");
     	delete temp;
     	return -1;
     }
@@ -204,7 +204,7 @@ uint8_t FileHandler::FetchFileName(FileHandlerIDEnum subsystem, MessageCodeType 
 	tempFile.append(fileExtension);
 	// Check if old file is full
 	if (fileSize(tempFile.c_str()) >= MAXFILESIZE){
-		logger->Log("FileHandler: FetchFileName(): file full or nonexistent", LOGGER_LEVEL_DEBUG);
+		logger->Log(LOGGER_LEVEL_DEBUG, "FileHandler: FetchFileName(): file full or nonexistent");
 		//get current time in seconds and week
 		uint16 week = gpsServer->GetWeek();
 		uint32 secs = gpsServer->GetRoundSeconds();
@@ -315,7 +315,7 @@ uint8 * FileHandler::ReadFile(const char * fileName, size_t * bufferSize)
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	char * out = new char[150];
 	sprintf(out, "FileHandler: ReadFile(): %s", fileName);
-	logger->Log(out, LOGGER_LEVEL_DEBUG);
+	logger->Log(LOGGER_LEVEL_DEBUG, out);
 	delete out;
 
 	uint8 * buffer = NULL;
@@ -396,7 +396,7 @@ bool FileHandler::DeleteFile(const char * fileName)
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	char * out = new char[150];
 	sprintf(out, "FileHandler: DeleteFile(): %s", fileName);
-	logger->Log(out, LOGGER_LEVEL_DEBUG);
+	logger->Log(LOGGER_LEVEL_DEBUG, out);
 	delete out;
 	if (true == TakeLock(MAX_BLOCK_TIME))
 	{

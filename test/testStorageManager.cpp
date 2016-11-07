@@ -20,7 +20,7 @@ void * taskRunCDH(void * params) {
 	ModeManager * modeManager = dynamic_cast<ModeManager *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 
-	logger->Log("taskRunCDH", LOGGER_LEVEL_INFO);
+	logger->Log(LOGGER_LEVEL_INFO, "taskRunCDH");
 
 	modeManager->Attach(*cdhServer);
 
@@ -29,12 +29,12 @@ void * taskRunCDH(void * params) {
 		usleep(1000000);
 	}
 
-	logger->Log("Kicking off the CDH server", LOGGER_LEVEL_INFO);
+	logger->Log(LOGGER_LEVEL_INFO, "Kicking off the CDH server");
 
 	bool handlers = cdhServer->RegisterHandlers();
 	if(!handlers)
 	{
-		logger->Log("Error starting CDH Handlers!", LOGGER_LEVEL_FATAL);
+		logger->Log(LOGGER_LEVEL_FATAL, "Error starting CDH Handlers!");
 	}
 	static_cast<SubsystemServer*>(cdhServer)->SubsystemLoop();
 	pthread_exit(NULL);

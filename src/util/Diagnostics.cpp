@@ -21,7 +21,7 @@ void BusLoadTest(bool enable){
 	if(enable){
 		SPI_HALServer * spiServer = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
 		Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-		logger->Log("Running bus load test", LOGGER_LEVEL_INFO);
+		logger->Log(LOGGER_LEVEL_INFO, "Running bus load test");
 
 		// Test SPI TX Speed
 		ACPPacket * query = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, EPS_NO_RETURN);
@@ -50,7 +50,7 @@ void BusLoadTest(bool enable){
 void SPIStats(bool enable){
 	if(enable){
 		Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-		logger->Log("Running SPI Statistics", LOGGER_LEVEL_INFO);
+		logger->Log(LOGGER_LEVEL_INFO, "Running SPI Statistics");
 
 		SPI_HALServer * spiServer = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
 		uint64 duration = spiServer->ResetStatsTime();
@@ -78,7 +78,7 @@ void SPIStats(bool enable){
 void SampleTest2(bool enable){
 	if(enable){
 		Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-		logger->Log("Running Sample Test 2", LOGGER_LEVEL_INFO);
+		logger->Log(LOGGER_LEVEL_INFO, "Running Sample Test 2");
 
 		FILE * fp = fopen("diagnostic_results.txt", "a+");
 		char results[] = "Ran sample test 2\n";
@@ -90,7 +90,7 @@ void SampleTest2(bool enable){
 void SampleTest3(bool enable){
 	if(enable){
 		Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-		logger->Log("Running Sample Test 3", LOGGER_LEVEL_INFO);
+		logger->Log(LOGGER_LEVEL_INFO, "Running Sample Test 3");
 
 		FILE * fp = fopen("diagnostic_results.txt", "a+");
 		char results[] = "Ran sample test 3\n";

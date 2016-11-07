@@ -82,7 +82,7 @@ using namespace AllStar::Servers;
 int main(int argc, char * argv[])
 {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("Entered Flight Software", LOGGER_LEVEL_FATAL);
+	logger->Log(LOGGER_LEVEL_FATAL, "Entered Flight Software");
 
 	mq_unlink("/queueHandleSPITX");
 	mq_unlink("/queueHandleRX");
@@ -95,7 +95,7 @@ int main(int argc, char * argv[])
 
 	modeManager->SetMode(MODE_STARTUP);
 
-	logger->Log("Flight software initialization complete! Starting servers!", LOGGER_LEVEL_FATAL);
+	logger->Log(LOGGER_LEVEL_FATAL, "Flight software initialization complete! Starting servers!");
 
 	// ----------------------------- Grab Server Instances ---------------------------------------------------------
 	// TODO: more efficient way to do this? (ie. SubsystemServer array and no dynamic casting >>> one for loop?)
@@ -124,16 +124,16 @@ int main(int argc, char * argv[])
 	threadsCreated &= WatchdogManager::StartServer(spiServer, 0,	true);	 //SPI
 
 	if(!threadsCreated){
-		logger->Log("Not all threads were created on startup!", LOGGER_LEVEL_FATAL);
+		logger->Log(LOGGER_LEVEL_FATAL, "Not all threads were created on startup!");
 		// TODO: do something?
 	}else{
-		logger->Log("All servers created!", LOGGER_LEVEL_INFO);
+		logger->Log(LOGGER_LEVEL_INFO, "All servers created!");
 	}
 
 	WatchdogManager::WatchdogManagerTask();
 	//while(true){usleep(100000);}
 
-	logger->Log("Flight Software exiting from main! All relevant threads have exited!", LOGGER_LEVEL_FATAL);
+	logger->Log(LOGGER_LEVEL_FATAL, "Flight Software exiting from main! All relevant threads have exited!");
 
 	return 42;
 }
