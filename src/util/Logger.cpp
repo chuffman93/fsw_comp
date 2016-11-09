@@ -36,11 +36,10 @@ Logger::~Logger(void){
 }
 
 // TODO: The logging class should have the ability to output to the screen, a file, or both
-
-void Logger::Log(LoggerLevelType level_in, char const * fmt, ...){
+void Logger::Log(LoggerLevelType level_in, LogFile dest, char const * fmt, ...){
 
 	if(level_in >= threshold){
-		GetInfo(level_in);
+		PrintInfo(level_in);
 
 		char buff[50];
 		va_list args;
@@ -49,13 +48,30 @@ void Logger::Log(LoggerLevelType level_in, char const * fmt, ...){
 		va_end(args);
 
 		// Display the message
-		printf(buff);
+		printf("%s\n", buff);
 
 		// Print the message to the appropriate file
+
 	}
 }
 
-void Logger::GetInfo(LoggerLevelType level_in){
+
+void Logger::Log(LoggerLevelType level_in, char const * fmt, ...){
+	// Overloaded Log with no specified file destination, default to general
+
+	char buff[50];
+	va_list args;
+	va_start(args, fmt);
+	vsprintf(buff, fmt, args);
+	va_end(args);
+
+	// Log to the general file
+	Log(level_in, LOG_FILE_GENERAL, buff);
+
+	}
+}
+
+void Logger::PrintInfo(LoggerLevelType level_in){
 	printf("(%lld)", getTimeInMillis());
 	printf("[TID: %lu] ", pthread_self());
 
