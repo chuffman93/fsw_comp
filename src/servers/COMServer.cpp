@@ -76,6 +76,7 @@ bool COMServer::RegisterHandlers(){
 	return success;
 }
 
+// TODO: ultimately remove Half and Full Duplex states and have a struct to track those COM states through H&S
 // -------------------------------------------- State Machine ---------------------------------------------
 void COMServer::loopInit(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
@@ -86,11 +87,10 @@ void COMServer::loopInit(){
 
 	if(COMTestAlive()){
 		// Debug LED initialization
-		COMToggleLED(true);
-		usleep(1000000);
-		COMBlinkRate(1000);
-		usleep(1000000);
-		COMLEDData();
+		if(!COMSelfCheck()){
+			logger->Log("COM failed self check!", LOGGER_LEVEL_FATAL);
+		}
+		logger->Log("COM passed self check", LOGGER_LEVEL_INFO);
 
 		currentState = ST_IDLE;
 	}else{
@@ -101,9 +101,7 @@ void COMServer::loopInit(){
 void COMServer::loopIdle(){
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
-	uint64 startTime = getTimeInMillis();
-
-	COMFullDuplex();
+	int64 startTime = getTimeInMillis();
 
 	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_EPS]){
 		currentState = ST_INIT;
@@ -124,13 +122,21 @@ void COMServer::loopIdle(){
 
 void COMServer::loopCOMStart(){
 	if(COMHalfDuplex()){
-		currentState = ST_COM;
+		currentState = ST_COM_HALF;
 	}else{
 		currentState = ST_IDLE;
 	}
 }
 
-void COMServer::loopCOM(){
+void COMServer::loopCOMHalf(){
+	if(COMFullDuplex()){
+		currentState = ST_COM_FULL;
+	}else{
+		currentState = ST_IDLE;
+	}
+}
+
+void COMServer::loopCOMFull(){
 	ModeManager * modeManager = dynamic_cast<ModeManager *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
@@ -151,7 +157,7 @@ void COMServer::loopCOMStop(){
 }
 
 void COMServer::loopDiagnostic(){
-	uint64 lastWake = getTimeInMillis();
+	int64 lastWake = getTimeInMillis();
 
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	if(modeManager->GetMode() != MODE_DIAGNOSTIC){

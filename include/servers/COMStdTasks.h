@@ -23,7 +23,7 @@ namespace Servers{
 // Debug
 bool COMToggleLED(bool state);
 bool COMBlinkRate(uint16 rate);
-bool COMLEDData();
+int COMLEDData();
 
 // Diagnostic
 bool COMTestAlive();
@@ -32,6 +32,9 @@ bool COMTestAlive();
 bool COMSimplex();
 bool COMHalfDuplex();
 bool COMFullDuplex();
+
+// Non-opcode standard tasks
+bool COMSelfCheck();
 
 }
 }

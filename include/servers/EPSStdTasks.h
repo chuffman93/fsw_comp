@@ -18,7 +18,7 @@ namespace Servers{
 // Debug
 bool EPSToggleLED(bool state);
 bool EPSBlinkRate(uint16 rate);
-bool EPSLEDData();
+int EPSLEDData();
 
 // Diagnostic
 bool EPSTestAlive();
@@ -26,6 +26,9 @@ bool EPSTestAlive();
 // Command/Data
 void EPSHealthStat();
 void EPSPowerCycle();
+
+// Non-opcode standard tasks
+bool EPSSelfCheck();
 
 }
 }

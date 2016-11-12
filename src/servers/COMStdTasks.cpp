@@ -42,7 +42,7 @@ bool COMToggleLED(bool state){
 	}
 
 	if(ret->isSuccess()){
-		logger->Log("COM LED Toggle successful", LOGGER_LEVEL_INFO);
+		logger->Log("COM LED Toggle successful", LOGGER_LEVEL_DEBUG);
 		return true;
 	}else{
 		logger->Log("COM LED Toggle failed", LOGGER_LEVEL_WARN);
@@ -65,7 +65,7 @@ bool COMBlinkRate(uint16 rate){
 	}
 
 	if(ret->isSuccess()){
-		logger->Log("COM LED set rate successful", LOGGER_LEVEL_INFO);
+		logger->Log("COM LED set rate successful", LOGGER_LEVEL_DEBUG);
 		return true;
 	}else{
 		logger->Log("COM LED set rate failed", LOGGER_LEVEL_WARN);
@@ -73,7 +73,7 @@ bool COMBlinkRate(uint16 rate){
 	}
 }
 
-bool COMLEDData(){
+int COMLEDData(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	ACPPacket * query = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, LED_RATE_DATA);
@@ -96,9 +96,9 @@ bool COMLEDData(){
 		uint8 * msgPtr = ret->getMessageBuff();
 		uint8 powerStatus = GetUInt8(msgPtr++);
 		uint16 result = GetUInt16(msgPtr);
-		logger->Log("COM LED power state: %u", powerStatus, LOGGER_LEVEL_INFO);
-		logger->Log("COM LED blink rate:  %u", result, LOGGER_LEVEL_INFO);
-		return true;
+		logger->Log("COM LED power state: %u", powerStatus, LOGGER_LEVEL_DEBUG);
+		logger->Log("COM LED blink rate:  %u", result, LOGGER_LEVEL_DEBUG);
+		return (powerStatus + result);
 	}
 }
 
@@ -110,7 +110,7 @@ bool COMTestAlive(){
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret->isSuccess()){
-		logger->Log("COM is alive", LOGGER_LEVEL_INFO);
+		logger->Log("COM is alive", LOGGER_LEVEL_DEBUG);
 		return true;
 	}else{
 		logger->Log("COM is not alive", LOGGER_LEVEL_FATAL);
@@ -170,6 +170,19 @@ bool COMFullDuplex(){
 //
 //	return HSRet;
 //}
+
+// Non-opcode tasks
+bool COMSelfCheck(){
+	if(!COMToggleLED(true))
+		return false;
+	usleep(1000000);
+	if(!COMBlinkRate(1000))
+		return false;
+	usleep(1000000);
+	if(!(COMLEDData() == 1001))
+		return false;
+	return true;
+}
 
 }
 }

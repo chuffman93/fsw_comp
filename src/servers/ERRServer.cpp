@@ -88,7 +88,7 @@ void ERRServer::SubsystemLoop(void)
 	//Check if there are errors in the queue.
 	ACPPacket * error;
 	size_t num = 0;
-	uint64_t LastWakeTime = 0;
+	int64 LastWakeTime = 0;
 	while(1)
 	{
 		while(Listen(id));

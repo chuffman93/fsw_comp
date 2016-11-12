@@ -98,12 +98,12 @@ ACPPacket::ACPPacket(uint8 * buffer, std::size_t size_in){
 		return;
 	}
 
-	printf("RX Packet: ");
-	for(uint16_t i = 0; i < size_in; i++)
-	{
-		printf("0x%02x ",buffer[i]);
-	}
-	printf("\n");
+//	printf("RX Packet: ");
+//	for(uint16_t i = 0; i < size_in; i++)
+//	{
+//		printf("0x%02x ",buffer[i]);
+//	}
+//	printf("\n");
 
 	// Get the source
 	sync = buffer[0];
@@ -169,7 +169,7 @@ ACPPacket::ACPPacket(uint8 * buffer, std::size_t size_in){
 	}else{
 		errorStatus = buffer[0];
 		logger->Log("ACPPacket: error status: %u", (uint32) errorStatus, LOGGER_LEVEL_DEBUG);
-		success = (errorStatus == 0);
+		success = (errorStatus == 0 || errorStatus == 0xAB); // 0xAB = unimplemented (ignore for development, TODO: RBF)
 		buffer += 1;
 		size -=1;
 	}

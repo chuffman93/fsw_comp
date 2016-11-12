@@ -20,7 +20,7 @@ namespace Servers{
 // Debug
 bool ACSToggleLED(bool state);
 bool ACSBlinkRate(uint16 rate);
-bool ACSLEDData();
+int ACSLEDData();
 
 // Diagnostic
 bool ACSTestAlive();
@@ -32,6 +32,9 @@ bool ACSPointSun();
 bool ACSPointNadir();
 bool ACSPointGND();
 bool ACSPointDest();
+
+// Non-opcode tasks
+bool ACSSelfCheck();
 
 }
 }

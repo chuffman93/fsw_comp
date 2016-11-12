@@ -59,7 +59,7 @@ void SPI_HALServer::SubsystemLoop(void)
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	ACPPacket * rxPacket;
 	struct pollfd fds;
-	int enterTime;
+	int64 enterTime;
 	int slave_fd;
 	int nbytes;
 	int queueSize;
@@ -95,7 +95,7 @@ void SPI_HALServer::SubsystemLoop(void)
 					packetsSentTX[dest-1]++; // increment packets sent counter for that subsystem
 					bytesSentTX[dest-1] += txPacket->getLength() + 8;
 					if(SPIDispatch(*txPacket)){
-						logger->Log("SPI_HAL Server: Successfully dispatched packet", LOGGER_LEVEL_INFO);
+						logger->Log("SPI_HAL Server: Successfully dispatched packet", LOGGER_LEVEL_DEBUG);
 					}else{
 						// TODO: send error to RX queue?
 						logger->Log("SPI_HAL Server: " "\x1b[33m" "Packet dispatch failed!" "\x1b[0m", LOGGER_LEVEL_WARN);
@@ -139,7 +139,7 @@ void SPI_HALServer::SubsystemLoop(void)
 					Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 					queueSize = mq_size(dispatcher->queueHandleRX, dispatcher->queueAttrRX);
 					if(queueSize < DISPATCHER_QUEUE_LENGTH){
-						logger->Log("SPI_Server: placing RX message on dispatcher RX queue", LOGGER_LEVEL_INFO);
+						logger->Log("SPI_Server: placing RX message on dispatcher RX queue", LOGGER_LEVEL_DEBUG);
 						queueSuccess = mq_timed_send(dispatcher->queueNameRX, &rxPacket, MAX_BLOCK_TIME, 0);
 					}else{
 						logger->Log("SPI_Server: RX queue full!", LOGGER_LEVEL_FATAL);
@@ -318,15 +318,6 @@ int SPI_HALServer::spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_bufp){
 			logger->Log("spi_read: byte value: ------------- 0x%x", rx, LOGGER_LEVEL_SUPER_DEBUG);
 			buf_pt++;
 		}
-
-//		fds->fd = fd;
-//		fds->events = POLLPRI;
-//		retval = poll(fds, 1, timeout);
-//		if(!(fds->revents & POLLPRI) || retval == 0){
-//			logger->Log("Poll timeout!", LOGGER_LEVEL_ERROR);
-//			return 0;
-//		}
-//		read(fds->fd, &clearBuf, 1);
 
 		*rx_bufp = rx_buf;
 		return buf_pt;

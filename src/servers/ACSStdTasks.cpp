@@ -43,7 +43,7 @@ bool ACSToggleLED(bool state){
 	}
 
 	if(ret->isSuccess()){
-		logger->Log("ACS LED Toggle successful", LOGGER_LEVEL_INFO);
+		logger->Log("ACS LED Toggle successful", LOGGER_LEVEL_DEBUG);
 		return true;
 	}else{
 		logger->Log("ACS LED Toggle failed", LOGGER_LEVEL_WARN);
@@ -66,7 +66,7 @@ bool ACSBlinkRate(uint16 rate){
 	}
 
 	if(ret->isSuccess()){
-		logger->Log("ACS LED set rate successful", LOGGER_LEVEL_INFO);
+		logger->Log("ACS LED set rate successful", LOGGER_LEVEL_DEBUG);
 		return true;
 	}else{
 		logger->Log("ACS LED set rate failed", LOGGER_LEVEL_WARN);
@@ -74,7 +74,7 @@ bool ACSBlinkRate(uint16 rate){
 	}
 }
 
-bool ACSLEDData(){
+int ACSLEDData(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	ACPPacket * query = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, LED_RATE_DATA);
@@ -97,9 +97,9 @@ bool ACSLEDData(){
 		uint8 * msgPtr = ret->getMessageBuff();
 		uint8 powerStatus = GetUInt8(msgPtr++);
 		uint16 result = GetUInt16(msgPtr);
-		logger->Log("ACS LED power state: %u", powerStatus, LOGGER_LEVEL_INFO);
-		logger->Log("ACS LED blink rate:  %u", result, LOGGER_LEVEL_INFO);
-		return true;
+		logger->Log("ACS LED power state: %u", powerStatus, LOGGER_LEVEL_DEBUG);
+		logger->Log("ACS LED blink rate:  %u", result, LOGGER_LEVEL_DEBUG);
+		return (powerStatus + result);
 	}
 }
 
@@ -111,7 +111,7 @@ bool ACSTestAlive(){
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret->isSuccess()){
-		logger->Log("ACS is alive", LOGGER_LEVEL_INFO);
+		logger->Log("ACS is alive", LOGGER_LEVEL_DEBUG);
 		return true;
 	}else{
 		logger->Log("ACS is not alive", LOGGER_LEVEL_FATAL);
@@ -190,6 +190,19 @@ bool ACSPointDest(){
 	ACPPacket * response = DispatchPacket(command);
 
 	return(response->isSuccess());
+}
+
+// Non-opcode tasks
+bool ACSSelfCheck(){
+	if(!ACSToggleLED(true))
+		return false;
+	usleep(1000000);
+	if(!ACSBlinkRate(1000))
+		return false;
+	usleep(1000000);
+	if(!(ACSLEDData() == 1001))
+		return false;
+	return true;
 }
 
 }

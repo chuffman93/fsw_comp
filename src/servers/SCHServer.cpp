@@ -93,7 +93,7 @@ void SCHServer::SubsystemLoop(void)
 
 	while(1)
 	{
-		uint64_t LastWakeTime = getTimeInMillis();
+		int64 LastWakeTime = getTimeInMillis();
 		wdm->Kick();
 		if(currentSchedule.empty()){
 			logger->Log("Fetching Next Schedule", LOGGER_LEVEL_INFO);

@@ -148,7 +148,7 @@ void PLDServer::loopScience(){
 }
 
 void PLDServer::loopDiagnostic(){
-	uint64 lastWake = getTimeInMillis();
+	int64 lastWake = getTimeInMillis();
 
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	if(modeManager->GetMode() != MODE_DIAGNOSTIC){

@@ -145,7 +145,7 @@ void CDHServer::loopInit(){
 }
 
 void CDHServer::loopMonitor(){
-	uint64 lastWake = getTimeInMillis();
+	int64 lastWake = getTimeInMillis();
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	uint8 readFrequency = 5;
 
@@ -159,7 +159,7 @@ void CDHServer::loopMonitor(){
 }
 
 void CDHServer::loopDiagnostic(){
-	uint64 lastWake = getTimeInMillis();
+	int64 lastWake = getTimeInMillis();
 
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	if(modeManager->GetMode() != MODE_DIAGNOSTIC){

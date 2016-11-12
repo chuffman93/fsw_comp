@@ -75,12 +75,11 @@ void ACSServer::loopInit(){
 	usleep(1000000);
 
 	if(ACSTestAlive()){
-		// Debug LED initialization
-		ACSToggleLED(true);
-		usleep(1000000);
-		ACSBlinkRate(1000);
-		usleep(1000000);
-		ACSLEDData();
+		if(!ACSSelfCheck()){
+			logger->Log("ACS failed self check!", LOGGER_LEVEL_FATAL);
+		}
+
+		logger->Log("ACS passed self check", LOGGER_LEVEL_INFO);
 
 		currentState = ST_DISABLED;
 	}else{
@@ -98,7 +97,7 @@ void ACSServer::loopDisabled(){
 		}
 	}
 
-	uint64 wakeTime = getTimeInMillis();
+	int64 wakeTime = getTimeInMillis();
 	if(modeManager->GetMode() == MODE_COM)
 		currentState = ST_COM_START;
 
@@ -136,7 +135,7 @@ void ACSServer::loopPLDPointing(){
 		currentState = ST_INIT;
 	}
 
-	uint64 lastWake = getTimeInMillis();
+	int64 lastWake = getTimeInMillis();
 
 	ACSHealthStatus();
 	ACSSendGPS();
@@ -169,7 +168,7 @@ void ACSServer::loopCOMPointing(){
 		currentState = ST_INIT;
 	}
 
-	uint64 lastWake = getTimeInMillis();
+	int64 lastWake = getTimeInMillis();
 
 	ACSHealthStatus();
 	ACSSendGPS();
@@ -185,7 +184,7 @@ void ACSServer::loopCOMStop(){
 }
 
 void ACSServer::loopDiagnostic(){
-	uint64 lastWake = getTimeInMillis();
+	int64 lastWake = getTimeInMillis();
 
 	ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	if(modeManager->GetMode() != MODE_DIAGNOSTIC){

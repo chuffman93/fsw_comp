@@ -87,7 +87,7 @@ bool EPSBlinkRate(uint16 rate){
 	}
 }
 
-bool EPSLEDData(){
+int EPSLEDData(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	ACPPacket * query = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, LED_RATE_DATA);
@@ -112,7 +112,7 @@ bool EPSLEDData(){
 		uint16 result = GetUInt16(msgPtr);
 		logger->Log("EPS LED power state: %u", powerStatus, LOGGER_LEVEL_INFO);
 		logger->Log("EPS LED blink rate:  %u", result, LOGGER_LEVEL_INFO);
-		return true;
+		return (powerStatus + result);
 	}
 }
 
@@ -202,6 +202,19 @@ void EPSPowerCycle()
 	// if we are here then the power cycle likely didn't happen
 	logger->Log("Power didn't cycle!", LOGGER_LEVEL_FATAL);
 	// TODO: add more handling here!
+}
+
+// Non-opcode tasks
+bool EPSSelfCheck(){
+	if(!EPSToggleLED(true))
+		return false;
+	usleep(1000000);
+	if(!EPSBlinkRate(1000))
+		return false;
+	usleep(1000000);
+	if(!(EPSLEDData() == 1001))
+		return false;
+	return true;
 }
 
 } // End namespace Servers

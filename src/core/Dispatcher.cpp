@@ -397,12 +397,12 @@ uint32_t Dispatcher::DispatchToHardware(ACPPacket & packet)
 		return -2;
 	}
 
-	printf("TX Packet: ");
-	for(uint16_t i = 0; i < packetLength; i++)
-	{
-		printf("0x%02x ",packetBuffer[i]);
-	}
-	printf("\n");
+//	printf("TX Packet: ");
+//	for(uint16_t i = 0; i < packetLength; i++)
+//	{
+//		printf("0x%02x ",packetBuffer[i]);
+//	}
+//	printf("\n");
 
 	// get the instances for the Ethernet and SPI Servers
 	//ETH_HALServer * eth_server = dynamic_cast<ETH_HALServer *> (Factory::GetInstance(ETH_HALSERVER_SINGLETON));
@@ -419,7 +419,7 @@ uint32_t Dispatcher::DispatchToHardware(ACPPacket & packet)
 			if(true == this->TakeLock(MAX_BLOCK_TIME)){
 				numPackets = mq_size(spi_server->queueHandleTX, spi_server->queueAttrTX);
 				if(numPackets < DISPATCHER_QUEUE_LENGTH){ // same length as all queues
-					logger->Log("Dispatcher: Placing message on SPI queue", LOGGER_LEVEL_INFO);
+					logger->Log("Dispatcher: Placing message on SPI queue", LOGGER_LEVEL_DEBUG);
 					sendSuccess = mq_timed_send(spi_server->queueNameSPITX, &txPacket, MAX_BLOCK_TIME, 0);
 					this->GiveLock();
 				}else{

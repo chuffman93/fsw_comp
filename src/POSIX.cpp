@@ -130,24 +130,13 @@ bool xSemaphoreGive(sem_t *sem)
 	return false;
 }
 
-
-void waitUntil(int LastTimeTick, int waitTimeMS)
-{
-
-
-	clock_t this_time = getTimeInMillis();
-	clock_t last_time = this_time;
-	double time_counter = (this_time - LastTimeTick);
-
-	while(time_counter < (waitTimeMS))
-	{
-		this_time = getTimeInMillis();
-
-		time_counter += (this_time - last_time);
-
-		last_time =  this_time;
+// Function not exact,
+void waitUntil(int64 lastTimeTick, int waitTimeMS){
+	int64 target = getTimeInMillis() + waitTimeMS;
+	int64 difference = target - lastTimeTick;
+	if(difference > 0){
+		usleep(difference*1000);
 	}
-
 }
 
 //TODO: find a reasonable amount of time to wait to lock the mutex

@@ -87,7 +87,8 @@ private:
 	void loopInit();
 	void loopIdle();
 	void loopCOMStart();
-	void loopCOM();
+	void loopCOMHalf();
+	void loopCOMFull();
 	void loopCOMStop();
 	void loopDiagnostic();
 
@@ -95,7 +96,8 @@ private:
 	STATE_MAP_ENTRY(&COMServer::loopInit)
 	STATE_MAP_ENTRY(&COMServer::loopIdle)
 	STATE_MAP_ENTRY(&COMServer::loopCOMStart)
-	STATE_MAP_ENTRY(&COMServer::loopCOM)
+	STATE_MAP_ENTRY(&COMServer::loopCOMHalf)
+	STATE_MAP_ENTRY(&COMServer::loopCOMFull)
 	STATE_MAP_ENTRY(&COMServer::loopCOMStop)
 	STATE_MAP_ENTRY(&COMServer::loopDiagnostic)
 	END_STATE_MAP
@@ -104,7 +106,8 @@ private:
 		ST_INIT = 0,
 		ST_IDLE,
 		ST_COM_START,
-		ST_COM,
+		ST_COM_HALF,
+		ST_COM_FULL,
 		ST_COM_STOP,
 		ST_DIAGNOSTIC
 		// BEACON, RX, TX ...

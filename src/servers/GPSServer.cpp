@@ -105,7 +105,7 @@ void GPSServer::SubsystemLoop(void){
 	logger->Log("GPSServer: created port", LOGGER_LEVEL_INFO);
 
 	while(1){
-		uint64_t LastWakeTime = getTimeInMillis();
+		int64 LastWakeTime = getTimeInMillis();
 		wdm->Kick();
 
 		// if the GPS has been powered off due to a fault, restart it.
