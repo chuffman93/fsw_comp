@@ -96,8 +96,8 @@ int COMLEDData(){
 		uint8 * msgPtr = ret->getMessageBuff();
 		uint8 powerStatus = GetUInt8(msgPtr++);
 		uint16 result = GetUInt16(msgPtr);
-		logger->Log("COM LED power state: %u", powerStatus, LOGGER_LEVEL_DEBUG);
-		logger->Log("COM LED blink rate:  %u", result, LOGGER_LEVEL_DEBUG);
+		logger->Log(LOGGER_LEVEL_DEBUG, "COM LED power state: %u", powerStatus);
+		logger->Log(LOGGER_LEVEL_DEBUG, "COM LED blink rate:  %u", result);
 		return (powerStatus + result);
 	}
 }

@@ -25,7 +25,7 @@ namespace Servers{
 ACPPacket * DispatchPacket(ACPPacket * query)
 {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log(LOGGER_LEVEL_DEBUG, "DispatchStdTasks: DispatchPacket() Called with ACPPacket", );
+	logger->Log(LOGGER_LEVEL_DEBUG, "DispatchStdTasks: DispatchPacket() Called with ACPPacket");
 
 	//check inputs
 	LocationIDType source = query->getSource();

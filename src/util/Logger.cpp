@@ -41,7 +41,7 @@ void Logger::Log(LoggerLevelType level_in, char const * fmt, ...){
 	if(level_in >= threshold){
 		PrintInfo(level_in);
 
-		char buff[50];
+		char buff[500];
 		va_list args;
 		va_start(args, fmt);
 		vsprintf(buff, fmt, args);
@@ -53,6 +53,9 @@ void Logger::Log(LoggerLevelType level_in, char const * fmt, ...){
 		// Print the message to the appropriate file
 
 	}
+}
+void Logger::Log(char const * fmt, LoggerLevelType level_in){
+	Log(level_in, fmt);
 }
 
 

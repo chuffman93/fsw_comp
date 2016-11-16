@@ -76,14 +76,14 @@ void ACSServer::loopInit(){
 
 	if(ACSTestAlive()){
 		if(!ACSSelfCheck()){
-			logger->Log("ACS failed self check!", LOGGER_LEVEL_FATAL);
+			logger->Log(LOGGER_LEVEL_FATAL, "ACS failed self check!");
 		}
 
-		logger->Log("ACS passed self check", LOGGER_LEVEL_INFO);
+		logger->Log(LOGGER_LEVEL_INFO, "ACS passed self check");
 
 		currentState = ST_DISABLED;
 	}else{
-		logger->Log("ACS non-responsive in init", LOGGER_LEVEL_FATAL);
+		logger->Log(LOGGER_LEVEL_FATAL, "ACS non-responsive in init");
 	}
 }
 

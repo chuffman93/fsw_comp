@@ -168,7 +168,7 @@ ACPPacket::ACPPacket(uint8 * buffer, std::size_t size_in){
 		return;
 	}else{
 		errorStatus = buffer[0];
-		logger->Log("ACPPacket: error status: %u", (uint32) errorStatus, LOGGER_LEVEL_DEBUG);
+		logger->Log(LOGGER_LEVEL_DEBUG, "ACPPacket: error status: %u", (uint32) errorStatus);
 		success = (errorStatus == 0 || errorStatus == 0xAB); // 0xAB = unimplemented (ignore for development, TODO: RBF)
 		buffer += 1;
 		size -=1;

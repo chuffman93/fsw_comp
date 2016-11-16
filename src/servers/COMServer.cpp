@@ -88,13 +88,13 @@ void COMServer::loopInit(){
 	if(COMTestAlive()){
 		// Debug LED initialization
 		if(!COMSelfCheck()){
-			logger->Log("COM failed self check!", LOGGER_LEVEL_FATAL);
+			logger->Log(LOGGER_LEVEL_FATAL, "COM failed self check!");
 		}
-		logger->Log("COM passed self check", LOGGER_LEVEL_INFO);
+		logger->Log(LOGGER_LEVEL_INFO, "COM passed self check");
 
 		currentState = ST_IDLE;
 	}else{
-		logger->Log("COM non-responsive in init", LOGGER_LEVEL_FATAL);
+		logger->Log(LOGGER_LEVEL_FATAL, "COM non-responsive in init");
 	}
 }
 

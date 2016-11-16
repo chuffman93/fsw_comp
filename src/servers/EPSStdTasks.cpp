@@ -78,32 +78,12 @@ bool EPSBlinkRate(uint16 rate){
 		return false;
 	}
 
-<<<<<<< HEAD
-	if(ret->getLength() != sizeof(uint8)){
-		logger->Log(LOGGER_LEVEL_WARN, "EPSStdTasks: Incorrect blink rate return length");
-		return false;
-	}else{
-		if(ret->getMessageBuff() == NULL){
-			logger->Log(LOGGER_LEVEL_WARN, "EPSStdTasks: NULL blink rate message buffer");
-			return false;
-		}
-
-		uint8 result = GetUInt8(ret->getMessageBuff());
-		if(result == 1){
-			logger->Log(LOGGER_LEVEL_INFO, "EPS blink rate successful");
-			return true;
-		}else{
-			logger->Log(LOGGER_LEVEL_WARN, "EPS blink rate failed");
-			return false;
-		}
-=======
 	if(ret->isSuccess()){
-		logger->Log("EPS LED set rate successful", LOGGER_LEVEL_INFO);
+		logger->Log(LOGGER_LEVEL_INFO, "EPS LED set rate successful");
 		return true;
 	}else{
-		logger->Log("EPS LED set rate failed", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "EPS LED set rate failed");
 		return false;
->>>>>>> 8715aa904ea1ff27c4ff342a6b793c0b62862270
 	}
 }
 
@@ -118,13 +98,8 @@ int EPSLEDData(){
 		return false;
 	}
 
-<<<<<<< HEAD
-	if(ret->getLength() != sizeof(uint16)){
-		logger->Log(LOGGER_LEVEL_WARN, "EPSStdTasks: Incorrect LED data return length");
-=======
 	if(ret->getLength() != 3){
-		logger->Log("EPSStdTasks: Incorrect LED data return length", LOGGER_LEVEL_WARN);
->>>>>>> 8715aa904ea1ff27c4ff342a6b793c0b62862270
+		logger->Log(LOGGER_LEVEL_WARN, "EPSStdTasks: Incorrect LED data return length");
 		return false;
 	}else{
 		if(ret->getMessageBuff() == NULL){
@@ -132,46 +107,29 @@ int EPSLEDData(){
 			return false;
 		}
 
-<<<<<<< HEAD
-		uint16 result = GetUInt16(ret->getMessageBuff());
-		logger->Log(LOGGER_LEVEL_INFO, "LED blink rate: %u", result);
-		return true;
-=======
 		uint8 * msgPtr = ret->getMessageBuff();
 		uint8 powerStatus = GetUInt8(msgPtr++);
 		uint16 result = GetUInt16(msgPtr);
-		logger->Log("EPS LED power state: %u", powerStatus, LOGGER_LEVEL_INFO);
-		logger->Log("EPS LED blink rate:  %u", result, LOGGER_LEVEL_INFO);
+		logger->Log(LOGGER_LEVEL_INFO, "EPS LED power state: %u", powerStatus);
+		logger->Log(LOGGER_LEVEL_INFO, "EPS LED blink rate:  %u", result);
 		return (powerStatus + result);
->>>>>>> 8715aa904ea1ff27c4ff342a6b793c0b62862270
 	}
 }
 
 // Diagnostic
 bool EPSTestAlive(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-<<<<<<< HEAD
-	logger->Log(LOGGER_LEVEL_ERROR, "EPSTestAlive: unfinished!");
-	return NULL;
-}
-
-ACPPacket * EPSNoReturn(){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log(LOGGER_LEVEL_ERROR, "EPSNoReturn: unfinished!");
-	return NULL;
-=======
 
 	ACPPacket * query = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, TEST_ALIVE_CMD);
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret->isSuccess()){
-		logger->Log("EPS is alive", LOGGER_LEVEL_INFO);
+		logger->Log(LOGGER_LEVEL_INFO, "EPS is alive");
 		return true;
 	}else{
-		logger->Log("EPS is not alive", LOGGER_LEVEL_FATAL);
+		logger->Log(LOGGER_LEVEL_FATAL, "EPS is not alive");
 		return false;
 	}
->>>>>>> 8715aa904ea1ff27c4ff342a6b793c0b62862270
 }
 
 // Command/Data
@@ -181,10 +139,6 @@ void EPSHealthStat()
 
 	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, HEALTH_STATUS_CMD);
 	ACPPacket * HSRet = DispatchPacket(HSQuery);
-<<<<<<< HEAD
-	logger->Log(LOGGER_LEVEL_INFO, "EPSStdTasks: EPSHealthStat(): packet dispatched, HSRet acquired");
-=======
->>>>>>> 8715aa904ea1ff27c4ff342a6b793c0b62862270
 
 	if(HSRet == NULL){
 		logger->Log(LOGGER_LEVEL_ERROR, "EPSStdTasks: NULL HSRet");
@@ -246,7 +200,7 @@ void EPSPowerCycle()
 	usleep(5000000);
 
 	// if we are here then the power cycle likely didn't happen
-	logger->Log(LOGGER_LEVEL_FATAL, "Power didn't cycle!", );
+	logger->Log(LOGGER_LEVEL_FATAL, "Power didn't cycle!");
 	// TODO: add more handling here!
 }
 

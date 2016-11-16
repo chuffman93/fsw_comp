@@ -75,15 +75,22 @@ typedef enum LoggerLevel
 	LOGGER_LEVEL_FATAL, // fatal errors
 }LoggerLevelType;
 
-enum LogFile
+enum FileHandlerIDEnum
 {
-	LOG_FILE_HEALTH = 1,
-	LOG_FILE_MODE,
-	LOG_FILE_WATCHDOG,
-	LOG_FILE_HOT_SWAP,
-	LOG_FILE_RAD,
-	LOG_FILE_DIAGNOSTICS,
-	LOG_FILE_GENERAL
+	SUBSYSTEM_COM = 1,
+	SUBSYSTEM_EPS,
+	SUBSYSTEM_ACS,
+	SUBSYSTEM_PLD,
+	SUBSYSTEM_GPS,
+	SUBSYSTEM_THM,
+	SUBSYSTEM_SCH,
+	SUBSYSTEM_STR,
+	SUBSYSTEM_CMD,
+	SYSTEM_CDH,
+
+	LOG_ERROR,
+	LOG_MODE,
+	SYSTEM_MAX
 };
 
 // ------------------------------------------------------------ Subsystem OpCodes --------------------------------------------------------
