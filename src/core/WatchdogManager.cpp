@@ -136,7 +136,7 @@ bool WatchdogManager::DeleteTask(PThread *&pThread){
 void * WatchdogManager::WatchdogManagerTask(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	clock_t startTime = getTimeInMillis();
-	clock_t lastWakeTime = startTime;
+	int64 lastWakeTime = startTime;
 
 	WatchdogManager * watchdogManager = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 	waitUntil(lastWakeTime, WATCHDOG_MANAGER_DELAY);

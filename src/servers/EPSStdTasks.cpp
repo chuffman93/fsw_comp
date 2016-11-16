@@ -47,7 +47,7 @@ bool EPSToggleLED(bool state){
 		memcpy(buffer, &stateOut, 1);
 	}
 
-	ACPPacket * query = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, EPS_TOGGLE_LED_CMD, 1, buffer);
+	ACPPacket * query = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, LED_ON_CMD, 1, buffer);
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret == NULL){
@@ -55,23 +55,12 @@ bool EPSToggleLED(bool state){
 		return false;
 	}
 
-	if(ret->getLength() != sizeof(uint8)){
-		logger->Log(LOGGER_LEVEL_WARN, "EPSStdTasks: Incorrect Toggle LED return length");
-		return false;
+	if(ret->isSuccess()){
+		logger->Log(LOGGER_LEVEL_INFO, "EPS LED Toggle successful");
+		return true;
 	}else{
-		if(ret->getMessageBuff() == NULL){
-			logger->Log(LOGGER_LEVEL_WARN, "EPSStdTasks: NULL LED Toggle message buffer");
-			return false;
-		}
-
-		uint8 result = GetUInt8(ret->getMessageBuff());
-		if(result == 1){
-			logger->Log(LOGGER_LEVEL_INFO, "EPS LED Toggle successful");
-			return true;
-		}else{
-			logger->Log(LOGGER_LEVEL_WARN, "EPS LED Toggle failed");
-			return false;
-		}
+		logger->Log(LOGGER_LEVEL_WARN, "EPS LED Toggle failed");
+		return false;
 	}
 }
 
@@ -81,7 +70,7 @@ bool EPSBlinkRate(uint16 rate){
 	uint8 * bufferOut = (uint8 *) malloc(sizeof(uint16));
 	AddUInt16(bufferOut, rate);
 
-	ACPPacket * query = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, EPS_LED_BLINK_RATE_CONFIG, 2, bufferOut);
+	ACPPacket * query = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, LED_RATE_CONFIG, 2, bufferOut);
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret == NULL){
@@ -89,6 +78,7 @@ bool EPSBlinkRate(uint16 rate){
 		return false;
 	}
 
+<<<<<<< HEAD
 	if(ret->getLength() != sizeof(uint8)){
 		logger->Log(LOGGER_LEVEL_WARN, "EPSStdTasks: Incorrect blink rate return length");
 		return false;
@@ -106,13 +96,21 @@ bool EPSBlinkRate(uint16 rate){
 			logger->Log(LOGGER_LEVEL_WARN, "EPS blink rate failed");
 			return false;
 		}
+=======
+	if(ret->isSuccess()){
+		logger->Log("EPS LED set rate successful", LOGGER_LEVEL_INFO);
+		return true;
+	}else{
+		logger->Log("EPS LED set rate failed", LOGGER_LEVEL_WARN);
+		return false;
+>>>>>>> 8715aa904ea1ff27c4ff342a6b793c0b62862270
 	}
 }
 
-bool EPSLEDData(){
+int EPSLEDData(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-	ACPPacket * query = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, EPS_LED_DATA);
+	ACPPacket * query = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, LED_RATE_DATA);
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret == NULL){
@@ -120,8 +118,13 @@ bool EPSLEDData(){
 		return false;
 	}
 
+<<<<<<< HEAD
 	if(ret->getLength() != sizeof(uint16)){
 		logger->Log(LOGGER_LEVEL_WARN, "EPSStdTasks: Incorrect LED data return length");
+=======
+	if(ret->getLength() != 3){
+		logger->Log("EPSStdTasks: Incorrect LED data return length", LOGGER_LEVEL_WARN);
+>>>>>>> 8715aa904ea1ff27c4ff342a6b793c0b62862270
 		return false;
 	}else{
 		if(ret->getMessageBuff() == NULL){
@@ -129,15 +132,25 @@ bool EPSLEDData(){
 			return false;
 		}
 
+<<<<<<< HEAD
 		uint16 result = GetUInt16(ret->getMessageBuff());
 		logger->Log(LOGGER_LEVEL_INFO, "LED blink rate: %u", result);
 		return true;
+=======
+		uint8 * msgPtr = ret->getMessageBuff();
+		uint8 powerStatus = GetUInt8(msgPtr++);
+		uint16 result = GetUInt16(msgPtr);
+		logger->Log("EPS LED power state: %u", powerStatus, LOGGER_LEVEL_INFO);
+		logger->Log("EPS LED blink rate:  %u", result, LOGGER_LEVEL_INFO);
+		return (powerStatus + result);
+>>>>>>> 8715aa904ea1ff27c4ff342a6b793c0b62862270
 	}
 }
 
 // Diagnostic
-ACPPacket * EPSTestAlive(){
+bool EPSTestAlive(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+<<<<<<< HEAD
 	logger->Log(LOGGER_LEVEL_ERROR, "EPSTestAlive: unfinished!");
 	return NULL;
 }
@@ -146,6 +159,19 @@ ACPPacket * EPSNoReturn(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_ERROR, "EPSNoReturn: unfinished!");
 	return NULL;
+=======
+
+	ACPPacket * query = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, TEST_ALIVE_CMD);
+	ACPPacket * ret = DispatchPacket(query);
+
+	if(ret->isSuccess()){
+		logger->Log("EPS is alive", LOGGER_LEVEL_INFO);
+		return true;
+	}else{
+		logger->Log("EPS is not alive", LOGGER_LEVEL_FATAL);
+		return false;
+	}
+>>>>>>> 8715aa904ea1ff27c4ff342a6b793c0b62862270
 }
 
 // Command/Data
@@ -153,9 +179,12 @@ void EPSHealthStat()
 {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, EPS_HS_CMD);
+	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, HEALTH_STATUS_CMD);
 	ACPPacket * HSRet = DispatchPacket(HSQuery);
+<<<<<<< HEAD
 	logger->Log(LOGGER_LEVEL_INFO, "EPSStdTasks: EPSHealthStat(): packet dispatched, HSRet acquired");
+=======
+>>>>>>> 8715aa904ea1ff27c4ff342a6b793c0b62862270
 
 	if(HSRet == NULL){
 		logger->Log(LOGGER_LEVEL_ERROR, "EPSStdTasks: NULL HSRet");
@@ -169,6 +198,7 @@ void EPSHealthStat()
 		//PacketProcess(SERVER_LOCATION_EPS, HSRet);
 		return;
 	}else{
+		logger->Log("EPSStdTasks: EPSHealthStat(): packet dispatched, HSRet acquired", LOGGER_LEVEL_INFO);
 		// Parse buffer
 		uint8 * msgPtr = HSRet->getMessageBuff();
 		if(msgPtr==NULL){
@@ -207,10 +237,10 @@ void EPSHealthStat()
 	}
 }
 
-ACPPacket * EPSPowerCycle()
+void EPSPowerCycle()
 {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	ACPPacket * query = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, EPS_POWER_CYCLE);
+	ACPPacket * query = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, SUBSYSTEM_RESET_CMD);
 	ACPPacket * response = DispatchPacket(query);
 
 	usleep(5000000);
@@ -218,6 +248,19 @@ ACPPacket * EPSPowerCycle()
 	// if we are here then the power cycle likely didn't happen
 	logger->Log(LOGGER_LEVEL_FATAL, "Power didn't cycle!", );
 	// TODO: add more handling here!
+}
+
+// Non-opcode tasks
+bool EPSSelfCheck(){
+	if(!EPSToggleLED(true))
+		return false;
+	usleep(1000000);
+	if(!EPSBlinkRate(1000))
+		return false;
+	usleep(1000000);
+	if(!(EPSLEDData() == 1001))
+		return false;
+	return true;
 }
 
 } // End namespace Servers

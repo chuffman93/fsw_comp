@@ -61,7 +61,7 @@ bool xSemaphoreTake(sem_t *sem, size_t sec, uint64_t nSec);
 
 bool xSemaphoreGive(sem_t *sem);
 
-void waitUntil(int LastTimeTick, int waitTime);
+void waitUntil(int64 LastTimeTick, int waitTime);
 
 //TODO: find a reasonable amount of time to wait to lock the mutex
 bool pthread_mutex_timedlock(pthread_mutex_t * lockHandle, int waitTime);

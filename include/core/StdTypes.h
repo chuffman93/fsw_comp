@@ -86,8 +86,64 @@ enum LogFile
 	LOG_FILE_GENERAL
 };
 
-#define OPCODE_ERRORS_MIN		0
-#define OPCODE_ERRORS_MAX		256
+// ------------------------------------------------------------ Subsystem OpCodes --------------------------------------------------------
+
+enum SubsystemOpcodes{
+	// Test Opcodes (0-7)
+	LED_ON_CMD = 0,
+	LED_RATE_CONFIG,
+	LED_RATE_DATA,
+
+	// Diagnostic Opcodes (8-15)
+	TEST_ALIVE_CMD = 8,
+	DIAGNOSTIC_1_CMD = 12,
+	DIAGNOSTIC_2_CMD,
+	DIAGNOSTIC_3_CMD,
+	DIAGNOSTIC_4_CMD,
+
+	// Standard Opcodes (16-31)
+	HEALTH_STATUS_CMD = 16,
+	SUBSYSTEM_RESET_CMD
+};
+
+enum ACSCommandEnum{
+	ACS_OPCODE_MIN = 32,
+	ACS_POINT_NADIR = ACS_OPCODE_MIN,
+	ACS_POINT_DEST,
+	ACS_POINT_SUN,
+	ACS_POINT_GND,
+	ACS_GPS_CMD,
+	ACS_CONFIG
+};
+
+enum COMCommandEnum{
+	COM_OPCODE_MIN = 32,
+	COM_SIMPLEX = COM_OPCODE_MIN,
+	COM_HALF_DUPLEX,
+	COM_FULL_DUPLEX
+};
+
+enum EPSCommandEnum{
+	EPS_OPCODE_MIN = 32,
+	EPS_BATTERY_CONFIG = EPS_OPCODE_MIN
+};
+
+// TODO: update payload opcodes to new scheme
+enum PLDCommandEnum
+{
+	PLD_OPCODE_MIN = 32,
+
+	PLD_DATA_CMD = 8,
+
+	PLD_CONFIG_CLOCK = 16,
+	PLD_CONFIG_MOTOR,
+	PLD_CONFIG_DATA,
+
+	PLD_START_SCIENCE = 32,
+	PLD_STOP_SCIENCE,
+};
+
+// ------------------------------------------------------------------- FSW OpCodes -----------------------------------------------------------
 
 enum CMDCommandEnum
 {
@@ -104,91 +160,6 @@ enum CMDCommandEnum
 	CMD_ACP_ERROR_MAX
 };
 
-enum EPSCommandEnum
-{
-	EPS_CMD_MIN = 0,
-	EPS_TOGGLE_LED_CMD = EPS_CMD_MIN,
-	EPS_LED_BLINK_RATE_CONFIG,
-	EPS_LED_DATA,
-
-	EPS_TEST_ALIVE = 9,
-	EPS_NO_RETURN,
-
-	EPS_HS_CMD = 16,
-	EPS_POWER_CYCLE,
-
-	EPS_BATTERY_CONFIG
-};
-
-enum ACSCommandEnum{
-	ACS_CMD_MIN = 0,
-	ACS_TOGGLE_LED_CMD = ACS_CMD_MIN,
-	ACS_LED_BLINK_RATE_CMD,
-	ACS_LED_DATA,
-
-	ACS_TEST_ALIVE = 9,
-	ACS_NO_RETURN,
-
-	ACS_HS_CMD = 16,
-	ACS_POWER_CYCLE,
-
-	ACS_GPS_CMD = 19,
-
-	ACS_POINT_SUN = 32,
-	ACS_POINT_NADIR,
-	ACS_POINT_GND,
-	ACS_POINT_DEST
-};
-
-enum COMCommandEnum{
-	COM_CMD_MIN = 0,
-	COM_TOGGLE_LED_CMD = COM_CMD_MIN,
-	COM_LED_BLINK_RATE_CONFIG,
-	COM_LED_DATA,
-
-	COM_TEST_ALIVE = 8,
-
-	COM_SIMPLEX = 16,
-	COM_HALF_DUPLEX,
-	COM_FULL_DUPLEX
-
-};
-
-enum OPCODE {
-	OP_HEALTH_STATUS = 0,
-	OP_PAYLOAD_DATA,
-	OP_CONFIG_CLOCK = 16,
-	OP_CONFIG_MOTOR,
-	OP_CONFIG_DATA,
-	OP_START_SCIENCE = 32,
-	OP_STOP_SCIENCE,
-	OP_ERROR_OPCODE = 128,
-};
-
-enum PLDCommandEnum
-{
-	PLD_CMD_MIN = 0,
-	PLD_HS_CMD = PLD_CMD_MIN,
-	PLD_ALIVE_CMD,
-	PLD_NO_RESPONSE_CMD,
-
-	PLD_DATA_CMD = 8,
-
-	PLD_CONFIG_CLOCK = 16,
-	PLD_CONFIG_MOTOR,
-	PLD_CONFIG_DATA,
-
-	PLD_START_SCIENCE = 32,
-	PLD_STOP_SCIENCE,
-
-	PLD_OPCODE_ERROR = 128,
-
-	PLD_HS_SUCCESS = 201,
-	PLD_DATA_SUCCESS,
-
-	PLD_HS_ERROR = 101,
-	PLD_DATA_ERROR
-};
 
 enum SCHCommandEnum
 {

@@ -55,7 +55,7 @@ ACPPacket * MessageHandlerRegistry::Invoke(const ACPPacket & packet)
 
 	if (it == handlerMap.end() || it->second == NULL)
 	{
-		ACPPacket * ret = new ACPPacket(ERROR_OPCODE_UNRECOGNIZED_TYPE);
+		ACPPacket * ret = new ACPPacket(ERROR_OPCODE_UNRECOGNIZED_TYPE, false);
 		return ret;
 	}
 	else

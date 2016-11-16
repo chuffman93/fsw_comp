@@ -2,6 +2,8 @@
  * 	COMStdTasks.h
  * 	Written by: Brian Campuzano
  * 	   Created: 10/20/2012
+ *
+ * 	Updated: Alex St. Clair
  */
 
 #ifndef COMSTDTASKS_H_
@@ -18,8 +20,21 @@
 namespace AllStar{
 namespace Servers{
 
-// \brief Collects health and status from COM.
-AllStar::Core::ACPPacket * COMHealthStatus(void);
+// Debug
+bool COMToggleLED(bool state);
+bool COMBlinkRate(uint16 rate);
+int COMLEDData();
+
+// Diagnostic
+bool COMTestAlive();
+
+// COM-specific
+bool COMSimplex();
+bool COMHalfDuplex();
+bool COMFullDuplex();
+
+// Non-opcode standard tasks
+bool COMSelfCheck();
 
 }
 }

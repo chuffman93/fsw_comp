@@ -35,7 +35,7 @@ ACPPacket * DispatchPacket(ACPPacket * query)
 		|| destination < HARDWARE_LOCATION_MIN || destination >= SERVER_LOCATION_MAX)
 	{
 		logger->Log(LOGGER_LEVEL_ERROR, "DispatcherStdTasks: DispatchPacket(): invalid src/dest!");
-		ACPPacket * ret = new ACPPacket(PACKET_FORMAT_FAIL);
+		ACPPacket * ret = new ACPPacket(PACKET_FORMAT_FAIL, INVALID_PACKET);
 		delete query;
 		return ret;
 	}
@@ -49,8 +49,8 @@ ACPPacket * DispatchPacket(ACPPacket * query)
 	//Dispatch packet, if it fails return DISPATCH_FAILED
 	if(!dispatcher->Dispatch(*query))
 	{
-		logger->Log(LOGGER_LEVEL_WARN, "DispatchStdTasks: Failed to dispatch packet\n);
-		ACPPacket * ret = new ACPPacket(DISPATCH_FAILED);
+		logger->Log(LOGGER_LEVEL_WARN, "DispatchStdTasks: Failed to dispatch packet\n");
+		ACPPacket * ret = new ACPPacket(DISPATCH_FAILED, FAILED_DISPATCH);
 		delete query;
 		return ret;
 	}
@@ -62,7 +62,7 @@ ACPPacket * DispatchPacket(ACPPacket * query)
 	if(DISPATCHER_STATUS_OK != (stat = WaitForDispatchResponse(*query, &response)))
 	{
 		logger->Log(LOGGER_LEVEL_WARN, "DispatchStdTasks: Did not receive response\n");
-		ACPPacket * ret = new ACPPacket(DISPATCHER_STATUS_ERR);
+		ACPPacket * ret = new ACPPacket(DISPATCHER_STATUS_ERR, NO_RESPONSE);
 		delete query;
 		return ret;
 	}
@@ -192,7 +192,7 @@ void PacketProcess(LocationIDType id, AllStar::Core::ACPPacket * retPacket)
 			if(DISPATCHER_STATUS_OK != (stat = WaitForDispatchResponse(*retPacket, &responsePacket)))
 			{
 				logger->Log(LOGGER_LEVEL_ERROR, "DispatchStdTasks: no response from error octopus (NOTE: check ERRServer Handler return)");
-				ACPPacket * ret = new ACPPacket(DISPATCH_FAILED);
+				ACPPacket * ret = new ACPPacket(DISPATCH_FAILED, false);
 				PacketProcess(id, ret);
 				delete retPacket;
 				return;
@@ -284,26 +284,22 @@ DispatcherStatusEnum WaitForDispatchResponse(const ACPPacket & packet, ACPPacket
 }
 
 uint32 GetUInt(uint8 * buffer){
-	uint32 result;
-	memcpy(&result, buffer, 4);
+	uint32 result = (uint32) buffer[0] << 24 | (uint32) buffer[1] << 16 | (uint32) buffer[2] << 8 | (uint32) buffer[3];
 	return result;
 }
 
 uint16 GetUInt16(uint8 * buffer){
-	uint16 result;
-	memcpy(&result, buffer, 2);
+	uint16 result = (uint16) buffer[0] << 8 | (uint16) buffer[1];
 	return result;
 }
 
 uint8 GetUInt8(uint8 * buffer){
-	uint8 result;
-	memcpy(&result, buffer, 1);
+	uint8 result = buffer[0];
 	return result;
 }
 
 int32 GetInt(uint8 * buffer){
-	int32 result;
-	memcpy(&result, buffer, 4);
+	int32 result = (int32) buffer[0] << 24 | (int32) buffer[1] << 16 | (int32) buffer[2] << 8 | (int32) buffer[3];
 	return result;
 }
 
@@ -313,30 +309,51 @@ bool GetBool(uint8 * buffer){
 
 float GetFloat(uint8 * buffer){
 	float result;
-	memcpy(&result, buffer, 4);
+	uint32 temp = (uint32) buffer[0] << 24 | (uint32) buffer[1] << 16 | (uint32) buffer[2] << 8 | (uint32) buffer[3];
+	memcpy(&result, &temp, 4);
 	return result;
 }
 
 double GetDouble(uint8 * buffer){
 	double result;
-	memcpy(&result, buffer, 8);
+	uint64 temp = (uint64) buffer[0] << 56 | (uint64) buffer[1] << 48 | (uint64) buffer[2] << 40 | (uint64) buffer[3] << 32 |
+			(uint64) buffer[4] << 24 | (uint64) buffer[5] << 16 | (uint64) buffer[6] << 8 | (uint64) buffer[7];
+	memcpy(&result, &temp, 8);
 	return result;
 }
 
 void AddUInt16(uint8 * buffer, uint16 data){
-	memcpy(buffer, &data, sizeof(uint16));
+	buffer[0] = ((data & 0xFF00) >> 8);
+	buffer[1] = data & 0x00FF;
 }
 
 void AddUInt32(uint8 * buffer, uint32 data){
-	memcpy(buffer, &data, sizeof(uint32));
+	buffer[0] = (data & 0xFF000000) >> 24;
+	buffer[1] = (data & 0x00FF0000) >> 16;
+	buffer[2] = (data & 0x0000FF00) >> 8;
+	buffer[3] = (data & 0x000000FF);
 }
 
 void AddFloat(uint8 * buffer, float data){
-	memcpy(buffer, &data, sizeof(float));
+	uint32 temp;
+	memcpy(&temp, &data, sizeof(float));
+	buffer[0] = (temp & 0xFF000000) >> 24;
+	buffer[1] = (temp & 0x00FF0000) >> 16;
+	buffer[2] = (temp & 0x0000FF00) >> 8;
+	buffer[3] = (temp & 0x000000FF);
 }
 
 void AddDouble(uint8 * buffer, double data){
-	memcpy(buffer, &data, sizeof(double));
+	uint64 temp;
+	memcpy(&temp, &data, sizeof(double));
+	buffer[0] = (temp & 0xFF00000000000000) >> 56;
+	buffer[1] = (temp & 0x00FF000000000000) >> 48;
+	buffer[2] = (temp & 0x0000FF0000000000) >> 40;
+	buffer[3] = (temp & 0x000000FF00000000) >> 32;
+	buffer[4] = (temp & 0x00000000FF000000) >> 24;
+	buffer[5] = (temp & 0x0000000000FF0000) >> 16;
+	buffer[6] = (temp & 0x000000000000FF00) >> 8;
+	buffer[7] = (temp & 0x00000000000000FF);
 }
 
 } // End of namespace Servers

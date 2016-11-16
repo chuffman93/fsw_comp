@@ -35,13 +35,14 @@
 using namespace AllStar;
 using namespace Core;
 
-static int timeout = 75;
+static int timeout = 200;
 
 char * SPI_HALServer::queueNameSPITX = (char *) "/queueHandleSPITX";
 
 SPI_HALServer::SPI_HALServer()
 	: AllStar::Servers::SubsystemServer("SPI", SERVER_LOCATION_SPI)
 {
+	lastStatsCheck = 0;
 	mq_unlink(queueNameSPITX);
 	qInitTX = mqCreate(&queueHandleTX, &queueAttrTX, queueNameSPITX);
 }
@@ -58,7 +59,7 @@ void SPI_HALServer::SubsystemLoop(void)
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	ACPPacket * rxPacket;
 	struct pollfd fds;
-	int enterTime;
+	int64 enterTime;
 	int slave_fd;
 	int nbytes;
 	int queueSize;
@@ -94,7 +95,7 @@ void SPI_HALServer::SubsystemLoop(void)
 					packetsSentTX[dest-1]++; // increment packets sent counter for that subsystem
 					bytesSentTX[dest-1] += txPacket->getLength() + 8;
 					if(SPIDispatch(*txPacket)){
-						logger->Log(LOGGER_LEVEL_INFO, "SPI_HAL Server: Successfully dispatched packet");
+						logger->Log(LOGGER_LEVEL_DEBUG, "SPI_HAL Server: Successfully dispatched packet");
 					}else{
 						// TODO: send error to RX queue?
 						logger->Log(LOGGER_LEVEL_WARN, "SPI_HAL Server: " "\x1b[33m" "Packet dispatch failed!" "\x1b[0m");
@@ -138,7 +139,7 @@ void SPI_HALServer::SubsystemLoop(void)
 					Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 					queueSize = mq_size(dispatcher->queueHandleRX, dispatcher->queueAttrRX);
 					if(queueSize < DISPATCHER_QUEUE_LENGTH){
-						logger->Log(LOGGER_LEVEL_INFO, "SPI_Server: placing RX message on dispatcher RX queue");
+						logger->Log(LOGGER_LEVEL_DEBUG, "SPI_Server: placing RX message on dispatcher RX queue");
 						queueSuccess = mq_timed_send(dispatcher->queueNameRX, &rxPacket, MAX_BLOCK_TIME, 0);
 					}else{
 						logger->Log(LOGGER_LEVEL_FATAL, "SPI_Server: RX queue full!");
@@ -203,7 +204,7 @@ int SPI_HALServer::spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, in
 
 	while(buf_pt != len){
 		logger->Log(LOGGER_LEVEL_SUPER_DEBUG, "Writing byte %d", buf_pt);
-		logger->Log(LOGGER_LEVEL_SUPER_DEBUG, "Byte value: ----------------------- 0x%x", *(buf + buf_pt));
+		logger->Log(LOGGER_LEVEL_DEBUG, "Byte value: ----------------------- 0x%x", *(buf + buf_pt));
 		ret = write(slave_fd, buf + buf_pt, wr_size);
 
 		if(ret != wr_size){
@@ -285,7 +286,7 @@ int SPI_HALServer::spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_bufp){
 			logger->Log(LOGGER_LEVEL_DEBUG, "spi_read: byte value: ------------- 0x%X", rx);
 			buf_pt++;
 
-			if(i == 0 && rx != SYNC_VALUE){
+			if(i == 0 && (rx & 0xFC) != SYNC_VALUE){
 				logger->Log(LOGGER_LEVEL_WARN, "spi_read: sync byte incorrect! Ending read");
 				return 0;
 			}
@@ -317,15 +318,6 @@ int SPI_HALServer::spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_bufp){
 			logger->Log(LOGGER_LEVEL_SUPER_DEBUG, "spi_read: byte value: ------------- 0x%x", rx);
 			buf_pt++;
 		}
-
-//		fds->fd = fd;
-//		fds->events = POLLPRI;
-//		retval = poll(fds, 1, timeout);
-//		if(!(fds->revents & POLLPRI) || retval == 0){
-//			logger->Log(LOGGER_LEVEL_ERROR, "Poll timeout!");
-//			return 0;
-//		}
-//		read(fds->fd, &clearBuf, 1);
 
 		*rx_bufp = rx_buf;
 		return buf_pt;

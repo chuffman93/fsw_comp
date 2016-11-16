@@ -34,7 +34,7 @@ bool ACSToggleLED(bool state){
 		memcpy(buffer, &stateOut, 1);
 	}
 
-	ACPPacket * query = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_TOGGLE_LED_CMD, 1, buffer);
+	ACPPacket * query = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, LED_ON_CMD, 1, buffer);
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret == NULL){
@@ -42,23 +42,12 @@ bool ACSToggleLED(bool state){
 		return false;
 	}
 
-	if(ret->getLength() != sizeof(uint8)){
-		logger->Log(LOGGER_LEVEL_WARN, "ACSStdTasks: Incorrect Toggle LED return length");
-		return false;
+	if(ret->isSuccess()){
+		logger->Log(LOGGER_LEVEL_DEBUG, "ACS LED Toggle successful");
+		return true;
 	}else{
-		if(ret->getMessageBuff() == NULL){
-			logger->Log(LOGGER_LEVEL_WARN, "ACSStdTasks: NULL LED Toggle message buffer");
-			return false;
-		}
-
-		uint8 result = GetUInt8(ret->getMessageBuff());
-		if(result == 1){
-			logger->Log(LOGGER_LEVEL_INFO, "ACS LED Toggle successful");
-			return true;
-		}else{
-			logger->Log(LOGGER_LEVEL_WARN, "ACS LED Toggle failed");
-			return false;
-		}
+		logger->Log(LOGGER_LEVEL_WARN, "ACS LED Toggle failed");
+		return false;
 	}
 }
 
@@ -68,7 +57,7 @@ bool ACSBlinkRate(uint16 rate){
 	uint8 * bufferOut = (uint8 *) malloc(sizeof(uint16));
 	AddUInt16(bufferOut, rate);
 
-	ACPPacket * query = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_LED_BLINK_RATE_CMD, 2, bufferOut);
+	ACPPacket * query = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, LED_RATE_CONFIG, 2, bufferOut);
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret == NULL){
@@ -76,30 +65,19 @@ bool ACSBlinkRate(uint16 rate){
 		return false;
 	}
 
-	if(ret->getLength() != sizeof(uint8)){
-		logger->Log(LOGGER_LEVEL_WARN, "ACSStdTasks: Incorrect blink rate return length");
-		return false;
+	if(ret->isSuccess()){
+		logger->Log(LOGGER_LEVEL_DEBUG, "ACS LED set rate successful");
+		return true;
 	}else{
-		if(ret->getMessageBuff() == NULL){
-			logger->Log(LOGGER_LEVEL_WARN, "ACSStdTasks: NULL blink rate message buffer");
-			return false;
-		}
-
-		uint8 result = GetUInt8(ret->getMessageBuff());
-		if(result == 1){
-			logger->Log(LOGGER_LEVEL_INFO, "ACS blink rate successful");
-			return true;
-		}else{
-			logger->Log(LOGGER_LEVEL_WARN, "ACS blink rate failed");
-			return false;
-		}
+		logger->Log(LOGGER_LEVEL_WARN, "ACS LED set rate failed");
+		return false;
 	}
 }
 
-bool ACSLEDData(){
+int ACSLEDData(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-	ACPPacket * query = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_LED_DATA);
+	ACPPacket * query = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, LED_RATE_DATA);
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret == NULL){
@@ -107,7 +85,7 @@ bool ACSLEDData(){
 		return false;
 	}
 
-	if(ret->getLength() != sizeof(uint16)){
+	if(ret->getLength() != 3){
 		logger->Log(LOGGER_LEVEL_WARN, "ACSStdTasks: Incorrect LED data return length");
 		return false;
 	}else{
@@ -116,17 +94,29 @@ bool ACSLEDData(){
 			return false;
 		}
 
-		uint16 result = GetUInt16(ret->getMessageBuff());
-		logger->Log(LOGGER_LEVEL_INFO, "LED blink rate: %u", result);
-		return true;
+		uint8 * msgPtr = ret->getMessageBuff();
+		uint8 powerStatus = GetUInt8(msgPtr++);
+		uint16 result = GetUInt16(msgPtr);
+		logger->Log(LOGGER_LEVEL_DEBUG, "ACS LED power state: %u", powerStatus);
+		logger->Log(LOGGER_LEVEL_DEBUG, "ACS LED blink rate:  %u", result);
+		return (powerStatus + result);
 	}
 }
 
 // Diagnostic
-ACPPacket * ACSTestAlive(){
+bool ACSTestAlive(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log(LOGGER_LEVEL_ERROR, "ACSTestAlive: unfinished!");
-	return NULL;
+
+	ACPPacket * query = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, TEST_ALIVE_CMD);
+	ACPPacket * ret = DispatchPacket(query);
+
+	if(ret->isSuccess()){
+		logger->Log(LOGGER_LEVEL_DEBUG, "ACS is alive");
+		return true;
+	}else{
+		logger->Log(LOGGER_LEVEL_FATAL, "ACS is not alive");
+		return false;
+	}
 }
 
 ACPPacket * ACSNoReturn(){
@@ -137,7 +127,7 @@ ACPPacket * ACSNoReturn(){
 
 // Command/Data
 void ACSHealthStatus(void){
-	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_HS_CMD);
+	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, HEALTH_STATUS_CMD);
 	ACPPacket * HSRet = DispatchPacket(HSQuery);
 	//PacketProcess(SERVER_LOCATION_ACS, HSRet);
 }
@@ -179,7 +169,7 @@ bool ACSPointNadir(){
 	ACPPacket * command = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_POINT_NADIR);
 	ACPPacket * response = DispatchPacket(command);
 
-	return(response->getOpcode() == ACS_POINT_NADIR);
+	return(response->isSuccess());
 }
 
 bool ACSPointGND(){
@@ -189,7 +179,7 @@ bool ACSPointGND(){
 	ACPPacket * command = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_POINT_GND);
 	ACPPacket * response = DispatchPacket(command);
 
-	return(response->getOpcode() == ACS_POINT_GND);
+	return(response->isSuccess());
 }
 
 bool ACSPointDest(){
@@ -199,7 +189,20 @@ bool ACSPointDest(){
 	ACPPacket * command = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_POINT_DEST);
 	ACPPacket * response = DispatchPacket(command);
 
-	return(response->getOpcode() == ACS_POINT_DEST);
+	return(response->isSuccess());
+}
+
+// Non-opcode tasks
+bool ACSSelfCheck(){
+	if(!ACSToggleLED(true))
+		return false;
+	usleep(1000000);
+	if(!ACSBlinkRate(1000))
+		return false;
+	usleep(1000000);
+	if(!(ACSLEDData() == 1001))
+		return false;
+	return true;
 }
 
 }

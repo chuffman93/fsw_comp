@@ -63,7 +63,7 @@ bool PLDServer::RegisterHandlers(){
 	bool success = true;
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 
-	success &= reg.RegisterHandler(MessageIdentifierType(SERVER_LOCATION_PLD, PLD_HS_CMD), pldHSHandler);
+	success &= reg.RegisterHandler(MessageIdentifierType(SERVER_LOCATION_PLD, HEALTH_STATUS_CMD), pldHSHandler);
 
 	success &= dispatcher->AddRegistry(id, &reg, &arby);
 
@@ -148,7 +148,7 @@ void PLDServer::loopScience(){
 }
 
 void PLDServer::loopDiagnostic(){
-	uint64 lastWake = getTimeInMillis();
+	int64 lastWake = getTimeInMillis();
 
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	if(modeManager->GetMode() != MODE_DIAGNOSTIC){

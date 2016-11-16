@@ -27,7 +27,7 @@ ACPPacket * CMDSwitchProtocolHandler::Handle(const ACPPacket & packet){
 
 	uint8 * msgPtr = packet.getMessageBuff();
 	if(msgPtr == NULL){
-		ACPPacket * ret = new ACPPacket(CMD_ACP_SWITCH_FAILURE);
+		ACPPacket * ret = new ACPPacket(CMD_ACP_SWITCH_FAILURE, false);
 		return ret;
 	}
 
@@ -43,13 +43,13 @@ ACPPacket * CMDSwitchProtocolHandler::Handle(const ACPPacket & packet){
 	// Error Checking
 	if((subsystem < HARDWARE_LOCATION_MIN) || (subsystem >= HARDWARE_LOCATION_MAX)){
 		logger->Log(LOGGER_LEVEL_DEBUG, "CMDSwitchProtocolHandler: Bad subsystem! Subsystem: %u", subsystem);
-		ACPPacket * ret = new ACPPacket(CMD_ACP_SWITCH_BAD_SUBSYS);
+		ACPPacket * ret = new ACPPacket(CMD_ACP_SWITCH_BAD_SUBSYS, false);
 		return ret;
 	}
 
 	if((protocol < ACP_PROTOCOL_MIN) || (protocol >= ACP_PROTOCOL_MAX)){
 		logger->Log(LOGGER_LEVEL_DEBUG, "CMDSwitchProtocolHandler: Bad protocol!");
-		ACPPacket * ret = new ACPPacket(CMD_ACP_SWITCH_BAD_PROTOCOL);
+		ACPPacket * ret = new ACPPacket(CMD_ACP_SWITCH_BAD_PROTOCOL, false);
 		return ret;
 	}
 
@@ -59,6 +59,6 @@ ACPPacket * CMDSwitchProtocolHandler::Handle(const ACPPacket & packet){
 	cmdServer->subsystem_acp_protocol[subsystem] = protocol;
 
 	logger->Log(LOGGER_LEVEL_DEBUG, "CMDSwitchProtocolHandler: success");
-	ACPPacket * ret = new ACPPacket(CMD_ACP_SWITCH_SUCCESS);
+	ACPPacket * ret = new ACPPacket(CMD_ACP_SWITCH_SUCCESS, true);
 	return ret;
 }

@@ -187,8 +187,8 @@ bool GPRMCProcess(char * buffer, const size_t size){
 	token = strtok(NULL, ","); // UTC
 	token = strtok(NULL, ","); // status
 	if(*token != 'A'){
-		logger->Log(LOGGER_LEVEL_WARN, "GPSStdTasks: invalid data from GPRMC");
-		return false;
+		logger->Log(LOGGER_LEVEL_WARN, "GPSStdTasks: invalid data from GPRMC", LOGGER_LEVEL_WARN);
+		return true;
 	}
 
 	// latitude

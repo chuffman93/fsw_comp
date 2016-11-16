@@ -23,10 +23,10 @@ ACPPacket * ERRServerHandler::Handle(const ACPPacket & packet){
 	
 	if(!(que->EnqueueError(quePacket))){
 		//Enqueue failed... errorception.
-		ACPPacket * ret = new ACPPacket(ERROR_QUEUE_FAILED);
+		ACPPacket * ret = new ACPPacket(ERROR_QUEUE_FAILED, false);
 		return ret;
 	}
 
-	ACPPacket * ret = new ACPPacket(packet.getOpcode());
+	ACPPacket * ret = new ACPPacket(packet.getOpcode(), true);
 	return ret;
 }

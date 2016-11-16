@@ -372,6 +372,24 @@ uint32_t Dispatcher::DispatchToHardware(ACPPacket & packet)
 
 	packetBuffer = (uint8_t *) malloc(packetLength);
 
+	switch(packet.getDestination()){
+	case HARDWARE_LOCATION_EPS:
+		packet.setSync(SYNC_VALUE | 0x00);
+		break;
+	case HARDWARE_LOCATION_COM:
+		packet.setSync(SYNC_VALUE | 0x01);
+		break;
+	case HARDWARE_LOCATION_ACS:
+		packet.setSync(SYNC_VALUE | 0x02);
+		break;
+	case HARDWARE_LOCATION_PLD:
+		packet.setSync(SYNC_VALUE | 0x03);
+		break;
+	default:
+		logger->Log("DispatchToHardware: bad destination!", LOGGER_LEVEL_WARN);
+		return -2;
+	}
+
 	//check if whole packet was copied
 	if(packet.Flatten(packetBuffer,packetLength) != packetLength)
 	{
@@ -379,11 +397,12 @@ uint32_t Dispatcher::DispatchToHardware(ACPPacket & packet)
 		return -2;
 	}
 
-	for(uint16_t i = 0; i < packetLength; i++)
-	{
-		printf("0x%02x ",packetBuffer[i]);
-	}
-	printf("\n");
+//	printf("TX Packet: ");
+//	for(uint16_t i = 0; i < packetLength; i++)
+//	{
+//		printf("0x%02x ",packetBuffer[i]);
+//	}
+//	printf("\n");
 
 	// get the instances for the Ethernet and SPI Servers
 	//ETH_HALServer * eth_server = dynamic_cast<ETH_HALServer *> (Factory::GetInstance(ETH_HALSERVER_SINGLETON));
@@ -400,7 +419,7 @@ uint32_t Dispatcher::DispatchToHardware(ACPPacket & packet)
 			if(true == this->TakeLock(MAX_BLOCK_TIME)){
 				numPackets = mq_size(spi_server->queueHandleTX, spi_server->queueAttrTX);
 				if(numPackets < DISPATCHER_QUEUE_LENGTH){ // same length as all queues
-					logger->Log(LOGGER_LEVEL_INFO, "Dispatcher: Placing message on SPI queue");
+					logger->Log(LOGGER_LEVEL_DEBUG, "Dispatcher: Placing message on SPI queue");
 					sendSuccess = mq_timed_send(spi_server->queueNameSPITX, &txPacket, MAX_BLOCK_TIME, 0);
 					this->GiveLock();
 				}else{

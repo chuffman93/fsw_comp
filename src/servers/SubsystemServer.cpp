@@ -55,10 +55,10 @@ void SubsystemServer::SubsystemLoop(void)
 
 	while(1)
 	{
-		uint64_t LastWakeTime = getTimeInMillis();
+		int64 LastWakeTime = getTimeInMillis();
 		while(Listen(id));
 		wdm->Kick();
-		waitUntil(LastWakeTime, 1000);
+		waitUntil(LastWakeTime, 1000); // TODO: rewrite with sleep based on time elapsed
 		
 		StateFunc function = GetStateMap()[currentState].function;
 

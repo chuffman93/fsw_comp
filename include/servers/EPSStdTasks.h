@@ -18,15 +18,17 @@ namespace Servers{
 // Debug
 bool EPSToggleLED(bool state);
 bool EPSBlinkRate(uint16 rate);
-bool EPSLEDData();
+int EPSLEDData();
 
 // Diagnostic
-AllStar::Core::ACPPacket * EPSTestAlive();
-AllStar::Core::ACPPacket * EPSNoReturn();
+bool EPSTestAlive();
 
 // Command/Data
 void EPSHealthStat();
-AllStar::Core::ACPPacket * EPSPowerCycle();
+void EPSPowerCycle();
+
+// Non-opcode standard tasks
+bool EPSSelfCheck();
 
 }
 }

@@ -88,7 +88,7 @@ bool FileHandler::Log(FileHandlerIDEnum subsystem, const AllStar::Core::ACPPacke
 	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 
 	uint8 opcode = packet->getOpcode();
-	bool notPLDData = (subsystem != SUBSYSTEM_PLD) || (opcode != PLD_DATA_SUCCESS);
+	bool notPLDData = (subsystem != SUBSYSTEM_PLD) || (opcode != PLD_DATA_CMD);
 	string file;
 
 	// Fetch Time

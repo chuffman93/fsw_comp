@@ -76,32 +76,36 @@ bool COMServer::RegisterHandlers(){
 	return success;
 }
 
+// TODO: ultimately remove Half and Full Duplex states and have a struct to track those COM states through H&S
 // -------------------------------------------- State Machine ---------------------------------------------
 void COMServer::loopInit(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 	cdhServer->subPowerOn(HARDWARE_LOCATION_COM);
 
 	usleep(5000000);
 
-	currentState = ST_IDLE;
+	if(COMTestAlive()){
+		// Debug LED initialization
+		if(!COMSelfCheck()){
+			logger->Log("COM failed self check!", LOGGER_LEVEL_FATAL);
+		}
+		logger->Log("COM passed self check", LOGGER_LEVEL_INFO);
+
+		currentState = ST_IDLE;
+	}else{
+		logger->Log("COM non-responsive in init", LOGGER_LEVEL_FATAL);
+	}
 }
 
 void COMServer::loopIdle(){
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
+	int64 startTime = getTimeInMillis();
+
 	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_EPS]){
 		currentState = ST_INIT;
 	}
-
-	ACPPacket * ledOn = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, 1);
-	DispatchPacket(ledOn);
-
-	usleep(1000);
-
-	ACPPacket * ledOff = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, 2);
-	DispatchPacket(ledOff);
-
-	usleep(1000);
 
 	ModeManager * modeManager = dynamic_cast<ModeManager *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
@@ -112,16 +116,27 @@ void COMServer::loopIdle(){
 	if(modeManager->GetMode() == MODE_DIAGNOSTIC){
 		currentState = ST_DIAGNOSTIC;
 	}
+
+	waitUntil(startTime, 1000);
 }
 
 void COMServer::loopCOMStart(){
-	ACPPacket * startPacket = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, 3);
-	ACPPacket * startRet = DispatchPacket(startPacket);
-
-	currentState = ST_COM;
+	if(COMHalfDuplex()){
+		currentState = ST_COM_HALF;
+	}else{
+		currentState = ST_IDLE;
+	}
 }
 
-void COMServer::loopCOM(){
+void COMServer::loopCOMHalf(){
+	if(COMFullDuplex()){
+		currentState = ST_COM_FULL;
+	}else{
+		currentState = ST_IDLE;
+	}
+}
+
+void COMServer::loopCOMFull(){
 	ModeManager * modeManager = dynamic_cast<ModeManager *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
@@ -136,14 +151,13 @@ void COMServer::loopCOM(){
 }
 
 void COMServer::loopCOMStop(){
-	ACPPacket * stopPacket = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, 4);
-	ACPPacket * stopRet = DispatchPacket(stopPacket);
+	COMSimplex();
 
 	currentState = ST_IDLE;
 }
 
 void COMServer::loopDiagnostic(){
-	uint64 lastWake = getTimeInMillis();
+	int64 lastWake = getTimeInMillis();
 
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	if(modeManager->GetMode() != MODE_DIAGNOSTIC){
