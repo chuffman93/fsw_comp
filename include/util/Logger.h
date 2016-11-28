@@ -25,7 +25,6 @@ class Logger : public AllStar::Core::Singleton{
 		const static LoggerLevelType threshold;
 
 		void Log(LoggerLevelType level_in, char const * fmt, ...);
-		void Log(char const * fmt, LoggerLevelType level_in);
 		void PrintInfo(LoggerLevelType level_in);
 	private:
 		static void Initialize(void);

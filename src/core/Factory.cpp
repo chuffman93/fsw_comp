@@ -10,6 +10,7 @@
 #include "servers/COMServer.h"
 #include "servers/EPSServer.h"
 #include "servers/ERRServer.h"
+#include "servers/FILServer.h"
 #include "servers/GPSServer.h"
 #include "servers/PLDServer.h"
 #include "servers/SCHServer.h"
@@ -107,6 +108,10 @@ namespace AllStar
 						ERRServer::Initialize( );
 						instance = new ERRServer("ERR", SERVER_LOCATION_ERR);
 						break;
+					case FIL_SERVER_SINGLETON:
+						FILServer::Initialize( );
+						instance = new FILServer("FIL", SERVER_LOCATION_FIL);
+						break;
 					case GPS_SERVER_SINGLETON:
 						GPSServer::Initialize( );
 						instance = new GPSServer("GPS", SERVER_LOCATION_GPS);
@@ -173,7 +178,6 @@ namespace AllStar
 					delete instance;
 				}
 			}
-			
 			return isInitialized[type];
 		}
 		
@@ -243,6 +247,9 @@ namespace AllStar
 					break;
 				case ERR_SERVER_SINGLETON:
 					ERRServer::Destroy( );
+					break;
+				case FIL_SERVER_SINGLETON:
+					FILServer::Destroy( );
 					break;
 				case GPS_SERVER_SINGLETON:
 					GPSServer::Destroy( );

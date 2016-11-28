@@ -61,6 +61,7 @@
 #include "servers/GPSServer.h"
 #include "servers/PLDServer.h"
 #include "servers/CDHServer.h"
+#include "servers/FILServer.h"
 #include "servers/SubsystemServer.h"
 #include "servers/ERRServer.h"
 #include "servers/ErrorQueue.h"
@@ -100,16 +101,25 @@ int main(int argc, char * argv[])
 	// ----------------------------- Grab Server Instances ---------------------------------------------------------
 	// TODO: more efficient way to do this? (ie. SubsystemServer array and no dynamic casting >>> one for loop?)
 	bool threadsCreated = true;
+	printf("starting\n");
 	ACSServer * acsServer = dynamic_cast<ACSServer *> (Factory::GetInstance(ACS_SERVER_SINGLETON));
+	printf("finished acs\n");
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	printf("finished cdh\n");
 	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
+	printf("finished cmd\n");
 	COMServer * comServer = dynamic_cast<COMServer *> (Factory::GetInstance(COM_SERVER_SINGLETON));
+	printf("finished com\n");
 	EPSServer * epsServer = dynamic_cast<EPSServer *> (Factory::GetInstance(EPS_SERVER_SINGLETON));
+	printf("finished eps\n");
 	ERRServer * errServer = dynamic_cast<ERRServer *> (Factory::GetInstance(ERR_SERVER_SINGLETON));
+	printf("finished err\n");
+	FILServer * filServer = dynamic_cast<FILServer *> (Factory::GetInstance(FIL_SERVER_SINGLETON));
 	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 	PLDServer * pldServer = dynamic_cast<PLDServer *> (Factory::GetInstance(PLD_SERVER_SINGLETON));
 	SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
 	SPI_HALServer * spiServer = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
+	printf("finished\n");
 
 	// ----------------------------- Start Servers -----------------------------------------------------------------
 	threadsCreated &= WatchdogManager::StartServer(acsServer, 50,	true);	 //ACS
@@ -118,6 +128,7 @@ int main(int argc, char * argv[])
 	threadsCreated &= WatchdogManager::StartServer(comServer, 10,	true);	 //COM
 	threadsCreated &= WatchdogManager::StartServer(epsServer, 10,	false);	 //EPS
 	threadsCreated &= WatchdogManager::StartServer(errServer, 0,	false);	 //ERR
+	threadsCreated &= WatchdogManager::StartServer(filServer, 0,	true);	 //FIL
 	threadsCreated &= WatchdogManager::StartServer(gpsServer, 50,	false);	 //GPS
 	threadsCreated &= WatchdogManager::StartServer(pldServer, 50,	false);	 //PLD
 	threadsCreated &= WatchdogManager::StartServer(schServer, 0,	true);	 //SCH
