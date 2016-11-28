@@ -152,7 +152,7 @@ void EPSHealthStat()
 		//PacketProcess(SERVER_LOCATION_EPS, HSRet);
 		return;
 	}else{
-		logger->Log("EPSStdTasks: EPSHealthStat(): packet dispatched, HSRet acquired", LOGGER_LEVEL_INFO);
+		logger->Log(LOGGER_LEVEL_INFO, "EPSStdTasks: EPSHealthStat(): packet dispatched, HSRet acquired");
 		// Parse buffer
 		uint8 * msgPtr = HSRet->getMessageBuff();
 		if(msgPtr==NULL){

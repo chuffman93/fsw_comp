@@ -386,7 +386,7 @@ uint32_t Dispatcher::DispatchToHardware(ACPPacket & packet)
 		packet.setSync(SYNC_VALUE | 0x03);
 		break;
 	default:
-		logger->Log("DispatchToHardware: bad destination!", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "DispatchToHardware: bad destination!");
 		return -2;
 	}
 

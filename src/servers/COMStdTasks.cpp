@@ -37,15 +37,15 @@ bool COMToggleLED(bool state){
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret == NULL){
-		logger->Log("COMStdTasks: NULL LED Toggle return", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "COMStdTasks: NULL LED Toggle return");
 		return false;
 	}
 
 	if(ret->isSuccess()){
-		logger->Log("COM LED Toggle successful", LOGGER_LEVEL_DEBUG);
+		logger->Log(LOGGER_LEVEL_DEBUG, "COM LED Toggle successful");
 		return true;
 	}else{
-		logger->Log("COM LED Toggle failed", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "COM LED Toggle failed");
 		return false;
 	}
 }
@@ -60,15 +60,15 @@ bool COMBlinkRate(uint16 rate){
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret == NULL){
-		logger->Log("COMStdTasks: NULL blink rate return", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "COMStdTasks: NULL blink rate return");
 		return false;
 	}
 
 	if(ret->isSuccess()){
-		logger->Log("COM LED set rate successful", LOGGER_LEVEL_DEBUG);
+		logger->Log(LOGGER_LEVEL_DEBUG, "COM LED set rate successful");
 		return true;
 	}else{
-		logger->Log("COM LED set rate failed", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "COM LED set rate failed");
 		return false;
 	}
 }
@@ -80,16 +80,16 @@ int COMLEDData(){
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret == NULL){
-		logger->Log("COMStdTasks: NULL LED Data return", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "COMStdTasks: NULL LED Data return");
 		return false;
 	}
 
 	if(ret->getLength() != 3){
-		logger->Log("COMStdTasks: Incorrect LED data return length", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "COMStdTasks: Incorrect LED data return length");
 		return false;
 	}else{
 		if(ret->getMessageBuff() == NULL){
-			logger->Log("COMStdTasks: NULL LED Data message buffer", LOGGER_LEVEL_WARN);
+			logger->Log(LOGGER_LEVEL_WARN, "COMStdTasks: NULL LED Data message buffer");
 			return false;
 		}
 
@@ -110,10 +110,10 @@ bool COMTestAlive(){
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret->isSuccess()){
-		logger->Log("COM is alive", LOGGER_LEVEL_DEBUG);
+		logger->Log(LOGGER_LEVEL_DEBUG, "COM is alive");
 		return true;
 	}else{
-		logger->Log("COM is not alive", LOGGER_LEVEL_FATAL);
+		logger->Log(LOGGER_LEVEL_FATAL, "COM is not alive");
 		return false;
 	}
 }
@@ -121,13 +121,13 @@ bool COMTestAlive(){
 // COM Specific
 bool COMSimplex(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("COM: commanding COM into simplex", LOGGER_LEVEL_INFO);
+	logger->Log(LOGGER_LEVEL_INFO, "COM: commanding COM into simplex");
 
 	ACPPacket * command = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, COM_SIMPLEX);
 	ACPPacket * response = DispatchPacket(command);
 
 	if(!response->isSuccess()){
-		logger->Log("COM: Error entering Simplex", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "COM: Error entering Simplex");
 	}
 
 	return(response->isSuccess());
@@ -135,13 +135,13 @@ bool COMSimplex(){
 
 bool COMHalfDuplex(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("COM: commanding COM into half duplex", LOGGER_LEVEL_INFO);
+	logger->Log(LOGGER_LEVEL_INFO, "COM: commanding COM into half duplex");
 
 	ACPPacket * command = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, COM_HALF_DUPLEX);
 	ACPPacket * response = DispatchPacket(command);
 
 	if(!response->isSuccess()){
-		logger->Log("COM: Error entering Half Duplex", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "COM: Error entering Half Duplex");
 	}
 
 	return(response->isSuccess());
@@ -149,13 +149,13 @@ bool COMHalfDuplex(){
 
 bool COMFullDuplex(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log("COM: commanding COM into full duplex", LOGGER_LEVEL_INFO);
+	logger->Log(LOGGER_LEVEL_INFO, "COM: commanding COM into full duplex");
 
 	ACPPacket * command = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, COM_FULL_DUPLEX);
 	ACPPacket * response = DispatchPacket(command);
 
 	if(!response->isSuccess()){
-		logger->Log("COM: Error entering full duplex", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "COM: Error entering full duplex");
 	}
 
 	return(response->isSuccess());

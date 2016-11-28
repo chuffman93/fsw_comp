@@ -81,13 +81,13 @@ void EPSServer::loopInit(){
 
 	if(EPSTestAlive()){
 		if(!EPSSelfCheck()){
-			logger->Log("EPS failed self check!", LOGGER_LEVEL_FATAL);
+			logger->Log(LOGGER_LEVEL_FATAL, "EPS failed self check!");
 		}
-		logger->Log("EPS passed self check", LOGGER_LEVEL_INFO);
+		logger->Log(LOGGER_LEVEL_INFO, "EPS passed self check");
 
 		currentState = ST_MONITOR;
 	}else{
-		logger->Log("EPS non-responsive in init loop", LOGGER_LEVEL_FATAL);
+		logger->Log(LOGGER_LEVEL_FATAL, "EPS non-responsive in init loop");
 		usleep(3000000);
 	}
 }
