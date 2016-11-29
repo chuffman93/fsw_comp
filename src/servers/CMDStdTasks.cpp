@@ -5,6 +5,7 @@
  *      Author: Brian Campuzano
  */
 
+#include "servers/CMDServer.h"
 #include "servers/SCHServer.h"
 #include "servers/CMDStdTasks.h"
 #include "servers/DispatchStdTasks.h"
@@ -15,12 +16,8 @@
 #include "util/FileHandler.h"
 #include "util/Logger.h"
 #include "util/Diagnostics.h"
-#include <cstdio>
-#include <iostream>
 #include <termios.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <list>
+#include <string>
 
 using namespace AllStar::Core;
 using namespace std;
@@ -120,6 +117,25 @@ void runDiagnostic(void){
 
 		// FIXME: decide on deletion/transfer scheme
 		//remove("diagnostics.txt");
+	}
+}
+
+void updateDownlinkQueue(void){
+	// Read in the files to downlink, and update the downlink priority queue
+}
+
+void postPassExecution(void){
+	// parse and execute post-pass execution script
+}
+
+void processUplinkFiles(void){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	// Move new schedule from the uplink directory to its final directory
+	if(access(SCHEDULE_UPLK, F_OK) != -1){
+		rename(SCHEDULE_UPLK, SCH_SCHEDULE_FILE);
+	}else{
+		logger->Log("ProcessUplinkFiles(): No new schedule file!", LOGGER_LEVEL_WARN);
 	}
 }
 

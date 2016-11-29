@@ -21,6 +21,7 @@
 #include <termios.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <queue>
 
 using namespace std;
 using namespace AllStar::Core;
@@ -102,6 +103,10 @@ void CMDServer::loopIdle(void){
 		currentState = ST_DIAGNOSTIC;
 	}
 
+	if(modeManager->GetMode() == MODE_COM){
+		currentState = ST_LOGIN;
+	}
+
 	dispatcher->CleanRXQueue();
 
 	waitUntil(LastTimeTick, 1000);
@@ -114,6 +119,47 @@ void CMDServer::loopDiagnostic(){
 
 	currentState = ST_IDLE;
 	modeManager->SetMode(MODE_BUS_PRIORITY);
+}
+
+// TODO: determine login sequence
+void CMDServer::loopLogin(){
+	// if(login){currState = Verbose}
+	// else{retry until COM over?}
+	currentState = ST_VERBOSE_HS;
+}
+
+void CMDServer::loopVerboseHS(){
+	/*
+	 * Mode switches, wd restarts, hs faults, error logs
+	 * H&S info from structs?
+	 */
+	currentState = ST_UPLINK;
+}
+
+void CMDServer::loopUplink(){
+	// wait until end of uplink, how will this be signified?
+	currentState = ST_DOWNLINK;
+}
+
+void CMDServer::loopDownlink(){
+	// work through downlink queue
+	currentState = ST_QUEUE_EMPTY;
+}
+
+void CMDServer::loopQueueEmpty(){
+	// if still in range, parse the files to downlink file
+	currentState = ST_POST_PASS;
+}
+
+void CMDServer::loopPostPass(){
+	postPassExecution();
+	processUplinkFiles();
+
+	// clear uplink directory
+	string cmd = "rm -rf " + string(UPLINK_DIRECTORY) + "*";
+	system(cmd.c_str());
+
+	currentState = ST_IDLE;
 }
 
 } // End of namespace Servers
