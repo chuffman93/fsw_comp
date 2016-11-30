@@ -22,6 +22,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <queue>
+#include <sys/inotify.h>
 
 using namespace std;
 using namespace AllStar::Core;
@@ -137,7 +138,7 @@ void CMDServer::loopVerboseHS(){
 }
 
 void CMDServer::loopUplink(){
-	// wait until end of uplink, how will this be signified?
+	// Uplink ends after the post pass execution script has been received
 	currentState = ST_DOWNLINK;
 }
 
@@ -148,6 +149,7 @@ void CMDServer::loopDownlink(){
 
 void CMDServer::loopQueueEmpty(){
 	// if still in range, parse the files to downlink file
+	updateDownlinkQueue();
 	currentState = ST_POST_PASS;
 }
 
@@ -157,7 +159,7 @@ void CMDServer::loopPostPass(){
 
 	// clear uplink directory
 	string cmd = "rm -rf " + string(UPLINK_DIRECTORY) + "*";
-	system(cmd.c_str());
+	//system(cmd.c_str());
 
 	currentState = ST_IDLE;
 }

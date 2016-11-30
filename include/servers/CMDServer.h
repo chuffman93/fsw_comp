@@ -24,16 +24,17 @@
 namespace AllStar{
 namespace Servers{
 
-#define DOWNLINK_DIRECTORY			"~/fileSysTest/home/downlink/"
-#define UPLINK_DIRECTORY			"~/fileSysTest/home/uplink/"
-#define FILES_TO_DOWNLINK_UPLK		"~/fileSysTest/home/uplink/f2d"
-#define POST_PASS_EXECUTION_UPLK	"~/fileSysTest/home/uplink/pp"
-#define IMMEDIATE_EXECUTION_UPLK 	"~/fileSysTest/home/uplink/im"
-#define SCHEDULE_UPLK				"~/fileSysTest/home/uplink/schedule"
+#define DOWNLINK_DIRECTORY			"/home/root/fileSysTest/home/downlink/"
+#define UPLINK_DIRECTORY			"/home/root/fileSysTest/home/uplink/"
+#define FILES_TO_DOWNLINK_UPLK		"/home/root/fileSysTest/home/uplink/f2d"
+#define POST_PASS_EXECUTION_UPLK	"/home/root/fileSysTest/home/uplink/pp"
+#define IMMEDIATE_EXECUTION_UPLK 	"/home/root/fileSysTest/home/uplink/im"
+#define SCHEDULE_UPLK				"/home/root/fileSysTest/home/uplink/schedule"
 
 // Define a struct type for the downlink priority queue, needs overloaded "<" operator to handle priority
 struct downlinkFile{
 	string fileName;
+	string pathName;
 	uint8 priority;
 
 	bool operator<(const downlinkFile& file2) const{

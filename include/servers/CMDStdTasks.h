@@ -15,6 +15,7 @@ void portSetup(void);
 void uftpSetup(void);
 void runDiagnostic(void);
 void updateDownlinkQueue(void);
+void clearDownlinkQueue(void);
 void postPassExecution(void);
 void processUplinkFiles(void);
 
