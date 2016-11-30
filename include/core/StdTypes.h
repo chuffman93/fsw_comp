@@ -94,6 +94,17 @@ enum FileHandlerIDEnum
 	SYSTEM_MAX
 };
 
+enum FILServerDestinationEnum
+{
+	DESTINATION_GENERAL = 1,
+	DESTINATION_HEALTH,
+	DESTINATION_MODE,
+	DESTINATION_HOTSWAP,
+	DESTINATION_ERROR,
+	DESTINATION_DIAGNOSTIC,
+	DESTINATION_RAD // Is this needed?
+};
+
 // ------------------------------------------------------------ Subsystem OpCodes --------------------------------------------------------
 
 enum SubsystemOpcodes{

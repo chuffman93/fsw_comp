@@ -7,19 +7,14 @@
 */
 
 #include "servers/FILServer.h"
-//#include "servers/FILStdTasks.h"
-#include "servers/DispatchStdTasks.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
 #include "core/StdTypes.h"
 #include "core/WatchdogManager.h"
 #include "util/FileHandler.h"
 #include "util/Logger.h"
-#include "POSIX.h"
 #include <iostream>
-#include <termios.h>
-#include <unistd.h>
-#include <fcntl.h>
+#include <fstream>
 #include <queue>
 
 using namespace std;
@@ -64,36 +59,71 @@ bool FILServer::RegisterHandlers(){
 	return success;
 }
 
-// File Logging functions
-bool FILServer::HealthLog(){
-	return true;
-}
-
-bool FILServer::ModeLog(){
-	return true;
-}
-
-bool FILServer::HotSwapLog(){
-	return true;
-}
-
-bool FILServer::ErrorLog(){
-	return true;
-}
-
-bool FILServer::DiagnosticLog(){
-	return true;
-}
-
+// ----- File Logging functions ------------------------------------------------------------------------------------
 bool FILServer::GeneralLog(string buf){
-	printf("buf: %s\n", buf.c_str());
+	printf("General: %s\n", buf.c_str());
+	ofstream file;
+	file.open (GENERAL_FILE_LOCATION);
+	file << buf;
+	file.close();
 	return true;
 }
 
-bool FILServer::RadLog(){
-	// Do we need this?
+bool FILServer::HealthLog(string buf){
+	printf("Health: %s\n", buf.c_str());
+	ofstream file;
+	file.open (HEALTH_FILE_LOCATION);
+	file << buf;
+	file.close();
 	return true;
 }
+
+bool FILServer::ModeLog(string buf){
+	printf("Mode: %s\n", buf.c_str());
+	ofstream file;
+	file.open (MODE_FILE_LOCATION);
+	file << buf;
+	file.close();
+	return true;
+}
+
+bool FILServer::HotSwapLog(string buf){
+	printf("HotSwap: %s\n", buf.c_str());
+	ofstream file;
+	file.open (HOTSWAP_FILE_LOCATION);
+	file << buf;
+	file.close();
+	return true;
+}
+
+bool FILServer::ErrorLog(string buf){
+	printf("Error: %s\n", buf.c_str());
+	ofstream file;
+	file.open (ERROR_FILE_LOCATION);
+	file << buf;
+	file.close();
+	return true;
+}
+
+bool FILServer::DiagnosticLog(string buf){
+	printf("Diagnostic: %s\n", buf.c_str());
+	ofstream file;
+	file.open (DIAGNOSTIC_FILE_LOCATION);
+	file << buf;
+	file.close();
+	return true;
+}
+
+bool FILServer::RadLog(string buf){
+	// Do we need this?
+	printf("Rad: %s\n", buf.c_str());
+	ofstream file;
+	file.open (RAD_FILE_LOCATION);
+	file << buf;
+	file.close();
+	return true;
+}
+// -----------------------------------------------------------------------------------------------------------------
 
 
 // --------- State Machine -----------------------------------------------------------------------------------------
@@ -103,25 +133,51 @@ void FILServer::loopInit(void){
 	logger->Log(LOGGER_LEVEL_FATAL, "File server loop");
 	usleep(10000);
 
-	/*queue<FilePacket> myQueue;
-
-	FilePacket myPacket;
-	myPacket.buffer = "hello world!";
-
-	myQueue.push(myPacket);
-	string str;
-	str = myQueue.front().buffer;
-	GeneralLog(str);
-	myQueue.pop();*/
-
-	/*FilePacket myPacket;
-	myPacket.buffer = "hello world!";
-	FileQueue.push(myPacket);*/
-
 	if (!FileQueue.empty()){
 		string str;
 		str = FileQueue.front().buffer;
-		GeneralLog(str);
+
+		switch (FileQueue.front().dest){
+		case DESTINATION_GENERAL:
+			if ( !GeneralLog(str.c_str()) ) {
+				logger->Log(LOGGER_LEVEL_WARN, "Error writing to General File");
+			}
+			break;
+		case DESTINATION_HEALTH:
+			if( !HealthLog(str.c_str()) ) {
+				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Health File");
+			}
+			break;
+		case DESTINATION_MODE:
+			if( !ModeLog(str.c_str()) ) {
+				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Mode File");
+			}
+			break;
+		case DESTINATION_HOTSWAP:
+			if ( !HotSwapLog(str.c_str()) ) {
+				logger->Log(LOGGER_LEVEL_WARN, "Error writing to HotSwap File");
+			}
+			break;
+		case DESTINATION_ERROR:
+			if ( !ErrorLog(str.c_str()) ) {
+				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Error File");
+			}
+			break;
+		case DESTINATION_DIAGNOSTIC:
+			if ( !DiagnosticLog(str.c_str()) ) {
+				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Diagnostic File");
+			}
+			break;
+		case DESTINATION_RAD:
+			if ( !RadLog(str.c_str()) ) {
+				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Rad File");
+			}
+			break;
+		default:
+		    logger->Log(LOGGER_LEVEL_WARN, "FILServer: Unknown destination!");
+		    break;
+		}
+
 		FileQueue.pop();
 	}
 	else {

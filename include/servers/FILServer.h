@@ -21,8 +21,17 @@
 namespace AllStar{
 namespace Servers{
 
+#define GENERAL_FILE_LOCATION		"/SD_2/GENERAL/file.txt"
+#define HEALTH_FILE_LOCATION		"/SD_2/HEALTH/file.txt"
+#define MODE_FILE_LOCATION			"/SD_2/MODE/file.txt"
+#define HOTSWAP_FILE_LOCATION		"/SD_2/HOTSWAP/file.txt"
+#define ERROR_FILE_LOCATION			"/SD_2/ERROR/file.txt"
+#define DIAGNOSTIC_FILE_LOCATION	"/SD_2/DIAGNOSTIC/file.txt"
+#define RAD_FILE_LOCATION			"/SD_3/RAD/file.txt"
+
+
 struct FilePacket {
-	string dest;
+	FILServerDestinationEnum dest;
 	string buffer;
 };
 
@@ -32,13 +41,13 @@ class FILServer : public SubsystemServer, public AllStar::Core::Singleton{
 public:
 	bool RegisterHandlers();
 	// File Logging functions
-	bool HealthLog();
-	bool ModeLog();
-	bool HotSwapLog();
-	bool ErrorLog();
-	bool DiagnosticLog();
 	bool GeneralLog(string buf);
-	bool RadLog(); // Do we need this?
+	bool HealthLog(string buf);
+	bool ModeLog(string buf);
+	bool HotSwapLog(string buf);
+	bool ErrorLog(string buf);
+	bool DiagnosticLog(string buf);
+	bool RadLog(string buf); // Do we need this?
 
 	// FileQueue
 	queue<FilePacket> FileQueue;

@@ -10,6 +10,7 @@
 #include "core/WatchdogStdTasks.h"#include "core/Factory.h"
 #include "core/Singleton.h"
 #include "servers/SubsystemServer.h"
+#include "servers/FILServer.h"
 #include "util/Logger.h"
 #include <string>
 using namespace std;
@@ -140,6 +141,49 @@ void * WatchdogManager::WatchdogManagerTask(){
 
 	WatchdogManager * watchdogManager = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 	waitUntil(lastWakeTime, WATCHDOG_MANAGER_DELAY);
+
+	FILServer * fileServer = dynamic_cast<FILServer *> (Factory::GetInstance(FIL_SERVER_SINGLETON));
+
+	FilePacket myPacket1;
+	myPacket1.buffer = "hello world!";
+	fileServer->FileQueue.push(myPacket1);
+
+	FilePacket myPacket2;
+	myPacket2.buffer = "hello world!";
+	myPacket2.dest = DESTINATION_HEALTH;
+	fileServer->FileQueue.push(myPacket2);
+
+	FilePacket myPacket3;
+	myPacket3.buffer = "hello world!";
+	myPacket3.dest = DESTINATION_MODE;
+	fileServer->FileQueue.push(myPacket3);
+
+	FilePacket myPacket4;
+	myPacket4.buffer = "hello world!";
+	myPacket4.dest = DESTINATION_HOTSWAP;
+	fileServer->FileQueue.push(myPacket4);
+
+	FilePacket myPacket5;
+	myPacket5.buffer = "hello world!";
+	myPacket5.dest = DESTINATION_ERROR;
+	fileServer->FileQueue.push(myPacket5);
+
+	FilePacket myPacket6;
+	myPacket6.buffer = "hello world!";
+	myPacket6.dest = DESTINATION_DIAGNOSTIC;
+	fileServer->FileQueue.push(myPacket6);
+
+	FilePacket myPacket7;
+	myPacket7.buffer = "hello world!";
+	myPacket7.dest = DESTINATION_GENERAL;
+	fileServer->FileQueue.push(myPacket7);
+
+	FilePacket myPacket8;
+	myPacket8.buffer = "hello world!";
+	myPacket8.dest = DESTINATION_RAD;
+	fileServer->FileQueue.push(myPacket8);
+
+
 
 	while (1){
 		if (watchdogManager->AllRunningTasksActive()){
