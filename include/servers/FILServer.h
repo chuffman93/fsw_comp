@@ -16,15 +16,32 @@
 #include "core/MessageHandlerRegistry.h"
 #include "core/Arbitrator.h"
 #include "util/FileHandler.h"
+#include <queue>
 
 namespace AllStar{
 namespace Servers{
+
+/*struct FilePacket {
+	string dest;
+	string buffer;
+};*/
 
 class FILServer : public SubsystemServer, public AllStar::Core::Singleton{
 	friend class AllStar::Core::Factory;
 
 public:
 	bool RegisterHandlers();
+	// File Logging functions
+	/*bool HealthLog();
+	bool ModeLog();
+	bool HotSwapLog();
+	bool ErrorLog();
+	bool DiagnosticLog();
+	bool GeneralLog(string buf);
+	bool RadLog(); // Do we need this?*/
+
+	// FileQueue
+	//queue<FilePacket> FileQueue;
 
 private:
 	static void Initialize(void);

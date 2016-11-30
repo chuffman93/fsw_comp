@@ -20,6 +20,7 @@
 #include <termios.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <queue>
 
 using namespace std;
 using namespace AllStar::Core;
@@ -63,13 +64,75 @@ bool FILServer::RegisterHandlers(){
 	return success;
 }
 
+// File Logging functions
+bool FILServer::HealthLog(){
+	return true;
+}
+
+bool FILServer::ModeLog(){
+	return true;
+}
+
+bool FILServer::HotSwapLog(){
+	return true;
+}
+
+bool FILServer::ErrorLog(){
+	return true;
+}
+
+bool FILServer::DiagnosticLog(){
+	return true;
+}
+
+bool FILServer::GeneralLog(string buf){
+	printf("buf: %s\n", buf.c_str());
+	return true;
+}
+
+bool FILServer::RadLog(){
+	// Do we need this?
+	return true;
+}
+
+
 // --------- State Machine -----------------------------------------------------------------------------------------
 
 void FILServer::loopInit(void){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log(LOGGER_LEVEL_INFO, "FILServer: Initializing");
+	logger->Log(LOGGER_LEVEL_FATAL, "File server loop");
 	usleep(10000);
+
+	/*queue<FilePacket> myQueue;
+
+	FilePacket myPacket;
+	myPacket.buffer = "hello world!";
+
+	myQueue.push(myPacket);
+	string str;
+	str = myQueue.front().buffer;
+	GeneralLog(str);
+	myQueue.pop();*/
+
+	//FilePacket myPacket;
+	/*myPacket.buffer = "hello world!";
+
+	printf("about to push\n");
+
+	FileQueue.push(myPacket);
+	printf("pushed\n");
+	string str;
+	str = FileQueue.front().buffer;
+	GeneralLog(str);
+	FileQueue.pop();*/
+
+
 }
+
+// -----------------------------------------------------------------------------------------------------------------
+
+
+
 
 } // End of namespace Servers
 } // End of namespace AllStar
