@@ -12,8 +12,6 @@
 #include "servers/SubsystemServer.h"
 #include "util/Logger.h"
 #include <string>
-
-#include "servers/FILServer.h"
 using namespace std;
 using namespace AllStar::Servers;
 
