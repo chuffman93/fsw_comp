@@ -121,11 +121,8 @@ namespace AllStar
 						instance = new PLDServer("PLD", SERVER_LOCATION_PLD);
 						break;
  					case SCH_SERVER_SINGLETON:
- 						printf("beginning of SCH case\n");
  						SCHServer::Initialize( );
- 						printf("after init\n");
  						instance = new SCHServer("SCH", SERVER_LOCATION_SCH);
- 						printf("end of SCH case\n");
  						break;
 					case CDH_SERVER_SINGLETON:
 						CDHServer::Initialize( );

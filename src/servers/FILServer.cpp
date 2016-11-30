@@ -114,17 +114,19 @@ void FILServer::loopInit(void){
 	GeneralLog(str);
 	myQueue.pop();*/
 
-	//FilePacket myPacket;
-	/*myPacket.buffer = "hello world!";
+	/*FilePacket myPacket;
+	myPacket.buffer = "hello world!";
+	FileQueue.push(myPacket);*/
 
-	printf("about to push\n");
-
-	FileQueue.push(myPacket);
-	printf("pushed\n");
-	string str;
-	str = FileQueue.front().buffer;
-	GeneralLog(str);
-	FileQueue.pop();*/
+	if (!FileQueue.empty()){
+		string str;
+		str = FileQueue.front().buffer;
+		GeneralLog(str);
+		FileQueue.pop();
+	}
+	else {
+		printf("Nothing to pop\n");
+	}
 
 
 }
