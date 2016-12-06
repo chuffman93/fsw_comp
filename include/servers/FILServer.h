@@ -35,6 +35,12 @@ struct FilePacket {
 	string buffer;
 };
 
+struct FileInfo {
+	ofstream file;
+	string file_name;
+	int bytes_written;
+};
+
 class FILServer : public SubsystemServer, public AllStar::Core::Singleton{
 	friend class AllStar::Core::Factory;
 
@@ -54,6 +60,13 @@ public:
 
 private:
 	static void Initialize(void);
+	FileInfo GeneralInfo;
+	FileInfo HealthInfo;
+	FileInfo ModeInfo;
+	FileInfo HotSwapInfo;
+	FileInfo ErrorInfo;
+	FileInfo DiagnosticInfo;
+	FileInfo RadInfo;
 
 #ifdef TEST
 	static void Destroy(void);

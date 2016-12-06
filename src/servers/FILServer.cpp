@@ -24,7 +24,7 @@ namespace AllStar{
 namespace Servers{
 
 FILServer::FILServer(string nameIn, LocationIDType idIn) :
-		SubsystemServer(nameIn, idIn), Singleton(), arby(idIn) {
+	SubsystemServer(nameIn, idIn), Singleton(), arby(idIn) {
 }
 
 FILServer::~FILServer(){
@@ -62,10 +62,10 @@ bool FILServer::RegisterHandlers(){
 // ----- File Logging functions ------------------------------------------------------------------------------------
 bool FILServer::GeneralLog(string buf){
 	printf("General: %s\n", buf.c_str());
-	ofstream file;
-	file.open (GENERAL_FILE_LOCATION);
-	file << buf;
-	file.close();
+	//ofstream file;
+	GeneralInfo.file.open (GENERAL_FILE_LOCATION);
+	//file << buf;
+	//file.close();
 	return true;
 }
 
@@ -132,6 +132,7 @@ void FILServer::loopInit(void){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_FATAL, "File server loop");
 	usleep(10000);
+
 
 	if (!FileQueue.empty()){
 		string str;
