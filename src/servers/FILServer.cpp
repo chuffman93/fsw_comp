@@ -60,23 +60,38 @@ bool FILServer::RegisterHandlers(){
 }
 
 // ----- File Logging functions ------------------------------------------------------------------------------------
-void FILServer::OpenNewFile(){
-	// Opens a new file with the appropriate naming scheme. File Descriptor is saved in GeneralInfo struct
+void FILServer::CloseFile(){
+	fclose(GeneralInfo.file);
+	GeneralInfo.file_open = false;
+}
 
+void FILServer::OpenFile(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-	// Get new file name
+	GeneralInfo.file = fopen(GeneralInfo.file_name.c_str(), "a");
+	if (GeneralInfo.file == NULL) { logger->Log(LOGGER_LEVEL_WARN, "Error opening file"); }
+	GeneralInfo.file_open = true;
+	GeneralInfo.bytes_written = 0;
+}
+
+void FILServer::GetFileName(){
 	int time = getTimeInSec();
 	int boot_count = 0;// TODO
 	char fileName[100];
 	sprintf(fileName, "%s/GEN_%d_%d", GENERAL_FILE_LOCATION, boot_count, time);
 	GeneralInfo.file_name = fileName;
+}
 
-	// Create and open new file
-	GeneralInfo.file = fopen(fileName, "a");
-	if (GeneralInfo.file == NULL) { logger->Log(LOGGER_LEVEL_WARN, "Error opening file"); }
-	GeneralInfo.file_open = true;
-	GeneralInfo.bytes_written = 0;
+void FILServer::OpenNewFile(){
+	GetFileName();
+	OpenFile();
+}
+
+void FILServer::Write(string buf, int buf_size){
+	fwrite(buf.c_str(), sizeof(char), buf_size, GeneralInfo.file);
+	fwrite("\n", sizeof(char), 1, GeneralInfo.file);
+	fflush(GeneralInfo.file);
+	GeneralInfo.bytes_written += buf_size + 1;
 }
 
 bool FILServer::GeneralLog(string buf){
@@ -92,20 +107,13 @@ bool FILServer::GeneralLog(string buf){
 			OpenNewFile();
 		}
 
-		if (GeneralInfo.bytes_written + buf_size + 1 < MAX_FILE_SIZE) {// Add one to account for the newline
-			fwrite(buf.c_str(), sizeof(char), buf_size, GeneralInfo.file);
-			fwrite("\n", sizeof(char), 1, GeneralInfo.file);
-			fflush(GeneralInfo.file);
-			GeneralInfo.bytes_written += buf_size + 1;
+		if (GeneralInfo.bytes_written + buf_size + 1 < MAX_FILE_SIZE) {
+			Write(buf, buf_size);
 		}
 		else { // File is full, open new file and write to it
-			fclose (GeneralInfo.file);;
-			GeneralInfo.file_open = false;
+			CloseFile();
 			OpenNewFile();
-			fwrite(buf.c_str(), sizeof(char), buf_size, GeneralInfo.file);
-			fwrite("\n", sizeof(char), 1, GeneralInfo.file);
-			fflush(GeneralInfo.file);
-			GeneralInfo.bytes_written += buf_size + 1;
+			Write(buf, buf_size);
 		}
 	}
 	return true;

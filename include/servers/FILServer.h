@@ -49,7 +49,11 @@ class FILServer : public SubsystemServer, public AllStar::Core::Singleton{
 
 public:
 	bool RegisterHandlers();
+	void CloseFile();
+	void OpenFile();
+	void GetFileName();
 	void OpenNewFile();
+	void Write(string buf, int buf_size);
 	// File Logging functions
 	bool GeneralLog(string buf);
 	bool HealthLog(string buf);
