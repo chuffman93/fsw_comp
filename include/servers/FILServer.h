@@ -21,13 +21,15 @@
 namespace AllStar{
 namespace Servers{
 
-#define GENERAL_FILE_LOCATION		"/SD_2/GENERAL/file.txt"
-#define HEALTH_FILE_LOCATION		"/SD_2/HEALTH/file.txt"
-#define MODE_FILE_LOCATION			"/SD_2/MODE/file.txt"
-#define HOTSWAP_FILE_LOCATION		"/SD_2/HOTSWAP/file.txt"
-#define ERROR_FILE_LOCATION			"/SD_2/ERROR/file.txt"
-#define DIAGNOSTIC_FILE_LOCATION	"/SD_2/DIAGNOSTIC/file.txt"
-#define RAD_FILE_LOCATION			"/SD_3/RAD/file.txt"
+#define GENERAL_FILE_LOCATION		"/SD_2/GENERAL"
+#define HEALTH_FILE_LOCATION		"/SD_2/HEALTH"
+#define MODE_FILE_LOCATION			"/SD_2/MODE"
+#define HOTSWAP_FILE_LOCATION		"/SD_2/HOTSWAP"
+#define ERROR_FILE_LOCATION			"/SD_2/ERROR"
+#define DIAGNOSTIC_FILE_LOCATION	"/SD_2/DIAGNOSTIC"
+#define RAD_FILE_LOCATION			"/SD_3/RAD"
+
+#define MAX_FILE_SIZE				150
 
 
 struct FilePacket {
@@ -36,9 +38,10 @@ struct FilePacket {
 };
 
 struct FileInfo {
-	ofstream file;
+	FILE * file;
 	string file_name;
 	int bytes_written;
+	bool file_open;
 };
 
 class FILServer : public SubsystemServer, public AllStar::Core::Singleton{
@@ -46,6 +49,7 @@ class FILServer : public SubsystemServer, public AllStar::Core::Singleton{
 
 public:
 	bool RegisterHandlers();
+	void OpenNewFile();
 	// File Logging functions
 	bool GeneralLog(string buf);
 	bool HealthLog(string buf);

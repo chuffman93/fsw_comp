@@ -144,7 +144,7 @@ void * WatchdogManager::WatchdogManagerTask(){
 
 	FILServer * fileServer = dynamic_cast<FILServer *> (Factory::GetInstance(FIL_SERVER_SINGLETON));
 
-	FilePacket myPacket1;
+	/*FilePacket myPacket1;
 	myPacket1.buffer = "hello world!";
 	fileServer->FileQueue.push(myPacket1);
 
@@ -171,21 +171,25 @@ void * WatchdogManager::WatchdogManagerTask(){
 	FilePacket myPacket6;
 	myPacket6.buffer = "hello world!";
 	myPacket6.dest = DESTINATION_DIAGNOSTIC;
-	fileServer->FileQueue.push(myPacket6);
+	fileServer->FileQueue.push(myPacket6);*/
 
 	FilePacket myPacket7;
 	myPacket7.buffer = "hello world!";
 	myPacket7.dest = DESTINATION_GENERAL;
 	fileServer->FileQueue.push(myPacket7);
 
-	FilePacket myPacket8;
+	/*FilePacket myPacket8;
 	myPacket8.buffer = "hello world!";
 	myPacket8.dest = DESTINATION_RAD;
-	fileServer->FileQueue.push(myPacket8);
+	fileServer->FileQueue.push(myPacket8);*/
 
 
 
 	while (1){
+		FilePacket myPacket7;
+			myPacket7.buffer = "ADAM, Hi.............................................";
+			myPacket7.dest = DESTINATION_GENERAL;
+			fileServer->FileQueue.push(myPacket7);
 		if (watchdogManager->AllRunningTasksActive()){
 			// all running
 		}else{
