@@ -124,14 +124,28 @@ void CMDServer::loopDiagnostic(){
 
 // TODO: determine login sequence
 void CMDServer::loopLogin(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
 	// if(login){currState = Verbose}
 	// else{retry until COM over?}
+
+	logger->Log("CMDServer: ground login successful", LOGGER_LEVEL_INFO);
 	currentState = ST_VERBOSE_HS;
 }
 
 void CMDServer::loopVerboseHS(){
+	// Set FILServer to COM Pass mode (tie off files for downlink, block file I/O)
+	// Determine current number for each file
+	// Grab and compress files for downlink
+	// Downlink
+
 	/*
-	 * Mode switches, wd restarts, hs faults, error logs
+	 * Mode switches
+	 * wd restarts
+	 * hot swap faults
+	 * error logs
+	 * science pass stats (ie. success?, file names generated?, )
+	 * file system stats (storage used by different sections)
 	 * H&S info from structs?
 	 */
 	currentState = ST_UPLINK;
@@ -148,8 +162,11 @@ void CMDServer::loopDownlink(){
 }
 
 void CMDServer::loopQueueEmpty(){
-	// if still in range, parse the files to downlink file
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	logger->Log("CMDServer: Starting downlink queue update", LOGGER_LEVEL_INFO);
 	updateDownlinkQueue();
+	logger->Log("CMDServer: Finished downlink queue update", LOGGER_LEVEL_INFO);
 	currentState = ST_POST_PASS;
 }
 

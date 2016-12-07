@@ -143,7 +143,6 @@ void updateDownlinkQueue(void){
 	downlinkFile qFile;
 	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
 	while ((read = getline(&line, &len, fp)) != -1) {
-		printf("LINE: %s\n", line);
 		if(strcmp(line, "CLEAR\n") == 0){
 			clearDownlinkQueue();
 			logger->Log("Clearing downlink queue", LOGGER_LEVEL_WARN);
