@@ -61,55 +61,53 @@ bool FILServer::RegisterHandlers(){
 
 // ----- File Logging functions ------------------------------------------------------------------------------------
 void FILServer::OpenNewFile(){
+	// Opens a new file with the appropriate naming scheme. File Descriptor is saved in GeneralInfo struct
+
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
+	// Get new file name
 	int time = getTimeInSec();
 	int boot_count = 0;// TODO
-
-	// Get new file name
 	char fileName[100];
 	sprintf(fileName, "%s/GEN_%d_%d", GENERAL_FILE_LOCATION, boot_count, time);
 	GeneralInfo.file_name = fileName;
-	printf("%s\n",fileName);
-	printf("%s\n",GeneralInfo.file_name.c_str());
 
+	// Create and open new file
 	GeneralInfo.file = fopen(fileName, "a");
-	if (GeneralInfo.file == NULL) {
-		logger->Log(LOGGER_LEVEL_WARN, "Error opening file");
-	}
+	if (GeneralInfo.file == NULL) { logger->Log(LOGGER_LEVEL_WARN, "Error opening file"); }
 	GeneralInfo.file_open = true;
 	GeneralInfo.bytes_written = 0;
-	//fclose (GeneralInfo.file);
 }
 
 bool FILServer::GeneralLog(string buf){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	printf("General: %s\n", buf.c_str());
-
-	// Check if file is open
-	if (!GeneralInfo.file_open) {
-		logger->Log(LOGGER_LEVEL_DEBUG, "File not open");
-		printf("File not open\n");
-		OpenNewFile();
-	}
-
 	int buf_size = buf.size();
-	printf("buf_size: %d\n",buf_size);
 
-	if (GeneralInfo.bytes_written + buf_size + 1 < MAX_FILE_SIZE) {// Add one to account for the newline
-		printf("writing...\n");
-		fwrite(buf.c_str(), sizeof(char), buf_size, GeneralInfo.file);
-		fwrite("\n", sizeof(char), 1, GeneralInfo.file);
-		printf("wrote...\n");
-		GeneralInfo.bytes_written += buf_size + 1;
+	if (buf_size >= MAX_FILE_SIZE) { logger->Log(LOGGER_LEVEL_WARN, "Telemetry larger than file size"); }
+	else{
+		// Check if file is open
+		if (!GeneralInfo.file_open) {
+			logger->Log(LOGGER_LEVEL_DEBUG, "File not open");
+			OpenNewFile();
+		}
+
+		if (GeneralInfo.bytes_written + buf_size + 1 < MAX_FILE_SIZE) {// Add one to account for the newline
+			fwrite(buf.c_str(), sizeof(char), buf_size, GeneralInfo.file);
+			fwrite("\n", sizeof(char), 1, GeneralInfo.file);
+			fflush(GeneralInfo.file);
+			GeneralInfo.bytes_written += buf_size + 1;
+		}
+		else { // File is full, open new file and write to it
+			fclose (GeneralInfo.file);;
+			GeneralInfo.file_open = false;
+			OpenNewFile();
+			fwrite(buf.c_str(), sizeof(char), buf_size, GeneralInfo.file);
+			fwrite("\n", sizeof(char), 1, GeneralInfo.file);
+			fflush(GeneralInfo.file);
+			GeneralInfo.bytes_written += buf_size + 1;
+		}
 	}
-	else {
-		printf("File is full!!\n");
-		fclose (GeneralInfo.file);
-		printf("closed file...\n");
-		GeneralInfo.file_open = false;
-	}
-	printf("file size: %d\n", GeneralInfo.bytes_written);
 	return true;
 }
 
