@@ -60,41 +60,41 @@ bool FILServer::RegisterHandlers(){
 }
 
 // ----- File Logging functions ------------------------------------------------------------------------------------
-void FILServer::CloseFile(){
-	fclose(GeneralInfo.file);
-	GeneralInfo.file_open = false;
+void FileManager::CloseFile(){
+	fclose(file);
+	file_open = false;
 }
 
-void FILServer::OpenFile(){
+void FileManager::OpenFile(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-	GeneralInfo.file = fopen(GeneralInfo.file_name.c_str(), "a");
-	if (GeneralInfo.file == NULL) { logger->Log(LOGGER_LEVEL_WARN, "Error opening file"); }
-	GeneralInfo.file_open = true;
-	GeneralInfo.bytes_written = 0;
+	file = fopen(file_name.c_str(), "a");
+	if (file == NULL) { logger->Log(LOGGER_LEVEL_WARN, "Error opening file"); }
+	file_open = true;
+	bytes_written = 0;
 }
 
-void FILServer::GetFileName(){
+void FileManager::GetFileName(){
 	int time = getTimeInSec();
 	int boot_count = 0;// TODO
 	char fileName[100];
 	sprintf(fileName, "%s/GEN_%d_%d", GENERAL_FILE_LOCATION, boot_count, time);
-	GeneralInfo.file_name = fileName;
+	file_name = fileName;
 }
 
-void FILServer::OpenNewFile(){
+void FileManager::OpenNewFile(){
 	GetFileName();
 	OpenFile();
 }
 
-void FILServer::Write(string buf, int buf_size){
-	fwrite(buf.c_str(), sizeof(char), buf_size, GeneralInfo.file);
-	fwrite("\n", sizeof(char), 1, GeneralInfo.file);
-	fflush(GeneralInfo.file);
-	GeneralInfo.bytes_written += buf_size + 1;
+void FileManager::Write(string buf, int buf_size){
+	fwrite(buf.c_str(), sizeof(char), buf_size, file);
+	fwrite("\n", sizeof(char), 1, file);
+	fflush(file);
+	bytes_written += buf_size + 1;
 }
 
-bool FILServer::GeneralLog(string buf){
+bool FileManager::Log(string buf){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	printf("General: %s\n", buf.c_str());
 	int buf_size = buf.size();
@@ -102,12 +102,12 @@ bool FILServer::GeneralLog(string buf){
 	if (buf_size >= MAX_FILE_SIZE) { logger->Log(LOGGER_LEVEL_WARN, "Telemetry larger than file size"); }
 	else{
 		// Check if file is open
-		if (!GeneralInfo.file_open) {
+		if (!file_open) {
 			logger->Log(LOGGER_LEVEL_DEBUG, "File not open");
 			OpenNewFile();
 		}
 
-		if (GeneralInfo.bytes_written + buf_size + 1 < MAX_FILE_SIZE) {
+		if (bytes_written + buf_size + 1 < MAX_FILE_SIZE) {
 			Write(buf, buf_size);
 		}
 		else { // File is full, open new file and write to it
@@ -116,6 +116,11 @@ bool FILServer::GeneralLog(string buf){
 			Write(buf, buf_size);
 		}
 	}
+	return true;
+}
+
+bool FILServer::GeneralLog(string buf){
+	GeneralLogger.Log(buf);
 	return true;
 }
 

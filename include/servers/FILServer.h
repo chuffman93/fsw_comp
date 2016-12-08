@@ -44,6 +44,21 @@ struct FileInfo {
 	bool file_open;
 };
 
+class FileManager{
+public:
+	void CloseFile();
+	void OpenFile();
+	void GetFileName();
+	void OpenNewFile();
+	void Write(string buf, int buf_size);
+	bool Log(string buf);
+private:
+	FILE * file;
+	string file_name;
+	int bytes_written;
+	bool file_open;
+};
+
 class FILServer : public SubsystemServer, public AllStar::Core::Singleton{
 	friend class AllStar::Core::Factory;
 
@@ -68,13 +83,13 @@ public:
 
 private:
 	static void Initialize(void);
-	FileInfo GeneralInfo;
-	FileInfo HealthInfo;
-	FileInfo ModeInfo;
-	FileInfo HotSwapInfo;
-	FileInfo ErrorInfo;
-	FileInfo DiagnosticInfo;
-	FileInfo RadInfo;
+	FileManager GeneralLogger;
+	FileManager HealthLogger;
+	FileManager ModeLogger;
+	FileManager HotSwapLogger;
+	FileManager ErrorLogger;
+	FileManager DianosticLogger;
+	FileManager RadLogger;
 
 #ifdef TEST
 	static void Destroy(void);
