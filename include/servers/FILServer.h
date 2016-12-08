@@ -21,13 +21,13 @@
 namespace AllStar{
 namespace Servers{
 
-#define GENERAL_FILE_LOCATION		"/SD_2/GENERAL"
-#define HEALTH_FILE_LOCATION		"/SD_2/HEALTH"
-#define MODE_FILE_LOCATION			"/SD_2/MODE"
-#define HOTSWAP_FILE_LOCATION		"/SD_2/HOTSWAP"
-#define ERROR_FILE_LOCATION			"/SD_2/ERROR"
-#define DIAGNOSTIC_FILE_LOCATION	"/SD_2/DIAGNOSTIC"
-#define RAD_FILE_LOCATION			"/SD_3/RAD"
+#define GENERAL_FILE_PATH		"/SD_2/GENERAL"
+#define HEALTH_FILE_PATH		"/SD_2/HEALTH"
+#define MODE_FILE_PATH			"/SD_2/MODE"
+#define HOTSWAP_FILE_PATH		"/SD_2/HOTSWAP"
+#define ERROR_FILE_PATH			"/SD_2/ERROR"
+#define DIAGNOSTIC_FILE_PATH	"/SD_2/DIAGNOSTIC"
+#define RAD_FILE_PATH			"/SD_3/RAD"
 
 #define MAX_FILE_SIZE				150
 
@@ -37,15 +37,9 @@ struct FilePacket {
 	string buffer;
 };
 
-struct FileInfo {
-	FILE * file;
-	string file_name;
-	int bytes_written;
-	bool file_open;
-};
-
 class FileManager{
 public:
+	FileManager(string path);
 	void CloseFile();
 	void OpenFile();
 	void GetFileName();
@@ -54,6 +48,7 @@ public:
 	bool Log(string buf);
 private:
 	FILE * file;
+	string file_path;
 	string file_name;
 	int bytes_written;
 	bool file_open;
@@ -64,19 +59,6 @@ class FILServer : public SubsystemServer, public AllStar::Core::Singleton{
 
 public:
 	bool RegisterHandlers();
-	void CloseFile();
-	void OpenFile();
-	void GetFileName();
-	void OpenNewFile();
-	void Write(string buf, int buf_size);
-	// File Logging functions
-	bool GeneralLog(string buf);
-	bool HealthLog(string buf);
-	bool ModeLog(string buf);
-	bool HotSwapLog(string buf);
-	bool ErrorLog(string buf);
-	bool DiagnosticLog(string buf);
-	bool RadLog(string buf); // Do we need this?
 
 	// FileQueue
 	queue<FilePacket> FileQueue;
@@ -88,7 +70,7 @@ private:
 	FileManager ModeLogger;
 	FileManager HotSwapLogger;
 	FileManager ErrorLogger;
-	FileManager DianosticLogger;
+	FileManager DiagnosticLogger;
 	FileManager RadLogger;
 
 #ifdef TEST
