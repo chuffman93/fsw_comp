@@ -16,7 +16,7 @@
 using namespace std;
 using namespace AllStar::Servers;
 
-#define WATCHDOG_MANAGER_DELAY 10000
+#define WATCHDOG_MANAGER_DELAY 20000
 namespace AllStar{namespace Core{
 
 // -------------------------------------- Necessary Methods --------------------------------------
@@ -172,7 +172,6 @@ void * WatchdogManager::WatchdogManagerTask(){
 		myPacket5.dest = DESTINATION_ERROR;
 		fileServer->FileQueue.push(myPacket5);
 
-		// segfault happens here
 		FilePacket myPacket6;
 		myPacket6.buffer = "to diagnostic!";
 		myPacket6.dest = DESTINATION_DIAGNOSTIC;
