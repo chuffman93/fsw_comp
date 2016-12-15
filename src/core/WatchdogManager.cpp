@@ -183,9 +183,19 @@ void * WatchdogManager::WatchdogManagerTask(){
 		fileServer->FileQueue.push(myPacket7);
 
 		FilePacket myPacket8;
-		myPacket8.buffer = "to rad!";
-		myPacket8.dest = DESTINATION_RAD;
+		myPacket8.buffer = "to file system stats!";
+		myPacket8.dest = DESTINATION_FSS;
 		fileServer->FileQueue.push(myPacket8);
+
+		FilePacket myPacket9;
+		myPacket9.buffer = "to science stats!";
+		myPacket9.dest = DESTINATION_SSS;
+		fileServer->FileQueue.push(myPacket9);
+
+		FilePacket myPacket10;
+		myPacket10.buffer = "to rad!";
+		myPacket10.dest = DESTINATION_RAD;
+		fileServer->FileQueue.push(myPacket10);
 
 
 

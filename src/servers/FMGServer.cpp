@@ -98,6 +98,8 @@ FMGServer::FMGServer(string nameIn, LocationIDType idIn) :
 					SWPLogger(SWP_FILE_PATH),
 					ERRLogger(ERR_FILE_PATH),
 					DGNLogger(DGN_FILE_PATH),
+					FSSLogger(FSS_FILE_PATH),
+					SSSLogger(SSS_FILE_PATH),
 					RADLogger(RAD_FILE_PATH)
 					{
 }
@@ -177,6 +179,16 @@ void FMGServer::loopInit(void){
 		case DESTINATION_DGN:
 			if ( !DGNLogger.Log(str.c_str()) ) {
 				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Diagnostic File");
+			}
+			break;
+		case DESTINATION_FSS:
+			if ( !FSSLogger.Log(str.c_str()) ) {
+				logger->Log(LOGGER_LEVEL_WARN, "Error writing to File System File");
+			}
+			break;
+		case DESTINATION_SSS:
+			if ( !SSSLogger.Log(str.c_str()) ) {
+				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Science System File");
 			}
 			break;
 		case DESTINATION_RAD:

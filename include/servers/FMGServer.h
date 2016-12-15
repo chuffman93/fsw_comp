@@ -27,6 +27,8 @@ namespace Servers{
 #define SWP_FILE_PATH		"/SD_2/SWP"
 #define ERR_FILE_PATH		"/SD_2/ERR"
 #define DGN_FILE_PATH		"/SD_2/DGN"
+#define FSS_FILE_PATH		"/SD_2/FSS"
+#define SSS_FILE_PATH		"/SD_2/SSS"
 #define RAD_FILE_PATH		"/SD_3/RAD"
 
 #define MAX_FILE_SIZE		150
@@ -71,6 +73,8 @@ private:
 	FileManager SWPLogger;
 	FileManager ERRLogger;
 	FileManager DGNLogger;
+	FileManager FSSLogger;
+	FileManager SSSLogger;
 	FileManager RADLogger;
 
 #ifdef TEST
