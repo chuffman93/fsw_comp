@@ -142,69 +142,71 @@ bool FMGServer::RegisterHandlers(){
 
 void FMGServer::loopInit(void){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log(LOGGER_LEVEL_FATAL, "File server loop");
-	usleep(100);
+
+	while(1) { // TODO I think there is a way to do this without the while loop
+		usleep(100000);
 
 
-	if (!FileQueue.empty()){
-		string str;
-		str = FileQueue.front().buffer;
+		if (!FileQueue.empty()){
+			string str;
+			str = FileQueue.front().buffer;
 
-		switch (FileQueue.front().dest){
-		case DESTINATION_GEN:
-			if ( !GENLogger.Log(str.c_str()) ) {
-				logger->Log(LOGGER_LEVEL_WARN, "Error writing to General File");
+			switch (FileQueue.front().dest){
+			case DESTINATION_GEN:
+				if ( !GENLogger.Log(str.c_str()) ) {
+					logger->Log(LOGGER_LEVEL_WARN, "Error writing to General File");
+				}
+				break;
+			case DESTINATION_HST:
+				if( !HSTLogger.Log(str.c_str()) ) {
+					logger->Log(LOGGER_LEVEL_WARN, "Error writing to Health File");
+				}
+				break;
+			case DESTINATION_MOD:
+				if( !MODLogger.Log(str.c_str()) ) {
+					logger->Log(LOGGER_LEVEL_WARN, "Error writing to Mode File");
+				}
+				break;
+			case DESTINATION_SWP:
+				if ( !SWPLogger.Log(str.c_str()) ) {
+					logger->Log(LOGGER_LEVEL_WARN, "Error writing to HotSwap File");
+				}
+				break;
+			case DESTINATION_ERR:
+				if ( !ERRLogger.Log(str.c_str()) ) {
+					logger->Log(LOGGER_LEVEL_WARN, "Error writing to Error File");
+				}
+				break;
+			case DESTINATION_DGN:
+				if ( !DGNLogger.Log(str.c_str()) ) {
+					logger->Log(LOGGER_LEVEL_WARN, "Error writing to Diagnostic File");
+				}
+				break;
+			case DESTINATION_FSS:
+				if ( !FSSLogger.Log(str.c_str()) ) {
+					logger->Log(LOGGER_LEVEL_WARN, "Error writing to File System File");
+				}
+				break;
+			case DESTINATION_SSS:
+				if ( !SSSLogger.Log(str.c_str()) ) {
+					logger->Log(LOGGER_LEVEL_WARN, "Error writing to Science System File");
+				}
+				break;
+			case DESTINATION_RAD:
+				if ( !RADLogger.Log(str.c_str()) ) {
+					logger->Log(LOGGER_LEVEL_WARN, "Error writing to Rad File");
+				}
+				break;
+			default:
+				logger->Log(LOGGER_LEVEL_WARN, "FILServer: Unknown destination!");
+				break;
 			}
-			break;
-		case DESTINATION_HST:
-			if( !HSTLogger.Log(str.c_str()) ) {
-				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Health File");
-			}
-			break;
-		case DESTINATION_MOD:
-			if( !MODLogger.Log(str.c_str()) ) {
-				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Mode File");
-			}
-			break;
-		case DESTINATION_SWP:
-			if ( !SWPLogger.Log(str.c_str()) ) {
-				logger->Log(LOGGER_LEVEL_WARN, "Error writing to HotSwap File");
-			}
-			break;
-		case DESTINATION_ERR:
-			if ( !ERRLogger.Log(str.c_str()) ) {
-				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Error File");
-			}
-			break;
-		case DESTINATION_DGN:
-			if ( !DGNLogger.Log(str.c_str()) ) {
-				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Diagnostic File");
-			}
-			break;
-		case DESTINATION_FSS:
-			if ( !FSSLogger.Log(str.c_str()) ) {
-				logger->Log(LOGGER_LEVEL_WARN, "Error writing to File System File");
-			}
-			break;
-		case DESTINATION_SSS:
-			if ( !SSSLogger.Log(str.c_str()) ) {
-				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Science System File");
-			}
-			break;
-		case DESTINATION_RAD:
-			if ( !RADLogger.Log(str.c_str()) ) {
-				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Rad File");
-			}
-			break;
-		default:
-		    logger->Log(LOGGER_LEVEL_WARN, "FILServer: Unknown destination!");
-		    break;
+
+			FileQueue.pop();
 		}
-
-		FileQueue.pop();
-	}
-	else {
-		printf("Nothing to pop\n");
+		else {
+			printf("Nothing to pop\n");
+		}
 	}
 
 

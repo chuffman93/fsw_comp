@@ -197,6 +197,10 @@ void * WatchdogManager::WatchdogManagerTask(){
 		myPacket10.dest = DESTINATION_RAD;
 		fileServer->FileQueue.push(myPacket10);
 
+		FilePacket myPacket11;
+		myPacket11.buffer = "this is a very long message. There is lots and lots and lots of data here! Oh no! What am I possibly going to do with all this data?? Who knows? But one thing is for sure... There is a hell of a lot of data here. Jeez, it just keeps on coming doesn't it. Yessir. Just keeps on coming. Why are you still reading this buffer anyway? Don't you have better things to be doing than reading a buffer??? Okay, I'm done.";
+		myPacket11.dest = DESTINATION_GEN;
+		fileServer->FileQueue.push(myPacket11);
 
 
 

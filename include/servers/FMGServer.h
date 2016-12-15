@@ -31,7 +31,7 @@ namespace Servers{
 #define SSS_FILE_PATH		"/SD_2/SSS"
 #define RAD_FILE_PATH		"/SD_3/RAD"
 
-#define MAX_FILE_SIZE		150
+#define MAX_FILE_SIZE		10000 // There is also an old enum to deal with this
 
 
 struct FilePacket {
