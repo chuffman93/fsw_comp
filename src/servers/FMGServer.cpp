@@ -1,12 +1,12 @@
 /*
-* FILServer.cpp
+* FMGServer.cpp
 *
 *  Created on: Nov 28, 2016
 *      Author: Jack Dinkel
 *  Modified by:
 */
 
-#include "servers/FILServer.h"
+#include "servers/FMGServer.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
 #include "core/StdTypes.h"
@@ -88,38 +88,38 @@ bool FileManager::Log(string buf){
 
 
 // ----- FILServer functions ------------------------------------------------------------------------------------
-FILServer::FILServer(string nameIn, LocationIDType idIn) :
+FMGServer::FMGServer(string nameIn, LocationIDType idIn) :
 					SubsystemServer(nameIn, idIn),
 					Singleton(),
 					arby(idIn),
-					GeneralLogger(GENERAL_FILE_PATH),
-					HealthLogger(HEALTH_FILE_PATH),
-					ModeLogger(MODE_FILE_PATH),
-					HotSwapLogger(HOTSWAP_FILE_PATH),
-					ErrorLogger(ERROR_FILE_PATH),
-					DiagnosticLogger(DIAGNOSTIC_FILE_PATH),
-					RadLogger(RAD_FILE_PATH)
+					GENLogger(GEN_FILE_PATH),
+					HSTLogger(HST_FILE_PATH),
+					MODLogger(MOD_FILE_PATH),
+					SWPLogger(SWP_FILE_PATH),
+					ERRLogger(ERR_FILE_PATH),
+					DGNLogger(DGN_FILE_PATH),
+					RADLogger(RAD_FILE_PATH)
 					{
 }
 
-FILServer::~FILServer(){
+FMGServer::~FMGServer(){
 }
 
-void FILServer::Initialize(void){
+void FMGServer::Initialize(void){
 
 }
 
 #ifdef TEST
-void FILServer::Destroy(void){
+void FMGServer::Destroy(void){
 
 }
 #endif
 
-bool FILServer::IsFullyInitialized(void){
+bool FMGServer::IsFullyInitialized(void){
 	return(Singleton::IsFullyInitialized());
 }
 
-FILServer & FILServer::operator=(const FILServer & source){
+FMGServer & FMGServer::operator=(const FMGServer & source){
 	if (this == &source){
 		return *this;
 	}
@@ -129,7 +129,7 @@ FILServer & FILServer::operator=(const FILServer & source){
 	return *this;
 }
 
-bool FILServer::RegisterHandlers(){
+bool FMGServer::RegisterHandlers(){
 	bool success = true;
 	return success;
 }
@@ -138,7 +138,7 @@ bool FILServer::RegisterHandlers(){
 
 // --------- State Machine -----------------------------------------------------------------------------------------
 
-void FILServer::loopInit(void){
+void FMGServer::loopInit(void){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_FATAL, "File server loop");
 	usleep(100);
@@ -149,38 +149,38 @@ void FILServer::loopInit(void){
 		str = FileQueue.front().buffer;
 
 		switch (FileQueue.front().dest){
-		case DESTINATION_GENERAL:
-			if ( !GeneralLogger.Log(str.c_str()) ) {
+		case DESTINATION_GEN:
+			if ( !GENLogger.Log(str.c_str()) ) {
 				logger->Log(LOGGER_LEVEL_WARN, "Error writing to General File");
 			}
 			break;
-		case DESTINATION_HEALTH:
-			if( !HealthLogger.Log(str.c_str()) ) {
+		case DESTINATION_HST:
+			if( !HSTLogger.Log(str.c_str()) ) {
 				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Health File");
 			}
 			break;
-		case DESTINATION_MODE:
-			if( !ModeLogger.Log(str.c_str()) ) {
+		case DESTINATION_MOD:
+			if( !MODLogger.Log(str.c_str()) ) {
 				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Mode File");
 			}
 			break;
-		case DESTINATION_HOTSWAP:
-			if ( !HotSwapLogger.Log(str.c_str()) ) {
+		case DESTINATION_SWP:
+			if ( !SWPLogger.Log(str.c_str()) ) {
 				logger->Log(LOGGER_LEVEL_WARN, "Error writing to HotSwap File");
 			}
 			break;
-		case DESTINATION_ERROR:
-			if ( !ErrorLogger.Log(str.c_str()) ) {
+		case DESTINATION_ERR:
+			if ( !ERRLogger.Log(str.c_str()) ) {
 				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Error File");
 			}
 			break;
-		case DESTINATION_DIAGNOSTIC:
-			if ( !DiagnosticLogger.Log(str.c_str()) ) {
+		case DESTINATION_DGN:
+			if ( !DGNLogger.Log(str.c_str()) ) {
 				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Diagnostic File");
 			}
 			break;
 		case DESTINATION_RAD:
-			if ( !RadLogger.Log(str.c_str()) ) {
+			if ( !RADLogger.Log(str.c_str()) ) {
 				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Rad File");
 			}
 			break;

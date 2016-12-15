@@ -61,7 +61,7 @@
 #include "servers/GPSServer.h"
 #include "servers/PLDServer.h"
 #include "servers/CDHServer.h"
-#include "servers/FILServer.h"
+#include "servers/FMGServer.h"
 #include "servers/SubsystemServer.h"
 #include "servers/ERRServer.h"
 #include "servers/ErrorQueue.h"
@@ -107,7 +107,7 @@ int main(int argc, char * argv[])
 	COMServer * comServer = dynamic_cast<COMServer *> (Factory::GetInstance(COM_SERVER_SINGLETON));
 	EPSServer * epsServer = dynamic_cast<EPSServer *> (Factory::GetInstance(EPS_SERVER_SINGLETON));
 	ERRServer * errServer = dynamic_cast<ERRServer *> (Factory::GetInstance(ERR_SERVER_SINGLETON));
-	FILServer * filServer = dynamic_cast<FILServer *> (Factory::GetInstance(FIL_SERVER_SINGLETON));
+	FMGServer * filServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
 	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 	PLDServer * pldServer = dynamic_cast<PLDServer *> (Factory::GetInstance(PLD_SERVER_SINGLETON));
 	SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));

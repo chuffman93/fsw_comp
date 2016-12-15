@@ -10,7 +10,7 @@
 #include "core/WatchdogStdTasks.h"#include "core/Factory.h"
 #include "core/Singleton.h"
 #include "servers/SubsystemServer.h"
-#include "servers/FILServer.h"
+#include "servers/FMGServer.h"
 #include "util/Logger.h"
 #include <string>
 using namespace std;
@@ -142,7 +142,7 @@ void * WatchdogManager::WatchdogManagerTask(){
 	WatchdogManager * watchdogManager = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 	waitUntil(lastWakeTime, WATCHDOG_MANAGER_DELAY);
 
-	FILServer * fileServer = dynamic_cast<FILServer *> (Factory::GetInstance(FIL_SERVER_SINGLETON));
+	FMGServer * fileServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
 
 	while (1){
 
@@ -154,32 +154,32 @@ void * WatchdogManager::WatchdogManagerTask(){
 
 		FilePacket myPacket2;
 		myPacket2.buffer = "to health!";
-		myPacket2.dest = DESTINATION_HEALTH;
+		myPacket2.dest = DESTINATION_HST;
 		fileServer->FileQueue.push(myPacket2);
 
 		FilePacket myPacket3;
 		myPacket3.buffer = "to mode!";
-		myPacket3.dest = DESTINATION_MODE;
+		myPacket3.dest = DESTINATION_MOD;
 		fileServer->FileQueue.push(myPacket3);
 
 		FilePacket myPacket4;
 		myPacket4.buffer = "to hotswap!";
-		myPacket4.dest = DESTINATION_HOTSWAP;
+		myPacket4.dest = DESTINATION_SWP;
 		fileServer->FileQueue.push(myPacket4);
 
 		FilePacket myPacket5;
 		myPacket5.buffer = "to error!";
-		myPacket5.dest = DESTINATION_ERROR;
+		myPacket5.dest = DESTINATION_ERR;
 		fileServer->FileQueue.push(myPacket5);
 
 		FilePacket myPacket6;
 		myPacket6.buffer = "to diagnostic!";
-		myPacket6.dest = DESTINATION_DIAGNOSTIC;
+		myPacket6.dest = DESTINATION_DGN;
 		fileServer->FileQueue.push(myPacket6);
 
 		FilePacket myPacket7;
 		myPacket7.buffer = "to general!";
-		myPacket7.dest = DESTINATION_GENERAL;
+		myPacket7.dest = DESTINATION_GEN;
 		fileServer->FileQueue.push(myPacket7);
 
 		FilePacket myPacket8;

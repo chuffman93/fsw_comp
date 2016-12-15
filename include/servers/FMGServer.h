@@ -1,13 +1,13 @@
 /*
- * FILServer.h
+ * FMGServer.h
  *
  *  Created on: Nov 28, 2016
  *      Author: Jack Dinkel
  *  Modified:
  */
 
-#ifndef FILSERVER_H_
-#define FILSERVER_H_
+#ifndef FMGSERVER_H_
+#define FMGSERVER_H_
 
 #include "servers/SubsystemServer.h"
 #include "core/Dispatcher.h"
@@ -21,15 +21,15 @@
 namespace AllStar{
 namespace Servers{
 
-#define GENERAL_FILE_PATH		"/SD_2/GENERAL"
-#define HEALTH_FILE_PATH		"/SD_2/HEALTH"
-#define MODE_FILE_PATH			"/SD_2/MODE"
-#define HOTSWAP_FILE_PATH		"/SD_2/HOTSWAP"
-#define ERROR_FILE_PATH			"/SD_2/ERROR"
-#define DIAGNOSTIC_FILE_PATH	"/SD_2/DIAGNOSTIC"
-#define RAD_FILE_PATH			"/SD_3/RAD"
+#define GEN_FILE_PATH		"/SD_2/GEN"
+#define HST_FILE_PATH		"/SD_2/HST"
+#define MOD_FILE_PATH		"/SD_2/MOD"
+#define SWP_FILE_PATH		"/SD_2/SWP"
+#define ERR_FILE_PATH		"/SD_2/ERR"
+#define DGN_FILE_PATH		"/SD_2/DGN"
+#define RAD_FILE_PATH		"/SD_3/RAD"
 
-#define MAX_FILE_SIZE				150
+#define MAX_FILE_SIZE		150
 
 
 struct FilePacket {
@@ -54,7 +54,7 @@ private:
 	bool file_open;
 };
 
-class FILServer : public SubsystemServer, public AllStar::Core::Singleton{
+class FMGServer : public SubsystemServer, public AllStar::Core::Singleton{
 	friend class AllStar::Core::Factory;
 
 public:
@@ -65,13 +65,13 @@ public:
 
 private:
 	static void Initialize(void);
-	FileManager GeneralLogger;
-	FileManager HealthLogger;
-	FileManager ModeLogger;
-	FileManager HotSwapLogger;
-	FileManager ErrorLogger;
-	FileManager DiagnosticLogger;
-	FileManager RadLogger;
+	FileManager GENLogger;
+	FileManager HSTLogger;
+	FileManager MODLogger;
+	FileManager SWPLogger;
+	FileManager ERRLogger;
+	FileManager DGNLogger;
+	FileManager RADLogger;
 
 #ifdef TEST
 	static void Destroy(void);
@@ -79,9 +79,9 @@ private:
 
 	bool IsFullyInitialized(void);
 
-	FILServer(std::string nameIn, LocationIDType idIn);
-	~FILServer();
-	FILServer & operator=(const FILServer & source);
+	FMGServer(std::string nameIn, LocationIDType idIn);
+	~FMGServer();
+	FMGServer & operator=(const FMGServer & source);
 
 	// Member variables needed to register message handlers.
 	AllStar::Core::MessageHandlerRegistry reg;
@@ -91,7 +91,7 @@ private:
 	void loopInit();;
 
 	BEGIN_STATE_MAP
-	STATE_MAP_ENTRY(&FILServer::loopInit)
+	STATE_MAP_ENTRY(&FMGServer::loopInit)
 	END_STATE_MAP
 
 };
@@ -99,4 +99,4 @@ private:
 }
 }
 
-#endif /* FILSERVER_H_ */
+#endif /* FMGSERVER_H_ */
