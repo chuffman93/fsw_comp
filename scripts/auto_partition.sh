@@ -1,6 +1,9 @@
 #!/bin/sh
 
 ######
+# auto_partition.sh
+# Last Modified: Jack Dinkel 12/15/16
+#
 # This script will format an SD card with three partitions as follows:
 # 1. 512mb EXT3
 # 2. 8GB   EXT3

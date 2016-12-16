@@ -1,9 +1,7 @@
 /*
 * FMGServer.cpp
 *
-*  Created on: Nov 28, 2016
-*      Author: Jack Dinkel
-*  Modified by:
+*  Last Modified: Jack Dinkel 12/15/16
 */
 
 #include "servers/FMGServer.h"

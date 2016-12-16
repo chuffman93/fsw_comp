@@ -1,6 +1,9 @@
 #!/bin/sh
 
 ######
+# auto_mount.sh
+# Last Modified: Jack Dinkel 12/15/16
+#
 # This script will configure CDH to automount all partitions of an SD card.
 # The SD card must be preformatted and physically inserted into CDH.
 #

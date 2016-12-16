@@ -1,4 +1,7 @@
 /*! \file WatchdogManager.cpp
+ *
+ *  Last Modified: Jack Dinkel 12/15/16
+ *
  *  \brief Implementation File for the WatchdogManager Class
  *
  *  This file contains the implementation of the WatchdogManager class, which
