@@ -26,8 +26,19 @@ FileManager::FileManager(string path){
 	file_path = path;
 }
 void FileManager::CloseFile(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	// Close the file
 	fclose(file);
 	file_open = false;
+
+	// Move the file out of CUR
+	string new_file_name = file_path.substr(file_path.length()+4, file_name.length()-1);
+	logger->Log(LOGGER_LEVEL_WARN, "moving file from %s to %s", file_name.c_str(), new_file_name.c_str());
+	if (rename(file_name.c_str(), new_file_name.c_str())) {
+		logger->Log(LOGGER_LEVEL_WARN, "Error moving file from %s to %s", file_name.c_str(), new_file_name.c_str());
+	}
+	file_path = new_file_name;
 }
 
 void FileManager::OpenFile(){
@@ -43,7 +54,7 @@ void FileManager::GetFileName(){
 	int time = getTimeInSec();
 	int boot_count = 0;// TODO
 	char fileName[100];
-	sprintf(fileName, "%s/GEN_%d_%d", file_path.c_str(), boot_count, time);
+	sprintf(fileName, "%s/CUR/GEN_%d_%d", file_path.c_str(), boot_count, time);
 	file_name = fileName;
 }
 
@@ -144,7 +155,7 @@ void FMGServer::loopInit(void){
 	while(1) { // TODO I think there is a way to do this without the while loop
 		usleep(100000);
 
-
+		// TODO kick the watchdog!
 		if (!FileQueue.empty()){
 			string str;
 			str = FileQueue.front().buffer;
@@ -196,7 +207,7 @@ void FMGServer::loopInit(void){
 				}
 				break;
 			default:
-				logger->Log(LOGGER_LEVEL_WARN, "FILServer: Unknown destination!");
+				logger->Log(LOGGER_LEVEL_WARN, "FMGServer: Unknown destination!");
 				break;
 			}
 
