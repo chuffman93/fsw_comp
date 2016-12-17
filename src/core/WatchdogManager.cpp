@@ -1,6 +1,6 @@
 /*! \file WatchdogManager.cpp
  *
- *  Last Modified: Jack Dinkel 12/15/16
+ *  Last Modified: Jack Dinkel 12/16/16
  *
  *  \brief Implementation File for the WatchdogManager Class
  *

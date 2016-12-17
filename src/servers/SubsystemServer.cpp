@@ -3,6 +3,8 @@
  *
  *  Created on: Feb 16, 2011
  *      Author: Riley
+ *
+ *  Last Modified: Jack Dinkel 12/16/16
  */
 
 #include "servers/SubsystemServer.h"
@@ -22,7 +24,13 @@ namespace AllStar{
 namespace Servers{
 
 SubsystemServer::SubsystemServer(string nameIn, LocationIDType idIn)
-				: Server(nameIn, idIn), currentState(0)
+				: Server(nameIn, idIn), currentState(0), sleepTime(1000)
+{
+	// Left Intentionally Blank
+}
+
+SubsystemServer::SubsystemServer(string nameIn, LocationIDType idIn, int sleep)
+				: Server(nameIn, idIn), currentState(0), sleepTime(sleep)
 {
 	// Left Intentionally Blank
 }
@@ -58,7 +66,7 @@ void SubsystemServer::SubsystemLoop(void)
 		int64 LastWakeTime = getTimeInMillis();
 		while(Listen(id));
 		wdm->Kick();
-		waitUntil(LastWakeTime, 1000); // TODO: rewrite with sleep based on time elapsed
+		waitUntil(LastWakeTime, sleepTime); // TODO: rewrite with sleep based on time elapsed
 		
 		StateFunc function = GetStateMap()[currentState].function;
 

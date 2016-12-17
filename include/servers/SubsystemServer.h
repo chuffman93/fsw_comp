@@ -4,6 +4,8 @@
  *  Created on: Feb 16, 2011
  *      Author: Riley
  *
+ *  Last Modified: Jack Dinkel 12/16/16
+ *
  *   State Machine template from : http://www.drdobbs.com/cpp/state-machine-design-in-c/184401236?pgno=2
  */
 
@@ -22,6 +24,7 @@ class SubsystemServer : public Server
 {
 public:
 	SubsystemServer(std::string nameIn, LocationIDType idIn);
+	SubsystemServer(std::string nameIn, LocationIDType idIn, int sleep);
 	virtual ~SubsystemServer();
 	SubsystemServer & operator=(const SubsystemServer & source);
 	virtual bool operator ==(const Server & check) const;
@@ -29,6 +32,7 @@ public:
 	virtual bool RegisterHandlers(void){return true;};
 protected:
 	uint16_t currentState;
+	int sleepTime;
 	virtual const StateStruct * GetStateMap() = 0;
 };
 
