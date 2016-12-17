@@ -37,9 +37,7 @@ void FileManager::CloseFile(){
 	new_file_name.erase(file_path.length(), 4);
 	if (rename(file_name.c_str(), new_file_name.c_str())) {
 		logger->Log(LOGGER_LEVEL_WARN, "Error moving file from %s to %s", file_name.c_str(), new_file_name.c_str());
-		perror("Error!!");
 	}
-	logger->Log(LOGGER_LEVEL_WARN, "Moved file from %s to %s", file_name.c_str(), new_file_name.c_str());
 	file_name = new_file_name;
 }
 
@@ -74,7 +72,6 @@ void FileManager::Write(string buf, int buf_size){
 
 bool FileManager::Log(string buf){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	printf("Buf: %s\n", buf.c_str());
 	int buf_size = buf.size();
 
 	if (buf_size >= MAX_FILE_SIZE) { logger->Log(LOGGER_LEVEL_WARN, "Telemetry larger than file size"); }
@@ -150,7 +147,6 @@ bool FMGServer::RegisterHandlers(){
 
 
 // --------- State Machine -----------------------------------------------------------------------------------------
-
 void FMGServer::loopInit(void){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
@@ -211,11 +207,6 @@ void FMGServer::loopInit(void){
 
 		FileQueue.pop();
 	}
-	else {
-		printf("Nothing to pop\n");
-	}
-
-
 }
 
 // -----------------------------------------------------------------------------------------------------------------
