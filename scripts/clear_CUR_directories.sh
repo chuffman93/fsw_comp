@@ -7,6 +7,11 @@
 # Intended to be run everytim CDH boots.
 # Moves all data in CUR directories to
 # their data directory.
+#
+# Set this file to run on boot by putting
+# it in your crontabs:
+#     crontab -e
+#     add the line: @reboot <filename>
 #######################################
 
 # All directories on /SD_2
