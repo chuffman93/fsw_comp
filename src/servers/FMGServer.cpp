@@ -97,7 +97,7 @@ bool FileManager::Log(string buf){
 
 // ----- FILServer functions ------------------------------------------------------------------------------------
 FMGServer::FMGServer(string nameIn, LocationIDType idIn) :
-					SubsystemServer(nameIn, idIn, 100),
+					SubsystemServer(nameIn, idIn, 100, 1000),
 					Singleton(),
 					arby(idIn),
 					GENLogger(GEN_FILE_PATH),

@@ -126,12 +126,6 @@ ACPPacket * ACSNoReturn(){
 }
 
 // Command/Data
-void ACSHealthStatus(void){
-	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, HEALTH_STATUS_CMD);
-	ACPPacket * HSRet = DispatchPacket(HSQuery);
-	//PacketProcess(SERVER_LOCATION_ACS, HSRet);
-}
-
 void ACSSendGPS(){
 	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
