@@ -133,7 +133,7 @@ void updateDownlinkQueue(void){
 	// open the files to downlink file
 	fp = fopen(FILES_TO_DOWNLINK_UPLK, "r");
 	if (fp == NULL){
-		logger->Log("CMDStdTasks: error opening files to downlink file", LOGGER_LEVEL_ERROR);
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: error opening files to downlink file");
 		return;
 	}
 
@@ -147,7 +147,7 @@ void updateDownlinkQueue(void){
 	while ((read = getline(&line, &len, fp)) != -1) {
 		if(strcmp(line, "CLEAR\n") == 0){
 			clearDownlinkQueue();
-			logger->Log("Clearing downlink queue", LOGGER_LEVEL_WARN);
+			logger->Log(LOGGER_LEVEL_WARN, "Clearing downlink queue");
 		}else{
 			// parse and compress the file to downlink
 			archive = strtok(line,",");
@@ -195,7 +195,7 @@ void processUplinkFiles(void){
 	if(access(SCHEDULE_UPLK, F_OK) != -1){
 		rename(SCHEDULE_UPLK, SCH_SCHEDULE_FILE);
 	}else{
-		logger->Log("ProcessUplinkFiles(): No new schedule file!", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_WARN, "ProcessUplinkFiles(): No new schedule file!");
 	}
 }
 
