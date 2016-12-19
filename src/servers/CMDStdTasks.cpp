@@ -5,6 +5,7 @@
  *      Author: Brian Campuzano
  */
 
+#include "servers/CMDServer.h"
 #include "servers/SCHServer.h"
 #include "servers/CMDStdTasks.h"
 #include "servers/DispatchStdTasks.h"
@@ -15,12 +16,10 @@
 #include "util/FileHandler.h"
 #include "util/Logger.h"
 #include "util/Diagnostics.h"
-#include <cstdio>
-#include <iostream>
 #include <termios.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <list>
+#include <string>
+//#include <regex>
+//#include <experimental/filesystem>
 
 using namespace AllStar::Core;
 using namespace std;
@@ -120,6 +119,83 @@ void runDiagnostic(void){
 
 		// FIXME: decide on deletion/transfer scheme
 		//remove("diagnostics.txt");
+	}
+}
+
+void updateDownlinkQueue(void){
+	// Read in the files to downlink, and update the downlink priority queue
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	FILE * fp;
+	char * line = NULL;
+	size_t len = 0;
+	ssize_t read;
+
+	// open the files to downlink file
+	fp = fopen(FILES_TO_DOWNLINK_UPLK, "r");
+	if (fp == NULL){
+		logger->Log("CMDStdTasks: error opening files to downlink file", LOGGER_LEVEL_ERROR);
+		return;
+	}
+
+	// parse the file line by line
+	char * archive;
+	char * path;
+	char * prio;
+	int priority;
+	downlinkFile qFile;
+	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
+	while ((read = getline(&line, &len, fp)) != -1) {
+		if(strcmp(line, "CLEAR\n") == 0){
+			clearDownlinkQueue();
+			logger->Log("Clearing downlink queue", LOGGER_LEVEL_WARN);
+		}else{
+			// parse and compress the file to downlink
+			archive = strtok(line,",");
+			if(archive != NULL){
+				path = strtok(NULL,",");
+				if(path != NULL){
+					prio = strtok(NULL,",");
+					if(prio != NULL){
+						priority = atoi(prio);
+
+						string cmd = "tar -czvf " + string(DOWNLINK_DIRECTORY) + string(archive) + " " + string(path);
+						system(cmd.c_str());
+
+						qFile.fileName = archive;
+						qFile.pathName = path;
+						qFile.priority = priority;
+						cmdServer->downlinkPriorityQueue.push(qFile);
+					}
+				}
+			}
+		}
+	}
+
+	fclose(fp);
+}
+
+void clearDownlinkQueue(void){
+	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
+
+	while(!cmdServer->downlinkPriorityQueue.empty()){
+		string cmd = "rm " + string(DOWNLINK_DIRECTORY) + string(cmdServer->downlinkPriorityQueue.top().fileName);
+		system(cmd.c_str());
+		cmdServer->downlinkPriorityQueue.pop();
+	}
+}
+
+void postPassExecution(void){
+	// parse and execute post-pass execution script
+}
+
+void processUplinkFiles(void){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	// Move new schedule from the uplink directory to its final directory
+	if(access(SCHEDULE_UPLK, F_OK) != -1){
+		rename(SCHEDULE_UPLK, SCH_SCHEDULE_FILE);
+	}else{
+		logger->Log("ProcessUplinkFiles(): No new schedule file!", LOGGER_LEVEL_WARN);
 	}
 }
 

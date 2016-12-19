@@ -23,6 +23,7 @@ namespace Servers{
 
 #define SCH_CONFIG_FILE "SCHConfig"
 #define SCH_SCHEDULE_FILE "uplink/Schedule"
+
 class SCHServer : public SubsystemServer, public AllStar::Core::Singleton
 {
 	/*! \brief Declare Factory a friend class

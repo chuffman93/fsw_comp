@@ -76,6 +76,8 @@ void PLDServer::loopInit(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "PLDServer: initializing");
 
+	// TODO: synchronize clock with GPS
+
 	//No need to do anything
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	if(modeManager->GetMode() != MODE_STARTUP){
