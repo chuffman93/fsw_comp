@@ -100,6 +100,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cdh-fsw/include}&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.other.other.875744819" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" useByScannerDiscovery="false" value="-c -fmessage-length=0 -D ARM -D DEBUG" valueType="string"/>
+								<option id="gnu.cpp.compiler.option.dialect.std.1595789437" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" value="gnu.cpp.compiler.dialect.default" valueType="enumerated"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.83323647" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool command="arm-linxu-gnueabihf-gcc" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" id="cdt.managedbuild.tool.gnu.c.compiler.base.582756987" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">

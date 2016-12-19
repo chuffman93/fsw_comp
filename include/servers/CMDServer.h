@@ -31,11 +31,14 @@ namespace Servers{
 #define IMMEDIATE_EXECUTION_UPLK 	"/home/root/fileSysTest/home/uplink/im"
 #define SCHEDULE_UPLK				"/home/root/fileSysTest/home/uplink/schedule"
 
+#define PASS_TIMEOUT	900		// 900 s = 15 min
+
 // Define a struct type for the downlink priority queue, needs overloaded "<" operator to handle priority
 struct downlinkFile{
 	string fileName;
 	string pathName;
 	uint8 priority;
+	int compressedSize;
 
 	bool operator<(const downlinkFile& file2) const{
 		return(priority < file2.priority);
@@ -67,10 +70,14 @@ private:
 	AllStar::Core::MessageHandlerRegistry reg;
 	AllStar::Core::Arbitrator arby;
 
+	// COM Pass Variables
+	int32 passStart;
+
 	// Modes
 	void loopInit();
 	void loopIdle();
 	void loopDiagnostic();
+	void loopPrePass();
 	void loopLogin();
 	void loopVerboseHS();
 	void loopUplink();
@@ -82,6 +89,7 @@ private:
 	STATE_MAP_ENTRY(&CMDServer::loopInit)
 	STATE_MAP_ENTRY(&CMDServer::loopIdle)
 	STATE_MAP_ENTRY(&CMDServer::loopDiagnostic)
+	STATE_MAP_ENTRY(&CMDServer::loopPrePass)
 	STATE_MAP_ENTRY(&CMDServer::loopLogin)
 	STATE_MAP_ENTRY(&CMDServer::loopVerboseHS)
 	STATE_MAP_ENTRY(&CMDServer::loopUplink)
@@ -94,6 +102,7 @@ private:
 		ST_INIT = 0,
 		ST_IDLE,
 		ST_DIAGNOSTIC,
+		ST_PRE_PASS,
 		ST_LOGIN,
 		ST_VERBOSE_HS,
 		ST_UPLINK,

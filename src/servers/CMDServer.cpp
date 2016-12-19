@@ -35,7 +35,7 @@ static CMDSwitchProtocolHandler * cmdSwitchProtocolHandler;
 int CMDServer::subsystem_acp_protocol[HARDWARE_LOCATION_MAX];
 
 CMDServer::CMDServer(string nameIn, LocationIDType idIn) :
-		SubsystemServer(nameIn, idIn), Singleton(), arby(idIn) {
+		SubsystemServer(nameIn, idIn), Singleton(), arby(idIn), passStart(0){
 	for (int i = HARDWARE_LOCATION_MIN; i < HARDWARE_LOCATION_MAX; i++) {
 		subsystem_acp_protocol[i] = ACP_PROTOCOL_SPI;
 	}
@@ -105,7 +105,7 @@ void CMDServer::loopIdle(void){
 	}
 
 	if(modeManager->GetMode() == MODE_COM){
-		currentState = ST_LOGIN;
+		currentState = ST_PRE_PASS;
 	}
 
 	dispatcher->CleanRXQueue();
@@ -122,6 +122,13 @@ void CMDServer::loopDiagnostic(){
 	modeManager->SetMode(MODE_BUS_PRIORITY);
 }
 
+void CMDServer::loopPrePass(){
+	// Command ACS to point to the ground station
+	// prep downlink files, etc.
+
+	currentState = ST_LOGIN;
+}
+
 // TODO: determine login sequence
 void CMDServer::loopLogin(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
@@ -130,6 +137,7 @@ void CMDServer::loopLogin(){
 	// else{retry until COM over?}
 
 	logger->Log("CMDServer: ground login successful", LOGGER_LEVEL_INFO);
+	passStart = getTimeInSec();
 	currentState = ST_VERBOSE_HS;
 }
 
