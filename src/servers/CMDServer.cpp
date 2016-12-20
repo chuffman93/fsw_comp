@@ -166,15 +166,6 @@ void CMDServer::loopUplink(){
 
 void CMDServer::loopDownlink(){
 	// fork a new process to downlink files
-	currentState = ST_QUEUE_EMPTY;
-}
-
-void CMDServer::loopQueueEmpty(){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-
-	logger->Log(LOGGER_LEVEL_INFO, "CMDServer: Starting downlink queue update");
-	updateDownlinkQueue();
-	logger->Log(LOGGER_LEVEL_INFO, "CMDServer: Finished downlink queue update");
 	currentState = ST_POST_PASS;
 }
 
@@ -183,7 +174,7 @@ void CMDServer::loopPostPass(){
 	processUplinkFiles();
 
 	// clear uplink directory
-	string cmd = "rm -rf " + string(UPLINK_DIRECTORY) + "*";
+	string cmd = "rm -rf " + string(UPLINK_DIRECTORY) + "/*";
 	//system(cmd.c_str());
 
 	currentState = ST_IDLE;

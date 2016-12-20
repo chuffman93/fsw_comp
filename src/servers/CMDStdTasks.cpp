@@ -18,8 +18,6 @@
 #include "util/Diagnostics.h"
 #include <termios.h>
 #include <string>
-//#include <regex>
-//#include <experimental/filesystem>
 
 using namespace AllStar::Core;
 using namespace std;
@@ -122,8 +120,7 @@ void runDiagnostic(void){
 	}
 }
 
-void updateDownlinkQueue(void){
-	// Read in the files to downlink, and update the downlink priority queue
+void parseDRF(void){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FILE * fp;
 	char * line = NULL;
@@ -131,57 +128,122 @@ void updateDownlinkQueue(void){
 	ssize_t read;
 
 	// open the files to downlink file
-	fp = fopen(FILES_TO_DOWNLINK_UPLK, "r");
+	fp = fopen(DRF_PATH, "r");
 	if (fp == NULL){
-		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: error opening files to downlink file");
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: error opening DRF");
 		return;
 	}
 
 	// parse the file line by line
 	char * archive;
-	char * path;
-	char * prio;
-	int priority;
-	downlinkFile qFile;
-	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
+	char * dir;
+	char * num;
+	int numFiles;
+	char * regex;
 	while ((read = getline(&line, &len, fp)) != -1) {
-		if(strcmp(line, "CLEAR\n") == 0){
-			clearDownlinkQueue();
-			logger->Log(LOGGER_LEVEL_WARN, "Clearing downlink queue");
+		// ---- Parse line
+		archive = strtok(line,",");
+		if(archive == NULL){
+			logger->Log(LOGGER_LEVEL_WARN, "Incomplete DRF line at archive");
+			continue; // skip to the next line
+		}
+
+		dir = strtok(NULL,",");
+		if(dir == NULL){
+			logger->Log(LOGGER_LEVEL_WARN, "Incomplete DRF line at directory");
+			continue; // skip to the next line
+		}
+
+		num = strtok(NULL,",");
+		if(num == NULL){
+			logger->Log(LOGGER_LEVEL_WARN, "Incomplete DRF line at number");
+			continue; // skip to the next line
+		}
+		numFiles = atoi(num);
+		if(numFiles < 1){
+			logger->Log(LOGGER_LEVEL_WARN, "Invalid DRF line at number");
+			continue; // skip to the next line
+		}
+
+		regex = strtok(NULL,",");
+		if(regex == NULL){
+			logger->Log(LOGGER_LEVEL_WARN, "Incomplete DRF line at regex");
+			continue; // skip to the next line
+		}
+
+		// ---- Call the function to gather and compress
+		string lsResults[numFiles];
+		if(strcmp(regex,"X\n") == 0 || strcmp(regex,"X") == 0){
+			logger->Log(LOGGER_LEVEL_DEBUG, "No regex");
+			// gather and compress
 		}else{
-			// parse and compress the file to downlink
-			archive = strtok(line,",");
-			if(archive != NULL){
-				path = strtok(NULL,",");
-				if(path != NULL){
-					prio = strtok(NULL,",");
-					if(prio != NULL){
-						priority = atoi(prio);
-
-						string cmd = "tar -czvf " + string(DOWNLINK_DIRECTORY) + string(archive) + " " + string(path);
-						system(cmd.c_str());
-
-						qFile.fileName = archive;
-						qFile.pathName = path;
-						qFile.priority = priority;
-						cmdServer->downlinkPriorityQueue.push(qFile);
-					}
-				}
-			}
+			logger->Log(LOGGER_LEVEL_DEBUG, "regex");
+			// gather and compress
 		}
 	}
 
 	fclose(fp);
+
+	logger->Log(LOGGER_LEVEL_INFO, "Finished DRF");
 }
 
-void clearDownlinkQueue(void){
-	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
+void parseDLT(void){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	FILE * fp;
+	char * line = NULL;
+	size_t len = 0;
+	ssize_t read;
 
-	while(!cmdServer->downlinkPriorityQueue.empty()){
-		string cmd = "rm " + string(DOWNLINK_DIRECTORY) + string(cmdServer->downlinkPriorityQueue.top().fileName);
-		system(cmd.c_str());
-		cmdServer->downlinkPriorityQueue.pop();
+	// open the files to downlink file
+	fp = fopen(DLT_PATH, "r");
+	if (fp == NULL){
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: error opening DLT\n");
+		return;
 	}
+
+	// parse the file line by line
+	char * dir;
+	char * num;
+	int numFiles;
+	char * regex;
+	while ((read = getline(&line, &len, fp)) != -1) {
+		// ---- Parse line
+		dir = strtok(line,",");
+		if(dir == NULL){
+			logger->Log(LOGGER_LEVEL_WARN, "Incomplete DLT line at dir");
+			continue; // skip to the next line
+		}
+
+		num = strtok(NULL,",");
+		if(num == NULL){
+			logger->Log(LOGGER_LEVEL_WARN, "Incomplete DLT line at number");
+			continue; // skip to the next line
+		}
+		numFiles = atoi(num);
+		if(numFiles < -1 || numFiles == 0){
+			logger->Log(LOGGER_LEVEL_WARN, "Invalid DLT line at number");
+			continue;
+		}
+
+		regex = strtok(NULL,",");
+		if(regex == NULL){
+			logger->Log(LOGGER_LEVEL_WARN, "Incomplete DLT line at regex");
+			continue; // skip to the next line
+		}
+
+		// ---- find deletion scheme and delete
+		if((strcmp(regex,"X\n") == 0 || strcmp(regex,"X") == 0) && numFiles != -1){
+			logger->Log(LOGGER_LEVEL_WARN, "---- No regex");
+		}else if(!(strcmp(regex,"X\n") == 0 || strcmp(regex,"X") == 0) && numFiles == -1){
+			logger->Log(LOGGER_LEVEL_WARN, "---- Regex");
+		}else{
+			logger->Log(LOGGER_LEVEL_WARN, "---- Invalid combination");
+		}
+	}
+
+	fclose(fp);
+
+	logger->Log(LOGGER_LEVEL_INFO, "Finished DLT");
 }
 
 void postPassExecution(void){
@@ -192,8 +254,8 @@ void processUplinkFiles(void){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	// Move new schedule from the uplink directory to its final directory
-	if(access(SCHEDULE_UPLK, F_OK) != -1){
-		rename(SCHEDULE_UPLK, SCH_SCHEDULE_FILE);
+	if(access(SCHEDULE_PATH, F_OK) != -1){
+		rename(SCHEDULE_PATH, SCH_SCHEDULE_FILE);
 	}else{
 		logger->Log(LOGGER_LEVEL_WARN, "ProcessUplinkFiles(): No new schedule file!");
 	}
