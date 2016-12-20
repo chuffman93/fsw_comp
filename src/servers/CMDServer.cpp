@@ -136,7 +136,7 @@ void CMDServer::loopLogin(){
 	// if(login){currState = Verbose}
 	// else{retry until COM over?}
 
-	logger->Log("CMDServer: ground login successful", LOGGER_LEVEL_INFO);
+	logger->Log(LOGGER_LEVEL_INFO, "CMDServer: ground login successful");
 	passStart = getTimeInSec();
 	currentState = ST_VERBOSE_HS;
 }
@@ -165,16 +165,7 @@ void CMDServer::loopUplink(){
 }
 
 void CMDServer::loopDownlink(){
-	// work through downlink queue
-	currentState = ST_QUEUE_EMPTY;
-}
-
-void CMDServer::loopQueueEmpty(){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-
-	logger->Log("CMDServer: Starting downlink queue update", LOGGER_LEVEL_INFO);
-	updateDownlinkQueue();
-	logger->Log("CMDServer: Finished downlink queue update", LOGGER_LEVEL_INFO);
+	// fork a new process to downlink files
 	currentState = ST_POST_PASS;
 }
 
@@ -183,7 +174,7 @@ void CMDServer::loopPostPass(){
 	processUplinkFiles();
 
 	// clear uplink directory
-	string cmd = "rm -rf " + string(UPLINK_DIRECTORY) + "*";
+	string cmd = "rm -rf " + string(UPLINK_DIRECTORY) + "/*";
 	//system(cmd.c_str());
 
 	currentState = ST_IDLE;

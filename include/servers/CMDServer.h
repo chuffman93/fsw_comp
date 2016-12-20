@@ -24,26 +24,14 @@
 namespace AllStar{
 namespace Servers{
 
-#define DOWNLINK_DIRECTORY			"/home/root/fileSysTest/home/downlink/"
-#define UPLINK_DIRECTORY			"/home/root/fileSysTest/home/uplink/"
-#define FILES_TO_DOWNLINK_UPLK		"/home/root/fileSysTest/home/uplink/f2d"
-#define POST_PASS_EXECUTION_UPLK	"/home/root/fileSysTest/home/uplink/pp"
-#define IMMEDIATE_EXECUTION_UPLK 	"/home/root/fileSysTest/home/uplink/im"
-#define SCHEDULE_UPLK				"/home/root/fileSysTest/home/uplink/schedule"
+#define DOWNLINK_DIRECTORY			"/home/root/fileSysTest/home/downlink"
+#define UPLINK_DIRECTORY			"/home/root/fileSysTest/home/uplink"
+#define DRF_PATH					"/home/root/fileSysTest/home/uplink/drf"
+#define DLT_PATH					"/home/root/fileSysTest/home/uplink/dlt"
+#define PPE_PATH					"/home/root/fileSysTest/home/uplink/ppe"
+#define SCHEDULE_PATH				"/home/root/fileSysTest/home/uplink/schedule"
 
 #define PASS_TIMEOUT	900		// 900 s = 15 min
-
-// Define a struct type for the downlink priority queue, needs overloaded "<" operator to handle priority
-struct downlinkFile{
-	string fileName;
-	string pathName;
-	uint8 priority;
-	int compressedSize;
-
-	bool operator<(const downlinkFile& file2) const{
-		return(priority < file2.priority);
-	}
-};
 
 class CMDServer : public SubsystemServer, public AllStar::Core::Singleton{
 	friend class AllStar::Core::Factory;
@@ -51,8 +39,6 @@ class CMDServer : public SubsystemServer, public AllStar::Core::Singleton{
 public:
 	bool RegisterHandlers();
 	static int subsystem_acp_protocol[HARDWARE_LOCATION_MAX];
-	priority_queue<downlinkFile> downlinkPriorityQueue;
-
 private:
 	static void Initialize(void);
 
@@ -82,7 +68,6 @@ private:
 	void loopVerboseHS();
 	void loopUplink();
 	void loopDownlink();
-	void loopQueueEmpty();
 	void loopPostPass();
 
 	BEGIN_STATE_MAP
@@ -94,7 +79,6 @@ private:
 	STATE_MAP_ENTRY(&CMDServer::loopVerboseHS)
 	STATE_MAP_ENTRY(&CMDServer::loopUplink)
 	STATE_MAP_ENTRY(&CMDServer::loopDownlink)
-	STATE_MAP_ENTRY(&CMDServer::loopQueueEmpty)
 	STATE_MAP_ENTRY(&CMDServer::loopPostPass)
 	END_STATE_MAP
 
@@ -107,7 +91,6 @@ private:
 		ST_VERBOSE_HS,
 		ST_UPLINK,
 		ST_DOWNLINK,
-		ST_QUEUE_EMPTY,
 		ST_POST_PASS
 	};
 };

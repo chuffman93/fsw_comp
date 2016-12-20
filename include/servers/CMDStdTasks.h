@@ -14,8 +14,8 @@ namespace Servers{
 void portSetup(void);
 void uftpSetup(void);
 void runDiagnostic(void);
-void updateDownlinkQueue(void);
-void clearDownlinkQueue(void);
+void parseDRF(void);
+void parseDLT(void);
 void postPassExecution(void);
 void processUplinkFiles(void);
 void trimNewline(string buf);
