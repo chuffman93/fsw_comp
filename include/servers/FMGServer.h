@@ -40,10 +40,10 @@ struct FilePacket {
 class FileManager{
 public:
 	FileManager(string path);
-	void CloseFile();
-	void OpenFile();
-	void GetFileName();
-	void OpenNewFile();
+	void CloseFile(void);
+	void OpenFile(void);
+	void GetFileName(void);
+	void OpenNewFile(void);
 	void Write(string buf, int buf_size);
 	bool Log(string buf);
 private:
