@@ -26,10 +26,6 @@ FileManager::FileManager(string path){
 	file_path = path;
 }
 
-string FileManager::getFileName(){
-	return file_name;
-}
-
 void FileManager::CloseFile(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
