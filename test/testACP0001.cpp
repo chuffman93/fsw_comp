@@ -24,7 +24,7 @@ using namespace rel_ops;
 using namespace AllStar::Core;
 using namespace AllStar::Servers;
 
-void* taskRunCMD(void * params)
+/*void* taskRunCMD(void * params)
 {
 	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
@@ -45,7 +45,7 @@ void* taskRunCMD(void * params)
 	pthread_exit(NULL);
 }
 
-TEST(TestACP, initialization){
+TEST(DISABLED_TestACP, initialization){
 
 	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
@@ -66,9 +66,9 @@ TEST(TestACP, initialization){
 
 	//Verify that all protocols are initialized to SPI
 	ASSERT_EQ(success,true);
-}
+}*/
 
-TEST(TestACP, protocolSwitch){
+/*TEST(DISABLED_TestACP, protocolSwitch){
 
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	modeManager->SetMode(MODE_ACCESS,LOCATION_ID_INVALID);
@@ -107,7 +107,8 @@ TEST(TestACP, protocolSwitch){
 	ASSERT_EQ(cmdServer->subsystem_acp_protocol[HARDWARE_LOCATION_ACS], ACP_PROTOCOL_SPI);
 	EXPECT_EQ(ret->getOpcode(), CMD_ACP_SWITCH_SUCCESS);
 
-	/*
+
+
 	// Test for bad switch
 
 	VariableTypeData subsystem_hold2((uint32) HARDWARE_LOCATION_EPS);
@@ -121,5 +122,6 @@ TEST(TestACP, protocolSwitch){
 	// Ensure that the function catches the error
 	ASSERT_EQ(ret->GetSuccess(), false);
 	EXPECT_EQ(ret->GetOpcode(), CMD_ACP_SWITCH_BAD_PROTOCOL);
-	*/
+
 }
+*/

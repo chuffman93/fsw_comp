@@ -25,6 +25,7 @@ namespace Servers{
 FileManager::FileManager(string path){
 	file_path = path;
 }
+
 void FileManager::CloseFile(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 

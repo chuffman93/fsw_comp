@@ -12,7 +12,7 @@ using namespace std;
 using namespace rel_ops;
 using namespace AllStar::Core;
 
-void createMessageBuffer(uint8 * buffer, int size){
+/*void createMessageBuffer(uint8 * buffer, int size){
 	for(int i = 0; i < 10; i++){
 		buffer[i] = 0x00;
 	}
@@ -139,4 +139,4 @@ TEST(TestACPPacket, testPacketProcess){
 
 	free(testBuf);
 	delete testPacket;
-}
+}*/

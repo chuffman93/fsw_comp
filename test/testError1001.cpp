@@ -28,7 +28,7 @@ using namespace rel_ops;
 using namespace AllStar::Core;
 using namespace AllStar::Servers;
 
-void * taskRunERR(void * params)
+/*void * taskRunERR(void * params)
 {
 	ERRServer * errServer = dynamic_cast<ERRServer *> (Factory::GetInstance(ERR_SERVER_SINGLETON));
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
@@ -72,4 +72,4 @@ TEST(DISABLED_TestErrorHandling, testLog)
 //		MessageProcess(servers[i], ret);
 //	}
 
-}
+}*/

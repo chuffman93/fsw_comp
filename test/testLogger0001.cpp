@@ -35,10 +35,10 @@ TEST(TestLogger, testOverload){
 	string str2 = "Test string 2: %s";
 
 	logger->Log(LOGGER_LEVEL_INFO, "Test normal");
-	logger->Log(LOGGER_LEVEL_INFO, str);
+	logger->Log(LOGGER_LEVEL_INFO, str.c_str());
 	logger->Log(LOGGER_LEVEL_INFO, "Test int: %d", (int) -10);
 	logger->Log(LOGGER_LEVEL_INFO, "Test uint: %u", (uint32) 10);
 	logger->Log(LOGGER_LEVEL_INFO, "Test char[]: %s", "Test");
-	logger->Log(LOGGER_LEVEL_INFO, "Test string: %s", str);
-	logger->Log(LOGGER_LEVEL_INFO, str2, str);
+	logger->Log(LOGGER_LEVEL_INFO, "Test string: %s", str.c_str());
+	logger->Log(LOGGER_LEVEL_INFO, str2.c_str(), str.c_str());
 }
