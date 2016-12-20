@@ -18,6 +18,7 @@
 #include "util/Diagnostics.h"
 #include <termios.h>
 #include <string>
+#include <string.h>
 //#include <regex>
 //#include <experimental/filesystem>
 
@@ -197,6 +198,81 @@ void processUplinkFiles(void){
 	}else{
 		logger->Log("ProcessUplinkFiles(): No new schedule file!", LOGGER_LEVEL_WARN);
 	}
+}
+
+string trimNewline(string buf){
+  // Remove the newline at the end of a string
+  size_t len = buf.length();
+  if (len && (buf[len-1] == '\n')) {
+    buf[len-1] = '\0';
+  }
+  return buf;
+}
+
+int getFileSize(string filePath, string regex, int maxFiles){
+    Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	FILE * fd;
+	int size;
+
+	// sh command to get the total size of all the files we want to compress
+	char sh_cmd[248];
+	sprintf(sh_cmd, "tot=0; for num in `ls -lr %s | grep ^- | grep %s | awk '{print $5}' | head -%d`; do tot=$(($tot+$num)); done; echo $tot", filePath, regex, maxFiles);
+
+	// Execute an sh script and pipe the results back to the file descriptor fd
+	if(!(fd = popen(sh_cmd, "r"))){
+	    logger->Log(LOGGER_LEVEL_ERROR, "GetFileSize: could not verify file sizes");
+	    return -1;
+	}
+
+	// Parse ls command into array
+	int loop_count = 0;
+	char buff[512];
+	while(fgets(buff, sizeof(buff), fd)!=NULL){
+		if (loop_count > 0) {
+			logger->Log(LOGGER_LEVEL_ERROR, "GetFileSize: sh command produced too many results");
+			return -2;
+		}
+	    size = atoi(buff);
+	    loop_count++;
+	}
+
+	if (pclose(fd) == -1){
+		logger->Log(LOGGER_LEVEL_WARN, "GetFileSize: Error closing file stream");
+	}
+
+	return size;
+}
+
+int compressFiles(string destination, string filePath, string regex, int maxFiles, int size_threshold){
+    Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	FILE * fd;
+
+	int size = getFileSize(filePath, regex, maxFiles);
+
+	if (size < 0) {
+		logger->Log(LOGGER_LEVEL_ERROR, "CompressFiles: Error detected, aborting compression");
+		return -1;
+	}
+	else if (size > size_threshold){
+		logger->Log(LOGGER_LEVEL_ERROR, "CompressFiles: Total file size is too great to compress");
+		return -2;
+	}
+
+	// sh command to tTar the files to compress
+	char sh_cmd[248];
+	sprintf(sh_cmd, "tar -czf %s `ls -lr %s | grep ^- | awk '{print $9}' | grep %s | head -%s`", destination, filePath, regex, maxFiles);
+
+	// Execute a shell script and pipe the results back to the file descriptor fd
+	if(!(fd = popen(sh_cmd, "r"))){
+	    logger->Log(LOGGER_LEVEL_ERROR, "CompressFiles: Error compressing files");
+	    return -3;
+	}
+
+	if (pclose(fd) == -1){
+		logger->Log(LOGGER_LEVEL_WARN, "CompressFiles: Error closing file stream");
+	}
+
+	return 0;
 }
 
 } // End of namespace Servers
