@@ -20,7 +20,7 @@ void postPassExecution(void);
 void processUplinkFiles(void);
 void trimNewline(string buf);
 int getFileSize(string filePath, string regex, int maxFiles);
-int compressFiles(string destination, string filePath, string regex, int maxFiles, int size_threshold);
+int packageFiles(string destination, string filePath, string regex, int maxFiles);
 
 } // End of namespace Servers
 } // End of namespace AllStar

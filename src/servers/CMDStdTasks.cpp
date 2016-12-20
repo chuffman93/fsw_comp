@@ -27,6 +27,7 @@ namespace AllStar{
 namespace Servers{
 
 #define NUM_DIAGNOSTIC_TESTS 4
+#define SIZE_THRESHOLD 1000
 
 void portSetup(void){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
@@ -181,7 +182,7 @@ void parseDRF(void){
 			logger->Log(LOGGER_LEVEL_DEBUG, "regex");
 		}
 
-		compressFiles(archive, dir, regex, numFiles, 0); // TODO: error check this?
+		packageFiles(archive, dir, regex, numFiles); // TODO: error check this?
 	}
 
 	fclose(fp);
@@ -306,33 +307,33 @@ int getFileSize(string filePath, string regex, int maxFiles){
 	return size;
 }
 
-int compressFiles(string destination, string filePath, string regex, int maxFiles, int size_threshold){
+int packageFiles(string destination, string filePath, string regex, int maxFiles){
     Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FILE * fd;
 
 	int size = getFileSize(filePath, regex, maxFiles);
 
 	if (size < 0) {
-		logger->Log(LOGGER_LEVEL_ERROR, "CompressFiles: Error detected, aborting compression");
+		logger->Log(LOGGER_LEVEL_ERROR, "PackageFiles: Error detected, aborting packaging");
 		return -1;
 	}
-	else if (size > size_threshold){
-		logger->Log(LOGGER_LEVEL_ERROR, "CompressFiles: Total file size is too great to compress");
+	else if (size > SIZE_THRESHOLD){
+		logger->Log(LOGGER_LEVEL_ERROR, "PackageFiles: Total file size is too great to package");
 		return -2;
 	}
 
-	// sh command to tTar the files to compress
+	// sh command to tar the files to package
 	char sh_cmd[248];
 	sprintf(sh_cmd, "tar -cf %s `ls -lr %s | grep ^- | awk '{print $9}' | grep %s | head -%s`", destination, filePath, regex, maxFiles);
 
 	// Execute a shell script and pipe the results back to the file descriptor fd
 	if(!(fd = popen(sh_cmd, "r"))){
-	    logger->Log(LOGGER_LEVEL_ERROR, "CompressFiles: Error compressing files");
+	    logger->Log(LOGGER_LEVEL_ERROR, "PackageFiles: Error packaging files");
 	    return -3;
 	}
 
 	if (pclose(fd) == -1){
-		logger->Log(LOGGER_LEVEL_WARN, "CompressFiles: Error closing file stream");
+		logger->Log(LOGGER_LEVEL_WARN, "PackageFiles: Error closing file stream");
 	}
 
 	return 0;
