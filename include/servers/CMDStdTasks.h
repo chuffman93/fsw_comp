@@ -24,6 +24,8 @@ void processUplinkFiles(void);
 string trimNewline(string buf);
 int getFileSize(char * filePath, char * regex, int maxFiles);
 int packageFiles(char * destination, char * filePath, char * regex, int maxFiles);
+int deleteOldest(char * filePath, int numFiles);
+int deleteRegex(char * filePath, char * regex);
 
 } // End of namespace Servers
 } // End of namespace AllStar

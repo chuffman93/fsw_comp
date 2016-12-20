@@ -63,11 +63,9 @@ void uftpSetup(void){
 
 	//---------------------------SLIP------------------------------------
 	sprintf(cmdString, "slattach -L -m -p slip \"/dev/ttyS2\" &");
-	printf("%s\n", cmdString);
 	system(cmdString);
 
 	sprintf(cmdString, "ifconfig sl0 1.1.1.1 pointopoint 1.1.1.2 up");
-	printf("%s\n", cmdString);
 	system(cmdString);
 
 	//---------------------------UFTP-----------------------------------
@@ -176,14 +174,11 @@ void parseDRF(void){
 			continue; // skip to the next line
 		}
 
-		// ---- Call the function to gather and compress
-		if(strcmp(regex,"X\n") == 0 || strcmp(regex,"X") == 0){
-			logger->Log(LOGGER_LEVEL_DEBUG, "No regex");
+		// ---- Check if there is a regex
+		if(strcmp(regex,"X\n") == 0 || strcmp(regex,"X") == 0)
 			regex = (char *) "";
-		}else{
-			logger->Log(LOGGER_LEVEL_DEBUG, "regex");
-		}
 
+		// ---- Call the function to gather and create a tarball from the files
 		packageFiles(archive, dir, regex, numFiles); // TODO: error check this?
 	}
 
@@ -238,11 +233,11 @@ void parseDLT(void){
 
 		// ---- find deletion scheme and delete
 		if((strcmp(regex,"X\n") == 0 || strcmp(regex,"X") == 0) && numFiles != -1){
-			logger->Log(LOGGER_LEVEL_WARN, "---- No regex");
+			deleteOldest(dir,numFiles);
 		}else if(!(strcmp(regex,"X\n") == 0 || strcmp(regex,"X") == 0) && numFiles == -1){
-			logger->Log(LOGGER_LEVEL_WARN, "---- Regex");
+			deleteRegex(dir,regex);
 		}else{
-			logger->Log(LOGGER_LEVEL_WARN, "---- Invalid combination");
+			logger->Log(LOGGER_LEVEL_WARN, "DLT: Invalid deletion command");
 		}
 	}
 
@@ -282,7 +277,7 @@ int getFileSize(char * filePath, char * regex, int maxFiles){
 
 	// sh command to get the total size of all the files we want to compress
 	char sh_cmd[248];
-	sprintf(sh_cmd, "tot=0; for num in `ls -lr %s | grep ^- | grep %s | awk '{print $5}' | head -%d`; do tot=$(($tot+$num)); done; echo $tot", filePath, regex, maxFiles);
+	sprintf(sh_cmd, "tot=0; for num in `ls -lr %s | grep ^- | grep \"%s\" | awk '{print $5}' | head -%d`; do tot=$(($tot+$num)); done; echo $tot", filePath, regex, maxFiles);
 
 	// Execute an sh script and pipe the results back to the file descriptor fd
 	if(!(fd = popen(sh_cmd, "r"))){
@@ -326,7 +321,7 @@ int packageFiles(char * destination, char * filePath, char * regex, int maxFiles
 
 	// sh command to tar the files to package
 	char sh_cmd[248];
-	sprintf(sh_cmd, "tar -cf %s `ls -lr %s | grep ^- | awk '{print $9}' | grep %s | head -%d`", destination, filePath, regex, maxFiles);
+	sprintf(sh_cmd, "tar -cf %s `ls -lr %s | grep ^- | awk '{print \"%s\" \"/\" $9}' | grep \"%s\" | head -%d`", destination, filePath, filePath, regex, maxFiles);
 
 	// Execute a shell script and pipe the results back to the file descriptor fd
 	if(!(fd = popen(sh_cmd, "r"))){
@@ -336,6 +331,48 @@ int packageFiles(char * destination, char * filePath, char * regex, int maxFiles
 
 	if (pclose(fd) == -1){
 		logger->Log(LOGGER_LEVEL_WARN, "PackageFiles: Error closing file stream");
+	}
+
+	return 0;
+}
+
+int deleteOldest(char * filePath, int numFiles){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	FILE * fd;
+
+	// sh command to remove the oldest numFiles from filePath
+	char sh_cmd[248];
+	sprintf(sh_cmd, "rm `ls -l %s | grep ^- | awk '{print \"%s\" \"/\" $9}' | head -%d`", filePath, filePath, numFiles);
+
+	// Execute a shell script and pipe the results back to the file descriptor fd
+	if(!(fd = popen(sh_cmd, "r"))){
+		logger->Log(LOGGER_LEVEL_ERROR, "DeleteOldest: Error removing files");
+		return -1;
+	}
+
+	if (pclose(fd) == -1){
+		logger->Log(LOGGER_LEVEL_WARN, "DeleteOldest: Error closing file stream");
+	}
+
+	return 0;
+}
+
+int deleteRegex(char * filePath, char * regex){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	FILE * fd;
+
+	// sh command to remove all files from filePath matching regex
+	char sh_cmd[248];
+	sprintf(sh_cmd, "rm `ls -l %s | grep ^- | awk '{print \"%s\" \"/\" $9}' | grep \"%s\"`", filePath, filePath, regex);
+
+	// Execute a shell script and pipe the results back to the file descriptor fd
+	if(!(fd = popen(sh_cmd, "r"))){
+		logger->Log(LOGGER_LEVEL_ERROR, "DeleteRegex: Error removing files");
+		return -1;
+	}
+
+	if (pclose(fd) == -1){
+		logger->Log(LOGGER_LEVEL_WARN, "DeleteRegex: Error closing file stream");
 	}
 
 	return 0;
