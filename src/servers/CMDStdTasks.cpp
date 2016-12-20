@@ -3,6 +3,9 @@
  *
  *  Created on: May 21, 2013
  *      Author: Brian Campuzano
+ *
+ *  Updated: 12/20/16
+ *  Jack Dinkel and Alex St. Clair
  */
 
 #include "servers/CMDServer.h"
@@ -174,10 +177,9 @@ void parseDRF(void){
 		}
 
 		// ---- Call the function to gather and compress
-		string lsResults[numFiles];
 		if(strcmp(regex,"X\n") == 0 || strcmp(regex,"X") == 0){
 			logger->Log(LOGGER_LEVEL_DEBUG, "No regex");
-			regex = "";
+			regex = (char *) "";
 		}else{
 			logger->Log(LOGGER_LEVEL_DEBUG, "regex");
 		}
@@ -273,10 +275,10 @@ string trimNewline(string buf){
   return buf;
 }
 
-int getFileSize(string filePath, string regex, int maxFiles){
+int getFileSize(char * filePath, char * regex, int maxFiles){
     Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FILE * fd;
-	int size;
+	int size = 0;
 
 	// sh command to get the total size of all the files we want to compress
 	char sh_cmd[248];
@@ -307,7 +309,7 @@ int getFileSize(string filePath, string regex, int maxFiles){
 	return size;
 }
 
-int packageFiles(string destination, string filePath, string regex, int maxFiles){
+int packageFiles(char * destination, char * filePath, char * regex, int maxFiles){
     Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FILE * fd;
 
@@ -324,7 +326,7 @@ int packageFiles(string destination, string filePath, string regex, int maxFiles
 
 	// sh command to tar the files to package
 	char sh_cmd[248];
-	sprintf(sh_cmd, "tar -cf %s `ls -lr %s | grep ^- | awk '{print $9}' | grep %s | head -%s`", destination, filePath, regex, maxFiles);
+	sprintf(sh_cmd, "tar -cf %s `ls -lr %s | grep ^- | awk '{print $9}' | grep %s | head -%d`", destination, filePath, regex, maxFiles);
 
 	// Execute a shell script and pipe the results back to the file descriptor fd
 	if(!(fd = popen(sh_cmd, "r"))){

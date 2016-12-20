@@ -8,6 +8,9 @@
 #ifndef CMDSTDTASKS_H_
 #define CMDSTDTASKS_H_
 
+#include <string>
+
+using namespace std;
 namespace AllStar{
 namespace Servers{
 
@@ -18,9 +21,9 @@ void parseDRF(void);
 void parseDLT(void);
 void postPassExecution(void);
 void processUplinkFiles(void);
-void trimNewline(string buf);
-int getFileSize(string filePath, string regex, int maxFiles);
-int packageFiles(string destination, string filePath, string regex, int maxFiles);
+string trimNewline(string buf);
+int getFileSize(char * filePath, char * regex, int maxFiles);
+int packageFiles(char * destination, char * filePath, char * regex, int maxFiles);
 
 } // End of namespace Servers
 } // End of namespace AllStar
