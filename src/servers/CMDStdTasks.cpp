@@ -323,7 +323,7 @@ int compressFiles(string destination, string filePath, string regex, int maxFile
 
 	// sh command to tTar the files to compress
 	char sh_cmd[248];
-	sprintf(sh_cmd, "tar -czf %s `ls -lr %s | grep ^- | awk '{print $9}' | grep %s | head -%s`", destination, filePath, regex, maxFiles);
+	sprintf(sh_cmd, "tar -cf %s `ls -lr %s | grep ^- | awk '{print $9}' | grep %s | head -%s`", destination, filePath, regex, maxFiles);
 
 	// Execute a shell script and pipe the results back to the file descriptor fd
 	if(!(fd = popen(sh_cmd, "r"))){
