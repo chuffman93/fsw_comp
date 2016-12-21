@@ -22,6 +22,9 @@
 namespace AllStar{
 namespace Servers{
 
+#define ACS_SLEEP_TIME	5000
+#define ACS_HS_DELAYS	3
+
 typedef enum ACSPoint{
 	ACS_UNORIENTED,
 	ACS_SUN_ORIENTED,
@@ -36,6 +39,7 @@ class ACSServer : public SubsystemServer, public AllStar::Core::Singleton{
 
 public:
 	bool RegisterHandlers();
+	void CheckHealthStatus();
 
 private:
 	// Member variables needed to register message handlers.

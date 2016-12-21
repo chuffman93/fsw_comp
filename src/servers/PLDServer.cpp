@@ -87,16 +87,13 @@ void PLDServer::loopInit(){
 }
 
 void PLDServer::loopIdle(){
-	//No need to do anything
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-	//Wait until we are in payload priority mode
-	if(modeManager->GetMode() == MODE_PLD_PRIORITY){
-		currentState = ST_STARTUP;
-	}
 
-	if(modeManager->GetMode() == MODE_DIAGNOSTIC){
+	if(modeManager->GetMode() == MODE_PLD_PRIORITY)
+		currentState = ST_STARTUP;
+
+	if(modeManager->GetMode() == MODE_DIAGNOSTIC)
 		currentState = ST_DIAGNOSTIC;
-	}
 }
 
 void PLDServer::loopStartup(){
@@ -119,7 +116,7 @@ void PLDServer::loopStartup(){
 	currentState = ST_SCIENCE;
 }
 
-//Graceful shutdown
+// Graceful shutdown
 void PLDServer::loopShutdown(){
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
@@ -150,14 +147,10 @@ void PLDServer::loopScience(){
 }
 
 void PLDServer::loopDiagnostic(){
-	int64 lastWake = getTimeInMillis();
-
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	if(modeManager->GetMode() != MODE_DIAGNOSTIC){
 		currentState = ST_IDLE;
 	}
-
-	waitUntil(lastWake, 1000);
 }
 
 } // end namespace servers

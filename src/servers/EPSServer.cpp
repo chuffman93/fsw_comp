@@ -93,25 +93,71 @@ void EPSServer::loopInit(){
 }
 
 void EPSServer::loopMonitor(){
-	EPSHealthStat();
-
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	if(modeManager->GetMode() == MODE_DIAGNOSTIC){
 		currentState = ST_DIAGNOSTIC;
 	}
-
-	usleep(2000000);
 }
 
 void EPSServer::loopDiagnostic(){
-	int64 lastWake = getTimeInMillis();
-
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	if(modeManager->GetMode() != MODE_DIAGNOSTIC){
 		currentState = ST_MONITOR;
 	}
+}
 
-	waitUntil(lastWake, 1000);
+// -------------------------------------------- EPS Methods ---------------------------------------------
+void EPSServer::CheckHealthStatus(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, HEALTH_STATUS_CMD);
+	ACPPacket * HSRet = DispatchPacket(HSQuery);
+
+	if(HSRet == NULL){
+		logger->Log(LOGGER_LEVEL_ERROR, "EPSStdTasks: NULL HSRet");
+		return;
+	}
+
+	if(HSRet->getLength() != 8*sizeof(uint16)){
+		logger->Log(LOGGER_LEVEL_WARN, "EPSStdTasks: EPSHealthStat(): incorrect message length!");
+
+		//TODO: return error?
+		return;
+	}else{
+		logger->Log(LOGGER_LEVEL_INFO, "EPSStdTasks: EPSHealthStat(): packet dispatched, HSRet acquired");
+		// Parse buffer
+		uint8 * msgPtr = HSRet->getMessageBuff();
+		if(msgPtr==NULL){
+			//Error
+			return;
+		}
+
+		uint16 outputArray[8];
+		for(uint8 i = 0; i < 8; i++){
+			outputArray[i] = GetUInt16(msgPtr);
+			msgPtr += 2;
+		}
+
+		EPSState.current3v3		= outputArray[0];
+		EPSState.voltage3v3		= outputArray[1];
+		EPSState.currentBatt	= outputArray[2];
+		EPSState.voltageBatt	= outputArray[3];
+		EPSState.current12v		= outputArray[4];
+		EPSState.voltage12v		= outputArray[5];
+		EPSState.battStatus		= outputArray[6];
+		EPSState.stateOfCharge	= outputArray[7];
+
+		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: 3v3 Current:     %u", EPSState.current3v3);
+		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: 3v3 Voltage:     %u", EPSState.voltage3v3);
+		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Batt Current:    %u", EPSState.currentBatt);
+		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Batt Voltage:    %u", EPSState.voltageBatt);
+		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: 12v Current:     %u", EPSState.current12v);
+		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: 12v Voltage:     %u", EPSState.voltage12v);
+		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Batt status:     %u", EPSState.battStatus);
+		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: State of charge: %u", EPSState.stateOfCharge);
+
+		//PacketProcess(SERVER_LOCATION_EPS, HSRet);
+	}
 }
 
 } // End Namespace servers

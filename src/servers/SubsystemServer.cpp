@@ -24,13 +24,13 @@ namespace AllStar{
 namespace Servers{
 
 SubsystemServer::SubsystemServer(string nameIn, LocationIDType idIn)
-				: Server(nameIn, idIn), currentState(0), sleepTime(1000)
+				: Server(nameIn, idIn), currentState(0), sleepTime(1000), hsDelays(10)
 {
 	// Left Intentionally Blank
 }
 
-SubsystemServer::SubsystemServer(string nameIn, LocationIDType idIn, int sleep)
-				: Server(nameIn, idIn), currentState(0), sleepTime(sleep)
+SubsystemServer::SubsystemServer(string nameIn, LocationIDType idIn, int sleep, int delays)
+				: Server(nameIn, idIn), currentState(0), sleepTime(sleep), hsDelays(delays)
 {
 	// Left Intentionally Blank
 }
@@ -57,20 +57,28 @@ bool SubsystemServer::operator ==(const Server & check) const
 	return (name == check.GetName() && id == check.GetID());
 }
 
+void SubsystemServer::CheckHealthStatus(){
+
+}
+
 void SubsystemServer::SubsystemLoop(void)
 {
 	WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
 	while(1)
 	{
-		int64 LastWakeTime = getTimeInMillis();
-		while(Listen(id));
-		wdm->Kick();
-		waitUntil(LastWakeTime, sleepTime); // TODO: rewrite with sleep based on time elapsed
-		
-		StateFunc function = GetStateMap()[currentState].function;
+		for(int i = 0; i < hsDelays; i++){
+			int64 LastWakeTime = getTimeInMillis();
+			while(Listen(id));
+			wdm->Kick();
+			waitUntil(LastWakeTime, sleepTime); // TODO: rewrite with sleep based on time elapsed
 
-		(this->*function)();
+			StateFunc function = GetStateMap()[currentState].function;
+
+			(this->*function)();
+		}
+		
+		this->CheckHealthStatus();
 	}
 }
 

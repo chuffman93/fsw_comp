@@ -26,6 +26,7 @@ class EPSServer : public SubsystemServer, public AllStar::Core::Singleton{
 
 public:
 	bool RegisterHandlers();
+	void CheckHealthStatus();
 
 	struct EPSStatus{
 		uint16 current3v3;
