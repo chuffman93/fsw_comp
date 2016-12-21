@@ -30,7 +30,7 @@ namespace Servers{
 
 // -------------------------------------- Necessary Methods --------------------------------------
 ACSServer::ACSServer(string nameIn, LocationIDType idIn) :
-		SubsystemServer(nameIn, idIn), Singleton(), arby(idIn), ACSOrientation(ACS_UNORIENTED) {
+		SubsystemServer(nameIn, idIn, ACS_SLEEP_TIME, ACS_HS_DELAYS), Singleton(), arby(idIn), ACSOrientation(ACS_UNORIENTED){
 }
 
 ACSServer::~ACSServer() {
@@ -97,30 +97,26 @@ void ACSServer::loopDisabled(){
 		}
 	}
 
-	int64 wakeTime = getTimeInMillis();
 	if(modeManager->GetMode() == MODE_COM)
 		currentState = ST_COM_START;
 
 	if(modeManager->GetMode() == MODE_PLD_PRIORITY)
 		currentState = ST_PLD_START;
 
-	if(modeManager->GetMode() == MODE_DIAGNOSTIC){
+	if(modeManager->GetMode() == MODE_DIAGNOSTIC)
 		currentState = ST_DIAGNOSTIC;
-	}
-
-	ACSHealthStatus();
 
 	// if ACS is powered off due to a fault, switch to the init state
-	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS]){
+	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS])
 		currentState = ST_INIT;
-	}
-	waitUntil(wakeTime,1000);
 }
 
 void ACSServer::loopPLDStart(){
 	if(ACSPointNadir()){
 		currentState = ST_PLD_POINTING;
 		ACSOrientation = ACS_NADIR_ORIENTED;
+		sleepTime = 1000;
+		hsDelays = 15;
 	}else{
 		currentState = ST_DISABLED;
 	}
@@ -135,18 +131,15 @@ void ACSServer::loopPLDPointing(){
 		currentState = ST_INIT;
 	}
 
-	int64 lastWake = getTimeInMillis();
-
-	ACSHealthStatus();
 	ACSSendGPS();
-
-	waitUntil(lastWake, 1000);
 
 	if(modeManager->GetMode() != MODE_PLD_PRIORITY)
 		currentState = ST_PLD_STOP;
 }
 
 void ACSServer::loopPLDStop(){
+	sleepTime = 5000;
+	hsDelays = 3;
 	currentState = ST_DISABLED;
 }
 
@@ -168,12 +161,7 @@ void ACSServer::loopCOMPointing(){
 		currentState = ST_INIT;
 	}
 
-	int64 lastWake = getTimeInMillis();
-
-	ACSHealthStatus();
 	ACSSendGPS();
-
-	waitUntil(lastWake, 5000);
 
 	if(modeManager->GetMode() != MODE_COM)
 		currentState = ST_COM_STOP;
@@ -184,14 +172,16 @@ void ACSServer::loopCOMStop(){
 }
 
 void ACSServer::loopDiagnostic(){
-	int64 lastWake = getTimeInMillis();
-
 	ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
-	if(modeManager->GetMode() != MODE_DIAGNOSTIC){
+	if(modeManager->GetMode() != MODE_DIAGNOSTIC)
 		currentState = ST_DISABLED;
-	}
+}
 
-	waitUntil(lastWake, 1000);
+// -------------------------------------------- ACS Methods --------------------------------------------
+void ACSServer::CheckHealthStatus(){
+	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, HEALTH_STATUS_CMD);
+	ACPPacket * HSRet = DispatchPacket(HSQuery);
+	// process this
 }
 
 } // End Namespace servers
