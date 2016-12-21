@@ -10,55 +10,62 @@ using namespace AllStar::Servers;
 TEST(TestFMGServer, testPacketDestinations){
 	FMGServer * fileServer = dynamic_cast <FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
 
+	const int old_max_file_size = MAX_FILE_SIZE;
+    #undef MAX_FILE_SIZE
+    #define MAX_FILE_SIZE 100
+
 	for (int iter = 0; iter < 10; iter++) {
 		FilePacket myPacket2;
-		myPacket2.buffer = "to health!";
+		myPacket2.buffer = "1234567890";
 		myPacket2.dest = DESTINATION_HST;
 		fileServer->FileQueue.push(myPacket2);
 
 		FilePacket myPacket3;
-		myPacket3.buffer = "to mode!";
+		myPacket3.buffer = "1234567890";
 		myPacket3.dest = DESTINATION_MOD;
 		fileServer->FileQueue.push(myPacket3);
 
 		FilePacket myPacket4;
-		myPacket4.buffer = "to hotswap!";
+		myPacket4.buffer = "1234567890";
 		myPacket4.dest = DESTINATION_SWP;
 		fileServer->FileQueue.push(myPacket4);
 
 		FilePacket myPacket5;
-		myPacket5.buffer = "to error!";
+		myPacket5.buffer = "1234567890";
 		myPacket5.dest = DESTINATION_ERR;
 		fileServer->FileQueue.push(myPacket5);
 
 		FilePacket myPacket6;
-		myPacket6.buffer = "to diagnostic!";
+		myPacket6.buffer = "1234567890";
 		myPacket6.dest = DESTINATION_DGN;
 		fileServer->FileQueue.push(myPacket6);
 
 		FilePacket myPacket7;
-		myPacket7.buffer = "to general!";
+		myPacket7.buffer = "1234567890";
 		myPacket7.dest = DESTINATION_GEN;
 		fileServer->FileQueue.push(myPacket7);
 
 		FilePacket myPacket8;
-		myPacket8.buffer = "to file system stats!";
+		myPacket8.buffer = "1234567890";
 		myPacket8.dest = DESTINATION_FSS;
 		fileServer->FileQueue.push(myPacket8);
 
 		FilePacket myPacket9;
-		myPacket9.buffer = "to science stats!";
+		myPacket9.buffer = "1234567890";
 		myPacket9.dest = DESTINATION_SSS;
 		fileServer->FileQueue.push(myPacket9);
 
 		FilePacket myPacket10;
-		myPacket10.buffer = "to rad!";
+		myPacket10.buffer = "1234567890";
 		myPacket10.dest = DESTINATION_RAD;
 		fileServer->FileQueue.push(myPacket10);
 	}
+
+    #undef MAX_FILE_SIZE
+    #define MAX_FILE_SIZE olf_max_file_size;
 }
 
-TEST(TestFMGServer, testNoDestination){
+TEST(DISABLED_TestFMGServer, testNoDestination){
 	FMGServer * fileServer = dynamic_cast <FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
 
 	for (int iter = 0; iter < 10; iter++) {
@@ -68,7 +75,7 @@ TEST(TestFMGServer, testNoDestination){
 	}
 }
 
-TEST(TestFMGServer, testLongMessage){
+TEST(DISABLED_TestFMGServer, testLongMessage){
 	FMGServer * fileServer = dynamic_cast <FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
 
 	for (int iter = 0; iter < 10; iter++) {
