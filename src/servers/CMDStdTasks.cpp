@@ -30,7 +30,7 @@ namespace AllStar{
 namespace Servers{
 
 #define NUM_DIAGNOSTIC_TESTS 4
-#define SIZE_THRESHOLD 1000
+#define SIZE_THRESHOLD 15728640 // 15 MB
 
 void portSetup(void){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
@@ -174,8 +174,12 @@ void parseDRF(void){
 			continue; // skip to the next line
 		}
 
+		// get rid of the newline
+		string rgx = trimNewline(string(regex));
+		regex = (char *) rgx.c_str();
+
 		// ---- Check if there is a regex
-		if(strcmp(regex,"X\n") == 0 || strcmp(regex,"X") == 0)
+		if(strcmp(regex,"X") == 0)
 			regex = (char *) "";
 
 		// ---- Prepend the downlink directory path to the archive name
@@ -246,10 +250,14 @@ void parseDLT(void){
 			continue; // skip to the next line
 		}
 
+		// get rid of the newline
+		string rgx = trimNewline(string(regex));
+		regex = (char *) rgx.c_str();
+
 		// ---- find deletion scheme and delete
-		if((strcmp(regex,"X\n") == 0 || strcmp(regex,"X") == 0) && numFiles != -1){
+		if(strcmp(regex,"X") == 0 && numFiles != -1){
 			deleteOldest(dir,numFiles);
-		}else if(!(strcmp(regex,"X\n") == 0 || strcmp(regex,"X") == 0) && numFiles == -1){
+		}else if(!(strcmp(regex,"X") == 0) && numFiles == -1){
 			deleteRegex(dir,regex);
 		}else{
 			logger->Log(LOGGER_LEVEL_WARN, "DLT: Invalid deletion command");
@@ -293,6 +301,10 @@ void parsePPE(void){
 				logger->Log(LOGGER_LEVEL_WARN, "Incomplete PPE line at command");
 				continue; // skip to the next line
 			}
+
+			// get rid of the newline
+			string cmd = trimNewline(string(command));
+			command = (char *) cmd.c_str();
 
 			// execute the system command
 			if(system(command) == -1){
