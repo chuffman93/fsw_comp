@@ -22,8 +22,8 @@ void parseDLT(void);
 void parsePPE(void);
 void processUplinkFiles(void);
 string trimNewline(string buf);
-int getFileSize(char * filePath, char * regex, int maxFiles);
-int packageFiles(char * destination, char * filePath, char * regex, int maxFiles);
+const long getFileSize(const char * filePath, const char * regex, const int maxFiles);
+const int packageFiles(const char * destination, const char * filePath, const char * regex, const int maxFiles);
 int deleteOldest(char * filePath, int numFiles);
 int deleteRegex(char * filePath, char * regex);
 

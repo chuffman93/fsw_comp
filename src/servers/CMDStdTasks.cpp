@@ -340,7 +340,7 @@ string trimNewline(string buf){
   return buf;
 }
 
-int getFileSize(char * filePath, char * regex, int maxFiles){
+const long getFileSize(const char * filePath, const char * regex, const int maxFiles){
     Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FILE * fd;
 	int size = 0;
@@ -363,7 +363,7 @@ int getFileSize(char * filePath, char * regex, int maxFiles){
 			logger->Log(LOGGER_LEVEL_ERROR, "GetFileSize: sh command produced too many results");
 			return -2;
 		}
-	    size = atoi(buff);
+	    size = atol(buff);
 	    loop_count++;
 	}
 
@@ -374,11 +374,11 @@ int getFileSize(char * filePath, char * regex, int maxFiles){
 	return size;
 }
 
-int packageFiles(char * destination, char * filePath, char * regex, int maxFiles){
+const int packageFiles(const char * destination, const char * filePath, const char * regex, const int maxFiles){
     Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FILE * fd;
 
-	int size = getFileSize(filePath, regex, maxFiles);
+	const long size = getFileSize(filePath, regex, maxFiles);
 
 	if (size < 0) {
 		logger->Log(LOGGER_LEVEL_ERROR, "PackageFiles: Error detected, aborting packaging");
