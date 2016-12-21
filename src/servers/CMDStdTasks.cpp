@@ -306,7 +306,7 @@ void processUplinkFiles(void){
 
 string trimNewline(string buf){
   // Remove the newline at the end of a string
-  size_t len = buf.length();
+  size_t len = buf.size();
   if (len && (buf[len-1] == '\n')) {
     buf[len-1] = '\0';
   }
@@ -363,6 +363,7 @@ int packageFiles(char * destination, char * filePath, char * regex, int maxFiles
 	}
 
 	// sh command to tar the files to package
+	// TODO: This tar command preserves parent directory structure, we don't want that
 	char sh_cmd[248];
 	sprintf(sh_cmd, "tar -cf %s `ls -lr %s | grep ^- | awk '{print \"%s\" \"/\" $9}' | grep \"%s\" | head -%d`", destination, filePath, filePath, regex, maxFiles);
 
