@@ -33,10 +33,18 @@ RAD
 
 for dir in $TLM_DIRECTORIES
 do
-  mv /SD_2/$dir/CUR/* /SD_2/$dir
+  for file in `ls /SD_2/$dir/CUR`
+  do
+    tar -czf /SD_2/$dir/$file /SD_2/$dir/CUR/$file
+    rm /SD_2/$dir/CUR/$file
+  done
 done
 
 for dir in $SCI_DIRECTORIES
 do
-  mv /SD_3/$dir/CUR/* /SD_3/$dir
+  for file in `ls /SD_2/$dir/CUR`
+  do
+    tar -czf /SD_2/$dir/$file /SD_2/$dir/CUR/$file
+    rm /SD_3/$dir/CUR/$file
+  done
 done
