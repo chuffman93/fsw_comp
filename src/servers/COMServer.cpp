@@ -101,8 +101,6 @@ void COMServer::loopInit(){
 void COMServer::loopIdle(){
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
-	int64 startTime = getTimeInMillis();
-
 	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_EPS]){
 		currentState = ST_INIT;
 	}
@@ -116,8 +114,6 @@ void COMServer::loopIdle(){
 	if(modeManager->GetMode() == MODE_DIAGNOSTIC){
 		currentState = ST_DIAGNOSTIC;
 	}
-
-	waitUntil(startTime, 1000);
 }
 
 void COMServer::loopCOMStart(){
@@ -157,14 +153,10 @@ void COMServer::loopCOMStop(){
 }
 
 void COMServer::loopDiagnostic(){
-	int64 lastWake = getTimeInMillis();
-
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	if(modeManager->GetMode() != MODE_DIAGNOSTIC){
 		currentState = ST_IDLE;
 	}
-
-	waitUntil(lastWake, 1000);
 }
 
 }

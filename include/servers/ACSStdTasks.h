@@ -26,7 +26,6 @@ int ACSLEDData();
 bool ACSTestAlive();
 
 // Command/Data
-void ACSHealthStatus(void);
 void ACSSendGPS();
 bool ACSPointSun();
 bool ACSPointNadir();

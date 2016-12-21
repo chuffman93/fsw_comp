@@ -133,64 +133,6 @@ bool EPSTestAlive(){
 }
 
 // Command/Data
-void EPSHealthStat()
-{
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-
-	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, HEALTH_STATUS_CMD);
-	ACPPacket * HSRet = DispatchPacket(HSQuery);
-
-	if(HSRet == NULL){
-		logger->Log(LOGGER_LEVEL_ERROR, "EPSStdTasks: NULL HSRet");
-		return;
-	}
-
-	if(HSRet->getLength() != 8*sizeof(uint16)){
-		logger->Log(LOGGER_LEVEL_WARN, "EPSStdTasks: EPSHealthStat(): incorrect message length!");
-
-		//TODO: return error?
-		//PacketProcess(SERVER_LOCATION_EPS, HSRet);
-		return;
-	}else{
-		logger->Log(LOGGER_LEVEL_INFO, "EPSStdTasks: EPSHealthStat(): packet dispatched, HSRet acquired");
-		// Parse buffer
-		uint8 * msgPtr = HSRet->getMessageBuff();
-		if(msgPtr==NULL){
-			//Error
-			//PacketProcess(SERVER_LOCATION_EPS, HSRet);
-			return;
-		}
-
-		uint16 outputArray[8];
-		for(uint8 i = 0; i < 8; i++){
-			outputArray[i] = GetUInt16(msgPtr);
-			msgPtr += 2;
-		}
-
-		EPSServer * epsServer = dynamic_cast<EPSServer *> (Factory::GetInstance(EPS_SERVER_SINGLETON));
-
-		epsServer->EPSState.current3v3		= outputArray[0];
-		epsServer->EPSState.voltage3v3		= outputArray[1];
-		epsServer->EPSState.currentBatt		= outputArray[2];
-		epsServer->EPSState.voltageBatt		= outputArray[3];
-		epsServer->EPSState.current12v		= outputArray[4];
-		epsServer->EPSState.voltage12v		= outputArray[5];
-		epsServer->EPSState.battStatus		= outputArray[6];
-		epsServer->EPSState.stateOfCharge	= outputArray[7];
-
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: 3v3 Current:     %u", epsServer->EPSState.current3v3);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: 3v3 Voltage:     %u", epsServer->EPSState.voltage3v3);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Batt Current:    %u", epsServer->EPSState.currentBatt);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Batt Voltage:    %u", epsServer->EPSState.voltageBatt);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: 12v Current:     %u", epsServer->EPSState.current12v);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: 12v Voltage:     %u", epsServer->EPSState.voltage12v);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Batt status:     %u", epsServer->EPSState.battStatus);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: State of charge: %u", epsServer->EPSState.stateOfCharge);
-
-		//PacketProcess(SERVER_LOCATION_EPS, HSRet);
-	}
-}
-
 void EPSPowerCycle()
 {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));

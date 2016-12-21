@@ -24,7 +24,7 @@ class SubsystemServer : public Server
 {
 public:
 	SubsystemServer(std::string nameIn, LocationIDType idIn);
-	SubsystemServer(std::string nameIn, LocationIDType idIn, int sleep);
+	SubsystemServer(std::string nameIn, LocationIDType idIn, int sleep, int delays);
 	virtual ~SubsystemServer();
 	SubsystemServer & operator=(const SubsystemServer & source);
 	virtual bool operator ==(const Server & check) const;
@@ -33,7 +33,9 @@ public:
 protected:
 	uint16_t currentState;
 	int sleepTime;
+	int hsDelays;
 	virtual const StateStruct * GetStateMap() = 0;
+	virtual void CheckHealthStatus(void);
 };
 
 typedef void (SubsystemServer::*StateFunc)(void);

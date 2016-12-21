@@ -24,7 +24,6 @@ int EPSLEDData();
 bool EPSTestAlive();
 
 // Command/Data
-void EPSHealthStat();
 void EPSPowerCycle();
 
 // Non-opcode standard tasks
