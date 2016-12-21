@@ -32,7 +32,7 @@ namespace Servers{
 #define SCHEDULE_PATH		"/home/root/fileSysTest/home/uplink/schedule"
 
 #define PASS_TIMEOUT		900		// 900 s = 15 min
-#define FILE_CHUNK_SIZE		"500k"
+#define FILE_CHUNK_SIZE		"350"
 
 class CMDServer : public SubsystemServer, public AllStar::Core::Singleton{
 	friend class AllStar::Core::Factory;

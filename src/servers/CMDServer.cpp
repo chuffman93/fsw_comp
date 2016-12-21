@@ -162,8 +162,8 @@ void CMDServer::loopPostPass(){
 	string cmd = "rm -rf" + string(DOWNLINK_DIRECTORY) + "/*";
 	//system(cmd.c_str());
 
-	parseDRF();
 	parseDLT();
+	parseDRF();
 	processUplinkFiles();
 
 	// Clear uplink directory
