@@ -138,15 +138,15 @@ void parseDRF(void){
 	}
 
 	// parse the file line by line
-	char * archive;
+	char * arch;
 	char * dir;
 	char * num;
 	int numFiles;
 	char * regex;
 	while ((read = getline(&line, &len, fp)) != -1) {
 		// ---- Parse line
-		archive = strtok(line,",");
-		if(archive == NULL){
+		arch = strtok(line,",");
+		if(arch == NULL){
 			logger->Log(LOGGER_LEVEL_WARN, "Incomplete DRF line at archive");
 			continue; // skip to the next line
 		}
@@ -178,8 +178,23 @@ void parseDRF(void){
 		if(strcmp(regex,"X\n") == 0 || strcmp(regex,"X") == 0)
 			regex = (char *) "";
 
+		// ---- Prepend the downlink directory path to the archive name
+		string archive = string(DOWNLINK_DIRECTORY) + "/" + string(arch);
+
 		// ---- Call the function to gather and create a tarball from the files
-		packageFiles(archive, dir, regex, numFiles); // TODO: error check this?
+		packageFiles((char *) archive.c_str(), dir, regex, numFiles); // TODO: error check this?
+
+		// ---- Split the tarball into chunks
+		string split_cmd = "split -b " + string(FILE_CHUNK_SIZE) + " -d -a 3 " + archive + " " + archive + ".";
+		if(system(split_cmd.c_str()) == -1){
+			logger->Log(LOGGER_LEVEL_ERROR, "Failed to split DRF archive into chunks");
+		}
+
+		// ---- Delete the full archive
+		string del_cmd = "rm " + archive;
+		if(system(del_cmd.c_str()) == -1){
+			logger->Log(LOGGER_LEVEL_ERROR, "Failed to delete DRF archive");
+		}
 	}
 
 	fclose(fp);

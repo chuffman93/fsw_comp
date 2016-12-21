@@ -24,14 +24,15 @@
 namespace AllStar{
 namespace Servers{
 
-#define DOWNLINK_DIRECTORY			"/home/root/fileSysTest/home/downlink"
-#define UPLINK_DIRECTORY			"/home/root/fileSysTest/home/uplink"
-#define DRF_PATH					"/home/root/fileSysTest/home/uplink/drf"
-#define DLT_PATH					"/home/root/fileSysTest/home/uplink/dlt"
-#define PPE_PATH					"/home/root/fileSysTest/home/uplink/ppe"
-#define SCHEDULE_PATH				"/home/root/fileSysTest/home/uplink/schedule"
+#define DOWNLINK_DIRECTORY	"/home/root/fileSysTest/home/downlink"
+#define UPLINK_DIRECTORY	"/home/root/fileSysTest/home/uplink"
+#define DRF_PATH			"/home/root/fileSysTest/home/uplink/drf"
+#define DLT_PATH			"/home/root/fileSysTest/home/uplink/dlt"
+#define PPE_PATH			"/home/root/fileSysTest/home/uplink/ppe"
+#define SCHEDULE_PATH		"/home/root/fileSysTest/home/uplink/schedule"
 
-#define PASS_TIMEOUT	900		// 900 s = 15 min
+#define PASS_TIMEOUT		900		// 900 s = 15 min
+#define FILE_CHUNK_SIZE		"500k"
 
 class CMDServer : public SubsystemServer, public AllStar::Core::Singleton{
 	friend class AllStar::Core::Factory;
