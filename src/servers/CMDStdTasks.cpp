@@ -197,7 +197,7 @@ void parseDLT(void){
 	// open the files to downlink file
 	fp = fopen(DLT_PATH, "r");
 	if (fp == NULL){
-		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: error opening DLT\n");
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: error opening DLT");
 		return;
 	}
 
@@ -246,8 +246,51 @@ void parseDLT(void){
 	logger->Log(LOGGER_LEVEL_INFO, "Finished DLT");
 }
 
-void postPassExecution(void){
-	// parse and execute post-pass execution script
+void parsePPE(void){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	FILE * fp;
+	char * line = NULL;
+	size_t len = 0;
+	ssize_t read;
+
+	// open the files to downlink file
+	fp = fopen(PPE_PATH, "r");
+	if (fp == NULL){
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: error opening PPE");
+		return;
+	}
+
+	// parse the file line by line
+	char * type;
+	char * command;
+	while ((read = getline(&line, &len, fp)) != -1) {
+		// ---- Parse line
+		type = strtok(line,",");
+		if(type == NULL){
+			logger->Log(LOGGER_LEVEL_WARN, "Incomplete PPE line at type");
+			continue; // skip to the next line
+		}
+
+		// check the type of command and perform accordingly
+		if(strcmp(type,"SYS") == 0){
+			command = strtok(NULL,",");
+			if(command == NULL){
+				logger->Log(LOGGER_LEVEL_WARN, "Incomplete PPE line at command");
+				continue; // skip to the next line
+			}
+
+			// execute the system command
+			if(system(command) == -1){
+				logger->Log(LOGGER_LEVEL_ERROR, "PPE unable to execute shell command");
+			}
+		}else{
+			logger->Log(LOGGER_LEVEL_WARN, "PPE: unknown command type");
+		}
+	}
+
+	fclose(fp);
+
+	logger->Log(LOGGER_LEVEL_INFO, "Finished PPE");
 }
 
 void processUplinkFiles(void){

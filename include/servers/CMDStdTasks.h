@@ -19,7 +19,7 @@ void uftpSetup(void);
 void runDiagnostic(void);
 void parseDRF(void);
 void parseDLT(void);
-void postPassExecution(void);
+void parsePPE(void);
 void processUplinkFiles(void);
 string trimNewline(string buf);
 int getFileSize(char * filePath, char * regex, int maxFiles);

@@ -83,7 +83,6 @@ bool CMDServer::RegisterHandlers(){
 }
 
 // --------- State Machine -----------------------------------------------------------------------------------------
-
 void CMDServer::loopInit(void){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "CMDServer: Initializing");
@@ -123,8 +122,11 @@ void CMDServer::loopDiagnostic(){
 }
 
 void CMDServer::loopPrePass(){
-	// Command ACS to point to the ground station
-	// prep downlink files, etc.
+	/* TODO:
+	 * Tell the FMG server to go to its COM state
+	 * Command ACS to point to the ground station
+	 * Gather Verbose H&S files
+	 */
 
 	currentState = ST_LOGIN;
 }
@@ -134,7 +136,7 @@ void CMDServer::loopLogin(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	// if(login){currState = Verbose}
-	// else{retry until COM over?}
+	// else{retry until COM over? continue to beacon}
 
 	logger->Log(LOGGER_LEVEL_INFO, "CMDServer: ground login successful");
 	passStart = getTimeInSec();
@@ -142,20 +144,7 @@ void CMDServer::loopLogin(){
 }
 
 void CMDServer::loopVerboseHS(){
-	// Set FILServer to COM Pass mode (tie off files for downlink, block file I/O)
-	// Determine current number for each file
-	// Grab and compress files for downlink
-	// Downlink
-
-	/*
-	 * Mode switches
-	 * wd restarts
-	 * hot swap faults
-	 * error logs
-	 * science pass stats (ie. success?, file names generated?, )
-	 * file system stats (storage used by different sections)
-	 * H&S info from structs?
-	 */
+	// downlink the Verbose H&S file
 	currentState = ST_UPLINK;
 }
 
@@ -170,12 +159,21 @@ void CMDServer::loopDownlink(){
 }
 
 void CMDServer::loopPostPass(){
-	postPassExecution();
+	parsePPE();
+
+	// Clear downlink directory
+	string cmd = "rm -rf" + string(DOWNLINK_DIRECTORY) + "/*";
+	//system(cmd.c_str());
+
+	parseDRF();
+	parseDLT();
 	processUplinkFiles();
 
-	// clear uplink directory
-	string cmd = "rm -rf " + string(UPLINK_DIRECTORY) + "/*";
+	// Clear uplink directory
+	cmd = "rm -rf " + string(UPLINK_DIRECTORY) + "/*";
 	//system(cmd.c_str());
+
+	// TODO: switch FMG server out of COM mode
 
 	currentState = ST_IDLE;
 }
