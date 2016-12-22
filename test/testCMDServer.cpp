@@ -169,3 +169,24 @@ TEST(TestCMDStdTasks, testDRF){
 	string rma1 = "rm " + string(DOWNLINK_DIRECTORY) + "/a*";
 	EXPECT_NE(system(rma1.c_str()),-1);
 }
+
+TEST(TestCMDStdTasks, testPPE){
+	// ---- Create test PPE
+	string ppe_cmd1 = "echo \"SYS,mkdir /home/root/CMDTest\" >> " + string(PPE_PATH);
+	string ppe_cmd2 = "echo \"SYS,echo \"test\" > /home/root/CMDTest/test1\" >> " + string(PPE_PATH);
+	string ppe_cmd3 = "echo \"echo \"test\" > /home/root/CMDTest/test2\" >> " + string(PPE_PATH); // invalid
+	EXPECT_NE(system(ppe_cmd1.c_str()),-1);
+	EXPECT_NE(system(ppe_cmd2.c_str()),-1);
+	EXPECT_NE(system(ppe_cmd3.c_str()),-1);
+
+	// ---- Parse PPE files and execute commands
+	parsePPE();
+	remove(PPE_PATH);
+
+	// ---- Verify results
+	ASSERT_EQ(access("/home/root/CMDTest/test1",F_OK),0);
+	ASSERT_EQ(access("/home/root/CMDTest/test2",F_OK),-1);
+
+	// ---- Cleanup
+	EXPECT_NE(system("rm -rf /home/root/CMDTest"),-1);
+}
