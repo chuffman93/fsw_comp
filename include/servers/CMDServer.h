@@ -26,13 +26,14 @@ namespace Servers{
 
 #define DOWNLINK_DIRECTORY	"/home/root/fileSysTest/home/downlink"
 #define UPLINK_DIRECTORY	"/home/root/fileSysTest/home/uplink"
-#define DRF_PATH			"/home/root/fileSysTest/home/uplink/drf"
-#define DLT_PATH			"/home/root/fileSysTest/home/uplink/dlt"
-#define PPE_PATH			"/home/root/fileSysTest/home/uplink/ppe"
+#define DRF_PATH			"/home/root/fileSysTest/home/uplink/drf.txt"
+#define DLT_PATH			"/home/root/fileSysTest/home/uplink/dlt.txt"
+#define PPE_PATH			"/home/root/fileSysTest/home/uplink/ppe.txt"
 #define SCHEDULE_PATH		"/home/root/fileSysTest/home/uplink/schedule"
+#define EOT_PATH			"/home/root/fileSysTest/home/uplink/eot.txt"
 
 #define PASS_TIMEOUT		900		// 900 s = 15 min
-#define FILE_CHUNK_SIZE		"350"
+#define FILE_CHUNK_SIZE		"10k"	// size of chunks to make (ie. 500, 5k, 10M, etc.)
 
 class CMDServer : public SubsystemServer, public AllStar::Core::Singleton{
 	friend class AllStar::Core::Factory;
@@ -57,8 +58,9 @@ private:
 	AllStar::Core::MessageHandlerRegistry reg;
 	AllStar::Core::Arbitrator arby;
 
-	// COM Pass Variables
-	int32 passStart;
+	// Additional member variables
+	int numFilesDWN;
+	int currFileNum;
 
 	// Modes
 	void loopInit();
@@ -68,6 +70,7 @@ private:
 	void loopLogin();
 	void loopVerboseHS();
 	void loopUplink();
+	void loopDownlinkPrep();
 	void loopDownlink();
 	void loopPostPass();
 
@@ -79,6 +82,7 @@ private:
 	STATE_MAP_ENTRY(&CMDServer::loopLogin)
 	STATE_MAP_ENTRY(&CMDServer::loopVerboseHS)
 	STATE_MAP_ENTRY(&CMDServer::loopUplink)
+	STATE_MAP_ENTRY(&CMDServer::loopDownlinkPrep)
 	STATE_MAP_ENTRY(&CMDServer::loopDownlink)
 	STATE_MAP_ENTRY(&CMDServer::loopPostPass)
 	END_STATE_MAP
@@ -91,6 +95,7 @@ private:
 		ST_LOGIN,
 		ST_VERBOSE_HS,
 		ST_UPLINK,
+		ST_DOWNLINK_PREP,
 		ST_DOWNLINK,
 		ST_POST_PASS
 	};

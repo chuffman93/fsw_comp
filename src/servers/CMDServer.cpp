@@ -35,7 +35,7 @@ static CMDSwitchProtocolHandler * cmdSwitchProtocolHandler;
 int CMDServer::subsystem_acp_protocol[HARDWARE_LOCATION_MAX];
 
 CMDServer::CMDServer(string nameIn, LocationIDType idIn) :
-		SubsystemServer(nameIn, idIn), Singleton(), arby(idIn), passStart(0){
+		SubsystemServer(nameIn, idIn), Singleton(), arby(idIn), numFilesDWN(0), currFileNum(0) {
 	for (int i = HARDWARE_LOCATION_MIN; i < HARDWARE_LOCATION_MAX; i++) {
 		subsystem_acp_protocol[i] = ACP_PROTOCOL_SPI;
 	}
@@ -131,13 +131,19 @@ void CMDServer::loopPrePass(){
 // TODO: determine login sequence
 void CMDServer::loopLogin(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	bool loggedIn = true;
 
-	// if(login){currState = Verbose}
-	// else{retry until COM over? continue to beacon}
+	if(loggedIn){
+		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: ground login successful");
+		currentState = ST_VERBOSE_HS;
+	}
 
-	logger->Log(LOGGER_LEVEL_INFO, "CMDServer: ground login successful");
-	passStart = getTimeInSec();
-	currentState = ST_VERBOSE_HS;
+	// make sure that the COM pass hasn't concluded
+	if(modeManager->GetMode() != MODE_COM){
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: login unsuccessful, COM pass over");
+		currentState = ST_POST_PASS;
+	}
 }
 
 void CMDServer::loopVerboseHS(){
@@ -146,13 +152,53 @@ void CMDServer::loopVerboseHS(){
 }
 
 void CMDServer::loopUplink(){
-	// Uplink ends after the post pass execution script has been received
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+
+	// check if the EOT file has been uplinked
+	if(access(EOT_PATH,F_OK) == 0){
+		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: uplink concluded");
+		currentState = ST_DOWNLINK_PREP;
+	}
+
+	// make sure that the COM pass hasn't concluded
+	if(modeManager->GetMode() != MODE_COM){
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: login unsuccessful, COM pass over");
+		currentState = ST_POST_PASS;
+	}
+}
+
+void CMDServer::loopDownlinkPrep(){
+	numFilesDWN = getNumFiles((char *) DOWNLINK_DIRECTORY);
+	currFileNum = 0;
 	currentState = ST_DOWNLINK;
 }
 
 void CMDServer::loopDownlink(){
-	// fork a new process to downlink files
-	currentState = ST_POST_PASS;
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	string filename;
+
+	if(modeManager->GetMode() != MODE_COM){
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: downlink timed out, COM pass over");
+		numFilesDWN = 0;
+		currFileNum = 0;
+		currentState = ST_POST_PASS;
+	}
+
+	if(currFileNum < numFilesDWN){
+		filename = getDownlinkFile(currFileNum++);
+		if(strcmp(filename.c_str(),"") == 0){
+			// downlink the file
+			printf("File: %s\n", filename.c_str());
+		}
+	}else{
+		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: downlink finished");
+		numFilesDWN = 0;
+		currFileNum = 0;
+		currentState = ST_POST_PASS;
+	}
+
 }
 
 void CMDServer::loopPostPass(){

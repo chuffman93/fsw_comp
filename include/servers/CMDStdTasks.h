@@ -26,6 +26,8 @@ const long getFileSize(const char * filePath, const char * regex, const int maxF
 const int packageFiles(const char * destination, const char * filePath, const char * regex, const int maxFiles);
 int deleteOldest(char * filePath, int numFiles);
 int deleteRegex(char * filePath, char * regex);
+int getNumFiles(char * dir);
+string getDownlinkFile(int fileNum);
 
 } // End of namespace Servers
 } // End of namespace AllStar
