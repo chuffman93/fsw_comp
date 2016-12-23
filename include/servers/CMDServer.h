@@ -26,13 +26,12 @@ namespace Servers{
 
 #define DOWNLINK_DIRECTORY	"/home/root/fileSysTest/home/downlink"
 #define UPLINK_DIRECTORY	"/home/root/fileSysTest/home/uplink"
-#define DRF_PATH			"/home/root/fileSysTest/home/uplink/drf.txt"
-#define DLT_PATH			"/home/root/fileSysTest/home/uplink/dlt.txt"
-#define PPE_PATH			"/home/root/fileSysTest/home/uplink/ppe.txt"
+#define DRF_PATH			"/home/root/fileSysTest/home/uplink/DRF.txt"
+#define DLT_PATH			"/home/root/fileSysTest/home/uplink/DLT.txt"
+#define PPE_PATH			"/home/root/fileSysTest/home/uplink/PPE.txt"
 #define SCHEDULE_PATH		"/home/root/fileSysTest/home/uplink/schedule"
-#define EOT_PATH			"/home/root/fileSysTest/home/uplink/eot.txt"
+#define EOT_PATH			"/home/root/fileSysTest/home/uplink/EOT.txt"
 
-#define PASS_TIMEOUT		900		// 900 s = 15 min
 #define FILE_CHUNK_SIZE		"10k"	// size of chunks to make (ie. 500, 5k, 10M, etc.)
 
 class CMDServer : public SubsystemServer, public AllStar::Core::Singleton{

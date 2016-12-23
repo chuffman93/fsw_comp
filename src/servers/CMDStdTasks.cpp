@@ -130,6 +130,12 @@ void parseDRF(void){
 	size_t len = 0;
 	ssize_t read;
 
+	// check if a DRF file has been uplinked
+	if(access(DRF_PATH, F_OK) != 0){
+		logger->Log(LOGGER_LEVEL_WARN, "CMDStdTasks: no DRF");
+		return;
+	}
+
 	// open the files to downlink file
 	fp = fopen(DRF_PATH, "r");
 	if (fp == NULL){
@@ -213,6 +219,12 @@ void parseDLT(void){
 	size_t len = 0;
 	ssize_t read;
 
+	// check if a DLT file has been uplinked
+	if(access(DLT_PATH, F_OK) != 0){
+		logger->Log(LOGGER_LEVEL_WARN, "CMDStdTasks: no DLT");
+		return;
+	}
+
 	// open the files to downlink file
 	fp = fopen(DLT_PATH, "r");
 	if (fp == NULL){
@@ -275,6 +287,12 @@ void parsePPE(void){
 	char * line = NULL;
 	size_t len = 0;
 	ssize_t read;
+
+	// check if a PPE file has been uplinked
+	if(access(PPE_PATH, F_OK) != 0){
+		logger->Log(LOGGER_LEVEL_WARN, "CMDStdTasks: no PPE");
+		return;
+	}
 
 	// open the files to downlink file
 	fp = fopen(PPE_PATH, "r");
