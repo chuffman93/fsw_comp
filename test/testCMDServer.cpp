@@ -10,7 +10,7 @@ using namespace std;
 using namespace AllStar::Core;
 using namespace AllStar::Servers;
 
-#define TEST_DIR "/home/root/jacktest/CMDTest"
+#define TEST_DIR "/home/root/CMDTest"
 #define FILE1 TEST_DIR "/test1.txt"
 #define FILE2 TEST_DIR "/test2.txt"
 #define FILE3 TEST_DIR "/test3.txt"
@@ -74,7 +74,7 @@ TEST(TestCMDStdTasks, testPackageFiles){
 
 	create_test_file_system();
 
-	const char * tar_file = "/home/root/jacktest/CMDtest.tar";
+	const char * tar_file = "/home/root/CMDtest.tar";
 	packageFiles(tar_file, TEST_DIR, "", 5);
 
 	const int file_exists = access(tar_file, F_OK);
