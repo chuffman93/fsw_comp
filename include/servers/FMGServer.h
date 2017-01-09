@@ -59,6 +59,7 @@ class FMGServer : public SubsystemServer, public AllStar::Core::Singleton{
 
 public:
 	bool RegisterHandlers();
+	void Log(FILServerDestinationEnum dest, string buf);
 
 	// FileQueue
 	queue<FilePacket> FileQueue;

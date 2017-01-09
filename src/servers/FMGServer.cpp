@@ -36,20 +36,10 @@ void FileManager::CloseFile(){
 	fclose(file);
 	file_open = false;
 
-	// Compress the file and move it out of CUR
+	// Move the file out of CUR
 	string new_file_name = file_name;
 	new_file_name.erase(file_path.length(), 4);
-	char tar_cmd[128];
-	sprintf(tar_cmd, "tar -czf %s %s", new_file_name.c_str(), file_name.c_str());
-	if(!(fd = popen(tar_cmd, "r"))){
-		logger->Log(LOGGER_LEVEL_ERROR, "FileManager: Error with tar command");
-		// TODO: Needs much better error checking!
-	}
-	if (pclose(fd) == -1){
-		logger->Log(LOGGER_LEVEL_WARN, "FileManager: Error closing file stream");
-	}
-	remove(file_name.c_str());
-
+	rename(file_name.c_str(), new_file_name.c_str());
 	file_name = new_file_name;
 }
 
@@ -154,6 +144,13 @@ FMGServer & FMGServer::operator=(const FMGServer & source){
 bool FMGServer::RegisterHandlers(){
 	bool success = true;
 	return success;
+}
+
+void FMGServer::Log(FILServerDestinationEnum dest, string buf){
+	FilePacket packet;
+	packet.buffer = buf;
+	packet.dest = dest;
+	FileQueue.push(packet);
 }
 // -----------------------------------------------------------------------------------------------------------------
 

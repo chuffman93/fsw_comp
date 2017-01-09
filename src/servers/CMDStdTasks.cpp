@@ -373,7 +373,7 @@ const long getFileSize(const char * filePath, const char * regex, const int maxF
 	    return -1;
 	}
 
-	// Parse ls command into array
+	// Grab result of command
 	int loop_count = 0;
 	char buff[512];
 	while(fgets(buff, sizeof(buff), fd)!=NULL){
@@ -393,6 +393,7 @@ const long getFileSize(const char * filePath, const char * regex, const int maxF
 }
 
 const int packageFiles(const char * destination, const char * filePath, const char * regex, const int maxFiles){
+	// This function will tar up `maxFiles` number of files in `filePath` matching the regular expression `regex` into a tarball named `destination`.
     Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FILE * fd;
 
@@ -408,9 +409,8 @@ const int packageFiles(const char * destination, const char * filePath, const ch
 	}
 
 	// sh command to tar the files to package
-	// TODO: This tar command preserves parent directory structure, we don't want that
 	char sh_cmd[256];
-	sprintf(sh_cmd, "tar -cf %s `ls -lr %s | grep ^- | awk '{print \"%s\" \"/\" $9}' | grep \"%s\" | head -%d`", destination, filePath, filePath, regex, maxFiles);
+	sprintf(sh_cmd, "tar -czf %s -C %s `ls -lr %s | grep ^- | awk '{print $9}' | grep \"%s\" | head -%d`", destination, filePath, filePath, regex, maxFiles);
 
 	// Execute a shell script and pipe the results back to the file descriptor fd
 	if(!(fd = popen(sh_cmd, "r"))){
