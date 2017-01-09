@@ -22,7 +22,7 @@ namespace Servers{
 #define SCHEDULE_MAX_SIZE 50
 
 #define SCH_CONFIG_FILE "SCHConfig"
-#define SCH_SCHEDULE_FILE "uplink/Schedule"
+#define SCH_SCHEDULE_FILE "/home/root/Schedule"
 
 class SCHServer : public SubsystemServer, public AllStar::Core::Singleton
 {

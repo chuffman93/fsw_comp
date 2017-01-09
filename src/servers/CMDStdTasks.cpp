@@ -130,6 +130,12 @@ void parseDRF(void){
 	size_t len = 0;
 	ssize_t read;
 
+	// check if a DRF file has been uplinked
+	if(access(DRF_PATH, F_OK) != 0){
+		logger->Log(LOGGER_LEVEL_WARN, "CMDStdTasks: no DRF");
+		return;
+	}
+
 	// open the files to downlink file
 	fp = fopen(DRF_PATH, "r");
 	if (fp == NULL){
@@ -213,6 +219,12 @@ void parseDLT(void){
 	size_t len = 0;
 	ssize_t read;
 
+	// check if a DLT file has been uplinked
+	if(access(DLT_PATH, F_OK) != 0){
+		logger->Log(LOGGER_LEVEL_WARN, "CMDStdTasks: no DLT");
+		return;
+	}
+
 	// open the files to downlink file
 	fp = fopen(DLT_PATH, "r");
 	if (fp == NULL){
@@ -275,6 +287,12 @@ void parsePPE(void){
 	char * line = NULL;
 	size_t len = 0;
 	ssize_t read;
+
+	// check if a PPE file has been uplinked
+	if(access(PPE_PATH, F_OK) != 0){
+		logger->Log(LOGGER_LEVEL_WARN, "CMDStdTasks: no PPE");
+		return;
+	}
 
 	// open the files to downlink file
 	fp = fopen(PPE_PATH, "r");
@@ -391,7 +409,7 @@ const int packageFiles(const char * destination, const char * filePath, const ch
 
 	// sh command to tar the files to package
 	// TODO: This tar command preserves parent directory structure, we don't want that
-	char sh_cmd[248];
+	char sh_cmd[256];
 	sprintf(sh_cmd, "tar -cf %s `ls -lr %s | grep ^- | awk '{print \"%s\" \"/\" $9}' | grep \"%s\" | head -%d`", destination, filePath, filePath, regex, maxFiles);
 
 	// Execute a shell script and pipe the results back to the file descriptor fd
@@ -412,7 +430,7 @@ int deleteOldest(char * filePath, int numFiles){
 	FILE * fd;
 
 	// sh command to remove the oldest numFiles from filePath
-	char sh_cmd[248];
+	char sh_cmd[256];
 	sprintf(sh_cmd, "rm `ls -l %s | grep ^- | awk '{print \"%s\" \"/\" $9}' | head -%d`", filePath, filePath, numFiles);
 
 	// Execute a shell script and pipe the results back to the file descriptor fd
@@ -433,7 +451,7 @@ int deleteRegex(char * filePath, char * regex){
 	FILE * fd;
 
 	// sh command to remove all files from filePath matching regex
-	char sh_cmd[248];
+	char sh_cmd[256];
 	sprintf(sh_cmd, "rm `ls -l %s | grep ^- | awk '{print \"%s\" \"/\" $9}' | grep \"%s\"`", filePath, filePath, regex);
 
 	// Execute a shell script and pipe the results back to the file descriptor fd
@@ -447,6 +465,74 @@ int deleteRegex(char * filePath, char * regex){
 	}
 
 	return 0;
+}
+
+int getNumFiles(char * dir){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	FILE * fd;
+	int num = 0;
+
+	// sh command to determine the number of files in the downlink directory
+	char sh_cmd[256];
+	sprintf(sh_cmd, "ls -l %s | grep ^- | wc -l", dir);
+
+	// Execute a shell script and pipe the results back to the file descriptor fd
+	if(!(fd = popen(sh_cmd, "r"))){
+		logger->Log(LOGGER_LEVEL_ERROR, "GetNumFilesDWN: Error checking file size");
+		return -1;
+	}
+
+	// get the number from the result of the command
+	int loop_count = 0;
+	char buff[512];
+	while(fgets(buff, sizeof(buff), fd)!=NULL){
+		if (loop_count > 0) {
+			logger->Log(LOGGER_LEVEL_ERROR, "GetFileSize: sh command produced too many results");
+			return -2;
+		}
+		num = atoi(buff);
+		loop_count++;
+	}
+
+	if (pclose(fd) == -1){
+		logger->Log(LOGGER_LEVEL_WARN, "GetNumFilesDWN: Error closing file stream");
+	}
+
+	return num;
+}
+
+string getDownlinkFile(int fileNum){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	FILE * fd;
+	char fileName[128];
+
+	// sh command to determine the number of files in the downlink directory
+	char sh_cmd[256];
+	sprintf(sh_cmd, "ls -l %s | grep ^- | awk '{print \"%s\" \"/\" $9}' | head -%d | tail -1", DOWNLINK_DIRECTORY, DOWNLINK_DIRECTORY, fileNum);
+
+	// Execute a shell script and pipe the results back to the file descriptor fd
+	if(!(fd = popen(sh_cmd, "r"))){
+		logger->Log(LOGGER_LEVEL_ERROR, "GetNumFilesDWN: Error checking file size");
+		return "";
+	}
+
+	// get the number from the result of the command
+	int loop_count = 0;
+	while(fgets(fileName, 128, fd)!=NULL){
+		if (loop_count > 0) {
+			logger->Log(LOGGER_LEVEL_ERROR, "GetFileSize: sh command produced too many results");
+			return "";
+		}
+		loop_count++;
+	}
+
+	if (pclose(fd) == -1){
+		logger->Log(LOGGER_LEVEL_WARN, "GetNumFilesDWN: Error closing file stream");
+	}
+
+	string fn = trimNewline(string(fileName));
+
+	return fn;
 }
 
 } // End of namespace Servers

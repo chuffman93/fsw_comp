@@ -169,3 +169,66 @@ TEST(TestCMDStdTasks, testDRF){
 	string rma1 = "rm " + string(DOWNLINK_DIRECTORY) + "/a*";
 	EXPECT_NE(system(rma1.c_str()),-1);
 }
+
+TEST(TestCMDStdTasks, testPPE){
+	// ---- Create test PPE
+	string ppe_cmd1 = "echo \"SYS,mkdir /home/root/CMDTest\" >> " + string(PPE_PATH);
+	string ppe_cmd2 = "echo \"SYS,echo \"test\" > /home/root/CMDTest/test1\" >> " + string(PPE_PATH);
+	string ppe_cmd3 = "echo \"echo \"test\" > /home/root/CMDTest/test2\" >> " + string(PPE_PATH); // invalid
+	EXPECT_NE(system(ppe_cmd1.c_str()),-1);
+	EXPECT_NE(system(ppe_cmd2.c_str()),-1);
+	EXPECT_NE(system(ppe_cmd3.c_str()),-1);
+
+	// ---- Parse PPE files and execute commands
+	parsePPE();
+	remove(PPE_PATH);
+
+	// ---- Verify results
+	ASSERT_EQ(access("/home/root/CMDTest/test1",F_OK),0);
+	ASSERT_EQ(access("/home/root/CMDTest/test2",F_OK),-1);
+
+	// ---- Cleanup
+	EXPECT_NE(system("rm -rf /home/root/CMDTest"),-1);
+}
+
+TEST(TestCMDStdTasks, TestGetNumFilesDWN){
+	// ---- Create test files in a test directory
+	mkdir("/home/root/CMDTest", 0777);
+	mkdir("/home/root/CMDTest1", 0777);
+	EXPECT_NE(system("echo \"test\" >> /home/root/CMDTest/test00"),-1);
+	EXPECT_NE(system("echo \"test\" >> /home/root/CMDTest/test01"),-1);
+	EXPECT_NE(system("echo \"test\" >> /home/root/CMDTest/test02"),-1);
+	EXPECT_NE(system("echo \"test\" >> /home/root/CMDTest/test10"),-1);
+	EXPECT_NE(system("echo \"test\" >> /home/root/CMDTest/test11"),-1);
+	EXPECT_NE(system("echo \"test\" >> /home/root/CMDTest/test12"),-1);
+
+	ASSERT_EQ(getNumFiles((char *) "/home/root/CMDTest"),6);
+	ASSERT_EQ(getNumFiles((char *) "/home/root/CMDTest1"),0);
+
+	EXPECT_NE(system("rm -rf /home/root/CMDTest"),-1);
+	EXPECT_NE(system("rm -rf /home/root/CMDTest1"),-1);
+}
+
+TEST(TestCMDStdTasks, TestGetDownlinkFile){
+	string f1 = "echo \"test\" >> " + string(DOWNLINK_DIRECTORY) + "/test1";
+	string f2 = "echo \"test\" >> " + string(DOWNLINK_DIRECTORY) + "/test2";
+	string f3 = "echo \"test\" >> " + string(DOWNLINK_DIRECTORY) + "/test3";
+	string f4 = "echo \"test\" >> " + string(DOWNLINK_DIRECTORY) + "/test4";
+	string f5 = "echo \"test\" >> " + string(DOWNLINK_DIRECTORY) + "/test5";
+	EXPECT_NE(system(f1.c_str()),-1);
+	EXPECT_NE(system(f2.c_str()),-1);
+	EXPECT_NE(system(f3.c_str()),-1);
+	EXPECT_NE(system(f4.c_str()),-1);
+	EXPECT_NE(system(f5.c_str()),-1);
+
+	string file1 = getDownlinkFile(1);
+	string file2 = getDownlinkFile(4);
+	string f1check = string(DOWNLINK_DIRECTORY) + "/test1";
+	string f2check = string(DOWNLINK_DIRECTORY) + "/test4";
+
+	ASSERT_EQ(strcmp(file1.c_str(),f1check.c_str()),0);
+	ASSERT_EQ(strcmp(file2.c_str(),f2check.c_str()),0);
+
+	string clearDWN = "rm " + string(DOWNLINK_DIRECTORY) + "/*";
+	EXPECT_NE(system(clearDWN.c_str()),-1);
+}

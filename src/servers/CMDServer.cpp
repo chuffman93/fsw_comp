@@ -35,7 +35,7 @@ static CMDSwitchProtocolHandler * cmdSwitchProtocolHandler;
 int CMDServer::subsystem_acp_protocol[HARDWARE_LOCATION_MAX];
 
 CMDServer::CMDServer(string nameIn, LocationIDType idIn) :
-		SubsystemServer(nameIn, idIn), Singleton(), arby(idIn), passStart(0){
+		SubsystemServer(nameIn, idIn), Singleton(), arby(idIn), numFilesDWN(0), currFileNum(0) {
 	for (int i = HARDWARE_LOCATION_MIN; i < HARDWARE_LOCATION_MAX; i++) {
 		subsystem_acp_protocol[i] = ACP_PROTOCOL_SPI;
 	}
@@ -119,48 +119,106 @@ void CMDServer::loopDiagnostic(){
 }
 
 void CMDServer::loopPrePass(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
 	/* TODO:
 	 * Tell the FMG server to go to its COM state
 	 * Command ACS to point to the ground station
 	 * Gather Verbose H&S files
 	 */
 
+	logger->Log(LOGGER_LEVEL_INFO, "CMDServer: finished COM pass prep");
 	currentState = ST_LOGIN;
 }
 
 // TODO: determine login sequence
 void CMDServer::loopLogin(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	bool loggedIn = true;
 
-	// if(login){currState = Verbose}
-	// else{retry until COM over? continue to beacon}
+	if(loggedIn){
+		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: ground login successful");
+		currentState = ST_VERBOSE_HS;
+	}
 
-	logger->Log(LOGGER_LEVEL_INFO, "CMDServer: ground login successful");
-	passStart = getTimeInSec();
-	currentState = ST_VERBOSE_HS;
+	// make sure that the COM pass hasn't concluded
+	if(modeManager->GetMode() != MODE_COM){
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: login unsuccessful, COM pass over");
+		currentState = ST_POST_PASS;
+	}
 }
 
 void CMDServer::loopVerboseHS(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
 	// downlink the Verbose H&S file
+	logger->Log(LOGGER_LEVEL_INFO, "CMDServer: finished downlinking Verbose H&S");
 	currentState = ST_UPLINK;
 }
 
 void CMDServer::loopUplink(){
-	// Uplink ends after the post pass execution script has been received
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+
+	// check if the EOT file has been uplinked
+	if(access(EOT_PATH,F_OK) == 0){
+		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: uplink concluded");
+		currentState = ST_DOWNLINK_PREP;
+	}
+
+	// make sure that the COM pass hasn't concluded
+	if(modeManager->GetMode() != MODE_COM){
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: uplink not finished, COM pass over");
+		currentState = ST_POST_PASS;
+	}
+}
+
+void CMDServer::loopDownlinkPrep(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	numFilesDWN = getNumFiles((char *) DOWNLINK_DIRECTORY);
+	currFileNum = 1;
+
+	logger->Log(LOGGER_LEVEL_INFO,"CMDServer: %d files to downlink", numFilesDWN);
 	currentState = ST_DOWNLINK;
 }
 
 void CMDServer::loopDownlink(){
-	// fork a new process to downlink files
-	currentState = ST_POST_PASS;
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	string filename;
+
+	if(modeManager->GetMode() != MODE_COM){
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: downlink timed out, COM pass over");
+		numFilesDWN = 0;
+		currFileNum = 1;
+		currentState = ST_POST_PASS;
+	}
+
+	if(currFileNum < numFilesDWN + 1){
+		filename = getDownlinkFile(currFileNum++);
+
+		// get downlink returns an empty string if it errors, check this before we downlink the file
+		if(strcmp(filename.c_str(),"") != 0){
+			// downlink the file
+			printf("File: %s\n", filename.c_str());
+		}
+	}else{
+		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: downlink finished");
+		numFilesDWN = 0;
+		currFileNum = 1;
+		currentState = ST_POST_PASS;
+	}
 }
 
 void CMDServer::loopPostPass(){
+	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	parsePPE();
 
 	// Clear downlink directory
-	string cmd = "rm -rf" + string(DOWNLINK_DIRECTORY) + "/*";
-	//system(cmd.c_str());
+	string cmd = "rm -rf " + string(DOWNLINK_DIRECTORY) + "/*";
+	system(cmd.c_str());
 
 	parseDLT();
 	parseDRF();
@@ -168,10 +226,13 @@ void CMDServer::loopPostPass(){
 
 	// Clear uplink directory
 	cmd = "rm -rf " + string(UPLINK_DIRECTORY) + "/*";
-	//system(cmd.c_str());
+	system(cmd.c_str());
 
 	// TODO: switch FMG server out of COM mode
 
+	if(modeManager->GetMode() == MODE_COM){
+		modeManager->SetMode(MODE_BUS_PRIORITY);
+	}
 	currentState = ST_IDLE;
 }
 
