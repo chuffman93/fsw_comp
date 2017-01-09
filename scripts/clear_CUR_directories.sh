@@ -35,8 +35,7 @@ for dir in $TLM_DIRECTORIES
 do
   for file in `ls /SD_2/$dir/CUR`
   do
-    #tar -czf /SD_2/$dir/$file /SD_2/$dir/CUR/$file
-    rm /SD_2/$dir/CUR/$file
+    mv /SD_2/$dir/CUR/$file /SD_2/$dir/$file
   done
 done
 
@@ -44,7 +43,6 @@ for dir in $SCI_DIRECTORIES
 do
   for file in `ls /SD_2/$dir/CUR`
   do
-    #tar -czf /SD_2/$dir/$file /SD_2/$dir/CUR/$file
-    rm /SD_3/$dir/CUR/$file
+    mv /SD_3/$dir/CUR/$file /SD_3/$dir/$file
   done
 done
