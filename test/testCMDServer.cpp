@@ -5,6 +5,7 @@
 #include "servers/CMDStdTasks.h"
 #include <sys/stat.h>
 #include <string>
+#include <stdlib.h>
 
 using namespace std;
 using namespace AllStar::Core;
@@ -74,14 +75,28 @@ TEST(TestCMDStdTasks, testPackageFiles){
 
 	create_test_file_system();
 
-	const char * tar_file = "/home/root/CMDtest.tar";
+	char * tar_file = "/home/root/CMDtest.tar";
 	packageFiles(tar_file, TEST_DIR, "", 5);
 
-	const int file_exists = access(tar_file, F_OK);
-	ASSERT_NE(file_exists, -1);
+	ASSERT_NE(access(tar_file, F_OK), -1);
+
+	char * tar_dir = TEST_DIR "dir";
+	char cmd[100];
+	sprintf(cmd, "tar -xzf %s -C %s", tar_file, tar_dir);
+	mkdir(tar_dir, 0777);
+	system(cmd);
+
+	ASSERT_NE(access(tar_dir, F_OK), -1);
+	ASSERT_NE(access("/home/root/CMDTestdir/test1.txt", F_OK), -1);
+	ASSERT_NE(access("/home/root/CMDTestdir/test2.txt", F_OK), -1);
+	ASSERT_NE(access("/home/root/CMDTestdir/test3.txt", F_OK), -1);
 
 	delete_test_file_system();
 	remove(tar_file);
+	remove("/home/root/CMDTestdir/test1.txt");
+	remove("/home/root/CMDTestdir/test2.txt");
+	remove("/home/root/CMDTestdir/test3.txt");
+	remove(tar_dir);
 }
 
 // link to DLT format: http://thinker.colorado.edu/projects/fsw/wiki/Deletion_File
