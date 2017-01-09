@@ -128,9 +128,11 @@ int main(int argc, char * argv[])
 
 	if(!threadsCreated){
 		logger->Log(LOGGER_LEVEL_FATAL, "Not all threads were created on startup!");
+		fmgServer->Log(DESTINATION_ERR, "0x01");
 		// TODO: do something?
 	}else{
 		logger->Log(LOGGER_LEVEL_INFO, "All servers created!");
+		fmgServer->Log(DESTINATION_ERR, "0x02");
 	}
 
 	WatchdogManager::WatchdogManagerTask();

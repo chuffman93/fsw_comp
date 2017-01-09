@@ -1,0 +1,51 @@
+###########################################
+# tlm.txt
+#
+# Last Modified: Jack Dinkel 01/09/17
+#
+# This file contains the dictionary of
+# all telemetry values, their types, location
+# hex codes, and parameters, if they have any.
+#
+# Each tlm is in a block separated by a
+# line of whitespace on either side.
+# Put each field on its own line.
+#
+# Use comments sparingly, I don't want to
+# have to write a complex comment parser...
+###########################################
+
+# Ideas:
+#   Hex code numbering:
+#     1. Alphabetical
+#     2. Type
+#     3. Location
+#
+#  Create an awk program to parse this into
+#  html for easy display
+#
+#  Create a parser to run strings against this
+#  dictionary and spit out human readable
+#
+#  Create a script to easily insert values in
+#  order into this document
+
+Hex Code
+Type
+Location
+Description
+Parameters
+
+0x01
+ERR
+main.cpp
+Not all threads were created on startup!
+None
+
+0x02
+ERR
+main.cpp
+All servers created!
+None
+
+
