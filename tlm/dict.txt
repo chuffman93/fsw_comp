@@ -1,18 +1,24 @@
 ###########################################
 # tlm.txt
 #
-# Last Modified: Jack Dinkel 01/09/17
+# Last Modified: Jack Dinkel 01/10/17
 #
 # This file contains the dictionary of
-# all telemetry values, their types, location
-# hex codes, and parameters, if they have any.
+# all telemetry values, their TLM logger
+# types, location in code, hex codes, and
+# and a printf format string
 #
 # Each tlm is in a block separated by a
 # line of whitespace on either side.
 # Put each field on its own line.
 #
-# Use comments sparingly, I don't want to
-# have to write a complex comment parser...
+# For now there is very minimal support
+# for comments. Only write a comment at
+# the beginning of an entry (before the
+# hex code)
+#
+# Also, always maintain a blank line at
+# the end of the document!
 ###########################################
 
 # Ideas:
@@ -33,19 +39,19 @@
 Hex Code
 Type
 Location
-Description
-Parameters
+Format String
 
+^^^^^^ BEGIN TELEMETRY ^^^^^^
 0x01
 ERR
 main.cpp
 Not all threads were created on startup!
-None
 
-0x02
+0x03
 ERR
 main.cpp
 All servers created!
-None
+
+
 
 
