@@ -6,6 +6,7 @@
 */
 #include "servers/SCHServer.h"
 #include "servers/GPSServer.h"
+#include "servers/DispatchStdTasks.h"
 
 #include "core/Dispatcher.h"
 #include "core/WatchdogManager.h"
@@ -119,43 +120,74 @@ void SCHServer::SubsystemLoop(void)
 	}
 }
 
+//void SCHServer::LoadNextSchedule(){
+//	bool failure = false;
+//	currentSchedule = std::list<SCHItem>();
+//	if(this->TakeLock(MAX_BLOCK_TIME)){
+//		if(access(SCH_SCHEDULE_FILE, F_OK) != -1){
+//			FILE *pFile;
+//			pFile = fopen(SCH_SCHEDULE_FILE, "r");
+//			if(pFile != NULL){
+//				for(int i = 0; i < SCHEDULE_MAX_SIZE; i++){
+//					SCHItem tmp;
+//					if(fgets((char*) &tmp, (int) sizeof(tmp), pFile) != NULL){
+//						if(tmp.mode >= MODE_FIRST_MODE && tmp.mode <= MODE_NUM_MODES)
+//							currentSchedule.push_back(tmp);
+//						else{
+//							failure = true;
+//							break;
+//						}
+//					}else{
+//						failure = true;
+//						break;
+//					}
+//				}
+//				fclose(pFile);
+//				remove(SCH_SCHEDULE_FILE);
+//			}else{
+//				failure = true;
+//			}
+//		}else{
+//			failure = true;
+//		}
+//		this->GiveLock();
+//	}else{
+//		failure = true;
+//	}
+//	if(failure){
+//		currentSchedule = defaultSchedule;
+//	}
+//}
+
 void SCHServer::LoadNextSchedule(){
-	bool failure = false;
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	currentSchedule = std::list<SCHItem>();
-	if(this->TakeLock(MAX_BLOCK_TIME)){
-		if(access(SCH_SCHEDULE_FILE, F_OK) != -1){
-			FILE *pFile;
-			pFile = fopen(SCH_SCHEDULE_FILE, "r");
-			if(pFile != NULL){
-				for(int i = 0; i < SCHEDULE_MAX_SIZE; i++){
-					SCHItem tmp;
-					if(fgets((char*) &tmp, (int) sizeof(tmp), pFile) != NULL){
-						if(tmp.mode >= MODE_FIRST_MODE && tmp.mode <= MODE_NUM_MODES)
-							currentSchedule.push_back(tmp);
-						else{
-							failure = true;
-							break;
-						}
-					}else{
-						failure = true;
-						break;
-					}
-				}
-				fclose(pFile);
-				remove(SCH_SCHEDULE_FILE);
-			}else{
-				failure = true;
-			}
-		}else{
-			failure = true;
-		}
-		this->GiveLock();
-	}else{
-		failure = true;
-	}
-	if(failure){
+
+	if(access(SCH_SCHEDULE_FILE, F_OK) == -1){
+		logger->Log(LOGGER_LEVEL_WARN, "LoadNextSchedule: no new schedule");
 		currentSchedule = defaultSchedule;
+		return;
 	}
+
+	FILE * fp = fopen(SCH_SCHEDULE_FILE, "r");
+	if(fp == NULL){
+		logger->Log(LOGGER_LEVEL_WARN, "LoadNextSchedule: failed to open new schedule file");
+		remove(SCH_SCHEDULE_FILE);
+		currentSchedule = defaultSchedule;
+		return;
+	}
+
+	char * line = NULL;
+	size_t len = 0;
+	ssize_t bytesRead;
+	while ((bytesRead = getline(&line, &len, fp)) != -1) {
+		if((bytesRead == -1) || (bytesRead != 30)){
+
+		}
+
+	}
+
+	// go line by line, and parse in new schedule items
 }
 
 } // End of namespace Servers

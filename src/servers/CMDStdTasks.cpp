@@ -128,7 +128,7 @@ void parseDRF(void){
 	FILE * fp;
 	char * line = NULL;
 	size_t len = 0;
-	ssize_t read;
+	ssize_t bytesRead;
 
 	// check if a DRF file has been uplinked
 	if(access(DRF_PATH, F_OK) != 0){
@@ -149,7 +149,7 @@ void parseDRF(void){
 	char * num;
 	int numFiles;
 	char * regex;
-	while ((read = getline(&line, &len, fp)) != -1) {
+	while ((bytesRead = getline(&line, &len, fp)) != -1) {
 		// ---- Parse line
 		arch = strtok(line,",");
 		if(arch == NULL){
@@ -217,7 +217,7 @@ void parseDLT(void){
 	FILE * fp;
 	char * line = NULL;
 	size_t len = 0;
-	ssize_t read;
+	ssize_t bytesRead;
 
 	// check if a DLT file has been uplinked
 	if(access(DLT_PATH, F_OK) != 0){
@@ -237,7 +237,7 @@ void parseDLT(void){
 	char * num;
 	int numFiles;
 	char * regex;
-	while ((read = getline(&line, &len, fp)) != -1) {
+	while ((bytesRead = getline(&line, &len, fp)) != -1) {
 		// ---- Parse line
 		dir = strtok(line,",");
 		if(dir == NULL){
@@ -286,7 +286,7 @@ void parsePPE(void){
 	FILE * fp;
 	char * line = NULL;
 	size_t len = 0;
-	ssize_t read;
+	ssize_t bytesRead;
 
 	// check if a PPE file has been uplinked
 	if(access(PPE_PATH, F_OK) != 0){
@@ -304,7 +304,7 @@ void parsePPE(void){
 	// parse the file line by line
 	char * type;
 	char * command;
-	while ((read = getline(&line, &len, fp)) != -1) {
+	while ((bytesRead = getline(&line, &len, fp)) != -1) {
 		// ---- Parse line
 		type = strtok(line,",");
 		if(type == NULL){
