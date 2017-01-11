@@ -2,32 +2,17 @@
 
 #######################################
 # build_file_system.sh
-# Last Modified: Jack Dinkel 12/15/16
+# Last Modified: Jack Dinkel 01/11/17
 #
 # Creates the directory structure for
 # telemetry and science data on CDH
 #######################################
 
-mkdir /SD_1 # Kernel backup partition
-mkdir /SD_2 # Log Data Storage partition
-mkdir /SD_3 # Science Data Storage partition
+source filesystem.sh
 
-# All directories to go on /SD_2
-TLM_DIRECTORIES="
-GEN
-HST
-MOD
-SWP
-ERR
-DGN
-FSS
-SSS
-"
-
-# All directories to go on /SD_3
-SCI_DIRECTORIES="
-RAD
-"
+mkdir $SD1 # Kernel backup partition
+mkdir $SD2 # Log Data Storage partition
+mkdir $SD3 # Science Data Storage partition
 
 for dir in $TLM_DIRECTORIES
 do
