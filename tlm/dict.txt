@@ -56,3 +56,28 @@ ERR
 main.cpp:1
 All servers created!
 None
+
+0x0100
+DGN
+Diagnostics.cpp:1
+Running bus load test
+None
+
+0x0101
+DGN
+Diagnostics.cpp:1
+Running SPI Statistics
+None
+
+0x0102
+DGN
+Diagnostics.cpp:1
+Running Sample Test 2
+None
+
+0x0103
+DGN
+Diagnostics.cpp:1
+Running Sample Test 3
+None
+

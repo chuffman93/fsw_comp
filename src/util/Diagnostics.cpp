@@ -11,6 +11,7 @@
 
 #include "util/Diagnostics.h"
 #include "util/Logger.h"
+#include "servers/FMGServer.h"
 #include "servers/DispatchStdTasks.h"
 #include "HAL/SPI_Server.h"
 
@@ -20,14 +21,18 @@ using namespace AllStar::Servers;
 void BusLoadTest(bool enable){
 	if(enable){
 		Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+		FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
 		logger->Log(LOGGER_LEVEL_INFO, "Running bus load test");
+		fmgServer->Log(LOCATION_DGN, "0x0100");
 	}
 }
 
 void SPIStats(bool enable){
 	if(enable){
 		Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+		FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
 		logger->Log(LOGGER_LEVEL_INFO, "Running SPI Statistics");
+		fmgServer->Log(LOCATION_DGN, "0x0101");
 
 		SPI_HALServer * spiServer = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
 		uint64 duration = spiServer->ResetStatsTime();
@@ -55,7 +60,9 @@ void SPIStats(bool enable){
 void SampleTest2(bool enable){
 	if(enable){
 		Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+		FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
 		logger->Log(LOGGER_LEVEL_INFO, "Running Sample Test 2");
+		fmgServer->Log(LOCATION_DGN, "0x0102");
 
 		FILE * fp = fopen("diagnostic_results.txt", "a+");
 		char results[] = "Ran sample test 2\n";
@@ -67,7 +74,9 @@ void SampleTest2(bool enable){
 void SampleTest3(bool enable){
 	if(enable){
 		Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+		FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
 		logger->Log(LOGGER_LEVEL_INFO, "Running Sample Test 3");
+		fmgServer->Log(LOCATION_DGN, "0x0103");
 
 		FILE * fp = fopen("diagnostic_results.txt", "a+");
 		char results[] = "Ran sample test 3\n";

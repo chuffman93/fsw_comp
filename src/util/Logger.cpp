@@ -49,8 +49,6 @@ void Logger::Log(LoggerLevelType level_in, char const * fmt, ...){
 
 		// Display the message
 		printf("%s\n", buff);
-		// Print the message to the appropriate file
-
 	}
 }
 
