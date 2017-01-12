@@ -8,7 +8,7 @@
 #   filesystem
 #######################################
 
-$FS_VARS="./filesystem.sh"
+FS_VARS="./filesystem.sh"
 source $FS_VARS
 
 for dir in $TLM_DIRECTORIES
