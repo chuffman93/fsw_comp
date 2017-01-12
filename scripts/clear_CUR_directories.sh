@@ -15,8 +15,11 @@
 #######################################
 
 SCRIPTS="/home/root/scripts"
-FS_VARS="/filesystem.sh"
+FS_VARS="./filesystem.sh"
+
+cd $SCRIPTS
 source $FS_VARS
+cd $OLDPWD
 
 for dir in $TLM_DIRECTORIES
 do

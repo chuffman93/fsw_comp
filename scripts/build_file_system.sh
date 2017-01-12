@@ -9,8 +9,11 @@
 #######################################
 
 SCRIPTS="/home/root/scripts"
-FS_VARS="/filesystem.sh"
+FS_VARS="./filesystem.sh"
+
+cd $SCRIPTS
 source $FS_VARS
+cd $OLDPWD
 
 mkdir $SD1 # Kernel backup partition
 mkdir $SD2 # Log Data Storage partition
