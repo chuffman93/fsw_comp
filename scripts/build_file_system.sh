@@ -8,7 +8,8 @@
 # telemetry and science data on CDH
 #######################################
 
-FS_VARS="./filesystem.sh"
+SCRIPTS="/home/root/scripts"
+FS_VARS="/filesystem.sh"
 source $FS_VARS
 
 mkdir $SD1 # Kernel backup partition
