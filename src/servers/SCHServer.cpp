@@ -16,6 +16,7 @@
 
 #include <sys/mman.h>
 #include <stdio.h>
+#include <list>
 
 using namespace std;
 using namespace AllStar::Core;
@@ -164,6 +165,19 @@ void SCHServer::LoadDefaultSchedule(){
 	currentSchedule = defaultSchedule;
 }
 
+SCHItem SCHServer::ParseLine(string line){
+	SCHItem newSchedule;
+
+	// TODO: Error bounds
+	newSchedule.latitude = atof(line.substr(0,8).c_str());
+	newSchedule.longitude = atof(line.substr(8,8).c_str());
+	newSchedule.radius = atof(line.substr(16,8).c_str());
+	newSchedule.timeoutms = atoi(line.substr(24,4).c_str());
+	newSchedule.mode = atoi(line.substr(28,1).c_str());
+
+	return SCHItem;
+}
+
 void SCHServer::LoadNextSchedule(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	currentSchedule = std::list<SCHItem>();
@@ -181,23 +195,19 @@ void SCHServer::LoadNextSchedule(){
 		return;
 	}
 
-	char * cline = NULL;
+	char * line = NULL;
 	size_t len = 0;
 	ssize_t bytesRead;
-	while ((bytesRead = getline(&cline, &len, fp)) != -1) {
+
+	// TODO: NEED TO CHANGE THIS TO RAW INSTEAD OF ASCII!!!!
+	while ((bytesRead = getline(&line, &len, fp)) != -1) {
 		if((bytesRead == -1) || (bytesRead != 30)){ // TODO: Does this actually work?
 			logger->Log(LOGGER_LEVEL_WARN, "LoadNextSchedule: new schedule file does not contain the correct amount of data");
 			LoadDefaultSchedule();
 			return;
 		}
 
-		string line = string(line);
-		string latitude = line.substr(0,8);
-		string longitude = line.substr(9,16);
-		string radius = line.substr(17,24);
-		string timeout = line.substr(25,28);
-		string mode = line.substr(29,29);
-
+		currentSchedule.push_back(ParseLine(string(line)));
 	}
 
 	// go line by line, and parse in new schedule items

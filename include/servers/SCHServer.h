@@ -59,8 +59,8 @@ public:
 	*  are added to the Dispatcher.
 	*/
 	bool RegisterHandlers();
-
 	void LoadDefaultSchedule(void);
+	void ParseLine(string line);
 	void LoadNextSchedule(void);
 
 private:
