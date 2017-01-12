@@ -2,13 +2,14 @@
 
 #######################################
 # clean_filesystem.sh
-# Last Modified: Jack Dinkel 01/11/17
+# Last Modified: Jack Dinkel 01/12/17
 #
 # Removes all data files inside the CDH
 #   filesystem
 #######################################
 
-source filesystem.sh
+$FS_VARS="./filesystem.sh"
+source $FS_VARS
 
 for dir in $TLM_DIRECTORIES
 do
