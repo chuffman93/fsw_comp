@@ -313,7 +313,7 @@ void parsePPE(void){
 		}
 
 		// check the type of command and perform accordingly
-		if(strcmp(type,"SYS") == 0){
+		if(strcmp(type,"SYS") == 0){ // shell command
 			command = strtok(NULL,",");
 			if(command == NULL){
 				logger->Log(LOGGER_LEVEL_WARN, "Incomplete PPE line at command");
@@ -328,6 +328,21 @@ void parsePPE(void){
 			if(system(command) == -1){
 				logger->Log(LOGGER_LEVEL_ERROR, "PPE unable to execute shell command");
 			}
+		}else if(strcmp(type,"FSW") == 0){ // fsw internal command
+			command = strtok(NULL,",");
+			if(command == NULL){
+				logger->Log(LOGGER_LEVEL_WARN, "Incomplete PPE line at command");
+				continue; // skip to the next line
+			}
+
+			int cmd = atoi(command);
+			if(cmd == 0 || cmd < 0 || cmd > FSW_CMD_MAX){
+				logger->Log(LOGGER_LEVEL_WARN, "Invalid PPE command number");
+				continue; // skip to the next line
+			}
+
+			// call a function to find and execute the command
+			executeFSWCommand(cmd);
 		}else{
 			logger->Log(LOGGER_LEVEL_WARN, "PPE: unknown command type");
 		}
@@ -533,6 +548,25 @@ string getDownlinkFile(int fileNum){
 	string fn = trimNewline(string(fileName));
 
 	return fn;
+}
+
+void executeFSWCommand(int command){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	switch(command){
+	case FSW_CMD_EPS_REBOOT:
+		logger->Log(LOGGER_LEVEL_WARN, "FSW EPS reboot command not implemented");
+		break;
+	case FSW_CMD_CDH_REBOOT:
+		logger->Log(LOGGER_LEVEL_WARN, "FSW CDH reboot command not implemented");
+		break;
+	case FSW_CMD_TX_SILENCE:
+		logger->Log(LOGGER_LEVEL_WARN, "FSW TX silence command not implemented");
+		break;
+	default:
+		logger->Log(LOGGER_LEVEL_ERROR, "Unknown FSW command (bit flip probable)");
+		break;
+	}
 }
 
 } // End of namespace Servers
