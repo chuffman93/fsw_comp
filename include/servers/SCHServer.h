@@ -60,6 +60,7 @@ public:
 	*/
 	bool RegisterHandlers();
 
+	void LoadDefaultSchedule(void);
 	void LoadNextSchedule(void);
 
 private:

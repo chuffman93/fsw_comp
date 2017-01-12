@@ -159,31 +159,44 @@ void SCHServer::SubsystemLoop(void)
 //	}
 //}
 
+void SCHServer::LoadDefaultSchedule(){
+	remove(SCH_SCHEDULE_FILE);
+	currentSchedule = defaultSchedule;
+}
+
 void SCHServer::LoadNextSchedule(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	currentSchedule = std::list<SCHItem>();
 
 	if(access(SCH_SCHEDULE_FILE, F_OK) == -1){
 		logger->Log(LOGGER_LEVEL_WARN, "LoadNextSchedule: no new schedule");
-		currentSchedule = defaultSchedule;
+		LoadDefaultSchedule();
 		return;
 	}
 
 	FILE * fp = fopen(SCH_SCHEDULE_FILE, "r");
 	if(fp == NULL){
 		logger->Log(LOGGER_LEVEL_WARN, "LoadNextSchedule: failed to open new schedule file");
-		remove(SCH_SCHEDULE_FILE);
-		currentSchedule = defaultSchedule;
+		LoadDefaultSchedule();
 		return;
 	}
 
-	char * line = NULL;
+	char * cline = NULL;
 	size_t len = 0;
 	ssize_t bytesRead;
-	while ((bytesRead = getline(&line, &len, fp)) != -1) {
-		if((bytesRead == -1) || (bytesRead != 30)){
-
+	while ((bytesRead = getline(&cline, &len, fp)) != -1) {
+		if((bytesRead == -1) || (bytesRead != 30)){ // TODO: Does this actually work?
+			logger->Log(LOGGER_LEVEL_WARN, "LoadNextSchedule: new schedule file does not contain the correct amount of data");
+			LoadDefaultSchedule();
+			return;
 		}
+
+		string line = string(line);
+		string latitude = line.substr(0,8);
+		string longitude = line.substr(9,16);
+		string radius = line.substr(17,24);
+		string timeout = line.substr(25,28);
+		string mode = line.substr(29,29);
 
 	}
 
