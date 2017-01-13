@@ -353,7 +353,7 @@ void processUplinkFiles(void){
 	if(access(SCHEDULE_PATH, F_OK) != -1){
 		rename(SCHEDULE_PATH, SCH_SCHEDULE_FILE);
 	}else{
-		logger->Log(LOGGER_LEVEL_WARN, "ProcessUplinkFiles(): No new schedule file!");
+		logger->Log(LOGGER_LEVEL_WARN, "CMDStdTasks: no SCH");
 	}
 }
 
@@ -520,7 +520,7 @@ string getDownlinkFile(int fileNum){
 
 	// Execute a shell script and pipe the results back to the file descriptor fd
 	if(!(fd = popen(sh_cmd, "r"))){
-		logger->Log(LOGGER_LEVEL_ERROR, "GetNumFilesDWN: Error checking file size");
+		logger->Log(LOGGER_LEVEL_ERROR, "GetDownlinkFile: Error getting file name");
 		return "";
 	}
 
@@ -528,7 +528,7 @@ string getDownlinkFile(int fileNum){
 	int loop_count = 0;
 	while(fgets(fileName, 128, fd)!=NULL){
 		if (loop_count > 0) {
-			logger->Log(LOGGER_LEVEL_ERROR, "GetFileSize: sh command produced too many results");
+			logger->Log(LOGGER_LEVEL_ERROR, "GetDownlinkFile: sh command produced too many results");
 			return "";
 		}
 		loop_count++;
