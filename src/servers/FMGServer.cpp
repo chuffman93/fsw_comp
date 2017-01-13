@@ -102,14 +102,15 @@ FMGServer::FMGServer(string nameIn, LocationIDType idIn) :
 					SubsystemServer(nameIn, idIn, 10, 1000),
 					Singleton(),
 					arby(idIn),
+					CMDLogger(CMD_FILE_PATH),
+					DGNLogger(DGN_FILE_PATH),
+					ERRLogger(ERR_FILE_PATH),
+					FSSLogger(FSS_FILE_PATH),
 					GENLogger(GEN_FILE_PATH),
 					HSTLogger(HST_FILE_PATH),
 					MODLogger(MOD_FILE_PATH),
-					SWPLogger(SWP_FILE_PATH),
-					ERRLogger(ERR_FILE_PATH),
-					DGNLogger(DGN_FILE_PATH),
-					FSSLogger(FSS_FILE_PATH),
 					SSSLogger(SSS_FILE_PATH),
+					SWPLogger(SWP_FILE_PATH),
 					RADLogger(RAD_FILE_PATH)
 					{
 }
@@ -164,29 +165,9 @@ void FMGServer::loopInit(void){
 		str = FileQueue.front().buffer;
 
 		switch (FileQueue.front().dest){
-		case DESTINATION_GEN:
-			if ( !GENLogger.Log(str.c_str()) ) {
-				logger->Log(LOGGER_LEVEL_WARN, "Error writing to General File");
-			}
-			break;
-		case DESTINATION_HST:
-			if( !HSTLogger.Log(str.c_str()) ) {
-				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Health File");
-			}
-			break;
-		case DESTINATION_MOD:
-			if( !MODLogger.Log(str.c_str()) ) {
-				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Mode File");
-			}
-			break;
-		case DESTINATION_SWP:
-			if ( !SWPLogger.Log(str.c_str()) ) {
-				logger->Log(LOGGER_LEVEL_WARN, "Error writing to HotSwap File");
-			}
-			break;
-		case DESTINATION_ERR:
-			if ( !ERRLogger.Log(str.c_str()) ) {
-				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Error File");
+		case DESTINATION_CMD:
+			if ( !CMDLogger.Log(str.c_str()) ) {
+				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Command File");
 			}
 			break;
 		case DESTINATION_DGN:
@@ -194,14 +175,39 @@ void FMGServer::loopInit(void){
 				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Diagnostic File");
 			}
 			break;
+		case DESTINATION_ERR:
+			if ( !ERRLogger.Log(str.c_str()) ) {
+				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Error File");
+			}
+			break;
 		case DESTINATION_FSS:
 			if ( !FSSLogger.Log(str.c_str()) ) {
 				logger->Log(LOGGER_LEVEL_WARN, "Error writing to File System File");
 			}
 			break;
+		case DESTINATION_GEN:
+			if ( !GENLogger.Log(str.c_str()) ) {
+				logger->Log(LOGGER_LEVEL_WARN, "Error writing to General File");
+			}
+			break;
+		case DESTINATION_HST:
+			if( !HSTLogger.Log(str.c_str()) ) {
+				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Health and Status File");
+			}
+			break;
+		case DESTINATION_MOD:
+			if( !MODLogger.Log(str.c_str()) ) {
+				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Mode File");
+			}
+			break;
 		case DESTINATION_SSS:
 			if ( !SSSLogger.Log(str.c_str()) ) {
 				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Science System File");
+			}
+			break;
+		case DESTINATION_SWP:
+			if ( !SWPLogger.Log(str.c_str()) ) {
+				logger->Log(LOGGER_LEVEL_WARN, "Error writing to HotSwap File");
 			}
 			break;
 		case DESTINATION_RAD:

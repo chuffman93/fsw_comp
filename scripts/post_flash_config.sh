@@ -11,7 +11,7 @@
 
 SCRIPTS="/home/root/scripts"
 CRON="$SCRIPTS/add_cron.sh"
-BUILD="$SCRIPTS/bulid_file_system.sh"
+BUILD="$SCRIPTS/build_file_system.sh"
 MOUNT="$SCRIPTS/auto_mount.sh"
 
 $CRON $SCRIPTS

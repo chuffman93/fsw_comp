@@ -2,13 +2,18 @@
 
 #######################################
 # build_file_system.sh
-# Last Modified: Jack Dinkel 01/11/17
+# Last Modified: Jack Dinkel 01/12/17
 #
 # Creates the directory structure for
 # telemetry and science data on CDH
 #######################################
 
-source filesystem.sh
+SCRIPTS="/home/root/scripts"
+FS_VARS="./filesystem.sh"
+
+cd $SCRIPTS
+source $FS_VARS
+cd $OLDPWD
 
 mkdir $SD1 # Kernel backup partition
 mkdir $SD2 # Log Data Storage partition

@@ -13,14 +13,15 @@ export SD3="/SD_3" # Science Data Storage partition
 
 # All directories to go on /SD_2
 export TLM_DIRECTORIES="
+CMD
+DGN
+ERR
+FSS
 GEN
 HST
 MOD
-SWP
-ERR
-DGN
-FSS
 SSS
+SWP
 "
 
 # All directories to go on /SD_3

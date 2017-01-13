@@ -19,15 +19,17 @@
 namespace AllStar{
 namespace Servers{
 
+#define CMD_FILE_PATH		"/SD_2/CMD"
+#define DGN_FILE_PATH		"/SD_2/DGN"
+#define ERR_FILE_PATH		"/SD_2/ERR"
 #define GEN_FILE_PATH		"/SD_2/GEN"
+#define FSS_FILE_PATH		"/SD_2/FSS"
 #define HST_FILE_PATH		"/SD_2/HST"
 #define MOD_FILE_PATH		"/SD_2/MOD"
-#define SWP_FILE_PATH		"/SD_2/SWP"
-#define ERR_FILE_PATH		"/SD_2/ERR"
-#define DGN_FILE_PATH		"/SD_2/DGN"
-#define FSS_FILE_PATH		"/SD_2/FSS"
 #define SSS_FILE_PATH		"/SD_2/SSS"
+#define SWP_FILE_PATH		"/SD_2/SWP"
 #define RAD_FILE_PATH		"/SD_3/RAD"
+
 // TODO: Do we want to be able to set this from the ground?
 #define MAX_FILE_SIZE		500 // There is also an old enum to deal with this
 
@@ -66,14 +68,15 @@ public:
 
 private:
 	static void Initialize(void);
+	FileManager CMDLogger;
+	FileManager DGNLogger;
+	FileManager ERRLogger;
+	FileManager FSSLogger;
 	FileManager GENLogger;
 	FileManager HSTLogger;
 	FileManager MODLogger;
-	FileManager SWPLogger;
-	FileManager ERRLogger;
-	FileManager DGNLogger;
-	FileManager FSSLogger;
 	FileManager SSSLogger;
+	FileManager SWPLogger;
 	FileManager RADLogger;
 
 #ifdef TEST
