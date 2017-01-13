@@ -59,8 +59,10 @@ public:
 	*  are added to the Dispatcher.
 	*/
 	bool RegisterHandlers();
-
-	void LoadNextSchedule(void);
+	SCHItem GetSCHItem(unsigned int n);
+	void LoadDefaultSchedule(void);
+	SCHItem ParseLine(string line);
+	int LoadNextSchedule(void);
 
 private:
 	/*! \brief Initialize the SCHServer Class

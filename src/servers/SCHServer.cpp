@@ -6,6 +6,7 @@
 */
 #include "servers/SCHServer.h"
 #include "servers/GPSServer.h"
+#include "servers/DispatchStdTasks.h"
 
 #include "core/Dispatcher.h"
 #include "core/WatchdogManager.h"
@@ -15,6 +16,7 @@
 
 #include <sys/mman.h>
 #include <stdio.h>
+#include <list>
 
 using namespace std;
 using namespace AllStar::Core;
@@ -119,43 +121,114 @@ void SCHServer::SubsystemLoop(void)
 	}
 }
 
-void SCHServer::LoadNextSchedule(){
-	bool failure = false;
+//void SCHServer::LoadNextSchedule(){
+//	bool failure = false;
+//	currentSchedule = std::list<SCHItem>();
+//	if(this->TakeLock(MAX_BLOCK_TIME)){
+//		if(access(SCH_SCHEDULE_FILE, F_OK) != -1){
+//			FILE *pFile;
+//			pFile = fopen(SCH_SCHEDULE_FILE, "r");
+//			if(pFile != NULL){
+//				for(int i = 0; i < SCHEDULE_MAX_SIZE; i++){
+//					SCHItem tmp;
+//					if(fgets((char*) &tmp, (int) sizeof(tmp), pFile) != NULL){
+//						if(tmp.mode >= MODE_FIRST_MODE && tmp.mode <= MODE_NUM_MODES)
+//							currentSchedule.push_back(tmp);
+//						else{
+//							failure = true;
+//							break;
+//						}
+//					}else{
+//						failure = true;
+//						break;
+//					}
+//				}
+//				fclose(pFile);
+//				remove(SCH_SCHEDULE_FILE);
+//			}else{
+//				failure = true;
+//			}
+//		}else{
+//			failure = true;
+//		}
+//		this->GiveLock();
+//	}else{
+//		failure = true;
+//	}
+//	if(failure){
+//		currentSchedule = defaultSchedule;
+//	}
+//}
+
+SCHItem GetSCHItem(unsigned int n){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	int size = currentSchedule.size();
+	if (size > n && n > -1){
+		list<SCHItem>::iterator it = next(currentSchedule.begin(), n);
+		return it;
+	}
+
+	logger->Log(LOGGER_LEVEL_WARN, "GetSCHItem: input is out of range");
+	SCHItem ret;
+	return ret;
+}
+
+void SCHServer::LoadDefaultSchedule(){
+	remove(SCH_SCHEDULE_FILE);
+	currentSchedule = defaultSchedule;
+}
+
+SCHItem SCHServer::ParseLine(string line){
+	SCHItem newSchedule;
+
+	// TODO: Error bounds
+	newSchedule.latitude = atof(line.substr(0,8).c_str());
+	newSchedule.longitude = atof(line.substr(8,8).c_str());
+	newSchedule.radius = atof(line.substr(16,8).c_str());
+	newSchedule.timeoutms = atoi(line.substr(24,4).c_str());
+	newSchedule.mode = atoi(line.substr(28,1).c_str());
+
+	return SCHItem;
+}
+
+int SCHServer::LoadNextSchedule(){
+	// TODO: What to do on reboot?
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	currentSchedule = std::list<SCHItem>();
-	if(this->TakeLock(MAX_BLOCK_TIME)){
-		if(access(SCH_SCHEDULE_FILE, F_OK) != -1){
-			FILE *pFile;
-			pFile = fopen(SCH_SCHEDULE_FILE, "r");
-			if(pFile != NULL){
-				for(int i = 0; i < SCHEDULE_MAX_SIZE; i++){
-					SCHItem tmp;
-					if(fgets((char*) &tmp, (int) sizeof(tmp), pFile) != NULL){
-						if(tmp.mode >= MODE_FIRST_MODE && tmp.mode <= MODE_NUM_MODES)
-							currentSchedule.push_back(tmp);
-						else{
-							failure = true;
-							break;
-						}
-					}else{
-						failure = true;
-						break;
-					}
-				}
-				fclose(pFile);
-				remove(SCH_SCHEDULE_FILE);
-			}else{
-				failure = true;
-			}
-		}else{
-			failure = true;
+
+	if(access(SCH_SCHEDULE_FILE, F_OK) == -1){
+		logger->Log(LOGGER_LEVEL_WARN, "LoadNextSchedule: no new schedule");
+		LoadDefaultSchedule();
+		return -1;
+	}
+
+	FILE * fp = fopen(SCH_SCHEDULE_FILE, "r");
+	if(fp == NULL){
+		logger->Log(LOGGER_LEVEL_WARN, "LoadNextSchedule: failed to open new schedule file");
+		LoadDefaultSchedule();
+		return -2;
+	}
+
+	char * line = NULL;
+	size_t len = 0;
+	ssize_t bytesRead;
+
+	// TODO: NEED TO CHANGE THIS TO RAW INSTEAD OF ASCII!!!!
+	while ((bytesRead = getline(&line, &len, fp)) != -1) {
+		if((bytesRead == -1) || (bytesRead != 30)){ // TODO: Does this actually work?
+			logger->Log(LOGGER_LEVEL_WARN, "LoadNextSchedule: new schedule file does not contain the correct amount of data");
+			LoadDefaultSchedule();
+			return -3;
 		}
-		this->GiveLock();
-	}else{
-		failure = true;
+
+		currentSchedule.push_back(ParseLine(string(line)));
 	}
-	if(failure){
-		currentSchedule = defaultSchedule;
-	}
+
+	logger->Log(LOGGER_LEVEL_INFO, "LoadNextSchedule: new schedule loaded");
+	remove(SCH_SCHEDULE_FILE);
+
+	return 1;
 }
 
 } // End of namespace Servers
