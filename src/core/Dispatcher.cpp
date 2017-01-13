@@ -113,7 +113,6 @@ bool Dispatcher::Dispatch(ACPPacket & packet)
 	}
 	if(packet.getDestination() >= HARDWARE_LOCATION_MIN && packet.getDestination() < HARDWARE_LOCATION_MAX)
 	{
-		logger->Log(LOGGER_LEVEL_DEBUG, "---- Hardware Dispatch ----");
 		uint32_t ret;
 		ret=DispatchToHardware(packet);
 		return (0 == ret);

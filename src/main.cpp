@@ -118,13 +118,13 @@ int main(int argc, char * argv[])
 	threadsCreated &= WatchdogManager::StartServer(cdhServer, 20,	true);	 //CDH
 	threadsCreated &= WatchdogManager::StartServer(cmdServer, 50,	true);	 //CMD
 	threadsCreated &= WatchdogManager::StartServer(comServer, 10,	false);	 //COM
-	threadsCreated &= WatchdogManager::StartServer(epsServer, 10,	false);	 //EPS
+	threadsCreated &= WatchdogManager::StartServer(epsServer, 10,	true);	 //EPS
 	threadsCreated &= WatchdogManager::StartServer(errServer, 0,	false);	 //ERR
-	threadsCreated &= WatchdogManager::StartServer(fmgServer, 0,	false);	 //FMG
+	threadsCreated &= WatchdogManager::StartServer(fmgServer, 0,	true);	 //FMG
 	threadsCreated &= WatchdogManager::StartServer(gpsServer, 50,	false);	 //GPS
 	threadsCreated &= WatchdogManager::StartServer(pldServer, 50,	false);	 //PLD
 	threadsCreated &= WatchdogManager::StartServer(schServer, 0,	true);	 //SCH
-	threadsCreated &= WatchdogManager::StartServer(spiServer, 0,	false);	 //SPI
+	threadsCreated &= WatchdogManager::StartServer(spiServer, 0,	true);	 //SPI
 
 	if(!threadsCreated){
 		logger->Log(LOGGER_LEVEL_FATAL, "Not all threads were created on startup!");

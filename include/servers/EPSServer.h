@@ -31,15 +31,31 @@ public:
 	struct EPSStatus{
 		uint16 current3v3;
 		uint16 voltage3v3;
-		uint16 currentBatt;
-		uint16 voltageBatt;
+		uint16 currentVbat;
+		uint16 voltageVbat;
 		uint16 current12v;
 		uint16 voltage12v;
+		uint16 remainingCapacity;
+		uint16 battCurrent;
+		uint16 battVoltage;
 		uint16 battStatus;
-		uint16 stateOfCharge;
+		uint16 frangCurrent;
+		uint16 frangVoltage;
+		uint16 convCurrentX;
+		uint16 convThreshX;
+		uint16 convCurrentY;
+		uint16 convThreshY;
+		uint16 convCurrentW;
+		uint16 convThreshW;
+		uint8 numItems; // update this whenever items are added/removed
+	};
+
+	struct EPSConfig{
+		uint32 test;
 	};
 
 	EPSStatus EPSState;
+	EPSConfig EPSConfiguration;
 
 private:
 

@@ -31,6 +31,7 @@ namespace Servers{
 // -------------------------------------- Necessary Methods --------------------------------------
 ACSServer::ACSServer(string nameIn, LocationIDType idIn) :
 		SubsystemServer(nameIn, idIn, ACS_SLEEP_TIME, ACS_HS_DELAYS), Singleton(), arby(idIn), ACSOrientation(ACS_UNORIENTED){
+	ACSState = {0,0,0,0,0,0,0,7};
 }
 
 ACSServer::~ACSServer() {
@@ -179,9 +180,53 @@ void ACSServer::loopDiagnostic(){
 
 // -------------------------------------------- ACS Methods --------------------------------------------
 void ACSServer::CheckHealthStatus(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
 	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, HEALTH_STATUS_CMD);
 	ACPPacket * HSRet = DispatchPacket(HSQuery);
-	// process this
+
+	if(HSRet == NULL){
+		logger->Log(LOGGER_LEVEL_ERROR, "ACSServer: NULL HSRet");
+		return;
+	}
+
+	if(HSRet->getLength() != 18*sizeof(uint16)){
+		logger->Log(LOGGER_LEVEL_WARN, "ACSServer: CheckHealthStatus(): incorrect message length!");
+
+		//TODO: return error?
+		return;
+	}else{
+		logger->Log(LOGGER_LEVEL_INFO, "ACSServer: CheckHealthStatus(): packet dispatched, HSRet acquired");
+		// Parse buffer
+		uint8 * msgPtr = HSRet->getMessageBuff();
+		if(msgPtr==NULL){
+			//Error
+			return;
+		}
+
+		uint32 outputArray[ACSState.numItems];
+		for(uint8 i = 0; i < ACSState.numItems; i++){
+			outputArray[i] = GetUInt32(msgPtr);
+			msgPtr += 2;
+		}
+
+		ACSState.MRP_X			= outputArray[0];
+		ACSState.MRP_Y			= outputArray[0];
+		ACSState.MRP_Z			= outputArray[0];
+		ACSState.ST_Status		= outputArray[0];
+		ACSState.RW_Speed_X		= outputArray[0];
+		ACSState.RW_Speed_Y		= outputArray[0];
+		ACSState.RW_Speed_Z		= outputArray[0];
+
+		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: MRP X:       %u", ACSState.MRP_X);
+		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: MRP Y:       %u", ACSState.MRP_Y);
+		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: MRP Z:       %u", ACSState.MRP_Z);
+		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: ST Status:   %u", ACSState.ST_Status);
+		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: RW Speed X:  %u", ACSState.RW_Speed_X);
+		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: RW Speed Y:  %u", ACSState.RW_Speed_Y);
+		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: RW Speed Z:  %u", ACSState.RW_Speed_Z);
+
+	}
 }
 
 } // End Namespace servers

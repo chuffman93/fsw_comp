@@ -41,6 +41,24 @@ public:
 	bool RegisterHandlers();
 	void CheckHealthStatus();
 
+	struct ACSStatus{
+		uint32 MRP_X;
+		uint32 MRP_Y;
+		uint32 MRP_Z;
+		uint32 ST_Status;
+		uint32 RW_Speed_X;
+		uint32 RW_Speed_Y;
+		uint32 RW_Speed_Z;
+		uint8 numItems;
+	};
+
+	struct ACSConfig{
+		uint32 test;
+	};
+
+	ACSStatus ACSState;
+	ACSConfig ACSConfigurations;
+
 private:
 	// Member variables needed to register message handlers.
 	AllStar::Core::MessageHandlerRegistry reg;
@@ -59,7 +77,6 @@ private:
 	ACSServer(std::string nameIn, LocationIDType idIn);
 	~ACSServer(void);
 	ACSServer & operator=(const ACSServer & source);
-
 
 	// ------ State Machine ----------------------------------------------------------
 	void loopInit();
