@@ -11,7 +11,6 @@ using namespace AllStar::Servers;
 TEST(DISABLED_TestFMGServer, testPacketDestinations){
 	//Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON);
 	FMGServer * fmgServer = dynamic_cast <FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	WatchdogManager::StartServer(fmgServer, 0,	true);
 
 	for (int iter = 0; iter < 10; iter++) {
@@ -71,6 +70,7 @@ TEST(DISABLED_TestFMGServer, testPacketDestinations){
 
 TEST(DISABLED_TestFMGServer, testNoDestination){
 	FMGServer * fmgServer = dynamic_cast <FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
+	WatchdogManager::StartServer(fmgServer, 0,	true);
 
 	for (int iter = 0; iter < 10; iter++) {
 		FilePacket myPacket1;
@@ -83,6 +83,7 @@ TEST(DISABLED_TestFMGServer, testNoDestination){
 
 TEST(DISABLED_TestFMGServer, testLongMessage){
 	FMGServer * fmgServer = dynamic_cast <FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
+	WatchdogManager::StartServer(fmgServer, 0,	true);
 
 	for (int iter = 0; iter < 10; iter++) {
 		FilePacket myPacket11;

@@ -160,6 +160,20 @@ void SCHServer::SubsystemLoop(void)
 //	}
 //}
 
+SCHItem GetSCHItem(unsigned int n){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	int size = currentSchedule.size();
+	if (size > n && n > -1){
+		list<SCHItem>::iterator it = next(currentSchedule.begin(), n);
+		return it;
+	}
+
+	logger->Log(LOGGER_LEVEL_WARN, "GetSCHItem: input is out of range");
+	SCHItem ret;
+	return ret;
+}
+
 void SCHServer::LoadDefaultSchedule(){
 	remove(SCH_SCHEDULE_FILE);
 	currentSchedule = defaultSchedule;
@@ -178,21 +192,22 @@ SCHItem SCHServer::ParseLine(string line){
 	return SCHItem;
 }
 
-void SCHServer::LoadNextSchedule(){
+int SCHServer::LoadNextSchedule(){
+	// TODO: What to do on reboot?
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	currentSchedule = std::list<SCHItem>();
 
 	if(access(SCH_SCHEDULE_FILE, F_OK) == -1){
 		logger->Log(LOGGER_LEVEL_WARN, "LoadNextSchedule: no new schedule");
 		LoadDefaultSchedule();
-		return;
+		return -1;
 	}
 
 	FILE * fp = fopen(SCH_SCHEDULE_FILE, "r");
 	if(fp == NULL){
 		logger->Log(LOGGER_LEVEL_WARN, "LoadNextSchedule: failed to open new schedule file");
 		LoadDefaultSchedule();
-		return;
+		return -2;
 	}
 
 	char * line = NULL;
@@ -204,13 +219,16 @@ void SCHServer::LoadNextSchedule(){
 		if((bytesRead == -1) || (bytesRead != 30)){ // TODO: Does this actually work?
 			logger->Log(LOGGER_LEVEL_WARN, "LoadNextSchedule: new schedule file does not contain the correct amount of data");
 			LoadDefaultSchedule();
-			return;
+			return -3;
 		}
 
 		currentSchedule.push_back(ParseLine(string(line)));
 	}
 
-	// go line by line, and parse in new schedule items
+	logger->Log(LOGGER_LEVEL_INFO, "LoadNextSchedule: new schedule loaded");
+	remove(SCH_SCHEDULE_FILE);
+
+	return 1;
 }
 
 } // End of namespace Servers
