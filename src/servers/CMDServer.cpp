@@ -88,7 +88,6 @@ void CMDServer::loopInit(void){
 	logger->Log(LOGGER_LEVEL_INFO, "CMDServer: Initializing");
 
 	// setup for uftp
-	portSetup();
 	uftpSetup();
 
 	currentState = ST_IDLE;
@@ -202,7 +201,9 @@ void CMDServer::loopDownlink(){
 		// get downlink returns an empty string if it errors, check this before we downlink the file
 		if(strcmp(filename.c_str(),"") != 0){
 			// downlink the file
-			printf("File: %s\n", filename.c_str());
+			char sh_cmd[256];
+			sprintf(sh_cmd, "/home/root/uftp -I ax0 -H 1.1.1.2 -x 1 %s", filename.c_str()); // can add "-H 1.1.1.2" to only downlink to one IP, "-x 1" decreases the log statement verboseness
+			system(sh_cmd);
 		}
 	}else{
 		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: downlink finished");

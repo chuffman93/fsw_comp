@@ -57,29 +57,6 @@ SystemModeEnum ModeManager::GetMode(void){
 bool ModeManager::SetMode(SystemModeEnum newMode){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_DEBUG, "SetMode called");
-	switch(newMode){
-	case MODE_ACCESS:
-		logger->Log(LOGGER_LEVEL_INFO, "Setting mode to " "\x1b[32m" "MODE_ACCESS" "\x1b[0m");
-		break;
-	case MODE_STARTUP:
-		logger->Log(LOGGER_LEVEL_INFO, "Setting mode to " "\x1b[32m" "MODE_STARTUP" "\x1b[0m");
-		break;
-	case MODE_BUS_PRIORITY:
-		logger->Log(LOGGER_LEVEL_INFO, "Setting mode to " "\x1b[32m" "MODE_BUS_PRIORITY" "\x1b[0m");
-		break;
-	case MODE_PLD_PRIORITY:
-		logger->Log(LOGGER_LEVEL_INFO, "Setting mode to " "\x1b[32m" "MODE_PLD_PRIORITY" "\x1b[0m");
-		break;
-	case MODE_COM:
-		logger->Log(LOGGER_LEVEL_INFO, "Setting mode to " "\x1b[32m" "MODE_COM" "\x1b[0m");
-		break;
-	case MODE_DIAGNOSTIC:
-		logger->Log(LOGGER_LEVEL_INFO, "Setting mode to " "\x1b[32m" "MODE_DIAGNOSTIC" "\x1b[0m");
-		break;
-	default:
-		logger->Log(LOGGER_LEVEL_WARN, "Unknown mode selected!");
-		break;
-	}
 
 	logger->Log(LOGGER_LEVEL_DEBUG, "----SetMode: Before take lock");
 	if (true == this->TakeLock(MAX_BLOCK_TIME)){
@@ -101,9 +78,32 @@ bool ModeManager::SetMode(SystemModeEnum newMode){
 			return false;
 		}
 
+		switch(newMode){
+		case MODE_ACCESS:
+			logger->Log(LOGGER_LEVEL_INFO, "Setting mode to " "\x1b[32m" "MODE_ACCESS" "\x1b[0m");
+			break;
+		case MODE_STARTUP:
+			logger->Log(LOGGER_LEVEL_INFO, "Setting mode to " "\x1b[32m" "MODE_STARTUP" "\x1b[0m");
+			break;
+		case MODE_BUS_PRIORITY:
+			logger->Log(LOGGER_LEVEL_INFO, "Setting mode to " "\x1b[32m" "MODE_BUS_PRIORITY" "\x1b[0m");
+			break;
+		case MODE_PLD_PRIORITY:
+			logger->Log(LOGGER_LEVEL_INFO, "Setting mode to " "\x1b[32m" "MODE_PLD_PRIORITY" "\x1b[0m");
+			break;
+		case MODE_COM:
+			logger->Log(LOGGER_LEVEL_INFO, "Setting mode to " "\x1b[32m" "MODE_COM" "\x1b[0m");
+			break;
+		case MODE_DIAGNOSTIC:
+			logger->Log(LOGGER_LEVEL_INFO, "Setting mode to " "\x1b[32m" "MODE_DIAGNOSTIC" "\x1b[0m");
+			break;
+		default:
+			logger->Log(LOGGER_LEVEL_WARN, "Unknown mode selected!");
+			break;
+		}
+
 		// TODO: need mode logger here
 		this->mode = newMode;
-		logger->Log(LOGGER_LEVEL_INFO, "Switching mode!");
 
 		this->GiveLock();
 		logger->Log(LOGGER_LEVEL_DEBUG, "------------SetMode: success");
