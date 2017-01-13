@@ -21,7 +21,6 @@ typedef enum FSWCommandTypes{
 	FSW_CMD_MAX = FSW_CMD_TX_SILENCE
 }FSWCommand;
 
-void portSetup(void);
 void uftpSetup(void);
 void runDiagnostic(void);
 void parseDRF(void);

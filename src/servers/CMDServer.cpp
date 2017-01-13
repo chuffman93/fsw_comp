@@ -88,7 +88,6 @@ void CMDServer::loopInit(void){
 	logger->Log(LOGGER_LEVEL_INFO, "CMDServer: Initializing");
 
 	// setup for uftp
-	portSetup();
 	uftpSetup();
 
 	currentState = ST_IDLE;

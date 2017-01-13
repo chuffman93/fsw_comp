@@ -32,7 +32,7 @@ namespace Servers{
 #define NUM_DIAGNOSTIC_TESTS 4
 #define SIZE_THRESHOLD 15728640 // 15 MB
 
-void portSetup(void){
+void uftpSetup(void){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	char portname[20] = "/dev/ttyS2";
@@ -56,25 +56,18 @@ void portSetup(void){
 	if(tcsetattr(portfd, TCSANOW, &port) < 0){
 		logger->Log(LOGGER_LEVEL_ERROR, "GPSServer: Problem setting port attributes!");
 	}
-}
 
-void uftpSetup(void){
 	char cmdString[100];
 
-	//---------------------------SLIP------------------------------------
-	sprintf(cmdString, "slattach -L -m -p slip \"/dev/ttyS2\" &");
-	system(cmdString);
+	//---------------------------KISS------------------------------------
+	system("/home/root/kissattach /dev/ttyS2 radio 1.1.1.1");
+	system("ifconfig ax0 multicast up");
 
-	sprintf(cmdString, "ifconfig sl0 1.1.1.1 pointopoint 1.1.1.2 up");
-	system(cmdString);
+	// send over uftp: /home/root/uftp -I ax0 file_name -H 1.1.1.2
+	// the "-H 1.1.1.2" is an option that makes it so only that IP address can receive the multicast
 
-	//---------------------------UFTP-----------------------------------
-	//TODO add encryption
-	char tmpDir[20] = "~/tmp";
-	char fileDir[20] = "~/dow";
-	//char prvKey[20] = "~/rsakey.pem";
-	//sprintf(cmdString, "./uftpd -T %s -I sl0 -D %s -k %s -E", tmpDir, fileDir, prvKey);
-	sprintf(cmdString, "./uftpd -T %s -I sl0 -D %s", tmpDir, fileDir);
+	//------------------------UFTP Daemon---------------------------------
+	sprintf(cmdString, "/home/root/uftpd -I ax0 -D %s", UPLINK_DIRECTORY);
 	printf("%s\n", cmdString);
 	system(cmdString);
 }
