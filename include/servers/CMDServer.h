@@ -26,11 +26,12 @@ namespace Servers{
 
 #define DOWNLINK_DIRECTORY	"/home/root/downlink"
 #define UPLINK_DIRECTORY	"/home/root/uplink"
-#define DRF_PATH			"/home/root/uplink/DRF.txt"
-#define DLT_PATH			"/home/root/uplink/DLT.txt"
-#define PPE_PATH			"/home/root/uplink/PPE.txt"
-#define SCHEDULE_PATH		"/home/root/uplink/schedule"
-#define EOT_PATH			"/home/root/uplink/EOT.txt"
+#define SOT_PATH			UPLINK_DIRECTORY  "/SOT.txt"
+#define DRF_PATH			UPLINK_DIRECTORY  "/DRF.txt"
+#define DLT_PATH			UPLINK_DIRECTORY  "/DLT.txt"
+#define PPE_PATH			UPLINK_DIRECTORY  "/PPE.txt"
+#define SCHEDULE_PATH		UPLINK_DIRECTORY  "/SCH.txt"
+#define EOT_PATH			UPLINK_DIRECTORY  "/EOT.txt"
 
 #define FILE_CHUNK_SIZE		"10k"	// size of chunks to make (ie. 500, 5k, 10M, etc.)
 
@@ -65,7 +66,7 @@ private:
 	void loopInit();
 	void loopIdle();
 	void loopDiagnostic();
-	void loopPrePass();
+	void loopPassPrep();
 	void loopLogin();
 	void loopVerboseHS();
 	void loopUplink();
@@ -77,7 +78,7 @@ private:
 	STATE_MAP_ENTRY(&CMDServer::loopInit)
 	STATE_MAP_ENTRY(&CMDServer::loopIdle)
 	STATE_MAP_ENTRY(&CMDServer::loopDiagnostic)
-	STATE_MAP_ENTRY(&CMDServer::loopPrePass)
+	STATE_MAP_ENTRY(&CMDServer::loopPassPrep)
 	STATE_MAP_ENTRY(&CMDServer::loopLogin)
 	STATE_MAP_ENTRY(&CMDServer::loopVerboseHS)
 	STATE_MAP_ENTRY(&CMDServer::loopUplink)
@@ -90,7 +91,7 @@ private:
 		ST_INIT = 0,
 		ST_IDLE,
 		ST_DIAGNOSTIC,
-		ST_PRE_PASS,
+		ST_PASS_PREP,
 		ST_LOGIN,
 		ST_VERBOSE_HS,
 		ST_UPLINK,

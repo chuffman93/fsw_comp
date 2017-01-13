@@ -23,7 +23,7 @@ namespace AllStar{
 namespace Servers{
 
 SCHServer::SCHServer(string nameIn, LocationIDType idIn)
-		: SubsystemServer(nameIn, idIn), Singleton(), arby(idIn), configManager(SCH_CONFIG_FILE)
+		: SubsystemServer(nameIn, idIn), Singleton(), arby(idIn), configManager(SCH_CONFIG_FILE), surpriseCOM(false)
 {
 	scheduleRunning = false;
 	//TODO Setup default schedule
@@ -71,6 +71,10 @@ bool SCHServer::RegisterHandlers()
 	return success;
 }
 
+void SCHServer::RequestCOMMode(void){
+	surpriseCOM = true;
+}
+
 void SCHServer::SubsystemLoop(void)
 {
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
@@ -100,6 +104,14 @@ void SCHServer::SubsystemLoop(void)
 			LoadNextSchedule();
 			LastTimeSwitched = getTimeInMillis();
 			modeManager->SetMode(currentSchedule.front().mode);
+		}
+
+		if(surpriseCOM){
+			modeManager->SetMode(MODE_BUS_PRIORITY);
+			SCHItem newCOM = {0,0,-1,900000,MODE_COM}; // new 15 minute COM mode to be added
+			SCHItem transitionBus = {0,0,-1,15000,MODE_BUS_PRIORITY}; // 15 second transition to bus priority
+			currentSchedule.push_front(newCOM);
+			currentSchedule.push_front(transitionBus);
 		}
 
 		GPSServer * gpsServer = dynamic_cast<GPSServer *>(Factory::GetInstance(GPS_SERVER_SINGLETON));
