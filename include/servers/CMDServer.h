@@ -60,6 +60,8 @@ private:
 	// Additional member variables
 	int numFilesDWN;
 	int currFileNum;
+	int32 resetPeriod;
+	int32 startTime;
 
 	// Modes
 	void loopInit();

@@ -39,6 +39,9 @@ CMDServer::CMDServer(string nameIn, LocationIDType idIn) :
 	for (int i = HARDWARE_LOCATION_MIN; i < HARDWARE_LOCATION_MAX; i++) {
 		subsystem_acp_protocol[i] = ACP_PROTOCOL_SPI;
 	}
+
+	startTime = getTimeInSec();
+	resetPeriod = 24*60*60; // one day
 }
 
 CMDServer::~CMDServer(){
@@ -103,6 +106,10 @@ void CMDServer::loopIdle(void){
 
 	if(modeManager->GetMode() == MODE_COM){
 		currentState = ST_PRE_PASS;
+	}
+
+	if(getTimeInSec() > (startTime + resetPeriod)){
+		// request reset from scheduler
 	}
 
 	dispatcher->CleanRXQueue();

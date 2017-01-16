@@ -79,9 +79,6 @@ bool ModeManager::SetMode(SystemModeEnum newMode){
 		}
 
 		switch(newMode){
-		case MODE_ACCESS:
-			logger->Log(LOGGER_LEVEL_INFO, "Setting mode to " "\x1b[32m" "MODE_ACCESS" "\x1b[0m");
-			break;
 		case MODE_STARTUP:
 			logger->Log(LOGGER_LEVEL_INFO, "Setting mode to " "\x1b[32m" "MODE_STARTUP" "\x1b[0m");
 			break;
@@ -96,6 +93,12 @@ bool ModeManager::SetMode(SystemModeEnum newMode){
 			break;
 		case MODE_DIAGNOSTIC:
 			logger->Log(LOGGER_LEVEL_INFO, "Setting mode to " "\x1b[32m" "MODE_DIAGNOSTIC" "\x1b[0m");
+			break;
+		case MODE_SAFE:
+			logger->Log(LOGGER_LEVEL_INFO, "Setting mode to " "\x1b[32m" "MODE_SAFE" "\x1b[0m");
+			break;
+		case MODE_RESET:
+			logger->Log(LOGGER_LEVEL_INFO, "Setting mode to " "\x1b[32m" "MODE_RESET" "\x1b[0m");
 			break;
 		default:
 			logger->Log(LOGGER_LEVEL_WARN, "Unknown mode selected!");
