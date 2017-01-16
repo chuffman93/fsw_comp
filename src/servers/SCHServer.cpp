@@ -17,6 +17,7 @@
 #include <sys/mman.h>
 #include <stdio.h>
 #include <list>
+#include <iterator>
 
 using namespace std;
 using namespace AllStar::Core;
@@ -87,7 +88,7 @@ void SCHServer::SubsystemLoop(void)
 				configManager.config.defaultScheduleArray[i].latitude,
 				configManager.config.defaultScheduleArray[i].longitude,
 				configManager.config.defaultScheduleArray[i].radius,
-				configManager.config.defaultScheduleArray[i].timeoutms,
+				configManager.config.defaultScheduleArray[i].duration,
 				configManager.config.defaultScheduleArray[i].mode);
 		defaultSchedule.push_back(configManager.config.defaultScheduleArray[i]);
 	}
@@ -107,7 +108,7 @@ void SCHServer::SubsystemLoop(void)
 		GPSServer * gpsServer = dynamic_cast<GPSServer *>(Factory::GetInstance(GPS_SERVER_SINGLETON));
 		SCHItem CurrentEvent = currentSchedule.front();
 		bool inRange = gpsServer->DistanceTo(CurrentEvent.latitude, CurrentEvent.longitude) < CurrentEvent.radius;
-		bool timeout = CurrentEvent.timeoutms < (getTimeInMillis() - LastTimeSwitched);
+		bool timeout = CurrentEvent.duration < (getTimeInMillis() - LastTimeSwitched);
 		if(inRange || timeout){
 			currentSchedule.pop_front();
 			if(currentSchedule.empty()){
@@ -160,36 +161,24 @@ void SCHServer::SubsystemLoop(void)
 //	}
 //}
 
-SCHItem GetSCHItem(unsigned int n){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-
-	int size = currentSchedule.size();
-	if (size > n && n > -1){
-		list<SCHItem>::iterator it = next(currentSchedule.begin(), n);
-		return it;
-	}
-
-	logger->Log(LOGGER_LEVEL_WARN, "GetSCHItem: input is out of range");
-	SCHItem ret;
-	return ret;
-}
-
 void SCHServer::LoadDefaultSchedule(){
 	remove(SCH_SCHEDULE_FILE);
 	currentSchedule = defaultSchedule;
 }
 
-SCHItem SCHServer::ParseLine(string line){
+SCHServer::SCHItem SCHServer::ParseLine(string line){
 	SCHItem newSchedule;
 
 	// TODO: Error bounds
 	newSchedule.latitude = atof(line.substr(0,8).c_str());
 	newSchedule.longitude = atof(line.substr(8,8).c_str());
 	newSchedule.radius = atof(line.substr(16,8).c_str());
-	newSchedule.timeoutms = atoi(line.substr(24,4).c_str());
-	newSchedule.mode = atoi(line.substr(28,1).c_str());
+	newSchedule.duration = atoi(line.substr(24,4).c_str());
+	newSchedule.entry_timeout = atoi(line.substr(28,4).c_str());
+	newSchedule.skip_timeout = atoi(line.substr(32,4).c_str());
+	newSchedule.mode = static_cast<SystemModeEnum> (atoi(line.substr(36,1).c_str()));
 
-	return SCHItem;
+	return newSchedule;
 }
 
 int SCHServer::LoadNextSchedule(){
@@ -216,7 +205,7 @@ int SCHServer::LoadNextSchedule(){
 
 	// TODO: NEED TO CHANGE THIS TO RAW INSTEAD OF ASCII!!!!
 	while ((bytesRead = getline(&line, &len, fp)) != -1) {
-		if((bytesRead == -1) || (bytesRead != 30)){ // TODO: Does this actually work?
+		if(bytesRead != 38){ // TODO: Does this actually work?
 			logger->Log(LOGGER_LEVEL_WARN, "LoadNextSchedule: new schedule file does not contain the correct amount of data");
 			LoadDefaultSchedule();
 			return -3;

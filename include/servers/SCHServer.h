@@ -31,11 +31,18 @@ class SCHServer : public SubsystemServer, public AllStar::Core::Singleton
 	*	This allows factory to call SCHServer's private constructor
 	*/
 	friend class AllStar::Core::Factory;
+
+
+
+public:
+
 	typedef struct{
 		double latitude;
 		double longitude;
 		double radius;
-		uint32_t timeoutms;
+		uint32_t duration;
+		uint32_t entry_timeout;
+		uint32_t skip_timeout;
 		SystemModeEnum mode;
 	}SCHItem;
 
@@ -44,8 +51,6 @@ class SCHServer : public SubsystemServer, public AllStar::Core::Singleton
 		SCHItem defaultScheduleArray[SCHEDULE_MAX_SIZE];
 	}SCHConfig;
 
-
-public:
 	void SubsystemLoop(void);
 
 	/*! \brief Registers this server's message handlers.
@@ -59,10 +64,14 @@ public:
 	*  are added to the Dispatcher.
 	*/
 	bool RegisterHandlers();
-	SCHItem GetSCHItem(unsigned int n);
 	void LoadDefaultSchedule(void);
 	SCHItem ParseLine(string line);
 	int LoadNextSchedule(void);
+
+	/// \brief The vectors of mode schedules and payload schedules.
+	std::list<SCHItem> defaultSchedule;
+	std::list<SCHItem> currentSchedule;
+	std::list<SCHItem> nextSchedule;
 
 private:
 	/*! \brief Initialize the SCHServer Class
@@ -99,11 +108,6 @@ private:
 	AllStar::Core::Arbitrator arby;
 
 	bool scheduleRunning;
-
-	/// \brief The vectors of mode schedules and payload schedules.
-	std::list<SCHItem> defaultSchedule;
-	std::list<SCHItem> currentSchedule;
-	std::list<SCHItem> nextSchedule;
 
 	BEGIN_STATE_MAP
 	END_STATE_MAP
