@@ -562,5 +562,9 @@ void executeFSWCommand(int command){
 	}
 }
 
+void beacon(){
+
+}
+
 } // End of namespace Servers
 } // End of namespace AllStar

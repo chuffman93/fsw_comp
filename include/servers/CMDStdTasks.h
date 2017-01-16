@@ -35,6 +35,7 @@ int deleteRegex(char * filePath, char * regex);
 int getNumFiles(char * dir);
 string getDownlinkFile(int fileNum);
 void executeFSWCommand(int command);
+void beacon();
 
 } // End of namespace Servers
 } // End of namespace AllStar

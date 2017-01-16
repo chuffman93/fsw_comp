@@ -98,6 +98,8 @@ private:
 		ST_DOWNLINK,
 		ST_POST_PASS
 	};
+
+	void CheckHealthStatus(void);
 };
 
 }

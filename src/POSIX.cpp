@@ -134,7 +134,7 @@ bool xSemaphoreGive(sem_t *sem)
 void waitUntil(int64 lastTimeTick, int waitTimeMS){
 	int64 target = getTimeInMillis() + waitTimeMS;
 	int64 difference = target - lastTimeTick;
-	if(difference > 0){
+	if(difference > 0 && difference <= waitTimeMS){
 		usleep(difference*1000);
 	}
 }

@@ -237,5 +237,14 @@ void CMDServer::loopPostPass(){
 	currentState = ST_IDLE;
 }
 
+// --------- Beacon ----------------------------------------------------------------------------------------------------
+// Note: this function is configured to be called in the subsystem loop defined in SubsystemServer.cpp
+// since we can configure it to be called whenever we like, we can effectively set the beacon rate
+void CMDServer::CheckHealthStatus(void){
+	if(currentState == ST_IDLE || currentState == ST_DIAGNOSTIC || currentState == ST_LOGIN || currentState == ST_POST_PASS){
+		beacon();
+	}
+}
+
 } // End of namespace Servers
 } // End of namespace AllStar
