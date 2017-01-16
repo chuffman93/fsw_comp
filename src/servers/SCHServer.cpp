@@ -84,15 +84,16 @@ void SCHServer::SubsystemLoop(void)
 
 	configManager.LoadConfig();
 	for(int i = 0; i < configManager.config.sizeOfDefaultSchedule; i++){
-		printf("Added item to default schedule: {%f, %f, %f, %d, %d}\n",
+		logger->Log(LOGGER_LEVEL_INFO, "Added item to default schedule: {%f, %f, %f, %d, %d %d, %d}",
 				configManager.config.defaultScheduleArray[i].latitude,
 				configManager.config.defaultScheduleArray[i].longitude,
 				configManager.config.defaultScheduleArray[i].radius,
-				configManager.config.defaultScheduleArray[i].duration,
-				configManager.config.defaultScheduleArray[i].mode);
+				configManager.config.defaultScheduleArray[i].enter_mode,
+				configManager.config.defaultScheduleArray[i].timeout,
+				configManager.config.defaultScheduleArray[i].mode,
+				configManager.config.defaultScheduleArray[i].duration);
 		defaultSchedule.push_back(configManager.config.defaultScheduleArray[i]);
 	}
-	printf("\n");
 
 	while(1)
 	{
@@ -107,6 +108,13 @@ void SCHServer::SubsystemLoop(void)
 
 		GPSServer * gpsServer = dynamic_cast<GPSServer *>(Factory::GetInstance(GPS_SERVER_SINGLETON));
 		SCHItem CurrentEvent = currentSchedule.front();
+
+		// if in range - new mode
+		// if duration has passed - bus priority
+		// if entry_timeout > time - enter mode
+		// if skip_timeout > time - pop
+
+
 		bool inRange = gpsServer->DistanceTo(CurrentEvent.latitude, CurrentEvent.longitude) < CurrentEvent.radius;
 		bool timeout = CurrentEvent.duration < (getTimeInMillis() - LastTimeSwitched);
 		if(inRange || timeout){
@@ -162,8 +170,11 @@ void SCHServer::SubsystemLoop(void)
 //}
 
 void SCHServer::LoadDefaultSchedule(){
-	remove(SCH_SCHEDULE_FILE);
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
 	currentSchedule = defaultSchedule;
+	logger->Log(LOGGER_LEVEL_INFO, "Default Schedule Loaded");
+	remove(SCH_SCHEDULE_FILE);
 }
 
 SCHServer::SCHItem SCHServer::ParseLine(string line){
@@ -173,10 +184,10 @@ SCHServer::SCHItem SCHServer::ParseLine(string line){
 	newSchedule.latitude = atof(line.substr(0,8).c_str());
 	newSchedule.longitude = atof(line.substr(8,8).c_str());
 	newSchedule.radius = atof(line.substr(16,8).c_str());
-	newSchedule.duration = atoi(line.substr(24,4).c_str());
-	newSchedule.entry_timeout = atoi(line.substr(28,4).c_str());
-	newSchedule.skip_timeout = atoi(line.substr(32,4).c_str());
-	newSchedule.mode = static_cast<SystemModeEnum> (atoi(line.substr(36,1).c_str()));
+	newSchedule.enter_mode = atoi(line.substr(24,1).c_str());
+	newSchedule.timeout = atoi(line.substr(25,8).c_str()); // TODO: Change to 4 bytes after serializing
+	newSchedule.mode = static_cast<SystemModeEnum> (atoi(line.substr(33,1).c_str()));
+	newSchedule.duration = atoi(line.substr(34,8).c_str()); // TODO: Change to 4 bytes after serializing
 
 	return newSchedule;
 }
@@ -187,14 +198,14 @@ int SCHServer::LoadNextSchedule(){
 	currentSchedule = std::list<SCHItem>();
 
 	if(access(SCH_SCHEDULE_FILE, F_OK) == -1){
-		logger->Log(LOGGER_LEVEL_WARN, "LoadNextSchedule: no new schedule");
+		logger->Log(LOGGER_LEVEL_WARN, "LoadNextSchedule: No new schedule, loading default...");
 		LoadDefaultSchedule();
 		return -1;
 	}
 
 	FILE * fp = fopen(SCH_SCHEDULE_FILE, "r");
 	if(fp == NULL){
-		logger->Log(LOGGER_LEVEL_WARN, "LoadNextSchedule: failed to open new schedule file");
+		logger->Log(LOGGER_LEVEL_WARN, "LoadNextSchedule: Failed to open new schedule file, loading default...");
 		LoadDefaultSchedule();
 		return -2;
 	}
@@ -205,8 +216,8 @@ int SCHServer::LoadNextSchedule(){
 
 	// TODO: NEED TO CHANGE THIS TO RAW INSTEAD OF ASCII!!!!
 	while ((bytesRead = getline(&line, &len, fp)) != -1) {
-		if(bytesRead != 38){ // TODO: Does this actually work?
-			logger->Log(LOGGER_LEVEL_WARN, "LoadNextSchedule: new schedule file does not contain the correct amount of data");
+		if(bytesRead != 43){ // TODO: Does this actually work?
+			logger->Log(LOGGER_LEVEL_WARN, "LoadNextSchedule: New schedule file is improperly formatted, loading default...");
 			LoadDefaultSchedule();
 			return -3;
 		}
@@ -214,7 +225,7 @@ int SCHServer::LoadNextSchedule(){
 		currentSchedule.push_back(ParseLine(string(line)));
 	}
 
-	logger->Log(LOGGER_LEVEL_INFO, "LoadNextSchedule: new schedule loaded");
+	logger->Log(LOGGER_LEVEL_INFO, "LoadNextSchedule: New schedule loaded");
 	remove(SCH_SCHEDULE_FILE);
 
 	return 1;

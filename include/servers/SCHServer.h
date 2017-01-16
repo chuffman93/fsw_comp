@@ -40,10 +40,10 @@ public:
 		double latitude;
 		double longitude;
 		double radius;
-		uint32_t duration;
-		uint32_t entry_timeout;
-		uint32_t skip_timeout;
+		bool enter_mode;
+		uint32_t timeout;
 		SystemModeEnum mode;
+		uint32_t duration;
 	}SCHItem;
 
 	typedef struct {
