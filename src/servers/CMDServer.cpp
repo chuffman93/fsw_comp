@@ -10,6 +10,7 @@
 #include "servers/CMDServer.h"
 #include "servers/CMDStdTasks.h"
 #include "servers/DispatchStdTasks.h"
+#include "servers/SCHServer.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
 #include "core/StdTypes.h"
@@ -99,13 +100,22 @@ void CMDServer::loopInit(void){
 void CMDServer::loopIdle(void){
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	if(modeManager->GetMode() == MODE_DIAGNOSTIC){
 		currentState = ST_DIAGNOSTIC;
 	}
 
 	if(modeManager->GetMode() == MODE_COM){
-		currentState = ST_PRE_PASS;
+		currentState = ST_PASS_PREP;
+	}
+
+	if(access(SOT_PATH, F_OK) == 0){
+		logger->Log(LOGGER_LEVEL_WARN, "CMDServer: unexpected ground login, preparing to enter COM Mode");
+		if(modeManager->GetMode() == MODE_BUS_PRIORITY){
+			SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
+			schServer->RequestCOMMode();
+		}
 	}
 
 	if(getTimeInSec() > (startTime + resetPeriod)){
@@ -124,7 +134,7 @@ void CMDServer::loopDiagnostic(){
 	modeManager->SetMode(MODE_BUS_PRIORITY);
 }
 
-void CMDServer::loopPrePass(){
+void CMDServer::loopPassPrep(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	/* TODO:
@@ -141,9 +151,9 @@ void CMDServer::loopPrePass(){
 void CMDServer::loopLogin(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-	bool loggedIn = true;
 
-	if(loggedIn){
+	// block until the start of transmission file has been uplinked
+	if(access(SOT_PATH,F_OK) == 0){
 		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: ground login successful");
 		currentState = ST_VERBOSE_HS;
 	}

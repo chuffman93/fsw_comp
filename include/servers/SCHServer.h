@@ -62,6 +62,8 @@ public:
 
 	void LoadNextSchedule(void);
 
+	void RequestCOMMode(void);
+
 private:
 	/*! \brief Initialize the SCHServer Class
 	*
@@ -97,6 +99,7 @@ private:
 	AllStar::Core::Arbitrator arby;
 
 	bool scheduleRunning;
+	bool surpriseCOM;
 
 	/// \brief The vectors of mode schedules and payload schedules.
 	std::list<SCHItem> defaultSchedule;
