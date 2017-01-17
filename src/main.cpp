@@ -96,6 +96,8 @@ int main(int argc, char * argv[])
 
 	modeManager->SetMode(MODE_STARTUP);
 
+	//SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
+
 	logger->Log(LOGGER_LEVEL_FATAL, "Flight software initialization complete! Starting servers!");
 
 	// ----------------------------- Grab Server Instances ---------------------------------------------------------
@@ -115,8 +117,8 @@ int main(int argc, char * argv[])
 
 	// ----------------------------- Start Servers -----------------------------------------------------------------
 	threadsCreated &= WatchdogManager::StartServer(acsServer, 50,	false);	 //ACS
-	threadsCreated &= WatchdogManager::StartServer(cdhServer, 20,	true);	 //CDH
-	threadsCreated &= WatchdogManager::StartServer(cmdServer, 50,	true);	 //CMD
+	threadsCreated &= WatchdogManager::StartServer(cdhServer, 20,	false);	 //CDH
+	threadsCreated &= WatchdogManager::StartServer(cmdServer, 50,	false);	 //CMD
 	threadsCreated &= WatchdogManager::StartServer(comServer, 10,	false);	 //COM
 	threadsCreated &= WatchdogManager::StartServer(epsServer, 10,	false);	 //EPS
 	threadsCreated &= WatchdogManager::StartServer(errServer, 0,	false);	 //ERR

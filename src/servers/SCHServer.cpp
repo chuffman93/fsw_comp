@@ -26,10 +26,9 @@ namespace AllStar{
 namespace Servers{
 
 SCHServer::SCHServer(string nameIn, LocationIDType idIn)
-		: SubsystemServer(nameIn, idIn), Singleton(), arby(idIn), configManager(SCH_CONFIG_FILE)
+		: SubsystemServer(nameIn, idIn), Singleton(), arby(idIn), configManager(SCH_CONFIG_FILE), lastWakeTime(0), modeEnterTime(0), lastBusEnter(0), itemEntered(false)
 {
-	scheduleRunning = false;
-	//TODO Setup default schedule
+
 }
 
 SCHServer::~SCHServer()
@@ -74,23 +73,35 @@ bool SCHServer::RegisterHandlers()
 	return success;
 }
 
-int SCHServer::SetNewMode(void){
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-
-	currentSchedule.pop_front();
-	if (currentSchedule.empty()) {
-		modeManager->SetMode(MODE_BUS_PRIORITY);
-		return -1;
-	}
-	else {
-		modeManager->SetMode(currentSchedule.front().mode);
-		return 1;
-	}
-}
+//void SCHServer::EnterNextMode(void){
+//	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+//	SystemModeEnum currentMode = modeManager->GetMode();
+//
+//	if(currentMode == MODE_BUS_PRIORITY && (lastBusEnter + 10 < getTimeInSec())){ // make sure we've been in bus priority mode for >10 seconds
+//		modeManager->SetMode(currentEvent.mode);
+//		itemEntered = true;
+//		modeEnterTime = getTimeInSec();
+//	}else if(currentMode != MODE_BUS_PRIORITY){
+//		modeManager->SetMode(MODE_BUS_PRIORITY);
+//		lastBusEnter = getTimeInSec();
+//	}
+//}
+//
+//void SCHServer::EnterBusMode(void){
+//	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+//
+//	modeManager->SetMode(MODE_BUS_PRIORITY);
+//	lastBusEnter = getTimeInSec();
+//	currentSchedule.pop_front();
+//	itemEntered = false;
+//}
 
 int SCHServer::LoadDefaultScheduleConfigurations(void){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	configManager.LoadConfig();
+	defaultSchedule.clear();
+
+	// reload the schedule
 	for (int i = 0; i < configManager.config.sizeOfDefaultSchedule; i++) {
 		logger->Log(LOGGER_LEVEL_INFO, "Added item to default schedule: {%f, %f, %f, %d, %d %d, %d}",
 				configManager.config.defaultScheduleArray[i].latitude,
@@ -101,6 +112,7 @@ int SCHServer::LoadDefaultScheduleConfigurations(void){
 				configManager.config.defaultScheduleArray[i].mode,
 				configManager.config.defaultScheduleArray[i].duration);
 		defaultSchedule.push_back(configManager.config.defaultScheduleArray[i]);
+		defaultSchedule.back().timeout += getTimeInSec(); // TODO: delete this to implement absolute timing
 	}
 	return 1;
 }
@@ -112,14 +124,17 @@ void SCHServer::SubsystemLoop(void)
 	GPSServer * gpsServer = dynamic_cast<GPSServer *>(Factory::GetInstance(GPS_SERVER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-	uint64_t LastTimeSwitched = getTimeInMillis();
-	currentSchedule = std::list<SCHItem>();
+	modeManager->SetMode(MODE_BUS_PRIORITY);
 
-	LoadDefaultScheduleConfigurations();
+	currentSchedule = std::list<SCHItem>();
+	itemEntered = false;
+	lastBusEnter = getTimeInSec();
+
+	//LoadDefaultScheduleConfigurations();
 
 	while(1)
 	{
-		int64 LastWakeTime = getTimeInMillis();
+		lastWakeTime = getTimeInMillis();
 		wdm->Kick();
 
 		if (currentSchedule.empty()){
@@ -127,36 +142,64 @@ void SCHServer::SubsystemLoop(void)
 			LoadNextSchedule();
 		}
 
-		SCHItem CurrentEvent = currentSchedule.front();
+		SCHItem currentEvent = currentSchedule.front();
 
-		bool inRange = gpsServer->DistanceTo(CurrentEvent.latitude, CurrentEvent.longitude) < CurrentEvent.radius;
-		if (inRange){
-			SetNewMode();
-		}
-		else if (CurrentEvent.timeout < getTimeInSec()){
-			if (CurrentEvent.enter_mode){
-				logger->Log(LOGGER_LEVEL_INFO, "Schedule event timeout exceeded, entering mode");
-				SetNewMode();
-			}
-			else {
-				logger->Log(LOGGER_LEVEL_INFO, "Schedule event timeout exceeded, entering Bus Priority Mode and fetching next schedule");
+		if (itemEntered){
+			if (currentEvent.duration < getTimeInSec() - modeEnterTime){
+				logger->Log(LOGGER_LEVEL_INFO, "Schedule event duration exceeded, entering Bus Priority Mode");
 				modeManager->SetMode(MODE_BUS_PRIORITY);
+				lastBusEnter = getTimeInSec();
 				currentSchedule.pop_front();
-				LoadNextSchedule();
+				itemEntered = false;
 			}
 		}
-		else if (CurrentEvent.duration < getTimeInSec()) {
-			logger->Log(LOGGER_LEVEL_INFO, "Schedule event duration exceeded, entering Bus Priority Mode");
-			modeManager->SetMode(MODE_BUS_PRIORITY);
+		else {
+			bool inRange = gpsServer->DistanceTo(currentEvent.latitude, currentEvent.longitude) < currentEvent.radius;
+			if (inRange){
+				logger->Log(LOGGER_LEVEL_INFO, "In range of schedule event, setting mode");
+				SystemModeEnum currentMode = modeManager->GetMode();
+
+				if(currentMode == MODE_BUS_PRIORITY && (lastBusEnter + 10 < getTimeInSec())){ // make sure we've been in bus priority mode for >10 seconds
+					modeManager->SetMode(currentEvent.mode);
+					itemEntered = true;
+					modeEnterTime = getTimeInSec();
+				}else if(currentMode != MODE_BUS_PRIORITY){
+					modeManager->SetMode(MODE_BUS_PRIORITY);
+					lastBusEnter = getTimeInSec();
+				}
+			}
+			else if (currentEvent.timeout < getTimeInSec()){
+				if (currentEvent.enter_mode){
+					logger->Log(LOGGER_LEVEL_INFO, "Schedule event timeout exceeded, entering mode");
+					SystemModeEnum currentMode = modeManager->GetMode();
+
+					if(currentMode == MODE_BUS_PRIORITY && (lastBusEnter + 10 < getTimeInSec())){ // make sure we've been in bus priority mode for >10 seconds
+						modeManager->SetMode(currentEvent.mode);
+						itemEntered = true;
+						modeEnterTime = getTimeInSec();
+					}else if(currentMode != MODE_BUS_PRIORITY){
+						modeManager->SetMode(MODE_BUS_PRIORITY);
+						lastBusEnter = getTimeInSec();
+					}
+				}
+				else {
+					logger->Log(LOGGER_LEVEL_INFO, "Schedule event timeout exceeded, skipping mode");
+					modeManager->SetMode(MODE_BUS_PRIORITY);
+					lastBusEnter = getTimeInSec();
+					currentSchedule.pop_front();
+					itemEntered = false;
+				}
+			}
 		}
 
-		waitUntil(LastWakeTime, 1000);
+		waitUntil(lastWakeTime, 1000);
 	}
 }
 
 void SCHServer::LoadDefaultSchedule(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
+	LoadDefaultScheduleConfigurations();
 	currentSchedule = defaultSchedule;
 	logger->Log(LOGGER_LEVEL_INFO, "Default Schedule Loaded");
 	remove(SCH_SCHEDULE_FILE);
@@ -170,10 +213,9 @@ SCHServer::SCHItem SCHServer::ParseLine(string line){
 	newSchedule.longitude = atof(line.substr(8,8).c_str());
 	newSchedule.radius = atof(line.substr(16,8).c_str());
 	newSchedule.enter_mode = atoi(line.substr(24,1).c_str());
-	newSchedule.timeout = atoi(line.substr(25,8).c_str()); // TODO: Change to 4 bytes after serializing
+	newSchedule.timeout = atoi(line.substr(25,8).c_str()) + getTimeInSec(); // TODO: Change to 4 bytes after serializing, change to absolute (currently relative to start of schedule)
 	newSchedule.mode = static_cast<SystemModeEnum> (atoi(line.substr(33,1).c_str()));
-    int dur = atoi(line.substr(34,8).c_str()); // TODO: Change to 4 bytes after serializing
-	newSchedule.duration = getTimeInSec() + dur;
+	newSchedule.duration = atoi(line.substr(34,8).c_str()); // TODO: Change to 4 bytes after serializing
 
 	return newSchedule;
 }

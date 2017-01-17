@@ -35,23 +35,23 @@ class SCHServer : public SubsystemServer, public AllStar::Core::Singleton
 
 
 public:
-
-	typedef struct{
+	struct SCHItem{
 		double latitude;
 		double longitude;
 		double radius;
 		bool enter_mode;
-		uint32_t timeout;
+		int32 timeout;
 		SystemModeEnum mode;
-		uint32_t duration;
-	}SCHItem;
+		int32 duration;
+	};
 
-	typedef struct {
+	struct SCHConfig{
 		uint8_t sizeOfDefaultSchedule;
 		SCHItem defaultScheduleArray[SCHEDULE_MAX_SIZE];
-	}SCHConfig;
+	};
 
-	int SetNewMode(void);
+	void EnterNextMode(void);
+	void EnterBusMode(void);
 	int LoadDefaultScheduleConfigurations(void);
 	void SubsystemLoop(void);
 
@@ -109,7 +109,10 @@ private:
 	AllStar::Core::MessageHandlerRegistry reg;
 	AllStar::Core::Arbitrator arby;
 
-	bool scheduleRunning;
+	int64 lastWakeTime;
+	int32 modeEnterTime;
+	int32 lastBusEnter;
+	bool itemEntered;
 
 	BEGIN_STATE_MAP
 	END_STATE_MAP
