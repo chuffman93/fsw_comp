@@ -103,6 +103,12 @@ int ACSLEDData(){
 	}
 }
 
+// Standard
+void ACSPrepReset(){
+	ACPPacket * cmd = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, SUBSYSTEM_RESET_CMD);
+	ACPPacket * ret = DispatchPacket(cmd); // no need to check the return, we're restarting anyway
+}
+
 // Diagnostic
 bool ACSTestAlive(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));

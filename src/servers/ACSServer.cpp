@@ -189,7 +189,8 @@ void ACSServer::loopDiagnostic(){
 }
 
 void ACSServer::loopReset(){
-	// turn ACS off?
+	ACSPrepReset();
+
 	for(uint8 i = 0; i < 60; i++){
 		usleep(1000000);
 	}
@@ -209,8 +210,8 @@ void ACSServer::CheckHealthStatus(){
 		return;
 	}
 
-	if(HSRet->getLength() != 18*sizeof(uint16)){
-		logger->Log(LOGGER_LEVEL_WARN, "ACSServer: CheckHealthStatus(): incorrect message length!");
+	if(HSRet->getLength() != ACSState.numItems*sizeof(uint32)){
+		logger->Log(LOGGER_LEVEL_WARN, "ACSServer: CheckHealthStatus(): incorrect message length! %u", HSRet->getLength());
 
 		//TODO: return error?
 		return;

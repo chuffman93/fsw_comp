@@ -166,7 +166,8 @@ void COMServer::loopDiagnostic(){
 }
 
 void COMServer::loopReset(){
-	// turn com off?
+	COMPrepReset();
+
 	for(uint8 i = 0; i < 60; i++){
 		usleep(1000000);
 	}

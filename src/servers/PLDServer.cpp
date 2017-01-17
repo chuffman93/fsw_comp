@@ -162,8 +162,13 @@ void PLDServer::loopDiagnostic(){
 }
 
 void PLDServer::loopReset(){
-	// make sure payload is off?
-	usleep(100000);
+	PLDPrepReset();
+
+	for(uint8 i = 0; i < 60; i++){
+		usleep(1000000);
+	}
+
+	currentState = ST_IDLE;
 }
 
 } // end namespace servers

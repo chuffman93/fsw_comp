@@ -154,7 +154,6 @@ void CMDServer::loopPassPrep(){
 
 	/* TODO:
 	 * Tell the FMG server to go to its COM state
-	 * Command ACS to point to the ground station
 	 * Gather Verbose H&S files
 	 */
 

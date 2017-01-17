@@ -51,7 +51,9 @@ public:
 	};
 
 	struct EPSConfig{
-		uint32 test;
+		uint16 minCOMCharge;
+		uint16 minPLDCharge;
+		uint8 numItems;
 	};
 
 	EPSStatus EPSState;

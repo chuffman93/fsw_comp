@@ -32,7 +32,10 @@ static EPSPowerCycleHandler * epsPowerCycleHandler;
 // -------------------------------------- Necessary Methods --------------------------------------
 EPSServer::EPSServer(string nameIn, LocationIDType idIn) :
 		SubsystemServer(nameIn, idIn), Singleton(), arby(idIn) {
-	EPSState = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18};
+	EPSState = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	EPSState.numItems = 18;
+	EPSConfiguration = {0,0,0};
+	EPSConfiguration.numItems = 2;
 }
 
 EPSServer & EPSServer::operator=(const EPSServer & source){
@@ -188,7 +191,7 @@ void EPSServer::CheckHealthStatus(){
 		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Vbat Voltage:    %u", EPSState.voltageVbat);
 		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: 12v Current:     %u", EPSState.current12v);
 		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: 12v Voltage:     %u", EPSState.voltage12v);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Rem cap:         %u", EPSState.remainingCapacity);
+		logger->Log(LOGGER_LEVEL_INFO,  "EPS H&S: Rem cap:         %u", EPSState.remainingCapacity);
 		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Batt curr:       %u", EPSState.battCurrent);
 		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Batt volt:       %u", EPSState.battVoltage);
 		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Batt status:     %u", EPSState.battStatus);
