@@ -51,6 +51,8 @@ public:
 		SCHItem defaultScheduleArray[SCHEDULE_MAX_SIZE];
 	}SCHConfig;
 
+	int SetNewMode(void);
+	int LoadDefaultScheduleConfigurations(void);
 	void SubsystemLoop(void);
 
 	/*! \brief Registers this server's message handlers.
