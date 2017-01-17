@@ -151,11 +151,16 @@ void CDHServer::loopMonitor(){
 
 	readHealth(readFrequency, (uint32) lastWake/1000);
 
-	if(modeManager->GetMode() == MODE_DIAGNOSTIC){
+	// Check for state transitions based on mode switches
+	SystemModeEnum currentMode = modeManager->GetMode();
+	switch(currentMode){
+	case MODE_DIAGNOSTIC:
 		currentState = ST_DIAGNOSTIC;
+		break;
+	case MODE_RESET:
+		currentState = ST_RESET;
+		break;
 	}
-
-	waitUntil(lastWake, 1000);
 }
 
 void CDHServer::loopDiagnostic(){
@@ -163,6 +168,15 @@ void CDHServer::loopDiagnostic(){
 	if(modeManager->GetMode() != MODE_DIAGNOSTIC){
 		currentState = ST_MONITOR;
 	}
+}
+
+void CDHServer::loopReset(){
+	// nothing to do
+	for(uint8 i = 0; i < 60; i++){
+		usleep(1000000);
+	}
+
+	currentState = ST_MONITOR;
 }
 
 

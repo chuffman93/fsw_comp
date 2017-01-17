@@ -14,6 +14,7 @@
 #include "servers/EPSHandlers.h"
 #include "servers/EPSServer.h"
 #include "servers/EPSStdTasks.h"
+#include "servers/FMGServer.h"
 #include "servers/DispatchStdTasks.h"
 #include "servers/CDHServer.h"
 #include "util/Logger.h"
@@ -94,8 +95,16 @@ void EPSServer::loopInit(){
 
 void EPSServer::loopMonitor(){
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-	if(modeManager->GetMode() == MODE_DIAGNOSTIC){
+	SystemModeEnum currentMode = modeManager->GetMode();
+	switch(currentMode){
+	case MODE_DIAGNOSTIC:
 		currentState = ST_DIAGNOSTIC;
+		break;
+	case MODE_RESET:
+		currentState = ST_RESET;
+		break;
+	default:
+		break;
 	}
 }
 
@@ -104,6 +113,22 @@ void EPSServer::loopDiagnostic(){
 	if(modeManager->GetMode() != MODE_DIAGNOSTIC){
 		currentState = ST_MONITOR;
 	}
+}
+
+void EPSServer::loopReset(){
+	FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	logger->Log(LOGGER_LEVEL_INFO, "EPS ready for reset");
+
+	for(uint8 i = 0; i < 60; i++){
+		if(fmgServer->resetReady){
+			EPSPowerCycle();
+		}
+		usleep(1000000);
+	}
+
+	currentState = ST_MONITOR;
 }
 
 // -------------------------------------------- EPS Methods ---------------------------------------------

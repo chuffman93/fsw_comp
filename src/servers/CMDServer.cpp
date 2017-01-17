@@ -3,7 +3,7 @@
 *
 *  Created on: Feb 12, 2013
 *      Author: Caitlyn
-*  Modified by:
+*  Modified by: Alex, January 2017
 */
 
 #include "servers/CMDHandlers.h"
@@ -102,24 +102,39 @@ void CMDServer::loopIdle(void){
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-	if(modeManager->GetMode() == MODE_DIAGNOSTIC){
+	// check for state transitions from mode switches
+	SystemModeEnum currentMode = modeManager->GetMode();
+	switch(currentMode){
+	case MODE_DIAGNOSTIC:
 		currentState = ST_DIAGNOSTIC;
-	}
-
-	if(modeManager->GetMode() == MODE_COM){
+		return;
+	case MODE_COM:
 		currentState = ST_PASS_PREP;
+		return;
+	case MODE_RESET:
+		currentState = ST_RESET;
+		return;
+	default:
+		break;
 	}
 
+	// Check for ground login
 	if(access(SOT_PATH, F_OK) == 0){
 		logger->Log(LOGGER_LEVEL_WARN, "CMDServer: unexpected ground login, preparing to enter COM Mode");
-		if(modeManager->GetMode() == MODE_BUS_PRIORITY){
-			SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
-			schServer->RequestCOMMode();
-		}
+		SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
+		schServer->RequestCOMMode();
+		int64 currTime = getTimeInMillis();
+		waitUntil(currTime,5000);
+		currentState = ST_PASS_PREP;
+		return;
 	}
 
-	if(getTimeInSec() > (startTime + resetPeriod)){
-		// request reset from scheduler
+	// Monitor daily reset
+	if(getTimeInSec() > (startTime + resetPeriod) && (modeManager->GetMode() == MODE_BUS_PRIORITY)){
+		SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
+		schServer->RequestReset();
+		currentState = ST_RESET;
+		return;
 	}
 
 	dispatcher->CleanRXQueue();
@@ -251,6 +266,19 @@ void CMDServer::loopPostPass(){
 	if(modeManager->GetMode() == MODE_COM){
 		modeManager->SetMode(MODE_BUS_PRIORITY);
 	}
+	currentState = ST_IDLE;
+}
+
+void CMDServer::loopReset(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log(LOGGER_LEVEL_INFO, "Daily reset encountered");
+
+	for(uint8 i = 0; i < 30; i++){
+		usleep(1000000);
+	}
+
+	logger->Log(LOGGER_LEVEL_ERROR, "Daily reset failed, performing reboot");
+	system("reboot");
 	currentState = ST_IDLE;
 }
 

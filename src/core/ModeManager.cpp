@@ -94,9 +94,6 @@ bool ModeManager::SetMode(SystemModeEnum newMode){
 		case MODE_DIAGNOSTIC:
 			logger->Log(LOGGER_LEVEL_INFO, "Setting mode to " "\x1b[32m" "MODE_DIAGNOSTIC" "\x1b[0m");
 			break;
-		case MODE_SAFE:
-			logger->Log(LOGGER_LEVEL_INFO, "Setting mode to " "\x1b[32m" "MODE_SAFE" "\x1b[0m");
-			break;
 		case MODE_RESET:
 			logger->Log(LOGGER_LEVEL_INFO, "Setting mode to " "\x1b[32m" "MODE_RESET" "\x1b[0m");
 			break;

@@ -23,7 +23,7 @@ namespace AllStar{
 namespace Servers{
 
 SCHServer::SCHServer(string nameIn, LocationIDType idIn)
-		: SubsystemServer(nameIn, idIn), Singleton(), arby(idIn), configManager(SCH_CONFIG_FILE), surpriseCOM(false)
+		: SubsystemServer(nameIn, idIn), Singleton(), arby(idIn), configManager(SCH_CONFIG_FILE), surpriseCOM(false), resetRequest(false)
 {
 	scheduleRunning = false;
 	//TODO Setup default schedule
@@ -75,8 +75,11 @@ void SCHServer::RequestCOMMode(void){
 	surpriseCOM = true;
 }
 
-void SCHServer::SubsystemLoop(void)
-{
+void SCHServer::RequestReset(void){
+	resetRequest = true;
+}
+
+void SCHServer::SubsystemLoop(void){
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
@@ -95,8 +98,7 @@ void SCHServer::SubsystemLoop(void)
 	}
 	printf("\n");
 
-	while(1)
-	{
+	while(1){
 		int64 LastWakeTime = getTimeInMillis();
 		wdm->Kick();
 		if(currentSchedule.empty()){
@@ -107,11 +109,19 @@ void SCHServer::SubsystemLoop(void)
 		}
 
 		if(surpriseCOM){
+			surpriseCOM = false;
 			modeManager->SetMode(MODE_BUS_PRIORITY);
-			SCHItem newCOM = {0,0,-1,900000,MODE_COM}; // new 15 minute COM mode to be added
-			SCHItem transitionBus = {0,0,-1,15000,MODE_BUS_PRIORITY}; // 15 second transition to bus priority
+			SCHItem newCOM = {0,0,-1,45000,MODE_COM}; // new 15 minute COM mode to be added
+			SCHItem transitionBus = {0,0,-1,5000,MODE_BUS_PRIORITY}; // 5 second transition to bus priority
 			currentSchedule.push_front(newCOM);
 			currentSchedule.push_front(transitionBus);
+		}
+
+		if(resetRequest){
+			resetRequest = false;
+			modeManager->SetMode(MODE_RESET);
+			SCHItem resetItem = {0,0,-1,40000,MODE_RESET};
+			currentSchedule.push_front(resetItem);
 		}
 
 		GPSServer * gpsServer = dynamic_cast<GPSServer *>(Factory::GetInstance(GPS_SERVER_SINGLETON));

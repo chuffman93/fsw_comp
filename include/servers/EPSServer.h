@@ -79,17 +79,20 @@ private:
 	void loopInit();
 	void loopMonitor();
 	void loopDiagnostic();
+	void loopReset();
 
 	BEGIN_STATE_MAP
 	STATE_MAP_ENTRY(&EPSServer::loopInit)
 	STATE_MAP_ENTRY(&EPSServer::loopMonitor)
 	STATE_MAP_ENTRY(&EPSServer::loopDiagnostic)
+	STATE_MAP_ENTRY(&EPSServer::loopReset)
 	END_STATE_MAP
 
 	enum EPS_States{
 		ST_INIT = 0,
 		ST_MONITOR,
-		ST_DIAGNOSTIC
+		ST_DIAGNOSTIC,
+		ST_RESET
 	};
 
 };

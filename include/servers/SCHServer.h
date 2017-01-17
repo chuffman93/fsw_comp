@@ -26,10 +26,6 @@ namespace Servers{
 
 class SCHServer : public SubsystemServer, public AllStar::Core::Singleton
 {
-	/*! \brief Declare Factory a friend class
-	*
-	*	This allows factory to call SCHServer's private constructor
-	*/
 	friend class AllStar::Core::Factory;
 	typedef struct{
 		double latitude;
@@ -48,44 +44,22 @@ class SCHServer : public SubsystemServer, public AllStar::Core::Singleton
 public:
 	void SubsystemLoop(void);
 
-	/*! \brief Registers this server's message handlers.
-	*
-	*  \note Dispatcher must be initialized before this
-	*      function can be called.
-	*
-	*  Registers any message handlers with the member
-	*  MessageHandlerRegistry and modifies permissions
-	*  with the member Arbitrator. Then those two members
-	*  are added to the Dispatcher.
-	*/
 	bool RegisterHandlers();
 
 	void LoadNextSchedule(void);
 
 	void RequestCOMMode(void);
 
+	void RequestReset(void);
+
 private:
-	/*! \brief Initialize the SCHServer Class
-	*
-	*  Initializes the operating system constructs needed for
-	*  PLDServer to work properly.
-	*/
+
 	static void Initialize(void);
 
-	/*! \brief Static Destructor for SCHServer
-	*
-	*  Frees all internal memory use, frees all operating system
-	*  objects used, and deletes the singleton instance pointer.
-	*/
 #ifdef TEST
 	static void Destroy(void);
 #endif
 
-	/*! \brief Checks if SCHServer Class is initialized
-	*
-	*  \return true if the initialization was successful and
-	*  false otherwise.
-	*/
 	bool IsFullyInitialized(void);
 
 	SCHServer(std::string nameIn, LocationIDType idIn);
@@ -100,8 +74,8 @@ private:
 
 	bool scheduleRunning;
 	bool surpriseCOM;
+	bool resetRequest;
 
-	/// \brief The vectors of mode schedules and payload schedules.
 	std::list<SCHItem> defaultSchedule;
 	std::list<SCHItem> currentSchedule;
 	std::list<SCHItem> nextSchedule;

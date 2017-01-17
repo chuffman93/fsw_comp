@@ -136,6 +136,7 @@ bool EPSTestAlive(){
 void EPSPowerCycle()
 {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log(LOGGER_LEVEL_FATAL, "Sending EPS power cycle!");
 	ACPPacket * query = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, SUBSYSTEM_RESET_CMD);
 	ACPPacket * response = DispatchPacket(query);
 

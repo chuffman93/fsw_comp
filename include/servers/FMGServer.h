@@ -65,6 +65,7 @@ public:
 
 	// FileQueue
 	queue<FilePacket> FileQueue;
+	bool resetReady;
 
 private:
 	static void Initialize(void);
@@ -94,12 +95,21 @@ private:
 	AllStar::Core::Arbitrator arby;
 
 	// Modes
-	void loopInit();;
+	void loopInit();
+	void loopRun();
+	void loopReset();
 
 	BEGIN_STATE_MAP
 	STATE_MAP_ENTRY(&FMGServer::loopInit)
+	STATE_MAP_ENTRY(&FMGServer::loopRun)
+	STATE_MAP_ENTRY(&FMGServer::loopReset)
 	END_STATE_MAP
 
+	enum FMG_States{
+		ST_INIT = 0,
+		ST_RUN,
+		ST_RESET
+	};
 };
 
 }

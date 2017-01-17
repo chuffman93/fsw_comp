@@ -82,13 +82,13 @@ void ACSServer::loopInit(){
 
 		logger->Log(LOGGER_LEVEL_INFO, "ACS passed self check");
 
-		currentState = ST_DISABLED;
+		currentState = ST_SUN_SOAK;
 	}else{
 		logger->Log(LOGGER_LEVEL_FATAL, "ACS non-responsive in init");
 	}
 }
 
-void ACSServer::loopDisabled(){
+void ACSServer::loopSunSoak(){
 	ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
@@ -98,14 +98,24 @@ void ACSServer::loopDisabled(){
 		}
 	}
 
-	if(modeManager->GetMode() == MODE_COM)
+	// check for state transitions from mode switches
+	SystemModeEnum currentMode = modeManager->GetMode();
+	switch(currentMode){
+	case MODE_COM:
 		currentState = ST_COM_START;
-
-	if(modeManager->GetMode() == MODE_PLD_PRIORITY)
+		break;
+	case MODE_PLD_PRIORITY:
 		currentState = ST_PLD_START;
-
-	if(modeManager->GetMode() == MODE_DIAGNOSTIC)
+		break;
+	case MODE_DIAGNOSTIC:
 		currentState = ST_DIAGNOSTIC;
+		break;
+	case MODE_RESET:
+		currentState = ST_RESET;
+		break;
+	default:
+		break;
+	}
 
 	// if ACS is powered off due to a fault, switch to the init state
 	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS])
@@ -119,7 +129,7 @@ void ACSServer::loopPLDStart(){
 		sleepTime = 1000;
 		hsDelays = 15;
 	}else{
-		currentState = ST_DISABLED;
+		currentState = ST_SUN_SOAK;
 	}
 }
 
@@ -141,7 +151,7 @@ void ACSServer::loopPLDPointing(){
 void ACSServer::loopPLDStop(){
 	sleepTime = 5000;
 	hsDelays = 3;
-	currentState = ST_DISABLED;
+	currentState = ST_SUN_SOAK;
 }
 
 void ACSServer::loopCOMStart(){
@@ -149,7 +159,7 @@ void ACSServer::loopCOMStart(){
 		currentState = ST_COM_POINTING;
 		ACSOrientation = ACS_GND_ORIENTED;
 	}else{
-		currentState = ST_DISABLED;
+		currentState = ST_SUN_SOAK;
 	}
 }
 
@@ -169,13 +179,22 @@ void ACSServer::loopCOMPointing(){
 }
 
 void ACSServer::loopCOMStop(){
-	currentState = ST_DISABLED;
+	currentState = ST_SUN_SOAK;
 }
 
 void ACSServer::loopDiagnostic(){
 	ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	if(modeManager->GetMode() != MODE_DIAGNOSTIC)
-		currentState = ST_DISABLED;
+		currentState = ST_SUN_SOAK;
+}
+
+void ACSServer::loopReset(){
+	// turn ACS off?
+	for(uint8 i = 0; i < 60; i++){
+		usleep(1000000);
+	}
+
+	currentState = ST_SUN_SOAK;
 }
 
 // -------------------------------------------- ACS Methods --------------------------------------------

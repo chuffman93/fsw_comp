@@ -75,6 +75,7 @@ private:
 	void loopDownlinkPrep();
 	void loopDownlink();
 	void loopPostPass();
+	void loopReset();
 
 	BEGIN_STATE_MAP
 	STATE_MAP_ENTRY(&CMDServer::loopInit)
@@ -87,6 +88,7 @@ private:
 	STATE_MAP_ENTRY(&CMDServer::loopDownlinkPrep)
 	STATE_MAP_ENTRY(&CMDServer::loopDownlink)
 	STATE_MAP_ENTRY(&CMDServer::loopPostPass)
+	STATE_MAP_ENTRY(&CMDServer::loopReset)
 	END_STATE_MAP
 
 	enum CMD_States {
@@ -99,7 +101,8 @@ private:
 		ST_UPLINK,
 		ST_DOWNLINK_PREP,
 		ST_DOWNLINK,
-		ST_POST_PASS
+		ST_POST_PASS,
+		ST_RESET,
 	};
 };
 

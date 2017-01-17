@@ -80,7 +80,7 @@ private:
 
 	// ------ State Machine ----------------------------------------------------------
 	void loopInit();
-	void loopDisabled();
+	void loopSunSoak();
 	void loopPLDStart();
 	void loopPLDPointing();
 	void loopPLDStop();
@@ -88,10 +88,11 @@ private:
 	void loopCOMPointing();
 	void loopCOMStop();
 	void loopDiagnostic();
+	void loopReset();
 
 	BEGIN_STATE_MAP
 	STATE_MAP_ENTRY(&ACSServer::loopInit)
-	STATE_MAP_ENTRY(&ACSServer::loopDisabled)
+	STATE_MAP_ENTRY(&ACSServer::loopSunSoak)
 	STATE_MAP_ENTRY(&ACSServer::loopPLDStart)
 	STATE_MAP_ENTRY(&ACSServer::loopPLDPointing)
 	STATE_MAP_ENTRY(&ACSServer::loopPLDStop)
@@ -99,18 +100,20 @@ private:
 	STATE_MAP_ENTRY(&ACSServer::loopCOMPointing)
 	STATE_MAP_ENTRY(&ACSServer::loopCOMStop)
 	STATE_MAP_ENTRY(&ACSServer::loopDiagnostic)
+	STATE_MAP_ENTRY(&ACSServer::loopReset)
 	END_STATE_MAP
 
 	enum ACS_State{
 		ST_INIT,
-		ST_DISABLED,
+		ST_SUN_SOAK,
 		ST_PLD_START,
 		ST_PLD_POINTING,
 		ST_PLD_STOP,
 		ST_COM_START,
 		ST_COM_POINTING,
 		ST_COM_STOP,
-		ST_DIAGNOSTIC
+		ST_DIAGNOSTIC,
+		ST_RESET
 	};
 
 };

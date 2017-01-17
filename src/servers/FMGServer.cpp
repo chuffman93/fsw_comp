@@ -111,7 +111,8 @@ FMGServer::FMGServer(string nameIn, LocationIDType idIn) :
 					MODLogger(MOD_FILE_PATH),
 					SSSLogger(SSS_FILE_PATH),
 					SWPLogger(SWP_FILE_PATH),
-					RADLogger(RAD_FILE_PATH)
+					RADLogger(RAD_FILE_PATH),
+					resetReady(false)
 					{
 }
 
@@ -158,6 +159,12 @@ void FMGServer::Log(FILServerDestinationEnum dest, string buf){
 
 // --------- State Machine -----------------------------------------------------------------------------------------
 void FMGServer::loopInit(void){
+	//nothing to initialize
+	currentState = ST_RUN;
+}
+
+void FMGServer::loopRun(void){
+	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	if (!FileQueue.empty()){
@@ -221,7 +228,19 @@ void FMGServer::loopInit(void){
 		}
 
 		FileQueue.pop();
+	}else if(modeManager->GetMode() == MODE_RESET){
+		currentState = ST_RESET;
 	}
+}
+
+void FMGServer::loopReset(void){
+	resetReady = true;
+	for(uint8 i = 0; i < 60; i++){
+		usleep(1000000);
+	}
+
+	resetReady = false;
+	currentState = ST_RUN;
 }
 
 // -----------------------------------------------------------------------------------------------------------------
