@@ -56,7 +56,7 @@ bool EPSToggleLED(bool state){
 	}
 
 	if(ret->isSuccess()){
-		logger->Log(LOGGER_LEVEL_INFO, "EPS LED Toggle successful");
+		logger->Log(LOGGER_LEVEL_DEBUG, "EPS LED Toggle successful");
 		return true;
 	}else{
 		logger->Log(LOGGER_LEVEL_WARN, "EPS LED Toggle failed");
@@ -79,7 +79,7 @@ bool EPSBlinkRate(uint16 rate){
 	}
 
 	if(ret->isSuccess()){
-		logger->Log(LOGGER_LEVEL_INFO, "EPS LED set rate successful");
+		logger->Log(LOGGER_LEVEL_DEBUG, "EPS LED set rate successful");
 		return true;
 	}else{
 		logger->Log(LOGGER_LEVEL_WARN, "EPS LED set rate failed");
@@ -110,8 +110,8 @@ int EPSLEDData(){
 		uint8 * msgPtr = ret->getMessageBuff();
 		uint8 powerStatus = GetUInt8(msgPtr++);
 		uint16 result = GetUInt16(msgPtr);
-		logger->Log(LOGGER_LEVEL_INFO, "EPS LED power state: %u", powerStatus);
-		logger->Log(LOGGER_LEVEL_INFO, "EPS LED blink rate:  %u", result);
+		logger->Log(LOGGER_LEVEL_DEBUG, "EPS LED power state: %u", powerStatus);
+		logger->Log(LOGGER_LEVEL_DEBUG, "EPS LED blink rate:  %u", result);
 		return (powerStatus + result);
 	}
 }
@@ -124,7 +124,7 @@ bool EPSTestAlive(){
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret->isSuccess()){
-		logger->Log(LOGGER_LEVEL_INFO, "EPS is alive");
+		logger->Log(LOGGER_LEVEL_DEBUG, "EPS is alive");
 		return true;
 	}else{
 		logger->Log(LOGGER_LEVEL_FATAL, "EPS is not alive");

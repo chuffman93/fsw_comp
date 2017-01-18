@@ -238,10 +238,10 @@ void ACSServer::CheckHealthStatus(){
 		ACSState.RW_Speed_Y		= outputArray[0];
 		ACSState.RW_Speed_Z		= outputArray[0];
 
-		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: MRP X:       %u", ACSState.MRP_X);
-		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: MRP Y:       %u", ACSState.MRP_Y);
-		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: MRP Z:       %u", ACSState.MRP_Z);
-		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: ST Status:   %u", ACSState.ST_Status);
+		logger->Log(LOGGER_LEVEL_INFO, "ACS H&S: MRP X:       %u", ACSState.MRP_X);
+		logger->Log(LOGGER_LEVEL_INFO, "ACS H&S: MRP Y:       %u", ACSState.MRP_Y);
+		logger->Log(LOGGER_LEVEL_INFO, "ACS H&S: MRP Z:       %u", ACSState.MRP_Z);
+		logger->Log(LOGGER_LEVEL_INFO, "ACS H&S: ST Status:   %u", ACSState.ST_Status);
 		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: RW Speed X:  %u", ACSState.RW_Speed_X);
 		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: RW Speed Y:  %u", ACSState.RW_Speed_Y);
 		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: RW Speed Z:  %u", ACSState.RW_Speed_Z);
