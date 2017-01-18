@@ -37,7 +37,8 @@ void FileManager::CloseFile(){
 	}
 	file_open = false;
 
-	if (FMGServer::move_from_CUR) {
+	FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
+	if (fmgServer->checkMoveFromCur()) {
 		MoveFile();
 	}
 }
@@ -119,7 +120,9 @@ FMGServer::FMGServer(string nameIn, LocationIDType idIn) :
 					SSSLogger(SSS_FILE_PATH),
 					SWPLogger(SWP_FILE_PATH),
 					RADLogger(RAD_FILE_PATH),
-					resetReady(false)
+					resetReady(false),
+					comReady(false),
+					move_from_CUR(false)
 					{
 }
 
@@ -270,25 +273,32 @@ void FMGServer::loopRun(void) {
 	}
 }
 
-void FMGServer::loopCom(void) {
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-
+void FMGServer::loopComPrep(void) {
 	CloseAndMoveAllFiles();
 	move_from_CUR = false;
 
 	PrepVerboseHST();
+
+	comReady = true;
+	currentState = ST_COM;
+}
+
+void FMGServer::loopCom(void) {
+	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
 	if (!FileQueue.empty()) {
 		CallLog();
 	}
 	else if (modeManager->GetMode() != MODE_COM) {
 		if (modeManager->GetMode() == MODE_RESET) {
+			comReady = false;
 			currentState = ST_RESET;
 		}
 		else {
 			move_from_CUR = true;
 			CloseAndMoveAllFiles();
 			system(CLEAR_CUR_DIRECTORIES_SCRIPT);
+			comReady = false;
 			currentState = ST_RUN;
 		}
 	}
