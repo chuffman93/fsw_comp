@@ -19,16 +19,20 @@
 namespace AllStar{
 namespace Servers{
 
-#define CMD_FILE_PATH		"/SD_2/CMD"
-#define DGN_FILE_PATH		"/SD_2/DGN"
-#define ERR_FILE_PATH		"/SD_2/ERR"
-#define GEN_FILE_PATH		"/SD_2/GEN"
-#define FSS_FILE_PATH		"/SD_2/FSS"
-#define HST_FILE_PATH		"/SD_2/HST"
-#define MOD_FILE_PATH		"/SD_2/MOD"
-#define SSS_FILE_PATH		"/SD_2/SSS"
-#define SWP_FILE_PATH		"/SD_2/SWP"
-#define RAD_FILE_PATH		"/SD_3/RAD"
+#define CMD_FILE_PATH			"/SD_2/CMD"
+#define DGN_FILE_PATH			"/SD_2/DGN"
+#define ERR_FILE_PATH			"/SD_2/ERR"
+#define GEN_FILE_PATH			"/SD_2/GEN"
+#define FSS_FILE_PATH			"/SD_2/FSS"
+#define HST_FILE_PATH			"/SD_2/HST"
+#define MOD_FILE_PATH			"/SD_2/MOD"
+#define SSS_FILE_PATH			"/SD_2/SSS"
+#define SWP_FILE_PATH			"/SD_2/SWP"
+#define RAD_FILE_PATH			"/SD_3/RAD"
+#define DOWNLINK_DIRECTORY  	"/home/root/downlink"
+#define VERBOSE_HST_DIRECTORY	"/home/root/HST"
+
+#define CLEAR_CUR_DIRECTORIES_SCRIPT "/home/root/scripts/clear_CUR_directories.sh"
 
 // TODO: Do we want to be able to set this from the ground?
 #define MAX_FILE_SIZE		500 // There is also an old enum to deal with this
@@ -43,6 +47,7 @@ class FileManager{
 public:
 	FileManager(string path);
 	void CloseFile(void);
+	void MoveFile(void);
 	void OpenFile(void);
 	void GetFileName(void);
 	void OpenNewFile(void);
@@ -63,9 +68,33 @@ public:
 	bool RegisterHandlers();
 	void Log(FILServerDestinationEnum dest, string buf);
 
+
+	bool isResetReady() const {
+		return resetReady;
+	}
+
+	void setResetReady(bool comReady) {
+		this->resetReady = comReady;
+	}
+
+	bool checkMoveFromCur() const {
+		return move_from_CUR;
+	}
+
+	void setMoveFromCur(bool moveFromCur) {
+		move_from_CUR = moveFromCur;
+	}
+
+	bool isComReady() const {
+		return comReady;
+	}
+
+	void setComReady(bool comReady) {
+		this->comReady = comReady;
+	}
+
 	// FileQueue
 	queue<FilePacket> FileQueue;
-	bool resetReady;
 
 private:
 	static void Initialize(void);
@@ -94,20 +123,33 @@ private:
 	AllStar::Core::MessageHandlerRegistry reg;
 	AllStar::Core::Arbitrator arby;
 
+	bool resetReady;
+	bool move_from_CUR;
+	bool comReady;
+	void CloseAndMoveAllFiles(void);
+	void CallLog(void);
+	void PrepVerboseHST(void);
+
 	// Modes
 	void loopInit();
 	void loopRun();
+	void loopComPrep();
+	void loopCom();
 	void loopReset();
 
 	BEGIN_STATE_MAP
 	STATE_MAP_ENTRY(&FMGServer::loopInit)
 	STATE_MAP_ENTRY(&FMGServer::loopRun)
+	STATE_MAP_ENTRY(&FMGServer::loopComPrep)
+	STATE_MAP_ENTRY(&FMGServer::loopCom)
 	STATE_MAP_ENTRY(&FMGServer::loopReset)
 	END_STATE_MAP
 
 	enum FMG_States{
 		ST_INIT = 0,
 		ST_RUN,
+		ST_COM_PREP,
+		ST_COM,
 		ST_RESET
 	};
 };
