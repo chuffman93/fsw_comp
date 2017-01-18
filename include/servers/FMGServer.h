@@ -43,6 +43,7 @@ class FileManager{
 public:
 	FileManager(string path);
 	void CloseFile(void);
+	void FileManager::MoveFile(void);
 	void OpenFile(void);
 	void GetFileName(void);
 	void OpenNewFile(void);
@@ -94,20 +95,27 @@ private:
 	AllStar::Core::MessageHandlerRegistry reg;
 	AllStar::Core::Arbitrator arby;
 
+	bool move_from_CUR;
+	void CloseAndMoveAllFiles(void);
+	void CallLog(void);
+
 	// Modes
 	void loopInit();
 	void loopRun();
+	void loopCom();
 	void loopReset();
 
 	BEGIN_STATE_MAP
 	STATE_MAP_ENTRY(&FMGServer::loopInit)
 	STATE_MAP_ENTRY(&FMGServer::loopRun)
+	STATE_MAP_ENTRY(&FMGServer::loopCom)
 	STATE_MAP_ENTRY(&FMGServer::loopReset)
 	END_STATE_MAP
 
 	enum FMG_States{
 		ST_INIT = 0,
 		ST_RUN,
+		ST_COM,
 		ST_RESET
 	};
 };
