@@ -42,7 +42,7 @@ CMDServer::CMDServer(string nameIn, LocationIDType idIn) :
 	}
 
 	startTime = getTimeInSec();
-	resetPeriod = 24*60*60; // one day
+	resetPeriod = 24*60*60;
 }
 
 CMDServer::~CMDServer(){

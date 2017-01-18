@@ -27,30 +27,45 @@ namespace Servers{
 class SCHServer : public SubsystemServer, public AllStar::Core::Singleton
 {
 	friend class AllStar::Core::Factory;
-	typedef struct{
-		double latitude;
-		double longitude;
-		double radius;
-		uint32_t timeoutms;
-		SystemModeEnum mode;
-	}SCHItem;
 
-	typedef struct {
-		uint8_t sizeOfDefaultSchedule;
-		SCHItem defaultScheduleArray[SCHEDULE_MAX_SIZE];
-	}SCHConfig;
 
 
 public:
+	struct SCHItem{
+		double latitude;
+		double longitude;
+		double radius;
+		bool enter_mode;
+		int32 timeout;
+		SystemModeEnum mode;
+		int32 duration;
+	};
+
+	struct SCHConfig{
+		uint8_t sizeOfDefaultSchedule;
+		SCHItem defaultScheduleArray[SCHEDULE_MAX_SIZE];
+	};
+
+	void EnterNextMode(void);
+	void EnterBusMode(void);
+	int LoadDefaultScheduleConfigurations(void);
 	void SubsystemLoop(void);
 
 	bool RegisterHandlers();
 
-	void LoadNextSchedule(void);
-
 	void RequestCOMMode(void);
 
 	void RequestReset(void);
+
+	void LoadDefaultSchedule(void);
+
+	SCHItem ParseLine(string line);
+
+	int LoadNextSchedule(void);
+
+	/// \brief The vectors of mode schedules and payload schedules.
+	std::list<SCHItem> defaultSchedule;
+	std::list<SCHItem> currentSchedule;
 
 private:
 
@@ -72,13 +87,12 @@ private:
 	AllStar::Core::MessageHandlerRegistry reg;
 	AllStar::Core::Arbitrator arby;
 
-	bool scheduleRunning;
 	bool surpriseCOM;
 	bool resetRequest;
-
-	std::list<SCHItem> defaultSchedule;
-	std::list<SCHItem> currentSchedule;
-	std::list<SCHItem> nextSchedule;
+	int64 lastWakeTime;
+	int32 modeEnterTime;
+	int32 lastBusEnter;
+	bool itemEntered;
 
 	BEGIN_STATE_MAP
 	END_STATE_MAP
