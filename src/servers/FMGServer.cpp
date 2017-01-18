@@ -237,7 +237,13 @@ void FMGServer::CallLog(){
 	}
 
 	FileQueue.pop();
+}
 
+void FMGServer::PrepVerboseHST(void){
+	// tar the two most recent health and status files into verbose HST directory
+	char cmd[256];
+	sprintf(cmd, "tar -czf %s -C %s `ls -tr %s | head -2`", VERBOSE_HST_DIRECTORY, HST_FILE_PATH, HST_FILE_PATH);
+	system(cmd);
 }
 // -----------------------------------------------------------------------------------------------------------------
 
@@ -269,6 +275,8 @@ void FMGServer::loopCom(void) {
 
 	CloseAndMoveAllFiles();
 	move_from_CUR = false;
+
+	PrepVerboseHST();
 
 	if (!FileQueue.empty()) {
 		CallLog();
