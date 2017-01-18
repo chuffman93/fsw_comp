@@ -280,6 +280,7 @@ void FMGServer::loopCom(void) {
 		else {
 			move_from_CUR = true;
 			CloseAndMoveAllFiles();
+			system(CLEAR_CUR_DIRECTORIES_SCRIPT);
 			currentState = ST_RUN;
 		}
 	}

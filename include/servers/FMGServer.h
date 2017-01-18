@@ -30,6 +30,8 @@ namespace Servers{
 #define SWP_FILE_PATH		"/SD_2/SWP"
 #define RAD_FILE_PATH		"/SD_3/RAD"
 
+#define CLEAR_CUR_DIRECTORIES_SCRIPT "/home/root/scripts/clear_CUR_directories.sh"
+
 // TODO: Do we want to be able to set this from the ground?
 #define MAX_FILE_SIZE		500 // There is also an old enum to deal with this
 
