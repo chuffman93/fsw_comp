@@ -22,20 +22,29 @@ namespace AllStar{
 namespace Servers{
 
 // ----- File Manager functions ------------------------------------------------------------------------------------
-FileManager::FileManager(string path){
+FileManager::FileManager(string path, string tlmType){
 	file_path = path;
+	TLM_type = tlmType;
 	bytes_written = 0;
 	file_open = false;
 }
 
 void FileManager::CloseFile(){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FILE * fd;
 
 	// Close the file
-	fclose(file);
+	if (file_open) {
+		fclose(file);
+	}
 	file_open = false;
 
+	FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
+	if (fmgServer->checkMoveFromCur()) {
+		MoveFile();
+	}
+}
+
+void FileManager::MoveFile(){
 	// Move the file out of CUR
 	string new_file_name = file_name;
 	new_file_name.erase(file_path.length(), 4);
@@ -56,7 +65,7 @@ void FileManager::GetFileName(){
 	int time = getTimeInSec();
 	int boot_count = 0;// TODO
 	char fileName[100];
-	sprintf(fileName, "%s/CUR/GEN_%d_%d", file_path.c_str(), boot_count, time);
+	sprintf(fileName, "%s/CUR/%s_%d_%d", file_path.c_str(), TLM_type, boot_count, time);
 	file_name = fileName;
 }
 
@@ -102,15 +111,19 @@ FMGServer::FMGServer(string nameIn, LocationIDType idIn) :
 					SubsystemServer(nameIn, idIn, 10, 1000),
 					Singleton(),
 					arby(idIn),
-					GENLogger(GEN_FILE_PATH),
-					HSTLogger(HST_FILE_PATH),
-					MODLogger(MOD_FILE_PATH),
-					SWPLogger(SWP_FILE_PATH),
-					ERRLogger(ERR_FILE_PATH),
-					DGNLogger(DGN_FILE_PATH),
-					FSSLogger(FSS_FILE_PATH),
-					SSSLogger(SSS_FILE_PATH),
-					RADLogger(RAD_FILE_PATH)
+					CMDLogger(CMD_FILE_PATH, "CMD"),
+					DGNLogger(DGN_FILE_PATH, "DGN"),
+					ERRLogger(ERR_FILE_PATH, "ERR"),
+					FSSLogger(FSS_FILE_PATH, "FSS"),
+					GENLogger(GEN_FILE_PATH, "GEN"),
+					HSTLogger(HST_FILE_PATH, "HST"),
+					MODLogger(MOD_FILE_PATH, "MOD"),
+					SSSLogger(SSS_FILE_PATH, "SSS"),
+					SWPLogger(SWP_FILE_PATH, "SWP"),
+					RADLogger(RAD_FILE_PATH, "RAD"),
+					resetReady(false),
+					comReady(false),
+					move_from_CUR(false)
 					{
 }
 
@@ -146,76 +159,162 @@ bool FMGServer::RegisterHandlers(){
 	return success;
 }
 
+void FMGServer::CloseAndMoveAllFiles(){
+	CMDLogger.CloseFile();
+	DGNLogger.CloseFile();
+	ERRLogger.CloseFile();
+	FSSLogger.CloseFile();
+	GENLogger.CloseFile();
+	HSTLogger.CloseFile();
+	MODLogger.CloseFile();
+	SSSLogger.CloseFile();
+	SWPLogger.CloseFile();
+    RADLogger.CloseFile();
+}
+
 void FMGServer::Log(FILServerDestinationEnum dest, string buf){
 	FilePacket packet;
 	packet.buffer = buf;
 	packet.dest = dest;
 	FileQueue.push(packet);
 }
+
+void FMGServer::CallLog(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	string str;
+	str = FileQueue.front().buffer;
+
+	switch (FileQueue.front().dest){
+	case DESTINATION_CMD:
+		if ( !CMDLogger.Log(str.c_str()) ) {
+			logger->Log(LOGGER_LEVEL_WARN, "Error writing to Command File");
+		}
+		break;
+	case DESTINATION_DGN:
+		if ( !DGNLogger.Log(str.c_str()) ) {
+			logger->Log(LOGGER_LEVEL_WARN, "Error writing to Diagnostic File");
+		}
+		break;
+	case DESTINATION_ERR:
+		if ( !ERRLogger.Log(str.c_str()) ) {
+			logger->Log(LOGGER_LEVEL_WARN, "Error writing to Error File");
+		}
+		break;
+	case DESTINATION_FSS:
+		if ( !FSSLogger.Log(str.c_str()) ) {
+			logger->Log(LOGGER_LEVEL_WARN, "Error writing to File System File");
+		}
+		break;
+	case DESTINATION_GEN:
+		if ( !GENLogger.Log(str.c_str()) ) {
+			logger->Log(LOGGER_LEVEL_WARN, "Error writing to General File");
+		}
+		break;
+	case DESTINATION_HST:
+		if( !HSTLogger.Log(str.c_str()) ) {
+			logger->Log(LOGGER_LEVEL_WARN, "Error writing to Health and Status File");
+		}
+		break;
+	case DESTINATION_MOD:
+		if( !MODLogger.Log(str.c_str()) ) {
+			logger->Log(LOGGER_LEVEL_WARN, "Error writing to Mode File");
+		}
+		break;
+	case DESTINATION_SSS:
+		if ( !SSSLogger.Log(str.c_str()) ) {
+			logger->Log(LOGGER_LEVEL_WARN, "Error writing to Science System File");
+		}
+		break;
+	case DESTINATION_SWP:
+		if ( !SWPLogger.Log(str.c_str()) ) {
+			logger->Log(LOGGER_LEVEL_WARN, "Error writing to HotSwap File");
+		}
+		break;
+	case DESTINATION_RAD:
+		if ( !RADLogger.Log(str.c_str()) ) {
+			logger->Log(LOGGER_LEVEL_WARN, "Error writing to Rad File");
+		}
+		break;
+	default:
+		logger->Log(LOGGER_LEVEL_WARN, "FMGServer: Unknown destination!");
+		break;
+	}
+
+	FileQueue.pop();
+}
+
+void FMGServer::PrepVerboseHST(void){
+	// tar the two most recent health and status files into verbose HST directory
+	char cmd[256];
+	sprintf(cmd, "tar -czf %s -C %s `ls -tr %s | head -2`", VERBOSE_HST_DIRECTORY, HST_FILE_PATH, HST_FILE_PATH);
+	system(cmd);
+}
 // -----------------------------------------------------------------------------------------------------------------
 
 
 // --------- State Machine -----------------------------------------------------------------------------------------
 void FMGServer::loopInit(void){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	//nothing to initialize
+	currentState = ST_RUN;
+}
 
-	if (!FileQueue.empty()){
-		string str;
-		str = FileQueue.front().buffer;
+void FMGServer::loopRun(void) {
+	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
-		switch (FileQueue.front().dest){
-		case DESTINATION_GEN:
-			if ( !GENLogger.Log(str.c_str()) ) {
-				logger->Log(LOGGER_LEVEL_WARN, "Error writing to General File");
-			}
-			break;
-		case DESTINATION_HST:
-			if( !HSTLogger.Log(str.c_str()) ) {
-				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Health File");
-			}
-			break;
-		case DESTINATION_MOD:
-			if( !MODLogger.Log(str.c_str()) ) {
-				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Mode File");
-			}
-			break;
-		case DESTINATION_SWP:
-			if ( !SWPLogger.Log(str.c_str()) ) {
-				logger->Log(LOGGER_LEVEL_WARN, "Error writing to HotSwap File");
-			}
-			break;
-		case DESTINATION_ERR:
-			if ( !ERRLogger.Log(str.c_str()) ) {
-				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Error File");
-			}
-			break;
-		case DESTINATION_DGN:
-			if ( !DGNLogger.Log(str.c_str()) ) {
-				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Diagnostic File");
-			}
-			break;
-		case DESTINATION_FSS:
-			if ( !FSSLogger.Log(str.c_str()) ) {
-				logger->Log(LOGGER_LEVEL_WARN, "Error writing to File System File");
-			}
-			break;
-		case DESTINATION_SSS:
-			if ( !SSSLogger.Log(str.c_str()) ) {
-				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Science System File");
-			}
-			break;
-		case DESTINATION_RAD:
-			if ( !RADLogger.Log(str.c_str()) ) {
-				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Rad File");
-			}
-			break;
-		default:
-			logger->Log(LOGGER_LEVEL_WARN, "FMGServer: Unknown destination!");
-			break;
-		}
+	move_from_CUR = true;
 
-		FileQueue.pop();
+	if (!FileQueue.empty()) {
+		CallLog();
 	}
+	else if (modeManager->GetMode() == MODE_RESET) {
+		currentState = ST_RESET;
+	}
+	else if (modeManager->GetMode() == MODE_COM){
+		currentState = ST_COM;
+	}
+}
+
+void FMGServer::loopComPrep(void) {
+	CloseAndMoveAllFiles();
+	move_from_CUR = false;
+
+	PrepVerboseHST();
+
+	comReady = true;
+	currentState = ST_COM;
+}
+
+void FMGServer::loopCom(void) {
+	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+
+	if (!FileQueue.empty()) {
+		CallLog();
+	}
+	else if (modeManager->GetMode() != MODE_COM) {
+		if (modeManager->GetMode() == MODE_RESET) {
+			comReady = false;
+			currentState = ST_RESET;
+		}
+		else {
+			move_from_CUR = true;
+			CloseAndMoveAllFiles();
+			system(CLEAR_CUR_DIRECTORIES_SCRIPT);
+			comReady = false;
+			currentState = ST_RUN;
+		}
+	}
+}
+
+void FMGServer::loopReset(void){
+	move_from_CUR = true;
+	CloseAndMoveAllFiles();
+	resetReady = true;
+	for(uint8 i = 0; i < 60; i++){
+		usleep(1000000);
+	}
+
+	resetReady = false;
+	currentState = ST_RUN;
 }
 
 // -----------------------------------------------------------------------------------------------------------------

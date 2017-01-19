@@ -5,15 +5,24 @@
 #include "servers/CMDStdTasks.h"
 #include <sys/stat.h>
 #include <string>
+#include <stdlib.h>
 
 using namespace std;
 using namespace AllStar::Core;
 using namespace AllStar::Servers;
 
-#define TEST_DIR "/home/root/CMDTest"
-#define FILE1 TEST_DIR "/test1.txt"
-#define FILE2 TEST_DIR "/test2.txt"
-#define FILE3 TEST_DIR "/test3.txt"
+#define TEST_DIR	"/home/root/CMDTest"
+#define TAR_DIR		TEST_DIR "tar"
+
+#define FILE1 		TEST_DIR "/test1.txt"
+#define FILE2 		TEST_DIR "/test2.txt"
+#define FILE3 		TEST_DIR "/test3.txt"
+
+#define TAR_FILE1	TAR_DIR "/test1.txt"
+#define TAR_FILE2	TAR_DIR "/test2.txt"
+#define TAR_FILE3	TAR_DIR "/test3.txt"
+
+#define TARBALL		"/home/root/CMDtest.tar"
 
 void create_test_file_system(){
 	mkdir(TEST_DIR, 0777);
@@ -69,19 +78,27 @@ TEST(TestCMDStdTasks, testGetFileSize){
 }
 
 TEST(TestCMDStdTasks, testPackageFiles){
-	// NOTE: This test only checks the the tar exists,
-	// Need to manually untar the file and check that it is correct
-
 	create_test_file_system();
+	packageFiles(TARBALL, TEST_DIR, "", 5);
 
-	const char * tar_file = "/home/root/CMDtest.tar";
-	packageFiles(tar_file, TEST_DIR, "", 5);
+	ASSERT_NE(access(TARBALL, F_OK), -1);
 
-	const int file_exists = access(tar_file, F_OK);
-	ASSERT_NE(file_exists, -1);
+	char cmd[100];
+	sprintf(cmd, "tar -xzf %s -C %s", TARBALL, TAR_DIR);
+	mkdir(TAR_DIR, 0777);
+	system(cmd);
+
+	ASSERT_NE(access(TAR_DIR, F_OK), -1);
+	ASSERT_NE(access(TAR_FILE1, F_OK), -1);
+	ASSERT_NE(access(TAR_FILE2, F_OK), -1);
+	ASSERT_NE(access(TAR_FILE3, F_OK), -1);
 
 	delete_test_file_system();
-	remove(tar_file);
+	remove(TARBALL);
+	remove(TAR_FILE1);
+	remove(TAR_FILE2);
+	remove(TAR_FILE3);
+	remove(TAR_DIR);
 }
 
 // link to DLT format: http://thinker.colorado.edu/projects/fsw/wiki/Deletion_File

@@ -21,6 +21,7 @@ namespace AllStar{
 namespace Servers{
 
 AllStar::Core::ACPPacket * PLDHealthStatus(void);
+void PLDPrepReset();
 
 }
 }

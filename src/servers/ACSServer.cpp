@@ -31,6 +31,7 @@ namespace Servers{
 // -------------------------------------- Necessary Methods --------------------------------------
 ACSServer::ACSServer(string nameIn, LocationIDType idIn) :
 		SubsystemServer(nameIn, idIn, ACS_SLEEP_TIME, ACS_HS_DELAYS), Singleton(), arby(idIn), ACSOrientation(ACS_UNORIENTED){
+	ACSState = {0,0,0,0,0,0,0,7};
 }
 
 ACSServer::~ACSServer() {
@@ -81,13 +82,13 @@ void ACSServer::loopInit(){
 
 		logger->Log(LOGGER_LEVEL_INFO, "ACS passed self check");
 
-		currentState = ST_DISABLED;
+		currentState = ST_SUN_SOAK;
 	}else{
 		logger->Log(LOGGER_LEVEL_FATAL, "ACS non-responsive in init");
 	}
 }
 
-void ACSServer::loopDisabled(){
+void ACSServer::loopSunSoak(){
 	ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
@@ -97,14 +98,24 @@ void ACSServer::loopDisabled(){
 		}
 	}
 
-	if(modeManager->GetMode() == MODE_COM)
+	// check for state transitions from mode switches
+	SystemModeEnum currentMode = modeManager->GetMode();
+	switch(currentMode){
+	case MODE_COM:
 		currentState = ST_COM_START;
-
-	if(modeManager->GetMode() == MODE_PLD_PRIORITY)
+		break;
+	case MODE_PLD_PRIORITY:
 		currentState = ST_PLD_START;
-
-	if(modeManager->GetMode() == MODE_DIAGNOSTIC)
+		break;
+	case MODE_DIAGNOSTIC:
 		currentState = ST_DIAGNOSTIC;
+		break;
+	case MODE_RESET:
+		currentState = ST_RESET;
+		break;
+	default:
+		break;
+	}
 
 	// if ACS is powered off due to a fault, switch to the init state
 	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS])
@@ -118,7 +129,7 @@ void ACSServer::loopPLDStart(){
 		sleepTime = 1000;
 		hsDelays = 15;
 	}else{
-		currentState = ST_DISABLED;
+		currentState = ST_SUN_SOAK;
 	}
 }
 
@@ -140,7 +151,7 @@ void ACSServer::loopPLDPointing(){
 void ACSServer::loopPLDStop(){
 	sleepTime = 5000;
 	hsDelays = 3;
-	currentState = ST_DISABLED;
+	currentState = ST_SUN_SOAK;
 }
 
 void ACSServer::loopCOMStart(){
@@ -148,7 +159,7 @@ void ACSServer::loopCOMStart(){
 		currentState = ST_COM_POINTING;
 		ACSOrientation = ACS_GND_ORIENTED;
 	}else{
-		currentState = ST_DISABLED;
+		currentState = ST_SUN_SOAK;
 	}
 }
 
@@ -168,20 +179,74 @@ void ACSServer::loopCOMPointing(){
 }
 
 void ACSServer::loopCOMStop(){
-	currentState = ST_DISABLED;
+	currentState = ST_SUN_SOAK;
 }
 
 void ACSServer::loopDiagnostic(){
 	ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	if(modeManager->GetMode() != MODE_DIAGNOSTIC)
-		currentState = ST_DISABLED;
+		currentState = ST_SUN_SOAK;
+}
+
+void ACSServer::loopReset(){
+	ACSPrepReset();
+
+	for(uint8 i = 0; i < 60; i++){
+		usleep(1000000);
+	}
+
+	currentState = ST_SUN_SOAK;
 }
 
 // -------------------------------------------- ACS Methods --------------------------------------------
 void ACSServer::CheckHealthStatus(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
 	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, HEALTH_STATUS_CMD);
 	ACPPacket * HSRet = DispatchPacket(HSQuery);
-	// process this
+
+	if(HSRet == NULL){
+		logger->Log(LOGGER_LEVEL_ERROR, "ACSServer: NULL HSRet");
+		return;
+	}
+
+	if(HSRet->getLength() != ACSState.numItems*sizeof(uint32)){
+		logger->Log(LOGGER_LEVEL_WARN, "ACSServer: CheckHealthStatus(): incorrect message length! %u", HSRet->getLength());
+
+		//TODO: return error?
+		return;
+	}else{
+		logger->Log(LOGGER_LEVEL_INFO, "ACSServer: CheckHealthStatus(): packet dispatched, HSRet acquired");
+		// Parse buffer
+		uint8 * msgPtr = HSRet->getMessageBuff();
+		if(msgPtr==NULL){
+			//Error
+			return;
+		}
+
+		uint32 outputArray[ACSState.numItems];
+		for(uint8 i = 0; i < ACSState.numItems; i++){
+			outputArray[i] = GetUInt32(msgPtr);
+			msgPtr += 2;
+		}
+
+		ACSState.MRP_X			= outputArray[0];
+		ACSState.MRP_Y			= outputArray[0];
+		ACSState.MRP_Z			= outputArray[0];
+		ACSState.ST_Status		= outputArray[0];
+		ACSState.RW_Speed_X		= outputArray[0];
+		ACSState.RW_Speed_Y		= outputArray[0];
+		ACSState.RW_Speed_Z		= outputArray[0];
+
+		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: MRP X:       %u", ACSState.MRP_X);
+		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: MRP Y:       %u", ACSState.MRP_Y);
+		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: MRP Z:       %u", ACSState.MRP_Z);
+		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: ST Status:   %u", ACSState.ST_Status);
+		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: RW Speed X:  %u", ACSState.RW_Speed_X);
+		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: RW Speed Y:  %u", ACSState.RW_Speed_Y);
+		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: RW Speed Z:  %u", ACSState.RW_Speed_Z);
+
+	}
 }
 
 } // End Namespace servers

@@ -67,24 +67,27 @@ private:
 	AllStar::Core::MessageHandlerRegistry reg;
 	AllStar::Core::Arbitrator arby;
 
+	// Gather CDH data at a given frequency
+	void readHealth(uint8 frequency, uint32 timeUnit);
+
 	// Modes
 	void loopInit();
 	void loopMonitor();
 	void loopDiagnostic();
-
-	// Gather CDH data at a given frequency
-	void readHealth(uint8 frequency, uint32 timeUnit);
+	void loopReset();
 
 	BEGIN_STATE_MAP
 	STATE_MAP_ENTRY(&CDHServer::loopInit)
 	STATE_MAP_ENTRY(&CDHServer::loopMonitor)
 	STATE_MAP_ENTRY(&CDHServer::loopDiagnostic)
+	STATE_MAP_ENTRY(&CDHServer::loopReset)
 	END_STATE_MAP
 
 	enum CDH_States {
 		ST_INIT = 0,
 		ST_MONITOR,
-		ST_DIAGNOSTIC
+		ST_DIAGNOSTIC,
+		ST_RESET
 	};
 };
 

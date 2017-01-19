@@ -29,5 +29,11 @@ ACPPacket * PLDHealthStatus(void)
 	return HSRet;
 }
 
+// Standard
+void PLDPrepReset(){
+	ACPPacket * cmd = new ACPPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, SUBSYSTEM_RESET_CMD);
+	ACPPacket * ret = DispatchPacket(cmd); // no need to check the return, we're restarting anyway
+}
+
 } // end namespace servers
 } // end namespace AllStar

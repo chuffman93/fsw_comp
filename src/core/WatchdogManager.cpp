@@ -138,6 +138,7 @@ bool WatchdogManager::DeleteTask(PThread *&pThread){
 }
 
 void * WatchdogManager::WatchdogManagerTask(){
+	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	clock_t startTime = getTimeInMillis();
 	int64 lastWakeTime = startTime;
@@ -148,9 +149,11 @@ void * WatchdogManager::WatchdogManagerTask(){
 	FMGServer * fileServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
 
 	while (1){
-		if (watchdogManager->AllRunningTasksActive()){
-			// all running
-		}else{
+		if (modeManager->GetMode() == MODE_RESET){
+			usleep(30000000); // allow 30 seconds for reset
+		}
+
+		if (!watchdogManager->AllRunningTasksActive()){
 			// Reset inactive tasks
 			if (watchdogManager->TakeLock(MAX_BLOCK_TIME) == true){
 				for (IteratorType it = watchdogManager->taskMap.begin(); it != watchdogManager->taskMap.end(); ++it){

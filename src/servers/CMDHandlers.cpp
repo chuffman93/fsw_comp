@@ -33,7 +33,7 @@ ACPPacket * CMDSwitchProtocolHandler::Handle(const ACPPacket & packet){
 
 	uint32 outputArray[2];
 	for(uint8 i = 0; i < 2; i++){
-		outputArray[i] = GetUInt(msgPtr);
+		outputArray[i] = GetUInt32(msgPtr);
 		msgPtr += 4;
 	}
 

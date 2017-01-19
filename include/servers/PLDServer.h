@@ -49,6 +49,7 @@ private:
 	void loopShutdown();
 	void loopScience();
 	void loopDiagnostic();
+	void loopReset();
 
 	BEGIN_STATE_MAP
 	STATE_MAP_ENTRY(&PLDServer::loopInit)
@@ -57,6 +58,7 @@ private:
 	STATE_MAP_ENTRY(&PLDServer::loopScience)
 	STATE_MAP_ENTRY(&PLDServer::loopShutdown)
 	STATE_MAP_ENTRY(&PLDServer::loopDiagnostic)
+	STATE_MAP_ENTRY(&PLDServer::loopReset)
 	END_STATE_MAP
 
 	enum PLD_States {
@@ -65,7 +67,8 @@ private:
 		ST_STARTUP,
 		ST_SCIENCE,
 		ST_SHUTDOWN,
-		ST_DIAGNOSTIC
+		ST_DIAGNOSTIC,
+		ST_RESET
 	};
 };
 

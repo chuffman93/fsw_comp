@@ -88,12 +88,20 @@ void PLDServer::loopInit(){
 
 void PLDServer::loopIdle(){
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-
-	if(modeManager->GetMode() == MODE_PLD_PRIORITY)
+	SystemModeEnum currentMode = modeManager->GetMode();
+	switch(currentMode){
+	case MODE_PLD_PRIORITY:
 		currentState = ST_STARTUP;
-
-	if(modeManager->GetMode() == MODE_DIAGNOSTIC)
+		break;
+	case MODE_DIAGNOSTIC:
 		currentState = ST_DIAGNOSTIC;
+		break;
+	case MODE_RESET:
+		currentState = ST_RESET;
+		break;
+	default:
+		break;
+	}
 }
 
 void PLDServer::loopStartup(){
@@ -151,6 +159,16 @@ void PLDServer::loopDiagnostic(){
 	if(modeManager->GetMode() != MODE_DIAGNOSTIC){
 		currentState = ST_IDLE;
 	}
+}
+
+void PLDServer::loopReset(){
+	PLDPrepReset();
+
+	for(uint8 i = 0; i < 60; i++){
+		usleep(1000000);
+	}
+
+	currentState = ST_IDLE;
 }
 
 } // end namespace servers

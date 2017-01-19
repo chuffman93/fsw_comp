@@ -25,6 +25,9 @@ bool COMToggleLED(bool state);
 bool COMBlinkRate(uint16 rate);
 int COMLEDData();
 
+// Standard
+void COMPrepReset();
+
 // Diagnostic
 bool COMTestAlive();
 
