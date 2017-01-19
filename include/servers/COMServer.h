@@ -64,6 +64,14 @@ class COMServer : public SubsystemServer, public AllStar::Core::Singleton{
 public:
 	bool RegisterHandlers(void);
 
+	bool checkTxSilence() const {
+		return TXSilence;
+	}
+
+	void setTxSilence(bool txSilence) {
+		TXSilence = txSilence;
+	}
+
 private:
 	static void Initialize(void);
 
@@ -82,6 +90,7 @@ private:
 	AllStar::Core::Arbitrator arby;
 
 	BeaconData * beaconData;
+	bool TXSilence;
 
 	// ------ State Machine ---------------------------------------------------
 	void loopInit();
@@ -91,6 +100,8 @@ private:
 	void loopCOMFull();
 	void loopCOMStop();
 	void loopDiagnostic();
+	void loopEnterTXSilence();
+	void loopTXSilence();
 	void loopReset();
 
 	BEGIN_STATE_MAP
@@ -101,6 +112,8 @@ private:
 	STATE_MAP_ENTRY(&COMServer::loopCOMFull)
 	STATE_MAP_ENTRY(&COMServer::loopCOMStop)
 	STATE_MAP_ENTRY(&COMServer::loopDiagnostic)
+	STATE_MAP_ENTRY(&COMServer::loopEnterTXSilence)
+	STATE_MAP_ENTRY(&COMServer::loopTXSilence)
 	STATE_MAP_ENTRY(&COMServer::loopReset)
 	END_STATE_MAP
 
@@ -112,6 +125,8 @@ private:
 		ST_COM_FULL,
 		ST_COM_STOP,
 		ST_DIAGNOSTIC,
+		ST_ENTER_TX_SILENCE,
+		ST_TX_SILENCE,
 		ST_RESET
 		// BEACON, RX, TX ...
 	};

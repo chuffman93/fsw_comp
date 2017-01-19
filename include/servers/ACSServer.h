@@ -77,6 +77,7 @@ private:
 	ACSServer(std::string nameIn, LocationIDType idIn);
 	~ACSServer(void);
 	ACSServer & operator=(const ACSServer & source);
+	bool testsRun;
 
 	// ------ State Machine ----------------------------------------------------------
 	void loopInit();

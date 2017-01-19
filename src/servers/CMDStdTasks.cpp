@@ -11,6 +11,7 @@
 #include "servers/CMDServer.h"
 #include "servers/SCHServer.h"
 #include "servers/CMDStdTasks.h"
+#include "servers/COMServer.h"
 #include "servers/DispatchStdTasks.h"
 #include "core/StdTypes.h"
 #include "core/Singleton.h"
@@ -545,6 +546,7 @@ string getDownlinkFile(int fileNum){
 
 void executeFSWCommand(int command){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	COMServer * comServer = dynamic_cast<COMServer *> (Factory::GetInstance(COM_SERVER_SINGLETON));
 
 	switch(command){
 	case FSW_CMD_EPS_REBOOT:
@@ -554,7 +556,8 @@ void executeFSWCommand(int command){
 		logger->Log(LOGGER_LEVEL_WARN, "FSW CDH reboot command not implemented");
 		break;
 	case FSW_CMD_TX_SILENCE:
-		logger->Log(LOGGER_LEVEL_WARN, "FSW TX silence command not implemented");
+		logger->Log(LOGGER_LEVEL_WARN, "Commanding transmitter silence");
+		comServer->setTxSilence(true);
 		break;
 	default:
 		logger->Log(LOGGER_LEVEL_ERROR, "Unknown FSW command (bit flip probable)");

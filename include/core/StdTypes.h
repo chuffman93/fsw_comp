@@ -136,6 +136,8 @@ enum SubsystemOpcodes{
 };
 
 enum ACSCommandEnum{
+	ACS_TEST_DRIVER = 9,
+
 	ACS_OPCODE_MIN = SUBSYSTEM_CMD_MIN,
 	ACS_POINT_NADIR = ACS_OPCODE_MIN,
 	ACS_POINT_DEST,

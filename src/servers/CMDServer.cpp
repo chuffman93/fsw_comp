@@ -42,7 +42,7 @@ CMDServer::CMDServer(string nameIn, LocationIDType idIn) :
 	}
 
 	startTime = getTimeInSec();
-	resetPeriod = 24*60*60;
+	resetPeriod = 8*60;
 }
 
 CMDServer::~CMDServer(){
@@ -143,10 +143,9 @@ void CMDServer::loopIdle(void){
 void CMDServer::loopDiagnostic(){
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
-	runDiagnostic();
+	//runDiagnostic();
 
 	currentState = ST_IDLE;
-	modeManager->SetMode(MODE_BUS_PRIORITY);
 }
 
 void CMDServer::loopPassPrep(){

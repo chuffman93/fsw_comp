@@ -27,6 +27,7 @@ void ACSPrepReset();
 
 // Diagnostic
 bool ACSTestAlive();
+void ACSTestDriver(uint8 driverID, float rwTorque, float trTorque);
 
 // Command/Data
 void ACSSendGPS();

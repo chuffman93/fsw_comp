@@ -30,7 +30,7 @@ namespace Servers{
 
 // -------------------------------------- Necessary Methods --------------------------------------
 ACSServer::ACSServer(string nameIn, LocationIDType idIn) :
-		SubsystemServer(nameIn, idIn, ACS_SLEEP_TIME, ACS_HS_DELAYS), Singleton(), arby(idIn), ACSOrientation(ACS_UNORIENTED){
+		SubsystemServer(nameIn, idIn, ACS_SLEEP_TIME, ACS_HS_DELAYS), Singleton(), arby(idIn), ACSOrientation(ACS_UNORIENTED), testsRun(false){
 	ACSState = {0,0,0,0,0,0,0,7};
 }
 
@@ -81,6 +81,8 @@ void ACSServer::loopInit(){
 		}
 
 		logger->Log(LOGGER_LEVEL_INFO, "ACS passed self check");
+
+		CheckHealthStatus();
 
 		currentState = ST_SUN_SOAK;
 	}else{
@@ -183,9 +185,18 @@ void ACSServer::loopCOMStop(){
 }
 
 void ACSServer::loopDiagnostic(){
-	ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
-	if(modeManager->GetMode() != MODE_DIAGNOSTIC)
+	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+
+	if(!testsRun){
+		ACSTestDriver(1,0.04,0.5);
+		usleep(8000000);
+		ACSTestDriver(1,0.0,0.0);
+		testsRun = true;
+	}
+
+	if(modeManager->GetMode() != MODE_DIAGNOSTIC){
 		currentState = ST_SUN_SOAK;
+	}
 }
 
 void ACSServer::loopReset(){
@@ -231,17 +242,17 @@ void ACSServer::CheckHealthStatus(){
 		}
 
 		ACSState.MRP_X			= outputArray[0];
-		ACSState.MRP_Y			= outputArray[0];
-		ACSState.MRP_Z			= outputArray[0];
-		ACSState.ST_Status		= outputArray[0];
-		ACSState.RW_Speed_X		= outputArray[0];
-		ACSState.RW_Speed_Y		= outputArray[0];
-		ACSState.RW_Speed_Z		= outputArray[0];
+		ACSState.MRP_Y			= outputArray[1];
+		ACSState.MRP_Z			= outputArray[2];
+		ACSState.ST_Status		= outputArray[3];
+		ACSState.RW_Speed_X		= outputArray[4];
+		ACSState.RW_Speed_Y		= outputArray[5];
+		ACSState.RW_Speed_Z		= outputArray[6];
 
-		logger->Log(LOGGER_LEVEL_INFO, "ACS H&S: MRP X:       %u", ACSState.MRP_X);
-		logger->Log(LOGGER_LEVEL_INFO, "ACS H&S: MRP Y:       %u", ACSState.MRP_Y);
-		logger->Log(LOGGER_LEVEL_INFO, "ACS H&S: MRP Z:       %u", ACSState.MRP_Z);
-		logger->Log(LOGGER_LEVEL_INFO, "ACS H&S: ST Status:   %u", ACSState.ST_Status);
+		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: MRP X:       %lx", ACSState.MRP_X);
+		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: MRP Y:       %lx", ACSState.MRP_Y);
+		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: MRP Z:       %lx", ACSState.MRP_Z);
+		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: ST Status:   %lx", ACSState.ST_Status);
 		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: RW Speed X:  %u", ACSState.RW_Speed_X);
 		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: RW Speed Y:  %u", ACSState.RW_Speed_Y);
 		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: RW Speed Z:  %u", ACSState.RW_Speed_Z);
