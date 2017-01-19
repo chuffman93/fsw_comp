@@ -26,6 +26,8 @@ FileManager::FileManager(string path){
 	file_path = path;
 	bytes_written = 0;
 	file_open = false;
+	file_name = "";
+	file = NULL;
 }
 
 void FileManager::CloseFile(){
@@ -38,7 +40,7 @@ void FileManager::CloseFile(){
 	file_open = false;
 
 	FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
-	if (fmgServer->checkMoveFromCur()) {
+	if (fmgServer->checkMoveFromCur() && strcmp("",file_name.c_str()) != 0) { // ensure that the filename exists
 		MoveFile();
 	}
 }
@@ -269,7 +271,7 @@ void FMGServer::loopRun(void) {
 		currentState = ST_RESET;
 	}
 	else if (modeManager->GetMode() == MODE_COM){
-		currentState = ST_COM;
+		currentState = ST_COM_PREP;
 	}
 }
 

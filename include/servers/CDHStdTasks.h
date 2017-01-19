@@ -13,8 +13,7 @@
 namespace AllStar{
 namespace Servers{
 
-AllStar::Core::ACPPacket * CDHCPUUsage(void);
-AllStar::Core::ACPPacket * CDHMemUsage(void);
+void CDHSystemInfo(void);
 AllStar::Core::ACPPacket * CDHTempStart(void);
 AllStar::Core::ACPPacket * CDHTempRead(void);
 AllStar::Core::ACPPacket * CDHHotSwaps(void);

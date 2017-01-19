@@ -46,8 +46,17 @@ public:
 	void resetAssert(HardwareLocationIDType subsystem);
 	void resetDeassert(HardwareLocationIDType subsystem);
 
+
+	struct CDHStatus{
+		float cpu1;
+		float cpu5;
+		float cpu15;
+		float memory;
+	};
+
+	CDHStatus CDHState;
+
 	// Allows for easy look into memory usage
-	struct sysinfo si;
 	I2CDeviceManager * devMngr;
 	StorageManager * storMngr;
 	bool subsystemPowerStates[HARDWARE_LOCATION_MAX];

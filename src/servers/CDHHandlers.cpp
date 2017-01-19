@@ -25,33 +25,33 @@ using namespace std;
 using namespace AllStar::Core;
 using namespace AllStar::Servers;
 
-ACPPacket * CDHCPUUsageHandler::Handle(const ACPPacket & packet){
-	return (CDHCPUUsage());
-}
-
-ACPPacket * CDHMemUsageHandler::Handle(const ACPPacket & packet){
-	return (CDHMemUsage());
-}
-
-ACPPacket * CDHTempStartHandler::Handle(const ACPPacket & packet){
-	return (CDHTempStart());
-}
-
-ACPPacket * CDHTempReadHandler::Handle(const ACPPacket & packet){
-	return (CDHTempRead());
-}
-
-ACPPacket * CDHHotSwapsHandler::Handle(const ACPPacket & packet){
-	return (CDHHotSwaps());
-}
-
-ACPPacket * CDHPowerMonitorsHandler::Handle(const ACPPacket & packet){
-	return (CDHPowerMonitors());
-}
-
-ACPPacket * CDHStartPMHandler::Handle(const ACPPacket & packet){
-	return (CDHStartPM());
-}
+//ACPPacket * CDHCPUUsageHandler::Handle(const ACPPacket & packet){
+//	return (CDHCPUUsage());
+//}
+//
+//ACPPacket * CDHMemUsageHandler::Handle(const ACPPacket & packet){
+//	return (CDHMemUsage());
+//}
+//
+//ACPPacket * CDHTempStartHandler::Handle(const ACPPacket & packet){
+//	return (CDHTempStart());
+//}
+//
+//ACPPacket * CDHTempReadHandler::Handle(const ACPPacket & packet){
+//	return (CDHTempRead());
+//}
+//
+//ACPPacket * CDHHotSwapsHandler::Handle(const ACPPacket & packet){
+//	return (CDHHotSwaps());
+//}
+//
+//ACPPacket * CDHPowerMonitorsHandler::Handle(const ACPPacket & packet){
+//	return (CDHPowerMonitors());
+//}
+//
+//ACPPacket * CDHStartPMHandler::Handle(const ACPPacket & packet){
+//	return (CDHStartPM());
+//}
 
 ACPPacket * CDHCleanFSHandler::Handle(const ACPPacket & packet){
 	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
