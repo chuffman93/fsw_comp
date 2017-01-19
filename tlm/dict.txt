@@ -1,19 +1,27 @@
-###########################################
+################################################
 # tlm.txt
 #
-# Last Modified: Jack Dinkel 01/09/17
+# Last Modified: Jack Dinkel 01/10/17
 #
 # This file contains the dictionary of
-# all telemetry values, their types, location
-# hex codes, and parameters, if they have any.
+# all telemetry values, their TLM logger
+# types, location in code and number of times
+# they occur in that file, hex codes, a
+# printf format string, and comma delimeted
+# parameter types.
 #
 # Each tlm is in a block separated by a
 # line of whitespace on either side.
 # Put each field on its own line.
 #
-# Use comments sparingly, I don't want to
-# have to write a complex comment parser...
-###########################################
+# For now there is very minimal support
+# for comments. Only write a comment at
+# the beginning of an entry (before the
+# hex code)
+#
+# Also, always maintain a blank line at
+# the end of the document!
+################################################
 
 # Ideas:
 #   Hex code numbering:
@@ -32,20 +40,44 @@
 
 Hex Code
 Type
-Location
-Description
-Parameters
+Location:Number
+Format String
+Parameter Types
 
+^^^^^^ BEGIN TELEMETRY ^^^^^^
 0x01
 ERR
-main.cpp
+main.cpp:1
 Not all threads were created on startup!
 None
 
 0x02
 ERR
-main.cpp
+main.cpp:1
 All servers created!
 None
 
+0x0100
+DGN
+Diagnostics.cpp:1
+Running bus load test
+None
+
+0x0101
+DGN
+Diagnostics.cpp:1
+Running SPI Statistics
+None
+
+0x0102
+DGN
+Diagnostics.cpp:1
+Running Sample Test 2
+None
+
+0x0103
+DGN
+Diagnostics.cpp:1
+Running Sample Test 3
+None
 
