@@ -67,7 +67,7 @@ void FileManager::GetFileName(){
 	int time = getTimeInSec();
 	int boot_count = 0;// TODO
 	char fileName[100];
-	sprintf(fileName, "%s/CUR/%s_%d_%d", file_path.c_str(), TLM_type, boot_count, time);
+	sprintf(fileName, "%s/CUR/%s_%d_%d", file_path.c_str(), TLM_type.c_str(), boot_count, time);
 	file_name = fileName;
 }
 
