@@ -94,7 +94,7 @@ int main(int argc, char * argv[])
 	Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON);
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
-	modeManager->SetMode(MODE_STARTUP);
+	modeManager->SetMode(MODE_BUS_PRIORITY);
 
 	//SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
 
@@ -117,7 +117,7 @@ int main(int argc, char * argv[])
 
 	// ----------------------------- Start Servers -----------------------------------------------------------------
 	threadsCreated &= WatchdogManager::StartServer(acsServer, 50,	false);	 //ACS
-	threadsCreated &= WatchdogManager::StartServer(cdhServer, 20,	false);	 //CDH
+	threadsCreated &= WatchdogManager::StartServer(cdhServer, 20,	true);	 //CDH
 	threadsCreated &= WatchdogManager::StartServer(cmdServer, 50,	true);	 //CMD
 	threadsCreated &= WatchdogManager::StartServer(comServer, 10,	false);	 //COM
 	threadsCreated &= WatchdogManager::StartServer(epsServer, 10,	false);	 //EPS

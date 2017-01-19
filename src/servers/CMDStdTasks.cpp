@@ -125,7 +125,7 @@ void parseDRF(void){
 
 	// check if a DRF file has been uplinked
 	if(access(DRF_PATH, F_OK) != 0){
-		logger->Log(LOGGER_LEVEL_WARN, "CMDStdTasks: no DRF");
+		logger->Log(LOGGER_LEVEL_DEBUG, "CMDStdTasks: no DRF");
 		return;
 	}
 
@@ -214,7 +214,7 @@ void parseDLT(void){
 
 	// check if a DLT file has been uplinked
 	if(access(DLT_PATH, F_OK) != 0){
-		logger->Log(LOGGER_LEVEL_WARN, "CMDStdTasks: no DLT");
+		logger->Log(LOGGER_LEVEL_DEBUG, "CMDStdTasks: no DLT");
 		return;
 	}
 
@@ -283,7 +283,7 @@ void parsePPE(void){
 
 	// check if a PPE file has been uplinked
 	if(access(PPE_PATH, F_OK) != 0){
-		logger->Log(LOGGER_LEVEL_WARN, "CMDStdTasks: no PPE");
+		logger->Log(LOGGER_LEVEL_DEBUG, "CMDStdTasks: no PPE");
 		return;
 	}
 
@@ -353,7 +353,7 @@ void processUplinkFiles(void){
 	if(access(SCHEDULE_PATH, F_OK) != -1){
 		rename(SCHEDULE_PATH, SCH_SCHEDULE_FILE);
 	}else{
-		logger->Log(LOGGER_LEVEL_WARN, "CMDStdTasks: no SCH");
+		logger->Log(LOGGER_LEVEL_DEBUG, "CMDStdTasks: no SCH");
 	}
 }
 
