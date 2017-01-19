@@ -22,8 +22,9 @@ namespace AllStar{
 namespace Servers{
 
 // ----- File Manager functions ------------------------------------------------------------------------------------
-FileManager::FileManager(string path){
+FileManager::FileManager(string path, string tlmType){
 	file_path = path;
+	TLM_type = tlmType;
 	bytes_written = 0;
 	file_open = false;
 }
@@ -64,7 +65,7 @@ void FileManager::GetFileName(){
 	int time = getTimeInSec();
 	int boot_count = 0;// TODO
 	char fileName[100];
-	sprintf(fileName, "%s/CUR/GEN_%d_%d", file_path.c_str(), boot_count, time);
+	sprintf(fileName, "%s/CUR/%s_%d_%d", file_path.c_str(), TLM_type, boot_count, time);
 	file_name = fileName;
 }
 
@@ -110,16 +111,16 @@ FMGServer::FMGServer(string nameIn, LocationIDType idIn) :
 					SubsystemServer(nameIn, idIn, 10, 1000),
 					Singleton(),
 					arby(idIn),
-					CMDLogger(CMD_FILE_PATH),
-					DGNLogger(DGN_FILE_PATH),
-					ERRLogger(ERR_FILE_PATH),
-					FSSLogger(FSS_FILE_PATH),
-					GENLogger(GEN_FILE_PATH),
-					HSTLogger(HST_FILE_PATH),
-					MODLogger(MOD_FILE_PATH),
-					SSSLogger(SSS_FILE_PATH),
-					SWPLogger(SWP_FILE_PATH),
-					RADLogger(RAD_FILE_PATH),
+					CMDLogger(CMD_FILE_PATH, "CMD"),
+					DGNLogger(DGN_FILE_PATH, "DGN"),
+					ERRLogger(ERR_FILE_PATH, "ERR"),
+					FSSLogger(FSS_FILE_PATH, "FSS"),
+					GENLogger(GEN_FILE_PATH, "GEN"),
+					HSTLogger(HST_FILE_PATH, "HST"),
+					MODLogger(MOD_FILE_PATH, "MOD"),
+					SSSLogger(SSS_FILE_PATH, "SSS"),
+					SWPLogger(SWP_FILE_PATH, "SWP"),
+					RADLogger(RAD_FILE_PATH, "RAD"),
 					resetReady(false),
 					comReady(false),
 					move_from_CUR(false)

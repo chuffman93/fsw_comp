@@ -45,7 +45,7 @@ struct FilePacket {
 
 class FileManager{
 public:
-	FileManager(string path);
+	FileManager(string path, string tlmType);
 	void CloseFile(void);
 	void MoveFile(void);
 	void OpenFile(void);
@@ -54,6 +54,7 @@ public:
 	void Write(string buf, int buf_size);
 	bool Log(string buf);
 private:
+	string TLM_type;
 	FILE * file;
 	string file_path;
 	string file_name;
