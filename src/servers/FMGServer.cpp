@@ -96,6 +96,11 @@ bool FileManager::Log(string buf){
 	return true;
 }
 
+void LogFSS(void){
+	FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
+	// Do SD cards work?
+	// How full is each SD card?
+}
 
 // ----- FILServer functions ------------------------------------------------------------------------------------
 FMGServer::FMGServer(string nameIn, LocationIDType idIn) :
