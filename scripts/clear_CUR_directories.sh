@@ -31,7 +31,7 @@ done
 
 for dir in $SCI_DIRECTORIES
 do
-  for file in `ls /SD_2/$dir/CUR`
+  for file in `ls /SD_3/$dir/CUR`
   do
     mv /SD_3/$dir/CUR/$file /SD_3/$dir/$file
   done
