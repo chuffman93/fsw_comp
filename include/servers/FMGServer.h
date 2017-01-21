@@ -32,6 +32,7 @@ namespace Servers{
 // TODO: Do we want to be able to set this from the ground?
 #define MAX_FILE_SIZE		500 // There is also an old enum to deal with this
 
+void LogFSS(void);
 
 struct FilePacket {
 	FILServerDestinationEnum dest;
