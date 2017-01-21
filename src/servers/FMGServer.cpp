@@ -102,6 +102,7 @@ FMGServer::FMGServer(string nameIn, LocationIDType idIn) :
 					SubsystemServer(nameIn, idIn, 10, 1000),
 					Singleton(),
 					arby(idIn),
+					ACPLogger(ACP_FILE_PATH),
 					GENLogger(GEN_FILE_PATH),
 					HSTLogger(HST_FILE_PATH),
 					MODLogger(MOD_FILE_PATH),
@@ -164,6 +165,11 @@ void FMGServer::loopInit(void){
 		str = FileQueue.front().buffer;
 
 		switch (FileQueue.front().dest){
+		case DESTINATION_ACP:
+			if ( !ACPLogger.Log(str.c_str()) ) {
+				logger->Log(LOGGER_LEVEL_WARN, "Error writing to ACP File");
+			}
+			break;
 		case DESTINATION_GEN:
 			if ( !GENLogger.Log(str.c_str()) ) {
 				logger->Log(LOGGER_LEVEL_WARN, "Error writing to General File");

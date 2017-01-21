@@ -81,3 +81,8 @@ Diagnostics.cpp:1
 Running Sample Test 3
 None
 
+0x0400
+ACP
+ACPPacket.cpp:1
+Creating ACPPacket from buffer of size %d
+Int

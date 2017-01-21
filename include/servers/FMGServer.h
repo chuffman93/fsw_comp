@@ -19,6 +19,7 @@
 namespace AllStar{
 namespace Servers{
 
+#define ACP_FILE_PATH		"/SD_2/ACP"
 #define GEN_FILE_PATH		"/SD_2/GEN"
 #define HST_FILE_PATH		"/SD_2/HST"
 #define MOD_FILE_PATH		"/SD_2/MOD"
@@ -66,6 +67,7 @@ public:
 
 private:
 	static void Initialize(void);
+	FileManager ACPLogger;
 	FileManager GENLogger;
 	FileManager HSTLogger;
 	FileManager MODLogger;
