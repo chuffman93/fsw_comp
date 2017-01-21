@@ -32,6 +32,7 @@ namespace Servers{
 #define PPE_PATH			UPLINK_DIRECTORY  "/PPE.txt"
 #define SCHEDULE_PATH		UPLINK_DIRECTORY  "/SCH.txt"
 #define EOT_PATH			UPLINK_DIRECTORY  "/EOT.txt"
+#define UPLK_PASSWORD		"P0!@rCube\n"
 
 #define FILE_CHUNK_SIZE		"10k"	// size of chunks to make (ie. 500, 5k, 10M, etc.)
 

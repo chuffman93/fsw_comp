@@ -6,6 +6,7 @@
 */
 #include "servers/SCHServer.h"
 #include "servers/GPSServer.h"
+#include "servers/CMDServer.h"
 
 #include "core/Dispatcher.h"
 #include "core/WatchdogManager.h"
@@ -264,6 +265,15 @@ int SCHServer::LoadNextSchedule(){
 	char * line = NULL;
 	size_t len = 0;
 	ssize_t bytesRead;
+
+	// check password
+	bytesRead = getline(&line, &len, fp);
+	if(strcmp(line,UPLK_PASSWORD) != 0){
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: invalid SCH password");
+		fclose(fp);
+		remove(DRF_PATH);
+		return -4;
+	}
 
 	// TODO: NEED TO CHANGE THIS TO RAW INSTEAD OF ASCII!!!!
 	while ((bytesRead = getline(&line, &len, fp)) != -1) {

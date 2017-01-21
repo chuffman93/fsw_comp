@@ -110,6 +110,14 @@ enum FILServerDestinationEnum
 	DESTINATION_RAD // Is this needed?
 };
 
+typedef enum FSWCommandTypes{
+	FSW_CMD_REQUEST_RESET = 1,
+	FSW_CMD_HARD_SATELLITE_RESET,
+	FSW_CMD_TX_SILENCE_START,
+	FSW_CMD_TX_SILENCE_END,
+	FSW_CMD_MAX = FSW_CMD_TX_SILENCE_END
+}FSWCommand;
+
 // ------------------------------------------------------------ Subsystem OpCodes --------------------------------------------------------
 
 enum SubsystemOpcodes{

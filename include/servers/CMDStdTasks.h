@@ -14,13 +14,6 @@ using namespace std;
 namespace AllStar{
 namespace Servers{
 
-typedef enum FSWCommandTypes{
-	FSW_CMD_EPS_REBOOT = 1,
-	FSW_CMD_CDH_REBOOT,
-	FSW_CMD_TX_SILENCE,
-	FSW_CMD_MAX = FSW_CMD_TX_SILENCE
-}FSWCommand;
-
 void uftpSetup(void);
 void runDiagnostic(void);
 void parseDRF(void);
@@ -35,6 +28,7 @@ int deleteRegex(char * filePath, char * regex);
 int getNumFiles(char * dir);
 string getDownlinkFile(int fileNum);
 void executeFSWCommand(int command);
+bool checkForSOT(void);
 
 } // End of namespace Servers
 } // End of namespace AllStar

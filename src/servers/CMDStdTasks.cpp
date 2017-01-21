@@ -12,6 +12,7 @@
 #include "servers/SCHServer.h"
 #include "servers/CMDStdTasks.h"
 #include "servers/COMServer.h"
+#include "servers/CDHServer.h"
 #include "servers/DispatchStdTasks.h"
 #include "core/StdTypes.h"
 #include "core/Singleton.h"
@@ -122,7 +123,7 @@ void parseDRF(void){
 	FILE * fp;
 	char * line = NULL;
 	size_t len = 0;
-	ssize_t read;
+	ssize_t bytesRead;
 
 	// check if a DRF file has been uplinked
 	if(access(DRF_PATH, F_OK) != 0){
@@ -137,13 +138,22 @@ void parseDRF(void){
 		return;
 	}
 
+	// check password
+	bytesRead = getline(&line, &len, fp);
+	if(strcmp(line,UPLK_PASSWORD) != 0){
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: invalid DRF password");
+		fclose(fp);
+		remove(DRF_PATH);
+		return;
+	}
+
 	// parse the file line by line
 	char * arch;
 	char * dir;
 	char * num;
 	int numFiles;
 	char * regex;
-	while ((read = getline(&line, &len, fp)) != -1) {
+	while ((bytesRead = getline(&line, &len, fp)) != -1) {
 		// ---- Parse line
 		arch = strtok(line,",");
 		if(arch == NULL){
@@ -211,7 +221,7 @@ void parseDLT(void){
 	FILE * fp;
 	char * line = NULL;
 	size_t len = 0;
-	ssize_t read;
+	ssize_t bytesRead;
 
 	// check if a DLT file has been uplinked
 	if(access(DLT_PATH, F_OK) != 0){
@@ -226,12 +236,21 @@ void parseDLT(void){
 		return;
 	}
 
+	// check password
+	bytesRead = getline(&line, &len, fp);
+	if(strcmp(line,UPLK_PASSWORD) != 0){
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: invalid DLT password");
+		fclose(fp);
+		remove(DLT_PATH);
+		return;
+	}
+
 	// parse the file line by line
 	char * dir;
 	char * num;
 	int numFiles;
 	char * regex;
-	while ((read = getline(&line, &len, fp)) != -1) {
+	while ((bytesRead = getline(&line, &len, fp)) != -1) {
 		// ---- Parse line
 		dir = strtok(line,",");
 		if(dir == NULL){
@@ -280,7 +299,7 @@ void parsePPE(void){
 	FILE * fp;
 	char * line = NULL;
 	size_t len = 0;
-	ssize_t read;
+	ssize_t bytesRead;
 
 	// check if a PPE file has been uplinked
 	if(access(PPE_PATH, F_OK) != 0){
@@ -295,10 +314,19 @@ void parsePPE(void){
 		return;
 	}
 
+	// check password
+	bytesRead = getline(&line, &len, fp);
+	if(strcmp(line,UPLK_PASSWORD) != 0){
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: invalid PPE password");
+		fclose(fp);
+		remove(PPE_PATH);
+		return;
+	}
+
 	// parse the file line by line
 	char * type;
 	char * command;
-	while ((read = getline(&line, &len, fp)) != -1) {
+	while ((bytesRead = getline(&line, &len, fp)) != -1) {
 		// ---- Parse line
 		type = strtok(line,",");
 		if(type == NULL){
@@ -547,22 +575,59 @@ string getDownlinkFile(int fileNum){
 void executeFSWCommand(int command){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	COMServer * comServer = dynamic_cast<COMServer *> (Factory::GetInstance(COM_SERVER_SINGLETON));
+	SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
+	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
 	switch(command){
-	case FSW_CMD_EPS_REBOOT:
-		logger->Log(LOGGER_LEVEL_WARN, "FSW EPS reboot command not implemented");
+	case FSW_CMD_REQUEST_RESET:
+		logger->Log(LOGGER_LEVEL_INFO, "PPE reset requested");
+		schServer->RequestReset();
 		break;
-	case FSW_CMD_CDH_REBOOT:
-		logger->Log(LOGGER_LEVEL_WARN, "FSW CDH reboot command not implemented");
+	case FSW_CMD_HARD_SATELLITE_RESET:
+		logger->Log(LOGGER_LEVEL_ERROR, "PPE hard satellite reset, DOES NOT WORK");
+		cdhServer->resetAssert(HARDWARE_LOCATION_EPS);
 		break;
-	case FSW_CMD_TX_SILENCE:
+	case FSW_CMD_TX_SILENCE_START:
 		logger->Log(LOGGER_LEVEL_WARN, "Commanding transmitter silence");
 		comServer->setTxSilence(true);
+		break;
+	case FSW_CMD_TX_SILENCE_END:
+		logger->Log(LOGGER_LEVEL_WARN, "Ending transmitter silence");
+		comServer->setTxSilence(false);
 		break;
 	default:
 		logger->Log(LOGGER_LEVEL_ERROR, "Unknown FSW command (bit flip probable)");
 		break;
 	}
+}
+
+bool checkForSOT(void){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	if(access(SOT_PATH,F_OK) == 0){
+		char * line = NULL;
+		size_t len = 0;
+		ssize_t read;
+
+		// open the files to downlink file
+		FILE * fp = fopen(SOT_PATH, "r");
+		if (fp == NULL){
+			logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: error opening SOT");
+			remove(SOT_PATH);
+			return false;
+		}
+
+		// check the password
+		read = getline(&line, &len, fp);
+		if(strcmp(line, UPLK_PASSWORD) == 0){
+			fclose(fp);
+			return true;
+		}
+
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: PPE bad password");
+		fclose(fp);
+		remove(SOT_PATH);
+	}
+	return false;
 }
 
 } // End of namespace Servers

@@ -53,6 +53,7 @@ public:
 	struct EPSConfig{
 		uint16 minCOMCharge;
 		uint16 minPLDCharge;
+		uint16 minDSTCharge;
 		uint8 numItems;
 	};
 
