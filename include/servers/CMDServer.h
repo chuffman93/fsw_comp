@@ -34,14 +34,21 @@ namespace Servers{
 #define EOT_PATH			UPLINK_DIRECTORY  "/EOT.txt"
 #define UPLK_PASSWORD		"P0!@rCube\n"
 
-#define FILE_CHUNK_SIZE		"10k"	// size of chunks to make (ie. 500, 5k, 10M, etc.)
-
 class CMDServer : public SubsystemServer, public AllStar::Core::Singleton{
 	friend class AllStar::Core::Factory;
 
 public:
 	bool RegisterHandlers();
 	static int subsystem_acp_protocol[HARDWARE_LOCATION_MAX];
+
+	struct CMDConfig{
+		int32 resetPeriod;
+		int32 fileChunkSize;
+		int32 maxDownlinkSize;
+	};
+
+	CMDConfig CMDConfiguration;
+
 private:
 	static void Initialize(void);
 
@@ -62,7 +69,6 @@ private:
 	// Additional member variables
 	int numFilesDWN;
 	int currFileNum;
-	int32 resetPeriod;
 	int32 startTime;
 
 	// Modes

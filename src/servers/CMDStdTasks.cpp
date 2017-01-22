@@ -24,6 +24,8 @@
 #include <termios.h>
 #include <string>
 #include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 using namespace AllStar::Core;
 using namespace std;
@@ -32,7 +34,6 @@ namespace AllStar{
 namespace Servers{
 
 #define NUM_DIAGNOSTIC_TESTS 4
-#define SIZE_THRESHOLD 15728640 // 15 MB
 
 void uftpSetup(void){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
@@ -199,7 +200,10 @@ void parseDRF(void){
 		packageFiles((char *) archive.c_str(), dir, regex, numFiles); // TODO: error check this?
 
 		// ---- Split the tarball into chunks
-		string split_cmd = "split -b " + string(FILE_CHUNK_SIZE) + " -d -a 3 " + archive + " " + archive + ".";
+		CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
+		char chunkSize[16];
+		sprintf(chunkSize, "%lu", cmdServer->CMDConfiguration.fileChunkSize);
+		string split_cmd = "split -b " + string(chunkSize) + " -d -a 3 " + archive + " " + archive + ".";
 		if(system(split_cmd.c_str()) == -1){
 			logger->Log(LOGGER_LEVEL_ERROR, "Failed to split DRF archive into chunks");
 		}
@@ -436,11 +440,13 @@ const int packageFiles(const char * destination, const char * filePath, const ch
 
 	const long size = getFileSize(filePath, regex, maxFiles);
 
+	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
+
 	if (size < 0) {
 		logger->Log(LOGGER_LEVEL_ERROR, "PackageFiles: Error detected, aborting packaging");
 		return -1;
 	}
-	else if (size > SIZE_THRESHOLD){
+	else if (size > cmdServer->CMDConfiguration.maxDownlinkSize){
 		logger->Log(LOGGER_LEVEL_ERROR, "PackageFiles: Total file size is too great to package");
 		return -2;
 	}

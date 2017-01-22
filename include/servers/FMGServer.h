@@ -34,9 +34,6 @@ namespace Servers{
 
 #define CLEAR_CUR_DIRECTORIES_SCRIPT "/home/root/scripts/clear_CUR_directories.sh"
 
-// TODO: Do we want to be able to set this from the ground?
-#define MAX_FILE_SIZE		500 // There is also an old enum to deal with this
-
 
 struct FilePacket {
 	FILServerDestinationEnum dest;
@@ -69,6 +66,11 @@ public:
 	bool RegisterHandlers();
 	void Log(FILServerDestinationEnum dest, string buf);
 
+	struct FMGConfig{
+		uint32 maxFileSize;
+	};
+
+	FMGConfig FMGConfiguration;
 
 	bool isResetReady() const {
 		return resetReady;

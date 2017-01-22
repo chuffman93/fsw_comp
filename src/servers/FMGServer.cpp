@@ -85,9 +85,10 @@ void FileManager::Write(string buf, int buf_size){
 
 bool FileManager::Log(string buf){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
 	int buf_size = buf.size();
 
-	if (buf_size >= MAX_FILE_SIZE) { logger->Log(LOGGER_LEVEL_WARN, "Telemetry larger than file size"); }
+	if (buf_size >= fmgServer->FMGConfiguration.maxFileSize) { logger->Log(LOGGER_LEVEL_WARN, "Telemetry larger than file size"); }
 	else{
 		// Check if file is open
 		if (!file_open) {
@@ -95,7 +96,7 @@ bool FileManager::Log(string buf){
 			OpenNewFile();
 		}
 
-		if (bytes_written + buf_size + 1 < MAX_FILE_SIZE) {
+		if (bytes_written + buf_size + 1 < fmgServer->FMGConfiguration.maxFileSize) {
 			Write(buf, buf_size);
 		}
 		else { // File is full, open new file and write to it
@@ -127,6 +128,7 @@ FMGServer::FMGServer(string nameIn, LocationIDType idIn) :
 					comReady(false),
 					move_from_CUR(false)
 					{
+	FMGConfiguration.maxFileSize = 500;
 }
 
 FMGServer::~FMGServer(){

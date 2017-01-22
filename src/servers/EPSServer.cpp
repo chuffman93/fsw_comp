@@ -32,9 +32,7 @@ static EPSPowerCycleHandler * epsPowerCycleHandler;
 // -------------------------------------- Necessary Methods --------------------------------------
 EPSServer::EPSServer(string nameIn, LocationIDType idIn) :
 		SubsystemServer(nameIn, idIn), Singleton(), arby(idIn) {
-	EPSState = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 	EPSState.numItems = 18;
-	EPSConfiguration = {0,0,0,0};
 	EPSConfiguration.numItems = 3;
 }
 

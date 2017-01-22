@@ -11,6 +11,7 @@
 #include "servers/CMDStdTasks.h"
 #include "servers/DispatchStdTasks.h"
 #include "servers/SCHServer.h"
+#include "servers/FMGServer.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
 #include "core/StdTypes.h"
@@ -42,7 +43,9 @@ CMDServer::CMDServer(string nameIn, LocationIDType idIn) :
 	}
 
 	startTime = getTimeInSec();
-	resetPeriod = 8*60;
+	CMDConfiguration.resetPeriod = 8*60;
+	CMDConfiguration.fileChunkSize = 10240; // 10KB
+	CMDConfiguration.maxDownlinkSize = 15728640;
 }
 
 CMDServer::~CMDServer(){
@@ -130,7 +133,7 @@ void CMDServer::loopIdle(void){
 	}
 
 	// Monitor daily reset
-	if(getTimeInSec() > (startTime + resetPeriod) && (modeManager->GetMode() == MODE_BUS_PRIORITY)){
+	if(getTimeInSec() > (startTime + CMDConfiguration.resetPeriod) && (modeManager->GetMode() == MODE_BUS_PRIORITY)){
 		SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
 		schServer->RequestReset();
 		currentState = ST_RESET;
@@ -161,17 +164,22 @@ void CMDServer::loopDiagnostic(){
 
 void CMDServer::loopPassPrep(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
+	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
-	/* TODO:
-	 * Tell the FMG server to go to its COM state
-	 * Gather Verbose H&S files
-	 */
+	// see if the fmgServer has prepped Verbose H&S
+	if(fmgServer->isComReady()){
+		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: finished COM pass prep");
+		currentState = ST_LOGIN;
+	}
 
-	logger->Log(LOGGER_LEVEL_INFO, "CMDServer: finished COM pass prep");
-	currentState = ST_LOGIN;
+	// make sure that the COM pass hasn't concluded
+	if(modeManager->GetMode() != MODE_COM){
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: FMGServer never prepped for COM, COM pass over");
+		currentState = ST_POST_PASS;
+	}
 }
 
-// TODO: determine login sequence
 void CMDServer::loopLogin(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
@@ -269,8 +277,6 @@ void CMDServer::loopPostPass(){
 	// Clear uplink directory
 	cmd = "rm -rf " + string(UPLINK_DIRECTORY) + "/*";
 	system(cmd.c_str());
-
-	// TODO: switch FMG server out of COM mode
 
 	if(modeManager->GetMode() == MODE_COM){
 		modeManager->SetMode(MODE_BUS_PRIORITY);

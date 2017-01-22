@@ -269,9 +269,9 @@ int SCHServer::LoadNextSchedule(){
 	// check password
 	bytesRead = getline(&line, &len, fp);
 	if(strcmp(line,UPLK_PASSWORD) != 0){
-		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: invalid SCH password");
+		logger->Log(LOGGER_LEVEL_ERROR, "LoadNextSchedule: invalid SCH password");
 		fclose(fp);
-		remove(DRF_PATH);
+		remove(SCH_SCHEDULE_FILE);
 		return -4;
 	}
 

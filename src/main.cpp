@@ -96,12 +96,9 @@ int main(int argc, char * argv[])
 
 	modeManager->SetMode(MODE_BUS_PRIORITY);
 
-	//SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
-
 	logger->Log(LOGGER_LEVEL_FATAL, "Flight software initialization complete! Starting servers!");
 
 	// ----------------------------- Grab Server Instances ---------------------------------------------------------
-	// TODO: more efficient way to do this? (ie. SubsystemServer array and no dynamic casting >>> one for loop?)
 	bool threadsCreated = true;
 	ACSServer * acsServer = dynamic_cast<ACSServer *> (Factory::GetInstance(ACS_SERVER_SINGLETON));
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
@@ -130,13 +127,12 @@ int main(int argc, char * argv[])
 
 	if(!threadsCreated){
 		logger->Log(LOGGER_LEVEL_FATAL, "Not all threads were created on startup!");
-		// TODO: do something?
+		// TODO: what to do?
 	}else{
 		logger->Log(LOGGER_LEVEL_INFO, "All servers created!");
 	}
 
 	WatchdogManager::WatchdogManagerTask();
-	//while(true){usleep(100000);}
 
 	logger->Log(LOGGER_LEVEL_FATAL, "Flight Software exiting from main! All relevant threads have exited!");
 
