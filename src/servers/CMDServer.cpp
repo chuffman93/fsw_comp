@@ -251,7 +251,7 @@ void CMDServer::loopDownlink(){
 		if(strcmp(filename.c_str(),"") != 0){
 			// downlink the file
 			char sh_cmd[256];
-			sprintf(sh_cmd, "/home/root/uftp -Y aes256-gcm -h sha1 -I ax0 -H 1.1.1.2 -x 1 %s", filename.c_str()); // can add "-H 1.1.1.2" to only downlink to one IP, "-x 1" decreases the log statement verboseness
+			sprintf(sh_cmd, "/home/root/uftp -Y aes256-gcm -h sha256 -I ax0 -H 1.1.1.2 -x 1 %s", filename.c_str()); // can add "-H 1.1.1.2" to only downlink to one IP, "-x 1" decreases the log statement verboseness
 			system(sh_cmd);
 		}
 	}else{

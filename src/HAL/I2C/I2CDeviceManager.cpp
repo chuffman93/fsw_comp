@@ -77,10 +77,12 @@ void I2CDeviceManager::startPMMeas(void){
 	}
 }
 
-void I2CDeviceManager::getHSStatus(float * status){
+bool I2CDeviceManager::getHSStatus(float * status){
+	bool success = false;
 	for(uint8 i = 0; i < 16; i++){
-		hotSwaps[i]->Status(&status[i], &status[i+16]);
+		success |= hotSwaps[i]->Status(&status[2*i], &status[2*i + 1]);
 	}
+	return success;
 }
 
 void I2CDeviceManager::getPMStatus(PowerMonitor_Data * data){

@@ -76,7 +76,7 @@ namespace AllStar
 			//Init MUST be called before any other function
 			bool Init();
 
-			void Status(float *Voltage, float *Current);
+			bool Status(float *Voltage, float *Current);
 
 			bool Fault();
 

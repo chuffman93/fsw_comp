@@ -128,7 +128,7 @@ FMGServer::FMGServer(string nameIn, LocationIDType idIn) :
 					comReady(false),
 					move_from_CUR(false)
 					{
-	FMGConfiguration.maxFileSize = 500;
+	FMGConfiguration.maxFileSize = 5000;
 }
 
 FMGServer::~FMGServer(){

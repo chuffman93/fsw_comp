@@ -13,18 +13,20 @@
 namespace AllStar{
 namespace Servers{
 
-void CDHSystemInfo(void);
-AllStar::Core::ACPPacket * CDHTempStart(void);
-AllStar::Core::ACPPacket * CDHTempRead(void);
-AllStar::Core::ACPPacket * CDHHotSwaps(void);
-AllStar::Core::ACPPacket * CDHPowerMonitors(void);
-AllStar::Core::ACPPacket * CDHStartPM(void);
-AllStar::Core::ACPPacket * CleanFiles(uint16 weekStart, uint16 weekEnd);
-bool StartTempSensor(int bus, int sensor);
-void toggleResetLine(HardwareLocationIDType subsystem, bool state);
-float ReadTempSensor(int bus, int sensor);
+// called from CDH server
 void prepPowerGPIOs(void);
+void CDHSystemInfo(void);
+void CDHTempStart(void);
+void CDHTempRead(void);
+void CDHHotSwaps(void);
+void CDHPowerMonitors(void);
+void CDHStartPM(void);
+void toggleResetLine(HardwareLocationIDType subsystem, bool state);
 void toggleSubPower(HardwareLocationIDType subsystem, bool state);
+
+// called from functions above
+bool StartTempSensor(int bus, int sensor);
+float ReadTempSensor(int bus, int sensor);
 }
 }
 
