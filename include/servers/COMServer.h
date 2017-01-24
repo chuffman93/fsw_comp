@@ -55,24 +55,14 @@ private:
 
 	// ------ State Machine ---------------------------------------------------
 	void loopInit();
-	void loopIdle();
-	void loopCOMStart();
-	void loopCOMHalf();
-	void loopCOMFull();
-	void loopCOMStop();
-	void loopDiagnostic();
+	void loopBeacon();
 	void loopEnterTXSilence();
 	void loopTXSilence();
 	void loopReset();
 
 	BEGIN_STATE_MAP
 	STATE_MAP_ENTRY(&COMServer::loopInit)
-	STATE_MAP_ENTRY(&COMServer::loopIdle)
-	STATE_MAP_ENTRY(&COMServer::loopCOMStart)
-	STATE_MAP_ENTRY(&COMServer::loopCOMHalf)
-	STATE_MAP_ENTRY(&COMServer::loopCOMFull)
-	STATE_MAP_ENTRY(&COMServer::loopCOMStop)
-	STATE_MAP_ENTRY(&COMServer::loopDiagnostic)
+	STATE_MAP_ENTRY(&COMServer::loopBeacon)
 	STATE_MAP_ENTRY(&COMServer::loopEnterTXSilence)
 	STATE_MAP_ENTRY(&COMServer::loopTXSilence)
 	STATE_MAP_ENTRY(&COMServer::loopReset)
@@ -80,16 +70,10 @@ private:
 
 	enum COM_States {
 		ST_INIT = 0,
-		ST_IDLE,
-		ST_COM_START,
-		ST_COM_HALF,
-		ST_COM_FULL,
-		ST_COM_STOP,
-		ST_DIAGNOSTIC,
+		ST_BEACON,
 		ST_ENTER_TX_SILENCE,
 		ST_TX_SILENCE,
 		ST_RESET
-		// BEACON, RX, TX ...
 	};
 };
 

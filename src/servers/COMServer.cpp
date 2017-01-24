@@ -9,6 +9,7 @@
 #include "servers/COMHandlers.h"
 #include "servers/COMStdTasks.h"
 #include "servers/CDHServer.h"
+#include "servers/CMDServer.h"
 #include "servers/DispatchStdTasks.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
@@ -60,20 +61,7 @@ bool COMServer::IsFullyInitialized(void){
 }
 
 bool COMServer::RegisterHandlers(){
-	bool success = true;
-	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-
-//	// COM Command OpCodes
-//	success &= reg.RegisterHandler(MessageIdentifierType(SERVER_LOCATION_COM, COM_HS_CMD), comHSHandler);
-//
-//	// COM Command OpCodes permissions
-//	for(int opcode = COM_CMD_MIN; opcode < COM_CMD_MAX; opcode++){
-//		success &= arby.ModifyPermission(MessageIdentifierType(SERVER_LOCATION_COM, opcode), true);
-//	}
-//
-//	success &= dispatcher->AddRegistry(id, &reg, &arby);
-
-	return success;
+	return true;
 }
 
 // TODO: ultimately remove Half and Full Duplex states and have a struct to track those COM states through H&S
@@ -92,13 +80,13 @@ void COMServer::loopInit(){
 		}
 		logger->Log(LOGGER_LEVEL_INFO, "COM passed self check");
 
-		currentState = ST_IDLE;
+		currentState = ST_BEACON;
 	}else{
 		logger->Log(LOGGER_LEVEL_FATAL, "COM non-responsive in init");
 	}
 }
 
-void COMServer::loopIdle(){
+void COMServer::loopBeacon(){
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
 	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_EPS]){
@@ -108,12 +96,6 @@ void COMServer::loopIdle(){
 	ModeManager * modeManager = dynamic_cast<ModeManager *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	SystemModeEnum currentMode = modeManager->GetMode();
 	switch(currentMode){
-	case MODE_COM:
-		currentState = ST_COM_START;
-		break;
-	case MODE_DIAGNOSTIC:
-		currentState = ST_DIAGNOSTIC;
-		break;
 	case MODE_RESET:
 		currentState = ST_RESET;
 		break;
@@ -124,56 +106,10 @@ void COMServer::loopIdle(){
 	if(TXSilence){
 		currentState = ST_ENTER_TX_SILENCE;
 	}
-}
 
-void COMServer::loopCOMStart(){
-	if(COMHalfDuplex()){
-		currentState = ST_COM_HALF;
-	}else{
-		currentState = ST_IDLE;
-	}
-}
-
-void COMServer::loopCOMHalf(){
-	if(COMFullDuplex()){
-		currentState = ST_COM_FULL;
-	}else{
-		currentState = ST_IDLE;
-	}
-}
-
-void COMServer::loopCOMFull(){
-	ModeManager * modeManager = dynamic_cast<ModeManager *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
-
-	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
-
-	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_EPS]){
-		currentState = ST_INIT;
-	}
-
-	if(modeManager->GetMode() != MODE_COM){
-		currentState = ST_COM_STOP;
-	}
-
-	if(TXSilence){
-		currentState = ST_ENTER_TX_SILENCE;
-	}
-}
-
-void COMServer::loopCOMStop(){
-	COMSimplex();
-
-	currentState = ST_IDLE;
-}
-
-void COMServer::loopDiagnostic(){
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-	if(modeManager->GetMode() != MODE_DIAGNOSTIC){
-		currentState = ST_IDLE;
-	}
-
-	if(TXSilence){
-		currentState = ST_ENTER_TX_SILENCE;
+	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
+	if(cmdServer->CheckForBeacon()){
+		COMSendBeacon();
 	}
 }
 
@@ -197,7 +133,7 @@ void COMServer::loopEnterTXSilence(){
 
 void COMServer::loopTXSilence(){
 	if(!TXSilence){
-		currentState = ST_IDLE;
+		currentState = ST_BEACON;
 	}
 }
 
@@ -208,7 +144,7 @@ void COMServer::loopReset(){
 		usleep(1000000);
 	}
 
-	currentState = ST_IDLE;
+	currentState = ST_BEACON;
 }
 
 }

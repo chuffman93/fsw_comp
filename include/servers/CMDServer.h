@@ -68,6 +68,8 @@ public:
 
 	CMDConfig CMDConfiguration;
 
+	bool CheckForBeacon(void);
+
 private:
 	static void Initialize(void);
 
@@ -89,6 +91,7 @@ private:
 	int numFilesDWN;
 	int currFileNum;
 	int32 startTime;
+	bool beaconValid;
 
 	// Modes
 	void loopInit();
@@ -132,7 +135,7 @@ private:
 	};
 
 	void CheckHealthStatus(void);
-	void SendBeacon(void);
+	void CreateBeacon(void);
 };
 
 }

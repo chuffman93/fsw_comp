@@ -313,15 +313,17 @@ void CMDServer::loopReset(){
 // --------- Beacon ----------------------------------------------------------------------------------------------------
 // Note: this function is configured to be called in the subsystem loop defined in SubsystemServer.cpp
 // since we can configure it to be called whenever we like, we can effectively set the beacon rate
-void CMDServer::CheckHealthStatus(void){
+void CMDServer::CheckHealthStatus(void) {
 	if(currentState == ST_IDLE || currentState == ST_DIAGNOSTIC || currentState == ST_PASS_PREP || currentState == ST_LOGIN || currentState == ST_POST_PASS){
-		SendBeacon();
+		CreateBeacon();
 	}
 }
 
-void CMDServer::SendBeacon(){
+void CMDServer::CreateBeacon() {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log(LOGGER_LEVEL_INFO, "Beaconing");
+	logger->Log(LOGGER_LEVEL_DEBUG, "Creating Beacon");
+
+	beaconValid = false;
 
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	beacon.bStruct.currentMode = modeManager->GetMode();
@@ -345,7 +347,16 @@ void CMDServer::SendBeacon(){
 	PLDServer * pldServer = dynamic_cast<PLDServer *> (Factory::GetInstance(PLD_SERVER_SINGLETON));
 	beacon.bStruct.pldHS = pldServer->PLDState;
 
-	// TODO: send beacon
+	beaconValid = true;
+}
+
+bool CMDServer::CheckForBeacon() {
+	if(beaconValid) {
+		beaconValid = false;
+		return true;
+	} else {
+		return false;
+	}
 }
 
 } // End of namespace Servers
