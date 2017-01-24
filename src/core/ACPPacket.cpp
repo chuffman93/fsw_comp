@@ -7,6 +7,7 @@
 
 #include "core/ACPPacket.h"
 #include "servers/GPSServer.h"
+#include "servers/FMGServer.h"
 #include "util/Logger.h"
 #include "util/crc.h"
 #include "POSIX.h"
@@ -83,6 +84,7 @@ ACPPacket::ACPPacket(const ACPPacket & packetSource){
 ACPPacket::ACPPacket(uint8 * buffer, std::size_t size_in){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_DEBUG, "Creating ACPPacket from buffer of size %d", (int) size_in);
+
 	std::size_t size = size_in;
 
 	source = LOCATION_ID_INVALID;
