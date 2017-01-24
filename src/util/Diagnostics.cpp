@@ -11,6 +11,7 @@
 
 #include "util/Diagnostics.h"
 #include "util/Logger.h"
+#include "servers/FMGServer.h"
 #include "servers/DispatchStdTasks.h"
 #include "HAL/SPI_Server.h"
 

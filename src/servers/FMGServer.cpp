@@ -108,6 +108,11 @@ bool FileManager::Log(string buf){
 	return true;
 }
 
+void LogFSS(void){
+	FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
+	// Do SD cards work?
+	// How full is each SD card?
+}
 
 // ----- FILServer functions ------------------------------------------------------------------------------------
 FMGServer::FMGServer(string nameIn, LocationIDType idIn) :
@@ -124,6 +129,7 @@ FMGServer::FMGServer(string nameIn, LocationIDType idIn) :
 					SSSLogger(SSS_FILE_PATH, "SSS"),
 					SWPLogger(SWP_FILE_PATH, "SWP"),
 					RADLogger(RAD_FILE_PATH, "RAD"),
+					ACPLogger(ACP_FILE_PATH, "ACP"),
 					resetReady(false),
 					comReady(false),
 					move_from_CUR(false)
@@ -174,6 +180,7 @@ void FMGServer::CloseAndMoveAllFiles(){
 	SSSLogger.CloseFile();
 	SWPLogger.CloseFile();
     RADLogger.CloseFile();
+    ACPLogger.CloseFile();
 }
 
 void FMGServer::Log(FILServerDestinationEnum dest, string buf){
@@ -237,6 +244,11 @@ void FMGServer::CallLog(){
 	case DESTINATION_RAD:
 		if ( !RADLogger.Log(str.c_str()) ) {
 			logger->Log(LOGGER_LEVEL_WARN, "Error writing to Rad File");
+		}
+		break;
+	case DESTINATION_ACP:
+		if ( !RADLogger.Log(str.c_str()) ) {
+			logger->Log(LOGGER_LEVEL_WARN, "Error writing to ACP File");
 		}
 		break;
 	default:
