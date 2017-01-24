@@ -109,9 +109,6 @@ void ACSServer::loopSunSoak(){
 	case MODE_PLD_PRIORITY:
 		currentState = ST_PLD_START;
 		break;
-	case MODE_DIAGNOSTIC:
-		currentState = ST_DIAGNOSTIC;
-		break;
 	case MODE_RESET:
 		currentState = ST_RESET;
 		break;
@@ -182,21 +179,6 @@ void ACSServer::loopCOMPointing(){
 
 void ACSServer::loopCOMStop(){
 	currentState = ST_SUN_SOAK;
-}
-
-void ACSServer::loopDiagnostic(){
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-
-	if(!testsRun){
-		ACSTestDriver(1,0.04,0.5);
-		usleep(8000000);
-		ACSTestDriver(1,0.0,0.0);
-		testsRun = true;
-	}
-
-	if(modeManager->GetMode() != MODE_DIAGNOSTIC){
-		currentState = ST_SUN_SOAK;
-	}
 }
 
 void ACSServer::loopReset(){

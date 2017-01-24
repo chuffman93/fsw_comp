@@ -125,20 +125,17 @@ private:
 	// Modes
 	void loopInit();
 	void loopMonitor();
-	void loopDiagnostic();
 	void loopReset();
 
 	BEGIN_STATE_MAP
 	STATE_MAP_ENTRY(&CDHServer::loopInit)
 	STATE_MAP_ENTRY(&CDHServer::loopMonitor)
-	STATE_MAP_ENTRY(&CDHServer::loopDiagnostic)
 	STATE_MAP_ENTRY(&CDHServer::loopReset)
 	END_STATE_MAP
 
 	enum CDH_States {
 		ST_INIT = 0,
 		ST_MONITOR,
-		ST_DIAGNOSTIC,
 		ST_RESET
 	};
 };

@@ -108,25 +108,11 @@ void CDHServer::loopMonitor(){
 	// Check for state transitions based on mode switches
 	SystemModeEnum currentMode = modeManager->GetMode();
 	switch(currentMode){
-	case MODE_DIAGNOSTIC:
-		currentState = ST_DIAGNOSTIC;
-		break;
 	case MODE_RESET:
 		currentState = ST_RESET;
 		break;
 	default:
 		break;
-	}
-}
-
-void CDHServer::loopDiagnostic(){
-	int64 currTime = getTimeInMillis();
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-
-	readHealth(readHealthFrequency, (uint32) currTime/1000);
-
-	if(modeManager->GetMode() != MODE_DIAGNOSTIC){
-		currentState = ST_MONITOR;
 	}
 }
 

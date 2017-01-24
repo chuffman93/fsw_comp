@@ -120,7 +120,6 @@ FMGServer::FMGServer(string nameIn, LocationIDType idIn) :
 					Singleton(),
 					arby(idIn),
 					CMDLogger(CMD_FILE_PATH, "CMD"),
-					DGNLogger(DGN_FILE_PATH, "DGN"),
 					ERRLogger(ERR_FILE_PATH, "ERR"),
 					FSSLogger(FSS_FILE_PATH, "FSS"),
 					GENLogger(GEN_FILE_PATH, "GEN"),
@@ -171,7 +170,6 @@ bool FMGServer::RegisterHandlers(){
 
 void FMGServer::CloseAndMoveAllFiles(){
 	CMDLogger.CloseFile();
-	DGNLogger.CloseFile();
 	ERRLogger.CloseFile();
 	FSSLogger.CloseFile();
 	GENLogger.CloseFile();
@@ -199,11 +197,6 @@ void FMGServer::CallLog(){
 	case DESTINATION_CMD:
 		if ( !CMDLogger.Log(str.c_str()) ) {
 			logger->Log(LOGGER_LEVEL_WARN, "Error writing to Command File");
-		}
-		break;
-	case DESTINATION_DGN:
-		if ( !DGNLogger.Log(str.c_str()) ) {
-			logger->Log(LOGGER_LEVEL_WARN, "Error writing to Diagnostic File");
 		}
 		break;
 	case DESTINATION_ERR:

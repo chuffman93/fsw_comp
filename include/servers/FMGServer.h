@@ -20,7 +20,6 @@ namespace AllStar{
 namespace Servers{
 
 #define CMD_FILE_PATH			"/SD_2/CMD"
-#define DGN_FILE_PATH			"/SD_2/DGN"
 #define ERR_FILE_PATH			"/SD_2/ERR"
 #define GEN_FILE_PATH			"/SD_2/GEN"
 #define FSS_FILE_PATH			"/SD_2/FSS"
@@ -105,7 +104,6 @@ public:
 private:
 	static void Initialize(void);
 	FileManager CMDLogger;
-	FileManager DGNLogger;
 	FileManager ERRLogger;
 	FileManager FSSLogger;
 	FileManager ACPLogger;

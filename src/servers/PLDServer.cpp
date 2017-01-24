@@ -95,9 +95,6 @@ void PLDServer::loopIdle(){
 	case MODE_PLD_PRIORITY:
 		currentState = ST_STARTUP;
 		break;
-	case MODE_DIAGNOSTIC:
-		currentState = ST_DIAGNOSTIC;
-		break;
 	case MODE_RESET:
 		currentState = ST_RESET;
 		break;
@@ -177,13 +174,6 @@ void PLDServer::loopScience(){
 
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "PLDServer: received data %d", data->getLength());
-}
-
-void PLDServer::loopDiagnostic(){
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-	if(modeManager->GetMode() != MODE_DIAGNOSTIC){
-		currentState = ST_IDLE;
-	}
 }
 
 void PLDServer::loopReset(){

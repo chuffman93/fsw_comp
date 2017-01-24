@@ -108,9 +108,6 @@ void CMDServer::loopIdle(void){
 	// check for state transitions from mode switches
 	SystemModeEnum currentMode = modeManager->GetMode();
 	switch(currentMode){
-	case MODE_DIAGNOSTIC:
-		currentState = ST_DIAGNOSTIC;
-		return;
 	case MODE_COM:
 		currentState = ST_PASS_PREP;
 		return;
@@ -141,25 +138,6 @@ void CMDServer::loopIdle(void){
 	}
 
 	dispatcher->CleanRXQueue();
-}
-
-void CMDServer::loopDiagnostic(){
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-
-	if(modeManager->GetMode() != MODE_DIAGNOSTIC){
-		currentState = ST_IDLE;
-	}
-
-	if(checkForSOT()){
-		logger->Log(LOGGER_LEVEL_WARN, "CMDServer: unexpected ground login, preparing to enter COM Mode");
-		SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
-		schServer->RequestCOMMode();
-		int64 currTime = getTimeInMillis();
-		waitUntil(currTime,5000);
-		currentState = ST_PASS_PREP;
-		return;
-	}
 }
 
 void CMDServer::loopPassPrep(){

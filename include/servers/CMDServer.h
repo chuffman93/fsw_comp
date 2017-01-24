@@ -74,7 +74,6 @@ private:
 	// Modes
 	void loopInit();
 	void loopIdle();
-	void loopDiagnostic();
 	void loopPassPrep();
 	void loopLogin();
 	void loopVerboseHS();
@@ -87,7 +86,6 @@ private:
 	BEGIN_STATE_MAP
 	STATE_MAP_ENTRY(&CMDServer::loopInit)
 	STATE_MAP_ENTRY(&CMDServer::loopIdle)
-	STATE_MAP_ENTRY(&CMDServer::loopDiagnostic)
 	STATE_MAP_ENTRY(&CMDServer::loopPassPrep)
 	STATE_MAP_ENTRY(&CMDServer::loopLogin)
 	STATE_MAP_ENTRY(&CMDServer::loopVerboseHS)
@@ -101,7 +99,6 @@ private:
 	enum CMD_States {
 		ST_INIT = 0,
 		ST_IDLE,
-		ST_DIAGNOSTIC,
 		ST_PASS_PREP,
 		ST_LOGIN,
 		ST_VERBOSE_HS,

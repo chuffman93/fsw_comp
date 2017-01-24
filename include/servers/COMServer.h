@@ -99,7 +99,6 @@ private:
 	void loopCOMHalf();
 	void loopCOMFull();
 	void loopCOMStop();
-	void loopDiagnostic();
 	void loopEnterTXSilence();
 	void loopTXSilence();
 	void loopReset();
@@ -111,7 +110,6 @@ private:
 	STATE_MAP_ENTRY(&COMServer::loopCOMHalf)
 	STATE_MAP_ENTRY(&COMServer::loopCOMFull)
 	STATE_MAP_ENTRY(&COMServer::loopCOMStop)
-	STATE_MAP_ENTRY(&COMServer::loopDiagnostic)
 	STATE_MAP_ENTRY(&COMServer::loopEnterTXSilence)
 	STATE_MAP_ENTRY(&COMServer::loopTXSilence)
 	STATE_MAP_ENTRY(&COMServer::loopReset)
@@ -124,7 +122,6 @@ private:
 		ST_COM_HALF,
 		ST_COM_FULL,
 		ST_COM_STOP,
-		ST_DIAGNOSTIC,
 		ST_ENTER_TX_SILENCE,
 		ST_TX_SILENCE,
 		ST_RESET

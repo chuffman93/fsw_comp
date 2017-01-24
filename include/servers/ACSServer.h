@@ -88,7 +88,6 @@ private:
 	void loopCOMStart();
 	void loopCOMPointing();
 	void loopCOMStop();
-	void loopDiagnostic();
 	void loopReset();
 
 	BEGIN_STATE_MAP
@@ -100,7 +99,6 @@ private:
 	STATE_MAP_ENTRY(&ACSServer::loopCOMStart)
 	STATE_MAP_ENTRY(&ACSServer::loopCOMPointing)
 	STATE_MAP_ENTRY(&ACSServer::loopCOMStop)
-	STATE_MAP_ENTRY(&ACSServer::loopDiagnostic)
 	STATE_MAP_ENTRY(&ACSServer::loopReset)
 	END_STATE_MAP
 
@@ -113,7 +111,6 @@ private:
 		ST_COM_START,
 		ST_COM_POINTING,
 		ST_COM_STOP,
-		ST_DIAGNOSTIC,
 		ST_RESET
 	};
 

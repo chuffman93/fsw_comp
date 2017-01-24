@@ -98,21 +98,11 @@ void EPSServer::loopMonitor(){
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	SystemModeEnum currentMode = modeManager->GetMode();
 	switch(currentMode){
-	case MODE_DIAGNOSTIC:
-		currentState = ST_DIAGNOSTIC;
-		break;
 	case MODE_RESET:
 		currentState = ST_RESET;
 		break;
 	default:
 		break;
-	}
-}
-
-void EPSServer::loopDiagnostic(){
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-	if(modeManager->GetMode() != MODE_DIAGNOSTIC){
-		currentState = ST_MONITOR;
 	}
 }
 

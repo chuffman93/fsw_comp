@@ -111,9 +111,6 @@ void COMServer::loopIdle(){
 	case MODE_COM:
 		currentState = ST_COM_START;
 		break;
-	case MODE_DIAGNOSTIC:
-		currentState = ST_DIAGNOSTIC;
-		break;
 	case MODE_RESET:
 		currentState = ST_RESET;
 		break;
@@ -164,17 +161,6 @@ void COMServer::loopCOMStop(){
 	COMSimplex();
 
 	currentState = ST_IDLE;
-}
-
-void COMServer::loopDiagnostic(){
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-	if(modeManager->GetMode() != MODE_DIAGNOSTIC){
-		currentState = ST_IDLE;
-	}
-
-	if(TXSilence){
-		currentState = ST_ENTER_TX_SILENCE;
-	}
 }
 
 void COMServer::loopEnterTXSilence(){
