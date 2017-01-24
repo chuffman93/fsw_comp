@@ -29,7 +29,7 @@ static COMHSHandler * comHSHandler;
 
 // -------------------------------------- Necessary Methods --------------------------------------
 COMServer::COMServer(string nameIn, LocationIDType idIn) :
-		SubsystemServer(nameIn, idIn), Singleton(), arby(idIn), beaconData() {
+		SubsystemServer(nameIn, idIn), Singleton(), arby(idIn) {
 }
 
 COMServer::~COMServer(){

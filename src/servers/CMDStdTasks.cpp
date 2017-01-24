@@ -13,11 +13,15 @@
 #include "servers/CMDStdTasks.h"
 #include "servers/COMServer.h"
 #include "servers/CDHServer.h"
+#include "servers/EPSServer.h"
+#include "servers/ACSServer.h"
+#include "servers/PLDServer.h"
 #include "servers/DispatchStdTasks.h"
 #include "core/StdTypes.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
 #include "core/WatchdogManager.h"
+#include "core/ModeManager.h"
 #include "util/FileHandler.h"
 #include "util/Logger.h"
 #include "util/Diagnostics.h"
@@ -605,10 +609,6 @@ void executeFSWCommand(int command){
 		logger->Log(LOGGER_LEVEL_ERROR, "Unknown FSW command (bit flip probable)");
 		break;
 	}
-}
-
-void beacon(){
-
 }
 
 bool checkForSOT(void){

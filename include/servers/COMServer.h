@@ -20,44 +20,6 @@
 namespace AllStar{
 namespace Servers{
 
-struct BeaconData
-{
-	// Callsign? possibly "cosgc1as"
-	float secondsSinceLastLogin;
-	uint8 errorFlags;
-	uint8 currenntMode;
-	uint8 resetFlags;
-	uint16 acsErrorFlags;
-
-	// eps HS
-	int16 epsBattVoltage;
-	int16 epsBattCurrent;
-	uint16 epsStateOfCharge;
-	int16 epsBattRemainingCapacity;
-	int16 epsCycleCount;
-	int16 epsBatteryManagerStatus;
-
-	//com HS
-	uint16 comSignalStrength;
-	uint8 comTransmitPower;
-	uint8 comTXPLLFlags;
-	int8 comPATemp;
-	uint8 comRXIFDetect;
-	uint8 comRXGain;
-	uint8 com5VCurrentSense;
-	uint8 com5VVoltageSense;
-
-	//gps HS
-	uint8 gpsFlags;
-	float gpsPosX;
-	float gpsPosY;
-	float gpsPosZ;
-	float gpsVelX;
-	float gpsVelY;
-	float gpsVelZ;
-	float gpsSolutionAge;
-};
-
 class COMServer : public SubsystemServer, public AllStar::Core::Singleton{
 	friend class AllStar::Core::Factory;
 
@@ -89,7 +51,6 @@ private:
 	AllStar::Core::MessageHandlerRegistry reg;
 	AllStar::Core::Arbitrator arby;
 
-	BeaconData * beaconData;
 	bool TXSilence;
 
 	// ------ State Machine ---------------------------------------------------

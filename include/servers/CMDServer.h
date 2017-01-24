@@ -13,6 +13,10 @@
 #define CMDSERVER_H_
 
 #include "servers/SubsystemServer.h"
+#include "servers/EPSServer.h"
+#include "servers/ACSServer.h"
+#include "servers/CDHServer.h"
+#include "servers/PLDServer.h"
 #include "core/Dispatcher.h"
 #include "core/StdTypes.h"
 #include "core/ModeManager.h"
@@ -45,7 +49,22 @@ public:
 		int32 resetPeriod;
 		int32 fileChunkSize;
 		int32 maxDownlinkSize;
+		int32 beaconPeriod;
+		int32 increasedBeaconPeriod;
 	};
+
+	union beaconUnion{
+		struct beaconStruct {
+			SystemModeEnum currentMode;
+			uint8 subPowerState;
+			int32 uptime;
+			EPSStatus epsHS;
+			ACSStatus acsHS;
+			CDHStatus cdhHS;
+			PLDStatus pldHS;
+		} bStruct;
+		uint8 bArray[sizeof(beaconStruct)];
+	} beacon;
 
 	CMDConfig CMDConfiguration;
 
@@ -113,6 +132,7 @@ private:
 	};
 
 	void CheckHealthStatus(void);
+	void SendBeacon(void);
 };
 
 }

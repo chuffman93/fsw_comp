@@ -12,6 +12,10 @@
 #include "servers/DispatchStdTasks.h"
 #include "servers/SCHServer.h"
 #include "servers/FMGServer.h"
+#include "servers/EPSServer.h"
+#include "servers/ACSServer.h"
+#include "servers/CDHServer.h"
+#include "servers/PLDServer.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
 #include "core/StdTypes.h"
@@ -46,6 +50,8 @@ CMDServer::CMDServer(string nameIn, LocationIDType idIn) :
 	CMDConfiguration.resetPeriod = 8*60;
 	CMDConfiguration.fileChunkSize = 10240; // 10KB
 	CMDConfiguration.maxDownlinkSize = 15728640;
+	CMDConfiguration.beaconPeriod = 15;
+	CMDConfiguration.increasedBeaconPeriod = 8;
 }
 
 CMDServer::~CMDServer(){
@@ -93,6 +99,8 @@ bool CMDServer::RegisterHandlers(){
 void CMDServer::loopInit(void){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "CMDServer: Initializing");
+
+	hsDelays = CMDConfiguration.beaconPeriod;
 
 	// setup for uftp
 	uftpSetup();
@@ -167,6 +175,8 @@ void CMDServer::loopPassPrep(){
 	FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
+	hsDelays = CMDConfiguration.increasedBeaconPeriod; // up the beacon rate
+
 	// see if the fmgServer has prepped Verbose H&S
 	if(fmgServer->isComReady()){
 		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: finished COM pass prep");
@@ -176,6 +186,7 @@ void CMDServer::loopPassPrep(){
 	// make sure that the COM pass hasn't concluded
 	if(modeManager->GetMode() != MODE_COM){
 		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: FMGServer never prepped for COM, COM pass over");
+		hsDelays = CMDConfiguration.beaconPeriod; // reset beacon period
 		currentState = ST_POST_PASS;
 	}
 }
@@ -187,12 +198,14 @@ void CMDServer::loopLogin(){
 	// block until the start of transmission file has been uplinked
 	if(checkForSOT()){
 		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: ground login successful");
+		hsDelays = CMDConfiguration.beaconPeriod; // set the beacon to normal rate
 		currentState = ST_VERBOSE_HS;
 	}
 
 	// make sure that the COM pass hasn't concluded
 	if(modeManager->GetMode() != MODE_COM){
 		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: login unsuccessful, COM pass over");
+		hsDelays = CMDConfiguration.beaconPeriod; // set the beacon to normal rate
 		currentState = ST_POST_PASS;
 	}
 }
@@ -301,9 +314,38 @@ void CMDServer::loopReset(){
 // Note: this function is configured to be called in the subsystem loop defined in SubsystemServer.cpp
 // since we can configure it to be called whenever we like, we can effectively set the beacon rate
 void CMDServer::CheckHealthStatus(void){
-	if(currentState == ST_IDLE || currentState == ST_DIAGNOSTIC || currentState == ST_LOGIN || currentState == ST_POST_PASS){
-		beacon();
+	if(currentState == ST_IDLE || currentState == ST_DIAGNOSTIC || currentState == ST_PASS_PREP || currentState == ST_LOGIN || currentState == ST_POST_PASS){
+		SendBeacon();
 	}
+}
+
+void CMDServer::SendBeacon(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log(LOGGER_LEVEL_INFO, "Beaconing");
+
+	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	beacon.bStruct.currentMode = modeManager->GetMode();
+
+	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	beacon.bStruct.subPowerState = 		(cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS] & 0x01) |
+										(cdhServer->subsystemPowerStates[HARDWARE_LOCATION_COM] & 0x02) |
+										(cdhServer->subsystemPowerStates[HARDWARE_LOCATION_GPS] & 0x04) |
+										(cdhServer->subsystemPowerStates[HARDWARE_LOCATION_PLD] & 0x08);
+
+	beacon.bStruct.cdhHS = cdhServer->CDHState;
+
+	beacon.bStruct.uptime = getTimeInMillis() - startTime;
+
+	EPSServer * epsServer = dynamic_cast<EPSServer *> (Factory::GetInstance(EPS_SERVER_SINGLETON));
+	beacon.bStruct.epsHS = epsServer->EPSState;
+
+	ACSServer * acsServer = dynamic_cast<ACSServer *> (Factory::GetInstance(ACS_SERVER_SINGLETON));
+	beacon.bStruct.acsHS = acsServer->ACSState;
+
+	PLDServer * pldServer = dynamic_cast<PLDServer *> (Factory::GetInstance(PLD_SERVER_SINGLETON));
+	beacon.bStruct.pldHS = pldServer->PLDState;
+
+	// TODO: send beacon
 }
 
 } // End of namespace Servers

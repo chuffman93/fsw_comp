@@ -33,6 +33,16 @@ typedef enum ACSPoint{
 	ACS_DEST_ORIENTED
 }ACSOrientationType;
 
+struct ACSStatus{
+	uint32 MRP_X;
+	uint32 MRP_Y;
+	uint32 MRP_Z;
+	uint32 ST_Status;
+	uint32 RW_Speed_X;
+	uint32 RW_Speed_Y;
+	uint32 RW_Speed_Z;
+};
+
 class ACSServer : public SubsystemServer, public AllStar::Core::Singleton{
 
 	friend class AllStar::Core::Factory;
@@ -40,17 +50,6 @@ class ACSServer : public SubsystemServer, public AllStar::Core::Singleton{
 public:
 	bool RegisterHandlers();
 	void CheckHealthStatus();
-
-	struct ACSStatus{
-		uint32 MRP_X;
-		uint32 MRP_Y;
-		uint32 MRP_Z;
-		uint32 ST_Status;
-		uint32 RW_Speed_X;
-		uint32 RW_Speed_Y;
-		uint32 RW_Speed_Z;
-		uint8 numItems;
-	};
 
 	struct ACSConfig{
 		uint32 test;

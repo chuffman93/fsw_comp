@@ -9,6 +9,11 @@
 #define CMDSTDTASKS_H_
 
 #include <string>
+#include "core/StdTypes.h"
+#include "servers/EPSServer.h"
+#include "servers/ACSServer.h"
+#include "servers/CDHServer.h"
+#include "servers/PLDServer.h"
 
 using namespace std;
 namespace AllStar{
@@ -28,7 +33,6 @@ int deleteRegex(char * filePath, char * regex);
 int getNumFiles(char * dir);
 string getDownlinkFile(int fileNum);
 void executeFSWCommand(int command);
-void beacon();
 bool checkForSOT(void);
 
 } // End of namespace Servers

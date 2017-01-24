@@ -30,6 +30,13 @@ using namespace AllStar::HAL;
 namespace AllStar{
 namespace Servers{
 
+struct CDHStatus{
+	float cpu1;   // 1  minute loads (% of CPU)
+	float cpu5;   // 5  minute loads (% of CPU)
+	float cpu15;  // 15 minute loads (% of CPU)
+	float memory; // % of memory
+};
+
 class CDHServer : public SubsystemServer, public AllStar::Core::Singleton{
 	friend class AllStar::Core::Factory;
 
@@ -45,14 +52,6 @@ public:
 	//control the reset lines (ACS, COM, PLD, EPS only)
 	void resetAssert(HardwareLocationIDType subsystem);
 	void resetDeassert(HardwareLocationIDType subsystem);
-
-
-	struct CDHStatus{
-		float cpu1;
-		float cpu5;
-		float cpu15;
-		float memory;
-	};
 
 	CDHStatus CDHState;
 

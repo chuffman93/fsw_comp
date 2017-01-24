@@ -31,7 +31,7 @@ namespace Servers{
 // -------------------------------------- Necessary Methods --------------------------------------
 ACSServer::ACSServer(string nameIn, LocationIDType idIn) :
 		SubsystemServer(nameIn, idIn, ACS_SLEEP_TIME, ACS_HS_DELAYS), Singleton(), arby(idIn), ACSOrientation(ACS_UNORIENTED), testsRun(false){
-	ACSState = {0,0,0,0,0,0,0,7};
+	ACSState = {0,0,0,0,0,0,0};
 }
 
 ACSServer::~ACSServer() {
@@ -221,7 +221,7 @@ void ACSServer::CheckHealthStatus(){
 		return;
 	}
 
-	if(HSRet->getLength() != ACSState.numItems*sizeof(uint32)){
+	if(HSRet->getLength() != 7*sizeof(uint32)){
 		logger->Log(LOGGER_LEVEL_WARN, "ACSServer: CheckHealthStatus(): incorrect message length! %u", HSRet->getLength());
 
 		//TODO: return error?
@@ -235,8 +235,8 @@ void ACSServer::CheckHealthStatus(){
 			return;
 		}
 
-		uint32 outputArray[ACSState.numItems];
-		for(uint8 i = 0; i < ACSState.numItems; i++){
+		uint32 outputArray[7];
+		for(uint8 i = 0; i < 7; i++){
 			outputArray[i] = GetUInt32(msgPtr);
 			msgPtr += 2;
 		}
