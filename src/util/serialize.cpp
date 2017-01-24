@@ -1,34 +1,30 @@
+#include <util/serialize.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
-#include <iostream>
-#include <fstream>
 
 using namespace std;
 
-class Serialize {
 
-public:
-
-Serialize(uint8_t * buf, unsigned int size){
+Serialize::Serialize(uint8_t * buf, unsigned int size){
   buf_ptr = buf;
   buf_size = size;
   serialize_index = 0;
   deserialize_index = 0;
 }
 
-int reset() {
+void Serialize::reset(void) {
   serialize_index = 0;
   deserialize_index = 0;
 }
 
-int update(uint8_t * buf, unsigned int size) {
+void Serialize::update(uint8_t * buf, unsigned int size) {
   reset();
   buf_ptr = buf;
   buf_size = size;
 }
 
-int32_t deserializeInt32() {
+int32_t Serialize::deserializeInt32(void) {
   int size = sizeof(int32_t);
   unsigned int max_index = deserialize_index + size;
 
@@ -48,7 +44,7 @@ int32_t deserializeInt32() {
 
 }
 
-int64_t deserializeInt64() {
+int64_t Serialize::deserializeInt64(void) {
   int size = sizeof(int64_t);
   unsigned int max_index = deserialize_index + size;
 
@@ -71,7 +67,7 @@ int64_t deserializeInt64() {
   return (int64_t) ret;
 }
 
-float deserializeFloat() {
+float Serialize::deserializeFloat(void) {
   int size = sizeof(float);
   unsigned int max_index = deserialize_index + size;
 
@@ -90,7 +86,7 @@ float deserializeFloat() {
   return *((float *) &ret);
 }
 
-int serializeInt32(int32_t data) {
+int Serialize::serializeInt32(int32_t data) {
   int size = sizeof(int32_t);
   unsigned int max_index = serialize_index + size;
 
@@ -114,7 +110,7 @@ int serializeInt32(int32_t data) {
   return 1;
 }
 
-int serializeInt64(int64_t data) {
+int Serialize::serializeInt64(int64_t data) {
   int size = sizeof(int64_t);
   unsigned int max_index = serialize_index + size;
 
@@ -150,7 +146,7 @@ int serializeInt64(int64_t data) {
   return 1;
 }
 
-int serializeFloat(float fdata) {
+int Serialize::serializeFloat(float fdata) {
   uint32_t data = *((uint32_t*)&fdata);
   int size = sizeof(float);
   unsigned int max_index = serialize_index + size;
@@ -175,61 +171,3 @@ int serializeFloat(float fdata) {
 
   return 1;
 }
-
-
-//private:
-
-uint8_t * buf_ptr;
-unsigned int buf_size;
-unsigned int serialize_index;
-unsigned int deserialize_index;
-
-};
-
-
-int main() {
-  int32_t myint32 = 10453;
-  int buf_size = 10;
-  uint8_t buf[buf_size];
-  Serialize mySer(buf, buf_size);
-  if (mySer.serializeInt32(myint32) == -1) {
-    printf("issue32\n");
-  }
-  int ret = mySer.deserializeInt32();
-  printf("int32: %d\n", ret);
-  cout << "sindex: " << mySer.serialize_index << " dindex " << mySer.deserialize_index << endl;
-
-  //mySer.reset();
-  int buf2_size = 50;
-  uint8_t buf2[buf2_size];
-  mySer.update(buf2, buf2_size);
-
-  cout << "sindex: " << mySer.serialize_index << " dindex " << mySer.deserialize_index << endl;
-
-
-
-  int64_t myint64 = 30111;
-  if (mySer.serializeInt64(myint64) == -1) {
-    printf("issue64\n");
-  }
-  printf("int64: %ld\n", mySer.deserializeInt64());
-
-  cout << "sindex: " << mySer.serialize_index << " dindex " << mySer.deserialize_index << endl;
-
-  float myfloat = 2.1;
-  if (mySer.serializeFloat(myfloat) == -1) {
-    printf("issueFloat\n");
-  }
-  printf("float: %f\n", mySer.deserializeFloat());
-
-  cout << "sindex: " << mySer.serialize_index << " dindex " << mySer.deserialize_index << endl;
-
-  return 0;
-}
-
-
-// private member var that is char *
-// index with another private variable
-
-// check that buffer iusnt full
-// use const
