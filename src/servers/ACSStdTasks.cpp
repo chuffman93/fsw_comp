@@ -103,6 +103,12 @@ int ACSLEDData(){
 	}
 }
 
+// Standard
+void ACSPrepReset(){
+	ACPPacket * cmd = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, SUBSYSTEM_RESET_CMD);
+	ACPPacket * ret = DispatchPacket(cmd); // no need to check the return, we're restarting anyway
+}
+
 // Diagnostic
 bool ACSTestAlive(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
@@ -119,10 +125,31 @@ bool ACSTestAlive(){
 	}
 }
 
-ACPPacket * ACSNoReturn(){
+void ACSTestDriver(uint8 driverID, float rwTorque, float trTorque){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log(LOGGER_LEVEL_ERROR, "ACSNoReturn: unfinished!");
-	return NULL;
+	logger->Log(LOGGER_LEVEL_INFO, "ACSStdTasks: running test driver");
+
+	uint8 * bufferOut = (uint8 *) malloc(1+2*sizeof(float));
+	bufferOut[0] = driverID;
+	AddFloat(bufferOut+1,rwTorque);
+	AddFloat(bufferOut+5,trTorque);
+
+	ACPPacket * query = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_TEST_DRIVER, 1+2*sizeof(float), bufferOut);
+	ACPPacket * ret = DispatchPacket(query);
+
+	if(ret == NULL){
+		logger->Log(LOGGER_LEVEL_WARN, "ACSStdTasks: NULL test driver return");
+		return;
+	}
+
+	if(ret->isSuccess()){
+		logger->Log(LOGGER_LEVEL_INFO, "ACS test driver successful");
+		return;
+	}else{
+		logger->Log(LOGGER_LEVEL_WARN, "ACS test driver failed");
+		logger->Log(LOGGER_LEVEL_WARN, "Error: %u", ret->getErrorStatus());
+		return;
+	}
 }
 
 // Command/Data

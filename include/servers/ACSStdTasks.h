@@ -22,8 +22,12 @@ bool ACSToggleLED(bool state);
 bool ACSBlinkRate(uint16 rate);
 int ACSLEDData();
 
+// Standard
+void ACSPrepReset();
+
 // Diagnostic
 bool ACSTestAlive();
+void ACSTestDriver(uint8 driverID, float rwTorque, float trTorque);
 
 // Command/Data
 void ACSSendGPS();

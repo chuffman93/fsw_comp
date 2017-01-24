@@ -46,10 +46,60 @@ public:
 	void resetAssert(HardwareLocationIDType subsystem);
 	void resetDeassert(HardwareLocationIDType subsystem);
 
+
+	struct CDHStatus{
+		float cpu1;
+		float cpu5;
+		float cpu15;
+		float memory;
+	};
+
+	CDHStatus CDHState;
+
+	union hs_union {
+	  float hs_buffer[32];
+	  struct {
+	    float com3V3volt;
+	    float com3V3curr;
+	    float comBATvolt;
+	    float comBATcurr;
+	    float com12Vvolt;
+	    float com12Vcurr;
+	    float acs3V3volt;
+	    float acs3V3curr;
+	    float acsBATvolt;
+	    float acsBATcurr;
+	    float acs12Vvolt;
+	    float acs12Vcurr;
+	    float prop3V3volt;
+	    float prop3V3curr;
+	    float propBATvolt;
+	    float propBATcurr;
+	    float prop12Vvolt;
+	    float prop12Vcurr;
+	    float pld3V3volt;
+	    float pld3V3curr;
+	    float pldBATvolt;
+	    float pldBATcurr;
+	    float pld12Vvolt;
+	    float pld12Vcurr;
+	    float gps3V3volt;
+	    float gps3V3curr;
+	    float gpsBATvolt;
+	    float gpsBATcurr;
+	    float aux3V3volt;
+	    float aux3V3curr;
+	    float auxBATvolt;
+	    float auxBATcurr;
+	  };
+	};
+
+	hs_union CDH_hotswaps;
+
+	float temperatures[4][16];
+
 	// Allows for easy look into memory usage
-	struct sysinfo si;
 	I2CDeviceManager * devMngr;
-	StorageManager * storMngr;
 	bool subsystemPowerStates[HARDWARE_LOCATION_MAX];
 
 private:
@@ -67,24 +117,29 @@ private:
 	AllStar::Core::MessageHandlerRegistry reg;
 	AllStar::Core::Arbitrator arby;
 
+	uint8 readHealthFrequency;
+
+	// Gather CDH data at a given frequency
+	void readHealth(uint8 frequency, uint32 timeUnit);
+
 	// Modes
 	void loopInit();
 	void loopMonitor();
 	void loopDiagnostic();
-
-	// Gather CDH data at a given frequency
-	void readHealth(uint8 frequency, uint32 timeUnit);
+	void loopReset();
 
 	BEGIN_STATE_MAP
 	STATE_MAP_ENTRY(&CDHServer::loopInit)
 	STATE_MAP_ENTRY(&CDHServer::loopMonitor)
 	STATE_MAP_ENTRY(&CDHServer::loopDiagnostic)
+	STATE_MAP_ENTRY(&CDHServer::loopReset)
 	END_STATE_MAP
 
 	enum CDH_States {
 		ST_INIT = 0,
 		ST_MONITOR,
-		ST_DIAGNOSTIC
+		ST_DIAGNOSTIC,
+		ST_RESET
 	};
 };
 

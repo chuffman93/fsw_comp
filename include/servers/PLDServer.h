@@ -26,6 +26,18 @@ class PLDServer : public SubsystemServer, public AllStar::Core::Singleton{
 	friend class AllStar::Core::Factory;
 public:
 	bool RegisterHandlers();
+	void CheckHealthStatus();
+
+	struct PLDStatus{
+		uint8 powerFault;
+		uint16 motorSpeed;
+		uint8 thermistors[10];
+		uint8 acdDataWorking;
+		uint16 control;
+		uint8 byteSize;
+	};
+
+	PLDStatus PLDState;
 
 private:
 	static void Initialize(void);
@@ -49,6 +61,7 @@ private:
 	void loopShutdown();
 	void loopScience();
 	void loopDiagnostic();
+	void loopReset();
 
 	BEGIN_STATE_MAP
 	STATE_MAP_ENTRY(&PLDServer::loopInit)
@@ -57,6 +70,7 @@ private:
 	STATE_MAP_ENTRY(&PLDServer::loopScience)
 	STATE_MAP_ENTRY(&PLDServer::loopShutdown)
 	STATE_MAP_ENTRY(&PLDServer::loopDiagnostic)
+	STATE_MAP_ENTRY(&PLDServer::loopReset)
 	END_STATE_MAP
 
 	enum PLD_States {
@@ -65,7 +79,8 @@ private:
 		ST_STARTUP,
 		ST_SCIENCE,
 		ST_SHUTDOWN,
-		ST_DIAGNOSTIC
+		ST_DIAGNOSTIC,
+		ST_RESET
 	};
 };
 

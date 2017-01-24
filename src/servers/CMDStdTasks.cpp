@@ -11,6 +11,8 @@
 #include "servers/CMDServer.h"
 #include "servers/SCHServer.h"
 #include "servers/CMDStdTasks.h"
+#include "servers/COMServer.h"
+#include "servers/CDHServer.h"
 #include "servers/DispatchStdTasks.h"
 #include "core/StdTypes.h"
 #include "core/Singleton.h"
@@ -22,6 +24,8 @@
 #include <termios.h>
 #include <string>
 #include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 using namespace AllStar::Core;
 using namespace std;
@@ -30,7 +34,6 @@ namespace AllStar{
 namespace Servers{
 
 #define NUM_DIAGNOSTIC_TESTS 4
-#define SIZE_THRESHOLD 15728640 // 15 MB
 
 void uftpSetup(void){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
@@ -121,11 +124,11 @@ void parseDRF(void){
 	FILE * fp;
 	char * line = NULL;
 	size_t len = 0;
-	ssize_t read;
+	ssize_t bytesRead;
 
 	// check if a DRF file has been uplinked
 	if(access(DRF_PATH, F_OK) != 0){
-		logger->Log(LOGGER_LEVEL_WARN, "CMDStdTasks: no DRF");
+		logger->Log(LOGGER_LEVEL_DEBUG, "CMDStdTasks: no DRF");
 		return;
 	}
 
@@ -136,13 +139,22 @@ void parseDRF(void){
 		return;
 	}
 
+	// check password
+	bytesRead = getline(&line, &len, fp);
+	if(strcmp(line,UPLK_PASSWORD) != 0){
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: invalid DRF password");
+		fclose(fp);
+		remove(DRF_PATH);
+		return;
+	}
+
 	// parse the file line by line
 	char * arch;
 	char * dir;
 	char * num;
 	int numFiles;
 	char * regex;
-	while ((read = getline(&line, &len, fp)) != -1) {
+	while ((bytesRead = getline(&line, &len, fp)) != -1) {
 		// ---- Parse line
 		arch = strtok(line,",");
 		if(arch == NULL){
@@ -188,7 +200,10 @@ void parseDRF(void){
 		packageFiles((char *) archive.c_str(), dir, regex, numFiles); // TODO: error check this?
 
 		// ---- Split the tarball into chunks
-		string split_cmd = "split -b " + string(FILE_CHUNK_SIZE) + " -d -a 3 " + archive + " " + archive + ".";
+		CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
+		char chunkSize[16];
+		sprintf(chunkSize, "%lu", cmdServer->CMDConfiguration.fileChunkSize);
+		string split_cmd = "split -b " + string(chunkSize) + " -d -a 3 " + archive + " " + archive + ".";
 		if(system(split_cmd.c_str()) == -1){
 			logger->Log(LOGGER_LEVEL_ERROR, "Failed to split DRF archive into chunks");
 		}
@@ -210,11 +225,11 @@ void parseDLT(void){
 	FILE * fp;
 	char * line = NULL;
 	size_t len = 0;
-	ssize_t read;
+	ssize_t bytesRead;
 
 	// check if a DLT file has been uplinked
 	if(access(DLT_PATH, F_OK) != 0){
-		logger->Log(LOGGER_LEVEL_WARN, "CMDStdTasks: no DLT");
+		logger->Log(LOGGER_LEVEL_DEBUG, "CMDStdTasks: no DLT");
 		return;
 	}
 
@@ -225,12 +240,21 @@ void parseDLT(void){
 		return;
 	}
 
+	// check password
+	bytesRead = getline(&line, &len, fp);
+	if(strcmp(line,UPLK_PASSWORD) != 0){
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: invalid DLT password");
+		fclose(fp);
+		remove(DLT_PATH);
+		return;
+	}
+
 	// parse the file line by line
 	char * dir;
 	char * num;
 	int numFiles;
 	char * regex;
-	while ((read = getline(&line, &len, fp)) != -1) {
+	while ((bytesRead = getline(&line, &len, fp)) != -1) {
 		// ---- Parse line
 		dir = strtok(line,",");
 		if(dir == NULL){
@@ -279,11 +303,11 @@ void parsePPE(void){
 	FILE * fp;
 	char * line = NULL;
 	size_t len = 0;
-	ssize_t read;
+	ssize_t bytesRead;
 
 	// check if a PPE file has been uplinked
 	if(access(PPE_PATH, F_OK) != 0){
-		logger->Log(LOGGER_LEVEL_WARN, "CMDStdTasks: no PPE");
+		logger->Log(LOGGER_LEVEL_DEBUG, "CMDStdTasks: no PPE");
 		return;
 	}
 
@@ -294,10 +318,19 @@ void parsePPE(void){
 		return;
 	}
 
+	// check password
+	bytesRead = getline(&line, &len, fp);
+	if(strcmp(line,UPLK_PASSWORD) != 0){
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: invalid PPE password");
+		fclose(fp);
+		remove(PPE_PATH);
+		return;
+	}
+
 	// parse the file line by line
 	char * type;
 	char * command;
-	while ((read = getline(&line, &len, fp)) != -1) {
+	while ((bytesRead = getline(&line, &len, fp)) != -1) {
 		// ---- Parse line
 		type = strtok(line,",");
 		if(type == NULL){
@@ -353,7 +386,7 @@ void processUplinkFiles(void){
 	if(access(SCHEDULE_PATH, F_OK) != -1){
 		rename(SCHEDULE_PATH, SCH_SCHEDULE_FILE);
 	}else{
-		logger->Log(LOGGER_LEVEL_WARN, "CMDStdTasks: no SCH");
+		logger->Log(LOGGER_LEVEL_DEBUG, "CMDStdTasks: no SCH");
 	}
 }
 
@@ -407,11 +440,13 @@ const int packageFiles(const char * destination, const char * filePath, const ch
 
 	const long size = getFileSize(filePath, regex, maxFiles);
 
+	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
+
 	if (size < 0) {
 		logger->Log(LOGGER_LEVEL_ERROR, "PackageFiles: Error detected, aborting packaging");
 		return -1;
 	}
-	else if (size > SIZE_THRESHOLD){
+	else if (size > cmdServer->CMDConfiguration.maxDownlinkSize){
 		logger->Log(LOGGER_LEVEL_ERROR, "PackageFiles: Total file size is too great to package");
 		return -2;
 	}
@@ -545,16 +580,26 @@ string getDownlinkFile(int fileNum){
 
 void executeFSWCommand(int command){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	COMServer * comServer = dynamic_cast<COMServer *> (Factory::GetInstance(COM_SERVER_SINGLETON));
+	SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
+	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
 	switch(command){
-	case FSW_CMD_EPS_REBOOT:
-		logger->Log(LOGGER_LEVEL_WARN, "FSW EPS reboot command not implemented");
+	case FSW_CMD_REQUEST_RESET:
+		logger->Log(LOGGER_LEVEL_INFO, "PPE reset requested");
+		schServer->RequestReset();
 		break;
-	case FSW_CMD_CDH_REBOOT:
-		logger->Log(LOGGER_LEVEL_WARN, "FSW CDH reboot command not implemented");
+	case FSW_CMD_HARD_SATELLITE_RESET:
+		logger->Log(LOGGER_LEVEL_ERROR, "PPE hard satellite reset, DOES NOT WORK");
+		cdhServer->resetAssert(HARDWARE_LOCATION_EPS);
 		break;
-	case FSW_CMD_TX_SILENCE:
-		logger->Log(LOGGER_LEVEL_WARN, "FSW TX silence command not implemented");
+	case FSW_CMD_TX_SILENCE_START:
+		logger->Log(LOGGER_LEVEL_WARN, "Commanding transmitter silence");
+		comServer->setTxSilence(true);
+		break;
+	case FSW_CMD_TX_SILENCE_END:
+		logger->Log(LOGGER_LEVEL_WARN, "Ending transmitter silence");
+		comServer->setTxSilence(false);
 		break;
 	default:
 		logger->Log(LOGGER_LEVEL_ERROR, "Unknown FSW command (bit flip probable)");
@@ -564,6 +609,35 @@ void executeFSWCommand(int command){
 
 void beacon(){
 
+}
+
+bool checkForSOT(void){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	if(access(SOT_PATH,F_OK) == 0){
+		char * line = NULL;
+		size_t len = 0;
+		ssize_t read;
+
+		// open the files to downlink file
+		FILE * fp = fopen(SOT_PATH, "r");
+		if (fp == NULL){
+			logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: error opening SOT");
+			remove(SOT_PATH);
+			return false;
+		}
+
+		// check the password
+		read = getline(&line, &len, fp);
+		if(strcmp(line, UPLK_PASSWORD) == 0){
+			fclose(fp);
+			return true;
+		}
+
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: PPE bad password");
+		fclose(fp);
+		remove(SOT_PATH);
+	}
+	return false;
 }
 
 } // End of namespace Servers

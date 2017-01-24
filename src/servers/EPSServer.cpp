@@ -14,6 +14,7 @@
 #include "servers/EPSHandlers.h"
 #include "servers/EPSServer.h"
 #include "servers/EPSStdTasks.h"
+#include "servers/FMGServer.h"
 #include "servers/DispatchStdTasks.h"
 #include "servers/CDHServer.h"
 #include "util/Logger.h"
@@ -31,7 +32,8 @@ static EPSPowerCycleHandler * epsPowerCycleHandler;
 // -------------------------------------- Necessary Methods --------------------------------------
 EPSServer::EPSServer(string nameIn, LocationIDType idIn) :
 		SubsystemServer(nameIn, idIn), Singleton(), arby(idIn) {
-	EPSState = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18};
+	EPSState.numItems = 18;
+	EPSConfiguration.numItems = 3;
 }
 
 EPSServer & EPSServer::operator=(const EPSServer & source){
@@ -94,8 +96,16 @@ void EPSServer::loopInit(){
 
 void EPSServer::loopMonitor(){
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-	if(modeManager->GetMode() == MODE_DIAGNOSTIC){
+	SystemModeEnum currentMode = modeManager->GetMode();
+	switch(currentMode){
+	case MODE_DIAGNOSTIC:
 		currentState = ST_DIAGNOSTIC;
+		break;
+	case MODE_RESET:
+		currentState = ST_RESET;
+		break;
+	default:
+		break;
 	}
 }
 
@@ -104,6 +114,22 @@ void EPSServer::loopDiagnostic(){
 	if(modeManager->GetMode() != MODE_DIAGNOSTIC){
 		currentState = ST_MONITOR;
 	}
+}
+
+void EPSServer::loopReset(){
+	FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	logger->Log(LOGGER_LEVEL_INFO, "EPS ready for reset");
+
+	for(uint8 i = 0; i < 60; i++){
+		if(fmgServer->isResetReady()){
+			EPSPowerCycle();
+		}
+		usleep(1000000);
+	}
+
+	currentState = ST_MONITOR;
 }
 
 // -------------------------------------------- EPS Methods ---------------------------------------------
@@ -163,7 +189,7 @@ void EPSServer::CheckHealthStatus(){
 		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Vbat Voltage:    %u", EPSState.voltageVbat);
 		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: 12v Current:     %u", EPSState.current12v);
 		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: 12v Voltage:     %u", EPSState.voltage12v);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Rem cap:         %u", EPSState.remainingCapacity);
+		logger->Log(LOGGER_LEVEL_INFO,  "EPS H&S: Rem cap:         %u", EPSState.remainingCapacity);
 		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Batt curr:       %u", EPSState.battCurrent);
 		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Batt volt:       %u", EPSState.battVoltage);
 		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Batt status:     %u", EPSState.battStatus);

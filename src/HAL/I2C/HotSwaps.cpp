@@ -41,7 +41,7 @@ namespace AllStar
 			return I2C_write(0x05); //Set to do voltage and current continuously
 		}
 
-		void HotSwap::Status(float *Voltage, float *Current){
+		bool HotSwap::Status(float *Voltage, float *Current){
 			uint8_t buf[3];
 			bool read = I2C_read(buf, 3);
 			if(read){
@@ -55,8 +55,9 @@ namespace AllStar
 			}else{
 				*Voltage = -1001;
 				*Current = -1001;
-				logger->Log(LOGGER_LEVEL_ERROR, "----HotSwaps: Error reading hot swap!");
+				logger->Log(LOGGER_LEVEL_DEBUG, "----HotSwaps: Error reading hot swap!");
 			}
+			return read;
 		}
 
 		bool HotSwap::Fault(){

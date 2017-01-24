@@ -8,6 +8,7 @@
 #include "servers/CDHServer.h"
 #include "servers/CDHStdTasks.h"
 #include "servers/DispatchStdTasks.h"
+#include "servers/FMGServer.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
 #include "core/ModeManager.h"
@@ -29,177 +30,147 @@ namespace AllStar{
 namespace Servers{
 
 struct stat sb;
-Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 //------------------------------------------- Message Handlers -------------------------------------------
-
-ACPPacket * CDHCPUUsage(void){
+void CDHSystemInfo(void){
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
-	if(sysinfo(&cdhServer->si) != 0){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	struct sysinfo si;
+	if(sysinfo(&si) != 0){
 		logger->Log(LOGGER_LEVEL_ERROR, "CDHStdTasks: CDHCPUUsage(): Error");
-		ACPPacket * ret = new ACPPacket(CDH_CPU_USAGE_FAILURE, false);
-		return ret;
+		return;
 	}
 
-	logger->Log(LOGGER_LEVEL_INFO, "CDHCPUUsage(): Checking loads");
-	logger->Log(LOGGER_LEVEL_DEBUG, "    CPU 1  min: %u", cdhServer->si.loads[0]);
-	logger->Log(LOGGER_LEVEL_DEBUG, "    CPU 5  min: %u", cdhServer->si.loads[1]);
-	logger->Log(LOGGER_LEVEL_DEBUG, "    CPU 15 min: %u", cdhServer->si.loads[2]);
+	float cpu1  = si.loads[0]/6553.6;
+	float cpu5  = si.loads[1]/6553.6;
+	float cpu15 = si.loads[2]/6553.6;
+	float mem = 100.0*(259964928.0 - ((float) si.freeram)) / (259964928.0); //hard-coded total ram: 100*(total - free)/total = percent use
+	cdhServer->CDHState = {cpu1,cpu5,cpu15,mem};
 
-	uint8 * buffer = (uint8 *) malloc(12);
-	AddUInt32(buffer, cdhServer->si.loads[0]);
-	AddUInt32(buffer + 4, cdhServer->si.loads[1]);
-	AddUInt32(buffer + 8, cdhServer->si.loads[2]);
+	logger->Log(LOGGER_LEVEL_DEBUG, "CDHCPUUsage(): Checking loads");
+	logger->Log(LOGGER_LEVEL_DEBUG, "    CPU  1 min: %f", si.loads[0]/65536.0);
+	logger->Log(LOGGER_LEVEL_DEBUG, "    CPU  5 min: %f", si.loads[1]/65536.0);
+	logger->Log(LOGGER_LEVEL_DEBUG, "    CPU 15 min: %f", si.loads[2]/65536.0);
+	logger->Log(LOGGER_LEVEL_DEBUG, "    CPU memory: %f", mem);
 
-	ACPPacket * ret = new ACPPacket(CDH_CPU_USAGE_SUCCESS, true, 12, buffer);
-	return ret;
+	FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
+	char str[100];
+	sprintf(str,"%ld,%f,%f,%f,%f",getTimeInSec(),cpu1,cpu5,cpu15,mem);
+	fmgServer->Log(DESTINATION_HST, string(str));
 }
 
-ACPPacket * CDHMemUsage(void){
-	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
-	if(sysinfo(&cdhServer->si) != 0){
-		logger->Log(LOGGER_LEVEL_ERROR, "CDHStdTasks: CDHMemUsage(): Error");
-		ACPPacket * ret = new ACPPacket(CDH_MEM_USAGE_FAILURE, false);
-		return ret;
-	}
+// TODO: log errors
+void CDHTempStart(void){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-	logger->Log(LOGGER_LEVEL_INFO, "CDHStdTasks: CDHMemUsage(): Checking Memory");
-	float mem = 100.0*(259964928.0 - ((float) cdhServer->si.freeram)) / (259964928.0); //hard-coded total ram: 100*(total - free)/total = percent use
-	logger->Log(LOGGER_LEVEL_DEBUG, "    MEM: %f", mem);
-
-
-	uint8 * buffer = (uint8 *) malloc(4);
-	AddFloat(buffer, mem);
-
-	ACPPacket * ret = new ACPPacket(CDH_MEM_USAGE_SUCCESS, true, 4, buffer);
-	return ret;
-}
-
-ACPPacket * CDHTempStart(void){
 	// Start all of the sensors
-	bool validStart[4][16];
-	bool success = true;
+	bool sensor = false;
+	bool someSuccess = false;
+	bool allSuccess = true;
 	for(uint8 bus = 0; bus < 4; bus++){
 		for(uint8 sensor = 0; sensor < 16; sensor++){
-			validStart[bus][sensor] = StartTempSensor(bus+1,sensor);
-			success &= validStart[bus][sensor];
+			printf("sensor %u, %u\n", bus, sensor);
+			sensor = StartTempSensor(bus+1,sensor);
+			someSuccess |= sensor;
+			allSuccess &= sensor;
 		}
 	}
 
-	if(success){
-		logger->Log(LOGGER_LEVEL_INFO, "CDHStdTasks: CDHTempStart(): Started sensors");
-		ACPPacket * ret = new ACPPacket(CDH_TEMP_START_SUCCESS, true);
-		return ret;
+	if(allSuccess){
+		logger->Log(LOGGER_LEVEL_DEBUG, "CDHStdTasks: started all temp sensors");
+	}else if(someSuccess){
+		logger->Log(LOGGER_LEVEL_WARN, "CDHStdTasks: error starting some temp sensors");
 	}else{
-		logger->Log(LOGGER_LEVEL_ERROR, "CDHStdTasks: CDHTempStart(): Error starting sensors!");
-		ACPPacket * ret = new ACPPacket(CDH_TEMP_START_FAILURE, false);
-		return ret;
+		logger->Log(LOGGER_LEVEL_ERROR, "CDHStdTasks: error starting all temp sensors");
 	}
 }
 
-ACPPacket * CDHTempRead(void){
-	logger->Log(LOGGER_LEVEL_INFO, "CDHStdTasks: CDHTempRead(): Reading temp sensors");
-
-	// Setup
-	float temperatures[4][16];
-	uint8 * buffer = (uint8 *) malloc(64*sizeof(float));
+void CDHTempRead(void){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log(LOGGER_LEVEL_DEBUG, "CDHStdTasks: CDHTempRead(): Reading temp sensors");
 
 	// Read and add to list
+	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 	for(uint8 bus = 0; bus < 4; bus++){
 		for(uint8 sensor = 0; sensor < 16; sensor++){
-			temperatures[bus][sensor] = ReadTempSensor(bus+1,sensor);
-			AddFloat(buffer + 4*(16*bus + sensor), temperatures[bus][sensor]);
+			cdhServer->temperatures[bus][sensor] = ReadTempSensor(bus+1,sensor);
 		}
 	}
-
-	// Send return
-	ACPPacket * ret = new ACPPacket(CDH_TEMP_READ_SUCCESS, true, 64*sizeof(float), buffer);
-	return ret;
 }
 
-ACPPacket * CDHHotSwaps(void){
-	logger->Log(LOGGER_LEVEL_INFO, "CDHStdTasks: CDHHotSwaps(): Reading hot swaps");
+void CDHHotSwaps(void){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log(LOGGER_LEVEL_DEBUG, "CDHStdTasks: CDHHotSwaps(): Reading hot swaps");
 
 	// Setup
-	AllStar::Servers::CDHServer * cdhServer = dynamic_cast<AllStar::Servers::CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
-	float vcRead[32];
-	uint8 * buffer = (uint8 *) malloc(32*sizeof(float));
+	CDHServer * cdhServer = dynamic_cast<CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
 
 	// Read and add to buffer
-	cdhServer->devMngr->getHSStatus(vcRead);
-	for(uint8 i = 0; i < 32; i++){
-		AddFloat(buffer + i, vcRead[i]);
+	bool hsOK = cdhServer->devMngr->getHSStatus(cdhServer->CDH_hotswaps.hs_buffer);
+
+	if(!hsOK){
+		logger->Log(LOGGER_LEVEL_ERROR, "CDHStdTasks: all hot swaps down");
 	}
 
-	ACPPacket * ret = new ACPPacket(CDH_HOT_SWAPS_SUCCESS, true, 64*sizeof(float), buffer);
-	return ret;
+	// TODO: log
 }
 
 //TODO: add back power monitors
-ACPPacket * CDHPowerMonitors(void){
-	logger->Log(LOGGER_LEVEL_FATAL, "CDHStdTasks: CDHPowerMonitors(): Unfinished function (variable type)!");
+//void CDHPowerMonitors(void){
+//	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+//	logger->Log(LOGGER_LEVEL_FATAL, "CDHStdTasks: CDHPowerMonitors(): Unfinished function (variable type)!");
+//
+//	AllStar::Servers::CDHServer * cdhServer = dynamic_cast<AllStar::Servers::CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
+//	PowerMonitor_Data data[4];
+//	list<VariableTypeData *>params;
+//	VariableTypeData maxPHold[4];
+//	VariableTypeData minPHold[4];
+//	VariableTypeData maxVHold[4];
+//	VariableTypeData minVHold[4];
+//	VariableTypeData maxAHold[4];
+//	VariableTypeData minAHold[4];
+//	VariableTypeData maxIHold[4];
+//	VariableTypeData minIHold[4];
+//
+//	// Read and add to list
+//	cdhServer->devMngr->getPMStatus(data);
+//	for(uint8 i = 0; i < 4; i++){
+//		maxPHold[i] = VariableTypeData(data[i].MaxPower);
+//		minPHold[i] = VariableTypeData(data[i].MinPower);
+//		maxVHold[i] = VariableTypeData(data[i].MaxVoltage);
+//		minVHold[i] = VariableTypeData(data[i].MinVoltage);
+//		maxAHold[i] = VariableTypeData(data[i].MaxADIN);
+//		minAHold[i] = VariableTypeData(data[i].MinADIN);
+//		maxIHold[i] = VariableTypeData(data[i].MaxCurrent);
+//		minIHold[i] = VariableTypeData(data[i].MinCurrent);
+//		params.push_back(&maxPHold[i]);
+//		params.push_back(&minPHold[i]);
+//		params.push_back(&maxVHold[i]);
+//		params.push_back(&minVHold[i]);
+//		params.push_back(&maxAHold[i]);
+//		params.push_back(&minAHold[i]);
+//		params.push_back(&maxIHold[i]);
+//		params.push_back(&minIHold[i]);
+//	}
+//}
 
-	//			AllStar::Servers::CDHServer * cdhServer = dynamic_cast<AllStar::Servers::CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
-	//			PowerMonitor_Data data[4];
-	//			list<VariableTypeData *>params;
-	//			VariableTypeData maxPHold[4];
-	//			VariableTypeData minPHold[4];
-	//			VariableTypeData maxVHold[4];
-	//			VariableTypeData minVHold[4];
-	//			VariableTypeData maxAHold[4];
-	//			VariableTypeData minAHold[4];
-	//			VariableTypeData maxIHold[4];
-	//			VariableTypeData minIHold[4];
-	//
-	//			// Read and add to list
-	//			cdhServer->devMan->getPMStatus(data);
-	//			for(uint8 i = 0; i < 4; i++){
-	//				maxPHold[i] = VariableTypeData(data[i].MaxPower);
-	//				minPHold[i] = VariableTypeData(data[i].MinPower);
-	//				maxVHold[i] = VariableTypeData(data[i].MaxVoltage);
-	//				minVHold[i] = VariableTypeData(data[i].MinVoltage);
-	//				maxAHold[i] = VariableTypeData(data[i].MaxADIN);
-	//				minAHold[i] = VariableTypeData(data[i].MinADIN);
-	//				maxIHold[i] = VariableTypeData(data[i].MaxCurrent);
-	//				minIHold[i] = VariableTypeData(data[i].MinCurrent);
-	//				params.push_back(&maxPHold[i]);
-	//				params.push_back(&minPHold[i]);
-	//				params.push_back(&maxVHold[i]);
-	//				params.push_back(&minVHold[i]);
-	//				params.push_back(&maxAHold[i]);
-	//				params.push_back(&minAHold[i]);
-	//				params.push_back(&maxIHold[i]);
-	//				params.push_back(&minIHold[i]);
-	//			}
-	//
-	//			DataMessage dat(CDH_POWER_MONITORS_SUCCESS, params);
-	//			ReturnMessage * retMsg = new ReturnMessage(&dat, true);
-	//			return retMsg;
-}
-
-ACPPacket * CDHStartPM(void){
-	logger->Log(LOGGER_LEVEL_FATAL, "CDHStdTasks: CDHStartPM(): Unfinished function (variable type)!");
-
-	AllStar::Servers::CDHServer * cdhServer = dynamic_cast<AllStar::Servers::CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
-
-	// Start all of the sensors
-	cdhServer->devMngr->startPMMeas();
-
-	logger->Log(LOGGER_LEVEL_INFO, "CDHStdTasks: CDHStartPM(): Started PM measurement");
-	ACPPacket * ret = new ACPPacket(CDH_START_PM_SUCCESS, true);
-	return ret;
-}
-
-ACPPacket * CleanFiles(uint16 weekStart, uint16 weekEnd){
-	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
-	cdhServer->storMngr->CleanFiles(weekStart, weekEnd);
-
-	ACPPacket * ret = new ACPPacket(CDH_CLEAN_FS_SUCCESS, true);
-	return ret;
-}
+//ACPPacket * CDHStartPM(void){
+//	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+//	logger->Log(LOGGER_LEVEL_FATAL, "CDHStdTasks: CDHStartPM(): Unfinished function (variable type)!");
+//
+//	AllStar::Servers::CDHServer * cdhServer = dynamic_cast<AllStar::Servers::CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
+//
+//	// Start all of the sensors
+//	cdhServer->devMngr->startPMMeas();
+//
+//	logger->Log(LOGGER_LEVEL_DEBUG, "CDHStdTasks: CDHStartPM(): Started PM measurement");
+//	ACPPacket * ret = new ACPPacket(CDH_START_PM_SUCCESS, true);
+//	return ret;
+//}
 
 // Helper Functions ---------------------------------------------------------------
 bool StartTempSensor(int bus, int sensor){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	// create filename
 	char * temp = new char[1];
 	string start = "echo 1 > /sys/bus/w1/devices/w1_bus_master";
@@ -213,13 +184,14 @@ bool StartTempSensor(int bus, int sensor){
 
 	// start sensor
 	if(system(start.c_str()) == -1){
-		logger->Log(LOGGER_LEVEL_WARN, "CDHStdTasks: StartTempSensor(): Error Starting Sensor!");
+		logger->Log(LOGGER_LEVEL_DEBUG, "CDHStdTasks: StartTempSensor(): Error Starting Sensor!");
 		return false;
 	}
 	return true;
 }
 
 float ReadTempSensor(int bus, int sensor){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	// create filename
 	char * temp = new char[1];
 	string read = "/sys/bus/w1/devices/w1_bus_master";
@@ -230,12 +202,9 @@ float ReadTempSensor(int bus, int sensor){
 	read.append(temp);
 	read.append("/temp");
 	delete temp;
-	char logbuf[150];
 
 	FILE * fp;
 	fp = fopen(read.c_str(), "r");
-
-	//cout<<"Attempting to read sensor "<<sensor<<" on bus "<<bus<<"!"<<endl;
 
 	bool isGood = false;
 	if(fp)
@@ -270,23 +239,20 @@ float ReadTempSensor(int bus, int sensor){
 
 		// Act on validity
 		if(isGood){
-			sprintf(logbuf,"CDHStdTasks: ReadTempSensor: Good data from sensor %d on bus %d",sensor,bus);
-			logger->Log(LOGGER_LEVEL_DEBUG, logbuf);
+			logger->Log(LOGGER_LEVEL_DEBUG, "CDHStdTasks: ReadTempSensor: Good data from sensor %d on bus %d", sensor, bus);
 			delete c;
 			delete tempRead;
 			fclose(fp);
 			return temperature;
 		}else{
-			sprintf(logbuf,"CDHStdTasks: ReadTempSensor: Bad data from sensor %d on bus %d!",sensor,bus);
-			logger->Log(LOGGER_LEVEL_WARN, logbuf);
+			logger->Log(LOGGER_LEVEL_DEBUG, "CDHStdTasks: ReadTempSensor: Bad data from sensor %d on bus %d!", sensor, bus);
 			delete c;
 			delete tempRead;
 			fclose(fp);
 			return -300;
 		}
 	}else{
-		sprintf(logbuf,"CDHStdTasks: ReadTempSensor: Error opening file: sensor %d on bus %d",sensor,bus);
-		logger->Log(LOGGER_LEVEL_WARN, logbuf);
+		logger->Log(LOGGER_LEVEL_DEBUG, "CDHStdTasks: ReadTempSensor: Error opening file: sensor %d on bus %d", sensor, bus);
 		return -301;
 	}
 }

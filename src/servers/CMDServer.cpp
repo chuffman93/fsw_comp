@@ -3,7 +3,7 @@
 *
 *  Created on: Feb 12, 2013
 *      Author: Caitlyn
-*  Modified by:
+*  Modified by: Alex, January 2017
 */
 
 #include "servers/CMDHandlers.h"
@@ -11,6 +11,7 @@
 #include "servers/CMDStdTasks.h"
 #include "servers/DispatchStdTasks.h"
 #include "servers/SCHServer.h"
+#include "servers/FMGServer.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
 #include "core/StdTypes.h"
@@ -40,6 +41,11 @@ CMDServer::CMDServer(string nameIn, LocationIDType idIn) :
 	for (int i = HARDWARE_LOCATION_MIN; i < HARDWARE_LOCATION_MAX; i++) {
 		subsystem_acp_protocol[i] = ACP_PROTOCOL_SPI;
 	}
+
+	startTime = getTimeInSec();
+	CMDConfiguration.resetPeriod = 8*60;
+	CMDConfiguration.fileChunkSize = 10240; // 10KB
+	CMDConfiguration.maxDownlinkSize = 15728640;
 }
 
 CMDServer::~CMDServer(){
@@ -99,20 +105,39 @@ void CMDServer::loopIdle(void){
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-	if(modeManager->GetMode() == MODE_DIAGNOSTIC){
+	// check for state transitions from mode switches
+	SystemModeEnum currentMode = modeManager->GetMode();
+	switch(currentMode){
+	case MODE_DIAGNOSTIC:
 		currentState = ST_DIAGNOSTIC;
-	}
-
-	if(modeManager->GetMode() == MODE_COM){
+		return;
+	case MODE_COM:
 		currentState = ST_PASS_PREP;
+		return;
+	case MODE_RESET:
+		currentState = ST_RESET;
+		return;
+	default:
+		break;
 	}
 
-	if(access(SOT_PATH, F_OK) == 0){
+	// Check for ground login
+	if(checkForSOT()){
 		logger->Log(LOGGER_LEVEL_WARN, "CMDServer: unexpected ground login, preparing to enter COM Mode");
-		if(modeManager->GetMode() == MODE_BUS_PRIORITY){
-			SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
-			schServer->RequestCOMMode();
-		}
+		SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
+		schServer->RequestCOMMode();
+		int64 currTime = getTimeInMillis();
+		waitUntil(currTime,5000);
+		currentState = ST_PASS_PREP;
+		return;
+	}
+
+	// Monitor daily reset
+	if(getTimeInSec() > (startTime + CMDConfiguration.resetPeriod) && (modeManager->GetMode() == MODE_BUS_PRIORITY)){
+		SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
+		schServer->RequestReset();
+		currentState = ST_RESET;
+		return;
 	}
 
 	dispatcher->CleanRXQueue();
@@ -120,33 +145,47 @@ void CMDServer::loopIdle(void){
 
 void CMDServer::loopDiagnostic(){
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-	runDiagnostic();
+	if(modeManager->GetMode() != MODE_DIAGNOSTIC){
+		currentState = ST_IDLE;
+	}
 
-	currentState = ST_IDLE;
-	modeManager->SetMode(MODE_BUS_PRIORITY);
+	if(checkForSOT()){
+		logger->Log(LOGGER_LEVEL_WARN, "CMDServer: unexpected ground login, preparing to enter COM Mode");
+		SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
+		schServer->RequestCOMMode();
+		int64 currTime = getTimeInMillis();
+		waitUntil(currTime,5000);
+		currentState = ST_PASS_PREP;
+		return;
+	}
 }
 
 void CMDServer::loopPassPrep(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
+	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
-	/* TODO:
-	 * Tell the FMG server to go to its COM state
-	 * Command ACS to point to the ground station
-	 * Gather Verbose H&S files
-	 */
+	// see if the fmgServer has prepped Verbose H&S
+	if(fmgServer->isComReady()){
+		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: finished COM pass prep");
+		currentState = ST_LOGIN;
+	}
 
-	logger->Log(LOGGER_LEVEL_INFO, "CMDServer: finished COM pass prep");
-	currentState = ST_LOGIN;
+	// make sure that the COM pass hasn't concluded
+	if(modeManager->GetMode() != MODE_COM){
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: FMGServer never prepped for COM, COM pass over");
+		currentState = ST_POST_PASS;
+	}
 }
 
-// TODO: determine login sequence
 void CMDServer::loopLogin(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
 	// block until the start of transmission file has been uplinked
-	if(access(SOT_PATH,F_OK) == 0){
+	if(checkForSOT()){
 		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: ground login successful");
 		currentState = ST_VERBOSE_HS;
 	}
@@ -212,7 +251,7 @@ void CMDServer::loopDownlink(){
 		if(strcmp(filename.c_str(),"") != 0){
 			// downlink the file
 			char sh_cmd[256];
-			sprintf(sh_cmd, "/home/root/uftp -I ax0 -H 1.1.1.2 -x 1 %s", filename.c_str()); // can add "-H 1.1.1.2" to only downlink to one IP, "-x 1" decreases the log statement verboseness
+			sprintf(sh_cmd, "/home/root/uftp -Y aes256-gcm -h sha256 -I ax0 -H 1.1.1.2 -x 1 %s", filename.c_str()); // can add "-H 1.1.1.2" to only downlink to one IP, "-x 1" decreases the log statement verboseness
 			system(sh_cmd);
 		}
 	}else{
@@ -239,11 +278,22 @@ void CMDServer::loopPostPass(){
 	cmd = "rm -rf " + string(UPLINK_DIRECTORY) + "/*";
 	system(cmd.c_str());
 
-	// TODO: switch FMG server out of COM mode
-
 	if(modeManager->GetMode() == MODE_COM){
 		modeManager->SetMode(MODE_BUS_PRIORITY);
 	}
+	currentState = ST_IDLE;
+}
+
+void CMDServer::loopReset(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log(LOGGER_LEVEL_INFO, "Daily reset encountered");
+
+	for(uint8 i = 0; i < 30; i++){
+		usleep(1000000);
+	}
+
+	logger->Log(LOGGER_LEVEL_ERROR, "Daily reset failed, performing reboot");
+	system("reboot");
 	currentState = ST_IDLE;
 }
 

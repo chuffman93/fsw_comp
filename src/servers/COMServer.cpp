@@ -106,13 +106,23 @@ void COMServer::loopIdle(){
 	}
 
 	ModeManager * modeManager = dynamic_cast<ModeManager *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
-
-	if(modeManager->GetMode() == MODE_COM){
+	SystemModeEnum currentMode = modeManager->GetMode();
+	switch(currentMode){
+	case MODE_COM:
 		currentState = ST_COM_START;
+		break;
+	case MODE_DIAGNOSTIC:
+		currentState = ST_DIAGNOSTIC;
+		break;
+	case MODE_RESET:
+		currentState = ST_RESET;
+		break;
+	default:
+		break;
 	}
 
-	if(modeManager->GetMode() == MODE_DIAGNOSTIC){
-		currentState = ST_DIAGNOSTIC;
+	if(TXSilence){
+		currentState = ST_ENTER_TX_SILENCE;
 	}
 }
 
@@ -144,6 +154,10 @@ void COMServer::loopCOMFull(){
 	if(modeManager->GetMode() != MODE_COM){
 		currentState = ST_COM_STOP;
 	}
+
+	if(TXSilence){
+		currentState = ST_ENTER_TX_SILENCE;
+	}
 }
 
 void COMServer::loopCOMStop(){
@@ -157,6 +171,44 @@ void COMServer::loopDiagnostic(){
 	if(modeManager->GetMode() != MODE_DIAGNOSTIC){
 		currentState = ST_IDLE;
 	}
+
+	if(TXSilence){
+		currentState = ST_ENTER_TX_SILENCE;
+	}
+}
+
+void COMServer::loopEnterTXSilence(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	if(!COMSimplex()){
+		uint8 i = 0;
+		while(i++ < 10){
+			if(COMSimplex()){
+				i = 20;
+			}
+		}
+		if(i != 20){
+			logger->Log(LOGGER_LEVEL_FATAL, "COM can't enter TX silence, serious problem");
+		}
+	}
+	logger->Log(LOGGER_LEVEL_INFO, "COM entering TX silence");
+	currentState = ST_TX_SILENCE;
+}
+
+void COMServer::loopTXSilence(){
+	if(!TXSilence){
+		currentState = ST_IDLE;
+	}
+}
+
+void COMServer::loopReset(){
+	COMPrepReset();
+
+	for(uint8 i = 0; i < 60; i++){
+		usleep(1000000);
+	}
+
+	currentState = ST_IDLE;
 }
 
 }

@@ -1,13 +1,13 @@
 /*
- * EPSStdTasks.h
- * A collection of functions to be run in EPSSubsystemLoop
+ * PLDStdTasks.h
+ * A collection of functions to be run in PLDSubsystemLoop
  *
  * Written by: Conrad Hougen
  * Created: 7/10/12
  */
 
-#ifndef EPSSTDTASKS_H_
-#define EPSSTDTASKS_H_
+#ifndef PLDSTDTASKS_H_
+#define PLDSTDTASKS_H_
 
 #include "core/Dispatcher.h"
 #include "core/WatchdogManager.h"
@@ -20,9 +20,19 @@
 namespace AllStar{
 namespace Servers{
 
+// Debug
+bool PLDToggleLED(bool state);
+bool PLDBlinkRate(uint16 rate);
+int PLDLEDData();
+bool PLDTestAlive();
+
 AllStar::Core::ACPPacket * PLDHealthStatus(void);
+void PLDPrepReset();
+
+// Non-opcode standard tasks
+bool PLDSelfCheck();
 
 }
 }
 
-#endif /* EPSSTDTASKS_H_ */
+#endif /* PLDSTDTASKS_H_ */

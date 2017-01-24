@@ -315,7 +315,7 @@ int SPI_HALServer::spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_bufp){
 			ioctl(slave_fd, SPI_IOC_MESSAGE(1), &tr);
 			rx_buf[buf_pt] = rx;
 
-			logger->Log(LOGGER_LEVEL_SUPER_DEBUG, "spi_read: byte value: ------------- 0x%x", rx);
+			logger->Log(LOGGER_LEVEL_DEBUG, "spi_read: byte value: ------------- 0x%x", rx);
 			buf_pt++;
 		}
 

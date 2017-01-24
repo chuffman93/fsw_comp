@@ -21,7 +21,7 @@ public:
 	bool initializeHS(void);
 	void initializePM(void);
 	void startPMMeas(void);
-	void getHSStatus(float *);
+	bool getHSStatus(float *);
 	void getPMStatus(PowerMonitor_Data * data);
 	void checkHS(void);
 private:

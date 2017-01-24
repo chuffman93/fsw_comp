@@ -94,12 +94,11 @@ int main(int argc, char * argv[])
 	Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON);
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
-	modeManager->SetMode(MODE_STARTUP);
+	modeManager->SetMode(MODE_BUS_PRIORITY);
 
 	logger->Log(LOGGER_LEVEL_FATAL, "Flight software initialization complete! Starting servers!");
 
 	// ----------------------------- Grab Server Instances ---------------------------------------------------------
-	// TODO: more efficient way to do this? (ie. SubsystemServer array and no dynamic casting >>> one for loop?)
 	bool threadsCreated = true;
 	ACSServer * acsServer = dynamic_cast<ACSServer *> (Factory::GetInstance(ACS_SERVER_SINGLETON));
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
@@ -116,27 +115,26 @@ int main(int argc, char * argv[])
 	// ----------------------------- Start Servers -----------------------------------------------------------------
 	threadsCreated &= WatchdogManager::StartServer(acsServer, 50,	false);	 //ACS
 	threadsCreated &= WatchdogManager::StartServer(cdhServer, 20,	true);	 //CDH
-	threadsCreated &= WatchdogManager::StartServer(cmdServer, 50,	true);	 //CMD
+	threadsCreated &= WatchdogManager::StartServer(cmdServer, 50,	false);	 //CMD
 	threadsCreated &= WatchdogManager::StartServer(comServer, 10,	false);	 //COM
-	threadsCreated &= WatchdogManager::StartServer(epsServer, 10,	true);	 //EPS
+	threadsCreated &= WatchdogManager::StartServer(epsServer, 10,	false);	 //EPS
 	threadsCreated &= WatchdogManager::StartServer(errServer, 0,	false);	 //ERR
 	threadsCreated &= WatchdogManager::StartServer(fmgServer, 0,	true);	 //FMG
 	threadsCreated &= WatchdogManager::StartServer(gpsServer, 50,	false);	 //GPS
 	threadsCreated &= WatchdogManager::StartServer(pldServer, 50,	false);	 //PLD
 	threadsCreated &= WatchdogManager::StartServer(schServer, 0,	true);	 //SCH
-	threadsCreated &= WatchdogManager::StartServer(spiServer, 0,	true);	 //SPI
+	threadsCreated &= WatchdogManager::StartServer(spiServer, 0,	false);	 //SPI
 
 	if(!threadsCreated){
 		logger->Log(LOGGER_LEVEL_FATAL, "Not all threads were created on startup!");
-		// TODO: do something?
+		// TODO: what to do?
 	}else{
 		logger->Log(LOGGER_LEVEL_INFO, "All servers created!");
 	}
 
 	WatchdogManager::WatchdogManagerTask();
-	//while(true){usleep(100000);}
 
-	logger->Log(LOGGER_LEVEL_FATAL, "Flight Software exiting from main! All relevant threads have exited!");
+	logger->Log(LOGGER_LEVEL_FATAL, "Flight Software exiting from main! Watchdog exited!");
 
 	return 42;
 }

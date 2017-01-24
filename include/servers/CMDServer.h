@@ -32,8 +32,7 @@ namespace Servers{
 #define PPE_PATH			UPLINK_DIRECTORY  "/PPE.txt"
 #define SCHEDULE_PATH		UPLINK_DIRECTORY  "/SCH.txt"
 #define EOT_PATH			UPLINK_DIRECTORY  "/EOT.txt"
-
-#define FILE_CHUNK_SIZE		"10k"	// size of chunks to make (ie. 500, 5k, 10M, etc.)
+#define UPLK_PASSWORD		"P0!@rCube\n"
 
 class CMDServer : public SubsystemServer, public AllStar::Core::Singleton{
 	friend class AllStar::Core::Factory;
@@ -41,6 +40,15 @@ class CMDServer : public SubsystemServer, public AllStar::Core::Singleton{
 public:
 	bool RegisterHandlers();
 	static int subsystem_acp_protocol[HARDWARE_LOCATION_MAX];
+
+	struct CMDConfig{
+		int32 resetPeriod;
+		int32 fileChunkSize;
+		int32 maxDownlinkSize;
+	};
+
+	CMDConfig CMDConfiguration;
+
 private:
 	static void Initialize(void);
 
@@ -61,6 +69,7 @@ private:
 	// Additional member variables
 	int numFilesDWN;
 	int currFileNum;
+	int32 startTime;
 
 	// Modes
 	void loopInit();
@@ -73,6 +82,7 @@ private:
 	void loopDownlinkPrep();
 	void loopDownlink();
 	void loopPostPass();
+	void loopReset();
 
 	BEGIN_STATE_MAP
 	STATE_MAP_ENTRY(&CMDServer::loopInit)
@@ -85,6 +95,7 @@ private:
 	STATE_MAP_ENTRY(&CMDServer::loopDownlinkPrep)
 	STATE_MAP_ENTRY(&CMDServer::loopDownlink)
 	STATE_MAP_ENTRY(&CMDServer::loopPostPass)
+	STATE_MAP_ENTRY(&CMDServer::loopReset)
 	END_STATE_MAP
 
 	enum CMD_States {
@@ -97,7 +108,8 @@ private:
 		ST_UPLINK,
 		ST_DOWNLINK_PREP,
 		ST_DOWNLINK,
-		ST_POST_PASS
+		ST_POST_PASS,
+		ST_RESET,
 	};
 
 	void CheckHealthStatus(void);
