@@ -9,6 +9,11 @@
 #define CMDSTDTASKS_H_
 
 #include <string>
+#include "core/StdTypes.h"
+#include "servers/EPSServer.h"
+#include "servers/ACSServer.h"
+#include "servers/CDHServer.h"
+#include "servers/PLDServer.h"
 
 using namespace std;
 namespace AllStar{

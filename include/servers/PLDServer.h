@@ -21,21 +21,21 @@
 namespace AllStar{
 namespace Servers{
 
+struct PLDStatus{
+	uint8 powerFault;
+	uint16 motorSpeed;
+	uint8 thermistors[10];
+	uint8 acdDataWorking;
+	uint16 control;
+	uint8 byteSize;
+};
+
 class PLDServer : public SubsystemServer, public AllStar::Core::Singleton{
 
 	friend class AllStar::Core::Factory;
 public:
 	bool RegisterHandlers();
 	void CheckHealthStatus();
-
-	struct PLDStatus{
-		uint8 powerFault;
-		uint16 motorSpeed;
-		uint8 thermistors[10];
-		uint8 acdDataWorking;
-		uint16 control;
-		uint8 byteSize;
-	};
 
 	PLDStatus PLDState;
 

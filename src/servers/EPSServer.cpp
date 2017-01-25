@@ -32,7 +32,6 @@ static EPSPowerCycleHandler * epsPowerCycleHandler;
 // -------------------------------------- Necessary Methods --------------------------------------
 EPSServer::EPSServer(string nameIn, LocationIDType idIn) :
 		SubsystemServer(nameIn, idIn), Singleton(), arby(idIn) {
-	EPSState.numItems = 18;
 	EPSConfiguration.numItems = 3;
 }
 
@@ -148,8 +147,8 @@ void EPSServer::CheckHealthStatus(){
 			return;
 		}
 
-		uint16 outputArray[EPSState.numItems];
-		for(uint8 i = 0; i < EPSState.numItems; i++){
+		uint16 outputArray[18];
+		for(uint8 i = 0; i < 18; i++){
 			outputArray[i] = GetUInt16(msgPtr);
 			msgPtr += 2;
 		}

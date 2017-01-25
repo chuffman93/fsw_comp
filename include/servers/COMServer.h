@@ -20,44 +20,6 @@
 namespace AllStar{
 namespace Servers{
 
-struct BeaconData
-{
-	// Callsign? possibly "cosgc1as"
-	float secondsSinceLastLogin;
-	uint8 errorFlags;
-	uint8 currenntMode;
-	uint8 resetFlags;
-	uint16 acsErrorFlags;
-
-	// eps HS
-	int16 epsBattVoltage;
-	int16 epsBattCurrent;
-	uint16 epsStateOfCharge;
-	int16 epsBattRemainingCapacity;
-	int16 epsCycleCount;
-	int16 epsBatteryManagerStatus;
-
-	//com HS
-	uint16 comSignalStrength;
-	uint8 comTransmitPower;
-	uint8 comTXPLLFlags;
-	int8 comPATemp;
-	uint8 comRXIFDetect;
-	uint8 comRXGain;
-	uint8 com5VCurrentSense;
-	uint8 com5VVoltageSense;
-
-	//gps HS
-	uint8 gpsFlags;
-	float gpsPosX;
-	float gpsPosY;
-	float gpsPosZ;
-	float gpsVelX;
-	float gpsVelY;
-	float gpsVelZ;
-	float gpsSolutionAge;
-};
-
 class COMServer : public SubsystemServer, public AllStar::Core::Singleton{
 	friend class AllStar::Core::Factory;
 
@@ -89,27 +51,18 @@ private:
 	AllStar::Core::MessageHandlerRegistry reg;
 	AllStar::Core::Arbitrator arby;
 
-	BeaconData * beaconData;
 	bool TXSilence;
 
 	// ------ State Machine ---------------------------------------------------
 	void loopInit();
-	void loopIdle();
-	void loopCOMStart();
-	void loopCOMHalf();
-	void loopCOMFull();
-	void loopCOMStop();
+	void loopBeacon();
 	void loopEnterTXSilence();
 	void loopTXSilence();
 	void loopReset();
 
 	BEGIN_STATE_MAP
 	STATE_MAP_ENTRY(&COMServer::loopInit)
-	STATE_MAP_ENTRY(&COMServer::loopIdle)
-	STATE_MAP_ENTRY(&COMServer::loopCOMStart)
-	STATE_MAP_ENTRY(&COMServer::loopCOMHalf)
-	STATE_MAP_ENTRY(&COMServer::loopCOMFull)
-	STATE_MAP_ENTRY(&COMServer::loopCOMStop)
+	STATE_MAP_ENTRY(&COMServer::loopBeacon)
 	STATE_MAP_ENTRY(&COMServer::loopEnterTXSilence)
 	STATE_MAP_ENTRY(&COMServer::loopTXSilence)
 	STATE_MAP_ENTRY(&COMServer::loopReset)
@@ -117,15 +70,10 @@ private:
 
 	enum COM_States {
 		ST_INIT = 0,
-		ST_IDLE,
-		ST_COM_START,
-		ST_COM_HALF,
-		ST_COM_FULL,
-		ST_COM_STOP,
+		ST_BEACON,
 		ST_ENTER_TX_SILENCE,
 		ST_TX_SILENCE,
 		ST_RESET
-		// BEACON, RX, TX ...
 	};
 };
 

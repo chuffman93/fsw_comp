@@ -6,6 +6,7 @@
 
 #include "servers/COMStdTasks.h"
 #include "servers/COMServer.h"
+#include "servers/CMDServer.h"
 #include "servers/DispatchStdTasks.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
@@ -163,6 +164,19 @@ bool COMFullDuplex(){
 	if(!response->isSuccess()){
 		logger->Log(LOGGER_LEVEL_WARN, "COM: Error entering full duplex");
 	}
+
+	return(response->isSuccess());
+}
+
+bool COMSendBeacon(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
+
+	uint8 * bufferOut = (uint8 *) malloc(sizeof(cmdServer->beacon));
+	bufferOut = cmdServer->beacon.bArray;
+
+	ACPPacket * command = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, COM_BEACON, sizeof(cmdServer->beacon), bufferOut);
+	ACPPacket * response = DispatchPacket(command);
 
 	return(response->isSuccess());
 }

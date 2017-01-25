@@ -27,10 +27,10 @@ void ACSPrepReset();
 
 // Diagnostic
 bool ACSTestAlive();
-void ACSTestDriver(uint8 driverID, float rwTorque, float trTorque);
+bool ACSTestDriver(uint8 driverID, float rwTorque, float trTorque);
 
 // Command/Data
-void ACSSendGPS();
+bool ACSSendGPS();
 bool ACSPointSun();
 bool ACSPointNadir();
 bool ACSPointGND();
