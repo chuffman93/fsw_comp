@@ -492,22 +492,97 @@ TEST(TestSerialize, testMultipleTypes) {
 
   Serialize testSer(buf, buf_size); 
 
-  int32_t test_val1 = 12;
+  int32_t test_val1 = -1542;
   int32_t deser_val1;
   err = testSer.serializeInt32(test_val1);
   ASSERT_EQ(err, 1);
   deser_val = testSer.deserializeInt32();
   ASSERT_EQ(deser_val1, test_val1);
 
-  err = testSer.serializeInt32(test_val);
+  uint8_t test_val2 = 94;
+  err = testSer.serializeUInt8(test_val2);
+  ASSERT_EQ(err, 1);
+
+  double test_val3 = 112.42455;
+  err = testSer.serializeDouble(test_val3);
+  ASSERT_EQ(err, 1);
+
+  bool test_val4 = true;
+  err = testSer.serializeBool(test_val4);
+  ASSERT_EQ(err, 1);
+
+  uint8_t deser_val2;
+  deser_val = testSer.deserializeUInt8();
+  ASSERT_EQ(deser_val2, test_val2);
+
+  double deser_val3;
+  deser_val = testSer.deserializeDouble();
+  ASSERT_EQ(deser_val3, test_val3);
+
+  bool deser_val4;
+  deser_val = testSer.deserializeDouble();
+  ASSERT_EQ(deser_val3, test_val4);
+}
+
+TEST(TestSerialize, testReset) {
+  unsigned int err;
+  unsigned int buf_size = 100;
+  uint8_t buf[buf_size];
+
+  Serialize testSer(buf, buf_size); 
+
+  int32_t test_val1 = -1542;
+  int32_t deser_val1;
+  err = testSer.serializeInt32(test_val1);
   ASSERT_EQ(err, 1);
   deser_val = testSer.deserializeInt32();
-  ASSERT_EQ(deser_val, test_val);
+  ASSERT_EQ(deser_val1, test_val1);
 
-  err = testSer.serializeInt32(test_val);
-  ASSERT_EQ(err, -1);
+  testSer.reset();
+
   deser_val = testSer.deserializeInt32();
-  ASSERT_EQ(deser_val, -1);
+  ASSERT_EQ(deser_val1, test_val1);
+
+  testSer.reset();
+
+  uint8_t test_val2 = 94;
+  uint8_t deser_val2;
+  err = testSer.serializeUInt8(test_val2);
+  ASSERT_EQ(err, 1);
+  deser_val = testSer.deserializeUInt8();
+  ASSERT_EQ(deser_val2, test_val2);
+}
+
+TEST(TestSerialize, testReset) {
+  unsigned int err;
+  unsigned int buf_size1 = 100;
+  unsigned int buf_size2 = 30;
+  uint8_t buf1[buf_size];
+  uint8_t buf2[buf_size2]
+
+  Serialize testSer1(buf1, buf_size1); 
+  Serialize testSer2(buf2, buf_size2); 
+
+  int32_t test_val1 = -1542;
+  int32_t deser_val1;
+  err = testSer1.serializeInt32(test_val1);
+  ASSERT_EQ(err, 1);
+  deser_val = testSer1.deserializeInt32();
+  ASSERT_EQ(deser_val1, test_val1);
+
+  uint8_t test_val2 = 94;
+  uint8_t deser_val2;
+  err = testSer2.serializeUInt8(test_val2);
+  ASSERT_EQ(err, 1);
+  deser_val = testSer2.deserializeUInt8();
+  ASSERT_EQ(deser_val2, test_val2);
+
+  mySer1.update(buf2, buf_size2);
+
+  err = testSer2.serializeUInt8(test_val2);
+  ASSERT_EQ(err, 1);
+  deser_val = testSer2.deserializeUInt8();
+  ASSERT_EQ(deser_val2, test_val2);
 }
 
 // test reset
