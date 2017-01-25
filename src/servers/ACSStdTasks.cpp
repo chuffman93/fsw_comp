@@ -125,7 +125,7 @@ bool ACSTestAlive(){
 	}
 }
 
-void ACSTestDriver(uint8 driverID, float rwTorque, float trTorque){
+bool ACSTestDriver(uint8 driverID, float rwTorque, float trTorque){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "ACSStdTasks: running test driver");
 
@@ -139,21 +139,21 @@ void ACSTestDriver(uint8 driverID, float rwTorque, float trTorque){
 
 	if(ret == NULL){
 		logger->Log(LOGGER_LEVEL_WARN, "ACSStdTasks: NULL test driver return");
-		return;
+		return false;
 	}
 
 	if(ret->isSuccess()){
 		logger->Log(LOGGER_LEVEL_INFO, "ACS test driver successful");
-		return;
+		return true;
 	}else{
 		logger->Log(LOGGER_LEVEL_WARN, "ACS test driver failed");
 		logger->Log(LOGGER_LEVEL_WARN, "Error: %u", ret->getErrorStatus());
-		return;
+		return false;
 	}
 }
 
 // Command/Data
-void ACSSendGPS(){
+bool ACSSendGPS(){
 	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_DEBUG, "ACSStdTasks: ACSSendGPS(): Entered");
@@ -170,7 +170,8 @@ void ACSSendGPS(){
 
 	ACPPacket * send = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_GPS_CMD, 6*sizeof(double)+sizeof(float)+sizeof(int), buffer);
 	ACPPacket * ret = DispatchPacket(send);
-	//PacketProcess(SERVER_LOCATION_ACS, ret);
+
+	return(ret->isSuccess());
 }
 
 bool ACSPointSun(){
@@ -180,7 +181,7 @@ bool ACSPointSun(){
 	ACPPacket * command = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_POINT_SUN);
 	ACPPacket * response = DispatchPacket(command);
 
-	return(response->getOpcode() == ACS_POINT_SUN);
+	return(response->getOpcode() == ACS_POINT_SUN && response->isSuccess());
 }
 
 bool ACSPointNadir(){
