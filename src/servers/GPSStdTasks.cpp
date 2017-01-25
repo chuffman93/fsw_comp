@@ -97,7 +97,7 @@ bool BESTXYZProcess(char * buffer,const size_t size)
 
 	// parse the position log part of the message
 	if(strcmp("SOL_COMPUTED",strtok(log, ",")) != 0){
-		logger->Log(LOGGER_LEVEL_WARN, "GPSStdTasks: No position solution computed!");
+		logger->Log(LOGGER_LEVEL_DEBUG, "GPSStdTasks: No position solution computed!");
 		solSuccess = false;
 	}else{
 		logger->Log(LOGGER_LEVEL_DEBUG, "GPSStdTasks: Valid position solution computed!");
@@ -112,7 +112,7 @@ bool BESTXYZProcess(char * buffer,const size_t size)
 
 	// parse the velocity log part of the message
 	if(strcmp("SOL_COMPUTED",strtok(NULL, ",")) != 0){
-		logger->Log(LOGGER_LEVEL_WARN, "GPSStdTasks: No velocity solution computed!");
+		logger->Log(LOGGER_LEVEL_DEBUG, "GPSStdTasks: No velocity solution computed!");
 		solSuccess = false;
 	}else{
 		logger->Log(LOGGER_LEVEL_DEBUG, "GPSStdTasks: Valid velocity solution computed!");
@@ -145,7 +145,7 @@ bool BESTXYZProcess(char * buffer,const size_t size)
 		logger->Log(LOGGER_LEVEL_DEBUG, "GPSStdTasks: Number of satellites tracked: %d", gpsData->numTracked);
 	}
 
-	logger->Log(LOGGER_LEVEL_INFO, "GPSStdTasks: Successfully processed BESTXYZ data");
+	logger->Log(LOGGER_LEVEL_DEBUG, "GPSStdTasks: Successfully processed BESTXYZ data");
 	return true;
 }
 
@@ -187,7 +187,7 @@ bool GPRMCProcess(char * buffer, const size_t size){
 	token = strtok(NULL, ","); // UTC
 	token = strtok(NULL, ","); // status
 	if(*token != 'A'){
-		logger->Log(LOGGER_LEVEL_WARN, "GPSStdTasks: invalid data from GPRMC", LOGGER_LEVEL_WARN);
+		logger->Log(LOGGER_LEVEL_DEBUG, "GPSStdTasks: invalid data from GPRMC", LOGGER_LEVEL_WARN);
 		return true;
 	}
 

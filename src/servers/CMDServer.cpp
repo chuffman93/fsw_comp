@@ -47,7 +47,7 @@ CMDServer::CMDServer(string nameIn, LocationIDType idIn) :
 	}
 
 	startTime = getTimeInSec();
-	CMDConfiguration.resetPeriod = 8*60;
+	CMDConfiguration.resetPeriod = 12*60;
 	CMDConfiguration.fileChunkSize = 10240; // 10KB
 	CMDConfiguration.maxDownlinkSize = 15728640;
 	CMDConfiguration.beaconPeriod = 15;

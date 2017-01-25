@@ -23,6 +23,8 @@ class Logger : public AllStar::Core::Singleton{
 	friend class AllStar::Core::Factory;
 	public:
 		const static LoggerLevelType threshold;
+		const static bool printToFile;
+		const static bool printToStdOut;
 
 		void Log(LoggerLevelType level_in, char const * fmt, ...);
 		void PrintInfo(LoggerLevelType level_in);

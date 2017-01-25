@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include "core/Factory.h"
 #include "core/StdTypes.h"
+#include "HAL/SPI_Server.h"
 #include "servers/ACSServer.h"
 #include "servers/ACSStdTasks.h"
 #include "servers/COMServer.h"
@@ -11,6 +12,8 @@
 #include "servers/PLDStdTasks.h"
 #include "servers/GPSServer.h"
 #include "servers/CMDServer.h"
+#include "servers/CDHStdTasks.h"
+#include "servers/DispatchStdTasks.h"
 
 using namespace std;
 using namespace AllStar::Core;
@@ -44,9 +47,64 @@ void prepBeacon(void){
 	cmdServer->beacon.bStruct.uptime = 9000;
 }
 
+void startSPIServer(){
+	SPI_HALServer * spiServer = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
+	bool threadsCreated = true;
+
+	threadsCreated &= WatchdogManager::StartServer(spiServer, 0,	true);	 //SPI
+}
+
+bool ACSHealthStatus(){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, HEALTH_STATUS_CMD);
+	ACPPacket * HSRet = DispatchPacket(HSQuery);
+
+	if(HSRet == NULL){
+		logger->Log(LOGGER_LEVEL_ERROR, "ACSServer: NULL HSRet");
+		return false;
+	}
+
+	if(HSRet->getLength() != 7*sizeof(uint32)){
+		logger->Log(LOGGER_LEVEL_WARN, "ACSServer: CheckHealthStatus(): incorrect message length! %u", HSRet->getLength());
+
+		//TODO: return error?
+		return false;
+	}else{
+		logger->Log(LOGGER_LEVEL_INFO, "ACSServer: CheckHealthStatus(): packet dispatched, HSRet acquired");
+		// Parse buffer
+		uint8 * msgPtr = HSRet->getMessageBuff();
+		if(msgPtr==NULL){
+			//Error
+			return false;
+		}
+
+		uint32 outputArray[7];
+		for(uint8 i = 0; i < 7; i++){
+			outputArray[i] = GetUInt32(msgPtr);
+			msgPtr += 2;
+		}
+
+		logger->Log(LOGGER_LEVEL_INFO, "ACS H&S: MRP X:       %lx", outputArray[0]);
+		logger->Log(LOGGER_LEVEL_INFO, "ACS H&S: MRP Y:       %lx", outputArray[1]);
+		logger->Log(LOGGER_LEVEL_INFO, "ACS H&S: MRP Z:       %lx", outputArray[2]);
+		logger->Log(LOGGER_LEVEL_INFO, "ACS H&S: ST Status:   %lx", outputArray[3]);
+		logger->Log(LOGGER_LEVEL_INFO, "ACS H&S: RW Speed X:  %u", outputArray[4]);
+		logger->Log(LOGGER_LEVEL_INFO, "ACS H&S: RW Speed Y:  %u", outputArray[5]);
+		logger->Log(LOGGER_LEVEL_INFO, "ACS H&S: RW Speed Z:  %u", outputArray[6]);
+		return true;
+	}
+}
+
 // ------------------------------- Subsystem Tests -------------------------------
 
 TEST(testCET, testACS){
+	prepPowerGPIOs();
+	startSPIServer();
+	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	cdhServer->subPowerOn(HARDWARE_LOCATION_ACS);
+	usleep(1000000);
+
 	// ----- Run the self check for ACS (LED On, LED Rate, LED data)
 	bool selfTest = true;
 	selfTest &= ACSSelfCheck();
@@ -55,10 +113,16 @@ TEST(testCET, testACS){
 
 	// -----Test reaction wheel and torque rod
 	bool driverTest = true;
-	driverTest &= ACSTestDriver(1,0.04,0.5);
+	driverTest &= ACSTestDriver(0,0.01,0.5);
 	usleep(5000000); // run for 5 seconds
-	driverTest &= ACSTestDriver(1,0.0,0.0);
+	driverTest &= ACSTestDriver(0,0.0,0.0);
 	ASSERT_TRUE(driverTest);
+	usleep(1000000);
+
+	// ----- Test health and status
+	bool hsTest = true;
+	hsTest &= ACSHealthStatus();
+	ASSERT_TRUE(hsTest);
 	usleep(1000000);
 
 	// ----- Test pointing opcodes
@@ -81,6 +145,12 @@ TEST(testCET, testACS){
 }
 
 TEST(testCET, testCOM){
+	prepPowerGPIOs();
+	startSPIServer();
+	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	cdhServer->subPowerOn(HARDWARE_LOCATION_COM);
+	usleep(1000000);
+
 	// ----- Run the self check for COM (LED On, LED Rate, LED data)
 	bool selfTest = true;
 	selfTest &= COMSelfCheck();
@@ -98,13 +168,22 @@ TEST(testCET, testCOM){
 	usleep(1000000);
 
 	// ----- Test beacon
-	bool beaconTest = true;
-	prepBeacon();
-	beaconTest &= COMSendBeacon();
-	ASSERT_TRUE(beaconTest);
+//	bool beaconTest = true;
+//	prepBeacon();
+//	beaconTest &= COMSendBeacon();
+//	ASSERT_TRUE(beaconTest);
 }
 
 TEST(testCET, testPLD){
+	prepPowerGPIOs();
+	startSPIServer();
+	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	cdhServer->resetAssert(HARDWARE_LOCATION_PLD);
+	cdhServer->subPowerOn(HARDWARE_LOCATION_PLD);
+	usleep(1000000);
+	cdhServer->resetDeassert(HARDWARE_LOCATION_PLD);
+	usleep(1000000);
+
 	// ----- Run the self check for PLD (LED On, LED Rate, LED data)
 	bool selfTest = true;
 	selfTest &= PLDSelfCheck();
@@ -115,6 +194,9 @@ TEST(testCET, testPLD){
 }
 
 TEST(testCET, testEPS){
+	startSPIServer();
+	usleep(1000000);
+
 	// ----- Run the self check for EPS (LED On, LED Rate, LED data)
 	bool selfTest = true;
 	selfTest &= EPSSelfCheck();

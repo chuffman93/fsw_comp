@@ -109,7 +109,7 @@ void COMServer::loopBeacon(){
 
 	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
 	if(cmdServer->CheckForBeacon()){
-		COMSendBeacon();
+		//COMSendBeacon();
 	}
 }
 
