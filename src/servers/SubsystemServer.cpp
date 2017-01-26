@@ -57,8 +57,8 @@ bool SubsystemServer::operator ==(const Server & check) const
 	return (name == check.GetName() && id == check.GetID());
 }
 
-void SubsystemServer::CheckHealthStatus(){
-
+bool SubsystemServer::CheckHealthStatus(){
+	return false;
 }
 
 void SubsystemServer::SubsystemLoop(void)

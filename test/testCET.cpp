@@ -100,6 +100,7 @@ bool ACSHealthStatus(){
 // ------------------------------- Subsystem Tests -------------------------------
 
 TEST(testCET, testACS){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	prepPowerGPIOs();
 	startSPIServer();
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
@@ -107,10 +108,17 @@ TEST(testCET, testACS){
 	usleep(1000000);
 
 	// ----- Run the self check for ACS (LED On, LED Rate, LED data)
-	bool selfTest = true;
-	selfTest &= ACSTestAlive();
-	selfTest &= ACSSelfCheck();
-	ASSERT_TRUE(selfTest);
+	logger->Log(LOGGER_LEVEL_INFO, "Checking if ACS is alive");
+	bool testAlive = ACSTestAlive();
+	if(testAlive){
+		logger->Log(LOGGER_LEVEL_INFO, "ACS is alive");
+	}
+	logger->Log(LOGGER_LEVEL_INFO, "Sending three opcode self check");
+	bool selfCheck = ACSSelfCheck();
+	if(selfCheck){
+		logger->Log(LOGGER_LEVEL_INFO, "ACS passed self check");
+	}
+	ASSERT_TRUE(testAlive && selfCheck);
 	usleep(1000000);
 
 	// -----Test reaction wheel and torque rod
@@ -142,6 +150,7 @@ TEST(testCET, testACS){
 	// ----- Test GPS sending
 	bool gpsDataTest = true;
 	prepGPSData();
+	logger->Log(LOGGER_LEVEL_INFO, "Sending test GPS data to ACS");
 	gpsDataTest &= ACSSendGPS();
 	ASSERT_TRUE(gpsDataTest);
 }
@@ -202,6 +211,7 @@ TEST(testCET, testACSError){
 }
 
 TEST(testCET, testCOM){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	prepPowerGPIOs();
 	startSPIServer();
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
@@ -209,10 +219,17 @@ TEST(testCET, testCOM){
 	usleep(1000000);
 
 	// ----- Run the self check for COM (LED On, LED Rate, LED data)
-	bool selfTest = true;
-	selfTest &= COMTestAlive();
-	selfTest &= COMSelfCheck();
-	ASSERT_TRUE(selfTest);
+	logger->Log(LOGGER_LEVEL_INFO, "Checking if COM is alive");
+	bool testAlive = COMTestAlive();
+	if(testAlive){
+		logger->Log(LOGGER_LEVEL_INFO, "COM is alive");
+	}
+	logger->Log(LOGGER_LEVEL_INFO, "Sending three opcode self check");
+	bool selfCheck = COMSelfCheck();
+	if(selfCheck){
+		logger->Log(LOGGER_LEVEL_INFO, "COM passed self check");
+	}
+	ASSERT_TRUE(testAlive && selfCheck);
 	usleep(1000000);
 
 	// ----- Test com modes
@@ -226,10 +243,10 @@ TEST(testCET, testCOM){
 	usleep(1000000);
 
 	// ----- Test beacon
-//	bool beaconTest = true;
-//	prepBeacon();
-//	beaconTest &= COMSendBeacon();
-//	ASSERT_TRUE(beaconTest);
+	bool beaconTest = true;
+	prepBeacon();
+	beaconTest &= COMSendBeacon();
+	ASSERT_TRUE(beaconTest);
 }
 
 // test error response to unimplemented opcodes
@@ -256,7 +273,7 @@ TEST(testCET, testCOMError){
 		usleep(100000);
 	}
 
-	for(uint16 i = TEST_ALIVE_CMD + 1; i < HEALTH_STATUS_CMD; i++){
+	for(uint16 i = TEST_ALIVE_CMD + 1; i < DIAGNOSTIC_1_CMD; i++){
 		testCMD = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, i);
 		testRet = DispatchPacket(testCMD);
 		EXPECT_EQ(testRet->getErrorStatus(), 0xAA);
@@ -288,6 +305,7 @@ TEST(testCET, testCOMError){
 }
 
 TEST(testCET, testPLD){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	prepPowerGPIOs();
 	startSPIServer();
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
@@ -298,11 +316,23 @@ TEST(testCET, testPLD){
 	usleep(1000000);
 
 	// ----- Run the self check for PLD (LED On, LED Rate, LED data)
-	bool selfTest = true;
-	selfTest &= PLDTestAlive();
-	selfTest &= PLDSelfCheck();
-	ASSERT_TRUE(selfTest);
+	logger->Log(LOGGER_LEVEL_INFO, "Checking if PLD is alive");
+	bool testAlive = PLDTestAlive();
+	if(testAlive){
+		logger->Log(LOGGER_LEVEL_INFO, "PLD is alive");
+	}
+	logger->Log(LOGGER_LEVEL_INFO, "Sending three opcode self check");
+	bool selfCheck = PLDSelfCheck();
+	if(selfCheck){
+		logger->Log(LOGGER_LEVEL_INFO, "PLD passed self check");
+	}
+	ASSERT_TRUE(testAlive && selfCheck);
 	usleep(1000000);
+
+	// test PLD health and status
+	PLDServer * pldServer = dynamic_cast<PLDServer *> (Factory::GetInstance(PLD_SERVER_SINGLETON));
+	bool hs = pldServer->CheckHealthStatus();
+	ASSERT_TRUE(hs);
 
 	// Other opcodes verified via DITL testing
 }
@@ -383,17 +413,37 @@ TEST(testCET, testPLDError){
 }
 
 TEST(testCET, testEPS){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	startSPIServer();
 	usleep(1000000);
 
 	// ----- Run the self check for EPS (LED On, LED Rate, LED data)
-	bool selfTest = true;
-	selfTest &= EPSTestAlive();
-	selfTest &= EPSSelfCheck();
-	ASSERT_TRUE(selfTest);
+	logger->Log(LOGGER_LEVEL_INFO, "Checking if EPS is alive");
+	bool testAlive = EPSTestAlive();
+	if(testAlive){
+		logger->Log(LOGGER_LEVEL_INFO, "EPS is alive");
+	}
+	logger->Log(LOGGER_LEVEL_INFO, "Sending three opcode self check");
+	bool selfCheck = EPSSelfCheck();
+	if(selfCheck){
+		logger->Log(LOGGER_LEVEL_INFO, "EPS passed self check");
+	}
+	ASSERT_TRUE(testAlive && selfCheck);
 	usleep(1000000);
 
+	// test EPS health and status
+	EPSServer * epsServer = dynamic_cast<EPSServer *> (Factory::GetInstance(EPS_SERVER_SINGLETON));
+	bool hs = epsServer->CheckHealthStatus();
+	ASSERT_TRUE(hs);
+
 	// EPS reset must be verified independently
+}
+
+TEST(testCET, testEPSReset){
+	startSPIServer();
+	usleep(1000000);
+
+	EPSPowerCycle();
 }
 
 // test error response to unimplemented opcodes

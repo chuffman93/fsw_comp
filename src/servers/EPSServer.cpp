@@ -122,7 +122,7 @@ void EPSServer::loopReset(){
 }
 
 // -------------------------------------------- EPS Methods ---------------------------------------------
-void EPSServer::CheckHealthStatus(){
+bool EPSServer::CheckHealthStatus(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, HEALTH_STATUS_CMD);
@@ -130,21 +130,21 @@ void EPSServer::CheckHealthStatus(){
 
 	if(HSRet == NULL){
 		logger->Log(LOGGER_LEVEL_ERROR, "EPSServer: NULL HSRet");
-		return;
+		return false;
 	}
 
 	if(HSRet->getLength() != 18*sizeof(uint16)){
 		logger->Log(LOGGER_LEVEL_WARN, "EPSServer: CheckHealthStatus(): incorrect message length!");
 
 		//TODO: return error?
-		return;
+		return false;
 	}else{
 		logger->Log(LOGGER_LEVEL_INFO, "EPSServer: CheckHealthStatus(): packet dispatched, HSRet acquired");
 		// Parse buffer
 		uint8 * msgPtr = HSRet->getMessageBuff();
 		if(msgPtr==NULL){
 			//Error
-			return;
+			return false;
 		}
 
 		uint16 outputArray[18];
@@ -172,24 +172,26 @@ void EPSServer::CheckHealthStatus(){
 		EPSState.convCurrentW		= outputArray[16];
 		EPSState.convThreshW		= outputArray[17];
 
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: 3v3 Current:     %u", EPSState.current3v3);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: 3v3 Voltage:     %u", EPSState.voltage3v3);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Vbat Current:    %u", EPSState.currentVbat);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Vbat Voltage:    %u", EPSState.voltageVbat);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: 12v Current:     %u", EPSState.current12v);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: 12v Voltage:     %u", EPSState.voltage12v);
+		logger->Log(LOGGER_LEVEL_INFO, "EPS H&S: 3v3 Current:     %u", EPSState.current3v3);
+		logger->Log(LOGGER_LEVEL_INFO, "EPS H&S: 3v3 Voltage:     %u", EPSState.voltage3v3);
+		logger->Log(LOGGER_LEVEL_INFO, "EPS H&S: Vbat Current:    %u", EPSState.currentVbat);
+		logger->Log(LOGGER_LEVEL_INFO, "EPS H&S: Vbat Voltage:    %u", EPSState.voltageVbat);
+		logger->Log(LOGGER_LEVEL_INFO, "EPS H&S: 12v Current:     %u", EPSState.current12v);
+		logger->Log(LOGGER_LEVEL_INFO, "EPS H&S: 12v Voltage:     %u", EPSState.voltage12v);
 		logger->Log(LOGGER_LEVEL_INFO,  "EPS H&S: Rem cap:         %u", EPSState.remainingCapacity);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Batt curr:       %u", EPSState.battCurrent);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Batt volt:       %u", EPSState.battVoltage);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Batt status:     %u", EPSState.battStatus);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Frang curr:      %u", EPSState.frangCurrent);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Frang volt:      %u", EPSState.frangVoltage);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Conv curr x:     %u", EPSState.convCurrentX);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Conv thresh x:   %u", EPSState.convThreshX);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Conv curr y:     %u", EPSState.convCurrentY);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Conv thresh y:   %u", EPSState.convThreshY);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Conv curr w:     %u", EPSState.convCurrentW);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Conv thresh w:   %u", EPSState.convThreshW);
+		logger->Log(LOGGER_LEVEL_INFO, "EPS H&S: Batt curr:       %u", EPSState.battCurrent);
+		logger->Log(LOGGER_LEVEL_INFO, "EPS H&S: Batt volt:       %u", EPSState.battVoltage);
+		logger->Log(LOGGER_LEVEL_INFO, "EPS H&S: Batt status:     %u", EPSState.battStatus);
+		logger->Log(LOGGER_LEVEL_INFO, "EPS H&S: Frang curr:      %u", EPSState.frangCurrent);
+		logger->Log(LOGGER_LEVEL_INFO, "EPS H&S: Frang volt:      %u", EPSState.frangVoltage);
+		logger->Log(LOGGER_LEVEL_INFO, "EPS H&S: Conv curr x:     %u", EPSState.convCurrentX);
+		logger->Log(LOGGER_LEVEL_INFO, "EPS H&S: Conv thresh x:   %u", EPSState.convThreshX);
+		logger->Log(LOGGER_LEVEL_INFO, "EPS H&S: Conv curr y:     %u", EPSState.convCurrentY);
+		logger->Log(LOGGER_LEVEL_INFO, "EPS H&S: Conv thresh y:   %u", EPSState.convThreshY);
+		logger->Log(LOGGER_LEVEL_INFO, "EPS H&S: Conv curr w:     %u", EPSState.convCurrentW);
+		logger->Log(LOGGER_LEVEL_INFO, "EPS H&S: Conv thresh w:   %u", EPSState.convThreshW);
+
+		return true;
 	}
 }
 

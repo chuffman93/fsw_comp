@@ -49,7 +49,7 @@ class ACSServer : public SubsystemServer, public AllStar::Core::Singleton{
 
 public:
 	bool RegisterHandlers();
-	void CheckHealthStatus();
+	bool CheckHealthStatus();
 
 	struct ACSConfig{
 		uint32 test;

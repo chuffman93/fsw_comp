@@ -291,10 +291,12 @@ void CMDServer::loopReset(){
 // --------- Beacon ----------------------------------------------------------------------------------------------------
 // Note: this function is configured to be called in the subsystem loop defined in SubsystemServer.cpp
 // since we can configure it to be called whenever we like, we can effectively set the beacon rate
-void CMDServer::CheckHealthStatus(void) {
+bool CMDServer::CheckHealthStatus(void) {
 	if(currentState == ST_IDLE || currentState == ST_PASS_PREP || currentState == ST_LOGIN || currentState == ST_POST_PASS){
 		CreateBeacon();
+		return true;
 	}
+	return false;
 }
 
 void CMDServer::CreateBeacon() {

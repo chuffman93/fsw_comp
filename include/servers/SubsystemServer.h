@@ -35,7 +35,7 @@ protected:
 	int sleepTime;
 	int hsDelays;
 	virtual const StateStruct * GetStateMap() = 0;
-	virtual void CheckHealthStatus(void);
+	virtual bool CheckHealthStatus(void);
 };
 
 typedef void (SubsystemServer::*StateFunc)(void);

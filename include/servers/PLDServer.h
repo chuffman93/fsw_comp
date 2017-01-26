@@ -35,7 +35,7 @@ class PLDServer : public SubsystemServer, public AllStar::Core::Singleton{
 	friend class AllStar::Core::Factory;
 public:
 	bool RegisterHandlers();
-	void CheckHealthStatus();
+	bool CheckHealthStatus();
 
 	PLDStatus PLDState;
 

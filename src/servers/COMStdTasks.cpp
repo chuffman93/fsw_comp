@@ -170,6 +170,7 @@ bool COMFullDuplex(){
 
 bool COMSendBeacon(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log(LOGGER_LEVEL_INFO, "COM: sending beacon");
 	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
 
 	uint8 * bufferOut = (uint8 *) malloc(sizeof(cmdServer->beacon));

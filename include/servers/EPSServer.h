@@ -47,7 +47,7 @@ class EPSServer : public SubsystemServer, public AllStar::Core::Singleton{
 
 public:
 	bool RegisterHandlers();
-	void CheckHealthStatus();
+	bool CheckHealthStatus();
 
 	struct EPSConfig{
 		uint16 minCOMCharge;

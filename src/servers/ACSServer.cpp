@@ -192,7 +192,7 @@ void ACSServer::loopReset(){
 }
 
 // -------------------------------------------- ACS Methods --------------------------------------------
-void ACSServer::CheckHealthStatus(){
+bool ACSServer::CheckHealthStatus(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, HEALTH_STATUS_CMD);
@@ -200,21 +200,21 @@ void ACSServer::CheckHealthStatus(){
 
 	if(HSRet == NULL){
 		logger->Log(LOGGER_LEVEL_ERROR, "ACSServer: NULL HSRet");
-		return;
+		return false;
 	}
 
 	if(HSRet->getLength() != 7*sizeof(uint32)){
 		logger->Log(LOGGER_LEVEL_WARN, "ACSServer: CheckHealthStatus(): incorrect message length! %u", HSRet->getLength());
 
 		//TODO: return error?
-		return;
+		return false;
 	}else{
 		logger->Log(LOGGER_LEVEL_INFO, "ACSServer: CheckHealthStatus(): packet dispatched, HSRet acquired");
 		// Parse buffer
 		uint8 * msgPtr = HSRet->getMessageBuff();
 		if(msgPtr==NULL){
 			//Error
-			return;
+			return false;
 		}
 
 		uint32 outputArray[7];
@@ -239,6 +239,7 @@ void ACSServer::CheckHealthStatus(){
 		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: RW Speed Y:  %u", ACSState.RW_Speed_Y);
 		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: RW Speed Z:  %u", ACSState.RW_Speed_Z);
 
+		return true;
 	}
 }
 

@@ -131,7 +131,7 @@ private:
 		ST_RESET,
 	};
 
-	void CheckHealthStatus(void);
+	bool CheckHealthStatus(void);
 	void CreateBeacon(void);
 };
 
