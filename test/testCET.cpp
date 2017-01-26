@@ -2,6 +2,7 @@
 #include "core/Factory.h"
 #include "core/StdTypes.h"
 #include "HAL/SPI_Server.h"
+#include "util/Logger.h"
 #include "servers/ACSServer.h"
 #include "servers/ACSStdTasks.h"
 #include "servers/COMServer.h"
@@ -107,6 +108,7 @@ TEST(testCET, testACS){
 
 	// ----- Run the self check for ACS (LED On, LED Rate, LED data)
 	bool selfTest = true;
+	selfTest &= ACSTestAlive();
 	selfTest &= ACSSelfCheck();
 	ASSERT_TRUE(selfTest);
 	usleep(1000000);
@@ -144,6 +146,61 @@ TEST(testCET, testACS){
 	ASSERT_TRUE(gpsDataTest);
 }
 
+// test error response to unimplemented opcodes
+TEST(testCET, testACSError){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->threshold = LOGGER_LEVEL_WARN;
+
+	prepPowerGPIOs();
+	startSPIServer();
+	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	cdhServer->subPowerOn(HARDWARE_LOCATION_ACS);
+	usleep(4000000);
+
+	ACPPacket * testCMD;
+	ACPPacket * testRet;
+
+	for(uint16 i = LED_RATE_DATA + 1; i < TEST_ALIVE_CMD; i++){
+		testCMD = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, i);
+		testRet = DispatchPacket(testCMD);
+		EXPECT_EQ(testRet->getErrorStatus(), 0xAA);
+		if(!(testRet->getErrorStatus() == 0xAA)){
+			printf("Opcode: %d\n", i);
+		}
+		usleep(100000);
+	}
+
+	for(uint16 i = ACS_TEST_DRIVER + 1; i < HEALTH_STATUS_CMD; i++){
+		testCMD = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, i);
+		testRet = DispatchPacket(testCMD);
+		EXPECT_EQ(testRet->getErrorStatus(), 0xAA);
+		if(!(testRet->getErrorStatus() == 0xAA)){
+			printf("Opcode: %d\n", i);
+		}
+		usleep(100000);
+	}
+
+	for(uint16 i = SUBSYSTEM_RESET_CMD + 1; i < ACS_OPCODE_MIN; i++){
+		testCMD = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, i);
+		testRet = DispatchPacket(testCMD);
+		EXPECT_EQ(testRet->getErrorStatus(), 0xAA);
+		if(!(testRet->getErrorStatus() == 0xAA)){
+			printf("Opcode: %d\n", i);
+		}
+		usleep(100000);
+	}
+
+	for(uint16 i = ACS_OPCODE_MAX; i < SUBSYSTEM_OPCODE_MAX + 1; i++){
+		testCMD = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, i);
+		testRet = DispatchPacket(testCMD);
+		EXPECT_EQ(testRet->getErrorStatus(), 0xAA);
+		if(!(testRet->getErrorStatus() == 0xAA)){
+			printf("Opcode: %d\n", i);
+		}
+		usleep(100000);
+	}
+}
+
 TEST(testCET, testCOM){
 	prepPowerGPIOs();
 	startSPIServer();
@@ -153,6 +210,7 @@ TEST(testCET, testCOM){
 
 	// ----- Run the self check for COM (LED On, LED Rate, LED data)
 	bool selfTest = true;
+	selfTest &= COMTestAlive();
 	selfTest &= COMSelfCheck();
 	ASSERT_TRUE(selfTest);
 	usleep(1000000);
@@ -174,6 +232,61 @@ TEST(testCET, testCOM){
 //	ASSERT_TRUE(beaconTest);
 }
 
+// test error response to unimplemented opcodes
+TEST(testCET, testCOMError){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->threshold = LOGGER_LEVEL_WARN;
+
+	prepPowerGPIOs();
+	startSPIServer();
+	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	cdhServer->subPowerOn(HARDWARE_LOCATION_COM);
+	usleep(4000000);
+
+	ACPPacket * testCMD;
+	ACPPacket * testRet;
+
+	for(uint16 i = LED_RATE_DATA + 1; i < TEST_ALIVE_CMD; i++){
+		testCMD = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, i);
+		testRet = DispatchPacket(testCMD);
+		EXPECT_EQ(testRet->getErrorStatus(), 0xAA);
+		if(!(testRet->getErrorStatus() == 0xAA)){
+			printf("Opcode: %d\n", i);
+		}
+		usleep(100000);
+	}
+
+	for(uint16 i = TEST_ALIVE_CMD + 1; i < HEALTH_STATUS_CMD; i++){
+		testCMD = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, i);
+		testRet = DispatchPacket(testCMD);
+		EXPECT_EQ(testRet->getErrorStatus(), 0xAA);
+		if(!(testRet->getErrorStatus() == 0xAA)){
+			printf("Opcode: %d\n", i);
+		}
+		usleep(100000);
+	}
+
+	for(uint16 i = SUBSYSTEM_RESET_CMD + 1; i < COM_OPCODE_MIN; i++){
+		testCMD = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, i);
+		testRet = DispatchPacket(testCMD);
+		EXPECT_EQ(testRet->getErrorStatus(), 0xAA);
+		if(!(testRet->getErrorStatus() == 0xAA)){
+			printf("Opcode: %d\n", i);
+		}
+		usleep(100000);
+	}
+
+	for(uint16 i = COM_OPCODE_MAX + 1; i < SUBSYSTEM_OPCODE_MAX + 1; i++){
+		testCMD = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, i);
+		testRet = DispatchPacket(testCMD);
+		EXPECT_EQ(testRet->getErrorStatus(), 0xAA);
+		if(!(testRet->getErrorStatus() == 0xAA)){
+			printf("Opcode: %d\n", i);
+		}
+		usleep(100000);
+	}
+}
+
 TEST(testCET, testPLD){
 	prepPowerGPIOs();
 	startSPIServer();
@@ -186,11 +299,87 @@ TEST(testCET, testPLD){
 
 	// ----- Run the self check for PLD (LED On, LED Rate, LED data)
 	bool selfTest = true;
+	selfTest &= PLDTestAlive();
 	selfTest &= PLDSelfCheck();
 	ASSERT_TRUE(selfTest);
 	usleep(1000000);
 
 	// Other opcodes verified via DITL testing
+}
+
+// test error response to unimplemented opcodes
+TEST(testCET, testPLDError){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->threshold = LOGGER_LEVEL_WARN;
+
+	prepPowerGPIOs();
+	startSPIServer();
+	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	cdhServer->subPowerOn(HARDWARE_LOCATION_PLD);
+	usleep(4000000);
+
+	ACPPacket * testCMD;
+	ACPPacket * testRet;
+
+	for(uint16 i = LED_RATE_DATA + 1; i < TEST_ALIVE_CMD; i++){
+		testCMD = new ACPPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, i);
+		testRet = DispatchPacket(testCMD);
+		EXPECT_EQ(testRet->getErrorStatus(), 0xAA);
+		if(!(testRet->getErrorStatus() == 0xAA)){
+			printf("Opcode: %d\n", i);
+		}
+		usleep(100000);
+	}
+
+	for(uint16 i = TEST_ALIVE_CMD + 1; i < DIAGNOSTIC_1_CMD; i++){
+		testCMD = new ACPPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, i);
+		testRet = DispatchPacket(testCMD);
+		EXPECT_EQ(testRet->getErrorStatus(), 0xAA);
+		if(!(testRet->getErrorStatus() == 0xAA)){
+			printf("Opcode: %d\n", i);
+		}
+		usleep(100000);
+	}
+
+	for(uint16 i = SUBSYSTEM_RESET_CMD + 1; i < PLD_CMD_MIN; i++){
+		testCMD = new ACPPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, i);
+		testRet = DispatchPacket(testCMD);
+		EXPECT_EQ(testRet->getErrorStatus(), 0xAA);
+		if(!(testRet->getErrorStatus() == 0xAA)){
+			printf("Opcode: %d\n", i);
+		}
+		usleep(100000);
+	}
+
+	for(uint16 i = PLD_CMD_MAX; i < SUBSYSTEM_CFG_MIN; i++){
+		testCMD = new ACPPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, i);
+		testRet = DispatchPacket(testCMD);
+		EXPECT_EQ(testRet->getErrorStatus(), 0xAA);
+		if(!(testRet->getErrorStatus() == 0xAA)){
+			printf("Opcode: %d\n", i);
+		}
+		usleep(100000);
+	}
+
+	for(uint16 i = PLD_CONFIG_MAX; i < SUBSYSTEM_DAT_MIN; i++){
+		testCMD = new ACPPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, i);
+		testRet = DispatchPacket(testCMD);
+		EXPECT_EQ(testRet->getErrorStatus(), 0xAA);
+		if(!(testRet->getErrorStatus() == 0xAA)){
+			printf("Opcode: %d\n", i);
+		}
+		usleep(100000);
+	}
+
+	for(uint16 i = PLD_DATA_MAX; i < SUBSYSTEM_OPCODE_MAX + 1; i++){
+		testCMD = new ACPPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, i);
+		testRet = DispatchPacket(testCMD);
+		EXPECT_EQ(testRet->getErrorStatus(), 0xAA);
+		if(!(testRet->getErrorStatus() == 0xAA)){
+			printf("Opcode: %d\n", i);
+		}
+		usleep(100000);
+	}
 }
 
 TEST(testCET, testEPS){
@@ -199,9 +388,65 @@ TEST(testCET, testEPS){
 
 	// ----- Run the self check for EPS (LED On, LED Rate, LED data)
 	bool selfTest = true;
+	selfTest &= EPSTestAlive();
 	selfTest &= EPSSelfCheck();
 	ASSERT_TRUE(selfTest);
 	usleep(1000000);
 
 	// EPS reset must be verified independently
+}
+
+// test error response to unimplemented opcodes
+TEST(testCET, testEPSError){
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->threshold = LOGGER_LEVEL_WARN;
+
+	prepPowerGPIOs();
+	startSPIServer();
+	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	cdhServer->subPowerOn(HARDWARE_LOCATION_EPS);
+	usleep(4000000);
+
+	ACPPacket * testCMD;
+	ACPPacket * testRet;
+
+	for(uint16 i = LED_RATE_DATA + 1; i < TEST_ALIVE_CMD; i++){
+		testCMD = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, i);
+		testRet = DispatchPacket(testCMD);
+		EXPECT_EQ(testRet->getErrorStatus(), 0xAA);
+		if(!(testRet->getErrorStatus() == 0xAA)){
+			printf("Opcode: %d\n", i);
+		}
+		usleep(100000);
+	}
+
+	for(uint16 i = TEST_ALIVE_CMD + 1; i < HEALTH_STATUS_CMD; i++){
+		testCMD = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, i);
+		testRet = DispatchPacket(testCMD);
+		EXPECT_EQ(testRet->getErrorStatus(), 0xAA);
+		if(!(testRet->getErrorStatus() == 0xAA)){
+			printf("Opcode: %d\n", i);
+		}
+		usleep(100000);
+	}
+
+	for(uint16 i = SUBSYSTEM_RESET_CMD + 1; i < EPS_OPCODE_MIN; i++){
+		testCMD = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, i);
+		testRet = DispatchPacket(testCMD);
+		EXPECT_EQ(testRet->getErrorStatus(), 0xAA);
+		if(!(testRet->getErrorStatus() == 0xAA)){
+			printf("Opcode: %d\n", i);
+		}
+		usleep(100000);
+	}
+
+	for(uint16 i = EPS_CMD_MAX + 1; i < SUBSYSTEM_OPCODE_MAX + 1; i++){
+		testCMD = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, i);
+		testRet = DispatchPacket(testCMD);
+		EXPECT_EQ(testRet->getErrorStatus(), 0xAA);
+		if(!(testRet->getErrorStatus() == 0xAA)){
+			printf("Opcode: %d\n", i);
+		}
+		usleep(100000);
+	}
 }

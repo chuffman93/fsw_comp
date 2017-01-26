@@ -272,6 +272,7 @@ int SCHServer::LoadNextSchedule(){
 		logger->Log(LOGGER_LEVEL_ERROR, "LoadNextSchedule: invalid SCH password");
 		fclose(fp);
 		remove(SCH_SCHEDULE_FILE);
+		LoadDefaultSchedule();
 		return -4;
 	}
 

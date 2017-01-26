@@ -19,7 +19,7 @@
 using namespace std;
 using namespace AllStar::Servers;
 
-#define WATCHDOG_MANAGER_DELAY 20000
+#define WATCHDOG_MANAGER_DELAY 30000
 namespace AllStar{namespace Core{
 
 // -------------------------------------- Necessary Methods --------------------------------------

@@ -13,7 +13,7 @@
 #include <sys/types.h>
 
 // Set desired threshold for logging here
-const LoggerLevelType Logger::threshold = LOGGER_LEVEL_INFO;
+LoggerLevelType Logger::threshold = LOGGER_LEVEL_INFO;
 const bool Logger::printToFile = true;
 const bool Logger::printToStdOut = true;
 using namespace AllStar::Core;

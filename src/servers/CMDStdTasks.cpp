@@ -66,15 +66,16 @@ void uftpSetup(void){
 
 	char cmdString[100];
 
-	//---------------------------KISS------------------------------------
+	// ---------------------------KISS------------------------------------
 	system("/home/root/kissattach /dev/ttyS2 radio 1.1.1.1");
 	system("ifconfig ax0 multicast up");
 
 	// send over uftp: /home/root/uftp -I ax0 file_name -H 1.1.1.2
 	// the "-H 1.1.1.2" is an option that makes it so only that IP address can receive the multicast
 
-	//------------------------UFTP Daemon---------------------------------
-	sprintf(cmdString, "/home/root/uftpd -I ax0 -D %s", UPLINK_DIRECTORY);
+	// ------------------------UFTP Daemon---------------------------------
+	// http://uftp-multicast.sourceforge.net/client_usage.txt
+	sprintf(cmdString, "/home/root/uftpd -I ax0 -E -D %s", UPLINK_DIRECTORY);
 	printf("%s\n", cmdString);
 	system(cmdString);
 }
@@ -633,7 +634,7 @@ bool checkForSOT(void){
 			return true;
 		}
 
-		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: PPE bad password");
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: SOT bad password");
 		fclose(fp);
 		remove(SOT_PATH);
 	}

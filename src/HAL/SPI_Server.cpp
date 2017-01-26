@@ -98,7 +98,7 @@ void SPI_HALServer::SubsystemLoop(void)
 						logger->Log(LOGGER_LEVEL_DEBUG, "SPI_HAL Server: Successfully dispatched packet");
 					}else{
 						// TODO: send error to RX queue?
-						logger->Log(LOGGER_LEVEL_WARN, "SPI_HAL Server: " "\x1b[33m" "Packet dispatch failed!" "\x1b[0m");
+						logger->Log(LOGGER_LEVEL_WARN, "SPI_HAL Server: " "\x1b[33m" "Packet dispatch failed!" "\x1b[0m" " Subystem: ", txPacket->getDestination());
 
 						// increment dropped packets counter for that subsystem
 						packetsDroppedTX[dest-1]++;

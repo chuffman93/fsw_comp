@@ -141,7 +141,8 @@ enum SubsystemOpcodes{
 	// Subsystem Commands and configs (see subsystem enums)
 	SUBSYSTEM_CMD_MIN = 32,
 	SUBSYSTEM_CFG_MIN = 64,
-	SUBSYSTEM_DAT_MIN = 96
+	SUBSYSTEM_DAT_MIN = 96,
+	SUBSYSTEM_OPCODE_MAX = 255
 };
 
 enum ACSCommandEnum{
@@ -153,7 +154,8 @@ enum ACSCommandEnum{
 	ACS_POINT_SUN,
 	ACS_POINT_GND,
 	ACS_GPS_CMD,
-	ACS_CONFIG
+	ACS_CONFIG,
+	ACS_OPCODE_MAX
 };
 
 enum COMCommandEnum{
@@ -161,24 +163,30 @@ enum COMCommandEnum{
 	COM_SIMPLEX = COM_OPCODE_MIN,
 	COM_HALF_DUPLEX,
 	COM_FULL_DUPLEX,
-	COM_BEACON
+	COM_BEACON,
+	COM_OPCODE_MAX
 };
 
 enum EPSCommandEnum{
 	EPS_OPCODE_MIN = SUBSYSTEM_CMD_MIN,
-	EPS_BATTERY_CONFIG = EPS_OPCODE_MIN
+	EPS_BATTERY_CONFIG = EPS_OPCODE_MIN,
+	EPS_CMD_MAX
 };
 
 // TODO: update payload opcodes to new scheme
 enum PLDCommandEnum{
-	PLD_START_SCIENCE = SUBSYSTEM_CMD_MIN,
+	PLD_CMD_MIN = SUBSYSTEM_CMD_MIN,
+	PLD_START_SCIENCE = PLD_CMD_MIN,
 	PLD_DATA_CMD,
+	PLD_CMD_MAX,
 
 	PLD_CONFIG_CLOCK = SUBSYSTEM_CFG_MIN,
 	PLD_CONFIG_MOTOR,
 	PLD_CONFIG_DATA,
+	PLD_CONFIG_MAX,
 
-	PLD_BACKUP_SEND_SCIENCE = SUBSYSTEM_DAT_MIN
+	PLD_BACKUP_SEND_SCIENCE = SUBSYSTEM_DAT_MIN,
+	PLD_DATA_MAX
 };
 
 // ------------------------------------------------------------------- FSW OpCodes -----------------------------------------------------------
