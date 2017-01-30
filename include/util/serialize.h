@@ -35,8 +35,7 @@ public:
 	int serializeDouble(double ddata);
 
 private:
-
-	uint8_t * buf_ptr;
+	uint8_t * buf_ptr; // TODO: Make this static
 	unsigned int buf_size;
 	unsigned int serialize_index;
 	unsigned int deserialize_index;
