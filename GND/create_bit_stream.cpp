@@ -105,21 +105,23 @@ int main() {
         break;
       }
       case (6): {
+        unsigned int i_val;
         uint16_t val;
         cout << "Enter the value you wish to serialize: ";
-        while ( !(cin >> val) ) {
+        while ( !(cin >> i_val) || (i_val < 0) || (i_val > UINT16_MAX) ) {
           cout << "Invalid Input. Please try again with your input between " << 0 << " and " << UINT16_MAX << ": ";
           cin.clear();
           cin.ignore(numeric_limits<streamsize>::max(), '\n');
         }
+        val = i_val;
         serializable.serializeUInt16(val);
         size += sizeof(uint16_t);
         break;
       }
-      case (7): {
+      case (7): { // TODO: Does not actually stop negative numbers from being input
         uint32_t val;
         cout << "Enter the value you wish to serialize: ";
-        while ( !(cin >> val) ) {
+        while ( !(cin >> val) || (val < 0) || (val > UINT32_MAX) ) {
           cout << "Invalid Input. Please try again with your input between " << 0 << " and " << UINT32_MAX << ": ";
           cin.clear();
           cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -128,10 +130,10 @@ int main() {
         size += sizeof(uint32_t);
         break;
       }
-      case (8): {
+      case (8): { // TODO: Does not actually stop negative numbers from being input
         uint64_t val;
         cout << "Enter the value you wish to serialize: ";
-        while ( !(cin >> val) ) {
+        while ( !(cin >> val) || (cout << val) || (val < 0) || (val > UINT64_MAX) ) {
           cout << "Invalid Input. Please try again with your input between " << 0 << " and " << UINT64_MAX << ": ";
           cin.clear();
           cin.ignore(numeric_limits<streamsize>::max(), '\n');
