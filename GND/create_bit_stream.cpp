@@ -31,15 +31,20 @@ int main() {
     size_t size;
   
     int type_num;
-    cout << "1. Int8 \t5. UInt8 \t 9. Float" << endl;
+    cout << "1. Int8 \t5. UInt8 \t 9. Float"  << endl;
     cout << "2. Int16\t6. UInt16\t10. Double" << endl;
-    cout << "3. Int32\t7. UInt32\t11. Bool" << endl;
-    cout << "4. Int64\t8. UInt64\t12. Done" << endl;
+    cout << "3. Int32\t7. UInt32\t11. Bool"   << endl;
+    cout << "4. Int64\t8. UInt64"             << endl;
+    cout << "0. Done"                         << endl;
     cout << "Enter the corresponding number for the type you wish to serialize: ";
     cin >> type_num;
   
     switch (type_num) {
   
+      case (0): {
+        done = true;
+        break;
+      }
       case (1): {
         int8_t val;
         int i_val;
@@ -176,10 +181,6 @@ int main() {
         }
         serializable.serializeBool(val);
         size += sizeof(bool);
-        break;
-      }
-      case (12): {
-        done = true;
         break;
       }
       default: {
