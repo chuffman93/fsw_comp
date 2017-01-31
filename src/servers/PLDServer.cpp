@@ -190,7 +190,7 @@ void PLDServer::loopReset(){
 bool PLDServer::CheckHealthStatus(){
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
-	if(true){ //modeManager->GetMode() == MODE_PLD_PRIORITY
+	if(modeManager->GetMode() == MODE_PLD_PRIORITY){
 		Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 		ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, HEALTH_STATUS_CMD);
@@ -230,13 +230,13 @@ bool PLDServer::CheckHealthStatus(){
 			PLDState.control = GetUInt16(msgPtr);
 			msgPtr += 2;
 
-			logger->Log(LOGGER_LEVEL_INFO, "PLD H&S: Power fault:     %u", PLDState.powerFault);
-			logger->Log(LOGGER_LEVEL_INFO, "PLD H&S: Motor speed:     %u", PLDState.motorSpeed);
+			logger->Log(LOGGER_LEVEL_DEBUG, "PLD H&S: Power fault:     %u", PLDState.powerFault);
+			logger->Log(LOGGER_LEVEL_DEBUG, "PLD H&S: Motor speed:     %u", PLDState.motorSpeed);
 			for(uint8 i = 0; i < 10; i++){
-				logger->Log(LOGGER_LEVEL_INFO, "PLD H&S: Thermistor %d:     %u", i, PLDState.thermistors[i]);
+				logger->Log(LOGGER_LEVEL_DEBUG, "PLD H&S: Thermistor %d:     %u", i, PLDState.thermistors[i]);
 			}
-			logger->Log(LOGGER_LEVEL_INFO, "PLD H&S: ACS Working:     %u", PLDState.acdDataWorking);
-			logger->Log(LOGGER_LEVEL_INFO, "PLD H&S: Control:         %u", PLDState.control);
+			logger->Log(LOGGER_LEVEL_DEBUG, "PLD H&S: ACS Working:     %u", PLDState.acdDataWorking);
+			logger->Log(LOGGER_LEVEL_DEBUG, "PLD H&S: Control:         %u", PLDState.control);
 
 			return true;
 		}

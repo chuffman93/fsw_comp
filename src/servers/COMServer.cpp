@@ -89,7 +89,7 @@ void COMServer::loopInit(){
 void COMServer::loopBeacon(){
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
-	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_EPS]){
+	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_COM]){
 		currentState = ST_INIT;
 	}
 
@@ -109,7 +109,7 @@ void COMServer::loopBeacon(){
 
 	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
 	if(cmdServer->CheckForBeacon()){
-		//COMSendBeacon();
+		COMSendBeacon();
 	}
 }
 
