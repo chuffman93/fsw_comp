@@ -21,14 +21,6 @@ int main() {
   in.close();
   Serialize serializable(buf, buf_size);
 
-  //int hi = 13;
-  //double bye = 13.3;
-  //serializable.serializeInt32(hi);
-  //serializable.serializeInt32(hi);
-
-  //cout << serializable.deserializeInt32() << endl;
-  //cout << serializable.deserializeInt32() << endl;
-
   bool done = false;
   while (!done) {
     size_t size;

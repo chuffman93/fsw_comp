@@ -8,14 +8,6 @@
 
 using namespace std;
 
-void read_buf_from_file(uint8_t * buf, size_t buf_size, string filename){
-  ifstream in(filename.c_str(), ios::in | ios::binary );
-  in.read((char *)buf, buf_size);
-  in.close();
-}
-
-
-
 int main() {
 
   string filename;
@@ -194,13 +186,6 @@ int main() {
   fp.open(filename.c_str(), ios::out | ios::binary);
   fp.write((char *) buf, buf_size);
   fp.close();
-
-  /*
-  uint8_t file_buffer[buf_size];
-  read_buf_from_file(file_buffer, buf_size, filename);
-  serializable.update(buf, buf_size);
-  int out = serializable.deserializeInt32();
-  */
 
   return 0;
 }
