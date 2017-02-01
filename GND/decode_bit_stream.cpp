@@ -57,19 +57,19 @@ int main() {
       case (2): {
         int16_t val;
         val = serializable.deserializeInt16();
-        printf("Value: %d\n", val);
+        cout << "Value: " << val << endl;
         break;
       }
       case (3): {
         int32_t val;
         val = serializable.deserializeInt32();
-        printf("Value: %d\n", val);
+        cout << "Value: " << val << endl;
         break;
       }
       case (4): {
         int64_t val;
         val = serializable.deserializeInt64();
-        printf("Value: %d\n", val);
+        cout << "Value: " << val << endl;
         break;
       }
       case (5): {
@@ -81,37 +81,37 @@ int main() {
       case (6): {
         uint16_t val;
         val = serializable.deserializeUInt16();
-        printf("Value: %d\n", val);
+        cout << "Value: " << val << endl;
         break;
       }
       case (7): {
         uint32_t val;
         val = serializable.deserializeUInt32();
-        printf("Value: %d\n", val);
+        cout << "Value: " << val << endl;
         break;
       }
       case (8): {
         uint64_t val;
         val = serializable.deserializeUInt64();
-        printf("Value: %d\n", val);
+        cout << "Value: " << val << endl;
         break;
       }
       case (9): {
         float val;
         val = serializable.deserializeFloat();
-        printf("Value: %d\n", val);
+        cout << "Value: " << val << endl;
         break;
       }
       case (10): {
         double val;
         val = serializable.deserializeDouble();
-        printf("Value: %f\n", val);
+        cout << "Value: " << val << endl;
         break;
       }
       case (11): {
         bool val;
         val = serializable.deserializeBool();
-        printf("Value: %f\n", val);
+        cout << "Value: " << val << endl;
         break;
       }
       case (12): {

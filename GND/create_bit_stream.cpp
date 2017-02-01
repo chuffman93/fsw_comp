@@ -138,7 +138,7 @@ int main() {
       case (8): { // TODO: Does not actually stop negative numbers from being input
         uint64_t val;
         cout << "Enter the value you wish to serialize: ";
-        while ( !(cin >> val) || (cout << val) || (val < 0) || (val > UINT64_MAX) ) {
+        while ( !(cin >> val) || (val < 0) || (val > UINT64_MAX) ) {
           cout << "Invalid Input. Please try again with your input between " << 0 << " and " << UINT64_MAX << ": ";
           cin.clear();
           cin.ignore(numeric_limits<streamsize>::max(), '\n');
