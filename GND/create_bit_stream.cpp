@@ -14,13 +14,14 @@ int main() {
   cout << "Enter the name of the file you wish to create: ";
   cin >> filename;
 
-  size_t buf_size = 500;
+  size_t buf_size = 1000;
   uint8_t buf[buf_size];
   Serialize serializable(buf, buf_size);
 
+  size_t size;
+
   bool done = false;
   while (!done) {
-    size_t size;
   
     int type_num;
     cout << "1. Int8 \t5. UInt8 \t 9. Float"  << endl;
@@ -182,9 +183,13 @@ int main() {
     }
   }
 
+  uint8_t final_buf[size];
+  copy(buf, buf+size, final_buf);
+
+
   ofstream fp;
   fp.open(filename.c_str(), ios::out | ios::binary);
-  fp.write((char *) buf, buf_size);
+  fp.write((char *) final_buf, size);
   fp.close();
 
   return 0;
