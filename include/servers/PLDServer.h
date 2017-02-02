@@ -16,7 +16,6 @@
 #include "core/ModeManager.h"
 #include "core/MessageHandlerRegistry.h"
 #include "core/Arbitrator.h"
-#include "servers/PLDHandlers.h"
 
 namespace AllStar{
 namespace Servers{

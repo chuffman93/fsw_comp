@@ -63,16 +63,6 @@ bool SCHServer::IsFullyInitialized(void)
 	return(Singleton::IsFullyInitialized());
 }
 
-bool SCHServer::RegisterHandlers()
-{
-	volatile bool success = true;
-
-	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-	success &= dispatcher->AddRegistry(id, &reg, &arby);
-
-	return success;
-}
-
 void SCHServer::RequestCOMMode(void){
 	surpriseCOM = true;
 }

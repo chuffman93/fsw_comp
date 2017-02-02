@@ -6,7 +6,6 @@
 *  Modified by: Alex, January 2017
 */
 
-#include "servers/CMDHandlers.h"
 #include "servers/CMDServer.h"
 #include "servers/CMDStdTasks.h"
 #include "servers/DispatchStdTasks.h"
@@ -37,7 +36,6 @@ namespace AllStar{
 namespace Servers{
 
 //Message Handler for ACP Protocol Switches
-static CMDSwitchProtocolHandler * cmdSwitchProtocolHandler;
 int CMDServer::subsystem_acp_protocol[HARDWARE_LOCATION_MAX];
 
 CMDServer::CMDServer(string nameIn, LocationIDType idIn) :
@@ -58,12 +56,10 @@ CMDServer::~CMDServer(){
 }
 
 void CMDServer::Initialize(void){
-	cmdSwitchProtocolHandler = new CMDSwitchProtocolHandler();
 }
 
 #ifdef TEST
 void CMDServer::Destroy(void){
-	delete cmdSwitchProtocolHandler;
 }
 #endif
 
@@ -79,20 +75,6 @@ CMDServer & CMDServer::operator=(const CMDServer & source){
 	SubsystemServer::operator =(source);
 
 	return *this;
-}
-
-bool CMDServer::RegisterHandlers(){
-	bool success = true;
-
-	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-
-	// CMD Command Opcode
-	success &= reg.RegisterHandler(MessageIdentifierType(SERVER_LOCATION_CMD, CMD_ACP_SWITCH), cmdSwitchProtocolHandler);
-	success &= arby.ModifyPermission(MessageIdentifierType(SERVER_LOCATION_CMD, CMD_ACP_SWITCH), true);
-
-	success &= dispatcher->AddRegistry(id, &reg, &arby);
-
-	return success;
 }
 
 // --------- State Machine -----------------------------------------------------------------------------------------

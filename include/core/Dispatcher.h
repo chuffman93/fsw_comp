@@ -156,7 +156,7 @@ public:
 	 *  registered handler for that message, then a standard
 	 *  unknown message response will be issued.
 	 */
-	MessageHandlerRegistry * FindHandler(LocationIDType serverID, ACPPacket * packet);
+	//MessageHandlerRegistry * FindHandler(LocationIDType serverID, ACPPacket * packet);
 
 	/*! \brief Dispatch a Message to Hardware
 	 *

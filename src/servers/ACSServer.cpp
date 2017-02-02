@@ -9,7 +9,6 @@
 
 #include "servers/ACSStdTasks.h"
 #include "servers/ACSServer.h"
-#include "servers/ACSHandlers.h"
 #include "servers/DispatchStdTasks.h"
 #include "servers/CDHServer.h"
 
@@ -59,11 +58,6 @@ void ACSServer::Destroy(void){
 
 bool ACSServer::IsFullyInitialized(void){
 	return Singleton::IsFullyInitialized();
-}
-
-bool ACSServer::RegisterHandlers(){
-	bool success = true;
-	return success;
 }
 
 // -------------------------------------------- State Machine --------------------------------------------

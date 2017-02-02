@@ -163,11 +163,6 @@ FMGServer & FMGServer::operator=(const FMGServer & source){
 	return *this;
 }
 
-bool FMGServer::RegisterHandlers(){
-	bool success = true;
-	return success;
-}
-
 void FMGServer::CloseAndMoveAllFiles(){
 	CMDLogger.CloseFile();
 	ERRLogger.CloseFile();

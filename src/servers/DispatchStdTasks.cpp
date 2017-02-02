@@ -102,150 +102,150 @@ bool DispatchNoResponse(ACPPacket * query){
 	return true;
 }
 
-bool Listen(LocationIDType serverID){
-	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-	MessageHandlerRegistry * registry;
-	ACPPacket * packet;
-	ACPPacket tmpPacket;
+//bool Listen(LocationIDType serverID){
+//	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+//	MessageHandlerRegistry * registry;
+//	ACPPacket * packet;
+//	ACPPacket tmpPacket;
+//
+//	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+//	logger->Log(LOGGER_LEVEL_SUPER_DEBUG, "DispatchStdTasks: Listen() called with serverID: %u", serverID);
+//
+//	tmpPacket.setSource(serverID); // temp packet to check for response
+//
+//	if (!dispatcher->CheckQueueForMatchingPacket(tmpPacket, packet, dispatcher->CHECK_DEST_SOURCE)){
+//		logger->Log(LOGGER_LEVEL_SUPER_DEBUG, "   DispatchStdTasks: Listen(): No packets have been sent to this server.");
+//		return false;
+//	}
+//
+//	logger->Log(LOGGER_LEVEL_DEBUG, "   DispatchStdTasks: Listen() w/ id %u: Found a packet, looking for a handler.", serverID);
+//
+//	if(NULL == (registry = dispatcher->FindHandler(serverID, packet))){
+//		return false;
+//	}
+//
+//	logger->Log(LOGGER_LEVEL_DEBUG, "   DispatchStdTasks: Listen(): Permissions are correct, invoke the handler, and obtain the resulting message.");
+//
+//	ACPPacket * retPacket = registry->Invoke(*packet);
+//
+//	// Create a return packet from the handler response and the original query
+//	ACPPacket * ret = new ACPPacket(packet->getDestination(), packet->getSource(), retPacket->getOpcode(),
+//			retPacket->getLength(), retPacket->getMessageBuff());
+//	ret->setPacketID(packet->getPacketID());
+//
+//	// FIXME: make sure this doesn't cause a memory leak!
+//	delete retPacket;
+//	//delete packet;
+//
+//	// Send the response back to the server that dispatched the original message.
+//	int numPackets = mq_size(dispatcher->queueHandleRX, dispatcher->queueAttrRX);
+//	bool sendSuccess = false;
+//	if(numPackets < DISPATCHER_QUEUE_LENGTH){
+//		sendSuccess = mq_timed_send(dispatcher->queueNameRX, &ret, MAX_BLOCK_TIME, 0);
+//	}else{
+//		logger->Log(LOGGER_LEVEL_FATAL, "DispatchStdTasks: RX Queue full!");
+//		sendSuccess = false;
+//	}
+//
+//	return sendSuccess;
+//}
 
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log(LOGGER_LEVEL_SUPER_DEBUG, "DispatchStdTasks: Listen() called with serverID: %u", serverID);
-
-	tmpPacket.setSource(serverID); // temp packet to check for response
-
-	if (!dispatcher->CheckQueueForMatchingPacket(tmpPacket, packet, dispatcher->CHECK_DEST_SOURCE)){
-		logger->Log(LOGGER_LEVEL_SUPER_DEBUG, "   DispatchStdTasks: Listen(): No packets have been sent to this server.");
-		return false;
-	}
-
-	logger->Log(LOGGER_LEVEL_DEBUG, "   DispatchStdTasks: Listen() w/ id %u: Found a packet, looking for a handler.", serverID);
-
-	if(NULL == (registry = dispatcher->FindHandler(serverID, packet))){
-		return false;
-	}
-
-	logger->Log(LOGGER_LEVEL_DEBUG, "   DispatchStdTasks: Listen(): Permissions are correct, invoke the handler, and obtain the resulting message.");
-
-	ACPPacket * retPacket = registry->Invoke(*packet);
-
-	// Create a return packet from the handler response and the original query
-	ACPPacket * ret = new ACPPacket(packet->getDestination(), packet->getSource(), retPacket->getOpcode(),
-			retPacket->getLength(), retPacket->getMessageBuff());
-	ret->setPacketID(packet->getPacketID());
-
-	// FIXME: make sure this doesn't cause a memory leak!
-	delete retPacket;
-	//delete packet;
-
-	// Send the response back to the server that dispatched the original message.
-	int numPackets = mq_size(dispatcher->queueHandleRX, dispatcher->queueAttrRX);
-	bool sendSuccess = false;
-	if(numPackets < DISPATCHER_QUEUE_LENGTH){
-		sendSuccess = mq_timed_send(dispatcher->queueNameRX, &ret, MAX_BLOCK_TIME, 0);
-	}else{
-		logger->Log(LOGGER_LEVEL_FATAL, "DispatchStdTasks: RX Queue full!");
-		sendSuccess = false;
-	}
-
-	return sendSuccess;
-}
-
-void PacketProcess(LocationIDType id, AllStar::Core::ACPPacket * retPacket)
-{
-	FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log(LOGGER_LEVEL_DEBUG, "DispatchStdTasks: PacketProcess() called");
-
-	// Get packet info
-	MessageCodeType retOpcode = retPacket->getOpcode();
-	bool success = (retOpcode > 199) ^ (retOpcode < 100);
-
-	// Check if error message
-	if(!success)
-	{
-		logger->Log(LOGGER_LEVEL_INFO, "DispatchStdTasks: Got error return message");
-		if((retOpcode >= DISPATCHER_ERR_START) && (retOpcode <= DISPATCHER_ERR_END))
-		{
-			//dispatcher error! Log it
-			if(!fileHandler->Log(SYSTEM_CDH, retPacket))
-			{
-				logger->Log(LOGGER_LEVEL_ERROR, "DispatchStdTasks: Failed to log error!");
-			}
-			delete retPacket;
-			return;
-		}
-		else
-		{ //Non dispatcher error message, send it to the octopus!
-			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-
-			//Dispatch packet, if it fails return DISPATCH_FAILED
-			if(!dispatcher->Dispatch(*retPacket)) {
-				// TODO: handle this
-				logger->Log(LOGGER_LEVEL_ERROR, "DispatchStdTasks: Failed to dispatch error to octopus");
-				delete retPacket;
-				return;
-			}
-
-			DispatcherStatusEnum stat;
-			ACPPacket * responsePacket;
-			//Wait for return message, if it fails return status response from dispatcher
-			if(DISPATCHER_STATUS_OK != (stat = WaitForDispatchResponse(*retPacket, &responsePacket)))
-			{
-				logger->Log(LOGGER_LEVEL_ERROR, "DispatchStdTasks: no response from error octopus (NOTE: check ERRServer Handler return)");
-				ACPPacket * ret = new ACPPacket(DISPATCH_FAILED, false);
-				PacketProcess(id, ret);
-				delete retPacket;
-				return;
-			}
-
-			logger->Log(LOGGER_LEVEL_DEBUG, "DispatchStdTasks: error octopus now has error");
-			delete retPacket;
-			return;
-		}
-	}
-
-	FileHandlerIDEnum handlerID;
-	switch(id)
-	{
-		case SERVER_LOCATION_COM :
-			handlerID = SUBSYSTEM_COM;
-			break;
-		case SERVER_LOCATION_EPS :
-			handlerID = SUBSYSTEM_EPS;
-			break;
-		case SERVER_LOCATION_ACS :
-			handlerID = SUBSYSTEM_ACS;
-			break;
-		case SERVER_LOCATION_PLD :
-			handlerID = SUBSYSTEM_PLD;
-			break;
-		case SERVER_LOCATION_GPS :
-			handlerID = SUBSYSTEM_GPS;
-			break;
-		case SERVER_LOCATION_SCH :
-			handlerID = SUBSYSTEM_SCH;
-			break;
-		case SERVER_LOCATION_CMD :
-			handlerID = SUBSYSTEM_CMD;
-			break;
-		case SERVER_LOCATION_CDH :
-			handlerID = SYSTEM_CDH;
-			break;
-		default:
-			logger->Log(LOGGER_LEVEL_ERROR, "DispatchStdTasks: Unknown Server!");
-			delete retPacket;
-			return;
-	}
-
-	// Successful return message
-	logger->Log(LOGGER_LEVEL_INFO, "DispatchStdTasks: Got successful return message!");
-	if(!fileHandler->Log(handlerID, retPacket))
-	{
-		// TODO: write to error log
-		logger->Log(LOGGER_LEVEL_WARN, "DispatchStdTasks: Failed to log message");
-	}
-	delete retPacket;
-}
+//void PacketProcess(LocationIDType id, AllStar::Core::ACPPacket * retPacket)
+//{
+//	FileHandler * fileHandler = dynamic_cast<FileHandler *> (Factory::GetInstance(FILE_HANDLER_SINGLETON));
+//	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+//	logger->Log(LOGGER_LEVEL_DEBUG, "DispatchStdTasks: PacketProcess() called");
+//
+//	// Get packet info
+//	MessageCodeType retOpcode = retPacket->getOpcode();
+//	bool success = (retOpcode > 199) ^ (retOpcode < 100);
+//
+//	// Check if error message
+//	if(!success)
+//	{
+//		logger->Log(LOGGER_LEVEL_INFO, "DispatchStdTasks: Got error return message");
+//		if((retOpcode >= DISPATCHER_ERR_START) && (retOpcode <= DISPATCHER_ERR_END))
+//		{
+//			//dispatcher error! Log it
+//			if(!fileHandler->Log(SYSTEM_CDH, retPacket))
+//			{
+//				logger->Log(LOGGER_LEVEL_ERROR, "DispatchStdTasks: Failed to log error!");
+//			}
+//			delete retPacket;
+//			return;
+//		}
+//		else
+//		{ //Non dispatcher error message, send it to the octopus!
+//			Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+//
+//			//Dispatch packet, if it fails return DISPATCH_FAILED
+//			if(!dispatcher->Dispatch(*retPacket)) {
+//				// TODO: handle this
+//				logger->Log(LOGGER_LEVEL_ERROR, "DispatchStdTasks: Failed to dispatch error to octopus");
+//				delete retPacket;
+//				return;
+//			}
+//
+//			DispatcherStatusEnum stat;
+//			ACPPacket * responsePacket;
+//			//Wait for return message, if it fails return status response from dispatcher
+//			if(DISPATCHER_STATUS_OK != (stat = WaitForDispatchResponse(*retPacket, &responsePacket)))
+//			{
+//				logger->Log(LOGGER_LEVEL_ERROR, "DispatchStdTasks: no response from error octopus (NOTE: check ERRServer Handler return)");
+//				ACPPacket * ret = new ACPPacket(DISPATCH_FAILED, false);
+//				PacketProcess(id, ret);
+//				delete retPacket;
+//				return;
+//			}
+//
+//			logger->Log(LOGGER_LEVEL_DEBUG, "DispatchStdTasks: error octopus now has error");
+//			delete retPacket;
+//			return;
+//		}
+//	}
+//
+//	FileHandlerIDEnum handlerID;
+//	switch(id)
+//	{
+//		case SERVER_LOCATION_COM :
+//			handlerID = SUBSYSTEM_COM;
+//			break;
+//		case SERVER_LOCATION_EPS :
+//			handlerID = SUBSYSTEM_EPS;
+//			break;
+//		case SERVER_LOCATION_ACS :
+//			handlerID = SUBSYSTEM_ACS;
+//			break;
+//		case SERVER_LOCATION_PLD :
+//			handlerID = SUBSYSTEM_PLD;
+//			break;
+//		case SERVER_LOCATION_GPS :
+//			handlerID = SUBSYSTEM_GPS;
+//			break;
+//		case SERVER_LOCATION_SCH :
+//			handlerID = SUBSYSTEM_SCH;
+//			break;
+//		case SERVER_LOCATION_CMD :
+//			handlerID = SUBSYSTEM_CMD;
+//			break;
+//		case SERVER_LOCATION_CDH :
+//			handlerID = SYSTEM_CDH;
+//			break;
+//		default:
+//			logger->Log(LOGGER_LEVEL_ERROR, "DispatchStdTasks: Unknown Server!");
+//			delete retPacket;
+//			return;
+//	}
+//
+//	// Successful return message
+//	logger->Log(LOGGER_LEVEL_INFO, "DispatchStdTasks: Got successful return message!");
+//	if(!fileHandler->Log(handlerID, retPacket))
+//	{
+//		// TODO: write to error log
+//		logger->Log(LOGGER_LEVEL_WARN, "DispatchStdTasks: Failed to log message");
+//	}
+//	delete retPacket;
+//}
 
 DispatcherStatusEnum WaitForDispatchResponse(const ACPPacket & packet, ACPPacket ** retPacketin)
 {

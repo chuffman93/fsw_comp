@@ -10,7 +10,6 @@
 #define COMSERVER_H_
 
 #include "servers/SubsystemServer.h"
-#include "servers/COMHandlers.h"
 #include "core/StdTypes.h"
 #include "core/ModeManager.h"
 #include "core/MessageHandlerRegistry.h"

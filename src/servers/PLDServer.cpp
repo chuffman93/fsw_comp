@@ -25,9 +25,6 @@ using namespace AllStar::Core;
 namespace AllStar{
 namespace Servers{
 
-// Message handler for a health and status command.
-static PLDHSHandler * pldHSHandler;
-
 PLDServer::PLDServer(string nameIn, LocationIDType idIn) :
 		SubsystemServer(nameIn, idIn, 1000, 20), Singleton(), arby(idIn) {
 	PLDState = {0,0,{0,0,0,0,0,0,0,0,0,0},0,0,0};
@@ -48,30 +45,16 @@ PLDServer & PLDServer::operator=(const PLDServer & source){
 }
 
 void PLDServer::Initialize(void){
-	pldHSHandler = new PLDHSHandler();
 }
 
 #ifdef TEST
 void PLDServer::Destroy(void){
-	delete pldHSHandler;
 }
 #endif
 
 bool PLDServer::IsFullyInitialized(void){
 	return(Singleton::IsFullyInitialized());
 }
-
-bool PLDServer::RegisterHandlers(){
-	bool success = true;
-	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-
-	success &= reg.RegisterHandler(MessageIdentifierType(SERVER_LOCATION_PLD, HEALTH_STATUS_CMD), pldHSHandler);
-
-	success &= dispatcher->AddRegistry(id, &reg, &arby);
-
-	return success;
-}
-
 
 // ------------------------------------ State Machine ------------------------------------------------------------
 void PLDServer::loopInit(){

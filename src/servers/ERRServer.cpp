@@ -25,8 +25,6 @@ using namespace AllStar::Core;
 namespace AllStar{
 namespace Servers{
 
-static ERRServerHandler * octErrorHandler;
-
 ERRServer::ERRServer(std::string nameIn, LocationIDType idIn) :
 		SubsystemServer(nameIn, idIn), Singleton(), arby(idIn) {
 }
@@ -46,36 +44,17 @@ ERRServer & ERRServer::operator=(const ERRServer & source){
 
 void ERRServer::Initialize(void)
 {
-	octErrorHandler = new ERRServerHandler();
 }
 
 #ifdef HOST
 void ERRServer::Destroy(void)
 {
-	delete octErrorHandler;
 }
 #endif
 
 bool ERRServer::IsFullyInitialized(void)
 {
 	return(Singleton::IsFullyInitialized());
-}
-
-bool ERRServer::RegisterHandlers()
-{
-	bool success = true;
-
-	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-
-	for(int opcode = 0; opcode < 255; opcode++)
-	{
-		success &= reg.RegisterHandler(MessageIdentifierType(SERVER_LOCATION_ERR, opcode), octErrorHandler);
-		success &= arby.ModifyPermission(MessageIdentifierType(SERVER_LOCATION_ERR, opcode), true);
-	}
-
-	success &= dispatcher->AddRegistry(id, &reg, &arby);
-
-	return success;
 }
 
 void ERRServer::SubsystemLoop(void)
@@ -91,7 +70,7 @@ void ERRServer::SubsystemLoop(void)
 	int64 LastWakeTime = 0;
 	while(1)
 	{
-		while(Listen(id));
+		//while(Listen(id));
 		LastWakeTime = getTimeInMillis();
 		//wdm->Kick();
 		//debug_led_set_led(2, LED_TOGGLE);

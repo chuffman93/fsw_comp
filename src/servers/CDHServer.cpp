@@ -6,7 +6,6 @@
  */
 
 #include "servers/CDHServer.h"
-#include "servers/CDHHandlers.h"
 #include "servers/CDHStdTasks.h"
 #include "servers/DispatchStdTasks.h"
 #include "HAL/I2C/HotSwaps.h"
@@ -72,10 +71,6 @@ void CDHServer::Destroy(void){
 
 bool CDHServer::IsFullyInitialized(void){
 	return(Singleton::IsFullyInitialized());
-}
-
-bool CDHServer::RegisterHandlers(){
-	return true;
 }
 
 // -------------------------------------------- Loops ---------------------------------------------

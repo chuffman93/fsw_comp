@@ -11,7 +11,6 @@
 #include "core/Factory.h"
 #include "core/WatchdogManager.h"
 #include "core/StdTypes.h"
-#include "servers/EPSHandlers.h"
 #include "servers/EPSServer.h"
 #include "servers/EPSStdTasks.h"
 #include "servers/FMGServer.h"
@@ -24,10 +23,6 @@ using namespace AllStar::Core;
 
 namespace AllStar{
 namespace Servers{
-
-// Instantiate static message handlers
-static EPSHSHandler * epsHSHandler;
-static EPSPowerCycleHandler * epsPowerCycleHandler;
 
 // -------------------------------------- Necessary Methods --------------------------------------
 EPSServer::EPSServer(string nameIn, LocationIDType idIn) :
@@ -46,34 +41,15 @@ EPSServer & EPSServer::operator=(const EPSServer & source){
 }
 
 void EPSServer::Initialize(void){
-	//Initialize handlers
-//	epsHSHandler = new EPSHSHandler();
-//	epsPowerCycleHandler = new EPSPowerCycleHandler();
 }
 
 #ifdef TEST
 void EPSServer::Destroy(void){
-	//delete handlers
-	delete epsHSHandler;
-	delete epsPowerCycleHandler;
 }
 #endif
 
 bool EPSServer::IsFullyInitialized(void){
 	return(Singleton::IsFullyInitialized());
-}
-
-bool EPSServer::RegisterHandlers() {
-	bool success = true;
-
-	Dispatcher * dispatcher = dynamic_cast<Dispatcher *>(Factory::GetInstance(DISPATCHER_SINGLETON));
-
-	success &= reg.RegisterHandler(MessageIdentifierType(SERVER_LOCATION_EPS, HEALTH_STATUS_CMD),epsHSHandler);
-	success &= reg.RegisterHandler(MessageIdentifierType(SERVER_LOCATION_EPS, SUBSYSTEM_RESET_CMD),epsPowerCycleHandler);
-
-	success &= dispatcher->AddRegistry(id, &reg, &arby);
-
-	return success;
 }
 
 // -------------------------------------------- State Machine ---------------------------------------------

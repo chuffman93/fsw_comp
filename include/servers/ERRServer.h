@@ -15,7 +15,6 @@
 #include "servers/SubsystemServer.h"
 #include "core/MessageHandlerRegistry.h"
 #include "core/Arbitrator.h"
-#include "servers/ErrorHandlers.h"
 
 namespace AllStar
 {

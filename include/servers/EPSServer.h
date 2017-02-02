@@ -10,7 +10,6 @@
 #define EPSSERVER_H_
 
 #include "servers/SubsystemServer.h"
-#include "servers/EPSHandlers.h"
 #include "core/StdTypes.h"
 #include "core/MessageHandlerRegistry.h"
 #include "core/Arbitrator.h"

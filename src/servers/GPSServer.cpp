@@ -81,10 +81,6 @@ bool GPSServer::IsFullyInitialized(void){
 	return(Singleton::IsFullyInitialized());
 }
 
-bool GPSServer::RegisterHandlers(){
-	return true;
-}
-
 void GPSServer::SubsystemLoop(void){
 	WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));

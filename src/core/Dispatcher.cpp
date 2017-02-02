@@ -265,40 +265,40 @@ bool Dispatcher::CheckQueueForMatchingPacket(const ACPPacket & packetIn, ACPPack
 	}
 }
 
-MessageHandlerRegistry * Dispatcher::FindHandler(LocationIDType serverID, ACPPacket * packet){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	IteratorType it;
-
-	if (true == this->TakeLock(MAX_BLOCK_TIME)){
-		logger->Log(LOGGER_LEVEL_DEBUG, "   Dispatcher: searching registry map for handler.");
-		it = registryMap.find(serverID);
-		this->GiveLock();
-	}else{
-		delete packet;
-		return NULL;
-	}
-
-	if (registryMap.end( ) == it){
-		logger->Log(LOGGER_LEVEL_DEBUG, "   Dispatcher: Listen(): Didn't find a handler.");
-		delete packet;
-		return NULL;
-	}
-
-	// A handler exists, so check the permissions
-	logger->Log(LOGGER_LEVEL_DEBUG, "   Dispatcher: Listen(): Handler exists, checking permissions.");
-
-	ArbitratorAuthStatusEnum arbyRet;
-	if (ARBITRATOR_AUTH_STATUS_PERMISSION != (arbyRet = it->second->arby->Authenticate(*packet))){
-		logger->Log(LOGGER_LEVEL_ERROR, "   Dispatcher: Listen(): Don't have permissions, reject packet.");
-		logger->Log(LOGGER_LEVEL_ERROR, "   Dispatcher: Listen(): Authenticate returned: %d", arbyRet);
-		delete packet;
-		return NULL;
-	}
-
-	// Permissions are correct
-	return it->second->registry;
-
-}
+//MessageHandlerRegistry * Dispatcher::FindHandler(LocationIDType serverID, ACPPacket * packet){
+//	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+//	IteratorType it;
+//
+//	if (true == this->TakeLock(MAX_BLOCK_TIME)){
+//		logger->Log(LOGGER_LEVEL_DEBUG, "   Dispatcher: searching registry map for handler.");
+//		it = registryMap.find(serverID);
+//		this->GiveLock();
+//	}else{
+//		delete packet;
+//		return NULL;
+//	}
+//
+//	if (registryMap.end( ) == it){
+//		logger->Log(LOGGER_LEVEL_DEBUG, "   Dispatcher: Listen(): Didn't find a handler.");
+//		delete packet;
+//		return NULL;
+//	}
+//
+//	// A handler exists, so check the permissions
+//	logger->Log(LOGGER_LEVEL_DEBUG, "   Dispatcher: Listen(): Handler exists, checking permissions.");
+//
+//	ArbitratorAuthStatusEnum arbyRet;
+//	if (ARBITRATOR_AUTH_STATUS_PERMISSION != (arbyRet = it->second->arby->Authenticate(*packet))){
+//		logger->Log(LOGGER_LEVEL_ERROR, "   Dispatcher: Listen(): Don't have permissions, reject packet.");
+//		logger->Log(LOGGER_LEVEL_ERROR, "   Dispatcher: Listen(): Authenticate returned: %d", arbyRet);
+//		delete packet;
+//		return NULL;
+//	}
+//
+//	// Permissions are correct
+//	return it->second->registry;
+//
+//}
 
 bool Dispatcher::IsPacketMatchingResponse(const ACPPacket & packetIn,
 		const ACPPacket & packetOut) const

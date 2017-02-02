@@ -6,7 +6,6 @@
  */
 
 #include "servers/COMServer.h"
-#include "servers/COMHandlers.h"
 #include "servers/COMStdTasks.h"
 #include "servers/CDHServer.h"
 #include "servers/CMDServer.h"
@@ -24,9 +23,6 @@ using namespace AllStar::Core;
 
 namespace AllStar{
 namespace Servers{
-
-// Instantiate static message handlers
-static COMHSHandler * comHSHandler;
 
 // -------------------------------------- Necessary Methods --------------------------------------
 COMServer::COMServer(string nameIn, LocationIDType idIn) :
@@ -47,21 +43,15 @@ COMServer & COMServer::operator=(const COMServer & source){
 }
 
 void COMServer::Initialize(void){
-	//comHSHandler = new COMHSHandler();
 }
 
 #ifdef TEST
 void COMServer::Destroy(void){
-	delete comHSHandler;
 }
 #endif
 
 bool COMServer::IsFullyInitialized(void){
 	return(Singleton::IsFullyInitialized());
-}
-
-bool COMServer::RegisterHandlers(){
-	return true;
 }
 
 // TODO: ultimately remove Half and Full Duplex states and have a struct to track those COM states through H&S

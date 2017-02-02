@@ -29,7 +29,6 @@ public:
 	SubsystemServer & operator=(const SubsystemServer & source);
 	virtual bool operator ==(const Server & check) const;
 	virtual void SubsystemLoop(void);
-	virtual bool RegisterHandlers(void){return true;};
 protected:
 	uint16_t currentState;
 	int sleepTime;
