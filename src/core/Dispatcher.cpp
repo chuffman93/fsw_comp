@@ -1,10 +1,3 @@
-/*! \file Dispatcher.cpp
- *  \brief Implementation File for the Dispatcher Class
- *
- *  This file contains the implementation of the Dispatcher class, which acts
- *  as the ACPPacket-routing entity in the AllStar architecture.
- */
-
 #include <utility>
 
 #include "core/Dispatcher.h"
@@ -33,7 +26,7 @@ uint16 Dispatcher::packetNumber = 1;
 size_t timer;
 
 Dispatcher::Dispatcher(void)
-		: Singleton(), registryMap()
+		: Singleton()
 {
 	mq_unlink(queueNameRX);
 	qInitRX = mqCreate(&queueHandleRX, &queueAttrRX, queueNameRX);
@@ -46,15 +39,7 @@ void Dispatcher::Destroy(void)
 }
 #endif
 
-Dispatcher::~Dispatcher(void)
-{
-	while (!registryMap.empty( ))
-	{
-		IteratorType it = registryMap.begin( );
-		delete it->second;
-		registryMap.erase(it);
-	}
-	registryMap.clear( );
+Dispatcher::~Dispatcher(void) {
 	mq_unlink(queueNameRX);
 }
 
@@ -71,93 +56,6 @@ void Dispatcher::Initialize(void)
 bool Dispatcher::IsFullyInitialized(void)
 {
 	return(Singleton::IsFullyInitialized() && (qInitRX == 0));
-}
-
-bool Dispatcher::AddRegistry(LocationIDType serverID,
-		MessageHandlerRegistry * registry, Arbitrator * arby)
-{
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	pair<IteratorType, bool> ret;
-
-	if (NULL == registry || NULL == arby)
-	{
-		return false;
-	}
-
-	// get the semaphore.
-	if (true == this->TakeLock(MAX_BLOCK_TIME))
-	{
-		// Insert the registry into the map with serverID as the key.
-		DispatcherHandlerType * handlerStruct =
-				new DispatcherHandlerType(registry, arby);
-		ret = registryMap.insert(make_pair(serverID, handlerStruct));
-		if (!ret.second)
-		{
-			delete handlerStruct;
-		}
-		this->GiveLock();
-		return ret.second;
-	}
-	else
-	{
-		logger->Log(LOGGER_LEVEL_WARN, "Dispatcher: AddRegistry(): Semaphore failed");
-		return false;
-	}
-}
-
-bool Dispatcher::Dispatch(ACPPacket & packet)
-{
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	if(packet.getDestination() < HARDWARE_LOCATION_MIN || packet.getDestination() > SERVER_LOCATION_MAX){
-		return false;
-	}
-	if(packet.getDestination() >= HARDWARE_LOCATION_MIN && packet.getDestination() < HARDWARE_LOCATION_MAX)
-	{
-		uint32_t ret;
-		ret=DispatchToHardware(packet);
-		return (0 == ret);
-	}else{
-		logger->Log(LOGGER_LEVEL_DEBUG, "Now sending the message to the queue");
-
-		if (true == this->TakeLock(MAX_BLOCK_TIME))
-		{
-			logger->Log(LOGGER_LEVEL_DEBUG, "Dispatcher: Took lock");
-			size_t numPackets = mq_size(queueHandleRX, queueAttrRX);
-			ACPPacket * tmpPacket;
-			try
-			{
-				tmpPacket = new ACPPacket(packet);
-			}
-			catch (bad_alloc & e)
-			{
-				this->GiveLock();
-				return false;
-			}
-			if (numPackets < DISPATCHER_QUEUE_LENGTH)
-			{
-				logger->Log(LOGGER_LEVEL_DEBUG, "Dispatcher::Dispatch() Queue is not full");
-				// Send the message via the message queue.
-				bool ret = mq_timed_send(queueNameRX, (&tmpPacket), MAX_BLOCK_TIME, 0);
-				numPackets = mq_size(queueHandleRX, queueAttrRX);
-				this->GiveLock();
-				return ret;
-			}
-			else
-			{
-				logger->Log(LOGGER_LEVEL_WARN, "Dispatcher::Dispatch() Queue is full");
-				delete tmpPacket;
-				this->GiveLock();
-				return false;
-			}
-			this->GiveLock();
-			return false;
-		}
-		else
-		{
-			logger->Log(LOGGER_LEVEL_WARN, "Dispatch(): Semaphore failed");
-			return false;
-		}
-	}
 }
 
 bool Dispatcher::CheckQueueForMatchingPacket(const ACPPacket & packetIn, ACPPacket * &packetOut, DispatcherCheckType type)
@@ -265,41 +163,6 @@ bool Dispatcher::CheckQueueForMatchingPacket(const ACPPacket & packetIn, ACPPack
 	}
 }
 
-//MessageHandlerRegistry * Dispatcher::FindHandler(LocationIDType serverID, ACPPacket * packet){
-//	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-//	IteratorType it;
-//
-//	if (true == this->TakeLock(MAX_BLOCK_TIME)){
-//		logger->Log(LOGGER_LEVEL_DEBUG, "   Dispatcher: searching registry map for handler.");
-//		it = registryMap.find(serverID);
-//		this->GiveLock();
-//	}else{
-//		delete packet;
-//		return NULL;
-//	}
-//
-//	if (registryMap.end( ) == it){
-//		logger->Log(LOGGER_LEVEL_DEBUG, "   Dispatcher: Listen(): Didn't find a handler.");
-//		delete packet;
-//		return NULL;
-//	}
-//
-//	// A handler exists, so check the permissions
-//	logger->Log(LOGGER_LEVEL_DEBUG, "   Dispatcher: Listen(): Handler exists, checking permissions.");
-//
-//	ArbitratorAuthStatusEnum arbyRet;
-//	if (ARBITRATOR_AUTH_STATUS_PERMISSION != (arbyRet = it->second->arby->Authenticate(*packet))){
-//		logger->Log(LOGGER_LEVEL_ERROR, "   Dispatcher: Listen(): Don't have permissions, reject packet.");
-//		logger->Log(LOGGER_LEVEL_ERROR, "   Dispatcher: Listen(): Authenticate returned: %d", arbyRet);
-//		delete packet;
-//		return NULL;
-//	}
-//
-//	// Permissions are correct
-//	return it->second->registry;
-//
-//}
-
 bool Dispatcher::IsPacketMatchingResponse(const ACPPacket & packetIn,
 		const ACPPacket & packetOut) const
 {
@@ -335,29 +198,20 @@ bool Dispatcher::IsPacketSame(const ACPPacket & packetIn,
 	return packetIn == packetOut;
 }
 
-void * Dispatcher::InvokeHandler(void * parameters)
-{
-	DispatcherTaskParameter * parms =
-			(DispatcherTaskParameter *) parameters;
-
-	xSemaphoreTake(&(parms->doneSem), MAX_BLOCK_TIME, 0);
-	sem_post(&(parms->syncSem));
-	parms->retPacket = parms->registry->Invoke(*(parms->packet));
-
-
-	sem_post(&(parms->doneSem));
-
-	pthread_exit(0);
-}
-
-uint32_t Dispatcher::DispatchToHardware(ACPPacket & packet)
+bool Dispatcher::Dispatch(ACPPacket & packet)
 {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log(LOGGER_LEVEL_DEBUG, "Dispatcher: DispatchtoHardware() called, packet number: %d", packet.getPacketID());
+	logger->Log(LOGGER_LEVEL_DEBUG, "Dispatcher: Dispatch, packet number: %d", packet.getPacketID());
+
+	// check bounds
+	if(packet.getDestination() < HARDWARE_LOCATION_MIN || packet.getDestination() >= HARDWARE_LOCATION_MAX){
+		logger->Log(LOGGER_LEVEL_ERROR, "Dispatcher: invalid dispatch location");
+		return false;
+	}
+
 	//todo: add semaphores for locking & real error values
 	size_t packetLength;
 	uint8_t * packetBuffer;
-	size_t bytesCopied;
 	int protocolChoice = -1;
 
 	packetLength = packet.GetFlattenSize();
@@ -386,25 +240,17 @@ uint32_t Dispatcher::DispatchToHardware(ACPPacket & packet)
 		break;
 	default:
 		logger->Log(LOGGER_LEVEL_WARN, "DispatchToHardware: bad destination!");
-		return -2;
+		return false;
 	}
 
 	//check if whole packet was copied
 	if(packet.Flatten(packetBuffer,packetLength) != packetLength)
 	{
 		logger->Log(LOGGER_LEVEL_WARN, "DispatchToHardware(): flatten failed");
-		return -2;
+		return false;
 	}
 
-//	printf("TX Packet: ");
-//	for(uint16_t i = 0; i < packetLength; i++)
-//	{
-//		printf("0x%02x ",packetBuffer[i]);
-//	}
-//	printf("\n");
-
 	// get the instances for the Ethernet and SPI Servers
-	//ETH_HALServer * eth_server = dynamic_cast<ETH_HALServer *> (Factory::GetInstance(ETH_HALSERVER_SINGLETON));
 	SPI_HALServer * spi_server = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
 	Servers::CMDServer * cmdServer = dynamic_cast<Servers::CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
 
@@ -423,30 +269,23 @@ uint32_t Dispatcher::DispatchToHardware(ACPPacket & packet)
 					this->GiveLock();
 				}else{
 					logger->Log(LOGGER_LEVEL_FATAL, "Dispatcher: SPI TX Queue full!");
-					sendSuccess = false;
 					this->GiveLock();
+					return false;
 				}
 			}else{
 				logger->Log(LOGGER_LEVEL_WARN, "DispatchToHardware: Semaphore failed!");
-				sendSuccess = false;
+				return false;
 			}
 			break;
 		case ACP_PROTOCOL_ETH:
 			logger->Log(LOGGER_LEVEL_DEBUG, "DispatchToHardware(): Dispatch over ETH");
-//			bytesCopied = eth_server->ETHDispatch(packet);
-//			sendSuccess = (bytesCopied == packet.GetFlattenSize());
 			break;
 		default:
 			logger->Log(LOGGER_LEVEL_ERROR, "DispatchToHardware(): ACP Protocol out of bounds!"); // TODO: assert?
-			sendSuccess = false;
-			break;
+			return false;
 	}
 
-	if(sendSuccess){
-		return 0;
-	}else{
-		return -3;
-	}
+	return true;
 }
 
 void Dispatcher::CleanRXQueue(){

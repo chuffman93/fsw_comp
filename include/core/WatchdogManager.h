@@ -12,7 +12,6 @@
 #include "core/WatchdogStdTasks.h"
 #include "core/WatchdogMapClasses.h"
 #include "core/StdTypes.h"
-#include "core/Core.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
 #include "util/Logger.h"

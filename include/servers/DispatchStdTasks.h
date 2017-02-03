@@ -15,8 +15,6 @@
 #include "core/StdTypes.h"
 #include "core/ACPPacket.h"
 #include "core/Dispatcher.h"
-#include "core/MessageHandlerRegistry.h"
-#include "core/Arbitrator.h"
 
 #define DIS_DEBUG			0
 
@@ -41,27 +39,9 @@ enum DispatcherStatusEnum {
 	DISPATCHER_STATUS_MAX
 };
 
-/*! \brief Typedef for a ACPPacket Comparison Function */
-//typedef bool (Core::Dispatcher::* PacketCheckFunctionType)(const Core::ACPPacket & packetIn, const Core::ACPPacket & packetOut) const;
-
-struct DispatcherHandlerType
-{
-	DispatcherHandlerType(Core::MessageHandlerRegistry * regIn, Core::Arbitrator * arbyIn)
-	: registry(regIn), arby(arbyIn) { }
-
-	Core::MessageHandlerRegistry * registry;
-	Core::Arbitrator * arby;
-};
-
 // Send packet to the dispatcher
 AllStar::Core::ACPPacket * DispatchPacket(AllStar::Core::ACPPacket * packet);
 bool DispatchNoResponse(AllStar::Core::ACPPacket * packet);
-
-// Invoke message handlers for any messages sent to a server
-//bool Listen(LocationIDType serverID);
-
-// Process a response packet
-//void PacketProcess(LocationIDType id, AllStar::Core::ACPPacket * retPacket);
 
 DispatcherStatusEnum WaitForDispatchResponse(const Core::ACPPacket & packet, Core::ACPPacket ** retPacketin);
 

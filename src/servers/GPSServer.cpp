@@ -20,8 +20,6 @@
 #include "core/StdTypes.h"
 #include "util/FileHandler.h"
 #include "util/Logger.h"
-#include "HAL/GPS.h"
-#include "HAL/RTC.h"
 #include <math.h>
 #include <stdio.h>
 #include <termios.h>
@@ -38,7 +36,7 @@ namespace Servers{
 const char * GPSServer::portname = (char *) "/dev/ttyS1";
 
 GPSServer::GPSServer(string nameIn, LocationIDType idIn) :
-		SubsystemServer(nameIn, idIn), Singleton(), arby(idIn), gpsResponsive(false) {
+		SubsystemServer(nameIn, idIn), Singleton(), gpsResponsive(false) {
 	GPSDataHolder = new GPS_BESTXYZ();
 	GPSCoordsHolder = new GPS_GPRMC();
 

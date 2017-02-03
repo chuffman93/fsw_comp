@@ -26,7 +26,7 @@ namespace Servers{
 
 // -------------------------------------- Necessary Methods --------------------------------------
 COMServer::COMServer(string nameIn, LocationIDType idIn) :
-		SubsystemServer(nameIn, idIn), Singleton(), arby(idIn), TXSilence(false) {
+		SubsystemServer(nameIn, idIn), Singleton(), TXSilence(false) {
 }
 
 COMServer::~COMServer(){

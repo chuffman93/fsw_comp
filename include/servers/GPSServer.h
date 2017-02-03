@@ -14,8 +14,6 @@
 #include "core/StdTypes.h"
 #include "servers/SubsystemServer.h"
 #include "core/Dispatcher.h"
-#include "core/MessageHandlerRegistry.h"
-#include "core/Arbitrator.h"
 #include "servers/GPSStdTasks.h"
 #include "util/FileHandler.h"
 #include "servers/SubsystemServer.h"
@@ -84,10 +82,6 @@ private:
 	int CreatePort(void);
 
 	bool ReadData(char * buffer, int fd);
-
-	// Member variables needed to register message handlers.
-	AllStar::Core::MessageHandlerRegistry reg;
-	AllStar::Core::Arbitrator arby;
 
 	// GPS Port configurations
 	struct termios port;

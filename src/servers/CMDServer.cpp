@@ -39,7 +39,7 @@ namespace Servers{
 int CMDServer::subsystem_acp_protocol[HARDWARE_LOCATION_MAX];
 
 CMDServer::CMDServer(string nameIn, LocationIDType idIn) :
-		SubsystemServer(nameIn, idIn), Singleton(), arby(idIn), numFilesDWN(0), currFileNum(0) {
+		SubsystemServer(nameIn, idIn), Singleton(), numFilesDWN(0), currFileNum(0) {
 	for (int i = HARDWARE_LOCATION_MIN; i < HARDWARE_LOCATION_MAX; i++) {
 		subsystem_acp_protocol[i] = ACP_PROTOCOL_SPI;
 	}

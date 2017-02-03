@@ -7,8 +7,6 @@
  * 	Updated: Alex St. Clair
  */
 
-#include "HAL/RTC.h"
-
 #include "servers/EPSServer.h"
 #include "servers/EPSStdTasks.h"
 #include "servers/DispatchStdTasks.h"
@@ -20,14 +18,9 @@
 #include "util/FileHandler.h"
 #include "util/Logger.h"
 
-#include "HAL/Power.h"
-#include "HAL/Interrupt.h"
-#include "util/Logger.h"
-
 //#include "boards/backplane/dbg_led.h"
 
 using namespace AllStar::Core;
-using namespace AllStar::HAL;
 using namespace AllStar::Servers;
 
 namespace AllStar{

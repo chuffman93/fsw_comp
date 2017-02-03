@@ -10,9 +10,6 @@
 
 #include "core/StdTypes.h"
 #include "core/Dispatcher.h"
-#include "core/MessageHandlerRegistry.h"
-#include "core/Arbitrator.h"
-#include "core/MessageHandler.h"
 #include "core/Singleton.h"
 #include "core/ModeManager.h"
 
@@ -111,10 +108,6 @@ private:
 	CDHServer(std::string nameIn, LocationIDType idIn);
 	~CDHServer();
 	CDHServer & operator=(const CDHServer & source);
-
-	// Member variables needed to register message handlers.
-	AllStar::Core::MessageHandlerRegistry reg;
-	AllStar::Core::Arbitrator arby;
 
 	uint8 readHealthFrequency;
 

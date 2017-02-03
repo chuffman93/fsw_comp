@@ -12,8 +12,6 @@
 #include "servers/SubsystemServer.h"
 #include "core/StdTypes.h"
 #include "core/ModeManager.h"
-#include "core/MessageHandlerRegistry.h"
-#include "core/Arbitrator.h"
 #include "core/Factory.h"
 
 namespace AllStar{
@@ -45,10 +43,6 @@ private:
 	COMServer(std::string nameIn, LocationIDType idIn);
 	~COMServer(void);
 	COMServer & operator=(const COMServer & source);
-
-	// Member variables for handler registration
-	AllStar::Core::MessageHandlerRegistry reg;
-	AllStar::Core::Arbitrator arby;
 
 	bool TXSilence;
 

@@ -35,7 +35,7 @@ namespace Servers{
 
 // -------------------------------------- Necessary Methods --------------------------------------
 CDHServer::CDHServer(std::string nameIn, LocationIDType idIn) :
-		SubsystemServer(nameIn, idIn), Singleton(), arby(idIn), readHealthFrequency(10) {
+		SubsystemServer(nameIn, idIn), Singleton(), readHealthFrequency(10) {
 	devMngr = new I2CDeviceManager();
 
 	// all subsystems are off on startup except for EPS

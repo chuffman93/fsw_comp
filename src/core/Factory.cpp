@@ -9,14 +9,11 @@
 #include "servers/CMDServer.h"
 #include "servers/COMServer.h"
 #include "servers/EPSServer.h"
-#include "servers/ERRServer.h"
 #include "servers/FMGServer.h"
 #include "servers/GPSServer.h"
 #include "servers/PLDServer.h"
 #include "servers/SCHServer.h"
 #include "servers/CDHServer.h"
-#include "servers/ErrorQueue.h"
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -76,10 +73,6 @@ namespace AllStar
 						WatchdogManager::Initialize( );
 						instance = new WatchdogManager( );
 						break;
-					case ERROR_QUEUE_SINGLETON:
-						ErrorQueue::Initialize( );
-						instance = new ErrorQueue( );
-						break;
 					case FILE_HANDLER_SINGLETON:
 						FileHandler::Initialize( );
 						instance = new FileHandler( );
@@ -103,10 +96,6 @@ namespace AllStar
 					case EPS_SERVER_SINGLETON:
 						EPSServer::Initialize( );
 						instance = new EPSServer("EPS", SERVER_LOCATION_EPS);
-						break;
-					case ERR_SERVER_SINGLETON:
-						ERRServer::Initialize( );
-						instance = new ERRServer("ERR", SERVER_LOCATION_ERR);
 						break;
 					case FMG_SERVER_SINGLETON:
 						FMGServer::Initialize( );
@@ -224,9 +213,6 @@ namespace AllStar
 				case WATCHDOG_MANAGER_SINGLETON:
 					WatchdogManager::Destroy( );
 					break;
-				case ERROR_QUEUE_SINGLETON:
-					ErrorQueue::Destroy( );
-					break;
 				case FILE_HANDLER_SINGLETON:
 					//FileHandler::Destroy( );
 					break;
@@ -244,9 +230,6 @@ namespace AllStar
 					break;
 				case EPS_SERVER_SINGLETON:
 					EPSServer::Destroy( );
-					break;
-				case ERR_SERVER_SINGLETON:
-					ERRServer::Destroy( );
 					break;
 				case FMG_SERVER_SINGLETON:
 					FMGServer::Destroy( );

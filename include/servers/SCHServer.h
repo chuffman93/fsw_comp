@@ -10,9 +10,6 @@
 
 #include "core/StdTypes.h"
 #include "core/Dispatcher.h"
-#include "core/MessageHandlerRegistry.h"
-#include "core/Arbitrator.h"
-#include "core/MessageHandler.h"
 #include "core/Singleton.h"
 #include "util/ConfigManager.h"
 
@@ -82,10 +79,6 @@ private:
 	SCHServer & operator=(const SCHServer & source);
 
 	util::ConfigManager<SCHConfig> configManager;
-
-	// Member variables needed to register message handlers.
-	AllStar::Core::MessageHandlerRegistry reg;
-	AllStar::Core::Arbitrator arby;
 
 	bool surpriseCOM;
 	bool resetRequest;

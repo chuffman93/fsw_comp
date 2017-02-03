@@ -11,8 +11,6 @@
 
 #include "servers/SubsystemServer.h"
 #include "core/StdTypes.h"
-#include "core/MessageHandlerRegistry.h"
-#include "core/Arbitrator.h"
 #include "core/ModeManager.h"
 #include "core/Dispatcher.h"
 #include "util/FileHandler.h"
@@ -71,10 +69,6 @@ private:
 	EPSServer(std::string nameIn, LocationIDType idIn);
 	~EPSServer(){}
 	EPSServer & operator=(const EPSServer & source);
-
-	// Member variables needed to register message handlers.
-	AllStar::Core::MessageHandlerRegistry reg;
-	AllStar::Core::Arbitrator arby;
 
 	//Modes
 	void loopInit();

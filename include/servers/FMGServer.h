@@ -11,8 +11,6 @@
 #include "core/Dispatcher.h"
 #include "core/StdTypes.h"
 #include "core/ModeManager.h"
-#include "core/MessageHandlerRegistry.h"
-#include "core/Arbitrator.h"
 #include "util/FileHandler.h"
 #include <queue>
 
@@ -123,10 +121,6 @@ private:
 	FMGServer(std::string nameIn, LocationIDType idIn);
 	~FMGServer();
 	FMGServer & operator=(const FMGServer & source);
-
-	// Member variables needed to register message handlers.
-	AllStar::Core::MessageHandlerRegistry reg;
-	AllStar::Core::Arbitrator arby;
 
 	bool resetReady;
 	bool move_from_CUR;

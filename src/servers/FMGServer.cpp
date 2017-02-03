@@ -118,7 +118,6 @@ void LogFSS(void){
 FMGServer::FMGServer(string nameIn, LocationIDType idIn) :
 					SubsystemServer(nameIn, idIn, 10, 1000),
 					Singleton(),
-					arby(idIn),
 					CMDLogger(CMD_FILE_PATH, "CMD"),
 					ERRLogger(ERR_FILE_PATH, "ERR"),
 					FSSLogger(FSS_FILE_PATH, "FSS"),

@@ -20,8 +20,6 @@
 #include "core/Dispatcher.h"
 #include "core/StdTypes.h"
 #include "core/ModeManager.h"
-#include "core/MessageHandlerRegistry.h"
-#include "core/Arbitrator.h"
 #include "util/FileHandler.h"
 #include <queue>
 
@@ -82,10 +80,6 @@ private:
 	CMDServer(std::string nameIn, LocationIDType idIn);
 	~CMDServer();
 	CMDServer & operator=(const CMDServer & source);
-
-	// Member variables needed to register message handlers.
-	AllStar::Core::MessageHandlerRegistry reg;
-	AllStar::Core::Arbitrator arby;
 
 	// Additional member variables
 	int numFilesDWN;

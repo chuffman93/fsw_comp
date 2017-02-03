@@ -8,7 +8,6 @@
 #include "servers/DispatchStdTasks.h"
 
 #include "core/Dispatcher.h"
-#include "core/Arbitrator.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
 

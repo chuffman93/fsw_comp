@@ -14,8 +14,6 @@
 #include "servers/SubsystemServer.h"
 #include "core/Dispatcher.h"
 #include "core/ModeManager.h"
-#include "core/MessageHandlerRegistry.h"
-#include "core/Arbitrator.h"
 
 namespace AllStar{
 namespace Servers{
@@ -50,9 +48,6 @@ private:
 	PLDServer(std::string nameIn, LocationIDType idIn);
 	~PLDServer();
 	PLDServer & operator=(const PLDServer & source); //possibly for firmware update
-
-	AllStar::Core::MessageHandlerRegistry reg;
-	AllStar::Core::Arbitrator arby;
 
 	void loopInit();
 	void loopIdle();

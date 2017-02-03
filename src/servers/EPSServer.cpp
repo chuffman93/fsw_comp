@@ -26,7 +26,7 @@ namespace Servers{
 
 // -------------------------------------- Necessary Methods --------------------------------------
 EPSServer::EPSServer(string nameIn, LocationIDType idIn) :
-		SubsystemServer(nameIn, idIn), Singleton(), arby(idIn) {
+		SubsystemServer(nameIn, idIn), Singleton() {
 	EPSConfiguration.numItems = 3;
 }
 

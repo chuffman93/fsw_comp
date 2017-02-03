@@ -29,7 +29,7 @@ namespace Servers{
 
 // -------------------------------------- Necessary Methods --------------------------------------
 ACSServer::ACSServer(string nameIn, LocationIDType idIn) :
-		SubsystemServer(nameIn, idIn, ACS_SLEEP_TIME, ACS_HS_DELAYS), Singleton(), arby(idIn), ACSOrientation(ACS_UNORIENTED), testsRun(false){
+		SubsystemServer(nameIn, idIn, ACS_SLEEP_TIME, ACS_HS_DELAYS), Singleton(), ACSOrientation(ACS_UNORIENTED), testsRun(false){
 	ACSState = {0,0,0,0,0,0,0};
 }
 

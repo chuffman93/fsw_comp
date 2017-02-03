@@ -6,8 +6,6 @@
  * Modified: Alex St. Clair
  */
 
-#include "HAL/GPS.h"
-#include "HAL/RTC.h"
 #include "servers/GPSStdTasks.h"
 #include "servers/GPSServer.h"
 #include "servers/DispatchStdTasks.h"
@@ -22,7 +20,6 @@
 
 using namespace std;
 using namespace AllStar::Core;
-using namespace AllStar::HAL;
 
 namespace AllStar{
 namespace Servers{

@@ -13,8 +13,6 @@
 #include "core/StdTypes.h"
 #include "servers/SubsystemServer.h"
 #include "core/Dispatcher.h"
-#include "core/MessageHandlerRegistry.h"
-#include "core/Arbitrator.h"
 #include "core/ModeManager.h"
 #include "core/Singleton.h"
 
@@ -58,10 +56,6 @@ public:
 	ACSConfig ACSConfigurations;
 
 private:
-	// Member variables needed to register message handlers.
-	AllStar::Core::MessageHandlerRegistry reg;
-	AllStar::Core::Arbitrator arby;
-
 	ACSOrientationType ACSOrientation;
 
 	static void Initialize(void);

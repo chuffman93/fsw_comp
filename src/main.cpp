@@ -63,8 +63,6 @@
 #include "servers/CDHServer.h"
 #include "servers/FMGServer.h"
 #include "servers/SubsystemServer.h"
-#include "servers/ERRServer.h"
-#include "servers/ErrorQueue.h"
 #include "servers/DispatchStdTasks.h"
 #include "HAL/Ethernet_Server.h"
 #include "HAL/SPI_Server.h"
@@ -90,7 +88,6 @@ int main(int argc, char * argv[])
 
 	Factory::GetInstance(DISPATCHER_SINGLETON);
 	Factory::GetInstance(FILE_HANDLER_SINGLETON);
-	Factory::GetInstance(ERROR_QUEUE_SINGLETON);
 	Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON);
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
@@ -105,7 +102,6 @@ int main(int argc, char * argv[])
 	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
 	COMServer * comServer = dynamic_cast<COMServer *> (Factory::GetInstance(COM_SERVER_SINGLETON));
 	EPSServer * epsServer = dynamic_cast<EPSServer *> (Factory::GetInstance(EPS_SERVER_SINGLETON));
-	ERRServer * errServer = dynamic_cast<ERRServer *> (Factory::GetInstance(ERR_SERVER_SINGLETON));
 	FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
 	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 	PLDServer * pldServer = dynamic_cast<PLDServer *> (Factory::GetInstance(PLD_SERVER_SINGLETON));
@@ -113,15 +109,14 @@ int main(int argc, char * argv[])
 	SPI_HALServer * spiServer = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
 
 	// ----------------------------- Start Servers -----------------------------------------------------------------
-	threadsCreated &= WatchdogManager::StartServer(acsServer, 50,	true);	 //ACS
+	threadsCreated &= WatchdogManager::StartServer(acsServer, 50,	false);	 //ACS
 	threadsCreated &= WatchdogManager::StartServer(cdhServer, 20,	true);	 //CDH
 	threadsCreated &= WatchdogManager::StartServer(cmdServer, 50,	true);	 //CMD
 	threadsCreated &= WatchdogManager::StartServer(comServer, 10,	true);	 //COM
-	threadsCreated &= WatchdogManager::StartServer(epsServer, 10,	true);	 //EPS
-	threadsCreated &= WatchdogManager::StartServer(errServer, 0,	false);	 //ERR
+	threadsCreated &= WatchdogManager::StartServer(epsServer, 10,	false);	 //EPS
 	threadsCreated &= WatchdogManager::StartServer(fmgServer, 0,	true);	 //FMG
 	threadsCreated &= WatchdogManager::StartServer(gpsServer, 50,	false);	 //GPS
-	threadsCreated &= WatchdogManager::StartServer(pldServer, 50,	true);	 //PLD
+	threadsCreated &= WatchdogManager::StartServer(pldServer, 50,	false);	 //PLD
 	threadsCreated &= WatchdogManager::StartServer(schServer, 0,	true);	 //SCH
 	threadsCreated &= WatchdogManager::StartServer(spiServer, 0,	true);	 //SPI
 
