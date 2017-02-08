@@ -18,7 +18,7 @@ type_sizes = {
 }
 
 
-class auto_coder():
+class TLM_AutoCoder():
 
   def __init__(self, input_file):
     self.f = open(input_file)
@@ -32,6 +32,8 @@ class auto_coder():
     self.arg_list = []
     self.list_len = 0
     self.args = ""
+    self.skip_to_begin_tlm()
+
 
   def __enter__(self):
     return self
@@ -41,6 +43,10 @@ class auto_coder():
 
   def close_file(self):
     self.f.close
+
+  def skip_to_begin_tlm(self):
+    # Skip until begin tlm marker
+    while self.f.readline().strip() != "##### BEGIN TELEMETRY #####": pass
 
   def header(self):
     print "/*******************************************************"
@@ -75,12 +81,24 @@ class auto_coder():
     for t in self.type_list:
       self.buf_size += type_sizes[t]
 
-  def builf_args_string(self):
+  def build_args_string(self):
     for i in range(self.list_len):
       self.args += self.type_list[i].lower() + " " + self.arg_list[i] + ", "
 
     # Remove trailing comma and space
     self.args = self.args[0:-2]
+
+
+
+class CPP_AutoCoder(TLM_AutoCoder):
+  def __init__(self, input_file):
+    TLM_AutoCoder.__init__(self, input_file)
+
+  def __enter__(self):
+    return self
+
+  def __exit__(self, exc_type, exc_value, traceback):
+    TLM_AutoCoder.__exit__(self, exc_type, exc_value, traceback)
 
   def print_func(self):
     print "void log_tlm_%s(%s) {" % (self.name, self.args)
@@ -93,22 +111,60 @@ class auto_coder():
     print "}"
     print
 
+  def autocode_single_tlm(self):
+      self.parse_params()
+      self.get_buf_size()
+      self.build_args_string()
+      self.print_func()
+
+  def autocode_all_tlm(self):
+    while True:
+      self.parse_data()
+      if self.eof(): break
+      self.autocode_single_tlm()
+
+  def autocode(self):
+    self.header()
+    self.autocode_all_tlm()
+
+    
+class HPP_AutoCoder(TLM_AutoCoder):
+  def __init__(self, input_file):
+    TLM_AutoCoder.__init__(self, input_file)
+
+  def __enter__(self):
+    return self
+
+  def __exit__(self, exc_type, exc_value, traceback):
+    TLM_AutoCoder.__exit__(self, exc_type, exc_value, traceback)
+
+  def print_func(self):
+    print "void log_tlm_%s(%s);" % (self.name, self.args)
+
+  def autocode_single_tlm(self):
+      self.print_func()
+
+  def autocode_all_tlm(self):
+    while True:
+      self.parse_data()
+      if self.eof(): break
+      self.autocode_single_tlm()
+
+  def autocode(self):
+    self.header()
+    self.autocode_all_tlm()
+
   
 
-with auto_coder(input_file) as coder:
+with CPP_AutoCoder(input_file) as coder:
+  coder.autocode()
 
-  coder = auto_coder(input_file)
-  coder.header()
-
-  # Skip until begin tlm marker
-  while coder.f.readline().strip() != "##### BEGIN TELEMETRY #####": pass
-
-  while True:
-    coder.parse_data()
-    if coder.eof(): break
-    coder.parse_params()
-    coder.get_buf_size()
-    coder.builf_args_string()
-    coder.print_func()
-
-
+print
+print
+print
+print
+print "HEADER:"
+print
+print
+with HPP_AutoCoder(input_file) as coder:
+  coder.autocode()
