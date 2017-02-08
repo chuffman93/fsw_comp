@@ -23,26 +23,29 @@
 # the end of the document!
 ################################################
 
-# Ideas:
-#   Hex code numbering:
-#     1. Alphabetical
-#     2. Type
-#     3. Location
-#
-#  Create an awk program to parse this into
-#  html for easy display
-#
-#  Create a parser to run strings against this
-#  dictionary and spit out human readable
-#
-#  Create a script to easily insert values in
-#  order into this document
+Ideas:
+  Hex code numbering:
+    1. Alphabetical
+    2. Type
+    3. Location
+
+ Create an awk program to parse this into
+ html for easy display
+
+ Create a parser to run strings against this
+ dictionary and spit out human readable
+
+ Create a script to easily insert values in
+ order into this document
+
+FORMAT:
 
 Hex Code
 Type
 Location:Number
 Format String
 Parameter Types
+
 
 ##### BEGIN TELEMETRY #####
 STARTUP_ERROR
