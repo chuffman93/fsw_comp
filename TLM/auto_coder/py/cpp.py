@@ -28,7 +28,7 @@ class CPP_AutoCoder(TLM_AutoCoder):
     print "  ser.serializeUInt16(%s);" % (self.ID)
     for i in range(self.list_len):
         print "  ser.serialize%s(%s);" % (self.type_list[i], self.arg_list[i])
-    print "  fmgServer->Log(DESTINATION_%s, buf);" % (self.dest)
+    print "  fmgServer->Log(DESTINATION_%s, buf, %s);" % (self.dest, self.buf_size)
     print "}"
     print
 

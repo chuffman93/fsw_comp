@@ -30,7 +30,6 @@ FileManager::FileManager(string path){
 
 void FileManager::CloseFile(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	FILE * fd;
 
 	// Close the file
 	fclose(file);
@@ -65,16 +64,15 @@ void FileManager::OpenNewFile(){
 	OpenFile();
 }
 
-void FileManager::Write(string buf, int buf_size){
-	fwrite(buf.c_str(), sizeof(char), buf_size, file);
+void FileManager::Write(uint8 * buf, size_t buf_size){
+	fwrite(buf, sizeof(char), buf_size, file);
 	fwrite("\n", sizeof(char), 1, file);
 	fflush(file);
 	bytes_written += buf_size + 1;
 }
 
-bool FileManager::Log(string buf){
+bool FileManager::Log(uint8 * buf, size_t buf_size){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	int buf_size = buf.size();
 
 	if (buf_size >= MAX_FILE_SIZE) { logger->Log(LOGGER_LEVEL_WARN, "Telemetry larger than file size"); }
 	else{
@@ -152,9 +150,10 @@ bool FMGServer::RegisterHandlers(){
 	return success;
 }
 
-void FMGServer::Log(FILServerDestinationEnum dest, string buf){
+void FMGServer::Log(FILServerDestinationEnum dest, uint8 * buf, size_t size){
 	FilePacket packet;
 	packet.buffer = buf;
+	packet.size = size;
 	packet.dest = dest;
 	FileQueue.push(packet);
 }
@@ -166,57 +165,57 @@ void FMGServer::loopInit(void){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	if (!FileQueue.empty()){
-		string str;
-		str = FileQueue.front().buffer;
+		uint8 * buf = FileQueue.front().buffer;
+		size_t size = FileQueue.front().size;
 
 		switch (FileQueue.front().dest){
 		case DESTINATION_ACP:
-			if ( !ACPLogger.Log(str.c_str()) ) {
+			if ( !ACPLogger.Log(buf, size) ) {
 				logger->Log(LOGGER_LEVEL_WARN, "Error writing to ACP File");
 			}
 			break;
 		case DESTINATION_GEN:
-			if ( !GENLogger.Log(str.c_str()) ) {
+			if ( !GENLogger.Log(buf, size) ) {
 				logger->Log(LOGGER_LEVEL_WARN, "Error writing to General File");
 			}
 			break;
 		case DESTINATION_HST:
-			if( !HSTLogger.Log(str.c_str()) ) {
+			if( !HSTLogger.Log(buf, size) ) {
 				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Health File");
 			}
 			break;
 		case DESTINATION_MOD:
-			if( !MODLogger.Log(str.c_str()) ) {
+			if( !MODLogger.Log(buf, size) ) {
 				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Mode File");
 			}
 			break;
 		case DESTINATION_SWP:
-			if ( !SWPLogger.Log(str.c_str()) ) {
+			if ( !SWPLogger.Log(buf, size) ) {
 				logger->Log(LOGGER_LEVEL_WARN, "Error writing to HotSwap File");
 			}
 			break;
 		case DESTINATION_ERR:
-			if ( !ERRLogger.Log(str.c_str()) ) {
+			if ( !ERRLogger.Log(buf, size) ) {
 				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Error File");
 			}
 			break;
 		case DESTINATION_DGN:
-			if ( !DGNLogger.Log(str.c_str()) ) {
+			if ( !DGNLogger.Log(buf, size) ) {
 				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Diagnostic File");
 			}
 			break;
 		case DESTINATION_FSS:
-			if ( !FSSLogger.Log(str.c_str()) ) {
+			if ( !FSSLogger.Log(buf, size) ) {
 				logger->Log(LOGGER_LEVEL_WARN, "Error writing to File System File");
 			}
 			break;
 		case DESTINATION_SSS:
-			if ( !SSSLogger.Log(str.c_str()) ) {
+			if ( !SSSLogger.Log(buf, size) ) {
 				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Science System File");
 			}
 			break;
 		case DESTINATION_RAD:
-			if ( !RADLogger.Log(str.c_str()) ) {
+			if ( !RADLogger.Log(buf, size) ) {
 				logger->Log(LOGGER_LEVEL_WARN, "Error writing to Rad File");
 			}
 			break;
