@@ -26,7 +26,7 @@ void TLM_STARTUP_ERROR(void) {
 }
 
 void TLM_SERVERS_CREATED(void) {
-  uint8_t buf[2];
+  uint8_t buf[3]; // TODO: Malloc this!!!
   Serialize ser(buf, 2);
   ser.serializeUInt16(0x02);
   fmgServer->Log(DESTINATION_ERR, buf, 2);
