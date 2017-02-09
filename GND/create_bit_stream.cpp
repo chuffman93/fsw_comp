@@ -1,3 +1,4 @@
+#define __STDC_LIMIT_MACROS
 #include "util/serialize.h"
 #include <iostream>
 #include <fstream>
