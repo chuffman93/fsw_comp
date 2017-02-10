@@ -23,7 +23,7 @@ class CPP_AutoCoder(TLM_AutoCoder):
 
   def print_func(self):
     print "void %s%s(%s) {" % (self.gen_func_name, self.name, self.args)
-    print "  uint8_t buf[%s];" % (self.buf_size)
+    print "  uint8_t * buf = (uint8_t *) malloc(%s);" % (self.buf_size)
     print "  Serialize ser(buf, %s);" % (self.buf_size)
     print "  ser.serializeUInt16(%s);" % (self.ID)
     for i in range(self.list_len):

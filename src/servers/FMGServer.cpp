@@ -55,7 +55,7 @@ void FileManager::GetFileName(){
 	int time = getTimeInSec();
 	int boot_count = 0;// TODO
 	char fileName[100];
-	sprintf(fileName, "%s/CUR/GEN_%d_%d", file_path.c_str(), boot_count, time);
+	sprintf(fileName, "%s/CUR/GEN_%d_%d", file_path.c_str(), boot_count, time); // TODO!!
 	file_name = fileName;
 }
 
@@ -223,7 +223,7 @@ void FMGServer::loopInit(void){
 			logger->Log(LOGGER_LEVEL_WARN, "FMGServer: Unknown destination!");
 			break;
 		}
-
+		free(buf);
 		FileQueue.pop();
 	}
 }
