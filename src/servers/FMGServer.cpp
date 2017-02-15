@@ -66,7 +66,6 @@ void FileManager::OpenNewFile(){
 
 void FileManager::Write(uint8 * buf, size_t buf_size){
 	fwrite(buf, sizeof(char), buf_size, file);
-	fwrite("\n", sizeof(char), 1, file);
 	fflush(file);
 	bytes_written += buf_size + 1;
 }
