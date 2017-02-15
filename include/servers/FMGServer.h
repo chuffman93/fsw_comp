@@ -36,7 +36,8 @@ void LogFSS(void);
 
 struct FilePacket {
 	FILServerDestinationEnum dest;
-	string buffer;
+	uint8 * buffer;
+	size_t size;
 };
 
 class FileManager{
@@ -46,8 +47,8 @@ public:
 	void OpenFile(void);
 	void GetFileName(void);
 	void OpenNewFile(void);
-	void Write(string buf, int buf_size);
-	bool Log(string buf);
+	void Write(uint8 * buf, size_t buf_size);
+	bool Log(uint8 * buf, size_t size);
 private:
 	FILE * file;
 	string file_path;
@@ -61,7 +62,7 @@ class FMGServer : public SubsystemServer, public AllStar::Core::Singleton{
 
 public:
 	bool RegisterHandlers();
-	void Log(FILServerDestinationEnum dest, string buf);
+	void Log(FILServerDestinationEnum dest, uint8 * buf, size_t size);
 
 	// FileQueue
 	queue<FilePacket> FileQueue;

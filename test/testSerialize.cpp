@@ -1,6 +1,8 @@
+#define __STDC_LIMIT_MACROS
 #include "gtest/gtest.h"
 #include "util/serialize.h"
 #include <stdint.h>
+#include <limits>
 #include <float.h>
 
 TEST(TestSerialize, testInt8) {
@@ -33,16 +35,6 @@ TEST(TestSerialize, testInt8) {
   ASSERT_EQ(err, 1);
   deser_val = testSer.deserializeInt8();
   ASSERT_EQ(deser_val, test_val);
-  
-  // Test serialize above range
-  test_val = INT8_MAX+1;
-  err = testSer.serializeInt8(test_val);
-  ASSERT_EQ(err, -1);
-
-  // Test serialize below range
-  test_val = INT_LEAST8_MIN-1;
-  err = testSer.serializeInt8(test_val);
-  ASSERT_EQ(err, -1);
 }
 
 TEST(TestSerialize, testInt16) {
@@ -75,16 +67,6 @@ TEST(TestSerialize, testInt16) {
   ASSERT_EQ(err, 1);
   deser_val = testSer.deserializeInt16();
   ASSERT_EQ(deser_val, test_val);
-  
-  // Test serialize above range
-  test_val = INT16_MAX+1;
-  err = testSer.serializeInt16(test_val);
-  ASSERT_EQ(err, -1);
-
-  // Test serialize below range
-  test_val = INT_LEAST16_MIN-1;
-  err = testSer.serializeInt16(test_val);
-  ASSERT_EQ(err, -1);
 }
 
 TEST(TestSerialize, testInt32) {
@@ -117,16 +99,6 @@ TEST(TestSerialize, testInt32) {
   ASSERT_EQ(err, 1);
   deser_val = testSer.deserializeInt32();
   ASSERT_EQ(deser_val, test_val);
-  
-  // Test serialize above range
-  test_val = INT32_MAX+1;
-  err = testSer.serializeInt32(test_val);
-  ASSERT_EQ(err, -1);
-
-  // Test serialize below range
-  test_val = INT_LEAST32_MIN-1;
-  err = testSer.serializeInt32(test_val);
-  ASSERT_EQ(err, -1);
 }
 
 TEST(TestSerialize, testInt64) {
@@ -159,16 +131,6 @@ TEST(TestSerialize, testInt64) {
   ASSERT_EQ(err, 1);
   deser_val = testSer.deserializeInt64();
   ASSERT_EQ(deser_val, test_val);
-  
-  // Test serialize above range
-  test_val = INT64_MAX+1;
-  err = testSer.serializeInt64(test_val);
-  ASSERT_EQ(err, -1);
-
-  // Test serialize below range
-  test_val = INT_LEAST64_MIN-1;
-  err = testSer.serializeInt32(test_val);
-  ASSERT_EQ(err, -1);
 }
 
 TEST(TestSerialize, testUInt8) {
@@ -187,7 +149,6 @@ TEST(TestSerialize, testUInt8) {
   deser_val = testSer.deserializeUInt8();
   ASSERT_EQ(deser_val, test_val);
 
-
   // Test maximum value
   test_val = UINT8_MAX;
   err = testSer.serializeUInt8(test_val);
@@ -201,16 +162,6 @@ TEST(TestSerialize, testUInt8) {
   ASSERT_EQ(err, 1);
   deser_val = testSer.deserializeUInt8();
   ASSERT_EQ(deser_val, test_val);
-  
-  // Test serialize above range
-  test_val = UINT8_MAX+1;
-  err = testSer.serializeUInt8(test_val);
-  ASSERT_EQ(err, -1);
-
-  // Test serialize below range
-  test_val = -1; // TODO: Does this even work?
-  err = testSer.serializeUInt8(test_val);
-  ASSERT_EQ(err, -1);
 }
 
 TEST(TestSerialize, testUInt16) {
@@ -243,16 +194,6 @@ TEST(TestSerialize, testUInt16) {
   ASSERT_EQ(err, 1);
   deser_val = testSer.deserializeUInt16();
   ASSERT_EQ(deser_val, test_val);
-  
-  // Test serialize above range
-  test_val = UINT16_MAX+1;
-  err = testSer.serializeUInt16(test_val);
-  ASSERT_EQ(err, -1);
-
-  // Test serialize below range
-  test_val = -1; // TODO: Does this even work?
-  err = testSer.serializeUInt16(test_val);
-  ASSERT_EQ(err, -1);
 }
 
 TEST(TestSerialize, testUInt32) {
@@ -271,7 +212,6 @@ TEST(TestSerialize, testUInt32) {
   deser_val = testSer.deserializeUInt32();
   ASSERT_EQ(deser_val, test_val);
 
-
   // Test maximum value
   test_val = UINT32_MAX;
   err = testSer.serializeUInt32(test_val);
@@ -285,16 +225,6 @@ TEST(TestSerialize, testUInt32) {
   ASSERT_EQ(err, 1);
   deser_val = testSer.deserializeUInt32();
   ASSERT_EQ(deser_val, test_val);
-  
-  // Test serialize above range
-  test_val = UINT32_MAX+1;
-  err = testSer.serializeUInt32(test_val);
-  ASSERT_EQ(err, -1);
-
-  // Test serialize below range
-  test_val = -1;
-  err = testSer.serializeUInt32(test_val);
-  ASSERT_EQ(err, -1);
 }
 
 TEST(TestSerialize, testUInt64) {
@@ -313,7 +243,6 @@ TEST(TestSerialize, testUInt64) {
   deser_val = testSer.deserializeUInt64();
   ASSERT_EQ(deser_val, test_val);
 
-
   // Test maximum value
   test_val = UINT64_MAX;
   err = testSer.serializeUInt64(test_val);
@@ -327,16 +256,6 @@ TEST(TestSerialize, testUInt64) {
   ASSERT_EQ(err, 1);
   deser_val = testSer.deserializeUInt64();
   ASSERT_EQ(deser_val, test_val);
-  
-  // Test serialize above range
-  test_val = UINT64_MAX+1;
-  err = testSer.serializeUInt64(test_val);
-  ASSERT_EQ(err, -1);
-
-  // Test serialize below range
-  test_val = -1;
-  err = testSer.serializeUInt64(test_val);
-  ASSERT_EQ(err, -1);
 }
 
 TEST(TestSerialize, testBool) {
@@ -361,16 +280,6 @@ TEST(TestSerialize, testBool) {
   ASSERT_EQ(err, 1);
   deser_val = testSer.deserializeInt8();
   ASSERT_EQ(deser_val, test_val);
-
-  // Test serialize above range
-  test_val = 2;
-  err = testSer.serializeInt8(test_val);
-  ASSERT_EQ(err, -1);
-
-  // Test serialize below range
-  test_val = -1;
-  err = testSer.serializeInt8(test_val);
-  ASSERT_EQ(err, -1);
 }
 
 TEST(TestSerialize, testFloat) {
@@ -389,7 +298,6 @@ TEST(TestSerialize, testFloat) {
   deser_val = testSer.deserializeFloat();
   ASSERT_EQ(deser_val, test_val);
 
-
   // Test maximum value
   test_val = FLT_MAX;
   err = testSer.serializeFloat(test_val);
@@ -403,16 +311,6 @@ TEST(TestSerialize, testFloat) {
   ASSERT_EQ(err, 1);
   deser_val = testSer.deserializeFloat();
   ASSERT_EQ(deser_val, test_val);
-  
-  // Test serialize above range
-  test_val = FLT_MAX+1;
-  err = testSer.serializeFloat(test_val);
-  ASSERT_EQ(err, -1);
-
-  // Test serialize below range
-  test_val = FLT_MIN-1;
-  err = testSer.serializeFloat(test_val);
-  ASSERT_EQ(err, -1);
 }
 
 TEST(TestSerialize, testDouble) {
@@ -431,7 +329,6 @@ TEST(TestSerialize, testDouble) {
   deser_val = testSer.deserializeDouble();
   ASSERT_EQ(deser_val, test_val);
 
-
   // Test maximum value
   test_val = DBL_MAX;
   err = testSer.serializeDouble(test_val);
@@ -445,42 +342,36 @@ TEST(TestSerialize, testDouble) {
   ASSERT_EQ(err, 1);
   deser_val = testSer.deserializeDouble();
   ASSERT_EQ(deser_val, test_val);
-  
-  // Test serialize above range
-  test_val = DBL_MAX+1;
-  err = testSer.serializeDouble(test_val);
-  ASSERT_EQ(err, -1);
-
-  // Test serialize below range
-  test_val = DBL_MIN-1;
-  err = testSer.serializeDouble(test_val);
-  ASSERT_EQ(err, -1);
 }
 
 TEST(TestSerialize, testBufOverflow) {
-  unsigned int err;
+  unsigned int err1;
+  unsigned int err2;
+  unsigned int err3;
   int32_t test_val;
-  int32_t deser_val;
+  int32_t deser_val1;
+  int32_t deser_val2;
+  int32_t deser_val3;
   unsigned int buf_size = 8;
   uint8_t buf[buf_size];
 
   Serialize testSer(buf, buf_size); 
 
-  test_val = 1;
-  err = testSer.serializeInt32(test_val);
-  ASSERT_EQ(err, 1);
-  deser_val = testSer.deserializeInt32();
-  ASSERT_EQ(deser_val, test_val);
+  test_val = 12;
+  err1 = testSer.serializeInt32(test_val);
+  ASSERT_EQ(err1, 1);
+  deser_val1 = testSer.deserializeInt32();
+  ASSERT_EQ(deser_val1, test_val);
 
-  err = testSer.serializeInt32(test_val);
-  ASSERT_EQ(err, 1);
-  deser_val = testSer.deserializeInt32();
-  ASSERT_EQ(deser_val, test_val);
+  err2 = testSer.serializeInt32(test_val);
+  ASSERT_EQ(err2, 1);
+  deser_val2 = testSer.deserializeInt32();
+  ASSERT_EQ(deser_val2, test_val);
 
-  err = testSer.serializeInt32(test_val);
-  ASSERT_EQ(err, -1);
-  deser_val = testSer.deserializeInt32();
-  ASSERT_EQ(deser_val, -1);
+  err3 = testSer.serializeInt32(test_val);
+  ASSERT_EQ(err3, -1);
+  deser_val3 = testSer.deserializeInt32();
+  ASSERT_EQ(deser_val3, -1);
 }
 
 
@@ -496,7 +387,7 @@ TEST(TestSerialize, testMultipleTypes) {
   int32_t deser_val1;
   err = testSer.serializeInt32(test_val1);
   ASSERT_EQ(err, 1);
-  deser_val = testSer.deserializeInt32();
+  deser_val1 = testSer.deserializeInt32();
   ASSERT_EQ(deser_val1, test_val1);
 
   uint8_t test_val2 = 94;
@@ -512,16 +403,16 @@ TEST(TestSerialize, testMultipleTypes) {
   ASSERT_EQ(err, 1);
 
   uint8_t deser_val2;
-  deser_val = testSer.deserializeUInt8();
+  deser_val2 = testSer.deserializeUInt8();
   ASSERT_EQ(deser_val2, test_val2);
 
   double deser_val3;
-  deser_val = testSer.deserializeDouble();
+  deser_val3 = testSer.deserializeDouble();
   ASSERT_EQ(deser_val3, test_val3);
 
   bool deser_val4;
-  deser_val = testSer.deserializeDouble();
-  ASSERT_EQ(deser_val3, test_val4);
+  deser_val4 = testSer.deserializeDouble();
+  ASSERT_EQ(deser_val4, test_val4);
 }
 
 TEST(TestSerialize, testReset) {
@@ -535,12 +426,12 @@ TEST(TestSerialize, testReset) {
   int32_t deser_val1;
   err = testSer.serializeInt32(test_val1);
   ASSERT_EQ(err, 1);
-  deser_val = testSer.deserializeInt32();
+  deser_val1 = testSer.deserializeInt32();
   ASSERT_EQ(deser_val1, test_val1);
 
   testSer.reset();
 
-  deser_val = testSer.deserializeInt32();
+  deser_val1 = testSer.deserializeInt32();
   ASSERT_EQ(deser_val1, test_val1);
 
   testSer.reset();
@@ -549,16 +440,16 @@ TEST(TestSerialize, testReset) {
   uint8_t deser_val2;
   err = testSer.serializeUInt8(test_val2);
   ASSERT_EQ(err, 1);
-  deser_val = testSer.deserializeUInt8();
+  deser_val2 = testSer.deserializeUInt8();
   ASSERT_EQ(deser_val2, test_val2);
 }
 
-TEST(TestSerialize, testReset) {
+TEST(TestSerialize, testUpdate) {
   unsigned int err;
   unsigned int buf_size1 = 100;
   unsigned int buf_size2 = 30;
-  uint8_t buf1[buf_size];
-  uint8_t buf2[buf_size2]
+  uint8_t buf1[buf_size1];
+  uint8_t buf2[buf_size2];
 
   Serialize testSer1(buf1, buf_size1); 
   Serialize testSer2(buf2, buf_size2); 
@@ -567,23 +458,20 @@ TEST(TestSerialize, testReset) {
   int32_t deser_val1;
   err = testSer1.serializeInt32(test_val1);
   ASSERT_EQ(err, 1);
-  deser_val = testSer1.deserializeInt32();
+  deser_val1 = testSer1.deserializeInt32();
   ASSERT_EQ(deser_val1, test_val1);
 
   uint8_t test_val2 = 94;
   uint8_t deser_val2;
   err = testSer2.serializeUInt8(test_val2);
   ASSERT_EQ(err, 1);
-  deser_val = testSer2.deserializeUInt8();
+  deser_val2 = testSer2.deserializeUInt8();
   ASSERT_EQ(deser_val2, test_val2);
 
-  mySer1.update(buf2, buf_size2);
+  testSer1.update(buf2, buf_size2);
 
   err = testSer2.serializeUInt8(test_val2);
   ASSERT_EQ(err, 1);
-  deser_val = testSer2.deserializeUInt8();
+  deser_val2 = testSer2.deserializeUInt8();
   ASSERT_EQ(deser_val2, test_val2);
 }
-
-// test reset
-// test update

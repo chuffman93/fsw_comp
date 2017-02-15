@@ -69,6 +69,17 @@ class TLM_AutoCoder():
   def include(self):
     print "#include <stdint.h>"
     print "#include \"util/serialize.h\""
+    print "#include \"servers/FMGServer.h\""
+    print
+
+  def namespace_start(self):
+    print "namespace AllStar{"
+    print "namespace Servers{"
+    print
+
+  def namespace_end(self):
+    print "}"
+    print "}"
     print
 
   def parse_data(self):

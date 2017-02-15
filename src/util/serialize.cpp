@@ -31,7 +31,7 @@ int8_t Serialize::deserializeInt8(void) {
   unsigned int max_index = deserialize_index + size;
 
   // Check for buffer overflow
-  if (max_index >= buf_size) {
+  if (max_index > buf_size) {
     return -1;
   }
 
@@ -47,7 +47,7 @@ int16_t Serialize::deserializeInt16(void) {
   unsigned int max_index = deserialize_index + size;
 
   // Check for buffer overflow
-  if (max_index >= buf_size) {
+  if (max_index > buf_size) {
     return -1;
   }
 
@@ -64,7 +64,7 @@ int32_t Serialize::deserializeInt32(void) {
   unsigned int max_index = deserialize_index + size;
 
   // Check for buffer overflow
-  if (max_index >= buf_size) {
+  if (max_index > buf_size) {
     return -1;
   }
 
@@ -83,7 +83,7 @@ int64_t Serialize::deserializeInt64(void) {
   unsigned int max_index = deserialize_index + size;
 
   // Check for buffer overflow
-  if (max_index >= buf_size) {
+  if (max_index > buf_size) {
     return -1;
   }
 
@@ -106,7 +106,7 @@ uint8_t Serialize::deserializeUInt8(void) {
   unsigned int max_index = deserialize_index + size;
 
   // Check for buffer overflow
-  if (max_index >= buf_size) {
+  if (max_index > buf_size) {
     return -1;
   }
 
@@ -122,7 +122,7 @@ uint16_t Serialize::deserializeUInt16(void) {
   unsigned int max_index = deserialize_index + size;
 
   // Check for buffer overflow
-  if (max_index >= buf_size) {
+  if (max_index > buf_size) {
     return -1;
   }
 
@@ -139,7 +139,7 @@ uint32_t Serialize::deserializeUInt32(void) {
   unsigned int max_index = deserialize_index + size;
 
   // Check for buffer overflow
-  if (max_index >= buf_size) {
+  if (max_index > buf_size) {
     return -1;
   }
 
@@ -158,7 +158,7 @@ uint64_t Serialize::deserializeUInt64(void) {
   unsigned int max_index = deserialize_index + size;
 
   // Check for buffer overflow
-  if (max_index >= buf_size) {
+  if (max_index > buf_size) {
     return -1;
   }
 
