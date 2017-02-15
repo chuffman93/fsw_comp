@@ -1,16 +1,22 @@
 CC=g++
-CFLAGS=-I../include
+CFLAGS=
+INCLUDES=-I../include
+
+SERIALIZE=serialize
+SERIALIZE_PATH=../src/util/$(SERIALIZE)
+CREATE=create_bit_stream
+DECODE=decode_bit_stream
 
 all: create_bit_stream decode_bit_stream
 
-create_bit_stream: create_bit_stream.cpp serialize.o
-	$(CC) $(CFLAGS) -o create_bit_stream create_bit_stream.cpp serialize.o
+$(CREATE): $(CREATE).cpp $(SERIALIZE).o
+	$(CC) $(CFLAGS) $(INCLUDES) -o $(CREATE) $(CREATE).cpp $(SERIALIZE).o
 
-decode_bit_stream: decode_bit_stream.cpp serialize.o
-	$(CC) $(CFLAGS) -o decode_bit_stream decode_bit_stream.cpp serialize.o
+$(DECODE): $(DECODE).cpp $(SERIALIZE).o
+	$(CC) $(CFLAGS) $(INCLUDES) -o $(DECODE) $(DECODE).cpp $(SERIALIZE).o
 
-serialize.o: ../src/util/serialize.cpp
-	$(CC) $(CFLAGS) -c ../src/util/serialize.cpp
+$(SERIALIZE).o: $(SERIALIZE_PATH).cpp
+	$(CC) $(CFLAGS) $(INCLUDES) -c $(SERIALIZE_PATH).cpp
 
 clean:
-	$(RM) create_bit_stream decode_bit_stream *.o *~
+	$(RM) $(CREATE) $(DECODE) *.o *~
