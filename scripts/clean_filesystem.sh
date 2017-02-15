@@ -2,28 +2,18 @@
 
 #######################################
 # clean_filesystem.sh
-# Last Modified: Jack Dinkel 01/09/17
+# Last Modified: Jack Dinkel 01/12/17
 #
 # Removes all data files inside the CDH
 #   filesystem
 #######################################
 
-# All directories on /SD_2
-TLM_DIRECTORIES="
-GEN
-HST
-MOD
-SWP
-ERR
-DGN
-FSS
-SSS
-"
+SCRIPTS="/home/root/scripts"
+FS_VARS="./filesystem.sh"
 
-# All directories on /SD_3
-SCI_DIRECTORIES="
-RAD
-"
+cd $SCRIPTS
+source $FS_VARS
+cd $OLDPWD
 
 for dir in $TLM_DIRECTORIES
 do

@@ -94,7 +94,7 @@ namespace AllStar
 		DispatcherStatusEnum WaitForDispatchResponse(const Core::ACPPacket & packet, Core::ACPPacket ** retPacketin);
 
 		// Functions for extracting parameters into buffers
-		uint32 	GetUInt(uint8 * buffer);
+		uint32 	GetUInt32(uint8 * buffer);
 		uint16 	GetUInt16(uint8 * buffer);
 		uint8	GetUInt8(uint8 * buffer);
 		int32 	GetInt(uint8 * buffer);

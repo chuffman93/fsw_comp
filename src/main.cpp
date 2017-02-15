@@ -95,7 +95,9 @@ int main(int argc, char * argv[])
 	Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON);
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
-	modeManager->SetMode(MODE_STARTUP);
+	modeManager->SetMode(MODE_BUS_PRIORITY);
+
+	//SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
 
 	logger->Log(LOGGER_LEVEL_FATAL, "Flight software initialization complete! Starting servers!");
 

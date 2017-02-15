@@ -102,7 +102,13 @@ int COMLEDData(){
 	}
 }
 
-//Diagnostic
+// Standard
+void COMPrepReset(){
+	ACPPacket * cmd = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, SUBSYSTEM_RESET_CMD);
+	ACPPacket * ret = DispatchPacket(cmd); // no need to check the return, we're restarting anyway
+}
+
+// Diagnostic
 bool COMTestAlive(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 

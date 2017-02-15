@@ -94,6 +94,8 @@ class TLM_AutoCoder():
     return True if not self.param_types else False
 
   def parse_params(self):
+    self.arg_list = []
+    self.type_list = []
     if self.param_types != "None":
       self.type_list = self.param_types.split(",")
       self.list_len = len(self.type_list);

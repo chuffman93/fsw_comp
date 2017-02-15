@@ -31,15 +31,33 @@ public:
 	struct EPSStatus{
 		uint16 current3v3;
 		uint16 voltage3v3;
-		uint16 currentBatt;
-		uint16 voltageBatt;
+		uint16 currentVbat;
+		uint16 voltageVbat;
 		uint16 current12v;
 		uint16 voltage12v;
+		uint16 remainingCapacity;
+		uint16 battCurrent;
+		uint16 battVoltage;
 		uint16 battStatus;
-		uint16 stateOfCharge;
+		uint16 frangCurrent;
+		uint16 frangVoltage;
+		uint16 convCurrentX;
+		uint16 convThreshX;
+		uint16 convCurrentY;
+		uint16 convThreshY;
+		uint16 convCurrentW;
+		uint16 convThreshW;
+		uint8 numItems; // update this whenever items are added/removed
+	};
+
+	struct EPSConfig{
+		uint16 minCOMCharge;
+		uint16 minPLDCharge;
+		uint8 numItems;
 	};
 
 	EPSStatus EPSState;
+	EPSConfig EPSConfiguration;
 
 private:
 
@@ -63,17 +81,20 @@ private:
 	void loopInit();
 	void loopMonitor();
 	void loopDiagnostic();
+	void loopReset();
 
 	BEGIN_STATE_MAP
 	STATE_MAP_ENTRY(&EPSServer::loopInit)
 	STATE_MAP_ENTRY(&EPSServer::loopMonitor)
 	STATE_MAP_ENTRY(&EPSServer::loopDiagnostic)
+	STATE_MAP_ENTRY(&EPSServer::loopReset)
 	END_STATE_MAP
 
 	enum EPS_States{
 		ST_INIT = 0,
 		ST_MONITOR,
-		ST_DIAGNOSTIC
+		ST_DIAGNOSTIC,
+		ST_RESET
 	};
 
 };

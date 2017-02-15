@@ -22,6 +22,9 @@ bool ACSToggleLED(bool state);
 bool ACSBlinkRate(uint16 rate);
 int ACSLEDData();
 
+// Standard
+void ACSPrepReset();
+
 // Diagnostic
 bool ACSTestAlive();
 

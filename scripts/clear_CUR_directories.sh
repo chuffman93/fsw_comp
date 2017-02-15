@@ -2,7 +2,7 @@
 
 #######################################
 # clear_CUR_directories.sh
-# Last Modified: Jack Dinkel 12/16/16
+# Last Modified: Jack Dinkel 01/12/17
 #
 # Intended to be run everytim CDH boots.
 # Moves all data in CUR directories to
@@ -14,22 +14,12 @@
 #     add the line: @reboot <filename>
 #######################################
 
-# All directories on /SD_2
-TLM_DIRECTORIES="
-GEN
-HST
-MOD
-SWP
-ERR
-DGN
-FSS
-SSS
-"
+SCRIPTS="/home/root/scripts"
+FS_VARS="./filesystem.sh"
 
-# All directories on /SD_3
-SCI_DIRECTORIES="
-RAD
-"
+cd $SCRIPTS
+source $FS_VARS
+cd $OLDPWD
 
 for dir in $TLM_DIRECTORIES
 do

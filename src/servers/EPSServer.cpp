@@ -14,6 +14,7 @@
 #include "servers/EPSHandlers.h"
 #include "servers/EPSServer.h"
 #include "servers/EPSStdTasks.h"
+#include "servers/FMGServer.h"
 #include "servers/DispatchStdTasks.h"
 #include "servers/CDHServer.h"
 #include "util/Logger.h"
@@ -31,7 +32,10 @@ static EPSPowerCycleHandler * epsPowerCycleHandler;
 // -------------------------------------- Necessary Methods --------------------------------------
 EPSServer::EPSServer(string nameIn, LocationIDType idIn) :
 		SubsystemServer(nameIn, idIn), Singleton(), arby(idIn) {
-	EPSState = {0,0,0,0,0,0,0,0};
+	EPSState = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	EPSState.numItems = 18;
+	EPSConfiguration = {0,0,0};
+	EPSConfiguration.numItems = 2;
 }
 
 EPSServer & EPSServer::operator=(const EPSServer & source){
@@ -94,8 +98,16 @@ void EPSServer::loopInit(){
 
 void EPSServer::loopMonitor(){
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-	if(modeManager->GetMode() == MODE_DIAGNOSTIC){
+	SystemModeEnum currentMode = modeManager->GetMode();
+	switch(currentMode){
+	case MODE_DIAGNOSTIC:
 		currentState = ST_DIAGNOSTIC;
+		break;
+	case MODE_RESET:
+		currentState = ST_RESET;
+		break;
+	default:
+		break;
 	}
 }
 
@@ -106,6 +118,22 @@ void EPSServer::loopDiagnostic(){
 	}
 }
 
+void EPSServer::loopReset(){
+	FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	logger->Log(LOGGER_LEVEL_INFO, "EPS ready for reset");
+
+	for(uint8 i = 0; i < 60; i++){
+		if(fmgServer->isResetReady()){
+			EPSPowerCycle();
+		}
+		usleep(1000000);
+	}
+
+	currentState = ST_MONITOR;
+}
+
 // -------------------------------------------- EPS Methods ---------------------------------------------
 void EPSServer::CheckHealthStatus(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
@@ -114,17 +142,17 @@ void EPSServer::CheckHealthStatus(){
 	ACPPacket * HSRet = DispatchPacket(HSQuery);
 
 	if(HSRet == NULL){
-		logger->Log(LOGGER_LEVEL_ERROR, "EPSStdTasks: NULL HSRet");
+		logger->Log(LOGGER_LEVEL_ERROR, "EPSServer: NULL HSRet");
 		return;
 	}
 
-	if(HSRet->getLength() != 8*sizeof(uint16)){
-		logger->Log(LOGGER_LEVEL_WARN, "EPSStdTasks: EPSHealthStat(): incorrect message length!");
+	if(HSRet->getLength() != 18*sizeof(uint16)){
+		logger->Log(LOGGER_LEVEL_WARN, "EPSServer: CheckHealthStatus(): incorrect message length!");
 
 		//TODO: return error?
 		return;
 	}else{
-		logger->Log(LOGGER_LEVEL_INFO, "EPSStdTasks: EPSHealthStat(): packet dispatched, HSRet acquired");
+		logger->Log(LOGGER_LEVEL_INFO, "EPSServer: CheckHealthStatus(): packet dispatched, HSRet acquired");
 		// Parse buffer
 		uint8 * msgPtr = HSRet->getMessageBuff();
 		if(msgPtr==NULL){
@@ -132,31 +160,49 @@ void EPSServer::CheckHealthStatus(){
 			return;
 		}
 
-		uint16 outputArray[8];
-		for(uint8 i = 0; i < 8; i++){
+		uint16 outputArray[EPSState.numItems];
+		for(uint8 i = 0; i < EPSState.numItems; i++){
 			outputArray[i] = GetUInt16(msgPtr);
 			msgPtr += 2;
 		}
 
-		EPSState.current3v3		= outputArray[0];
-		EPSState.voltage3v3		= outputArray[1];
-		EPSState.currentBatt	= outputArray[2];
-		EPSState.voltageBatt	= outputArray[3];
-		EPSState.current12v		= outputArray[4];
-		EPSState.voltage12v		= outputArray[5];
-		EPSState.battStatus		= outputArray[6];
-		EPSState.stateOfCharge	= outputArray[7];
+		EPSState.current3v3			= outputArray[0];
+		EPSState.voltage3v3			= outputArray[1];
+		EPSState.currentVbat		= outputArray[2];
+		EPSState.voltageVbat		= outputArray[3];
+		EPSState.current12v			= outputArray[4];
+		EPSState.voltage12v			= outputArray[5];
+		EPSState.remainingCapacity	= outputArray[6];
+		EPSState.battCurrent		= outputArray[7];
+		EPSState.battVoltage		= outputArray[8];
+		EPSState.battStatus			= outputArray[9];
+		EPSState.frangCurrent		= outputArray[10];
+		EPSState.frangVoltage		= outputArray[11];
+		EPSState.convCurrentX		= outputArray[12];
+		EPSState.convThreshX		= outputArray[13];
+		EPSState.convCurrentY		= outputArray[14];
+		EPSState.convThreshY		= outputArray[15];
+		EPSState.convCurrentW		= outputArray[16];
+		EPSState.convThreshW		= outputArray[17];
 
 		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: 3v3 Current:     %u", EPSState.current3v3);
 		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: 3v3 Voltage:     %u", EPSState.voltage3v3);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Batt Current:    %u", EPSState.currentBatt);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Batt Voltage:    %u", EPSState.voltageBatt);
+		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Vbat Current:    %u", EPSState.currentVbat);
+		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Vbat Voltage:    %u", EPSState.voltageVbat);
 		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: 12v Current:     %u", EPSState.current12v);
 		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: 12v Voltage:     %u", EPSState.voltage12v);
+		logger->Log(LOGGER_LEVEL_INFO,  "EPS H&S: Rem cap:         %u", EPSState.remainingCapacity);
+		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Batt curr:       %u", EPSState.battCurrent);
+		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Batt volt:       %u", EPSState.battVoltage);
 		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Batt status:     %u", EPSState.battStatus);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: State of charge: %u", EPSState.stateOfCharge);
-
-		//PacketProcess(SERVER_LOCATION_EPS, HSRet);
+		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Frang curr:      %u", EPSState.frangCurrent);
+		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Frang volt:      %u", EPSState.frangVoltage);
+		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Conv curr x:     %u", EPSState.convCurrentX);
+		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Conv thresh x:   %u", EPSState.convThreshX);
+		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Conv curr y:     %u", EPSState.convCurrentY);
+		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Conv thresh y:   %u", EPSState.convThreshY);
+		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Conv curr w:     %u", EPSState.convCurrentW);
+		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Conv thresh w:   %u", EPSState.convThreshW);
 	}
 }
 

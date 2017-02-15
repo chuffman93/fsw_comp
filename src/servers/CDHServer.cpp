@@ -26,8 +26,7 @@ using namespace AllStar::Core;
 using namespace AllStar::HAL;
 using namespace std;
 
-#define CPU_EN 	0
-#define MEM_EN 	0
+#define SYS_EN 	0
 #define TEMP_EN 0
 #define HS_EN	0
 #define PM_EN	0
@@ -74,14 +73,7 @@ CDHServer & CDHServer::operator=(const CDHServer & source){
 }
 
 void CDHServer::Initialize(void){
-	cdhCPUUsageHandler = new CDHCPUUsageHandler();
-	cdhMemUsageHandler = new CDHMemUsageHandler();
-	cdhTempStartHandler = new CDHTempStartHandler();
-	cdhTempReadHandler = new CDHTempReadHandler();
-	cdhHotSwapsHandler = new CDHHotSwapsHandler();
-	cdhPowerMonitorsHandler = new CDHPowerMonitorsHandler();
-	cdhStartPMHandler = new CDHStartPMHandler();
-	cdhCleanFSHandler = new CDHCleanFSHandler();
+
 }
 
 #ifdef TEST
@@ -151,11 +143,16 @@ void CDHServer::loopMonitor(){
 
 	readHealth(readFrequency, (uint32) lastWake/1000);
 
-	if(modeManager->GetMode() == MODE_DIAGNOSTIC){
+	// Check for state transitions based on mode switches
+	SystemModeEnum currentMode = modeManager->GetMode();
+	switch(currentMode){
+	case MODE_DIAGNOSTIC:
 		currentState = ST_DIAGNOSTIC;
+		break;
+	case MODE_RESET:
+		currentState = ST_RESET;
+		break;
 	}
-
-	waitUntil(lastWake, 1000);
 }
 
 void CDHServer::loopDiagnostic(){
@@ -165,19 +162,19 @@ void CDHServer::loopDiagnostic(){
 	}
 }
 
+void CDHServer::loopReset(){
+	// nothing to do
+	for(uint8 i = 0; i < 60; i++){
+		usleep(1000000);
+	}
+
+	currentState = ST_MONITOR;
+}
+
 
 // ----------------------------------------- CDH Methods -----------------------------------------
 void CDHServer::readHealth(uint8 frequency, uint32 timeUnit){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-
-	ACPPacket * TSRet;
-	ACPPacket * TRRet;
-	ACPPacket * CPURet;
-	ACPPacket * MemRet;
-	ACPPacket * HtswRet;
-	ACPPacket * PMRet;
-	ACPPacket * SPMRet;
-	int ccRet;
 
 	// Check storage, and delete files if necessary
 #if STOR_EN
@@ -216,17 +213,7 @@ void CDHServer::readHealth(uint8 frequency, uint32 timeUnit){
 		// ensure that no power faults have been detected, if they have, power off the subsystem
 		//devMngr->checkHS();
 
-#if CPU_EN
-		// CPU usage
-		CPURet = CDHCPUUsage();
-		PacketProcess(SERVER_LOCATION_CDH, CPURet);
-#endif //CPU_EN
-
-#if MEM_EN
-		// Memory usage
-		MemRet = CDHMemUsage();
-		PacketProcess(SERVER_LOCATION_CDH, MemRet);
-#endif //MEM_EN
+		CDHSystemInfo();
 
 #if TEMP_EN
 		// Read Temp sensors

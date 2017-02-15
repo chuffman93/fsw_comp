@@ -106,13 +106,19 @@ void COMServer::loopIdle(){
 	}
 
 	ModeManager * modeManager = dynamic_cast<ModeManager *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
-
-	if(modeManager->GetMode() == MODE_COM){
+	SystemModeEnum currentMode = modeManager->GetMode();
+	switch(currentMode){
+	case MODE_COM:
 		currentState = ST_COM_START;
-	}
-
-	if(modeManager->GetMode() == MODE_DIAGNOSTIC){
+		break;
+	case MODE_DIAGNOSTIC:
 		currentState = ST_DIAGNOSTIC;
+		break;
+	case MODE_RESET:
+		currentState = ST_RESET;
+		break;
+	default:
+		break;
 	}
 }
 
@@ -157,6 +163,16 @@ void COMServer::loopDiagnostic(){
 	if(modeManager->GetMode() != MODE_DIAGNOSTIC){
 		currentState = ST_IDLE;
 	}
+}
+
+void COMServer::loopReset(){
+	COMPrepReset();
+
+	for(uint8 i = 0; i < 60; i++){
+		usleep(1000000);
+	}
+
+	currentState = ST_IDLE;
 }
 
 }

@@ -283,7 +283,7 @@ DispatcherStatusEnum WaitForDispatchResponse(const ACPPacket & packet, ACPPacket
 	return DISPATCHER_STATUS_MSG_RCVD_NO_RESP_SENT;
 }
 
-uint32 GetUInt(uint8 * buffer){
+uint32 GetUInt32(uint8 * buffer){
 	uint32 result = (uint32) buffer[0] << 24 | (uint32) buffer[1] << 16 | (uint32) buffer[2] << 8 | (uint32) buffer[3];
 	return result;
 }
