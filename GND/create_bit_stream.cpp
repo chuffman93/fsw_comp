@@ -19,7 +19,7 @@ int main() {
   uint8_t buf[buf_size];
   Serialize serializable(buf, buf_size);
 
-  size_t size;
+  unsigned int size;
 
   bool done = false;
   while (!done) {
@@ -186,7 +186,6 @@ int main() {
 
   uint8_t final_buf[size];
   copy(buf, buf+size, final_buf);
-
 
   ofstream fp;
   fp.open(filename.c_str(), ios::out | ios::binary);
