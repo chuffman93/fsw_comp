@@ -11,6 +11,7 @@ old_tests/
 .svn/
 GND/create_bit_stream
 GND/decode_bit_stream
+GND/*.o
 
 /HOST
 /ARM
