@@ -56,7 +56,7 @@ void CDHSystemInfo(void){
 	FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
 	char str[100];
 	sprintf(str,"%ld,%f,%f,%f,%f",getTimeInSec(),cpu1,cpu5,cpu15,mem);
-	fmgServer->Log(DESTINATION_HST, string(str));
+	//fmgServer->Log(DESTINATION_HST, string(str));
 }
 
 // TODO: log errors

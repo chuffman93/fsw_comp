@@ -1,7 +1,7 @@
 /*
 * FMGServer.cpp
 *
-*  Last Modified: Jack Dinkel 12/16/16
+*  Last Modified: Jack Dinkel 2/15/17
 */
 
 #include "servers/FMGServer.h"
@@ -32,8 +32,6 @@ FileManager::FileManager(string path, string tlmType){
 }
 
 void FileManager::CloseFile(){
-	FILE * fd;
-
 	// Close the file
 	if (file_open) {
 		fclose(file);
@@ -76,19 +74,16 @@ void FileManager::OpenNewFile(){
 	OpenFile();
 }
 
-void FileManager::Write(string buf, int buf_size){
-	fwrite(buf.c_str(), sizeof(char), buf_size, file);
-	fwrite("\n", sizeof(char), 1, file);
+void FileManager::Write(uint8 * buf, size_t buf_size){
+	fwrite(buf, sizeof(char), buf_size, file);
 	fflush(file);
 	bytes_written += buf_size + 1;
 }
 
-bool FileManager::Log(string buf){
+bool FileManager::Log(uint8 * buf, size_t buf_size){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
-	int buf_size = buf.size();
 
-	if (buf_size >= fmgServer->FMGConfiguration.maxFileSize) { logger->Log(LOGGER_LEVEL_WARN, "Telemetry larger than file size"); }
+	if (buf_size >= MAX_FILE_SIZE) { logger->Log(LOGGER_LEVEL_WARN, "Telemetry larger than file size"); }
 	else{
 		// Check if file is open
 		if (!file_open) {
@@ -96,7 +91,7 @@ bool FileManager::Log(string buf){
 			OpenNewFile();
 		}
 
-		if (bytes_written + buf_size + 1 < fmgServer->FMGConfiguration.maxFileSize) {
+		if (bytes_written + buf_size + 1 < MAX_FILE_SIZE) {
 			Write(buf, buf_size);
 		}
 		else { // File is full, open new file and write to it
@@ -109,7 +104,6 @@ bool FileManager::Log(string buf){
 }
 
 void LogFSS(void){
-	FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
 	// Do SD cards work?
 	// How full is each SD card?
 }
@@ -118,7 +112,9 @@ void LogFSS(void){
 FMGServer::FMGServer(string nameIn, LocationIDType idIn) :
 					SubsystemServer(nameIn, idIn, 10, 1000),
 					Singleton(),
+					ACPLogger(ACP_FILE_PATH, "ACP"),
 					CMDLogger(CMD_FILE_PATH, "CMD"),
+					DGNLogger(DGN_FILE_PATH, "DGN"),
 					ERRLogger(ERR_FILE_PATH, "ERR"),
 					FSSLogger(FSS_FILE_PATH, "FSS"),
 					GENLogger(GEN_FILE_PATH, "GEN"),
@@ -127,12 +123,10 @@ FMGServer::FMGServer(string nameIn, LocationIDType idIn) :
 					SSSLogger(SSS_FILE_PATH, "SSS"),
 					SWPLogger(SWP_FILE_PATH, "SWP"),
 					RADLogger(RAD_FILE_PATH, "RAD"),
-					ACPLogger(ACP_FILE_PATH, "ACP"),
 					resetReady(false),
 					comReady(false),
 					move_from_CUR(false)
 					{
-	FMGConfiguration.maxFileSize = 5000;
 }
 
 FMGServer::~FMGServer(){
@@ -164,6 +158,7 @@ FMGServer & FMGServer::operator=(const FMGServer & source){
 
 void FMGServer::CloseAndMoveAllFiles(){
 	CMDLogger.CloseFile();
+	DGNLogger.CloseFile();
 	ERRLogger.CloseFile();
 	FSSLogger.CloseFile();
 	GENLogger.CloseFile();
@@ -172,70 +167,76 @@ void FMGServer::CloseAndMoveAllFiles(){
 	SSSLogger.CloseFile();
 	SWPLogger.CloseFile();
     RADLogger.CloseFile();
-    ACPLogger.CloseFile();
 }
 
-void FMGServer::Log(FILServerDestinationEnum dest, string buf){
+void FMGServer::Log(FILServerDestinationEnum dest, uint8 * buf, size_t size){
 	FilePacket packet;
 	packet.buffer = buf;
+	packet.size = size;
 	packet.dest = dest;
 	FileQueue.push(packet);
 }
 
 void FMGServer::CallLog(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	string str;
-	str = FileQueue.front().buffer;
+
+	uint8 * buf = FileQueue.front().buffer;
+    size_t size = FileQueue.front().size;
 
 	switch (FileQueue.front().dest){
+	case DESTINATION_ACP:
+		if ( !ACPLogger.Log(buf, size) ) {
+			logger->Log(LOGGER_LEVEL_WARN, "Error writing to ACP File");
+		}
+		break;
 	case DESTINATION_CMD:
-		if ( !CMDLogger.Log(str.c_str()) ) {
+		if ( !CMDLogger.Log(buf, size) ) {
 			logger->Log(LOGGER_LEVEL_WARN, "Error writing to Command File");
 		}
 		break;
+	case DESTINATION_DGN:
+		if ( !DGNLogger.Log(buf, size) ) {
+			logger->Log(LOGGER_LEVEL_WARN, "Error writing to Diagnostic File");
+		}
+		break;
 	case DESTINATION_ERR:
-		if ( !ERRLogger.Log(str.c_str()) ) {
+		if ( !ERRLogger.Log(buf, size) ) {
 			logger->Log(LOGGER_LEVEL_WARN, "Error writing to Error File");
 		}
 		break;
 	case DESTINATION_FSS:
-		if ( !FSSLogger.Log(str.c_str()) ) {
+		if ( !FSSLogger.Log(buf, size) ) {
 			logger->Log(LOGGER_LEVEL_WARN, "Error writing to File System File");
 		}
 		break;
 	case DESTINATION_GEN:
-		if ( !GENLogger.Log(str.c_str()) ) {
+		if ( !GENLogger.Log(buf, size) ) {
 			logger->Log(LOGGER_LEVEL_WARN, "Error writing to General File");
 		}
 		break;
 	case DESTINATION_HST:
-		if( !HSTLogger.Log(str.c_str()) ) {
+		if( !HSTLogger.Log(buf, size) ) {
 			logger->Log(LOGGER_LEVEL_WARN, "Error writing to Health and Status File");
 		}
 		break;
 	case DESTINATION_MOD:
-		if( !MODLogger.Log(str.c_str()) ) {
+		if( !MODLogger.Log(buf, size) ) {
 			logger->Log(LOGGER_LEVEL_WARN, "Error writing to Mode File");
 		}
 		break;
 	case DESTINATION_SSS:
-		if ( !SSSLogger.Log(str.c_str()) ) {
+		if ( !SSSLogger.Log(buf, size) ) {
 			logger->Log(LOGGER_LEVEL_WARN, "Error writing to Science System File");
 		}
 		break;
 	case DESTINATION_SWP:
-		if ( !SWPLogger.Log(str.c_str()) ) {
+		if ( !SWPLogger.Log(buf, size) ) {
 			logger->Log(LOGGER_LEVEL_WARN, "Error writing to HotSwap File");
 		}
 		break;
 	case DESTINATION_RAD:
-		if ( !RADLogger.Log(str.c_str()) ) {
+		if ( !RADLogger.Log(buf, size) ) {
 			logger->Log(LOGGER_LEVEL_WARN, "Error writing to Rad File");
-		}
-		break;
-	case DESTINATION_ACP:
-		if ( !RADLogger.Log(str.c_str()) ) {
-			logger->Log(LOGGER_LEVEL_WARN, "Error writing to ACP File");
 		}
 		break;
 	default:
@@ -243,6 +244,7 @@ void FMGServer::CallLog(){
 		break;
 	}
 
+	free(buf);
 	FileQueue.pop();
 }
 
@@ -290,9 +292,12 @@ void FMGServer::loopComPrep(void) {
 void FMGServer::loopCom(void) {
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
-	if (!FileQueue.empty()) {
+
+	if (!FileQueue.empty()){
 		CallLog();
+		FileQueue.pop();
 	}
+
 	else if (modeManager->GetMode() != MODE_COM) {
 		if (modeManager->GetMode() == MODE_RESET) {
 			comReady = false;

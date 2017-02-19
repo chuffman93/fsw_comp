@@ -12,15 +12,17 @@
 
 #include <cstddef>
 #include <utility>
+#include <stdint.h>
 
-typedef unsigned char uint8;
-typedef signed char int8;
-typedef unsigned short uint16;
-typedef signed short int16;
-typedef unsigned long uint32;
-typedef signed long int32;
-typedef unsigned long long uint64;
-typedef signed long long int64;
+typedef uint8_t uint8;
+typedef int8_t int8;
+typedef uint16_t uint16;
+typedef int16_t int16;
+typedef uint32_t uint32;
+typedef int32_t int32;
+typedef uint64_t uint64;
+typedef int64_t int64;
+
 
 typedef uint16 LocationIDType; // see HardwareLocationIDEnum + ServerLocationIDEnum
 #define LOCATION_ID_INVALID 0  // used with LocationIDType
@@ -37,8 +39,7 @@ enum PowerSubsystemEnum{
 
 typedef uint8 MessageCodeType;
 
-typedef enum HardwareLocationIDEnum
-{
+typedef enum HardwareLocationIDEnum {
 	HARDWARE_LOCATION_MIN = (LOCATION_ID_INVALID + 1),
 	HARDWARE_LOCATION_EPS = HARDWARE_LOCATION_MIN,
 	HARDWARE_LOCATION_COM,
@@ -48,8 +49,7 @@ typedef enum HardwareLocationIDEnum
 	HARDWARE_LOCATION_MAX
 }HardwareLocationIDType;
 
-enum ServerLocationIDEnum
-{
+enum ServerLocationIDEnum {
 	SERVER_LOCATION_MIN = HARDWARE_LOCATION_MAX,
 	SERVER_LOCATION_EPS = SERVER_LOCATION_MIN,
 	SERVER_LOCATION_COM, //9
@@ -66,8 +66,7 @@ enum ServerLocationIDEnum
 	SERVER_LOCATION_MAX
 };
 
-typedef enum LoggerLevel
-{
+typedef enum LoggerLevel {
 	LOGGER_LEVEL_SUPER_DEBUG = 1,
 	LOGGER_LEVEL_DEBUG, // fine-grain output for debugging
 	LOGGER_LEVEL_INFO, // nominal system info
@@ -76,8 +75,7 @@ typedef enum LoggerLevel
 	LOGGER_LEVEL_FATAL, // fatal errors
 }LoggerLevelType;
 
-enum FileHandlerIDEnum
-{
+enum FileHandlerIDEnum {
 	SUBSYSTEM_COM = 1,
 	SUBSYSTEM_EPS,
 	SUBSYSTEM_ACS,
@@ -94,10 +92,9 @@ enum FileHandlerIDEnum
 	SYSTEM_MAX
 };
 
-enum FILServerDestinationEnum
-{
-	DESTINATION_CMD = 1,
-	DESTINATION_ACP,
+enum FILServerDestinationEnum {
+	DESTINATION_ACP = 1,
+	DESTINATION_CMD,
 	DESTINATION_DGN,
 	DESTINATION_ERR,
 	DESTINATION_FSS,

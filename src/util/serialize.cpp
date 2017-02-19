@@ -30,12 +30,12 @@ int8_t Serialize::deserializeInt8(void) {
   unsigned int max_index = deserialize_index + size;
 
   // Check for buffer overflow
-  if (max_index >= buf_size) {
+  if (max_index > buf_size) {
     return -1;
   }
 
   uint8_t ret;
-  ret = (uint8_t) (buf_ptr[deserialize_index]) ;
+  ret = ( (uint8_t) (buf_ptr[deserialize_index]) ) ;
 
   deserialize_index += size;
   return (int8_t) ret;
@@ -46,13 +46,13 @@ int16_t Serialize::deserializeInt16(void) {
   unsigned int max_index = deserialize_index + size;
 
   // Check for buffer overflow
-  if (max_index >= buf_size) {
+  if (max_index > buf_size) {
     return -1;
   }
 
   uint16_t ret;
-  ret =  (uint16_t) (buf_ptr[deserialize_index] <<  8) |
-         (uint16_t) (buf_ptr[deserialize_index+1]      ) ;
+  ret =  ( (uint16_t) (buf_ptr[deserialize_index]   ) <<  8) |
+         ( (uint16_t) (buf_ptr[deserialize_index+1] )      ) ;
 
   deserialize_index += size;
   return (int16_t) ret;
@@ -63,15 +63,15 @@ int32_t Serialize::deserializeInt32(void) {
   unsigned int max_index = deserialize_index + size;
 
   // Check for buffer overflow
-  if (max_index >= buf_size) {
+  if (max_index > buf_size) {
     return -1;
   }
 
   uint32_t ret;
-  ret =  (uint32_t) (buf_ptr[deserialize_index]   << 24) |
-         (uint32_t) (buf_ptr[deserialize_index+1] << 16) | 
-         (uint32_t) (buf_ptr[deserialize_index+2] <<  8) | 
-         (uint32_t) (buf_ptr[deserialize_index+3]      ) ;
+  ret =  ( (uint32_t) (buf_ptr[deserialize_index]   ) << 24) |
+         ( (uint32_t) (buf_ptr[deserialize_index+1] ) << 16) | 
+         ( (uint32_t) (buf_ptr[deserialize_index+2] ) <<  8) | 
+         ( (uint32_t) (buf_ptr[deserialize_index+3] )      ) ;
 
   deserialize_index += size;
   return (int32_t) ret;
@@ -82,19 +82,19 @@ int64_t Serialize::deserializeInt64(void) {
   unsigned int max_index = deserialize_index + size;
 
   // Check for buffer overflow
-  if (max_index >= buf_size) {
+  if (max_index > buf_size) {
     return -1;
   }
 
   uint64_t ret;
-  ret =  (uint64_t) (buf_ptr[deserialize_index]   << 56) |
-         (uint64_t) (buf_ptr[deserialize_index+1] << 48) | 
-         (uint64_t) (buf_ptr[deserialize_index+2] << 40) | 
-         (uint64_t) (buf_ptr[deserialize_index+3] << 32) |
-         (uint64_t) (buf_ptr[deserialize_index+4] << 24) |
-         (uint64_t) (buf_ptr[deserialize_index+5] << 16) | 
-         (uint64_t) (buf_ptr[deserialize_index+6] <<  8) | 
-         (uint64_t) (buf_ptr[deserialize_index+7]      ) ;
+  ret =  ( (uint64_t) (buf_ptr[deserialize_index]   ) << 56) |
+         ( (uint64_t) (buf_ptr[deserialize_index+1] ) << 48) | 
+         ( (uint64_t) (buf_ptr[deserialize_index+2] ) << 40) | 
+         ( (uint64_t) (buf_ptr[deserialize_index+3] ) << 32) |
+         ( (uint64_t) (buf_ptr[deserialize_index+4] ) << 24) |
+         ( (uint64_t) (buf_ptr[deserialize_index+5] ) << 16) | 
+         ( (uint64_t) (buf_ptr[deserialize_index+6] ) <<  8) | 
+         ( (uint64_t) (buf_ptr[deserialize_index+7] )      ) ;
 
   deserialize_index += size;
   return (int64_t) ret;
@@ -105,12 +105,12 @@ uint8_t Serialize::deserializeUInt8(void) {
   unsigned int max_index = deserialize_index + size;
 
   // Check for buffer overflow
-  if (max_index >= buf_size) {
+  if (max_index > buf_size) {
     return -1;
   }
 
   uint8_t ret;
-  ret = (uint8_t) (buf_ptr[deserialize_index]) ;
+  ret = ( (uint8_t) (buf_ptr[deserialize_index]) ) ;
 
   deserialize_index += size;
   return (uint8_t) ret;
@@ -121,13 +121,13 @@ uint16_t Serialize::deserializeUInt16(void) {
   unsigned int max_index = deserialize_index + size;
 
   // Check for buffer overflow
-  if (max_index >= buf_size) {
+  if (max_index > buf_size) {
     return -1;
   }
 
   uint16_t ret;
-  ret =  (uint16_t) (buf_ptr[deserialize_index] <<  8) |
-         (uint16_t) (buf_ptr[deserialize_index+1]      ) ;
+  ret =  ( (uint16_t) (buf_ptr[deserialize_index]   ) <<  8) |
+         ( (uint16_t) (buf_ptr[deserialize_index+1] )      ) ;
 
   deserialize_index += size;
   return (uint16_t) ret;
@@ -138,15 +138,15 @@ uint32_t Serialize::deserializeUInt32(void) {
   unsigned int max_index = deserialize_index + size;
 
   // Check for buffer overflow
-  if (max_index >= buf_size) {
+  if (max_index > buf_size) {
     return -1;
   }
 
   uint32_t ret;
-  ret =  (uint32_t) (buf_ptr[deserialize_index]   << 24) |
-         (uint32_t) (buf_ptr[deserialize_index+1] << 16) |
-         (uint32_t) (buf_ptr[deserialize_index+2] <<  8) |
-         (uint32_t) (buf_ptr[deserialize_index+3]      ) ;
+  ret =  ( (uint32_t) (buf_ptr[deserialize_index]   ) << 24) |
+         ( (uint32_t) (buf_ptr[deserialize_index+1] ) << 16) |
+         ( (uint32_t) (buf_ptr[deserialize_index+2] ) <<  8) |
+         ( (uint32_t) (buf_ptr[deserialize_index+3] )      ) ;
 
   deserialize_index += size;
   return (uint32_t) ret;
@@ -157,19 +157,19 @@ uint64_t Serialize::deserializeUInt64(void) {
   unsigned int max_index = deserialize_index + size;
 
   // Check for buffer overflow
-  if (max_index >= buf_size) {
+  if (max_index > buf_size) {
     return -1;
   }
 
   uint64_t ret;
-  ret =  (uint64_t) (buf_ptr[deserialize_index]   << 56) |
-         (uint64_t) (buf_ptr[deserialize_index+1] << 48) |
-         (uint64_t) (buf_ptr[deserialize_index+2] << 40) |
-         (uint64_t) (buf_ptr[deserialize_index+3] << 32) |
-         (uint64_t) (buf_ptr[deserialize_index+4] << 24) |
-         (uint64_t) (buf_ptr[deserialize_index+5] << 16) |
-         (uint64_t) (buf_ptr[deserialize_index+6] <<  8) |
-         (uint64_t) (buf_ptr[deserialize_index+7]      ) ;
+  ret =  ( (uint64_t) (buf_ptr[deserialize_index]   ) << 56) |
+         ( (uint64_t) (buf_ptr[deserialize_index+1] ) << 48) |
+         ( (uint64_t) (buf_ptr[deserialize_index+2] ) << 40) |
+         ( (uint64_t) (buf_ptr[deserialize_index+3] ) << 32) |
+         ( (uint64_t) (buf_ptr[deserialize_index+4] ) << 24) |
+         ( (uint64_t) (buf_ptr[deserialize_index+5] ) << 16) |
+         ( (uint64_t) (buf_ptr[deserialize_index+6] ) <<  8) |
+         ( (uint64_t) (buf_ptr[deserialize_index+7] )      ) ;
 
   deserialize_index += size;
   return (uint64_t) ret;
@@ -185,7 +185,7 @@ bool Serialize::deserializeBool(void) {
   }
 
   uint8_t ret;
-  ret = (uint8_t) (buf_ptr[deserialize_index+3]);
+  ret = (uint8_t) (buf_ptr[deserialize_index]);
 
   deserialize_index += size;
   return *((bool *) &ret);
@@ -201,10 +201,10 @@ float Serialize::deserializeFloat(void) {
   }
 
   uint32_t ret;
-  ret =  (uint32_t) (buf_ptr[deserialize_index]   << 24) |
-         (uint32_t) (buf_ptr[deserialize_index+1] << 16) | 
-         (uint32_t) (buf_ptr[deserialize_index+2] <<  8) | 
-         (uint32_t) (buf_ptr[deserialize_index+3]      ) ;
+  ret =  ( (uint32_t) (buf_ptr[deserialize_index]   ) << 24) |
+         ( (uint32_t) (buf_ptr[deserialize_index+1] ) << 16) | 
+         ( (uint32_t) (buf_ptr[deserialize_index+2] ) <<  8) | 
+         ( (uint32_t) (buf_ptr[deserialize_index+3] )      ) ;
 
   deserialize_index += size;
   return *((float *) &ret);
@@ -220,14 +220,14 @@ double Serialize::deserializeDouble(void) {
   }
 
   uint64_t ret;
-  ret =  (uint64_t) (buf_ptr[deserialize_index]   << 56) |
-         (uint64_t) (buf_ptr[deserialize_index+1] << 48) |
-         (uint64_t) (buf_ptr[deserialize_index+2] << 40) |
-         (uint64_t) (buf_ptr[deserialize_index+3] << 32) |
-         (uint64_t) (buf_ptr[deserialize_index+4] << 24) |
-         (uint64_t) (buf_ptr[deserialize_index+5] << 16) |
-         (uint64_t) (buf_ptr[deserialize_index+6] <<  8) |
-         (uint64_t) (buf_ptr[deserialize_index+7]      ) ;
+  ret =  ( (uint64_t) (buf_ptr[deserialize_index]   ) << 56) |
+         ( (uint64_t) (buf_ptr[deserialize_index+1] ) << 48) |
+         ( (uint64_t) (buf_ptr[deserialize_index+2] ) << 40) |
+         ( (uint64_t) (buf_ptr[deserialize_index+3] ) << 32) |
+         ( (uint64_t) (buf_ptr[deserialize_index+4] ) << 24) |
+         ( (uint64_t) (buf_ptr[deserialize_index+5] ) << 16) |
+         ( (uint64_t) (buf_ptr[deserialize_index+6] ) <<  8) |
+         ( (uint64_t) (buf_ptr[deserialize_index+7] )      ) ;
 
   deserialize_index += size;
   return *((double *) &ret);

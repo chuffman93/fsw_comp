@@ -9,6 +9,9 @@ old_tests/
 .old_svn/
 #.settings/
 .svn/
+GND/create_bit_stream
+GND/decode_bit_stream
+GND/*.o
 
 /HOST
 /ARM

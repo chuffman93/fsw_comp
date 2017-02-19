@@ -17,7 +17,9 @@
 namespace AllStar{
 namespace Servers{
 
+#define ACP_FILE_PATH          "/SD_2/ACP"
 #define CMD_FILE_PATH			"/SD_2/CMD"
+#define DGN_FILE_PATH			"/SD_2/DGN"
 #define ERR_FILE_PATH			"/SD_2/ERR"
 #define GEN_FILE_PATH			"/SD_2/GEN"
 #define FSS_FILE_PATH			"/SD_2/FSS"
@@ -26,18 +28,20 @@ namespace Servers{
 #define SSS_FILE_PATH			"/SD_2/SSS"
 #define SWP_FILE_PATH			"/SD_2/SWP"
 #define RAD_FILE_PATH			"/SD_3/RAD"
-#define ACP_FILE_PATH			"/SD_2/ACP"
-
 #define DOWNLINK_DIRECTORY  	"/home/root/downlink"
 #define VERBOSE_HST_DIRECTORY	"/home/root/HST"
 
 #define CLEAR_CUR_DIRECTORIES_SCRIPT "/home/root/scripts/clear_CUR_directories.sh"
 
+// TODO: Do we want to be able to set this from the ground?
+#define MAX_FILE_SIZE		500 // There is also an old enum to deal with this
+
 void LogFSS(void);
 
 struct FilePacket {
 	FILServerDestinationEnum dest;
-	string buffer;
+	uint8 * buffer;
+	size_t size;
 };
 
 class FileManager{
@@ -48,8 +52,8 @@ public:
 	void OpenFile(void);
 	void GetFileName(void);
 	void OpenNewFile(void);
-	void Write(string buf, int buf_size);
-	bool Log(string buf);
+	void Write(uint8 * buf, size_t buf_size);
+	bool Log(uint8 * buf, size_t size);
 private:
 	string TLM_type;
 	FILE * file;
@@ -63,14 +67,8 @@ class FMGServer : public SubsystemServer, public AllStar::Core::Singleton{
 	friend class AllStar::Core::Factory;
 
 public:
-	bool RegisterHandlers();
-	void Log(FILServerDestinationEnum dest, string buf);
+	void Log(FILServerDestinationEnum dest, uint8 * buf, size_t size);
 
-	struct FMGConfig{
-		uint32 maxFileSize;
-	};
-
-	FMGConfig FMGConfiguration;
 
 	bool isResetReady() const {
 		return resetReady;
@@ -101,10 +99,12 @@ public:
 
 private:
 	static void Initialize(void);
+
+	FileManager ACPLogger;
 	FileManager CMDLogger;
+	FileManager DGNLogger;
 	FileManager ERRLogger;
 	FileManager FSSLogger;
-	FileManager ACPLogger;
 	FileManager GENLogger;
 	FileManager HSTLogger;
 	FileManager MODLogger;
