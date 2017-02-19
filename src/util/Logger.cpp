@@ -14,7 +14,7 @@
 
 // Set desired threshold for logging here
 LoggerLevelType Logger::threshold = LOGGER_LEVEL_INFO;
-const bool Logger::printToFile = true;
+const bool Logger::printToFile = false;
 const bool Logger::printToStdOut = true;
 using namespace AllStar::Core;
 using namespace std;

@@ -11,10 +11,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef TEST
-#include "TestMode.h"
-#endif
-
 using namespace std;
 
 namespace AllStar{

@@ -104,7 +104,10 @@ TEST(testCET, testACS){
 	prepPowerGPIOs();
 	startSPIServer();
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	//cdhServer->resetAssert(HARDWARE_LOCATION_ACS);
 	cdhServer->subPowerOn(HARDWARE_LOCATION_ACS);
+	//usleep(1000000);
+	//cdhServer->resetDeassert(HARDWARE_LOCATION_ACS);
 	usleep(1000000);
 
 	// ----- Run the self check for ACS (LED On, LED Rate, LED data)
@@ -313,7 +316,7 @@ TEST(testCET, testPLD){
 	cdhServer->subPowerOn(HARDWARE_LOCATION_PLD);
 	usleep(1000000);
 	cdhServer->resetDeassert(HARDWARE_LOCATION_PLD);
-	usleep(1000000);
+	usleep(3000000);
 
 	// ----- Run the self check for PLD (LED On, LED Rate, LED data)
 	logger->Log(LOGGER_LEVEL_INFO, "Checking if PLD is alive");
