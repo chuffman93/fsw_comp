@@ -64,10 +64,13 @@ bool ACSServer::IsFullyInitialized(void){
 void ACSServer::loopInit(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	cdhServer->resetAssert(HARDWARE_LOCATION_ACS);
 	cdhServer->subPowerOn(HARDWARE_LOCATION_ACS);
+	usleep(100000);
+	cdhServer->resetDeassert(HARDWARE_LOCATION_ACS);
 
 	// delay while ACS boots up
-	usleep(1000000);
+	usleep(3000000);
 
 	if(ACSTestAlive()){
 		if(!ACSSelfCheck()){

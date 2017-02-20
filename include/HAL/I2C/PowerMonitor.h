@@ -57,6 +57,7 @@ namespace AllStar
 			bool MinCurrentFault;
 			bool MaxCurrentFault;
 		}PowerMonitor_Data;
+
 		class PowerMonitor : public I2C_Device{
 		public:
 			PowerMonitor(PowerMonitor_Address addr);

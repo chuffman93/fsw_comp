@@ -32,20 +32,20 @@ namespace Servers{
 struct stat sb;
 
 //------------------------------------------- Message Handlers -------------------------------------------
-void CDHSystemInfo(void){
-	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+CDHStatus CDHSystemInfo(void){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	CDHStatus statusStruct;
 	struct sysinfo si;
 	if(sysinfo(&si) != 0){
 		logger->Log(LOGGER_LEVEL_ERROR, "CDHStdTasks: CDHCPUUsage(): Error");
-		return;
+		return statusStruct;
 	}
 
 	float cpu1  = si.loads[0]/6553.6;
 	float cpu5  = si.loads[1]/6553.6;
 	float cpu15 = si.loads[2]/6553.6;
 	float mem = 100.0*(259964928.0 - ((float) si.freeram)) / (259964928.0); //hard-coded total ram: 100*(total - free)/total = percent use
-	cdhServer->CDHState = {cpu1,cpu5,cpu15,mem};
+	statusStruct = {cpu1,cpu5,cpu15,mem};
 
 	logger->Log(LOGGER_LEVEL_DEBUG, "CDHCPUUsage(): Checking loads");
 	logger->Log(LOGGER_LEVEL_DEBUG, "    CPU  1 min: %f", si.loads[0]/65536.0);
@@ -53,13 +53,11 @@ void CDHSystemInfo(void){
 	logger->Log(LOGGER_LEVEL_DEBUG, "    CPU 15 min: %f", si.loads[2]/65536.0);
 	logger->Log(LOGGER_LEVEL_DEBUG, "    CPU memory: %f", mem);
 
-	FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
-	char str[100];
-	sprintf(str,"%ld,%f,%f,%f,%f",getTimeInSec(),cpu1,cpu5,cpu15,mem);
-	//fmgServer->Log(DESTINATION_HST, string(str));
+	return statusStruct;
+
+	// TODO: log
 }
 
-// TODO: log errors
 void CDHTempStart(void){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
@@ -85,7 +83,7 @@ void CDHTempStart(void){
 	}
 }
 
-void CDHTempRead(void){
+void CDHTempRead(float tempArray[4][16]){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_DEBUG, "CDHStdTasks: CDHTempRead(): Reading temp sensors");
 
@@ -93,80 +91,10 @@ void CDHTempRead(void){
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 	for(uint8 bus = 0; bus < 4; bus++){
 		for(uint8 sensor = 0; sensor < 16; sensor++){
-			cdhServer->temperatures[bus][sensor] = ReadTempSensor(bus+1,sensor);
+			tempArray[bus][sensor] = ReadTempSensor(bus+1,sensor);
 		}
 	}
 }
-
-void CDHHotSwaps(void){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log(LOGGER_LEVEL_DEBUG, "CDHStdTasks: CDHHotSwaps(): Reading hot swaps");
-
-	// Setup
-	CDHServer * cdhServer = dynamic_cast<CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
-
-	// Read and add to buffer
-	bool hsOK = cdhServer->devMngr->getHSStatus(cdhServer->CDH_hotswaps.hs_buffer);
-
-	if(!hsOK){
-		logger->Log(LOGGER_LEVEL_ERROR, "CDHStdTasks: all hot swaps down");
-	}
-
-	// TODO: log
-}
-
-//TODO: add back power monitors
-//void CDHPowerMonitors(void){
-//	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-//	logger->Log(LOGGER_LEVEL_FATAL, "CDHStdTasks: CDHPowerMonitors(): Unfinished function (variable type)!");
-//
-//	AllStar::Servers::CDHServer * cdhServer = dynamic_cast<AllStar::Servers::CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
-//	PowerMonitor_Data data[4];
-//	list<VariableTypeData *>params;
-//	VariableTypeData maxPHold[4];
-//	VariableTypeData minPHold[4];
-//	VariableTypeData maxVHold[4];
-//	VariableTypeData minVHold[4];
-//	VariableTypeData maxAHold[4];
-//	VariableTypeData minAHold[4];
-//	VariableTypeData maxIHold[4];
-//	VariableTypeData minIHold[4];
-//
-//	// Read and add to list
-//	cdhServer->devMngr->getPMStatus(data);
-//	for(uint8 i = 0; i < 4; i++){
-//		maxPHold[i] = VariableTypeData(data[i].MaxPower);
-//		minPHold[i] = VariableTypeData(data[i].MinPower);
-//		maxVHold[i] = VariableTypeData(data[i].MaxVoltage);
-//		minVHold[i] = VariableTypeData(data[i].MinVoltage);
-//		maxAHold[i] = VariableTypeData(data[i].MaxADIN);
-//		minAHold[i] = VariableTypeData(data[i].MinADIN);
-//		maxIHold[i] = VariableTypeData(data[i].MaxCurrent);
-//		minIHold[i] = VariableTypeData(data[i].MinCurrent);
-//		params.push_back(&maxPHold[i]);
-//		params.push_back(&minPHold[i]);
-//		params.push_back(&maxVHold[i]);
-//		params.push_back(&minVHold[i]);
-//		params.push_back(&maxAHold[i]);
-//		params.push_back(&minAHold[i]);
-//		params.push_back(&maxIHold[i]);
-//		params.push_back(&minIHold[i]);
-//	}
-//}
-
-//ACPPacket * CDHStartPM(void){
-//	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-//	logger->Log(LOGGER_LEVEL_FATAL, "CDHStdTasks: CDHStartPM(): Unfinished function (variable type)!");
-//
-//	AllStar::Servers::CDHServer * cdhServer = dynamic_cast<AllStar::Servers::CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
-//
-//	// Start all of the sensors
-//	cdhServer->devMngr->startPMMeas();
-//
-//	logger->Log(LOGGER_LEVEL_DEBUG, "CDHStdTasks: CDHStartPM(): Started PM measurement");
-//	ACPPacket * ret = new ACPPacket(CDH_START_PM_SUCCESS, true);
-//	return ret;
-//}
 
 // Helper Functions ---------------------------------------------------------------
 bool StartTempSensor(int bus, int sensor){

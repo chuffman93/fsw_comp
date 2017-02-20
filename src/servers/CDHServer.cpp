@@ -127,8 +127,7 @@ void CDHServer::readHealth(uint8 frequency, uint32 timeUnit){
 	// Start sensors for reading next round
 #if PM_EN
 	if((timeUnit % 10) == 0){
-		SPMRet = CDHStartPM();
-		PacketProcess(SERVER_LOCATION_CDH, SPMRet);
+		devMngr->startPMMeas(); // start power monitor measurements
 	}
 #endif //PM_EN
 
@@ -143,23 +142,19 @@ void CDHServer::readHealth(uint8 frequency, uint32 timeUnit){
 		logger->Log(LOGGER_LEVEL_DEBUG, "CDHServer: Gathering information");
 
 #if SYS_EN
-		CDHSystemInfo();
+		CDHState = CDHSystemInfo();
 #endif
 
 #if TEMP_EN
-		// Read Temp sensors
-		CDHTempRead();
+		CDHTempRead(temperatures); // Read Temp sensors
 #endif //TEMP_EN
 
 #if HS_EN
-		// Read Hot swaps
-		CDHHotSwaps();
+		devMngr->getHSStatus(CDH_hotswaps.hs_buffer); // Read Hot swaps
 #endif //HS_EN
 
 #if PM_EN
-		// Read Power Monitors
-		PMRet = CDHPowerMonitors();
-		PacketProcess(SERVER_LOCATION_CDH, PMRet);
+		devMngr->getPMStatus(CDH_powermonitors); // Read Power Monitors
 #endif //PM_EN
 	}
 }

@@ -61,7 +61,7 @@ void COMServer::loopInit(){
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 	cdhServer->subPowerOn(HARDWARE_LOCATION_COM);
 
-	usleep(5000000);
+	usleep(15000000); // wait 15s for boot
 
 	if(COMTestAlive()){
 		// Debug LED initialization

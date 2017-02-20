@@ -110,14 +110,14 @@ int main(int argc, char * argv[])
 	SPI_HALServer * spiServer = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
 
 	// ----------------------------- Start Servers -----------------------------------------------------------------
-	threadsCreated &= WatchdogManager::StartServer(acsServer, 50,	false);	 //ACS
+	threadsCreated &= WatchdogManager::StartServer(acsServer, 50,	true);	 //ACS
 	threadsCreated &= WatchdogManager::StartServer(cdhServer, 20,	true);	 //CDH
 	threadsCreated &= WatchdogManager::StartServer(cmdServer, 50,	true);	 //CMD
 	threadsCreated &= WatchdogManager::StartServer(comServer, 10,	true);	 //COM
-	threadsCreated &= WatchdogManager::StartServer(epsServer, 10,	false);	 //EPS
+	threadsCreated &= WatchdogManager::StartServer(epsServer, 10,	true);	 //EPS
 	threadsCreated &= WatchdogManager::StartServer(fmgServer, 0,	true);	 //FMG
 	threadsCreated &= WatchdogManager::StartServer(gpsServer, 50,	false);	 //GPS
-	threadsCreated &= WatchdogManager::StartServer(pldServer, 50,	false);	 //PLD
+	threadsCreated &= WatchdogManager::StartServer(pldServer, 50,	true);	 //PLD
 	threadsCreated &= WatchdogManager::StartServer(schServer, 0,	true);	 //SCH
 	threadsCreated &= WatchdogManager::StartServer(spiServer, 0,	true);	 //SPI
 

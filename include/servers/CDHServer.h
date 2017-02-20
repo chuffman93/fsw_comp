@@ -14,8 +14,7 @@
 #include "core/ModeManager.h"
 
 #include "servers/SubsystemServer.h"
-
-#include "util/StorageManager.h"
+#include "HAL/I2C/PowerMonitor.h"
 
 #include <sys/sysinfo.h>
 #include "HAL/I2C/HotSwaps.h"
@@ -51,6 +50,8 @@ public:
 	void resetDeassert(HardwareLocationIDType subsystem);
 
 	CDHStatus CDHState;
+
+	PowerMonitor_Data CDH_powermonitors[4];
 
 	union hs_union {
 	  float hs_buffer[32];
