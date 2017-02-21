@@ -15,6 +15,7 @@
 #include "core/Dispatcher.h"
 #include "core/ModeManager.h"
 #include "core/Singleton.h"
+#include "servers/HSTStructs.h"
 
 namespace AllStar{
 namespace Servers{
@@ -29,16 +30,6 @@ typedef enum ACSPoint{
 	ACS_GND_ORIENTED,
 	ACS_DEST_ORIENTED
 }ACSOrientationType;
-
-struct ACSStatus{
-	uint32 MRP_X;
-	uint32 MRP_Y;
-	uint32 MRP_Z;
-	uint32 ST_Status;
-	uint32 RW_Speed_X;
-	uint32 RW_Speed_Y;
-	uint32 RW_Speed_Z;
-};
 
 class ACSServer : public SubsystemServer, public AllStar::Core::Singleton{
 

@@ -1,5 +1,7 @@
-#include <stdint.h>
+#ifndef SERIALIZE_H_
+#define SERIALIZE_H_
 
+#include <stdint.h>
 
 class Serialize {
 
@@ -41,3 +43,5 @@ private:
 	unsigned int deserialize_index;
 
 };
+
+#endif

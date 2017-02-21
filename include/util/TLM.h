@@ -6,6 +6,9 @@
  *
  ******************************************************/
 
+#ifndef TLM_H_
+#define TLM_H_
+
 namespace AllStar{
 namespace Servers{
 
@@ -24,3 +27,4 @@ void TLM_CDH_HEALTH_AND_STATUS(int32 arg0, float arg1, float arg2, float arg3, f
 }
 }
 
+#endif
