@@ -20,6 +20,7 @@ void TLM_SPI_STATS(void);
 void TLM_SAMPLE_TEST_2(void);
 void TLM_SAMPLE_TEST_3(void);
 void TLM_CREATING_ACPPACKET(int32 arg0);
+void TLM_CDH_HEALTH_AND_STATUS(int32 arg0, float arg1, float arg2, float arg3, float arg4);
 }
 }
 

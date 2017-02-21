@@ -16,6 +16,7 @@
 #include "util/itoa.h"
 #include "util/FileHandler.h"
 #include "util/Logger.h"
+#include "util/TLM.h"
 #include <sys/sysinfo.h>
 #include <iostream>
 #include <stdlib.h>
@@ -54,9 +55,7 @@ void CDHSystemInfo(void){
 	logger->Log(LOGGER_LEVEL_DEBUG, "    CPU memory: %f", mem);
 
 	FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
-	char str[100];
-	sprintf(str,"%ld,%f,%f,%f,%f",getTimeInSec(),cpu1,cpu5,cpu15,mem);
-	fmgServer->Log(DESTINATION_HST, string(str));
+	TLM_CDH_HEALTH_AND_STATUS(getTimeInSec(),cpu1,cpu5,cpu15,mem);
 }
 
 //ACPPacket * CDHTempStart(void){
