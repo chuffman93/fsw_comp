@@ -19,53 +19,73 @@ namespace Servers{
 FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
 
 void TLM_STARTUP_ERROR(void) {
-  uint8_t * buf = (uint8_t *) malloc(2);
-  Serialize ser(buf, 2);
-  ser.serializeUInt16(0x01);
-  fmgServer->Log(DESTINATION_ERR, buf, 2);
+  size_t size = 3;
+  uint8_t * buf = (uint8_t *) malloc(size);
+  Serialize ser(buf, size);
+  ser.serializeUInt16(0x0001);
+  fmgServer->Log(DESTINATION_ERR, buf, size);
 }
 
 void TLM_SERVERS_CREATED(void) {
-  uint8_t * buf = (uint8_t *) malloc(2);
-  Serialize ser(buf, 2);
-  ser.serializeUInt16(0x02);
-  fmgServer->Log(DESTINATION_ERR, buf, 2);
+  size_t size = 3;
+  uint8_t * buf = (uint8_t *) malloc(size);
+  Serialize ser(buf, size);
+  ser.serializeUInt16(0x0002);
+  fmgServer->Log(DESTINATION_ERR, buf, size);
 }
 
 void TLM_BUS_LOAD_TEST(void) {
-  uint8_t * buf = (uint8_t *) malloc(2);
-  Serialize ser(buf, 2);
+  size_t size = 3;
+  uint8_t * buf = (uint8_t *) malloc(size);
+  Serialize ser(buf, size);
   ser.serializeUInt16(0x0100);
-  fmgServer->Log(DESTINATION_DGN, buf, 2);
+  fmgServer->Log(DESTINATION_DGN, buf, size);
 }
 
 void TLM_SPI_STATS(void) {
-  uint8_t * buf = (uint8_t *) malloc(2);
-  Serialize ser(buf, 2);
+  size_t size = 3;
+  uint8_t * buf = (uint8_t *) malloc(size);
+  Serialize ser(buf, size);
   ser.serializeUInt16(0x0101);
-  fmgServer->Log(DESTINATION_DGN, buf, 2);
+  fmgServer->Log(DESTINATION_DGN, buf, size);
 }
 
 void TLM_SAMPLE_TEST_2(void) {
-  uint8_t * buf = (uint8_t *) malloc(2);
-  Serialize ser(buf, 2);
+  size_t size = 3;
+  uint8_t * buf = (uint8_t *) malloc(size);
+  Serialize ser(buf, size);
   ser.serializeUInt16(0x0102);
-  fmgServer->Log(DESTINATION_DGN, buf, 2);
+  fmgServer->Log(DESTINATION_DGN, buf, size);
 }
 
 void TLM_SAMPLE_TEST_3(void) {
-  uint8_t * buf = (uint8_t *) malloc(2);
-  Serialize ser(buf, 2);
+  size_t size = 3;
+  uint8_t * buf = (uint8_t *) malloc(size);
+  Serialize ser(buf, size);
   ser.serializeUInt16(0x0103);
-  fmgServer->Log(DESTINATION_DGN, buf, 2);
+  fmgServer->Log(DESTINATION_DGN, buf, size);
 }
 
 void TLM_CREATING_ACPPACKET(int32 arg0) {
-  uint8_t * buf = (uint8_t *) malloc(6);
-  Serialize ser(buf, 6);
+  size_t size = 7;
+  uint8_t * buf = (uint8_t *) malloc(size);
+  Serialize ser(buf, size);
   ser.serializeUInt16(0x0400);
   ser.serializeInt32(arg0);
-  fmgServer->Log(DESTINATION_ACP, buf, 6);
+  fmgServer->Log(DESTINATION_ACP, buf, size);
+}
+
+void TLM_CDH_HEALTH_AND_STATUS(int32 arg0, float arg1, float arg2, float arg3, float arg4) {
+  size_t size = 23;
+  uint8_t * buf = (uint8_t *) malloc(size);
+  Serialize ser(buf, size);
+  ser.serializeUInt16(0x0500);
+  ser.serializeInt32(arg0);
+  ser.serializeFloat(arg1);
+  ser.serializeFloat(arg2);
+  ser.serializeFloat(arg3);
+  ser.serializeFloat(arg4);
+  fmgServer->Log(DESTINATION_HST, buf, size);
 }
 
 }

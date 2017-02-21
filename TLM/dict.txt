@@ -49,13 +49,13 @@ Parameter Types
 
 ##### BEGIN TELEMETRY #####
 STARTUP_ERROR
-0x01
+0x0001
 ERR
 Not all threads were created on startup!
 None
 
 SERVERS_CREATED
-0x02
+0x0002
 ERR
 All servers created!
 None
@@ -89,3 +89,9 @@ CREATING_ACPPACKET
 ACP
 Creating ACPPacket from buffer of size %d
 Int32
+
+CDH_HEALTH_AND_STATUS
+0x0500
+HST
+CDH Health and Status:\nTime: %ld\nCPU1: %f\nCPU5: %f\nCPU15: %f\nMemory: %f
+Int32,Float,Float,Float,Float
