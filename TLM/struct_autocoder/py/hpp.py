@@ -19,6 +19,10 @@ class HPP_Autocoder(STRUCT_Autocoder):
   def guards_end(self):
     print "#endif"
 
+  def include(self):
+    print "#include \"util/serialize.h\""
+    print
+
   def print_struct(self):
     print "class %s : public Serialize {" % (self.name)
     print "public:"

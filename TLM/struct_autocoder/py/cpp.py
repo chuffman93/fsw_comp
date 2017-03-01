@@ -12,16 +12,20 @@ class CPP_Autocoder(STRUCT_Autocoder):
   def __exit__(self, exc_type, exc_value, traceback):
     STRUCT_Autocoder.__exit__(self, exc_type, exc_value, traceback)
 
+  def include(self):
+    print "#include \"servers/HSTStructs.h\""
+    print "#include \"util/serialize.h\""
+
   def print_serialize(self):
     print "%s::serialize() {" % (self.name)
     for field in range(len(self.types)):
       split_arg = re.split("\[|\]", self.args[field])
       if ( len(split_arg) > 1 ):
         print "  for (int iter = 0; iter < %s; iter++) {" % (split_arg[1])
-        print "    this->serialize%s(this->%s[iter]);" % (self.types[field], split_arg[0])
+        print "    this->serialize_%s(this->%s[iter]);" % (self.types[field], split_arg[0])
         print "  }"
       else:
-        print "  this->serialize%s(this->%s);" % (self.types[field], self.args[field])
+        print "  this->serialize_%s(this->%s);" % (self.types[field], self.args[field])
     print "}"
     print
 
@@ -31,10 +35,10 @@ class CPP_Autocoder(STRUCT_Autocoder):
       split_arg = re.split("\[|\]", self.args[field])
       if ( len(split_arg) > 1 ):
         print "  for (int iter = 0; iter < %s; iter++) {" % (split_arg[1])
-        print "    this->%s[iter] = this->deserialize%s();" % (split_arg[0], self.types[field])
+        print "    this->%s[iter] = this->deserialize_%s();" % (split_arg[0], self.types[field])
         print "  }"
       else:
-        print "  this->%s = this->deserialize%s();" % (self.args[field], self.types[field])
+        print "  this->%s = this->deserialize_%s();" % (self.args[field], self.types[field])
     print "}"
     print
 

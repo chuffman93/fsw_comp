@@ -29,7 +29,7 @@ void Serialize::update(uint8_t * buf, unsigned int size) {
 
 // ---- Deserialize ----------------------------------
 
-int8_t Serialize::deserializeInt8(void) {
+int8_t Serialize::deserialize_int8(void) {
   size_t size = sizeof(int8_t);
   unsigned int max_index = deserialize_index + size;
 
@@ -45,7 +45,7 @@ int8_t Serialize::deserializeInt8(void) {
   return (int8_t) ret;
 }
 
-int16_t Serialize::deserializeInt16(void) {
+int16_t Serialize::deserialize_int16(void) {
   size_t size = sizeof(int16_t);
   unsigned int max_index = deserialize_index + size;
 
@@ -62,7 +62,7 @@ int16_t Serialize::deserializeInt16(void) {
   return (int16_t) ret;
 }
 
-int32_t Serialize::deserializeInt32(void) {
+int32_t Serialize::deserialize_int32(void) {
   size_t size = sizeof(int32_t);
   unsigned int max_index = deserialize_index + size;
 
@@ -81,7 +81,7 @@ int32_t Serialize::deserializeInt32(void) {
   return (int32_t) ret;
 }
 
-int64_t Serialize::deserializeInt64(void) {
+int64_t Serialize::deserialize_int64(void) {
   size_t size = sizeof(int64_t);
   unsigned int max_index = deserialize_index + size;
 
@@ -104,7 +104,7 @@ int64_t Serialize::deserializeInt64(void) {
   return (int64_t) ret;
 }
 
-uint8_t Serialize::deserializeUInt8(void) {
+uint8_t Serialize::deserialize_uint8(void) {
   size_t size = sizeof(uint8_t);
   unsigned int max_index = deserialize_index + size;
 
@@ -120,7 +120,7 @@ uint8_t Serialize::deserializeUInt8(void) {
   return (uint8_t) ret;
 }
 
-uint16_t Serialize::deserializeUInt16(void) {
+uint16_t Serialize::deserialize_uint16(void) {
   size_t size = sizeof(uint16_t);
   unsigned int max_index = deserialize_index + size;
 
@@ -137,7 +137,7 @@ uint16_t Serialize::deserializeUInt16(void) {
   return (uint16_t) ret;
 }
 
-uint32_t Serialize::deserializeUInt32(void) {
+uint32_t Serialize::deserialize_uint32(void) {
   size_t size = sizeof(uint32_t);
   unsigned int max_index = deserialize_index + size;
 
@@ -156,7 +156,7 @@ uint32_t Serialize::deserializeUInt32(void) {
   return (uint32_t) ret;
 }
 
-uint64_t Serialize::deserializeUInt64(void) {
+uint64_t Serialize::deserialize_uint64(void) {
   size_t size = sizeof(uint64_t);
   unsigned int max_index = deserialize_index + size;
 
@@ -179,7 +179,7 @@ uint64_t Serialize::deserializeUInt64(void) {
   return (uint64_t) ret;
 }
 
-bool Serialize::deserializeBool(void) {
+bool Serialize::deserialize_bool(void) {
   size_t size = sizeof(bool);
   unsigned int max_index = deserialize_index + size;
 
@@ -195,7 +195,7 @@ bool Serialize::deserializeBool(void) {
   return *((bool *) &ret);
 }
 
-float Serialize::deserializeFloat(void) {
+float Serialize::deserialize_float(void) {
   size_t size = sizeof(float);
   unsigned int max_index = deserialize_index + size;
 
@@ -214,7 +214,7 @@ float Serialize::deserializeFloat(void) {
   return *((float *) &ret);
 }
 
-double Serialize::deserializeDouble(void) {
+double Serialize::deserialize_double(void) {
   size_t size = sizeof(double);
   unsigned int max_index = deserialize_index + size;
 
@@ -239,7 +239,7 @@ double Serialize::deserializeDouble(void) {
 
 // ---- Serialize ----------------------------------
 
-int Serialize::serializeInt8(int8_t data) {
+int Serialize::serialize_int8(int8_t data) {
   size_t size = sizeof(int8_t);
   unsigned int max_index = serialize_index + size;
 
@@ -254,7 +254,7 @@ int Serialize::serializeInt8(int8_t data) {
   return 1;
 }
 
-int Serialize::serializeInt16(int16_t data) {
+int Serialize::serialize_int16(int16_t data) {
   size_t size = sizeof(int16_t);
   unsigned int max_index = serialize_index + size;
 
@@ -272,7 +272,7 @@ int Serialize::serializeInt16(int16_t data) {
   return 1;
 }
 
-int Serialize::serializeInt32(int32_t data) {
+int Serialize::serialize_int32(int32_t data) {
   size_t size = sizeof(int32_t);
   unsigned int max_index = serialize_index + size;
 
@@ -296,7 +296,7 @@ int Serialize::serializeInt32(int32_t data) {
   return 1;
 }
 
-int Serialize::serializeInt64(int64_t data) {
+int Serialize::serialize_int64(int64_t data) {
   size_t size = sizeof(int64_t);
   unsigned int max_index = serialize_index + size;
 
@@ -332,7 +332,7 @@ int Serialize::serializeInt64(int64_t data) {
   return 1;
 }
 
-int Serialize::serializeUInt8(uint8_t data) {
+int Serialize::serialize_uint8(uint8_t data) {
   size_t size = sizeof(uint8_t);
   unsigned int max_index = serialize_index + size;
 
@@ -347,7 +347,7 @@ int Serialize::serializeUInt8(uint8_t data) {
   return 1;
 }
 
-int Serialize::serializeUInt16(uint16_t data) {
+int Serialize::serialize_uint16(uint16_t data) {
   size_t size = sizeof(uint16_t);
   unsigned int max_index = serialize_index + size;
 
@@ -365,7 +365,7 @@ int Serialize::serializeUInt16(uint16_t data) {
   return 1;
 }
 
-int Serialize::serializeUInt32(uint32_t data) {
+int Serialize::serialize_uint32(uint32_t data) {
   size_t size = sizeof(uint32_t);
   unsigned int max_index = serialize_index + size;
 
@@ -389,7 +389,7 @@ int Serialize::serializeUInt32(uint32_t data) {
   return 1;
 }
 
-int Serialize::serializeUInt64(uint64_t data) {
+int Serialize::serialize_uint64(uint64_t data) {
   size_t size = sizeof(uint64_t);
   unsigned int max_index = serialize_index + size;
 
@@ -425,7 +425,7 @@ int Serialize::serializeUInt64(uint64_t data) {
   return 1;
 }
 
-int Serialize::serializeBool(bool bdata) {
+int Serialize::serialize_bool(bool bdata) {
   uint8_t data = *((uint8_t*)&bdata);
   size_t size = sizeof(bool);
   unsigned int max_index = serialize_index + size;
@@ -443,7 +443,7 @@ int Serialize::serializeBool(bool bdata) {
 
 }
 
-int Serialize::serializeFloat(float fdata) {
+int Serialize::serialize_float(float fdata) {
   uint32_t data = *((uint32_t*)&fdata);
   size_t size = sizeof(float);
   unsigned int max_index = serialize_index + size;
@@ -469,7 +469,7 @@ int Serialize::serializeFloat(float fdata) {
   return 1;
 }
 
-int Serialize::serializeDouble(double ddata) {
+int Serialize::serialize_double(double ddata) {
   uint64_t data = *((uint64_t*)&ddata);
   size_t size = sizeof(double);
   unsigned int max_index = serialize_index + size;

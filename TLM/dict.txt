@@ -88,10 +88,10 @@ CREATING_ACPPACKET
 0x0400
 ACP
 Creating ACPPacket from buffer of size %d
-Int32
+int32
 
 CDH_HEALTH_AND_STATUS
 0x0500
 HST
 CDH Health and Status:\nTime: %ld\nCPU1: %f\nCPU5: %f\nCPU15: %f\nMemory: %f
-Int32,Float,Float,Float,Float
+int32,float,float,float,float

@@ -43,10 +43,6 @@ class STRUCT_Autocoder():
     print " ******************************************************/"
     print
 
-  def include(self):
-    print "#include \"util/serialize.h\""
-    print
-
   def namespace_start(self):
     print "namespace AllStar{"
     print "namespace Servers{"
@@ -69,7 +65,7 @@ class STRUCT_Autocoder():
   def parse_line(self, line):
     split_line = line.split(" ")
     
-    self.types.append( split_line[0].capitalize() )
+    self.types.append( split_line[0] )
     self.args.append( split_line[1] )
     self.comments.append( " ".join(split_line[2:]).strip() )
 

@@ -12,30 +12,30 @@ public:
 	void update(uint8_t * buf, unsigned int size);
 
 	// ---- Deserialize ----------------------------------
-	int8_t deserializeInt8(void);
-	int16_t deserializeInt16(void);
-	int32_t deserializeInt32(void);
-	int64_t deserializeInt64(void);
-	uint8_t deserializeUInt8(void);
-	uint16_t deserializeUInt16(void);
-	uint32_t deserializeUInt32(void);
-	uint64_t deserializeUInt64(void);
-	bool deserializeBool(void);
-	float deserializeFloat(void);
-	double deserializeDouble(void);
+	int8_t   deserialize_int8(void);
+	int16_t  deserialize_int16(void);
+	int32_t  deserialize_int32(void);
+	int64_t  deserialize_int64(void);
+	uint8_t  deserialize_uint8(void);
+	uint16_t deserialize_uint16(void);
+	uint32_t deserialize_uint32(void);
+	uint64_t deserialize_uint64(void);
+	bool     deserialize_bool(void);
+	float    deserialize_float(void);
+	double  deserialize_double(void);
 
 	// ---- Serialize ----------------------------------
-	int serializeInt8(int8_t data);
-	int serializeInt16(int16_t data);
-	int serializeInt32(int32_t data);
-	int serializeInt64(int64_t data);
-	int serializeUInt8(uint8_t data);
-	int serializeUInt16(uint16_t data);
-	int serializeUInt32(uint32_t data);
-	int serializeUInt64(uint64_t data);
-	int serializeBool(bool bdata);
-	int serializeFloat(float fdata);
-	int serializeDouble(double ddata);
+	int serialize_int8(int8_t data);
+	int serialize_int16(int16_t data);
+	int serialize_int32(int32_t data);
+	int serialize_int64(int64_t data);
+	int serialize_uint8(uint8_t data);
+	int serialize_uint16(uint16_t data);
+	int serialize_uint32(uint32_t data);
+	int serialize_uint64(uint64_t data);
+	int serialize_bool(bool bdata);
+	int serialize_float(float fdata);
+	int serialize_double(double ddata);
 
 protected:
 	uint8_t * buf_ptr; // TODO: Make this static

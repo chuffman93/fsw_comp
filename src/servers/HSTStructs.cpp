@@ -6,106 +6,106 @@
  *
  ******************************************************/
 
+#include "servers/HSTStructs.h"
 #include "util/serialize.h"
-
 namespace AllStar{
 namespace Servers{
 
 CDHStatus::serialize() {
-  this->serializeFloat(this->cpu1);
-  this->serializeFloat(this->cpu5);
-  this->serializeFloat(this->cpu15);
-  this->serializeFloat(this->memory);
+  this->serialize_float(this->cpu1);
+  this->serialize_float(this->cpu5);
+  this->serialize_float(this->cpu15);
+  this->serialize_float(this->memory);
 }
 
 CDHStatus::deserialize() {
-  this->cpu1 = this->deserializeFloat();
-  this->cpu5 = this->deserializeFloat();
-  this->cpu15 = this->deserializeFloat();
-  this->memory = this->deserializeFloat();
+  this->cpu1 = this->deserialize_float();
+  this->cpu5 = this->deserialize_float();
+  this->cpu15 = this->deserialize_float();
+  this->memory = this->deserialize_float();
 }
 
 ACSStatus::serialize() {
-  this->serializeUint32(this->MRP_X);
-  this->serializeUint32(this->MRP_Y);
-  this->serializeUint32(this->MRP_Z);
-  this->serializeUint32(this->ST_Status);
-  this->serializeUint32(this->RW_Speed_X);
-  this->serializeUint32(this->RW_Speed_Y);
-  this->serializeUint32(this->RW_Speed_Z);
+  this->serialize_uint32(this->MRP_X);
+  this->serialize_uint32(this->MRP_Y);
+  this->serialize_uint32(this->MRP_Z);
+  this->serialize_uint32(this->ST_Status);
+  this->serialize_uint32(this->RW_Speed_X);
+  this->serialize_uint32(this->RW_Speed_Y);
+  this->serialize_uint32(this->RW_Speed_Z);
 }
 
 ACSStatus::deserialize() {
-  this->MRP_X = this->deserializeUint32();
-  this->MRP_Y = this->deserializeUint32();
-  this->MRP_Z = this->deserializeUint32();
-  this->ST_Status = this->deserializeUint32();
-  this->RW_Speed_X = this->deserializeUint32();
-  this->RW_Speed_Y = this->deserializeUint32();
-  this->RW_Speed_Z = this->deserializeUint32();
+  this->MRP_X = this->deserialize_uint32();
+  this->MRP_Y = this->deserialize_uint32();
+  this->MRP_Z = this->deserialize_uint32();
+  this->ST_Status = this->deserialize_uint32();
+  this->RW_Speed_X = this->deserialize_uint32();
+  this->RW_Speed_Y = this->deserialize_uint32();
+  this->RW_Speed_Z = this->deserialize_uint32();
 }
 
 PLDStatus::serialize() {
-  this->serializeUint8(this->powerFault);
-  this->serializeUint16(this->motorSpeed);
+  this->serialize_uint8(this->powerFault);
+  this->serialize_uint16(this->motorSpeed);
   for (int iter = 0; iter < 10; iter++) {
-    this->serializeUint8(this->thermistors[iter]);
+    this->serialize_uint8(this->thermistors[iter]);
   }
-  this->serializeUint8(this->acdDataWorking);
-  this->serializeUint16(this->control);
-  this->serializeUint8(this->byteSize);
+  this->serialize_uint8(this->acdDataWorking);
+  this->serialize_uint16(this->control);
+  this->serialize_uint8(this->byteSize);
 }
 
 PLDStatus::deserialize() {
-  this->powerFault = this->deserializeUint8();
-  this->motorSpeed = this->deserializeUint16();
+  this->powerFault = this->deserialize_uint8();
+  this->motorSpeed = this->deserialize_uint16();
   for (int iter = 0; iter < 10; iter++) {
-    this->thermistors[iter] = this->deserializeUint8();
+    this->thermistors[iter] = this->deserialize_uint8();
   }
-  this->acdDataWorking = this->deserializeUint8();
-  this->control = this->deserializeUint16();
-  this->byteSize = this->deserializeUint8();
+  this->acdDataWorking = this->deserialize_uint8();
+  this->control = this->deserialize_uint16();
+  this->byteSize = this->deserialize_uint8();
 }
 
 EPSStatus::serialize() {
-  this->serializeUint16(this->current3v3);
-  this->serializeUint16(this->voltage3v3);
-  this->serializeUint16(this->currentVbat);
-  this->serializeUint16(this->voltageVbat);
-  this->serializeUint16(this->current12v);
-  this->serializeUint16(this->voltage12v);
-  this->serializeUint16(this->remainingCapacity);
-  this->serializeUint16(this->battCurrent);
-  this->serializeUint16(this->battVoltage);
-  this->serializeUint16(this->battStatus);
-  this->serializeUint16(this->frangCurrent);
-  this->serializeUint16(this->frangVoltage);
-  this->serializeUint16(this->convCurrentX);
-  this->serializeUint16(this->convThreshX);
-  this->serializeUint16(this->convCurrentY);
-  this->serializeUint16(this->convThreshY);
-  this->serializeUint16(this->convCurrentW);
-  this->serializeUint16(this->convThreshW);
+  this->serialize_uint16(this->current3v3);
+  this->serialize_uint16(this->voltage3v3);
+  this->serialize_uint16(this->currentVbat);
+  this->serialize_uint16(this->voltageVbat);
+  this->serialize_uint16(this->current12v);
+  this->serialize_uint16(this->voltage12v);
+  this->serialize_uint16(this->remainingCapacity);
+  this->serialize_uint16(this->battCurrent);
+  this->serialize_uint16(this->battVoltage);
+  this->serialize_uint16(this->battStatus);
+  this->serialize_uint16(this->frangCurrent);
+  this->serialize_uint16(this->frangVoltage);
+  this->serialize_uint16(this->convCurrentX);
+  this->serialize_uint16(this->convThreshX);
+  this->serialize_uint16(this->convCurrentY);
+  this->serialize_uint16(this->convThreshY);
+  this->serialize_uint16(this->convCurrentW);
+  this->serialize_uint16(this->convThreshW);
 }
 
 EPSStatus::deserialize() {
-  this->current3v3 = this->deserializeUint16();
-  this->voltage3v3 = this->deserializeUint16();
-  this->currentVbat = this->deserializeUint16();
-  this->voltageVbat = this->deserializeUint16();
-  this->current12v = this->deserializeUint16();
-  this->voltage12v = this->deserializeUint16();
-  this->remainingCapacity = this->deserializeUint16();
-  this->battCurrent = this->deserializeUint16();
-  this->battVoltage = this->deserializeUint16();
-  this->battStatus = this->deserializeUint16();
-  this->frangCurrent = this->deserializeUint16();
-  this->frangVoltage = this->deserializeUint16();
-  this->convCurrentX = this->deserializeUint16();
-  this->convThreshX = this->deserializeUint16();
-  this->convCurrentY = this->deserializeUint16();
-  this->convThreshY = this->deserializeUint16();
-  this->convCurrentW = this->deserializeUint16();
-  this->convThreshW = this->deserializeUint16();
+  this->current3v3 = this->deserialize_uint16();
+  this->voltage3v3 = this->deserialize_uint16();
+  this->currentVbat = this->deserialize_uint16();
+  this->voltageVbat = this->deserialize_uint16();
+  this->current12v = this->deserialize_uint16();
+  this->voltage12v = this->deserialize_uint16();
+  this->remainingCapacity = this->deserialize_uint16();
+  this->battCurrent = this->deserialize_uint16();
+  this->battVoltage = this->deserialize_uint16();
+  this->battStatus = this->deserialize_uint16();
+  this->frangCurrent = this->deserialize_uint16();
+  this->frangVoltage = this->deserialize_uint16();
+  this->convCurrentX = this->deserialize_uint16();
+  this->convThreshX = this->deserialize_uint16();
+  this->convCurrentY = this->deserialize_uint16();
+  this->convThreshY = this->deserialize_uint16();
+  this->convCurrentW = this->deserialize_uint16();
+  this->convThreshW = this->deserialize_uint16();
 }
 
