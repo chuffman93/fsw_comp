@@ -1,5 +1,6 @@
 import sys
 import time
+import re
 
 
 
@@ -105,14 +106,26 @@ class CPP_Autocoder(STRUCT_Autocoder):
   def print_serialize(self):
     print "%s::serialize() {" % (self.name)
     for field in range(len(self.types)):
-      print "\tthis->serialize%s(this->%s);" % (self.types[field], self.args[field])
+      split_arg = re.split("\[|\]", self.args[field])
+      if ( len(split_arg) > 1 ):
+        print "\tfor (int iter = 0; iter < %s; iter++) {" % (split_arg[1])
+        print "\t\tthis->serialize%s(this->%s[iter]);" % (self.types[field], split_arg[0])
+        print "\t}"
+      else:
+        print "\tthis->serialize%s(this->%s);" % (self.types[field], self.args[field])
     print "}"
     print
 
   def print_deserialize(self):
     print "%s::deserialize() {" % (self.name)
     for field in range(len(self.types)):
-      print "\tthis->%s = this->deserialize%s();" % (self.args[field], self.types[field])
+      split_arg = re.split("\[|\]", self.args[field])
+      if ( len(split_arg) > 1 ):
+        print "\tfor (int iter = 0; iter < %s; iter++) {" % (split_arg[1])
+        print "\t\tthis->%s[iter] = this->deserialize%s();" % (split_arg[0], self.types[field])
+        print "\t}"
+      else:
+        print "\tthis->%s = this->deserialize%s();" % (self.args[field], self.types[field])
     print "}"
     print
 
