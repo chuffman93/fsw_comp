@@ -7,6 +7,7 @@ public:
   float cpu5;
   float cpu15;
   float memory;
+  int arr[5];
 
   void serialize(void);
   void deserialize(void);
