@@ -6,6 +6,9 @@
  *
  ******************************************************/
 
+#ifndef HSTStructs_H_
+#define HSTStructs_H_
+
 #include "util/serialize.h"
 
 namespace AllStar{
@@ -73,3 +76,4 @@ public:
 }
 }
 
+#endif

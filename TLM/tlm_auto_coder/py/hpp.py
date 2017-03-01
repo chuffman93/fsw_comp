@@ -11,6 +11,14 @@ class HPP_AutoCoder(TLM_AutoCoder):
   def __exit__(self, exc_type, exc_value, traceback):
     TLM_AutoCoder.__exit__(self, exc_type, exc_value, traceback)
 
+  def guards_start(self):
+    print "#ifndef TLM_H_"
+    print "#define TLM_H_"
+    print
+
+  def guards_end(self):
+    print "#endif"
+
   def print_func(self):
     print "void %s%s(%s);" % (self.gen_func_name, self.name, self.args)
 
@@ -26,10 +34,12 @@ class HPP_AutoCoder(TLM_AutoCoder):
 
   def autocode(self):
     self.header()
+    self.guards_start()
     self.namespace_start()
     self.include()
     self.autocode_all_tlm()
     self.namespace_end()
+    self.guards_end()
 
 
 

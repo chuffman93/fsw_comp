@@ -11,6 +11,14 @@ class HPP_Autocoder(STRUCT_Autocoder):
   def __exit__(self, exc_type, exc_value, traceback):
     STRUCT_Autocoder.__exit__(self, exc_type, exc_value, traceback)
 
+  def guards_start(self):
+    print "#ifndef HSTStructs_H_"
+    print "#define HSTStructs_H_"
+    print
+
+  def guards_end(self):
+    print "#endif"
+
   def print_struct(self):
     print "class %s : public Serialize {" % (self.name)
     print "public:"
@@ -23,6 +31,7 @@ class HPP_Autocoder(STRUCT_Autocoder):
     
   def autocode(self):
     self.header()
+    self. guards_start()
     self.include()
     self.namespace_start()
 
@@ -36,6 +45,7 @@ class HPP_Autocoder(STRUCT_Autocoder):
       self.reset_struct()
 
     self.namespace_end()
+    self.guards_end()
 
 
 
