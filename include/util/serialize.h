@@ -6,6 +6,7 @@
 class Serialize {
 
 public:
+        Serialize();
 	Serialize(uint8_t * buf, unsigned int size);
 	void reset();
 	void update(uint8_t * buf, unsigned int size);
@@ -36,7 +37,7 @@ public:
 	int serializeFloat(float fdata);
 	int serializeDouble(double ddata);
 
-private:
+protected:
 	uint8_t * buf_ptr; // TODO: Make this static
 	unsigned int buf_size;
 	unsigned int serialize_index;

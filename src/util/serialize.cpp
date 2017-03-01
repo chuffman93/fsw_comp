@@ -5,6 +5,10 @@
 
 using namespace std;
 
+Serialize::Serialize() {
+
+}
+
 Serialize::Serialize(uint8_t * buf, unsigned int size){
   buf_ptr = buf;
   buf_size = size;
