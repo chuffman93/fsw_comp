@@ -49,7 +49,8 @@ class STRUCT_Autocoder():
     print
 
   def include(self):
-    pass
+    print "#include \"util/serialize.h\""
+    print
 
   def namespace_start(self):
     print "namespace AllStar{"
@@ -73,7 +74,7 @@ class STRUCT_Autocoder():
   def parse_line(self, line):
     split_line = line.split(" ")
     
-    self.types.append( split_line[0] )
+    self.types.append( split_line[0].capitalize() )
     self.args.append( split_line[1] )
     self.comments.append( " ".join(split_line[2:]).strip() )
 
@@ -88,13 +89,69 @@ class STRUCT_Autocoder():
       self.parse_line(line)
       line = self.get_line()
 
-  def print_struct(self):
-    print "struct %s {" % (self.name)
+
+
+
+class CPP_Autocoder(STRUCT_Autocoder):
+  def __init__(self, input_file):
+    STRUCT_Autocoder.__init__(self, input_file)
+
+  def __enter__(self):
+    return self
+
+  def __exit__(self, exc_type, exc_value, traceback):
+    STRUCT_Autocoder.__exit__(self, exc_type, exc_value, traceback)
+
+  def print_serialize(self):
+    print "%s::serialize() {" % (self.name)
     for field in range(len(self.types)):
-      print "\t%s %s; %s" % (self.types[field], self.args[field], self.comments[field])
-    print "};"
+      print "\tthis->serialize%s(this->%s);" % (self.types[field], self.args[field])
+    print "}"
     print
 
+  def print_deserialize(self):
+    print "%s::deserialize() {" % (self.name)
+    for field in range(len(self.types)):
+      print "\tthis->%s = this->deserialize%s();" % (self.args[field], self.types[field])
+    print "}"
+    print
+
+  def autocode_serialize(self):
+    self.header()
+    self.include()
+    self.namespace_start()
+
+    while (not self.EOF):
+      self.get_struct()
+
+      if (self.EOF):
+        break
+
+      self.print_serialize()
+      self.print_deserialize()
+      self.reset_struct()
+
+
+
+class HPP_Autocoder(STRUCT_Autocoder):
+  def __init__(self, input_file):
+    STRUCT_Autocoder.__init__(self, input_file)
+
+  def __enter__(self):
+    return self
+
+  def __exit__(self, exc_type, exc_value, traceback):
+    STRUCT_Autocoder.__exit__(self, exc_type, exc_value, traceback)
+
+  def print_struct(self):
+    print "class %s : public Serialize {" % (self.name)
+    print "public:"
+    for field in range(len(self.types)):
+      print "\t%s %s; %s" % (self.types[field], self.args[field], self.comments[field])
+    print "void serialize(void);"
+    print "void deserialize(void);"
+    print "};"
+    print
     
   def autocode(self):
     self.header()
@@ -112,38 +169,6 @@ class STRUCT_Autocoder():
 
     self.namespace_end()
 
-  def print_serialize(self):
-    print "Serialize%s(*%s strct) {" % (self.name, self.name)
-    for field in range(len(self.types)):
-      print "\tser.Serialize%s(strct->%s);" % (self.types[field], self.args[field])
-    print "}"
-    print
-
-  def autocode_serialize(self):
-    self.header()
-    self.include()
-    self.namespace_start()
-
-    while (not self.EOF):
-      self.get_struct()
-
-      if (self.EOF):
-        break
-
-      self.print_serialize()
-      self.reset_struct()
-
-
-class CPP_Autocoder(STRUCT_Autocoder):
-  def __init__(self, input_file):
-    STRUCT_AutoCoder.__init__(self, input_file)
-
-  def __enter__(self):
-    return self
-
-  def __exit__(self, exc_type, exc_value, traceback):
-    TLM_AutoCoder.__exit__(self, exc_type, exc_value, traceback)
-
 
 
 
@@ -155,8 +180,8 @@ if len(sys.argv) < 2:
 
 input_file = sys.argv[1]
 
-with STRUCT_Autocoder(input_file) as coder:
-  coder.autocode()
+#with HPP_Autocoder(input_file) as coder:
+#  coder.autocode()
 
-with STRUCT_Autocoder(input_file) as coder:
+with CPP_Autocoder(input_file) as coder:
   coder.autocode_serialize()
