@@ -69,6 +69,13 @@ class STRUCT_Autocoder():
     self.args.append( split_line[1] )
     self.comments.append( " ".join(split_line[2:]).strip() )
 
+  def build_constructor_args(self):
+    s = ""
+    for i in range(len(self.args)):
+      s += self.types[i] + " " + self.args[i] + ", "
+    s = s[:-2]
+    return s
+
   def get_struct(self):
     self.name = self.get_line()
     line = self.get_line()

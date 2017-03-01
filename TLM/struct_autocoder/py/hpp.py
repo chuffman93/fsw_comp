@@ -26,6 +26,8 @@ class HPP_Autocoder(STRUCT_Autocoder):
   def print_struct(self):
     print "class %s : public Serialize {" % (self.name)
     print "public:"
+    print "  %s();" % (self.name)
+    print "  %s(%s);" % (self.name, self.build_constructor_args())
     for field in range(len(self.types)):
       print "  %s %s; %s" % (self.types[field], self.args[field], self.comments[field])
     print "  void serialize(void);"

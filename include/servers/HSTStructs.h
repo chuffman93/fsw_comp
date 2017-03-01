@@ -16,6 +16,8 @@ namespace Servers{
 
 class CDHStatus : public Serialize {
 public:
+  CDHStatus();
+  CDHStatus(float cpu1, float cpu5, float cpu15, float memory);
   float cpu1; // 1  minute loads (% of CPU)
   float cpu5; // 5  minute loads (% of CPU)
   float cpu15; // 15 minute loads (% of CPU)
@@ -26,6 +28,8 @@ public:
 
 class ACSStatus : public Serialize {
 public:
+  ACSStatus();
+  ACSStatus(uint32 MRP_X, uint32 MRP_Y, uint32 MRP_Z, uint32 ST_Status, uint32 RW_Speed_X, uint32 RW_Speed_Y, uint32 RW_Speed_Z);
   uint32 MRP_X; 
   uint32 MRP_Y; 
   uint32 MRP_Z; 
@@ -39,6 +43,8 @@ public:
 
 class PLDStatus : public Serialize {
 public:
+  PLDStatus();
+  PLDStatus(uint8 powerFault, uint16 motorSpeed, uint8 thermistors[10], uint8 acdDataWorking, uint16 control, uint8 byteSize);
   uint8 powerFault; 
   uint16 motorSpeed; 
   uint8 thermistors[10]; 
@@ -51,6 +57,8 @@ public:
 
 class EPSStatus : public Serialize {
 public:
+  EPSStatus();
+  EPSStatus(uint16 current3v3, uint16 voltage3v3, uint16 currentVbat, uint16 voltageVbat, uint16 current12v, uint16 voltage12v, uint16 remainingCapacity, uint16 battCurrent, uint16 battVoltage, uint16 battStatus, uint16 frangCurrent, uint16 frangVoltage, uint16 convCurrentX, uint16 convThreshX, uint16 convCurrentY, uint16 convThreshY, uint16 convCurrentW, uint16 convThreshW);
   uint16 current3v3; 
   uint16 voltage3v3; 
   uint16 currentVbat; 
