@@ -26,15 +26,18 @@
 namespace AllStar{
 namespace Servers{
 
-#define DOWNLINK_DIRECTORY	"/home/root/downlink"
-#define UPLINK_DIRECTORY	"/home/root/uplink"
-#define SOT_PATH			UPLINK_DIRECTORY  "/SOT.txt"
-#define DRF_PATH			UPLINK_DIRECTORY  "/DRF.txt"
-#define DLT_PATH			UPLINK_DIRECTORY  "/DLT.txt"
-#define PPE_PATH			UPLINK_DIRECTORY  "/PPE.txt"
-#define SCHEDULE_PATH		UPLINK_DIRECTORY  "/SCH.txt"
-#define EOT_PATH			UPLINK_DIRECTORY  "/EOT.txt"
-#define UPLK_PASSWORD		"P0!@rCube\n"
+#define DOWNLINK_DIRECTORY		"/home/root/downlink"
+#define UPLINK_DIRECTORY		"/home/root/uplink"
+#define SOT_PATH				UPLINK_DIRECTORY  "/SOT.txt"
+#define DRF_PATH				UPLINK_DIRECTORY  "/DRF.txt"
+#define DLT_PATH				UPLINK_DIRECTORY  "/DLT.txt"
+#define PPE_PATH				UPLINK_DIRECTORY  "/PPE.txt"
+#define SCHEDULE_PATH			UPLINK_DIRECTORY  "/SCH.txt"
+#define EOT_PATH				UPLINK_DIRECTORY  "/EOT.txt"
+#define IEF_PATH				UPLINK_DIRECTORY  "/IEF.txt"
+#define UPLK_PASSWORD			"P0!@rCube\n"
+#define UPLK_PASSWORD_SKIP		"P0!@rCube_1\n"
+#define UPLK_PASSWORD_SEND		"P0!@rCube_2\n"
 
 class CMDServer : public SubsystemServer, public AllStar::Core::Singleton{
 	friend class AllStar::Core::Factory;
@@ -94,6 +97,7 @@ private:
 	void loopLogin();
 	void loopVerboseHS();
 	void loopUplink();
+	void loopImmediateExecution();
 	void loopDownlinkPrep();
 	void loopDownlink();
 	void loopPostPass();
@@ -106,6 +110,7 @@ private:
 	STATE_MAP_ENTRY(&CMDServer::loopLogin)
 	STATE_MAP_ENTRY(&CMDServer::loopVerboseHS)
 	STATE_MAP_ENTRY(&CMDServer::loopUplink)
+	STATE_MAP_ENTRY(&CMDServer::loopImmediateExecution)
 	STATE_MAP_ENTRY(&CMDServer::loopDownlinkPrep)
 	STATE_MAP_ENTRY(&CMDServer::loopDownlink)
 	STATE_MAP_ENTRY(&CMDServer::loopPostPass)
@@ -119,6 +124,7 @@ private:
 		ST_LOGIN,
 		ST_VERBOSE_HS,
 		ST_UPLINK,
+		ST_IMMEDIATE_EXECUTION,
 		ST_DOWNLINK_PREP,
 		ST_DOWNLINK,
 		ST_POST_PASS,

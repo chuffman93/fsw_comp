@@ -612,7 +612,7 @@ void executeFSWCommand(int command){
 	}
 }
 
-bool checkForSOT(void){
+int checkForSOT(void){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	if(access(SOT_PATH,F_OK) == 0){
 		char * line = NULL;
@@ -624,14 +624,17 @@ bool checkForSOT(void){
 		if (fp == NULL){
 			logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: error opening SOT");
 			remove(SOT_PATH);
-			return false;
+			return 0;
 		}
 
 		// check the password
 		read = getline(&line, &len, fp);
-		if(strcmp(line, UPLK_PASSWORD) == 0){
+		if(strcmp(line, UPLK_PASSWORD_SKIP) == 0) {
 			fclose(fp);
-			return true;
+			return 1;
+		} else if(strcmp(line, UPLK_PASSWORD_SEND) == 0) {
+			fclose(fp);
+			return 2;
 		}
 
 		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: SOT bad password");

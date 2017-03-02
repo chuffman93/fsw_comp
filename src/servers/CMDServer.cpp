@@ -109,8 +109,8 @@ void CMDServer::loopIdle(void){
 	}
 
 	// Check for ground login
-	if(checkForSOT()){
-		logger->Log(LOGGER_LEVEL_WARN, "CMDServer: unexpected ground login, preparing to enter COM Mode");
+	if(checkForSOT() != 0){
+		logger->Log(LOGGER_LEVEL_WARN, "CMDServer: surprise COM! Preparing to enter COM Mode");
 		SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
 		schServer->RequestCOMMode();
 		int64 currTime = getTimeInMillis();
@@ -156,8 +156,13 @@ void CMDServer::loopLogin(){
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
 	// block until the start of transmission file has been uplinked
-	if(checkForSOT()){
-		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: ground login successful");
+	int SOTresult = checkForSOT();
+	if(SOTresult == 1){
+		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: ground login successful, skipping VH&S");
+		hsDelays = CMDConfiguration.beaconPeriod; // set the beacon to normal rate
+		currentState = ST_UPLINK;
+	} else if(SOTresult == 2){
+		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: ground login successful, sending VH&S");
 		hsDelays = CMDConfiguration.beaconPeriod; // set the beacon to normal rate
 		currentState = ST_VERBOSE_HS;
 	}
@@ -183,9 +188,15 @@ void CMDServer::loopUplink(){
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
 	// check if the EOT file has been uplinked
-	if(access(EOT_PATH,F_OK) == 0){
-		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: uplink concluded");
-		currentState = ST_DOWNLINK_PREP;
+	if(access(EOT_PATH,F_OK) == 0) {
+		// if EOT, check for IEF
+		if(access(IEF_PATH,F_OK) == 0) {
+			logger->Log(LOGGER_LEVEL_INFO, "CMDServer: uplink concluded, beginning immediate execution");
+			currentState = ST_IMMEDIATE_EXECUTION;
+		} else {
+			logger->Log(LOGGER_LEVEL_INFO, "CMDServer: uplink concluded, starting planned downlink");
+			currentState = ST_DOWNLINK_PREP;
+		}
 	}
 
 	// make sure that the COM pass hasn't concluded
@@ -193,6 +204,19 @@ void CMDServer::loopUplink(){
 		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: uplink not finished, COM pass over");
 		currentState = ST_POST_PASS;
 	}
+}
+
+void CMDServer::loopImmediateExecution() {
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log(LOGGER_LEVEL_WARN, "CMDServer: immediate execution not implemented!");
+
+	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	if(modeManager->GetMode() != MODE_COM){
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: uplink not finished, COM pass over");
+		currentState = ST_POST_PASS;
+	}
+
+	currentState = ST_UPLINK;
 }
 
 void CMDServer::loopDownlinkPrep(){
