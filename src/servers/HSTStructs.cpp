@@ -8,6 +8,7 @@
 
 #include "servers/HSTStructs.h"
 #include "util/serialize.h"
+
 namespace AllStar{
 namespace Servers{
 
@@ -162,5 +163,8 @@ void EPSStatus::deserialize(void) {
   this->convThreshY = this->deserialize_uint16();
   this->convCurrentW = this->deserialize_uint16();
   this->convThreshW = this->deserialize_uint16();
+}
+
+}
 }
 

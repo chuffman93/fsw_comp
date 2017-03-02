@@ -21,6 +21,7 @@ class HPP_Autocoder(STRUCT_Autocoder):
 
   def include(self):
     print "#include \"util/serialize.h\""
+    print "#include \"core/StdTypes.h\""
     print
 
   def print_struct(self):

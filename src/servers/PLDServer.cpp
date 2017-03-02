@@ -27,7 +27,7 @@ namespace Servers{
 
 PLDServer::PLDServer(string nameIn, LocationIDType idIn) :
 		SubsystemServer(nameIn, idIn, 1000, 20), Singleton() {
-	PLDState = {0,0,{0,0,0,0,0,0,0,0,0,0},0,0,0};
+		//PLDState(0,0,{0,0,0,0,0,0,0,0,0,0},0,0,0){
 	PLDState.byteSize = 12*sizeof(uint8) + 2*sizeof(uint16);
 }
 

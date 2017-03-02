@@ -10,6 +10,7 @@
 #define HSTStructs_H_
 
 #include "util/serialize.h"
+#include "core/StdTypes.h"
 
 namespace AllStar{
 namespace Servers{

@@ -52,8 +52,8 @@ public:
 	void OpenFile(void);
 	void GetFileName(void);
 	void OpenNewFile(void);
-	void Write(uint8 * buf, size_t buf_size);
-	bool Log(uint8 * buf, size_t size);
+	void Write(uint8 * buf, std::size_t buf_size);
+	bool Log(uint8 * buf, std::size_t size);
 private:
 	string TLM_type;
 	FILE * file;

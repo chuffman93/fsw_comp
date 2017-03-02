@@ -74,13 +74,13 @@ void FileManager::OpenNewFile(){
 	OpenFile();
 }
 
-void FileManager::Write(uint8 * buf, size_t buf_size){
+void FileManager::Write(uint8 * buf, std::size_t buf_size){
 	fwrite(buf, sizeof(char), buf_size, file);
 	fflush(file);
 	bytes_written += buf_size + 1;
 }
 
-bool FileManager::Log(uint8 * buf, size_t buf_size){
+bool FileManager::Log(uint8 * buf, std::size_t buf_size){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	if (buf_size >= MAX_FILE_SIZE) { logger->Log(LOGGER_LEVEL_WARN, "Telemetry larger than file size"); }

@@ -51,20 +51,20 @@ public:
 		int32 increasedBeaconPeriod;
 	};
 
-	union beaconUnion{
-		struct beaconStruct {
-			SystemModeEnum currentMode;
-			uint8 subPowerState;
-			int32 uptime;
-			EPSStatus epsHS;
-			ACSStatus acsHS;
-			CDHStatus cdhHS;
-			PLDStatus pldHS;
-		} bStruct;
-		uint8 bArray[sizeof(beaconStruct)];
-	} beacon;
+	struct BeaconStruct {
+		SystemModeEnum currentMode;
+		uint8 subPowerState;
+		int32 uptime;
+		EPSStatus epsHS;
+		ACSStatus acsHS;
+		CDHStatus cdhHS;
+		PLDStatus pldHS;
+	};
+
+	void serializeBeacon(uint8 * buf, std::size_t size);
 
 	CMDConfig CMDConfiguration;
+	BeaconStruct beacon;
 
 	bool CheckForBeacon(void);
 

@@ -2,14 +2,20 @@
 #define SERIALIZE_H_
 
 #include <stdint.h>
+#include <stdlib.h>
 
 class Serialize {
 
 public:
-        Serialize();
-	Serialize(uint8_t * buf, unsigned int size);
+    Serialize();
+	Serialize(uint8_t * buf, size_t size);
 	void reset();
-	void update(uint8_t * buf, unsigned int size);
+	void setIndex(unsigned int ser_index, unsigned int deser_index);
+	void update(uint8_t * buf, size_t size);
+	void update(uint8_t * buf, size_t size, unsigned int ser_index, unsigned int deser_index);
+
+	unsigned int get_serialize_index();
+	unsigned int get_deserialize_index();
 
 	// ---- Deserialize ----------------------------------
 	int8_t   deserialize_int8(void);

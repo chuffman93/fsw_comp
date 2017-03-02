@@ -15,6 +15,7 @@ class CPP_Autocoder(STRUCT_Autocoder):
   def include(self):
     print "#include \"servers/HSTStructs.h\""
     print "#include \"util/serialize.h\""
+    print
 
   def print_constructor(self):
     # Basic constructor, does nothing
@@ -69,6 +70,8 @@ class CPP_Autocoder(STRUCT_Autocoder):
       self.print_serialize()
       self.print_deserialize()
       self.reset_struct()
+
+    self.namespace_end()
 
 
 

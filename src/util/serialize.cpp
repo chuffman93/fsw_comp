@@ -9,22 +9,41 @@ Serialize::Serialize() {
 
 }
 
-Serialize::Serialize(uint8_t * buf, unsigned int size){
-  buf_ptr = buf;
-  buf_size = size;
-  serialize_index = 0;
-  deserialize_index = 0;
+Serialize::Serialize(uint8_t * buf, size_t size){
+  this->buf_ptr = buf;
+  this->buf_size = size;
+  this->serialize_index = 0;
+  this->deserialize_index = 0;
 }
 
 void Serialize::reset(void) {
-  serialize_index = 0;
-  deserialize_index = 0;
+  this->serialize_index = 0;
+  this->deserialize_index = 0;
 }
 
-void Serialize::update(uint8_t * buf, unsigned int size) {
-  reset();
-  buf_ptr = buf;
-  buf_size = size;
+void Serialize::setIndex(unsigned int ser_index, unsigned int deser_index) {
+  this->serialize_index = ser_index;
+  this->deserialize_index = deser_index;
+}
+
+void Serialize::update(uint8_t * buf, size_t size) {
+  this->reset();
+  this->buf_ptr = buf;
+  this->buf_size = size;
+}
+
+void Serialize::update(uint8_t * buf, size_t size, unsigned int serialize_index, unsigned int deserialize_index) {
+  this->setIndex(this->serialize_index, this->deserialize_index);
+  this->buf_ptr = buf;
+  this->buf_size = size;
+}
+
+unsigned int Serialize::get_serialize_index() {
+	return this->serialize_index;
+}
+
+unsigned int Serialize::get_deserialize_index() {
+	return this->deserialize_index;
 }
 
 // ---- Deserialize ----------------------------------

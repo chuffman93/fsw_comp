@@ -273,6 +273,28 @@ void CMDServer::loopReset(){
 // --------- Beacon ----------------------------------------------------------------------------------------------------
 // Note: this function is configured to be called in the subsystem loop defined in SubsystemServer.cpp
 // since we can configure it to be called whenever we like, we can effectively set the beacon rate
+
+
+void CMDServer::serializeBeacon(uint8 * buf, std::size_t size) {
+	Serialize ser(buf, size);
+
+	ser.serialize_int32(beacon.currentMode);
+	ser.serialize_uint8(beacon.subPowerState);
+	ser.serialize_int32(beacon.uptime);
+
+	beacon.epsHS.update(buf, size, ser.get_serialize_index(), ser.get_deserialize_index());
+	beacon.epsHS.serialize();
+
+	beacon.acsHS.update(buf, size, beacon.epsHS.get_serialize_index(), beacon.epsHS.get_deserialize_index());
+	beacon.acsHS.serialize();
+
+	beacon.cdhHS.update(buf, size, beacon.acsHS.get_serialize_index(), beacon.acsHS.get_deserialize_index());
+	beacon.cdhHS.serialize();
+
+	beacon.pldHS.update(buf, size, beacon.cdhHS.get_serialize_index(), beacon.cdhHS.get_deserialize_index());
+	beacon.pldHS.serialize();
+}
+
 bool CMDServer::CheckHealthStatus(void) {
 	if(currentState == ST_IDLE || currentState == ST_PASS_PREP || currentState == ST_LOGIN || currentState == ST_POST_PASS){
 		CreateBeacon();
@@ -288,26 +310,26 @@ void CMDServer::CreateBeacon() {
 	beaconValid = false;
 
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-	beacon.bStruct.currentMode = modeManager->GetMode();
+	beacon.currentMode = modeManager->GetMode();
 
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
-	beacon.bStruct.subPowerState = 		(cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS] & 0x01) |
+	beacon.subPowerState = 		(cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS] & 0x01) |
 										(cdhServer->subsystemPowerStates[HARDWARE_LOCATION_COM] & 0x02) |
 										(cdhServer->subsystemPowerStates[HARDWARE_LOCATION_GPS] & 0x04) |
 										(cdhServer->subsystemPowerStates[HARDWARE_LOCATION_PLD] & 0x08);
 
-	beacon.bStruct.cdhHS = cdhServer->CDHState;
+	beacon.cdhHS = cdhServer->CDHState;
 
-	beacon.bStruct.uptime = getTimeInMillis() - startTime;
+	beacon.uptime = getTimeInMillis() - startTime;
 
 	EPSServer * epsServer = dynamic_cast<EPSServer *> (Factory::GetInstance(EPS_SERVER_SINGLETON));
-	beacon.bStruct.epsHS = epsServer->EPSState;
+	beacon.epsHS = epsServer->EPSState;
 
 	ACSServer * acsServer = dynamic_cast<ACSServer *> (Factory::GetInstance(ACS_SERVER_SINGLETON));
-	beacon.bStruct.acsHS = acsServer->ACSState;
+	beacon.acsHS = acsServer->ACSState;
 
 	PLDServer * pldServer = dynamic_cast<PLDServer *> (Factory::GetInstance(PLD_SERVER_SINGLETON));
-	beacon.bStruct.pldHS = pldServer->PLDState;
+	beacon.pldHS = pldServer->PLDState;
 
 	beaconValid = true;
 }
