@@ -6,6 +6,9 @@
  *
  *  Updated: 12/20/16
  *  Jack Dinkel and Alex St. Clair
+ *
+ *  Updated: 3/21/16
+ *  Alex St. Clair (I apologize for how messy this code is)
  */
 
 #include "servers/CMDServer.h"
@@ -39,7 +42,7 @@ namespace Servers{
 
 #define NUM_DIAGNOSTIC_TESTS 4
 
-void uftpSetup(void){
+void uftpSetup(void) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	char portname[20] = "/dev/ttyS2";
@@ -80,7 +83,21 @@ void uftpSetup(void){
 	system(cmdString);
 }
 
-void runDiagnostic(void){
+// note the filename should be the absolute path
+void downlinkFile(string filename) {
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	if(access(filename.c_str(), F_OK) != 0) {
+		logger->Log(LOGGER_LEVEL_ERROR, "downlinkFile: file doesn't exist!");
+		return;
+	}
+
+	char sh_cmd[256];
+	sprintf(sh_cmd, "/home/root/uftp -Y aes256-gcm -h sha256 -I ax0 -H 1.1.1.2 -x 1 %s", filename.c_str()); // can add "-H 1.1.1.2" to only downlink to one IP, "-x 1" decreases the log statement verboseness
+	system(sh_cmd);
+}
+
+void runDiagnostic(void) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "CMDServer: running diagnostics tests");
 	FILE * fp = fopen("diagnostics.txt", "r");
@@ -124,7 +141,145 @@ void runDiagnostic(void){
 	}
 }
 
-void parseDRF(void){
+void parseIEF(void) {
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	FILE * fp;
+	char * line = NULL;
+	size_t len = 0;
+	ssize_t bytesRead;
+
+	// check if a PPE file has been uplinked
+	if(access(IEF_PATH, F_OK) != 0){
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: no IEF");
+		return;
+	}
+
+	// open the files to downlink file
+	fp = fopen(IEF_PATH, "r");
+	if (fp == NULL){
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: error opening IEF");
+		remove(IEF_PATH);
+		return;
+	}
+
+	// check password
+	bytesRead = getline(&line, &len, fp);
+	if(strcmp(line,UPLK_PASSWORD) != 0){
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: invalid IEF password");
+		fclose(fp);
+		remove(IEF_PATH);
+		return;
+	}
+
+	// parse the file line by line
+	char * type;
+	char * command;
+	char * arch;
+	char * dir;
+	char * num;
+	char * regex;
+	int numFiles;
+	while ((bytesRead = getline(&line, &len, fp)) != -1) {
+		// ---- Parse line
+		type = strtok(line,",");
+		if(type == NULL){
+			logger->Log(LOGGER_LEVEL_WARN, "Incomplete IEF line at type");
+			continue; // skip to the next line
+		}
+
+		// check the type of command and perform accordingly
+		// SYS command
+		if(strcmp(type,"SYS") == 0){ // shell command
+			command = strtok(NULL,",");
+			if(command == NULL){
+				logger->Log(LOGGER_LEVEL_WARN, "Incomplete IEF line at command");
+				continue; // skip to the next line
+			}
+
+			// get rid of the newline
+			string cmd = trimNewline(string(command));
+			command = (char *) cmd.c_str();
+
+			// execute the system command
+			if(system(command) == -1){
+				logger->Log(LOGGER_LEVEL_ERROR, "IEF unable to execute shell command");
+			}
+
+		// FSW command
+		}else if(strcmp(type,"FSW") == 0){ // fsw internal command
+			command = strtok(NULL,",");
+			if(command == NULL){
+				logger->Log(LOGGER_LEVEL_WARN, "Incomplete IEF line at command");
+				continue; // skip to the next line
+			}
+
+			int cmd = atoi(command);
+			if(cmd <= 0 || cmd > FSW_CMD_MAX){
+				logger->Log(LOGGER_LEVEL_WARN, "Invalid IEF command number");
+				continue; // skip to the next line
+			}
+
+			// call a function to find and execute the command
+			executeFSWCommand(cmd);
+
+		// Downlink
+		}else if(strcmp(type,"DWN") == 0){
+			// ---- Parse line
+			arch = strtok(NULL,",");
+			if(arch == NULL){
+				logger->Log(LOGGER_LEVEL_WARN, "Incomplete IEF line at archive");
+				continue; // skip to the next line
+			}
+
+			dir = strtok(NULL,",");
+			if(dir == NULL){
+				logger->Log(LOGGER_LEVEL_WARN, "Incomplete IEF line at directory");
+				continue; // skip to the next line
+			}
+
+			num = strtok(NULL,",");
+			if(num == NULL){
+				logger->Log(LOGGER_LEVEL_WARN, "Incomplete IEF line at number");
+				continue; // skip to the next line
+			}
+			numFiles = atoi(num);
+			if(numFiles < 1){
+				logger->Log(LOGGER_LEVEL_WARN, "Invalid IEF line at number");
+				continue; // skip to the next line
+			}
+
+			regex = strtok(NULL,",");
+			if(regex == NULL){
+				logger->Log(LOGGER_LEVEL_WARN, "Incomplete IEF line at regex");
+				continue; // skip to the next line
+			}
+
+			// get rid of the newline
+			string rgx = trimNewline(string(regex));
+			regex = (char *) rgx.c_str();
+
+			// ---- Check if there is a regex
+			if(strcmp(regex,"X") == 0)
+				regex = (char *) "";
+
+			// ---- Prepend the downlink directory path to the archive name
+			string archive = string(IMMED_DIRECTORY) + "/" + string(arch);
+
+			// ---- Call the function to gather and create a tarball from the files
+			packageFiles((char *) archive.c_str(), dir, regex, numFiles); // TODO: error check this?
+
+			downlinkFile(archive);
+		}else{
+			logger->Log(LOGGER_LEVEL_WARN, "IEF: unknown command type");
+		}
+	}
+
+	fclose(fp);
+
+	logger->Log(LOGGER_LEVEL_INFO, "Finished IEF");
+}
+
+void parseDRF(void) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FILE * fp;
 	char * line = NULL;
@@ -141,6 +296,7 @@ void parseDRF(void){
 	fp = fopen(DRF_PATH, "r");
 	if (fp == NULL){
 		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: error opening DRF");
+		remove(DRF_PATH);
 		return;
 	}
 
@@ -225,7 +381,7 @@ void parseDRF(void){
 	logger->Log(LOGGER_LEVEL_INFO, "Finished DRF");
 }
 
-void parseDLT(void){
+void parseDLT(void) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FILE * fp;
 	char * line = NULL;
@@ -242,6 +398,7 @@ void parseDLT(void){
 	fp = fopen(DLT_PATH, "r");
 	if (fp == NULL){
 		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: error opening DLT");
+		remove(DLT_PATH);
 		return;
 	}
 
@@ -303,7 +460,7 @@ void parseDLT(void){
 	logger->Log(LOGGER_LEVEL_INFO, "Finished DLT");
 }
 
-void parsePPE(void){
+void parsePPE(void) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FILE * fp;
 	char * line = NULL;
@@ -320,6 +477,7 @@ void parsePPE(void){
 	fp = fopen(PPE_PATH, "r");
 	if (fp == NULL){
 		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: error opening PPE");
+		remove(PPE_PATH);
 		return;
 	}
 
@@ -384,7 +542,7 @@ void parsePPE(void){
 	logger->Log(LOGGER_LEVEL_INFO, "Finished PPE");
 }
 
-void processUplinkFiles(void){
+void processUplinkFiles(void) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	// Move new schedule from the uplink directory to its final directory
@@ -395,7 +553,7 @@ void processUplinkFiles(void){
 	}
 }
 
-string trimNewline(string buf){
+string trimNewline(string buf) {
   // Remove the newline at the end of a string
   size_t len = buf.size();
   if (len && (buf[len-1] == '\n')) {
@@ -438,7 +596,7 @@ const long getFileSize(const char * filePath, const char * regex, const int maxF
 	return size;
 }
 
-const int packageFiles(const char * destination, const char * filePath, const char * regex, const int maxFiles){
+const int packageFiles(const char * destination, const char * filePath, const char * regex, const int maxFiles) {
 	// This function will tar up `maxFiles` number of files in `filePath` matching the regular expression `regex` into a tarball named `destination`.
     Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FILE * fd;
@@ -473,7 +631,7 @@ const int packageFiles(const char * destination, const char * filePath, const ch
 	return 0;
 }
 
-int deleteOldest(char * filePath, int numFiles){
+int deleteOldest(char * filePath, int numFiles) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FILE * fd;
 
@@ -494,7 +652,7 @@ int deleteOldest(char * filePath, int numFiles){
 	return 0;
 }
 
-int deleteRegex(char * filePath, char * regex){
+int deleteRegex(char * filePath, char * regex) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FILE * fd;
 
@@ -515,7 +673,7 @@ int deleteRegex(char * filePath, char * regex){
 	return 0;
 }
 
-int getNumFiles(char * dir){
+int getNumFiles(char * dir) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FILE * fd;
 	int num = 0;
@@ -549,12 +707,12 @@ int getNumFiles(char * dir){
 	return num;
 }
 
-string getDownlinkFile(int fileNum){
+string getDownlinkFile(int fileNum) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FILE * fd;
 	char fileName[128];
 
-	// sh command to determine the number of files in the downlink directory
+	// sh command to get the filename for file number fileNum
 	char sh_cmd[256];
 	sprintf(sh_cmd, "ls -l %s | grep ^- | awk '{print \"%s\" \"/\" $9}' | head -%d | tail -1", DOWNLINK_DIRECTORY, DOWNLINK_DIRECTORY, fileNum);
 
@@ -583,7 +741,7 @@ string getDownlinkFile(int fileNum){
 	return fn;
 }
 
-void executeFSWCommand(int command){
+void executeFSWCommand(int command) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	COMServer * comServer = dynamic_cast<COMServer *> (Factory::GetInstance(COM_SERVER_SINGLETON));
 	SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
@@ -612,7 +770,7 @@ void executeFSWCommand(int command){
 	}
 }
 
-int checkForSOT(void){
+int checkForSOT(void) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	if(access(SOT_PATH,F_OK) == 0){
 		char * line = NULL;

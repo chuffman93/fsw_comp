@@ -138,10 +138,13 @@ void CMDServer::loopPassPrep(){
 	hsDelays = CMDConfiguration.increasedBeaconPeriod; // up the beacon rate
 
 	// see if the fmgServer has prepped Verbose H&S
-	if(fmgServer->isComReady()){
-		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: finished COM pass prep");
-		currentState = ST_LOGIN;
-	}
+//	if(fmgServer->isComReady()){
+//		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: finished COM pass prep");
+//		currentState = ST_LOGIN;
+//	}
+	// FIXME: fmgServer seg faults on entering COM mode
+
+	currentState = ST_LOGIN;
 
 	// make sure that the COM pass hasn't concluded
 	if(modeManager->GetMode() != MODE_COM){
@@ -169,7 +172,7 @@ void CMDServer::loopLogin(){
 
 	// make sure that the COM pass hasn't concluded
 	if(modeManager->GetMode() != MODE_COM){
-		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: login unsuccessful, COM pass over");
+		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: no login, COM pass over");
 		hsDelays = CMDConfiguration.beaconPeriod; // set the beacon to normal rate
 		currentState = ST_POST_PASS;
 	}
@@ -208,7 +211,16 @@ void CMDServer::loopUplink(){
 
 void CMDServer::loopImmediateExecution() {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log(LOGGER_LEVEL_WARN, "CMDServer: immediate execution not implemented!");
+	logger->Log(LOGGER_LEVEL_INFO, "CMDServer: starting immediate execution");
+
+	parseIEF();
+
+	// Clear immed directory
+	string cmd = "rm -rf " + string(IMMED_DIRECTORY) + "/*";
+	system(cmd.c_str());
+
+	remove(EOT_PATH);
+	remove(IEF_PATH);
 
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	if(modeManager->GetMode() != MODE_COM){
@@ -244,13 +256,8 @@ void CMDServer::loopDownlink(){
 	if(currFileNum < numFilesDWN + 1){
 		filename = getDownlinkFile(currFileNum++);
 
-		// get downlink returns an empty string if it errors, check this before we downlink the file
-		if(strcmp(filename.c_str(),"") != 0){
-			// downlink the file
-			char sh_cmd[256];
-			sprintf(sh_cmd, "/home/root/uftp -Y aes256-gcm -h sha256 -I ax0 -H 1.1.1.2 -x 1 %s", filename.c_str()); // can add "-H 1.1.1.2" to only downlink to one IP, "-x 1" decreases the log statement verboseness
-			system(sh_cmd);
-		}
+		// downlink the file
+		downlinkFile(filename);
 	}else{
 		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: downlink finished");
 		numFilesDWN = 0;
@@ -334,6 +341,10 @@ void CMDServer::CreateBeacon() {
 	beacon.bStruct.pldHS = pldServer->PLDState;
 
 	beaconValid = true;
+// easy way to write beacon to file named beacon in ~
+//	FILE * fp = fopen("/home/root/beacon","w");
+//	fwrite(beacon.bArray,sizeof(char),sizeof(beacon),fp);
+//	fclose(fp);
 }
 
 bool CMDServer::CheckForBeacon() {

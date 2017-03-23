@@ -28,6 +28,7 @@ namespace Servers{
 
 #define DOWNLINK_DIRECTORY		"/home/root/downlink"
 #define UPLINK_DIRECTORY		"/home/root/uplink"
+#define IMMED_DIRECTORY			"/home/root/immed"
 #define SOT_PATH				UPLINK_DIRECTORY  "/SOT.txt"
 #define DRF_PATH				UPLINK_DIRECTORY  "/DRF.txt"
 #define DLT_PATH				UPLINK_DIRECTORY  "/DLT.txt"

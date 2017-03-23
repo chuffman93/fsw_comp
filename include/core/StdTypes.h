@@ -114,6 +114,11 @@ typedef enum FSWCommandTypes{
 	FSW_CMD_MAX = FSW_CMD_TX_SILENCE_END
 }FSWCommand;
 
+typedef enum IEFCommandTypes{
+	IEF_CMD_DOWNLINK = 1,
+	IEF_CMD_MAX = IEF_CMD_DOWNLINK
+}IEFCommand;
+
 // ------------------------------------------------------------ Subsystem OpCodes --------------------------------------------------------
 
 enum SubsystemOpcodes{
