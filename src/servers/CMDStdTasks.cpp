@@ -146,7 +146,7 @@ void parseIEF(void) {
 	size_t len = 0;
 	ssize_t bytesRead;
 
-	// check if a PPE file has been uplinked
+	// check if an IEF file has been uplinked
 	if(access(IEF_PATH, F_OK) != 0){
 		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: no IEF");
 		return;

@@ -216,11 +216,10 @@ void CMDServer::loopImmediateExecution() {
 	parseIEF();
 
 	// Clear immed directory
-	string cmd = "rm -rf " + string(IMMED_DIRECTORY) + "/*";
-	system(cmd.c_str());
+	system("rm -rf " IMMED_DIRECTORY "/*");
 
-	remove(EOT_PATH);
-	remove(IEF_PATH);
+	// Clear uplink directory
+	system("rm -rf " UPLINK_DIRECTORY "/*");
 
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	if(modeManager->GetMode() != MODE_COM){
@@ -271,16 +270,14 @@ void CMDServer::loopPostPass(){
 	parsePPE();
 
 	// Clear downlink directory
-	string cmd = "rm -rf " + string(DOWNLINK_DIRECTORY) + "/*";
-	system(cmd.c_str());
+	system("rm -rf " DOWNLINK_DIRECTORY "/*");
 
 	parseDLT();
 	parseDRF();
 	processUplinkFiles();
 
 	// Clear uplink directory
-	cmd = "rm -rf " + string(UPLINK_DIRECTORY) + "/*";
-	system(cmd.c_str());
+	system("rm -rf " UPLINK_DIRECTORY "/*");
 
 	if(modeManager->GetMode() == MODE_COM){
 		modeManager->SetMode(MODE_BUS_PRIORITY);
