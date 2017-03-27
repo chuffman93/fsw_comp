@@ -67,20 +67,18 @@ void uftpSetup(void) {
 		logger->Log(LOGGER_LEVEL_ERROR, "GPSServer: Problem setting port attributes!");
 	}
 
-	char cmdString[100];
+
 
 	// ---------------------------KISS------------------------------------
-	system("/home/root/kissattach /dev/ttyS2 radio 1.1.1.1");
+	system(KISSATTACH_PATH " /dev/ttyS2 radio 1.1.1.1");
 	system("ifconfig ax0 multicast up");
 
-	// send over uftp: /home/root/uftp -I ax0 file_name -H 1.1.1.2
+	// send over uftp: /home/root/binaries/uftp -I ax0 file_name -H 1.1.1.2
 	// the "-H 1.1.1.2" is an option that makes it so only that IP address can receive the multicast
 
 	// ------------------------UFTP Daemon---------------------------------
 	// http://uftp-multicast.sourceforge.net/client_usage.txt
-	sprintf(cmdString, "/home/root/uftpd -I ax0 -E -D %s", UPLINK_DIRECTORY);
-	printf("%s\n", cmdString);
-	system(cmdString);
+	system(UFTPD_PATH " -I ax0 -E -D " UPLINK_DIRECTORY);
 }
 
 // note the filename should be the absolute path
@@ -93,7 +91,7 @@ void downlinkFile(string filename) {
 	}
 
 	char sh_cmd[256];
-	sprintf(sh_cmd, "/home/root/uftp -Y aes256-gcm -h sha256 -I ax0 -H 1.1.1.2 -x 1 %s", filename.c_str()); // can add "-H 1.1.1.2" to only downlink to one IP, "-x 1" decreases the log statement verboseness
+	sprintf(sh_cmd, "%s -Y aes256-gcm -h sha256 -I ax0 -H 1.1.1.2 -x 1 %s", UFTP_PATH, filename.c_str()); // can add "-H 1.1.1.2" to only downlink to one IP, "-x 1" decreases the log statement verboseness
 	system(sh_cmd);
 }
 
