@@ -115,7 +115,7 @@ int main(int argc, char * argv[])
 	threadsCreated &= WatchdogManager::StartServer(cmdServer, 50,	true);	 //CMD
 	threadsCreated &= WatchdogManager::StartServer(comServer, 10,	false);	 //COM
 	threadsCreated &= WatchdogManager::StartServer(epsServer, 10,	false);	 //EPS
-	threadsCreated &= WatchdogManager::StartServer(fmgServer, 0,	false);	 //FMG
+	threadsCreated &= WatchdogManager::StartServer(fmgServer, 0,	true);	 //FMG
 	threadsCreated &= WatchdogManager::StartServer(gpsServer, 50,	false);	 //GPS
 	threadsCreated &= WatchdogManager::StartServer(pldServer, 50,	false);	 //PLD
 	threadsCreated &= WatchdogManager::StartServer(schServer, 0,	true);	 //SCH

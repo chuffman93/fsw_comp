@@ -249,10 +249,11 @@ void FMGServer::CallLog(){
 }
 
 void FMGServer::PrepVerboseHST(void){
+	// TODO: figure out what VHS is needed
 	// tar the two most recent health and status files into verbose HST directory
-	char cmd[256];
-	sprintf(cmd, "tar -czf %s -C %s `ls -tr %s | head -2`", VERBOSE_HST_DIRECTORY, HST_FILE_PATH, HST_FILE_PATH);
-	system(cmd);
+//	char cmd[256];
+//	sprintf(cmd, "tar -czf %s -C %s `ls -r %s | head -2`", VERBOSE_HST_DIRECTORY, HST_FILE_PATH, HST_FILE_PATH);
+//	system(cmd);
 }
 // -----------------------------------------------------------------------------------------------------------------
 
@@ -295,7 +296,6 @@ void FMGServer::loopCom(void) {
 
 	if (!FileQueue.empty()){
 		CallLog();
-		FileQueue.pop();
 	}
 
 	else if (modeManager->GetMode() != MODE_COM) {
