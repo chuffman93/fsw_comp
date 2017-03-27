@@ -34,5 +34,6 @@ export HR_DIRECTORIES="
 .config
 .downlink
 .immed
+.vhs
 .uplink
 "

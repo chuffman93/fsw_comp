@@ -28,3 +28,12 @@ SWP
 export SCI_DIRECTORIES="
 RAD
 "
+
+# All directories to go in /home/root
+export HR_DIRECTORIES="
+.config
+.downlink
+.immed
+.vhs
+.uplink
+"

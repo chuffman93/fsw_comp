@@ -12,6 +12,7 @@
 #include "core/StdTypes.h"
 #include "core/ModeManager.h"
 #include "util/FileHandler.h"
+#include "servers/CMDServer.h"
 #include <queue>
 
 namespace AllStar{
@@ -28,8 +29,7 @@ namespace Servers{
 #define SSS_FILE_PATH			"/SD_2/SSS"
 #define SWP_FILE_PATH			"/SD_2/SWP"
 #define RAD_FILE_PATH			"/SD_3/RAD"
-#define DOWNLINK_DIRECTORY  	"/home/root/downlink"
-#define VERBOSE_HST_DIRECTORY	"/home/root/HST"
+#define VERBOSE_HST_DIRECTORY	"/home/root/.vhs"
 
 #define CLEAR_CUR_DIRECTORIES_SCRIPT "/home/root/scripts/clear_CUR_directories.sh"
 
