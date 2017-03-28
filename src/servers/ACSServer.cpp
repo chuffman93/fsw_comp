@@ -200,33 +200,24 @@ bool ACSServer::CheckHealthStatus(){
 		return false;
 	}
 
-	if(HSRet->getLength() != 7*sizeof(uint32)){
+	if(HSRet->getLength() != ACSState.size){
 		logger->Log(LOGGER_LEVEL_WARN, "ACSServer: CheckHealthStatus(): incorrect message length! %u", HSRet->getLength());
 
 		//TODO: return error?
 		return false;
 	}else{
 		logger->Log(LOGGER_LEVEL_INFO, "ACSServer: CheckHealthStatus(): packet dispatched, HSRet acquired");
+
 		// Parse buffer
 		uint8 * msgPtr = HSRet->getMessageBuff();
 		if(msgPtr==NULL){
-			//Error
+			logger->Log(LOGGER_LEVEL_ERROR, "ACSServer: CheckHealthStatus(): NULL msgPtr");
 			return false;
 		}
 
-		uint32 outputArray[7];
-		for(uint8 i = 0; i < 7; i++){
-			outputArray[i] = GetUInt32(msgPtr);
-			msgPtr += 2;
-		}
-
-		ACSState.MRP_X			= outputArray[0];
-		ACSState.MRP_Y			= outputArray[1];
-		ACSState.MRP_Z			= outputArray[2];
-		ACSState.ST_Status		= outputArray[3];
-		ACSState.RW_Speed_X		= outputArray[4];
-		ACSState.RW_Speed_Y		= outputArray[5];
-		ACSState.RW_Speed_Z		= outputArray[6];
+		// deserialize the buffer
+		ACSState.update(msgPtr,ACSState.size,0,0);
+		ACSState.deserialize();
 
 		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: MRP X:       %lx", ACSState.MRP_X);
 		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: MRP Y:       %lx", ACSState.MRP_Y);

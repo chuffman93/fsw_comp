@@ -116,37 +116,17 @@ bool EPSServer::CheckHealthStatus(){
 		return false;
 	}else{
 		logger->Log(LOGGER_LEVEL_INFO, "EPSServer: CheckHealthStatus(): packet dispatched, HSRet acquired");
+
 		// Parse buffer
 		uint8 * msgPtr = HSRet->getMessageBuff();
 		if(msgPtr==NULL){
-			//Error
+			logger->Log(LOGGER_LEVEL_ERROR, "EPSServer: CheckHealthStatus(): NULL msgPtr");
 			return false;
 		}
 
-		uint16 outputArray[18];
-		for(uint8 i = 0; i < 18; i++){
-			outputArray[i] = GetUInt16(msgPtr);
-			msgPtr += 2;
-		}
-
-		EPSState.current3v3			= outputArray[0];
-		EPSState.voltage3v3			= outputArray[1];
-		EPSState.currentVbat		= outputArray[2];
-		EPSState.voltageVbat		= outputArray[3];
-		EPSState.current12v			= outputArray[4];
-		EPSState.voltage12v			= outputArray[5];
-		EPSState.remainingCapacity	= outputArray[6];
-		EPSState.battCurrent		= outputArray[7];
-		EPSState.battVoltage		= outputArray[8];
-		EPSState.battStatus			= outputArray[9];
-		EPSState.frangCurrent		= outputArray[10];
-		EPSState.frangVoltage		= outputArray[11];
-		EPSState.convCurrentX		= outputArray[12];
-		EPSState.convThreshX		= outputArray[13];
-		EPSState.convCurrentY		= outputArray[14];
-		EPSState.convThreshY		= outputArray[15];
-		EPSState.convCurrentW		= outputArray[16];
-		EPSState.convThreshW		= outputArray[17];
+		// deserialize the message
+		EPSState.update(msgPtr, EPSState.size, 0, 0);
+		EPSState.deserialize();
 
 		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: 3v3 Current:     %u", EPSState.current3v3);
 		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: 3v3 Voltage:     %u", EPSState.voltage3v3);

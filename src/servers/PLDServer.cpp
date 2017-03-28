@@ -192,26 +192,17 @@ bool PLDServer::CheckHealthStatus(){
 			return false;
 		}else{
 			logger->Log(LOGGER_LEVEL_INFO, "PLDServer: CheckHealthStatus(): packet dispatched, HSRet acquired");
+
 			// Parse buffer
 			uint8 * msgPtr = HSRet->getMessageBuff();
 			if(msgPtr==NULL){
-				//Error
+				logger->Log(LOGGER_LEVEL_ERROR, "PLDServer: CheckHealthStatus(): NULL msgPtr");
 				return false;
 			}
 
-			// unpack data
-			PLDState.powerFault = msgPtr[0];
-			msgPtr++;
-			PLDState.motorSpeed = GetUInt16(msgPtr);
-			msgPtr += 2;
-			for(uint8 i = 0; i < 10; i++){
-				PLDState.thermistors[i] = msgPtr[0];
-				msgPtr++;
-			}
-			PLDState.adcDataWorking = msgPtr[0];
-			msgPtr++;
-			PLDState.control = GetUInt16(msgPtr);
-			msgPtr += 2;
+			// deserialize the message
+			PLDState.update(msgPtr, PLDState.size, 0, 0);
+			PLDState.deserialize();
 
 			logger->Log(LOGGER_LEVEL_DEBUG, "PLD H&S: Power fault:     %u", PLDState.powerFault);
 			logger->Log(LOGGER_LEVEL_DEBUG, "PLD H&S: Motor speed:     %u", PLDState.motorSpeed);
