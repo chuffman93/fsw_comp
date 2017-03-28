@@ -12,8 +12,8 @@ class HPP_Autocoder(STRUCT_Autocoder):
     STRUCT_Autocoder.__exit__(self, exc_type, exc_value, traceback)
 
   def guards_start(self):
-    print "#ifndef HSTStructs_H_"
-    print "#define HSTStructs_H_"
+    print "#ifndef Structs_H_"
+    print "#define Structs_H_"
     print
 
   def guards_end(self):

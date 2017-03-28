@@ -208,7 +208,7 @@ bool PLDServer::CheckHealthStatus(){
 				PLDState.thermistors[i] = msgPtr[0];
 				msgPtr++;
 			}
-			PLDState.acdDataWorking = msgPtr[0];
+			PLDState.adcDataWorking = msgPtr[0];
 			msgPtr++;
 			PLDState.control = GetUInt16(msgPtr);
 			msgPtr += 2;
@@ -218,7 +218,7 @@ bool PLDServer::CheckHealthStatus(){
 			for(uint8 i = 0; i < 10; i++){
 				logger->Log(LOGGER_LEVEL_DEBUG, "PLD H&S: Thermistor %d:     %u", i, PLDState.thermistors[i]);
 			}
-			logger->Log(LOGGER_LEVEL_DEBUG, "PLD H&S: ACS Working:     %u", PLDState.acdDataWorking);
+			logger->Log(LOGGER_LEVEL_DEBUG, "PLD H&S: ACS Working:     %u", PLDState.adcDataWorking);
 			logger->Log(LOGGER_LEVEL_DEBUG, "PLD H&S: Control:         %u", PLDState.control);
 
 			return true;

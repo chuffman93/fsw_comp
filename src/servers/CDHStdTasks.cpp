@@ -33,31 +33,27 @@ namespace Servers{
 struct stat sb;
 
 //------------------------------------------- Message Handlers -------------------------------------------
-CDHStatus CDHSystemInfo(void){
+void CDHSystemInfo(void){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	CDHStatus statusStruct;
 	struct sysinfo si;
 	if(sysinfo(&si) != 0){
 		logger->Log(LOGGER_LEVEL_ERROR, "CDHStdTasks: CDHCPUUsage(): Error");
-		return statusStruct;
+		return;
 	}
 
-	float cpu1  = si.loads[0]/6553.6;
-	float cpu5  = si.loads[1]/6553.6;
-	float cpu15 = si.loads[2]/6553.6;
-	float mem = 100.0*(259964928.0 - ((float) si.freeram)) / (259964928.0); //hard-coded total ram: 100*(total - free)/total = percent use
-	statusStruct = {cpu1,cpu5,cpu15,mem};
+	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	cdhServer->CDHState.cpu1  = si.loads[0]/6553.6;
+	cdhServer->CDHState.cpu5  = si.loads[1]/6553.6;
+	cdhServer->CDHState.cpu15 = si.loads[2]/6553.6;
+	cdhServer->CDHState.memory = 100.0*(259964928.0 - ((float) si.freeram)) / (259964928.0); //hard-coded total ram: 100*(total - free)/total = percent use
 
 	logger->Log(LOGGER_LEVEL_DEBUG, "CDHCPUUsage(): Checking loads");
-	logger->Log(LOGGER_LEVEL_DEBUG, "    CPU  1 min: %f", si.loads[0]/65536.0);
-	logger->Log(LOGGER_LEVEL_DEBUG, "    CPU  5 min: %f", si.loads[1]/65536.0);
-	logger->Log(LOGGER_LEVEL_DEBUG, "    CPU 15 min: %f", si.loads[2]/65536.0);
-	logger->Log(LOGGER_LEVEL_DEBUG, "    CPU memory: %f", mem);
+	logger->Log(LOGGER_LEVEL_DEBUG, "    CPU  1 min: %f", cdhServer->CDHState.cpu1);
+	logger->Log(LOGGER_LEVEL_DEBUG, "    CPU  5 min: %f", cdhServer->CDHState.cpu5);
+	logger->Log(LOGGER_LEVEL_DEBUG, "    CPU 15 min: %f", cdhServer->CDHState.cpu15);
+	logger->Log(LOGGER_LEVEL_DEBUG, "    CPU memory: %f", cdhServer->CDHState.memory);
 
-	FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
-	TLM_CDH_HEALTH_AND_STATUS(getTimeInSec(),cpu1,cpu5,cpu15,mem);
-
-	return statusStruct;
+	TLM_CDH_HEALTH_AND_STATUS(getTimeInSec(),cdhServer->CDHState.cpu1,cdhServer->CDHState.cpu5,cdhServer->CDHState.cpu15,cdhServer->CDHState.memory);
 }
 
 void CDHTempStart(void){

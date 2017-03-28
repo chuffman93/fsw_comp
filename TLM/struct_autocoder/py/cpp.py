@@ -13,7 +13,7 @@ class CPP_Autocoder(STRUCT_Autocoder):
     STRUCT_Autocoder.__exit__(self, exc_type, exc_value, traceback)
 
   def include(self):
-    print "#include \"servers/HSTStructs.h\""
+    print "#include \"servers/Structs.h\""
     print "#include \"util/serialize.h\""
     print
 
@@ -25,7 +25,13 @@ class CPP_Autocoder(STRUCT_Autocoder):
     # Constructor to initialize each value of the struct
     print "%s::%s(%s) {" % (self.name, self.name, self.build_constructor_args())
     for field in range(len(self.types)):
-      print "  this->%s = %s;" % (self.args[field], self.args[field])
+      split_arg = re.split("\[|\]", self.args[field])
+      if ( len(split_arg) > 1 ):
+        print "  for (int iter = 0; iter < %s; iter++) {" % (split_arg[1])
+        print "    this->%s[iter] = %s[iter];" % (split_arg[0], split_arg[0])
+        print "  }"
+      else:
+        print "  this->%s = %s;" % (self.args[field], self.args[field])
     print "}"
     print
 

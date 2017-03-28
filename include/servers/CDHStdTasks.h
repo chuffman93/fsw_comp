@@ -15,7 +15,7 @@ namespace Servers{
 
 // called from CDH server
 void prepPowerGPIOs(void);
-CDHStatus CDHSystemInfo(void);
+void CDHSystemInfo(void);
 void CDHTempStart(void);
 void CDHTempRead(float tempArray[4][16]);
 void toggleResetLine(HardwareLocationIDType subsystem, bool state);

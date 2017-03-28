@@ -12,7 +12,7 @@
 
 #include "core/StdTypes.h"
 #include "servers/SubsystemServer.h"
-#include "servers/HSTStructs.h"
+#include "servers/Structs.h"
 #include "core/Dispatcher.h"
 #include "core/ModeManager.h"
 

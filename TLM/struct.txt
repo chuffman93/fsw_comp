@@ -17,7 +17,7 @@ PLDStatus
 	uint8 powerFault
 	uint16 motorSpeed
 	uint8 thermistors[10]
-	uint8 acdDataWorking
+	uint8 adcDataWorking
 	uint16 control
 	uint8 byteSize
 

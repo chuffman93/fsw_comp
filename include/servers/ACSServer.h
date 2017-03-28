@@ -15,7 +15,7 @@
 #include "core/Dispatcher.h"
 #include "core/ModeManager.h"
 #include "core/Singleton.h"
-#include "servers/HSTStructs.h"
+#include "servers/Structs.h"
 
 namespace AllStar{
 namespace Servers{

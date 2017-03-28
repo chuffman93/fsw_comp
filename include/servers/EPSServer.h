@@ -10,7 +10,7 @@
 #define EPSSERVER_H_
 
 #include "servers/SubsystemServer.h"
-#include "servers/HSTStructs.h"
+#include "servers/Structs.h"
 #include "core/StdTypes.h"
 #include "core/ModeManager.h"
 #include "core/Dispatcher.h"

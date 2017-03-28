@@ -14,7 +14,7 @@
 #include "core/ModeManager.h"
 
 #include "servers/SubsystemServer.h"
-#include "servers/HSTStructs.h"
+#include "servers/Structs.h"
 #include "HAL/I2C/PowerMonitor.h"
 
 #include <sys/sysinfo.h>
