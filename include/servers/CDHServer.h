@@ -14,6 +14,7 @@
 #include "core/ModeManager.h"
 
 #include "servers/SubsystemServer.h"
+#include "servers/Structs.h"
 #include "HAL/I2C/PowerMonitor.h"
 
 #include <sys/sysinfo.h>
@@ -25,13 +26,6 @@ using namespace AllStar::HAL;
 
 namespace AllStar{
 namespace Servers{
-
-struct CDHStatus{
-	float cpu1;   // 1  minute loads (% of CPU)
-	float cpu5;   // 5  minute loads (% of CPU)
-	float cpu15;  // 15 minute loads (% of CPU)
-	float memory; // % of memory
-};
 
 class CDHServer : public SubsystemServer, public AllStar::Core::Singleton{
 	friend class AllStar::Core::Factory;

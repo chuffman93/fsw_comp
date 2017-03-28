@@ -142,7 +142,7 @@ void CDHServer::readHealth(uint8 frequency, uint32 timeUnit){
 		logger->Log(LOGGER_LEVEL_DEBUG, "CDHServer: Gathering information");
 
 #if SYS_EN
-		CDHState = CDHSystemInfo();
+		CDHSystemInfo();
 #endif
 
 #if TEMP_EN

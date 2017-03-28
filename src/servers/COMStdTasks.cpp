@@ -173,8 +173,9 @@ bool COMSendBeacon(){
 	logger->Log(LOGGER_LEVEL_INFO, "COM: sending beacon");
 	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
 
-	uint8 * bufferOut = (uint8 *) malloc(sizeof(cmdServer->beacon));
-	bufferOut = cmdServer->beacon.bArray;
+	std::size_t size = sizeof(cmdServer->beacon);
+	uint8 * bufferOut = (uint8 *) malloc(size);
+	cmdServer->serializeBeacon(bufferOut, size);
 
 	ACPPacket * command = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, COM_BEACON, sizeof(cmdServer->beacon), bufferOut);
 	ACPPacket * response = DispatchPacket(command);

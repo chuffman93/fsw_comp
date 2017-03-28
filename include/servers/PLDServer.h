@@ -12,20 +12,12 @@
 
 #include "core/StdTypes.h"
 #include "servers/SubsystemServer.h"
+#include "servers/Structs.h"
 #include "core/Dispatcher.h"
 #include "core/ModeManager.h"
 
 namespace AllStar{
 namespace Servers{
-
-struct PLDStatus{
-	uint8 powerFault;
-	uint16 motorSpeed;
-	uint8 thermistors[10];
-	uint8 acdDataWorking;
-	uint16 control;
-	uint8 byteSize;
-};
 
 class PLDServer : public SubsystemServer, public AllStar::Core::Singleton{
 

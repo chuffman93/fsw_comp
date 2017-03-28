@@ -39,17 +39,17 @@ class TLM_AutoCoder():
     self.f.close
 
   type_sizes = {
-    "Int8"  : sizeof(c_int8),
-    "Int16" : sizeof(c_int16),
-    "Int32" : sizeof(c_int32),
-    "Int64" : sizeof(c_int64),
-    "UInt8" : sizeof(c_uint8),
-    "UInt16": sizeof(c_uint16),
-    "UInt32": sizeof(c_uint32),
-    "UInt64": sizeof(c_uint64),
-    "Float" : sizeof(c_float),
-    "Double": sizeof(c_double),
-    "Bool"  : sizeof(c_bool)
+    "int8"  : sizeof(c_int8),
+    "int16" : sizeof(c_int16),
+    "int32" : sizeof(c_int32),
+    "int64" : sizeof(c_int64),
+    "uint8" : sizeof(c_uint8),
+    "uint16": sizeof(c_uint16),
+    "uint32": sizeof(c_uint32),
+    "uint64": sizeof(c_uint64),
+    "float" : sizeof(c_float),
+    "double": sizeof(c_double),
+    "bool"  : sizeof(c_bool)
   }
 
   def skip_to_begin_tlm(self):

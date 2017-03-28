@@ -26,9 +26,9 @@ class CPP_AutoCoder(TLM_AutoCoder):
     print "  size_t size = %s;" % (self.buf_size + 1)
     print "  uint8_t * buf = (uint8_t *) malloc(size);"
     print "  Serialize ser(buf, size);"
-    print "  ser.serializeUInt16(%s);" % (self.ID)
+    print "  ser.serialize_uint16(%s);" % (self.ID)
     for i in range(self.list_len):
-        print "  ser.serialize%s(%s);" % (self.type_list[i], self.arg_list[i])
+        print "  ser.serialize_%s(%s);" % (self.type_list[i], self.arg_list[i])
     print "  fmgServer->Log(DESTINATION_%s, buf, size);" % (self.dest)
     print "}"
     print

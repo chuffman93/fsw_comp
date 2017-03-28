@@ -12,6 +12,7 @@ old_tests/
 GND/create_bit_stream
 GND/decode_bit_stream
 GND/*.o
+TLM/*/py/pyc
 
 /HOST
 /ARM

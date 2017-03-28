@@ -22,7 +22,7 @@ void TLM_STARTUP_ERROR(void) {
   size_t size = 3;
   uint8_t * buf = (uint8_t *) malloc(size);
   Serialize ser(buf, size);
-  ser.serializeUInt16(0x0001);
+  ser.serialize_uint16(0x0001);
   fmgServer->Log(DESTINATION_ERR, buf, size);
 }
 
@@ -30,7 +30,7 @@ void TLM_SERVERS_CREATED(void) {
   size_t size = 3;
   uint8_t * buf = (uint8_t *) malloc(size);
   Serialize ser(buf, size);
-  ser.serializeUInt16(0x0002);
+  ser.serialize_uint16(0x0002);
   fmgServer->Log(DESTINATION_ERR, buf, size);
 }
 
@@ -38,7 +38,7 @@ void TLM_BUS_LOAD_TEST(void) {
   size_t size = 3;
   uint8_t * buf = (uint8_t *) malloc(size);
   Serialize ser(buf, size);
-  ser.serializeUInt16(0x0100);
+  ser.serialize_uint16(0x0100);
   fmgServer->Log(DESTINATION_DGN, buf, size);
 }
 
@@ -46,7 +46,7 @@ void TLM_SPI_STATS(void) {
   size_t size = 3;
   uint8_t * buf = (uint8_t *) malloc(size);
   Serialize ser(buf, size);
-  ser.serializeUInt16(0x0101);
+  ser.serialize_uint16(0x0101);
   fmgServer->Log(DESTINATION_DGN, buf, size);
 }
 
@@ -54,7 +54,7 @@ void TLM_SAMPLE_TEST_2(void) {
   size_t size = 3;
   uint8_t * buf = (uint8_t *) malloc(size);
   Serialize ser(buf, size);
-  ser.serializeUInt16(0x0102);
+  ser.serialize_uint16(0x0102);
   fmgServer->Log(DESTINATION_DGN, buf, size);
 }
 
@@ -62,7 +62,7 @@ void TLM_SAMPLE_TEST_3(void) {
   size_t size = 3;
   uint8_t * buf = (uint8_t *) malloc(size);
   Serialize ser(buf, size);
-  ser.serializeUInt16(0x0103);
+  ser.serialize_uint16(0x0103);
   fmgServer->Log(DESTINATION_DGN, buf, size);
 }
 
@@ -70,8 +70,8 @@ void TLM_CREATING_ACPPACKET(int32 arg0) {
   size_t size = 7;
   uint8_t * buf = (uint8_t *) malloc(size);
   Serialize ser(buf, size);
-  ser.serializeUInt16(0x0400);
-  ser.serializeInt32(arg0);
+  ser.serialize_uint16(0x0400);
+  ser.serialize_int32(arg0);
   fmgServer->Log(DESTINATION_ACP, buf, size);
 }
 
@@ -79,12 +79,12 @@ void TLM_CDH_HEALTH_AND_STATUS(int32 arg0, float arg1, float arg2, float arg3, f
   size_t size = 23;
   uint8_t * buf = (uint8_t *) malloc(size);
   Serialize ser(buf, size);
-  ser.serializeUInt16(0x0500);
-  ser.serializeInt32(arg0);
-  ser.serializeFloat(arg1);
-  ser.serializeFloat(arg2);
-  ser.serializeFloat(arg3);
-  ser.serializeFloat(arg4);
+  ser.serialize_uint16(0x0500);
+  ser.serialize_int32(arg0);
+  ser.serialize_float(arg1);
+  ser.serialize_float(arg2);
+  ser.serialize_float(arg3);
+  ser.serialize_float(arg4);
   fmgServer->Log(DESTINATION_HST, buf, size);
 }
 

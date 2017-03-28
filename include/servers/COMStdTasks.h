@@ -35,6 +35,7 @@ bool COMTestAlive();
 bool COMSimplex();
 bool COMHalfDuplex();
 bool COMFullDuplex();
+void COMSerializeBeacon();
 bool COMSendBeacon();
 
 // Non-opcode standard tasks
