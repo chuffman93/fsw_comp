@@ -27,6 +27,7 @@ class HPP_Autocoder(STRUCT_Autocoder):
   def print_struct(self):
     print "class %s : public Serialize {" % (self.name)
     print "public:"
+    print "  const static int size = %s;" % (self.size)
     print "  %s();" % (self.name)
     print "  %s(%s);" % (self.name, self.build_constructor_args())
     for field in range(len(self.types)):
@@ -35,7 +36,7 @@ class HPP_Autocoder(STRUCT_Autocoder):
     print "  void deserialize(void);"
     print "};"
     print
-    
+
   def autocode(self):
     self.header()
     self. guards_start()
@@ -43,6 +44,7 @@ class HPP_Autocoder(STRUCT_Autocoder):
     self.namespace_start()
 
     while (not self.EOF):
+      self.size = 0
       self.get_struct()
 
       if (self.EOF):

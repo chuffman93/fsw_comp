@@ -47,7 +47,7 @@ void CDHSystemInfo(void){
 	cdhServer->CDHState.cpu15 = si.loads[2]/6553.6;
 	cdhServer->CDHState.memory = 100.0*(259964928.0 - ((float) si.freeram)) / (259964928.0); //hard-coded total ram: 100*(total - free)/total = percent use
 
-	logger->Log(LOGGER_LEVEL_DEBUG, "CDHCPUUsage(): Checking loads");
+	logger->Log(LOGGER_LEVEL_INFO, "CDHCPUUsage(): Checking loads");
 	logger->Log(LOGGER_LEVEL_DEBUG, "    CPU  1 min: %f", cdhServer->CDHState.cpu1);
 	logger->Log(LOGGER_LEVEL_DEBUG, "    CPU  5 min: %f", cdhServer->CDHState.cpu5);
 	logger->Log(LOGGER_LEVEL_DEBUG, "    CPU 15 min: %f", cdhServer->CDHState.cpu15);

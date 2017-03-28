@@ -1,3 +1,5 @@
+import re
+
 class STRUCT_Autocoder():
   def __init__(self, input_file):
     # Open file
@@ -12,9 +14,12 @@ class STRUCT_Autocoder():
     self.args = []
     self.comments = []
 
+    # Size counter
+    self.size = 0
+
     # Reached EOF
     self.EOF = False
-    
+
     # Skip to the proper place in the file
     self.skip_to_begin_tlm()
 
@@ -64,8 +69,10 @@ class STRUCT_Autocoder():
 
   def parse_line(self, line):
     split_line = line.split(" ")
-    
+    argSize = self.add_type_size(split_line[0],split_line[1])
+
     self.types.append( split_line[0] )
+    self.size = self.size + argSize
     self.args.append( split_line[1] )
     self.comments.append( " ".join(split_line[2:]).strip() )
 
@@ -86,4 +93,31 @@ class STRUCT_Autocoder():
     while (line != ""):
       self.parse_line(line)
       line = self.get_line()
+
+  def add_type_size(self, typeIn, argIn):
+    typeSize = 0
+    arrayNum = 0
+    if(typeIn == "uint8" or typeIn == "int8"):
+      typeSize = 1
+    elif(typeIn == "uint16" or typeIn == "int16"):
+      typeSize = 2
+    elif(typeIn == "uint32" or typeIn == "int32"):
+      typeSize = 4
+    elif(typeIn == "uint64" or typeIn == "int64"):
+      typeSize = 8
+    elif(typeIn == "float"):
+      typeSize = 4
+    elif(typeIn == "double"):
+      typeSize = 8
+    else:
+      print "Invalid type! " + typeIn
+      typeSize = 0
+
+    split_arg = re.split("\[|\]", argIn)
+    if ( len(split_arg) > 1 ):
+      arrayNum = int(split_arg[1])
+    else:
+      arrayNum = 1
+
+    return (typeSize*arrayNum)
 
