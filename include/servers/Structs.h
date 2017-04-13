@@ -100,6 +100,18 @@ public:
   void deserialize(void);
 };
 
+class EPSConfig : public Serialize {
+public:
+  const static int size = 6;
+  EPSConfig();
+  EPSConfig(uint16 minCOMCharge, uint16 minPLDCharge, uint16 minDSTCharge);
+  uint16 minCOMCharge; 
+  uint16 minPLDCharge; 
+  uint16 minDSTCharge; 
+  void serialize(void);
+  void deserialize(void);
+};
+
 }
 }
 

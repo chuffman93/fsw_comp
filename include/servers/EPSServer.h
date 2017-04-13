@@ -26,17 +26,11 @@ public:
 	bool RegisterHandlers();
 	bool CheckHealthStatus();
 
-	void updateConfig();
+	void bootConfig(); // read in configs on bootup
+	bool updateConfig(); // update configs after COM pass
 
-	struct EPSConfig{
-		uint16 minCOMCharge;
-		uint16 minPLDCharge;
-		uint16 minDSTCharge;
-		uint8 numItems;
-	};
-
-	EPSStatus EPSState;
-	EPSConfig EPSConfiguration;
+	static EPSStatus EPSState;
+	static EPSConfig EPSConfiguration;
 
 private:
 

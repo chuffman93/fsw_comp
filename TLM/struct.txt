@@ -47,3 +47,9 @@ CMDConfig
 	int32 maxDownlinkSize
 	int32 beaconPeriod
 	int32 increasedBeaconPeriod
+	
+EPSConfig
+	uint16 minCOMCharge
+	uint16 minPLDCharge
+	uint16 minDSTCharge
+	

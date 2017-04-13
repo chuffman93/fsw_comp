@@ -581,9 +581,12 @@ void processUplinkFiles(void) {
 
 	// Update EPS config
 	if (access(EPS_CFG_UP, F_OK) != -1) {
-		rename(EPS_CFG_UP, EPS_CONFIG);
-		//epsServer->updateConfig();
-		logger->Log(LOGGER_LEVEL_INFO, "CMDStdTasks: updated EPS config");
+		EPSServer * epsServer = dynamic_cast<EPSServer *> (Factory::GetInstance(EPS_SERVER_SINGLETON));
+		if(epsServer->updateConfig()) {
+			rename(EPS_CFG_UP, EPS_CONFIG);
+		} else {
+			remove(EPS_CFG_UP);
+		}
 	}
 
 	// Update FMG config

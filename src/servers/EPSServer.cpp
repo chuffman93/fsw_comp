@@ -16,6 +16,8 @@
 #include "servers/FMGServer.h"
 #include "servers/DispatchStdTasks.h"
 #include "servers/CDHServer.h"
+#include "servers/Structs.h"
+#include "servers/FileSystem.h"
 #include "util/Logger.h"
 
 using namespace std;
@@ -24,10 +26,12 @@ using namespace AllStar::Core;
 namespace AllStar{
 namespace Servers{
 
+EPSStatus EPSServer::EPSState(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+EPSConfig EPSServer::EPSConfiguration(0,0,0);
+
 // -------------------------------------- Necessary Methods --------------------------------------
 EPSServer::EPSServer(string nameIn, LocationIDType idIn) :
 		SubsystemServer(nameIn, idIn), Singleton() {
-	EPSConfiguration.numItems = 3;
 }
 
 EPSServer & EPSServer::operator=(const EPSServer & source){
@@ -61,6 +65,8 @@ void EPSServer::loopInit(){
 			logger->Log(LOGGER_LEVEL_FATAL, "EPS failed self check!");
 		}
 		logger->Log(LOGGER_LEVEL_INFO, "EPS passed self check");
+
+		bootConfig();
 
 		currentState = ST_MONITOR;
 	}else{
@@ -148,6 +154,54 @@ bool EPSServer::CheckHealthStatus(){
 		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Conv thresh w:   %u", EPSState.convThreshW);
 
 		return true;
+	}
+}
+
+void EPSServer::bootConfig() {
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	FILE * fp = fopen(EPS_CONFIG, "r");
+	uint8 buffer[EPSConfiguration.size];
+
+	// make sure we get a valid file pointer
+	if (fp != NULL) {
+		logger->Log(LOGGER_LEVEL_ERROR, "EPSServer: NULL EPS config file pointer, cannot boot");
+		return;
+	}
+
+	// read and update the configs
+	if (fread(buffer, sizeof(uint8), EPSConfiguration.size, fp) == EPSConfiguration.size) {
+		EPSConfiguration.update(buffer, EPSConfiguration.size, 0, 0);
+		EPSConfiguration.deserialize();
+		logger->Log(LOGGER_LEVEL_INFO, "EPSServer: successfully booted EPS configs");
+		return;
+	} else {
+		logger->Log(LOGGER_LEVEL_ERROR, "EPSServer: error reading EPS config file, cannot boot");
+		return;
+	}
+}
+
+bool EPSServer::updateConfig() {
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	FILE * fp = fopen(EPS_CFG_UP, "r");
+	uint8 buffer[EPSConfiguration.size];
+
+	// make sure we get a valid file pointer
+	if (fp != NULL) {
+		logger->Log(LOGGER_LEVEL_ERROR, "EPSServer: NULL EPS config file pointer, cannot update");
+		return false;
+	}
+
+	// read and update the configs
+	if (fread(buffer, sizeof(uint8), EPSConfiguration.size, fp) == EPSConfiguration.size) {
+		EPSConfiguration.update(buffer, EPSConfiguration.size, 0, 0);
+		EPSConfiguration.deserialize();
+		logger->Log(LOGGER_LEVEL_INFO, "EPSServer: successfully updated EPS configs");
+		return true;
+	} else {
+		logger->Log(LOGGER_LEVEL_ERROR, "EPSServer: error reading EPS config file, cannot update");
+		return false;
 	}
 }
 

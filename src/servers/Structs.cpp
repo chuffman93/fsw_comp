@@ -193,6 +193,26 @@ void CMDConfig::deserialize(void) {
   this->increasedBeaconPeriod = this->deserialize_int32();
 }
 
+EPSConfig::EPSConfig() { }
+
+EPSConfig::EPSConfig(uint16 minCOMCharge, uint16 minPLDCharge, uint16 minDSTCharge) {
+  this->minCOMCharge = minCOMCharge;
+  this->minPLDCharge = minPLDCharge;
+  this->minDSTCharge = minDSTCharge;
+}
+
+void EPSConfig::serialize(void) {
+  this->serialize_uint16(this->minCOMCharge);
+  this->serialize_uint16(this->minPLDCharge);
+  this->serialize_uint16(this->minDSTCharge);
+}
+
+void EPSConfig::deserialize(void) {
+  this->minCOMCharge = this->deserialize_uint16();
+  this->minPLDCharge = this->deserialize_uint16();
+  this->minDSTCharge = this->deserialize_uint16();
+}
+
 }
 }
 
