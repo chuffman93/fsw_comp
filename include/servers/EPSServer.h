@@ -26,6 +26,8 @@ public:
 	bool RegisterHandlers();
 	bool CheckHealthStatus();
 
+	void updateConfig();
+
 	struct EPSConfig{
 		uint16 minCOMCharge;
 		uint16 minPLDCharge;

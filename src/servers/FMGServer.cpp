@@ -5,6 +5,7 @@
 */
 
 #include "servers/FMGServer.h"
+#include "servers/FileSystem.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
 #include "core/StdTypes.h"

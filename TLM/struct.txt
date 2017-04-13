@@ -40,3 +40,10 @@ EPSStatus
 	uint16 convThreshY
 	uint16 convCurrentW
 	uint16 convThreshW
+
+CMDConfig
+	int32 resetPeriod // seconds
+	int32 fileChunkSize
+	int32 maxDownlinkSize
+	int32 beaconPeriod
+	int32 increasedBeaconPeriod

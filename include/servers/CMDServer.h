@@ -26,41 +26,12 @@
 namespace AllStar{
 namespace Servers{
 
-#define DOWNLINK_DIRECTORY		"/home/root/.downlink"
-#define UPLINK_DIRECTORY		"/home/root/.uplink"
-#define IMMED_DIRECTORY			"/home/root/.immed"
-#define SOT_PATH				UPLINK_DIRECTORY  "/SOT.txt"
-#define DRF_PATH				UPLINK_DIRECTORY  "/DRF.txt"
-#define DLT_PATH				UPLINK_DIRECTORY  "/DLT.txt"
-#define PPE_PATH				UPLINK_DIRECTORY  "/PPE.txt"
-#define SCHEDULE_PATH			UPLINK_DIRECTORY  "/SCH.txt"
-#define EOT_PATH				UPLINK_DIRECTORY  "/EOT.txt"
-#define IEF_PATH				UPLINK_DIRECTORY  "/IEF.txt"
-
-#define BINARIES_PATH			"/home/root/binaries"
-#define UFTP_PATH				BINARIES_PATH	"/uftp"
-#define UFTPD_PATH				BINARIES_PATH	"/uftpd"
-#define KISSATTACH_PATH			BINARIES_PATH	"/kissattach"
-#define KISSPARMS_PATH			BINARIES_PATH	"/kissparms"
-
-#define UPLK_PASSWORD			"P0!@rCube\n"
-#define UPLK_PASSWORD_SKIP		"P0!@rCube_1\n"
-#define UPLK_PASSWORD_SEND		"P0!@rCube_2\n"
-
-class CMDServer : public SubsystemServer, public AllStar::Core::Singleton{
+class CMDServer : public SubsystemServer, public AllStar::Core::Singleton {
 	friend class AllStar::Core::Factory;
 
 public:
 	bool RegisterHandlers();
 	static int subsystem_acp_protocol[HARDWARE_LOCATION_MAX];
-
-	struct CMDConfig{
-		int32 resetPeriod;
-		int32 fileChunkSize;
-		int32 maxDownlinkSize;
-		int32 beaconPeriod;
-		int32 increasedBeaconPeriod;
-	};
 
 	struct BeaconStruct {
 		SystemModeEnum currentMode;

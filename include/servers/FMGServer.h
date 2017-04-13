@@ -18,19 +18,6 @@
 namespace AllStar{
 namespace Servers{
 
-#define ACP_FILE_PATH          "/SD_2/ACP"
-#define CMD_FILE_PATH			"/SD_2/CMD"
-#define DGN_FILE_PATH			"/SD_2/DGN"
-#define ERR_FILE_PATH			"/SD_2/ERR"
-#define GEN_FILE_PATH			"/SD_2/GEN"
-#define FSS_FILE_PATH			"/SD_2/FSS"
-#define HST_FILE_PATH			"/SD_2/HST"
-#define MOD_FILE_PATH			"/SD_2/MOD"
-#define SSS_FILE_PATH			"/SD_2/SSS"
-#define SWP_FILE_PATH			"/SD_2/SWP"
-#define RAD_FILE_PATH			"/SD_3/RAD"
-#define VERBOSE_HST_DIRECTORY	"/home/root/.vhs"
-
 #define CLEAR_CUR_DIRECTORIES_SCRIPT "/home/root/scripts/clear_CUR_directories.sh"
 
 // TODO: Do we want to be able to set this from the ground?

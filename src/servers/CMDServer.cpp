@@ -15,6 +15,7 @@
 #include "servers/ACSServer.h"
 #include "servers/CDHServer.h"
 #include "servers/PLDServer.h"
+#include "servers/FileSystem.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
 #include "core/StdTypes.h"
@@ -45,7 +46,7 @@ CMDServer::CMDServer(string nameIn, LocationIDType idIn) :
 	}
 
 	startTime = getTimeInSec();
-	CMDConfiguration.resetPeriod = 120*60;
+	CMDConfiguration.resetPeriod = 24*60*60; // 24 hrs * 60 min/hr * 60 sec/min
 	CMDConfiguration.fileChunkSize = 10240; // 10KB
 	CMDConfiguration.maxDownlinkSize = 15728640;
 	CMDConfiguration.beaconPeriod = 15;

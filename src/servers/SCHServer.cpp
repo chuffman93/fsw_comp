@@ -7,6 +7,7 @@
 #include "servers/SCHServer.h"
 #include "servers/GPSServer.h"
 #include "servers/CMDServer.h"
+#include "servers/FileSystem.h"
 
 #include "core/Dispatcher.h"
 #include "core/WatchdogManager.h"
@@ -26,7 +27,7 @@ namespace AllStar{
 namespace Servers{
 
 SCHServer::SCHServer(string nameIn, LocationIDType idIn)
-		: SubsystemServer(nameIn, idIn), Singleton(), configManager(SCH_CONFIG_FILE), surpriseCOM(false), resetRequest(false), lastWakeTime(0), modeEnterTime(0), lastBusEnter(0), itemEntered(false)
+		: SubsystemServer(nameIn, idIn), Singleton(), configManager(SCH_CONFIG), surpriseCOM(false), resetRequest(false), lastWakeTime(0), modeEnterTime(0), lastBusEnter(0), itemEntered(false)
 {
 
 }

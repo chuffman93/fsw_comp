@@ -167,6 +167,32 @@ void EPSStatus::deserialize(void) {
   this->convThreshW = this->deserialize_uint16();
 }
 
+CMDConfig::CMDConfig() { }
+
+CMDConfig::CMDConfig(int32 resetPeriod, int32 fileChunkSize, int32 maxDownlinkSize, int32 beaconPeriod, int32 increasedBeaconPeriod) {
+  this->resetPeriod = resetPeriod;
+  this->fileChunkSize = fileChunkSize;
+  this->maxDownlinkSize = maxDownlinkSize;
+  this->beaconPeriod = beaconPeriod;
+  this->increasedBeaconPeriod = increasedBeaconPeriod;
+}
+
+void CMDConfig::serialize(void) {
+  this->serialize_int32(this->resetPeriod);
+  this->serialize_int32(this->fileChunkSize);
+  this->serialize_int32(this->maxDownlinkSize);
+  this->serialize_int32(this->beaconPeriod);
+  this->serialize_int32(this->increasedBeaconPeriod);
+}
+
+void CMDConfig::deserialize(void) {
+  this->resetPeriod = this->deserialize_int32();
+  this->fileChunkSize = this->deserialize_int32();
+  this->maxDownlinkSize = this->deserialize_int32();
+  this->beaconPeriod = this->deserialize_int32();
+  this->increasedBeaconPeriod = this->deserialize_int32();
+}
+
 }
 }
 

@@ -86,6 +86,20 @@ public:
   void deserialize(void);
 };
 
+class CMDConfig : public Serialize {
+public:
+  const static int size = 20;
+  CMDConfig();
+  CMDConfig(int32 resetPeriod, int32 fileChunkSize, int32 maxDownlinkSize, int32 beaconPeriod, int32 increasedBeaconPeriod);
+  int32 resetPeriod; // seconds
+  int32 fileChunkSize; 
+  int32 maxDownlinkSize; 
+  int32 beaconPeriod; 
+  int32 increasedBeaconPeriod; 
+  void serialize(void);
+  void deserialize(void);
+};
+
 }
 }
 

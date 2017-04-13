@@ -20,6 +20,7 @@
 #include "servers/ACSServer.h"
 #include "servers/PLDServer.h"
 #include "servers/DispatchStdTasks.h"
+#include "servers/FileSystem.h"
 #include "core/StdTypes.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
@@ -544,10 +545,66 @@ void processUplinkFiles(void) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	// Move new schedule from the uplink directory to its final directory
-	if(access(SCHEDULE_PATH, F_OK) != -1){
-		rename(SCHEDULE_PATH, SCH_SCHEDULE_FILE);
-	}else{
+	if (access(SCH_PATH, F_OK) != -1) {
+		rename(SCH_PATH, SCH_SCHEDULE_FILE);
+	} else {
 		logger->Log(LOGGER_LEVEL_DEBUG, "CMDStdTasks: no SCH");
+	}
+
+	// Update ACS config
+	if (access(ACS_CFG_UP, F_OK) != -1) {
+		rename(ACS_CFG_UP, ACS_CONFIG);
+		//acsServer->updateConfig();
+		logger->Log(LOGGER_LEVEL_INFO, "CMDStdTasks: updated ACS config");
+	}
+
+	// Update CDH config
+	if (access(CDH_CFG_UP, F_OK) != -1) {
+		rename(CDH_CFG_UP, CDH_CONFIG);
+		//cdhServer->updateConfig();
+		logger->Log(LOGGER_LEVEL_INFO, "CMDStdTasks: updated CDH config");
+	}
+
+	// Update CMD config
+	if (access(CMD_CFG_UP, F_OK) != -1) {
+		rename(CMD_CFG_UP, CMD_CONFIG);
+		//cmdServer->updateConfig();
+		logger->Log(LOGGER_LEVEL_INFO, "CMDStdTasks: updated CMD config");
+	}
+
+	// Update COM config
+	if (access(COM_CFG_UP, F_OK) != -1) {
+		rename(COM_CFG_UP, COM_CONFIG);
+		//comServer->updateConfig();
+		logger->Log(LOGGER_LEVEL_INFO, "CMDStdTasks: updated COM config");
+	}
+
+	// Update EPS config
+	if (access(EPS_CFG_UP, F_OK) != -1) {
+		rename(EPS_CFG_UP, EPS_CONFIG);
+		//epsServer->updateConfig();
+		logger->Log(LOGGER_LEVEL_INFO, "CMDStdTasks: updated EPS config");
+	}
+
+	// Update FMG config
+	if (access(FMG_CFG_UP, F_OK) != -1) {
+		rename(FMG_CFG_UP, FMG_CONFIG);
+		//fmgServer->updateConfig();
+		logger->Log(LOGGER_LEVEL_INFO, "CMDStdTasks: updated FMG config");
+	}
+
+	// Update GPS config
+	if (access(GPS_CFG_UP, F_OK) != -1) {
+		rename(GPS_CFG_UP, GPS_CONFIG);
+		//gpsServer->updateConfig();
+		logger->Log(LOGGER_LEVEL_INFO, "CMDStdTasks: updated GPS config");
+	}
+
+	// Update PLD config
+	if (access(PLD_CFG_UP, F_OK) != -1) {
+		rename(PLD_CFG_UP, PLD_CONFIG);
+		//pldServer->updateConfig();
+		logger->Log(LOGGER_LEVEL_INFO, "CMDStdTasks: updated PLD config");
 	}
 }
 

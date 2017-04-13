@@ -16,15 +16,6 @@
 #include "core/ACPPacket.h"
 #include "core/Dispatcher.h"
 
-#define DIS_DEBUG			0
-
-#if DIS_DEBUG && defined(WIN32)
-#include <iostream>
-#define DEBUG_COUT(m) cout << m << endl;
-#else
-#define DEBUG_COUT(m)
-#endif // DEBUG
-
 namespace AllStar{
 namespace Servers{
 
