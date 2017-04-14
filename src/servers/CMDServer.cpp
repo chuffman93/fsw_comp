@@ -361,10 +361,6 @@ void CMDServer::CreateBeacon() {
 	beacon.pldHS = pldServer->PLDState;
 
 	beaconValid = true;
-// easy way to write beacon to file named beacon in ~
-//	FILE * fp = fopen("/home/root/beacon","w");
-//	fwrite(beacon.bArray,sizeof(char),sizeof(beacon),fp);
-//	fclose(fp);
 }
 
 bool CMDServer::CheckForBeacon() {

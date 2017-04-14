@@ -3,6 +3,7 @@
 #include "core/StdTypes.h"
 #include "servers/CMDServer.h"
 #include "servers/CMDStdTasks.h"
+#include "servers/FileSystem.h"
 #include <sys/stat.h>
 #include <string>
 #include <stdlib.h>

@@ -3,6 +3,7 @@
 #include "core/StdTypes.h"
 #include "core/WatchdogManager.h"
 #include "servers/SCHServer.h"
+#include "servers/FileSystem.h"
 #include <fstream>
 
 

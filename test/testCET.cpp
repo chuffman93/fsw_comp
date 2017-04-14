@@ -36,17 +36,17 @@ void prepGPSData(void){
 }
 
 // initialize junk beacon data for testing purposes
-void prepBeacon(void){
-	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
-
-	cmdServer->beacon.bStruct.acsHS = {101,102,103,104,105,106,107};
-	cmdServer->beacon.bStruct.cdhHS = {1.01,1.02,1.03,1.04};
-	cmdServer->beacon.bStruct.epsHS = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18};
-	cmdServer->beacon.bStruct.pldHS = {1,2,{1,2,3,4,5,6,7,8,9,10},3,4,5};
-	cmdServer->beacon.bStruct.currentMode = MODE_BUS_PRIORITY;
-	cmdServer->beacon.bStruct.subPowerState = 0b00001111; // all on
-	cmdServer->beacon.bStruct.uptime = 9000;
-}
+//void prepBeacon(void){
+//	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
+//
+//	cmdServer->beacon.bStruct.acsHS = {101,102,103,104,105,106,107};
+//	cmdServer->beacon.bStruct.cdhHS = {1.01,1.02,1.03,1.04};
+//	cmdServer->beacon.bStruct.epsHS = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18};
+//	cmdServer->beacon.bStruct.pldHS = {1,2,{1,2,3,4,5,6,7,8,9,10},3,4,5};
+//	cmdServer->beacon.bStruct.currentMode = MODE_BUS_PRIORITY;
+//	cmdServer->beacon.bStruct.subPowerState = 0b00001111; // all on
+//	cmdServer->beacon.bStruct.uptime = 9000;
+//}
 
 void startSPIServer(){
 	SPI_HALServer * spiServer = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
@@ -214,42 +214,42 @@ TEST(testCET, testACSError){
 }
 
 TEST(testCET, testCOM){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	prepPowerGPIOs();
-	startSPIServer();
-	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
-	cdhServer->subPowerOn(HARDWARE_LOCATION_COM);
-	usleep(1000000);
-
-	// ----- Run the self check for COM (LED On, LED Rate, LED data)
-	logger->Log(LOGGER_LEVEL_INFO, "Checking if COM is alive");
-	bool testAlive = COMTestAlive();
-	if(testAlive){
-		logger->Log(LOGGER_LEVEL_INFO, "COM is alive");
-	}
-	logger->Log(LOGGER_LEVEL_INFO, "Sending three opcode self check");
-	bool selfCheck = COMSelfCheck();
-	if(selfCheck){
-		logger->Log(LOGGER_LEVEL_INFO, "COM passed self check");
-	}
-	ASSERT_TRUE(testAlive && selfCheck);
-	usleep(1000000);
-
-	// ----- Test com modes
-	bool modeTest = true;
-	modeTest &= COMSimplex();
-	usleep(2000000);
-	modeTest &= COMHalfDuplex();
-	usleep(2000000);
-	modeTest &= COMFullDuplex();
-	ASSERT_TRUE(modeTest);
-	usleep(1000000);
-
-	// ----- Test beacon
-	bool beaconTest = true;
-	prepBeacon();
-	beaconTest &= COMSendBeacon();
-	ASSERT_TRUE(beaconTest);
+//	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+//	prepPowerGPIOs();
+//	startSPIServer();
+//	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+//	cdhServer->subPowerOn(HARDWARE_LOCATION_COM);
+//	usleep(1000000);
+//
+//	// ----- Run the self check for COM (LED On, LED Rate, LED data)
+//	logger->Log(LOGGER_LEVEL_INFO, "Checking if COM is alive");
+//	bool testAlive = COMTestAlive();
+//	if(testAlive){
+//		logger->Log(LOGGER_LEVEL_INFO, "COM is alive");
+//	}
+//	logger->Log(LOGGER_LEVEL_INFO, "Sending three opcode self check");
+//	bool selfCheck = COMSelfCheck();
+//	if(selfCheck){
+//		logger->Log(LOGGER_LEVEL_INFO, "COM passed self check");
+//	}
+//	ASSERT_TRUE(testAlive && selfCheck);
+//	usleep(1000000);
+//
+//	// ----- Test com modes
+//	bool modeTest = true;
+//	modeTest &= COMSimplex();
+//	usleep(2000000);
+//	modeTest &= COMHalfDuplex();
+//	usleep(2000000);
+//	modeTest &= COMFullDuplex();
+//	ASSERT_TRUE(modeTest);
+//	usleep(1000000);
+//
+//	// ----- Test beacon
+//	bool beaconTest = true;
+//	prepBeacon();
+//	beaconTest &= COMSendBeacon();
+//	ASSERT_TRUE(beaconTest);
 }
 
 // test error response to unimplemented opcodes

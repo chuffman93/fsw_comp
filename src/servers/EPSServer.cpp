@@ -174,9 +174,11 @@ void EPSServer::bootConfig() {
 		EPSConfiguration.update(buffer, EPSConfiguration.size, 0, 0);
 		EPSConfiguration.deserialize();
 		logger->Log(LOGGER_LEVEL_INFO, "EPSServer: successfully booted EPS configs");
+		fclose(fp);
 		return;
 	} else {
 		logger->Log(LOGGER_LEVEL_ERROR, "EPSServer: error reading EPS config file, cannot boot");
+		fclose(fp);
 		return;
 	}
 }
@@ -188,7 +190,7 @@ bool EPSServer::updateConfig() {
 	uint8 buffer[EPSConfiguration.size];
 
 	// make sure we get a valid file pointer
-	if (fp != NULL) {
+	if (fp == NULL) {
 		logger->Log(LOGGER_LEVEL_ERROR, "EPSServer: NULL EPS config file pointer, cannot update");
 		return false;
 	}
@@ -198,9 +200,11 @@ bool EPSServer::updateConfig() {
 		EPSConfiguration.update(buffer, EPSConfiguration.size, 0, 0);
 		EPSConfiguration.deserialize();
 		logger->Log(LOGGER_LEVEL_INFO, "EPSServer: successfully updated EPS configs");
+		fclose(fp);
 		return true;
 	} else {
 		logger->Log(LOGGER_LEVEL_ERROR, "EPSServer: error reading EPS config file, cannot update");
+		fclose(fp);
 		return false;
 	}
 }
