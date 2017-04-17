@@ -86,6 +86,26 @@ public:
   void deserialize(void);
 };
 
+class ACSConfig : public Serialize {
+public:
+  const static int size = 4;
+  ACSConfig();
+  ACSConfig(int32 testConfig);
+  int32 testConfig; 
+  void serialize(void);
+  void deserialize(void);
+};
+
+class CDHConfig : public Serialize {
+public:
+  const static int size = 4;
+  CDHConfig();
+  CDHConfig(int32 testConfig);
+  int32 testConfig; 
+  void serialize(void);
+  void deserialize(void);
+};
+
 class CMDConfig : public Serialize {
 public:
   const static int size = 20;
@@ -100,6 +120,16 @@ public:
   void deserialize(void);
 };
 
+class COMConfig : public Serialize {
+public:
+  const static int size = 4;
+  COMConfig();
+  COMConfig(int32 testConfig);
+  int32 testConfig; 
+  void serialize(void);
+  void deserialize(void);
+};
+
 class EPSConfig : public Serialize {
 public:
   const static int size = 6;
@@ -108,6 +138,26 @@ public:
   uint16 minCOMCharge; 
   uint16 minPLDCharge; 
   uint16 minDSTCharge; 
+  void serialize(void);
+  void deserialize(void);
+};
+
+class FMGConfig : public Serialize {
+public:
+  const static int size = 4;
+  FMGConfig();
+  FMGConfig(int32 testConfig);
+  int32 testConfig; 
+  void serialize(void);
+  void deserialize(void);
+};
+
+class PLDConfig : public Serialize {
+public:
+  const static int size = 4;
+  PLDConfig();
+  PLDConfig(int32 testConfig);
+  int32 testConfig; 
   void serialize(void);
   void deserialize(void);
 };

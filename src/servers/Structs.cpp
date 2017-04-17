@@ -167,6 +167,34 @@ void EPSStatus::deserialize(void) {
   this->convThreshW = this->deserialize_uint16();
 }
 
+ACSConfig::ACSConfig() { }
+
+ACSConfig::ACSConfig(int32 testConfig) {
+  this->testConfig = testConfig;
+}
+
+void ACSConfig::serialize(void) {
+  this->serialize_int32(this->testConfig);
+}
+
+void ACSConfig::deserialize(void) {
+  this->testConfig = this->deserialize_int32();
+}
+
+CDHConfig::CDHConfig() { }
+
+CDHConfig::CDHConfig(int32 testConfig) {
+  this->testConfig = testConfig;
+}
+
+void CDHConfig::serialize(void) {
+  this->serialize_int32(this->testConfig);
+}
+
+void CDHConfig::deserialize(void) {
+  this->testConfig = this->deserialize_int32();
+}
+
 CMDConfig::CMDConfig() { }
 
 CMDConfig::CMDConfig(int32 resetPeriod, int32 fileChunkSize, int32 maxDownlinkSize, int32 beaconPeriod, int32 increasedBeaconPeriod) {
@@ -193,6 +221,20 @@ void CMDConfig::deserialize(void) {
   this->increasedBeaconPeriod = this->deserialize_int32();
 }
 
+COMConfig::COMConfig() { }
+
+COMConfig::COMConfig(int32 testConfig) {
+  this->testConfig = testConfig;
+}
+
+void COMConfig::serialize(void) {
+  this->serialize_int32(this->testConfig);
+}
+
+void COMConfig::deserialize(void) {
+  this->testConfig = this->deserialize_int32();
+}
+
 EPSConfig::EPSConfig() { }
 
 EPSConfig::EPSConfig(uint16 minCOMCharge, uint16 minPLDCharge, uint16 minDSTCharge) {
@@ -211,6 +253,34 @@ void EPSConfig::deserialize(void) {
   this->minCOMCharge = this->deserialize_uint16();
   this->minPLDCharge = this->deserialize_uint16();
   this->minDSTCharge = this->deserialize_uint16();
+}
+
+FMGConfig::FMGConfig() { }
+
+FMGConfig::FMGConfig(int32 testConfig) {
+  this->testConfig = testConfig;
+}
+
+void FMGConfig::serialize(void) {
+  this->serialize_int32(this->testConfig);
+}
+
+void FMGConfig::deserialize(void) {
+  this->testConfig = this->deserialize_int32();
+}
+
+PLDConfig::PLDConfig() { }
+
+PLDConfig::PLDConfig(int32 testConfig) {
+  this->testConfig = testConfig;
+}
+
+void PLDConfig::serialize(void) {
+  this->serialize_int32(this->testConfig);
+}
+
+void PLDConfig::deserialize(void) {
+  this->testConfig = this->deserialize_int32();
 }
 
 }

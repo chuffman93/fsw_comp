@@ -553,30 +553,33 @@ void processUplinkFiles(void) {
 
 	// Update ACS config
 	if (access(ACS_CFG_UP, F_OK) != -1) {
-		rename(ACS_CFG_UP, ACS_CONFIG);
+		remove(ACS_CFG_UP);
 		//acsServer->updateConfig();
-		logger->Log(LOGGER_LEVEL_INFO, "CMDStdTasks: updated ACS config");
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: ACS config not implemented");
 	}
 
 	// Update CDH config
 	if (access(CDH_CFG_UP, F_OK) != -1) {
-		rename(CDH_CFG_UP, CDH_CONFIG);
+		remove(CDH_CFG_UP);
 		//cdhServer->updateConfig();
-		logger->Log(LOGGER_LEVEL_INFO, "CMDStdTasks: updated CDH config");
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: CDH config not implemented");
 	}
 
 	// Update CMD config
 	if (access(CMD_CFG_UP, F_OK) != -1) {
-		rename(CMD_CFG_UP, CMD_CONFIG);
-		//cmdServer->updateConfig();
-		logger->Log(LOGGER_LEVEL_INFO, "CMDStdTasks: updated CMD config");
+		CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
+		if(cmdServer->updateConfig()) {
+			rename(CMD_CFG_UP, CMD_CONFIG);
+		} else {
+			remove(CMD_CFG_UP);
+		}
 	}
 
 	// Update COM config
 	if (access(COM_CFG_UP, F_OK) != -1) {
-		rename(COM_CFG_UP, COM_CONFIG);
+		remove(COM_CFG_UP);
 		//comServer->updateConfig();
-		logger->Log(LOGGER_LEVEL_INFO, "CMDStdTasks: updated COM config");
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: COM config not implemented");
 	}
 
 	// Update EPS config
@@ -591,23 +594,23 @@ void processUplinkFiles(void) {
 
 	// Update FMG config
 	if (access(FMG_CFG_UP, F_OK) != -1) {
-		rename(FMG_CFG_UP, FMG_CONFIG);
+		remove(FMG_CFG_UP);
 		//fmgServer->updateConfig();
-		logger->Log(LOGGER_LEVEL_INFO, "CMDStdTasks: updated FMG config");
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: FMG config not implemented");
 	}
 
 	// Update GPS config
 	if (access(GPS_CFG_UP, F_OK) != -1) {
-		rename(GPS_CFG_UP, GPS_CONFIG);
+		remove(GPS_CFG_UP);
 		//gpsServer->updateConfig();
-		logger->Log(LOGGER_LEVEL_INFO, "CMDStdTasks: updated GPS config");
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: GPS config not implemented");
 	}
 
 	// Update PLD config
 	if (access(PLD_CFG_UP, F_OK) != -1) {
-		rename(PLD_CFG_UP, PLD_CONFIG);
+		remove(PLD_CFG_UP);
 		//pldServer->updateConfig();
-		logger->Log(LOGGER_LEVEL_INFO, "CMDStdTasks: updated PLD config");
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: PLD config not implemented");
 	}
 }
 

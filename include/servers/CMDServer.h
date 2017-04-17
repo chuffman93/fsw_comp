@@ -17,6 +17,7 @@
 #include "servers/ACSServer.h"
 #include "servers/CDHServer.h"
 #include "servers/PLDServer.h"
+#include "servers/FileSystem.h"
 #include "core/Dispatcher.h"
 #include "core/StdTypes.h"
 #include "core/ModeManager.h"
@@ -33,6 +34,9 @@ public:
 	bool RegisterHandlers();
 	static int subsystem_acp_protocol[HARDWARE_LOCATION_MAX];
 
+	void bootConfig(); // read in configs on bootup
+	bool updateConfig(); // update configs after COM pass
+
 	struct BeaconStruct {
 		SystemModeEnum currentMode;
 		uint8 subPowerState;
@@ -45,7 +49,7 @@ public:
 
 	void serializeBeacon(uint8 * buf, std::size_t size);
 
-	CMDConfig CMDConfiguration;
+	static CMDConfig CMDConfiguration;
 	BeaconStruct beacon;
 
 	bool CheckForBeacon(void);

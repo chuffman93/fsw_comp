@@ -6,6 +6,7 @@
 
 #include "servers/FMGServer.h"
 #include "servers/FileSystem.h"
+#include "servers/Structs.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
 #include "core/StdTypes.h"
@@ -21,6 +22,8 @@ using namespace AllStar::Core;
 
 namespace AllStar{
 namespace Servers{
+
+FMGConfig FMGServer::FMGConfiguration(0);
 
 // ----- File Manager functions ------------------------------------------------------------------------------------
 FileManager::FileManager(string path, string tlmType){
@@ -262,6 +265,7 @@ void FMGServer::PrepVerboseHST(void){
 // --------- State Machine -----------------------------------------------------------------------------------------
 void FMGServer::loopInit(void){
 	//nothing to initialize
+	bootConfig();
 	currentState = ST_RUN;
 }
 
@@ -328,7 +332,57 @@ void FMGServer::loopReset(void){
 
 // -----------------------------------------------------------------------------------------------------------------
 
+void FMGServer::bootConfig() {
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
+	FILE * fp = fopen(FMG_CONFIG, "r");
+	uint8 buffer[FMGConfiguration.size];
+
+	// make sure we get a valid file pointer
+	if (fp == NULL) {
+		logger->Log(LOGGER_LEVEL_ERROR, "FMGServer: NULL FMG config file pointer, cannot boot");
+		return;
+	}
+
+	// read and update the configs
+	if (fread(buffer, sizeof(uint8), FMGConfiguration.size, fp) == FMGConfiguration.size) {
+		FMGConfiguration.update(buffer, FMGConfiguration.size, 0, 0);
+		FMGConfiguration.deserialize();
+		logger->Log(LOGGER_LEVEL_INFO, "FMGServer: successfully booted FMG configs");
+		fclose(fp);
+		return;
+	} else {
+		logger->Log(LOGGER_LEVEL_ERROR, "FMGServer: error reading FMG config file, cannot boot");
+		fclose(fp);
+		return;
+	}
+}
+
+bool FMGServer::updateConfig() {
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	FILE * fp = fopen(FMG_CFG_UP, "r");
+	uint8 buffer[FMGConfiguration.size];
+
+	// make sure we get a valid file pointer
+	if (fp == NULL) {
+		logger->Log(LOGGER_LEVEL_ERROR, "FMGServer: NULL FMG config file pointer, cannot update");
+		return false;
+	}
+
+	// read and update the configs
+	if (fread(buffer, sizeof(uint8), FMGConfiguration.size, fp) == FMGConfiguration.size) {
+		FMGConfiguration.update(buffer, FMGConfiguration.size, 0, 0);
+		FMGConfiguration.deserialize();
+		logger->Log(LOGGER_LEVEL_INFO, "FMGServer: successfully updated FMG configs");
+		fclose(fp);
+		return true;
+	} else {
+		logger->Log(LOGGER_LEVEL_ERROR, "FMGServer: error reading FMG config file, cannot update");
+		fclose(fp);
+		return false;
+	}
+}
 
 
 } // End of namespace Servers

@@ -41,6 +41,12 @@ EPSStatus
 	uint16 convCurrentW
 	uint16 convThreshW
 
+ACSConfig
+	int32 testConfig
+	
+CDHConfig
+	int32 testConfig
+
 CMDConfig
 	int32 resetPeriod // seconds
 	int32 fileChunkSize
@@ -48,8 +54,16 @@ CMDConfig
 	int32 beaconPeriod
 	int32 increasedBeaconPeriod
 	
+COMConfig
+	int32 testConfig
+	
 EPSConfig
 	uint16 minCOMCharge
 	uint16 minPLDCharge
 	uint16 minDSTCharge
 	
+FMGConfig
+	int32 testConfig
+	
+PLDConfig
+	int32 testConfig

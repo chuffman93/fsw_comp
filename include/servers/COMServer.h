@@ -10,6 +10,7 @@
 #define COMSERVER_H_
 
 #include "servers/SubsystemServer.h"
+#include "servers/Structs.h"
 #include "core/StdTypes.h"
 #include "core/ModeManager.h"
 #include "core/Factory.h"
@@ -30,6 +31,11 @@ public:
 	void setTxSilence(bool txSilence) {
 		TXSilence = txSilence;
 	}
+
+	void bootConfig(); // read in configs on bootup
+	bool updateConfig(); // update configs after COM pass
+
+	static COMConfig COMConfiguration;
 
 private:
 	static void Initialize(void);

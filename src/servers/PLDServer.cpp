@@ -10,6 +10,7 @@
 #include "servers/PLDServer.h"
 #include "servers/PLDStdTasks.h"
 #include "servers/DispatchStdTasks.h"
+#include "servers/FileSystem.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
 #include "core/WatchdogManager.h"
@@ -24,6 +25,8 @@ using namespace AllStar::Core;
 
 namespace AllStar{
 namespace Servers{
+
+PLDConfig PLDServer::PLDConfiguration(0);
 
 PLDServer::PLDServer(string nameIn, LocationIDType idIn) :
 		SubsystemServer(nameIn, idIn, 1000, 20), Singleton() {
@@ -60,6 +63,8 @@ bool PLDServer::IsFullyInitialized(void){
 void PLDServer::loopInit(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "PLDServer: initializing");
+
+	bootConfig();
 
 	// TODO: synchronize clock with GPS
 
@@ -214,6 +219,58 @@ bool PLDServer::CheckHealthStatus(){
 
 			return true;
 		}
+	}
+}
+
+void PLDServer::bootConfig() {
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	FILE * fp = fopen(PLD_CONFIG, "r");
+	uint8 buffer[PLDConfiguration.size];
+
+	// make sure we get a valid file pointer
+	if (fp == NULL) {
+		logger->Log(LOGGER_LEVEL_ERROR, "PLDServer: NULL PLD config file pointer, cannot boot");
+		return;
+	}
+
+	// read and update the configs
+	if (fread(buffer, sizeof(uint8), PLDConfiguration.size, fp) == PLDConfiguration.size) {
+		PLDConfiguration.update(buffer, PLDConfiguration.size, 0, 0);
+		PLDConfiguration.deserialize();
+		logger->Log(LOGGER_LEVEL_INFO, "PLDServer: successfully booted PLD configs");
+		fclose(fp);
+		return;
+	} else {
+		logger->Log(LOGGER_LEVEL_ERROR, "PLDServer: error reading PLD config file, cannot boot");
+		fclose(fp);
+		return;
+	}
+}
+
+bool PLDServer::updateConfig() {
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	FILE * fp = fopen(PLD_CFG_UP, "r");
+	uint8 buffer[PLDConfiguration.size];
+
+	// make sure we get a valid file pointer
+	if (fp == NULL) {
+		logger->Log(LOGGER_LEVEL_ERROR, "PLDServer: NULL PLD config file pointer, cannot update");
+		return false;
+	}
+
+	// read and update the configs
+	if (fread(buffer, sizeof(uint8), PLDConfiguration.size, fp) == PLDConfiguration.size) {
+		PLDConfiguration.update(buffer, PLDConfiguration.size, 0, 0);
+		PLDConfiguration.deserialize();
+		logger->Log(LOGGER_LEVEL_INFO, "PLDServer: successfully updated PLD configs");
+		fclose(fp);
+		return true;
+	} else {
+		logger->Log(LOGGER_LEVEL_ERROR, "PLDServer: error reading PLD config file, cannot update");
+		fclose(fp);
+		return false;
 	}
 }
 

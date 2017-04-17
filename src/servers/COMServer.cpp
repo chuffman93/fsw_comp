@@ -24,6 +24,8 @@ using namespace AllStar::Core;
 namespace AllStar{
 namespace Servers{
 
+COMConfig COMServer::COMConfiguration(0);
+
 // -------------------------------------- Necessary Methods --------------------------------------
 COMServer::COMServer(string nameIn, LocationIDType idIn) :
 		SubsystemServer(nameIn, idIn), Singleton(), TXSilence(false) {
@@ -67,8 +69,11 @@ void COMServer::loopInit(){
 		// Debug LED initialization
 		if(!COMSelfCheck()){
 			logger->Log(LOGGER_LEVEL_FATAL, "COM failed self check!");
+			return;
 		}
 		logger->Log(LOGGER_LEVEL_INFO, "COM passed self check");
+
+		bootConfig();
 
 		currentState = ST_BEACON;
 	}else{
@@ -135,6 +140,58 @@ void COMServer::loopReset(){
 	}
 
 	currentState = ST_BEACON;
+}
+
+void COMServer::bootConfig() {
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	FILE * fp = fopen(COM_CONFIG, "r");
+	uint8 buffer[COMConfiguration.size];
+
+	// make sure we get a valid file pointer
+	if (fp == NULL) {
+		logger->Log(LOGGER_LEVEL_ERROR, "COMServer: NULL COM config file pointer, cannot boot");
+		return;
+	}
+
+	// read and update the configs
+	if (fread(buffer, sizeof(uint8), COMConfiguration.size, fp) == COMConfiguration.size) {
+		COMConfiguration.update(buffer, COMConfiguration.size, 0, 0);
+		COMConfiguration.deserialize();
+		logger->Log(LOGGER_LEVEL_INFO, "COMServer: successfully booted COM configs");
+		fclose(fp);
+		return;
+	} else {
+		logger->Log(LOGGER_LEVEL_ERROR, "COMServer: error reading COM config file, cannot boot");
+		fclose(fp);
+		return;
+	}
+}
+
+bool COMServer::updateConfig() {
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	FILE * fp = fopen(COM_CFG_UP, "r");
+	uint8 buffer[COMConfiguration.size];
+
+	// make sure we get a valid file pointer
+	if (fp == NULL) {
+		logger->Log(LOGGER_LEVEL_ERROR, "COMServer: NULL COM config file pointer, cannot update");
+		return false;
+	}
+
+	// read and update the configs
+	if (fread(buffer, sizeof(uint8), COMConfiguration.size, fp) == COMConfiguration.size) {
+		COMConfiguration.update(buffer, COMConfiguration.size, 0, 0);
+		COMConfiguration.deserialize();
+		logger->Log(LOGGER_LEVEL_INFO, "COMServer: successfully updated COM configs");
+		fclose(fp);
+		return true;
+	} else {
+		logger->Log(LOGGER_LEVEL_ERROR, "COMServer: error reading COM config file, cannot update");
+		fclose(fp);
+		return false;
+	}
 }
 
 }

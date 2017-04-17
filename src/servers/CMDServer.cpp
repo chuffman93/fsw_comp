@@ -39,6 +39,8 @@ namespace Servers{
 //Message Handler for ACP Protocol Switches
 int CMDServer::subsystem_acp_protocol[HARDWARE_LOCATION_MAX];
 
+CMDConfig CMDServer::CMDConfiguration(0,0,0,0,0);
+
 CMDServer::CMDServer(string nameIn, LocationIDType idIn) :
 		SubsystemServer(nameIn, idIn), Singleton(), numFilesDWN(0), currFileNum(0) {
 	for (int i = HARDWARE_LOCATION_MIN; i < HARDWARE_LOCATION_MAX; i++) {
@@ -87,6 +89,7 @@ void CMDServer::loopInit(void){
 
 	// setup for uftp
 	uftpSetup();
+	bootConfig();
 
 	currentState = ST_IDLE;
 }
@@ -368,6 +371,58 @@ bool CMDServer::CheckForBeacon() {
 		beaconValid = false;
 		return true;
 	} else {
+		return false;
+	}
+}
+
+void CMDServer::bootConfig() {
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	FILE * fp = fopen(CMD_CONFIG, "r");
+	uint8 buffer[CMDConfiguration.size];
+
+	// make sure we get a valid file pointer
+	if (fp == NULL) {
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: NULL CMD config file pointer, cannot boot");
+		return;
+	}
+
+	// read and update the configs
+	if (fread(buffer, sizeof(uint8), CMDConfiguration.size, fp) == CMDConfiguration.size) {
+		CMDConfiguration.update(buffer, CMDConfiguration.size, 0, 0);
+		CMDConfiguration.deserialize();
+		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: successfully booted CMD configs");
+		fclose(fp);
+		return;
+	} else {
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: error reading CMD config file, cannot boot");
+		fclose(fp);
+		return;
+	}
+}
+
+bool CMDServer::updateConfig() {
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	FILE * fp = fopen(CMD_CFG_UP, "r");
+	uint8 buffer[CMDConfiguration.size];
+
+	// make sure we get a valid file pointer
+	if (fp == NULL) {
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: NULL CMD config file pointer, cannot update");
+		return false;
+	}
+
+	// read and update the configs
+	if (fread(buffer, sizeof(uint8), CMDConfiguration.size, fp) == CMDConfiguration.size) {
+		CMDConfiguration.update(buffer, CMDConfiguration.size, 0, 0);
+		CMDConfiguration.deserialize();
+		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: successfully updated CMD configs");
+		fclose(fp);
+		return true;
+	} else {
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: error reading CMD config file, cannot update");
+		fclose(fp);
 		return false;
 	}
 }

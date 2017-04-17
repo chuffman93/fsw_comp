@@ -164,7 +164,7 @@ void EPSServer::bootConfig() {
 	uint8 buffer[EPSConfiguration.size];
 
 	// make sure we get a valid file pointer
-	if (fp != NULL) {
+	if (fp == NULL) {
 		logger->Log(LOGGER_LEVEL_ERROR, "EPSServer: NULL EPS config file pointer, cannot boot");
 		return;
 	}

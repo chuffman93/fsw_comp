@@ -39,12 +39,12 @@ public:
 	bool RegisterHandlers();
 	bool CheckHealthStatus();
 
-	struct ACSConfig{
-		uint32 test;
-	};
+	void bootConfig(); // read in configs on bootup
+	bool updateConfig(); // update configs after COM pass
+
+	static ACSConfig ACSConfiguration;
 
 	ACSStatus ACSState;
-	ACSConfig ACSConfigurations;
 
 private:
 	ACSOrientationType ACSOrientation;

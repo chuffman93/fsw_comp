@@ -43,6 +43,10 @@ public:
 	void resetAssert(HardwareLocationIDType subsystem);
 	void resetDeassert(HardwareLocationIDType subsystem);
 
+	void bootConfig(); // read in configs on bootup
+	bool updateConfig(); // update configs after COM pass
+
+	static CDHConfig CDHConfiguration;
 	CDHStatus CDHState;
 
 	PowerMonitor_Data CDH_powermonitors[4];

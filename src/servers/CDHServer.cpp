@@ -8,6 +8,7 @@
 #include "servers/CDHServer.h"
 #include "servers/CDHStdTasks.h"
 #include "servers/DispatchStdTasks.h"
+#include "servers/FileSystem.h"
 #include "HAL/I2C/HotSwaps.h"
 #include "HAL/I2C/PowerMonitor.h"
 #include "core/Singleton.h"
@@ -32,6 +33,9 @@ using namespace std;
 
 namespace AllStar{
 namespace Servers{
+
+CDHConfig CDHServer::CDHConfiguration(0);
+
 
 // -------------------------------------- Necessary Methods --------------------------------------
 CDHServer::CDHServer(std::string nameIn, LocationIDType idIn) :
@@ -90,6 +94,7 @@ void CDHServer::loopInit(){
 	devMngr->initializePM();
 #endif //PM_EN
 
+	bootConfig();
 	prepPowerGPIOs(); // allows CDH to control subsystem power
 	currentState = ST_MONITOR;
 }
@@ -175,6 +180,58 @@ void CDHServer::resetAssert(HardwareLocationIDType subsystem){
 
 void CDHServer::resetDeassert(HardwareLocationIDType subsystem){
 	toggleResetLine(subsystem, true);
+}
+
+void CDHServer::bootConfig() {
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	FILE * fp = fopen(CDH_CONFIG, "r");
+	uint8 buffer[CDHConfiguration.size];
+
+	// make sure we get a valid file pointer
+	if (fp == NULL) {
+		logger->Log(LOGGER_LEVEL_ERROR, "CDHServer: NULL CDH config file pointer, cannot boot");
+		return;
+	}
+
+	// read and update the configs
+	if (fread(buffer, sizeof(uint8), CDHConfiguration.size, fp) == CDHConfiguration.size) {
+		CDHConfiguration.update(buffer, CDHConfiguration.size, 0, 0);
+		CDHConfiguration.deserialize();
+		logger->Log(LOGGER_LEVEL_INFO, "CDHServer: successfully booted CDH configs");
+		fclose(fp);
+		return;
+	} else {
+		logger->Log(LOGGER_LEVEL_ERROR, "CDHServer: error reading CDH config file, cannot boot");
+		fclose(fp);
+		return;
+	}
+}
+
+bool CDHServer::updateConfig() {
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	FILE * fp = fopen(CDH_CFG_UP, "r");
+	uint8 buffer[CDHConfiguration.size];
+
+	// make sure we get a valid file pointer
+	if (fp == NULL) {
+		logger->Log(LOGGER_LEVEL_ERROR, "CDHServer: NULL CDH config file pointer, cannot update");
+		return false;
+	}
+
+	// read and update the configs
+	if (fread(buffer, sizeof(uint8), CDHConfiguration.size, fp) == CDHConfiguration.size) {
+		CDHConfiguration.update(buffer, CDHConfiguration.size, 0, 0);
+		CDHConfiguration.deserialize();
+		logger->Log(LOGGER_LEVEL_INFO, "CDHServer: successfully updated CDH configs");
+		fclose(fp);
+		return true;
+	} else {
+		logger->Log(LOGGER_LEVEL_ERROR, "CDHServer: error reading CDH config file, cannot update");
+		fclose(fp);
+		return false;
+	}
 }
 
 }

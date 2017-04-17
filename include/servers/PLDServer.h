@@ -26,6 +26,11 @@ public:
 	bool RegisterHandlers();
 	bool CheckHealthStatus();
 
+	void bootConfig(); // read in configs on bootup
+	bool updateConfig(); // update configs after COM pass
+
+	static PLDConfig PLDConfiguration;
+
 	PLDStatus PLDState;
 
 private:

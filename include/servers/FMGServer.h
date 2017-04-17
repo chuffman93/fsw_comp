@@ -8,6 +8,7 @@
 #define FMGSERVER_H_
 
 #include "servers/SubsystemServer.h"
+#include "servers/Structs.h"
 #include "core/Dispatcher.h"
 #include "core/StdTypes.h"
 #include "core/ModeManager.h"
@@ -83,6 +84,11 @@ public:
 
 	// FileQueue
 	queue<FilePacket> FileQueue;
+
+	void bootConfig(); // read in configs on bootup
+	bool updateConfig(); // update configs after COM pass
+
+	static FMGConfig FMGConfiguration;
 
 private:
 	static void Initialize(void);
