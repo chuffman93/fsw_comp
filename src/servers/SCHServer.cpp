@@ -8,7 +8,7 @@
 #include "servers/GPSServer.h"
 #include "servers/CMDServer.h"
 #include "servers/FileSystem.h"
-
+#include "servers/Structs.h"
 #include "core/Dispatcher.h"
 #include "core/WatchdogManager.h"
 #include "core/StdTypes.h"
@@ -27,7 +27,7 @@ namespace AllStar{
 namespace Servers{
 
 SCHServer::SCHServer(string nameIn, LocationIDType idIn)
-		: SubsystemServer(nameIn, idIn), Singleton(), configManager(SCH_CONFIG), surpriseCOM(false), resetRequest(false), lastWakeTime(0), modeEnterTime(0), lastBusEnter(0), itemEntered(false)
+		: SubsystemServer(nameIn, idIn), Singleton(), surpriseCOM(false), resetRequest(false), lastWakeTime(0), modeEnterTime(0), lastBusEnter(0), itemEntered(false)
 {
 
 }
@@ -72,52 +72,54 @@ void SCHServer::RequestReset(void){
 	resetRequest = true;
 }
 
-//void SCHServer::EnterNextMode(void){
-//	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-//	SystemModeEnum currentMode = modeManager->GetMode();
-//
-//	if(currentMode == MODE_BUS_PRIORITY && (lastBusEnter + 10 < getTimeInSec())){ // make sure we've been in bus priority mode for >10 seconds
-//		modeManager->SetMode(currentEvent.mode);
-//		itemEntered = true;
-//		modeEnterTime = getTimeInSec();
-//	}else if(currentMode != MODE_BUS_PRIORITY){
-//		modeManager->SetMode(MODE_BUS_PRIORITY);
-//		lastBusEnter = getTimeInSec();
-//	}
-//}
-//
-//void SCHServer::EnterBusMode(void){
-//	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-//
-//	modeManager->SetMode(MODE_BUS_PRIORITY);
-//	lastBusEnter = getTimeInSec();
-//	currentSchedule.pop_front();
-//	itemEntered = false;
-//}
-
-int SCHServer::LoadDefaultScheduleConfigurations(void){
+int SCHServer::LoadDefaultScheduleConfigurations(void) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	configManager.LoadConfig();
-	defaultSchedule.clear();
 
-	// reload the schedule
-	for (int i = 0; i < configManager.config.sizeOfDefaultSchedule; i++) {
-		logger->Log(LOGGER_LEVEL_INFO, "Added item to default schedule: {%f, %f, %f, %d, %d %d, %d}",
-				configManager.config.defaultScheduleArray[i].latitude,
-				configManager.config.defaultScheduleArray[i].longitude,
-				configManager.config.defaultScheduleArray[i].radius,
-				configManager.config.defaultScheduleArray[i].enter_mode,
-				configManager.config.defaultScheduleArray[i].timeout,
-				configManager.config.defaultScheduleArray[i].mode,
-				configManager.config.defaultScheduleArray[i].duration);
-		defaultSchedule.push_back(configManager.config.defaultScheduleArray[i]);
-		defaultSchedule.back().timeout += getTimeInSec(); // TODO: delete this to implement absolute timing
+	FILE * fp = fopen(CMD_CONFIG, "rb");
+	uint8 buffer[SCHItem::size * SCHEDULE_MAX_SIZE];
+
+	// make sure we get a valid file pointer
+	if (fp == NULL) {
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: NULL CMD config file pointer, cannot boot");
+		return -1;
 	}
-	return 1;
+
+	// check file size (and reset fp to beginning)
+	fseek(fp,0,SEEK_END);
+	int file_size = ftell(fp);
+	fseek(fp,0,SEEK_SET);
+
+	if (file_size == 0 || (file_size % SCHItem::size) != 0) {
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: Invalid default schedule file size");
+		fclose(fp);
+		return -1;
+	}
+
+	// read and update the configs
+	size_t bytes_read = fread(buffer, sizeof(uint8), SCHItem::size, fp);
+	if (bytes_read == file_size) {
+		defaultSchedule.clear();
+		SCHItem defaultScheduleArray[SCHEDULE_MAX_SIZE];
+		for (uint8 i = 0; i < bytes_read % SCHItem::size; i++) {
+			defaultScheduleArray[i].update(buffer, SCHItem::size, 0, SCHItem::size*i);
+			defaultScheduleArray[i].deserialize();
+			defaultScheduleArray[i].timeout += getTimeInSec();
+			defaultSchedule.push_back(defaultScheduleArray[i]);
+		}
+		logger->Log(LOGGER_LEVEL_INFO, "SCHServer: successfully loaded default config");
+		fclose(fp);
+		return 1;
+	} else {
+		logger->Log(LOGGER_LEVEL_ERROR, "SCHServer: error reading default schedule");
+		SCHItem defaultItem(0,0,-1,1,1,MODE_BUS_PRIORITY,60*60*24);
+		defaultSchedule.clear();
+		defaultSchedule.push_back(defaultItem);
+		fclose(fp);
+		return -1;
+	}
 }
 
-void SCHServer::SubsystemLoop(void)
-{
+void SCHServer::SubsystemLoop(void) {
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 	GPSServer * gpsServer = dynamic_cast<GPSServer *>(Factory::GetInstance(GPS_SERVER_SINGLETON));
@@ -129,8 +131,7 @@ void SCHServer::SubsystemLoop(void)
 	itemEntered = false;
 	lastBusEnter = getTimeInSec();
 
-	while(1)
-	{
+	while(1) {
 		lastWakeTime = getTimeInMillis();
 		wdm->Kick();
 
@@ -146,14 +147,14 @@ void SCHServer::SubsystemLoop(void)
 				itemEntered = false;
 				currentSchedule.pop_front();
 			}
-			SCHItem newCOM = {0,0,-1,1,1,MODE_COM,90}; // TODO: make this longer for flight
+			SCHItem newCOM(0,0,-1,1,1,MODE_COM,90); // TODO: make this longer for flight
 			currentSchedule.push_front(newCOM);
 		}
 
 		if(resetRequest){
 			resetRequest = false;
 			modeManager->SetMode(MODE_RESET);
-			SCHItem resetItem = {0,0,-1,1,1,MODE_RESET,30};
+			SCHItem resetItem(0,0,-1,1,1,MODE_RESET,30);
 			itemEntered = false;
 			currentSchedule.push_front(resetItem);
 		}
@@ -176,7 +177,7 @@ void SCHServer::SubsystemLoop(void)
 				SystemModeEnum currentMode = modeManager->GetMode();
 
 				if(currentMode == MODE_BUS_PRIORITY && (lastBusEnter + 10 < getTimeInSec())){ // make sure we've been in bus priority mode for >10 seconds
-					modeManager->SetMode(currentEvent.mode);
+					modeManager->SetMode((SystemModeEnum) currentEvent.mode);
 					itemEntered = true;
 					modeEnterTime = getTimeInSec();
 				}else if(currentMode != MODE_BUS_PRIORITY){
@@ -190,7 +191,7 @@ void SCHServer::SubsystemLoop(void)
 					SystemModeEnum currentMode = modeManager->GetMode();
 
 					if(currentMode == MODE_BUS_PRIORITY && (lastBusEnter + 10 < getTimeInSec())){ // make sure we've been in bus priority mode for >10 seconds
-						modeManager->SetMode(currentEvent.mode);
+						modeManager->SetMode((SystemModeEnum) currentEvent.mode);
 						itemEntered = true;
 						modeEnterTime = getTimeInSec();
 					}else if(currentMode != MODE_BUS_PRIORITY){
@@ -220,7 +221,7 @@ void SCHServer::LoadDefaultSchedule(){
 	remove(SCH_SCHEDULE_FILE);
 }
 
-SCHServer::SCHItem SCHServer::ParseLine(string line){
+SCHItem SCHServer::ParseLine(string line){
 	SCHItem newSchedule;
 
 	// TODO: Error bounds

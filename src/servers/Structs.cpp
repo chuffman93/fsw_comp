@@ -283,6 +283,38 @@ void PLDConfig::deserialize(void) {
   this->testConfig = this->deserialize_int32();
 }
 
+SCHItem::SCHItem() { }
+
+SCHItem::SCHItem(double latitude, double longitude, double radius, uint8 enter_mode, int32 timeout, uint8 mode, int32 duration) {
+  this->latitude = latitude;
+  this->longitude = longitude;
+  this->radius = radius;
+  this->enter_mode = enter_mode;
+  this->timeout = timeout;
+  this->mode = mode;
+  this->duration = duration;
+}
+
+void SCHItem::serialize(void) {
+  this->serialize_double(this->latitude);
+  this->serialize_double(this->longitude);
+  this->serialize_double(this->radius);
+  this->serialize_uint8(this->enter_mode);
+  this->serialize_int32(this->timeout);
+  this->serialize_uint8(this->mode);
+  this->serialize_int32(this->duration);
+}
+
+void SCHItem::deserialize(void) {
+  this->latitude = this->deserialize_double();
+  this->longitude = this->deserialize_double();
+  this->radius = this->deserialize_double();
+  this->enter_mode = this->deserialize_uint8();
+  this->timeout = this->deserialize_int32();
+  this->mode = this->deserialize_uint8();
+  this->duration = this->deserialize_int32();
+}
+
 }
 }
 

@@ -7,7 +7,7 @@
 #include <list>
 
 #include "servers/SubsystemServer.h"
-
+#include "servers/Structs.h"
 #include "core/StdTypes.h"
 #include "core/Dispatcher.h"
 #include "core/Singleton.h"
@@ -16,7 +16,7 @@
 namespace AllStar{
 namespace Servers{
 
-#define SCHEDULE_MAX_SIZE 50
+#define SCHEDULE_MAX_SIZE 8
 
 class SCHServer : public SubsystemServer, public AllStar::Core::Singleton
 {
@@ -25,21 +25,6 @@ class SCHServer : public SubsystemServer, public AllStar::Core::Singleton
 
 
 public:
-	struct SCHItem{
-		double latitude;
-		double longitude;
-		double radius;
-		bool enter_mode;
-		int32 timeout;
-		SystemModeEnum mode;
-		int32 duration;
-	};
-
-	struct SCHConfig{
-		uint8_t sizeOfDefaultSchedule;
-		SCHItem defaultScheduleArray[SCHEDULE_MAX_SIZE];
-	};
-
 	void EnterNextMode(void);
 	void EnterBusMode(void);
 	int LoadDefaultScheduleConfigurations(void);
@@ -74,8 +59,6 @@ private:
 	SCHServer(std::string nameIn, LocationIDType idIn);
 	~SCHServer();
 	SCHServer & operator=(const SCHServer & source);
-
-	util::ConfigManager<SCHConfig> configManager;
 
 	bool surpriseCOM;
 	bool resetRequest;

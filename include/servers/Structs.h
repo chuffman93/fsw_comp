@@ -162,6 +162,22 @@ public:
   void deserialize(void);
 };
 
+class SCHItem : public Serialize {
+public:
+  const static int size = 34;
+  SCHItem();
+  SCHItem(double latitude, double longitude, double radius, uint8 enter_mode, int32 timeout, uint8 mode, int32 duration);
+  double latitude; 
+  double longitude; 
+  double radius; 
+  uint8 enter_mode; 
+  int32 timeout; 
+  uint8 mode; 
+  int32 duration; 
+  void serialize(void);
+  void deserialize(void);
+};
+
 }
 }
 

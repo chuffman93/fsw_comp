@@ -67,3 +67,12 @@ FMGConfig
 	
 PLDConfig
 	int32 testConfig
+
+SCHItem
+	double latitude
+	double longitude
+	double radius
+	uint8 enter_mode
+	int32 timeout
+	uint8 mode
+	int32 duration
