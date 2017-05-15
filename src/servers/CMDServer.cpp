@@ -39,7 +39,7 @@ namespace Servers{
 //Message Handler for ACP Protocol Switches
 int CMDServer::subsystem_acp_protocol[HARDWARE_LOCATION_MAX];
 
-CMDConfig CMDServer::CMDConfiguration(0,0,0,0,0);
+CMDConfig CMDServer::CMDConfiguration(360,1000,1000,10,10);
 
 CMDServer::CMDServer(string nameIn, LocationIDType idIn) :
 		SubsystemServer(nameIn, idIn), Singleton(), numFilesDWN(0), currFileNum(0) {

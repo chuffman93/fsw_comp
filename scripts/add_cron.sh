@@ -13,10 +13,11 @@ add_cron() {
 
 if [ -e $1 ]
 then
-  scripts="/home/root/scripts/"
+  scripts="/home/root/scripts"
 else
   scripts=$1
 fi
 
 add_cron "@reboot $scripts/build_file_system.sh >/dev/null"
 add_cron "@reboot $scripts/clear_CUR_directories.sh >/dev/null"
+add_cron "@reboot $scripts/update_time.sh >/dev/null"
