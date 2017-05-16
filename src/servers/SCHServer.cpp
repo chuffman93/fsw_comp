@@ -28,19 +28,12 @@ namespace Servers{
 
 SCHServer::SCHServer(string nameIn, LocationIDType idIn)
 		: SubsystemServer(nameIn, idIn), Singleton(), surpriseCOM(false), resetRequest(false), lastWakeTime(0), modeEnterTime(0), lastBusEnter(0), itemEntered(false)
-{
+{ }
 
-}
+SCHServer::~SCHServer() { }
 
-SCHServer::~SCHServer()
-{
-	// Left Intentionally Blank
-}
-
-SCHServer & SCHServer::operator=(const SCHServer & source)
-{
-	if (this == &source)
-	{
+SCHServer & SCHServer::operator=(const SCHServer & source) {
+	if (this == &source) {
 		return *this;
 	}
 
@@ -49,38 +42,36 @@ SCHServer & SCHServer::operator=(const SCHServer & source)
 	return *this;
 }
 
-void SCHServer::Initialize(void)
-{
-}
+void SCHServer::Initialize(void) { }
 
 #ifdef TEST
-void SCHServer::Destroy(void)
-{
-}
+void SCHServer::Destroy(void) { }
 #endif
 
-bool SCHServer::IsFullyInitialized(void)
-{
+bool SCHServer::IsFullyInitialized(void) {
 	return(Singleton::IsFullyInitialized());
 }
 
-void SCHServer::RequestCOMMode(void){
+void SCHServer::RequestCOMMode(void) {
 	surpriseCOM = true;
 }
 
-void SCHServer::RequestReset(void){
+void SCHServer::RequestReset(void) {
 	resetRequest = true;
 }
 
 int SCHServer::LoadDefaultScheduleConfigurations(void) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-	FILE * fp = fopen(CMD_CONFIG, "rb");
+	FILE * fp = fopen(SCH_CONFIG, "rb");
 	uint8 buffer[SCHItem::size * SCHEDULE_MAX_SIZE];
 
 	// make sure we get a valid file pointer
 	if (fp == NULL) {
-		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: NULL CMD config file pointer, cannot boot");
+		logger->Log(LOGGER_LEVEL_ERROR, "SCHServer: NULL default schedule file pointer, cannot boot");
+		SCHItem defaultItem(0,0,-1,1,1,MODE_BUS_PRIORITY,60*60*24);
+		defaultSchedule.clear();
+		defaultSchedule.push_back(defaultItem);
 		return -1;
 	}
 
@@ -90,21 +81,33 @@ int SCHServer::LoadDefaultScheduleConfigurations(void) {
 	fseek(fp,0,SEEK_SET);
 
 	if (file_size == 0 || (file_size % SCHItem::size) != 0) {
-		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: Invalid default schedule file size");
+		logger->Log(LOGGER_LEVEL_ERROR, "SCHServer: Invalid default schedule file size");
+		SCHItem defaultItem(0,0,-1,1,1,MODE_BUS_PRIORITY,60*60*24);
+		defaultSchedule.clear();
+		defaultSchedule.push_back(defaultItem);
 		fclose(fp);
 		return -1;
 	}
 
 	// read and update the configs
-	size_t bytes_read = fread(buffer, sizeof(uint8), SCHItem::size, fp);
+	size_t bytes_read = fread(buffer, sizeof(uint8), file_size, fp);
 	if (bytes_read == file_size) {
 		defaultSchedule.clear();
-		SCHItem defaultScheduleArray[SCHEDULE_MAX_SIZE];
-		for (uint8 i = 0; i < bytes_read % SCHItem::size; i++) {
-			defaultScheduleArray[i].update(buffer, SCHItem::size, 0, SCHItem::size*i);
-			defaultScheduleArray[i].deserialize();
-			defaultScheduleArray[i].timeout += getTimeInSec();
-			defaultSchedule.push_back(defaultScheduleArray[i]);
+		for (uint8 i = 0; i < bytes_read / SCHItem::size; i++) {
+			tempScheduleArray[i].update(buffer, bytes_read, SCHItem::size*i, SCHItem::size*i);
+			tempScheduleArray[i].deserialize();
+			tempScheduleArray[i].timeout += getTimeInSec();
+			defaultSchedule.push_back(tempScheduleArray[i]);
+			if ((tempScheduleArray[i].enter_mode < 0 || tempScheduleArray[i].enter_mode > 1) ||
+					(tempScheduleArray[i].mode < 0 || tempScheduleArray[i].mode > MODE_NUM_MODES)) {
+				// error in file
+				logger->Log(LOGGER_LEVEL_ERROR, "SCHServer: default schedule item out of range");
+				SCHItem defaultItem(0,0,-1,1,1,MODE_BUS_PRIORITY,60*60*24);
+				defaultSchedule.clear();
+				defaultSchedule.push_back(defaultItem);
+				fclose(fp);
+				return -1;
+			}
 		}
 		logger->Log(LOGGER_LEVEL_INFO, "SCHServer: successfully loaded default config");
 		fclose(fp);

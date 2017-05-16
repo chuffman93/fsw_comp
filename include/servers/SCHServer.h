@@ -42,6 +42,8 @@ public:
 
 	int LoadNextSchedule(void);
 
+	SCHItem tempScheduleArray[SCHEDULE_MAX_SIZE];
+
 	/// \brief The vectors of mode schedules and payload schedules.
 	std::list<SCHItem> defaultSchedule;
 	std::list<SCHItem> currentSchedule;

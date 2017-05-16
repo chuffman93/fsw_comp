@@ -33,7 +33,7 @@ void Serialize::update(uint8_t * buf, size_t size) {
 }
 
 void Serialize::update(uint8_t * buf, size_t size, unsigned int serialize_index, unsigned int deserialize_index) {
-  this->setIndex(this->serialize_index, this->deserialize_index);
+  this->setIndex(serialize_index, deserialize_index);
   this->buf_ptr = buf;
   this->buf_size = size;
 }

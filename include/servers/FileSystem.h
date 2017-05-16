@@ -43,7 +43,7 @@ namespace Servers{
 #define FMG_CONFIG				CONFIG_DIRECTORY	"/FMGConfig"
 #define GPS_CONFIG				CONFIG_DIRECTORY	"/GPSConfig"
 #define PLD_CONFIG				CONFIG_DIRECTORY	"/PLDConfig"
-#define SCH_CONFIG	 			"SCHConfig" // NOTE: this is an exception from the format for now since it uses the old config manager
+#define SCH_CONFIG	 			CONFIG_DIRECTORY	"/SCHConfig"
 
 #define SCH_SCHEDULE_FILE 		"/home/root/Schedule"
 
