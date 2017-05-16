@@ -22,7 +22,6 @@ namespace Servers{
 #define DRF_PATH				UPLINK_DIRECTORY	"/DRF.txt"
 #define DLT_PATH				UPLINK_DIRECTORY	"/DLT.txt"
 #define PPE_PATH				UPLINK_DIRECTORY	"/PPE.txt"
-#define SCH_PATH				UPLINK_DIRECTORY	"/SCH.txt"
 #define EOT_PATH				UPLINK_DIRECTORY	"/EOT.txt"
 #define IEF_PATH				UPLINK_DIRECTORY	"/IEF.txt"
 
@@ -34,6 +33,7 @@ namespace Servers{
 #define FMG_CFG_UP				UPLINK_DIRECTORY	"/FMGConfig"
 #define GPS_CFG_UP				UPLINK_DIRECTORY	"/GPSConfig"
 #define PLD_CFG_UP				UPLINK_DIRECTORY	"/PLDConfig"
+#define SCH_CFG_UP				UPLINK_DIRECTORY	"/SCHConfig"
 
 #define ACS_CONFIG				CONFIG_DIRECTORY	"/ACSConfig"
 #define CDH_CONFIG				CONFIG_DIRECTORY	"/CDHConfig"
@@ -45,7 +45,8 @@ namespace Servers{
 #define PLD_CONFIG				CONFIG_DIRECTORY	"/PLDConfig"
 #define SCH_CONFIG	 			CONFIG_DIRECTORY	"/SCHConfig"
 
-#define SCH_SCHEDULE_FILE 		"/home/root/Schedule"
+#define SCH_UP					UPLINK_DIRECTORY	"/SCH"
+#define SCHEDULE_FILE 			"/home/root/SCH"
 
 #define UFTP_PATH				BINARIES_DIRECTORY	"/uftp"
 #define UFTPD_PATH				BINARIES_DIRECTORY	"/uftpd"

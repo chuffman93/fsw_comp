@@ -289,35 +289,6 @@ enum ErrorCodeEnum
 	ERROR_OPCODE_UNRECOGNIZED_TYPE
 };
 
-enum FileSizeEnum
-{
-	ACS_HS = 100,
-	COM_HS = 100,
-	EPS_HS = 100,
-	GPS_HS = 100,
-	PLD_HS = 100,
-	THM_BUS1 = 100,
-	THM_BUS2 = 100,
-	THM_BUS3 = 100,
-	THM_BUS4 = 100,
-	ERROR_LOGS = 1000,
-	EVENT_LOGS = 1000
-};
-
-#define PAYLOAD_SCHEDULE_QUEUE_MAXSIZE 100
-#define SCHEDULE_QUEUE_MAXSIZE 100
-
-/// \brief Context (Scheduler) Switch Type
-/// TIME = Wait a set amount of time before going onto next task
-/// LOCATION = Location. Wait unil all star hits a location before switching
-enum ScheduleSwitchTypeEnum
-{
-	SCH_ST_START = 0,
-	SCH_ST_TIME = SCH_ST_START,
-	SCH_ST_LOCATION,
-	SCH_ST_END = SCH_ST_LOCATION
-};
-
 enum SystemModeEnum
 {
 	MODE_FIRST_MODE = 0,
@@ -327,21 +298,6 @@ enum SystemModeEnum
 	MODE_COM,
 	MODE_RESET,
 	MODE_NUM_MODES
-};
-
-enum SchedulerTargetEnum
-{
-	MODE_TARGET = 0,
-	EVENT_TARGET,
-	GND_STATION,
-	MAX_SCH_TARGETS
-};
-
-enum ACSSystemPointEnum
-{
-	COM_RF_ANTENNA = 0,
-	THEIA_CAMERA,
-	SYSTEM_INVALID
 };
 
 enum COMProtocol

@@ -60,19 +60,17 @@ void SCHServer::RequestReset(void) {
 	resetRequest = true;
 }
 
-int SCHServer::LoadDefaultScheduleConfigurations(void) {
+bool SCHServer::LoadDefaultScheduleConfigurations(char * filename) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-	FILE * fp = fopen(SCH_CONFIG, "rb");
+	FILE * fp = fopen(filename, "rb");
 	uint8 buffer[SCHItem::size * SCHEDULE_MAX_SIZE];
 
 	// make sure we get a valid file pointer
 	if (fp == NULL) {
 		logger->Log(LOGGER_LEVEL_ERROR, "SCHServer: NULL default schedule file pointer, cannot boot");
-		SCHItem defaultItem(0,0,-1,1,1,MODE_BUS_PRIORITY,60*60*24);
-		defaultSchedule.clear();
-		defaultSchedule.push_back(defaultItem);
-		return -1;
+		SetDefaultBusSchedule();
+		return false;
 	}
 
 	// check file size (and reset fp to beginning)
@@ -82,44 +80,77 @@ int SCHServer::LoadDefaultScheduleConfigurations(void) {
 
 	if (file_size == 0 || (file_size % SCHItem::size) != 0) {
 		logger->Log(LOGGER_LEVEL_ERROR, "SCHServer: Invalid default schedule file size");
-		SCHItem defaultItem(0,0,-1,1,1,MODE_BUS_PRIORITY,60*60*24);
-		defaultSchedule.clear();
-		defaultSchedule.push_back(defaultItem);
+		SetDefaultBusSchedule();
 		fclose(fp);
-		return -1;
+		return false;
 	}
 
 	// read and update the configs
 	size_t bytes_read = fread(buffer, sizeof(uint8), file_size, fp);
 	if (bytes_read == file_size) {
 		defaultSchedule.clear();
+
+		// deserialize and check each schedule item
 		for (uint8 i = 0; i < bytes_read / SCHItem::size; i++) {
-			tempScheduleArray[i].update(buffer, bytes_read, SCHItem::size*i, SCHItem::size*i);
-			tempScheduleArray[i].deserialize();
-			tempScheduleArray[i].timeout += getTimeInSec();
-			defaultSchedule.push_back(tempScheduleArray[i]);
-			if ((tempScheduleArray[i].enter_mode < 0 || tempScheduleArray[i].enter_mode > 1) ||
-					(tempScheduleArray[i].mode < 0 || tempScheduleArray[i].mode > MODE_NUM_MODES)) {
+			DefaultArray[i].update(buffer, bytes_read, SCHItem::size*i, SCHItem::size*i);
+			DefaultArray[i].deserialize();
+			DefaultArray[i].timeout += getTimeInSec();
+			if ((DefaultArray[i].enter_mode < 0 || DefaultArray[i].enter_mode > 1) ||
+					(DefaultArray[i].mode < 0 || DefaultArray[i].mode > MODE_NUM_MODES)) {
 				// error in file
 				logger->Log(LOGGER_LEVEL_ERROR, "SCHServer: default schedule item out of range");
-				SCHItem defaultItem(0,0,-1,1,1,MODE_BUS_PRIORITY,60*60*24);
-				defaultSchedule.clear();
-				defaultSchedule.push_back(defaultItem);
+				SetDefaultBusSchedule();
 				fclose(fp);
-				return -1;
+				return false;
 			}
 		}
+
+		// push the new items to the default schedule
+		UpdateDefaultSchedule(bytes_read / SCHItem::size);
+
 		logger->Log(LOGGER_LEVEL_INFO, "SCHServer: successfully loaded default config");
 		fclose(fp);
-		return 1;
+		return true;
 	} else {
 		logger->Log(LOGGER_LEVEL_ERROR, "SCHServer: error reading default schedule");
-		SCHItem defaultItem(0,0,-1,1,1,MODE_BUS_PRIORITY,60*60*24);
-		defaultSchedule.clear();
-		defaultSchedule.push_back(defaultItem);
+		SetDefaultBusSchedule();
 		fclose(fp);
-		return -1;
+		return false;
 	}
+}
+
+void SCHServer::UpdateDefaultSchedule(int numItems) {
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	for (uint8 j = 0; j < 5; j++) {
+		if (this->TakeLock(MAX_BLOCK_TIME)) {
+			for (uint8 i = 0; i < numItems; i++) {
+				defaultSchedule.push_back(DefaultArray[i]);
+			}
+			this->GiveLock();
+			return;
+		}
+	}
+
+	logger->Log(LOGGER_LEVEL_ERROR, "SCHServer: unable to update default schedule");
+	// TODO: handle this
+}
+
+void SCHServer::SetDefaultBusSchedule(void) {
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	SCHItem defaultItem(0,0,-1,1,1,MODE_BUS_PRIORITY,300);
+	for (uint8 i = 0; i < 5; i++) {
+		if (this->TakeLock(MAX_BLOCK_TIME)) {
+			defaultSchedule.clear();
+			defaultSchedule.push_back(defaultItem);
+			this->GiveLock();
+			return;
+		}
+	}
+
+	logger->Log(LOGGER_LEVEL_ERROR, "SCHServer: unable to set default bus due to lock!");
+	// TODO: handle this
 }
 
 void SCHServer::SubsystemLoop(void) {
@@ -129,6 +160,7 @@ void SCHServer::SubsystemLoop(void) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	modeManager->SetMode(MODE_BUS_PRIORITY);
+	LoadDefaultScheduleConfigurations((char *) SCH_CONFIG);
 
 	currentSchedule = std::list<SCHItem>();
 	itemEntered = false;
@@ -218,10 +250,9 @@ void SCHServer::SubsystemLoop(void) {
 void SCHServer::LoadDefaultSchedule(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-	LoadDefaultScheduleConfigurations();
 	currentSchedule = defaultSchedule;
 	logger->Log(LOGGER_LEVEL_INFO, "Default Schedule Loaded");
-	remove(SCH_SCHEDULE_FILE);
+	remove(SCHEDULE_FILE);
 }
 
 SCHItem SCHServer::ParseLine(string line){
@@ -244,13 +275,13 @@ int SCHServer::LoadNextSchedule(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	currentSchedule = std::list<SCHItem>();
 
-	if(access(SCH_SCHEDULE_FILE, F_OK) == -1){
+	if(access(SCHEDULE_FILE, F_OK) == -1){
 		logger->Log(LOGGER_LEVEL_WARN, "LoadNextSchedule: No new schedule, loading default...");
 		LoadDefaultSchedule();
 		return -1;
 	}
 
-	FILE * fp = fopen(SCH_SCHEDULE_FILE, "r");
+	FILE * fp = fopen(SCHEDULE_FILE, "r");
 	if(fp == NULL){
 		logger->Log(LOGGER_LEVEL_WARN, "LoadNextSchedule: Failed to open new schedule file, loading default...");
 		LoadDefaultSchedule();
@@ -266,7 +297,7 @@ int SCHServer::LoadNextSchedule(){
 	if(strcmp(line,UPLK_PASSWORD) != 0){
 		logger->Log(LOGGER_LEVEL_ERROR, "LoadNextSchedule: invalid SCH password");
 		fclose(fp);
-		remove(SCH_SCHEDULE_FILE);
+		remove(SCHEDULE_FILE);
 		LoadDefaultSchedule();
 		return -4;
 	}
@@ -283,7 +314,7 @@ int SCHServer::LoadNextSchedule(){
 	}
 
 	logger->Log(LOGGER_LEVEL_INFO, "LoadNextSchedule: New schedule loaded");
-	remove(SCH_SCHEDULE_FILE);
+	remove(SCHEDULE_FILE);
 
 	return 1;
 }

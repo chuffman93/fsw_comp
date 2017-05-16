@@ -25,9 +25,9 @@ class SCHServer : public SubsystemServer, public AllStar::Core::Singleton
 
 
 public:
-	void EnterNextMode(void);
-	void EnterBusMode(void);
-	int LoadDefaultScheduleConfigurations(void);
+	bool LoadDefaultScheduleConfigurations(char * filename);
+	void UpdateDefaultSchedule(int numItems);
+	void SetDefaultBusSchedule();
 	void SubsystemLoop(void);
 
 	bool RegisterHandlers();
@@ -42,7 +42,8 @@ public:
 
 	int LoadNextSchedule(void);
 
-	SCHItem tempScheduleArray[SCHEDULE_MAX_SIZE];
+	SCHItem ScheduleArray[SCHEDULE_MAX_SIZE];
+	SCHItem DefaultArray[SCHEDULE_MAX_SIZE];
 
 	/// \brief The vectors of mode schedules and payload schedules.
 	std::list<SCHItem> defaultSchedule;

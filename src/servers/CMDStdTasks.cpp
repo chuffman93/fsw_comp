@@ -541,14 +541,26 @@ void parsePPE(void) {
 	logger->Log(LOGGER_LEVEL_INFO, "Finished PPE");
 }
 
+// A primary responsibility of this function is to deal with configuration updates.
+// Before replacing old configurations, it checks the validity of the new configs.
 void processUplinkFiles(void) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	// Move new schedule from the uplink directory to its final directory
-	if (access(SCH_PATH, F_OK) != -1) {
-		rename(SCH_PATH, SCH_SCHEDULE_FILE);
-	} else {
-		logger->Log(LOGGER_LEVEL_DEBUG, "CMDStdTasks: no SCH");
+//	if (access(SCH_PATH, F_OK) != -1) {
+//		rename(SCH_PATH, SCH_SCHEDULE_FILE);
+//	} else {
+//		logger->Log(LOGGER_LEVEL_DEBUG, "CMDStdTasks: no SCH");
+//	}
+
+	// Update Config Schedule
+	if (access(SCH_CFG_UP, F_OK) != -1) {
+		SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
+		if(schServer->LoadDefaultScheduleConfigurations((char *) SCH_CFG_UP)) {
+			rename(SCH_CFG_UP, SCH_CONFIG);
+		} else {
+			remove(SCH_CFG_UP);
+		}
 	}
 
 	// Update ACS config
