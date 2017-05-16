@@ -108,7 +108,7 @@ bool SCHServer::LoadDefaultScheduleConfigurations(char * filename) {
 		// push the new items to the default schedule
 		UpdateDefaultSchedule(bytes_read / SCHItem::size);
 
-		logger->Log(LOGGER_LEVEL_INFO, "SCHServer: successfully loaded default config");
+		logger->Log(LOGGER_LEVEL_INFO, "SCHServer: successfully loaded default schedule");
 		fclose(fp);
 		return true;
 	} else {
@@ -247,7 +247,7 @@ void SCHServer::SubsystemLoop(void) {
 	}
 }
 
-void SCHServer::LoadDefaultSchedule(){
+void SCHServer::LoadDefaultSchedule(void) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	currentSchedule = defaultSchedule;
@@ -255,68 +255,86 @@ void SCHServer::LoadDefaultSchedule(){
 	remove(SCHEDULE_FILE);
 }
 
-SCHItem SCHServer::ParseLine(string line){
-	SCHItem newSchedule;
+void SCHServer::UpdateSchedule(int numItems) {
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-	// TODO: Error bounds
-	newSchedule.latitude = atof(line.substr(0,8).c_str());
-	newSchedule.longitude = atof(line.substr(8,8).c_str());
-	newSchedule.radius = atof(line.substr(16,8).c_str());
-	newSchedule.enter_mode = atoi(line.substr(24,1).c_str());
-	newSchedule.timeout = atoi(line.substr(25,8).c_str()) + getTimeInSec(); // TODO: Change to 4 bytes after serializing, change to absolute (currently relative to start of schedule)
-	newSchedule.mode = static_cast<SystemModeEnum> (atoi(line.substr(33,1).c_str()));
-	newSchedule.duration = atoi(line.substr(34,8).c_str()); // TODO: Change to 4 bytes after serializing
+	for (uint8 j = 0; j < 5; j++) {
+		if (this->TakeLock(MAX_BLOCK_TIME)) {
+			for (uint8 i = 0; i < numItems; i++) {
+				currentSchedule.push_back(ScheduleArray[i]);
+			}
+			this->GiveLock();
+			return;
+		}
+	}
 
-	return newSchedule;
+	logger->Log(LOGGER_LEVEL_ERROR, "SCHServer: unable to update schedule");
+	// TODO: handle this
 }
 
-int SCHServer::LoadNextSchedule(){
-	// TODO: What to do on reboot?
+int SCHServer::LoadNextSchedule(void) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	currentSchedule = std::list<SCHItem>();
 
-	if(access(SCHEDULE_FILE, F_OK) == -1){
+	currentSchedule.clear();
+	if (access(SCHEDULE_FILE, F_OK) == -1) {
 		logger->Log(LOGGER_LEVEL_WARN, "LoadNextSchedule: No new schedule, loading default...");
 		LoadDefaultSchedule();
 		return -1;
 	}
 
-	FILE * fp = fopen(SCHEDULE_FILE, "r");
-	if(fp == NULL){
-		logger->Log(LOGGER_LEVEL_WARN, "LoadNextSchedule: Failed to open new schedule file, loading default...");
+	FILE * fp = fopen(SCHEDULE_FILE, "rb");
+	uint8 buffer[SCHItem::size * SCHEDULE_MAX_SIZE];
+
+	// make sure we get a valid file pointer
+	if (fp == NULL) {
+		logger->Log(LOGGER_LEVEL_ERROR, "SCHServer: unable to open new schedule, loading default...");
 		LoadDefaultSchedule();
-		return -2;
+		return false;
 	}
 
-	char * line = NULL;
-	size_t len = 0;
-	ssize_t bytesRead;
+	// check file size (and reset fp to beginning)
+	fseek(fp,0,SEEK_END);
+	int file_size = ftell(fp);
+	fseek(fp,0,SEEK_SET);
 
-	// check password
-	bytesRead = getline(&line, &len, fp);
-	if(strcmp(line,UPLK_PASSWORD) != 0){
-		logger->Log(LOGGER_LEVEL_ERROR, "LoadNextSchedule: invalid SCH password");
+	if (file_size == 0 || (file_size % SCHItem::size) != 0) {
+		logger->Log(LOGGER_LEVEL_ERROR, "SCHServer: Invalid schedule file size, loading default...");
+		LoadDefaultSchedule();
 		fclose(fp);
-		remove(SCHEDULE_FILE);
-		LoadDefaultSchedule();
-		return -4;
+		return false;
 	}
 
-	// TODO: NEED TO CHANGE THIS TO RAW INSTEAD OF ASCII!!!!
-	while ((bytesRead = getline(&line, &len, fp)) != -1) {
-		if(bytesRead != 43){ // TODO: Does this actually work?
-			logger->Log(LOGGER_LEVEL_WARN, "LoadNextSchedule: New schedule file is improperly formatted, loading default...");
-			LoadDefaultSchedule();
-			return -3;
+	// read and update the configs
+	size_t bytes_read = fread(buffer, sizeof(uint8), file_size, fp);
+	if (bytes_read == file_size) {
+		// deserialize and check each schedule item
+		for (uint8 i = 0; i < bytes_read / SCHItem::size; i++) {
+			ScheduleArray[i].update(buffer, bytes_read, SCHItem::size*i, SCHItem::size*i);
+			ScheduleArray[i].deserialize();
+			ScheduleArray[i].timeout += getTimeInSec(); // FIXME: update to absolute timing
+			if ((ScheduleArray[i].enter_mode < 0 || ScheduleArray[i].enter_mode > 1) ||
+					(ScheduleArray[i].mode < 0 || ScheduleArray[i].mode > MODE_NUM_MODES)) {
+				// error in file
+				logger->Log(LOGGER_LEVEL_ERROR, "SCHServer: schedule item out of range, loading default...");
+				LoadDefaultSchedule();
+				fclose(fp);
+				return false;
+			}
 		}
 
-		currentSchedule.push_back(ParseLine(string(line)));
+		// push the new items to the default schedule
+		UpdateSchedule(bytes_read / SCHItem::size);
+
+		logger->Log(LOGGER_LEVEL_INFO, "SCHServer: successfully loaded new schedule");
+		remove(SCHEDULE_FILE);
+		fclose(fp);
+		return true;
+	} else {
+		logger->Log(LOGGER_LEVEL_ERROR, "SCHServer: error reading new schedule");
+		LoadDefaultSchedule();
+		fclose(fp);
+		return false;
 	}
-
-	logger->Log(LOGGER_LEVEL_INFO, "LoadNextSchedule: New schedule loaded");
-	remove(SCHEDULE_FILE);
-
-	return 1;
 }
 
 } // End of namespace Servers

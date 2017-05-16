@@ -27,7 +27,7 @@ class SCHServer : public SubsystemServer, public AllStar::Core::Singleton
 public:
 	bool LoadDefaultScheduleConfigurations(char * filename);
 	void UpdateDefaultSchedule(int numItems);
-	void SetDefaultBusSchedule();
+	void SetDefaultBusSchedule(void);
 	void SubsystemLoop(void);
 
 	bool RegisterHandlers();
@@ -38,7 +38,7 @@ public:
 
 	void LoadDefaultSchedule(void);
 
-	SCHItem ParseLine(string line);
+	void UpdateSchedule(int numItems);
 
 	int LoadNextSchedule(void);
 

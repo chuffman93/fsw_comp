@@ -547,11 +547,11 @@ void processUplinkFiles(void) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	// Move new schedule from the uplink directory to its final directory
-//	if (access(SCH_PATH, F_OK) != -1) {
-//		rename(SCH_PATH, SCH_SCHEDULE_FILE);
-//	} else {
-//		logger->Log(LOGGER_LEVEL_DEBUG, "CMDStdTasks: no SCH");
-//	}
+	if (access(SCH_UP, F_OK) != -1) {
+		rename(SCH_UP, SCHEDULE_FILE);
+	} else {
+		logger->Log(LOGGER_LEVEL_DEBUG, "CMDStdTasks: no SCH");
+	}
 
 	// Update Config Schedule
 	if (access(SCH_CFG_UP, F_OK) != -1) {
