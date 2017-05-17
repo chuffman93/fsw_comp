@@ -182,59 +182,56 @@ void SCHServer::SubsystemLoop(void) {
 				itemEntered = false;
 				currentSchedule.pop_front();
 			}
-			SCHItem newCOM(0,0,-1,1,1,MODE_COM,90); // TODO: make this longer for flight
+			SCHItem newCOM(0,0,-1,1,1,MODE_COM,DEFAULT_COM_DURATION);
 			currentSchedule.push_front(newCOM);
 		}
 
 		if(resetRequest){
 			resetRequest = false;
 			modeManager->SetMode(MODE_RESET);
-			SCHItem resetItem(0,0,-1,1,1,MODE_RESET,30);
+			SCHItem resetItem(0,0,-1,1,15,MODE_RESET,30);
 			itemEntered = false;
 			currentSchedule.push_front(resetItem);
 		}
 
 		SCHItem currentEvent = currentSchedule.front();
 
-		if (itemEntered){
-			if (currentEvent.duration < getTimeInSec() - modeEnterTime){
+		if (itemEntered) {
+			if (currentEvent.duration < getTimeInSec() - modeEnterTime) {
 				logger->Log(LOGGER_LEVEL_INFO, "Schedule event duration exceeded, entering Bus Priority Mode");
 				modeManager->SetMode(MODE_BUS_PRIORITY);
 				lastBusEnter = getTimeInSec();
 				currentSchedule.pop_front();
 				itemEntered = false;
 			}
-		}
-		else {
+		} else {
 			bool inRange = gpsServer->DistanceTo(currentEvent.latitude, currentEvent.longitude) < currentEvent.radius;
-			if (inRange){
+			if (inRange) {
 				logger->Log(LOGGER_LEVEL_INFO, "In range of schedule event, setting mode");
 				SystemModeEnum currentMode = modeManager->GetMode();
 
-				if(currentMode == MODE_BUS_PRIORITY && (lastBusEnter + 10 < getTimeInSec())){ // make sure we've been in bus priority mode for >10 seconds
+				if (currentMode == MODE_BUS_PRIORITY && (lastBusEnter + 10 < getTimeInSec())) { // make sure we've been in bus priority mode for >10 seconds
 					modeManager->SetMode((SystemModeEnum) currentEvent.mode);
 					itemEntered = true;
 					modeEnterTime = getTimeInSec();
-				}else if(currentMode != MODE_BUS_PRIORITY){
+				} else if (currentMode != MODE_BUS_PRIORITY) {
 					modeManager->SetMode(MODE_BUS_PRIORITY);
 					lastBusEnter = getTimeInSec();
 				}
-			}
-			else if (currentEvent.timeout < getTimeInSec()){
-				if (currentEvent.enter_mode){
+			} else if (currentEvent.timeout < getTimeInSec()) {
+				if (currentEvent.enter_mode) {
 					logger->Log(LOGGER_LEVEL_INFO, "Schedule event timeout exceeded, entering mode");
 					SystemModeEnum currentMode = modeManager->GetMode();
 
-					if(currentMode == MODE_BUS_PRIORITY && (lastBusEnter + 10 < getTimeInSec())){ // make sure we've been in bus priority mode for >10 seconds
+					if (currentMode == MODE_BUS_PRIORITY && (lastBusEnter + 10 < getTimeInSec())) { // make sure we've been in bus priority mode for >10 seconds
 						modeManager->SetMode((SystemModeEnum) currentEvent.mode);
 						itemEntered = true;
 						modeEnterTime = getTimeInSec();
-					}else if(currentMode != MODE_BUS_PRIORITY){
+					} else if (currentMode != MODE_BUS_PRIORITY) {
 						modeManager->SetMode(MODE_BUS_PRIORITY);
 						lastBusEnter = getTimeInSec();
 					}
-				}
-				else {
+				} else {
 					logger->Log(LOGGER_LEVEL_INFO, "Schedule event timeout exceeded, skipping mode");
 					modeManager->SetMode(MODE_BUS_PRIORITY);
 					lastBusEnter = getTimeInSec();
