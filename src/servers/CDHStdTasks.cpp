@@ -273,7 +273,6 @@ void toggleSubPower(HardwareLocationIDType subsystem, bool state){
 		break;
 	}
 
-	printf("SYSTEM STRING: %s\n", cmd.c_str());
 	system(cmd.c_str());
 }
 

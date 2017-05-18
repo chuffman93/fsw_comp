@@ -36,10 +36,9 @@ ACPPacket * GPSReset(){
 	return NULL;
 }
 
-bool BESTXYZProcess(char * buffer,const size_t size)
-{
-	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+bool BESTXYZProcess(char * buffer, const size_t size) {
+	GPSServer * gpsServer = dynamic_cast<GPSServer *>(Factory::GetInstance(GPS_SERVER_SINGLETON));
+	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 	GPS_BESTXYZ * gpsData = gpsServer->GetGPSDataPtr();
 	char * token;
 	char * buffPtr = buffer;
@@ -48,14 +47,14 @@ bool BESTXYZProcess(char * buffer,const size_t size)
 	logger->Log(LOGGER_LEVEL_DEBUG, "GPSStdTasks: Processing BESTXYZ");
 
 	bool containsDelimiter = false;
-	while((buffPtr - buffer != 350) && (*buffPtr != '\0')){
-		if(*buffPtr++ == '*'){
+	while ((buffPtr - buffer != 350) && (*buffPtr != '\0')) {
+		if (*buffPtr++ == '*') {
 			containsDelimiter = true;
 			break;
 		}
 	}
 
-	if(!containsDelimiter){
+	if (!containsDelimiter) {
 		logger->Log(LOGGER_LEVEL_WARN, "GPSStdTasks: BESTXYZ doesn't contain '*'");
 		return false;
 	}
@@ -65,9 +64,8 @@ bool BESTXYZProcess(char * buffer,const size_t size)
 	char * crcStr = strtok(NULL, "*");
 	uint32 crc = strtoul(crcStr, &token, 16);
 
-
 	// validate crc
-	if(crc != CalculateCRC_GPS(message)){
+	if (crc != CalculateCRC_GPS(message)) {
 		logger->Log(LOGGER_LEVEL_WARN, "GPSStdTasks: invalid CRC!");
 		return false;
 	}
@@ -77,7 +75,7 @@ bool BESTXYZProcess(char * buffer,const size_t size)
 	char * log = strtok(NULL, ";");
 
 	// parse the message header
-	if(strcmp("BESTXYZA",strtok(header, ",")) != 0){
+	if (strcmp("BESTXYZA", strtok(header, ",")) != 0) {
 		logger->Log(LOGGER_LEVEL_WARN, "GPSStdTasks: Wrong message, expecting BESTXYZA");
 		return false;
 	}
@@ -93,12 +91,12 @@ bool BESTXYZProcess(char * buffer,const size_t size)
 	token = strtok(NULL, ","); // (UNUSED) software build
 
 	// parse the position log part of the message
-	if(strcmp("SOL_COMPUTED",strtok(log, ",")) != 0){
+	if (strcmp("SOL_COMPUTED", strtok(log, ",")) != 0) {
 		logger->Log(LOGGER_LEVEL_DEBUG, "GPSStdTasks: No position solution computed!");
 		solSuccess = false;
-	}else{
+	} else {
 		logger->Log(LOGGER_LEVEL_DEBUG, "GPSStdTasks: Valid position solution computed!");
-		token = strtok(NULL,","); // (UNUSED) position type
+		token = strtok(NULL, ","); // (UNUSED) position type
 		gpsData->posX = strtod(strtok(NULL, ","), NULL);
 		gpsData->posY = strtod(strtok(NULL, ","), NULL);
 		gpsData->posZ = strtod(strtok(NULL, ","), NULL);
@@ -108,12 +106,12 @@ bool BESTXYZProcess(char * buffer,const size_t size)
 	}
 
 	// parse the velocity log part of the message
-	if(strcmp("SOL_COMPUTED",strtok(NULL, ",")) != 0){
+	if (strcmp("SOL_COMPUTED", strtok(NULL, ",")) != 0) {
 		logger->Log(LOGGER_LEVEL_DEBUG, "GPSStdTasks: No velocity solution computed!");
 		solSuccess = false;
-	}else{
+	} else {
 		logger->Log(LOGGER_LEVEL_DEBUG, "GPSStdTasks: Valid velocity solution computed!");
-		token = strtok(NULL,","); // (UNUSED) velocity type
+		token = strtok(NULL, ","); // (UNUSED) velocity type
 		gpsData->velX = strtod(strtok(NULL, ","), NULL);
 		gpsData->velY = strtod(strtok(NULL, ","), NULL);
 		gpsData->velZ = strtod(strtok(NULL, ","), NULL);
@@ -138,17 +136,18 @@ bool BESTXYZProcess(char * buffer,const size_t size)
 
 	gpsData->round_seconds = (uint16) lroundf(gpsData->GPSSec);
 
-	if(!solSuccess){
-		logger->Log(LOGGER_LEVEL_DEBUG, "GPSStdTasks: Number of satellites tracked: %d", gpsData->numTracked);
+	if (!solSuccess) {
+		logger->Log(LOGGER_LEVEL_DEBUG, "GPSStdTasks: Invalid BESTXYZ, numTracked: %d", gpsData->numTracked);
+		return false;
 	}
 
-	logger->Log(LOGGER_LEVEL_DEBUG, "GPSStdTasks: Successfully processed BESTXYZ data");
+	logger->Log(LOGGER_LEVEL_DEBUG, "GPSStdTasks: Good BESTXYZ data");
 	return true;
 }
 
-bool GPRMCProcess(char * buffer, const size_t size){
-	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+bool GPRMCProcess(char * buffer, const size_t size) {
+	GPSServer * gpsServer = dynamic_cast<GPSServer *>(Factory::GetInstance(GPS_SERVER_SINGLETON));
+	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 	double doubleHolder;
 	char * token;
 	char * buffPtr = buffer;
@@ -156,14 +155,14 @@ bool GPRMCProcess(char * buffer, const size_t size){
 	logger->Log(LOGGER_LEVEL_DEBUG, "GPSStdTasks: Processing GPRMC");
 
 	bool containsDelimiter = false;
-	while((buffPtr - buffer != 350) && (*buffPtr != '\0')){
-		if(*buffPtr++ == '*'){
+	while ((buffPtr - buffer != 350) && (*buffPtr != '\0')) {
+		if (*buffPtr++ == '*') {
 			containsDelimiter = true;
 			break;
 		}
 	}
 
-	if(!containsDelimiter){
+	if (!containsDelimiter) {
 		logger->Log(LOGGER_LEVEL_WARN, "GPSStdTasks: GPRMC doesn't contain '*'");
 		return false;
 	}
@@ -174,7 +173,7 @@ bool GPRMCProcess(char * buffer, const size_t size){
 	long check = strtol(checkStr, NULL, 16);
 
 	// validate checksum
-	if(check != CalculateNMEAChecksum(message)){
+	if (check != CalculateNMEAChecksum(message)) {
 		logger->Log(LOGGER_LEVEL_WARN, "GPSStdTasks: invalid checksum!");
 		return false;
 	}
@@ -183,9 +182,9 @@ bool GPRMCProcess(char * buffer, const size_t size){
 	token = strtok(message, ","); // GPRMC
 	token = strtok(NULL, ","); // UTC
 	token = strtok(NULL, ","); // status
-	if(*token != 'A'){
-		logger->Log(LOGGER_LEVEL_DEBUG, "GPSStdTasks: invalid data from GPRMC", LOGGER_LEVEL_WARN);
-		return true;
+	if (*token != 'A') {
+		logger->Log(LOGGER_LEVEL_DEBUG, "GPSStdTasks: invalid data from GPRMC");
+		return false;
 	}
 
 	// latitude
@@ -194,9 +193,9 @@ bool GPRMCProcess(char * buffer, const size_t size){
 
 	// latitude direction
 	token = strtok(NULL, ",");
-	if(*token == 'N'){
+	if (*token == 'N') {
 		gpsServer->GPSCoordsHolder->latitude = doubleHolder;
-	}else{
+	} else {
 		gpsServer->GPSCoordsHolder->latitude = -1.0 * doubleHolder;
 	}
 
@@ -206,9 +205,9 @@ bool GPRMCProcess(char * buffer, const size_t size){
 
 	// longitude direction
 	token = strtok(NULL, ",");
-	if(*token == 'E'){
+	if (*token == 'E') {
 		gpsServer->GPSCoordsHolder->longitude = doubleHolder;
-	}else{
+	} else {
 		gpsServer->GPSCoordsHolder->longitude = -1.0 * doubleHolder;
 	}
 
@@ -243,10 +242,10 @@ uint32 CRCValue_GPS(int i){
 	uint32 ulCRC;
 
 	ulCRC = i;
-	for(j = 8 ; j > 0; j--){
-		if(ulCRC & 1){
+	for (j = 8 ; j > 0; j--) {
+		if (ulCRC & 1) {
 			ulCRC = (ulCRC >> 1) ^ CRC32_POLYNOMIAL;
-		}else{
+		} else {
 			ulCRC >>= 1;
 		}
 	}
@@ -259,7 +258,7 @@ uint32 CalculateCRC_GPS(char * buffer){
 	uint32 temp2;
 	uint32 CRC = 0;
 
-	while(*buffer != '\0'){
+	while (*buffer != '\0') {
 		temp1 = (CRC >> 8) & 0x00FFFFFFL;
 		temp2 = CRCValue_GPS(((int) CRC ^ ((uint8) *buffer++)) & 0xff);
 		CRC = temp1 ^ temp2;
@@ -272,7 +271,7 @@ uint8 CalculateNMEAChecksum(char * buffer){
 	uint32 len = strlen(buffer);
 	uint8 checksum = 0;
 
-	for(uint8 it = 0; it < len; it++){
+	for (uint8 it = 0; it < len; it++) {
 		checksum ^= (uint8) *(buffer+it);
 	}
 
