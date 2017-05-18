@@ -166,6 +166,11 @@ void SCHServer::SubsystemLoop(void) {
 	itemEntered = false;
 	lastBusEnter = getTimeInSec();
 
+	// remove any old schedule that may be left behind by a reboot
+	if (access(SCHEDULE_FILE, F_OK) != -1) {
+		remove(SCHEDULE_FILE);
+	}
+
 	while(1) {
 		lastWakeTime = getTimeInMillis();
 		wdm->Kick();
@@ -249,7 +254,9 @@ void SCHServer::LoadDefaultSchedule(void) {
 
 	currentSchedule = defaultSchedule;
 	logger->Log(LOGGER_LEVEL_INFO, "Default Schedule Loaded");
-	remove(SCHEDULE_FILE);
+	if (access(SCHEDULE_FILE, F_OK) != -1) {
+		remove(SCHEDULE_FILE);
+	}
 }
 
 void SCHServer::UpdateSchedule(int numItems) {
@@ -323,7 +330,9 @@ int SCHServer::LoadNextSchedule(void) {
 		UpdateSchedule(bytes_read / SCHItem::size);
 
 		logger->Log(LOGGER_LEVEL_INFO, "SCHServer: successfully loaded new schedule");
-		remove(SCHEDULE_FILE);
+		if (access(SCHEDULE_FILE, F_OK) != -1) {
+			remove(SCHEDULE_FILE);
+		}
 		fclose(fp);
 		return true;
 	} else {
