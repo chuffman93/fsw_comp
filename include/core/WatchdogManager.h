@@ -16,12 +16,10 @@
 #include "core/Factory.h"
 #include "util/Logger.h"
 #include "servers/SubsystemServer.h"
-#include "errno.h"
 #include "POSIX.h"
 #include <iostream>
-#include <string>
 #include <pthread.h>
-#include <map>
+#include <list>
 
 using namespace std;
 
@@ -29,51 +27,27 @@ namespace AllStar{
 namespace Core{
 
 // ------------------------------------ Watchdog Manager Class -------------------------------------
-
-/*  This class provides the ability to check that all tasks in the
- *  running state within the system are actively running.  Each task
- *  MUST call WatchdogManager::Kick() at least once between calls
- *  to AllRunningTasksActive().  Otherwise, that method will return
- *  false, indicating that one or more tasks are no longer active.
- */
 class WatchdogManager : public Singleton
 {
 	friend class Factory;
 
 public:
+	bool StartServer(AllStar::Servers::SubsystemServer * instanceIn, int waitIn, bool run);
 
-	// TODO: add pause and resume?
+	bool AddTask(PThread * thread);
 
-	static bool StartServer(AllStar::Servers::SubsystemServer * instanceIn, int waitIn, bool run);
+	bool DeleteTask(PThread *&pThread);
 
-	static PThread* CreateTask(const pthread_attr_t *at, void *(*ro)(void*), void *ar, const bool startNow);
+	void WatchdogManagerTask();
 
-	static bool DeleteTask(PThread *&pThread);
-
-	static void * WatchdogManagerTask();
-
-	static bool AddTask(PThread * thread);
-
-	static void Kick(void);
-
-	static bool AllRunningTasksActive(void);
-
-	static bool ResetAllKickState(void);
-
-	std::size_t GetNumberOfTasks(void) const;
+	list<PThread *> taskList;
 
 private:
-	typedef std::pair<PThread *, TaskState *> PairType;
-	typedef std::map<PThread *, TaskState *>::iterator IteratorType;
-	typedef std::map<PThread *, TaskState *>::const_iterator ConstIteratorType;
-	std::map<PThread *, TaskState *> taskMap;
-
-
 	static void Initialize(void);
 
 	bool IsFullyInitialized(void);
 
-	static void Destroy(void);
+	void Destroy(void);
 
 	virtual ~WatchdogManager(void);
 

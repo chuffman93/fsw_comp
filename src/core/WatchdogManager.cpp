@@ -24,120 +24,50 @@ using namespace AllStar::Servers;
 
 // -------------------------------------- Necessary Methods --------------------------------------
 WatchdogManager::WatchdogManager(void)
-: Singleton(), taskMap( ){
+: Singleton() {
 }
 
-WatchdogManager::WatchdogManager(const WatchdogManager & source){
+WatchdogManager::WatchdogManager(const WatchdogManager & source) {
 }
 
-WatchdogManager::~WatchdogManager(void){
-	IteratorType it;
-	while (!taskMap.empty()){
-		it = taskMap.begin();
-		taskMap.erase(it);
-	}
-	taskMap.clear();
+WatchdogManager::~WatchdogManager(void) {
+
 }
 
-WatchdogManager & WatchdogManager::operator=(const WatchdogManager & source){
+WatchdogManager & WatchdogManager::operator=(const WatchdogManager & source) {
 	return *this;
 }
 
-void WatchdogManager::Destroy(void){
+void WatchdogManager::Destroy(void) {
 	return;
 }
 
-void WatchdogManager::Initialize(){
+void WatchdogManager::Initialize() {
 	return;
 }
 
-bool WatchdogManager::IsFullyInitialized(void){
+bool WatchdogManager::IsFullyInitialized(void) {
 	return (Singleton::IsFullyInitialized());
 }
 
 // -------------------------------------- Watchdog Methods ---------------------------------------
-bool WatchdogManager::StartServer(SubsystemServer * serverIn, int waitIn, bool run){
+bool WatchdogManager::StartServer(SubsystemServer * serverIn, int waitIn, bool run) {
 	serverIn->startupWait = waitIn;
-	if(run){
+	if (run) {
 		PThread * thread = new PThread(serverIn);
-		if(!thread->isRunning){
+		if (!thread->isRunning) {
 			delete thread;
 			return false;
 		}
 
-		// Thread created, now add it to the task map
-		AddTask(thread);
+		// Thread created, now add it to the task list
+		taskList.push_back(thread);
 	}
 
 	return true;
 }
 
-bool WatchdogManager::AddTask(PThread * thread){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-
-	pair<IteratorType, bool> ret;
-
-	WatchdogManager * watchdogManager = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-
-	// Get the semaphore.
-	if (watchdogManager->TakeLock(MAX_BLOCK_TIME) == true){
-		TaskState * newState = new TaskState(TASK_RUNSTATE_RUNNING, true);
-
-		IteratorType it;
-		it = watchdogManager->taskMap.find(thread);
-
-		if (it == watchdogManager->taskMap.end()){
-			// thread not there, add the pair
-			ret = watchdogManager->taskMap.insert(PairType(thread, newState));
-			if (!ret.second){
-				logger->Log(LOGGER_LEVEL_WARN, "WatchdogManager: failed to insert new task into the map");
-				delete newState;
-			}
-			logger->Log(LOGGER_LEVEL_INFO, "WatchdogManager: Inserted new task into the map");
-			watchdogManager->GiveLock();
-			return ret.second;
-		}else{
-			delete it->second;
-			it->second = newState;
-			watchdogManager->GiveLock();
-			return true;
-		}
-	}else{
-		return false;
-	}
-}
-
-bool WatchdogManager::DeleteTask(PThread *&pThread){
-	WatchdogManager * watchdogManager = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-
-	IteratorType it;
-
-	if (watchdogManager->TakeLock(MAX_BLOCK_TIME) == true){
-		if (pThread == NULL){
-			watchdogManager->GiveLock();
-			return true;
-		}
-
-		it = watchdogManager->taskMap.find(pThread);
-		if (it != watchdogManager->taskMap.end()){
-			if (pThread->isRunning){
-				pThread->stop();
-			}
-			delete pThread;
-			pThread = NULL;
-			delete it->second;
-			watchdogManager->taskMap.erase(it);
-		}
-
-		watchdogManager->GiveLock();
-		return true;
-
-	}else{
-		return false;
-	}
-}
-
-void * WatchdogManager::WatchdogManagerTask(){
+void WatchdogManager::WatchdogManagerTask() {
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	clock_t startTime = getTimeInMillis();
@@ -146,100 +76,13 @@ void * WatchdogManager::WatchdogManagerTask(){
 	WatchdogManager * watchdogManager = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 	waitUntil(lastWakeTime, WATCHDOG_MANAGER_DELAY);
 
-	FMGServer * fileServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
-
-	while (1){
-		if (modeManager->GetMode() == MODE_RESET){
+	while (1) {
+		if (modeManager->GetMode() == MODE_RESET) {
 			usleep(30000000); // allow 30 seconds for reset
 		}
 
-		if (!watchdogManager->AllRunningTasksActive()){
-			// Reset inactive tasks
-			if (watchdogManager->TakeLock(MAX_BLOCK_TIME) == true){
-				for (IteratorType it = watchdogManager->taskMap.begin(); it != watchdogManager->taskMap.end(); ++it){
-					if (it->second->GetTaskState() == TASK_RUNSTATE_RUNNING && !it->second->GetKickState()){
-						it->first->stop();
-						logger->Log(LOGGER_LEVEL_ERROR, "\x1b[31m" "Restarting inactive task" "\x1b[0m");
-						it->first->start();
-					}
-				}
-				watchdogManager->GiveLock();
-			}else{
-				logger->Log(LOGGER_LEVEL_WARN, "WatchdogManager: failed to take lock");
-			}
-		}
-
-		if (!watchdogManager->ResetAllKickState()){
-			logger->Log(LOGGER_LEVEL_WARN, "WatchdogManager: failed to take lock");
-		}
-
-		lastWakeTime = getTimeInMillis();
-		waitUntil(lastWakeTime, WATCHDOG_MANAGER_DELAY);
+		// check all threads
 	}
-
-	void * ret;
-	return ret;
-}
-
-void WatchdogManager::Kick(void){
-	WatchdogManager * watchdogManager = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-
-	// Get the semaphore.
-	if (watchdogManager->TakeLock(MAX_BLOCK_TIME) == true){
-		pthread_t tid;
-		tid = pthread_self();
-
-		// Find the PThread with the correct tid
-		for (ConstIteratorType it = watchdogManager->taskMap.begin(); it != watchdogManager->taskMap.end(); ++it){
-			if (it->first->tid == tid){
-				it->second->SetTaskState(TASK_RUNSTATE_RUNNING);
-				it->second->SetKickState(true);
-			}
-		}
-
-		watchdogManager->GiveLock();
-		return;
-	}else{
-		return;
-	}
-}
-
-bool WatchdogManager::AllRunningTasksActive(void){
-	WatchdogManager * watchdogManager = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-
-	if (watchdogManager->TakeLock(MAX_BLOCK_TIME) == true){
-		for (ConstIteratorType it = watchdogManager->taskMap.begin(); it != watchdogManager->taskMap.end(); ++it){
-			if (it->second->GetTaskState() == TASK_RUNSTATE_RUNNING && !it->second->GetKickState()){
-				watchdogManager->GiveLock();
-				return false;
-			}
-		}
-
-		watchdogManager->GiveLock();
-		return true;
-	}else{
-		return false;
-	}
-}
-
-bool WatchdogManager::ResetAllKickState(void){
-	WatchdogManager * watchdogManager = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-
-	if (watchdogManager->TakeLock(MAX_BLOCK_TIME) == true){
-		for (ConstIteratorType it = watchdogManager->taskMap.begin(); it != watchdogManager->taskMap.end(); ++it){
-			it->second->SetKickState(false);
-		}
-
-		watchdogManager->GiveLock();
-		return true;
-	}else{
-		return false;
-	}
-}
-
-std::size_t WatchdogManager::GetNumberOfTasks(void) const{
-	WatchdogManager *watchdogManager = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-	return watchdogManager->taskMap.size();
 }
 
 } // End of namespace Core

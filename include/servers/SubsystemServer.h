@@ -29,6 +29,7 @@ public:
 	SubsystemServer & operator=(const SubsystemServer & source);
 	virtual bool operator ==(const Server & check) const;
 	virtual void SubsystemLoop(void);
+	WDMStateType wdmState;
 protected:
 	uint16_t currentState;
 	int sleepTime;
