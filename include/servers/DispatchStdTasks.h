@@ -20,19 +20,14 @@ namespace AllStar{
 namespace Servers{
 
 enum DispatcherStatusEnum {
-	/*! \brief Response Receive Successful */
 	DISPATCHER_STATUS_OK = 0,
-	/*! \brief Dispatched ACPPacket Not Received by Destination*/
 	DISPATCHER_STATUS_MSG_NOT_RCVD,
-	/*! \brief Dispatched ACPPacket Received But No Response Received */
 	DISPATCHER_STATUS_MSG_RCVD_NO_RESP_SENT,
-	/*! \brief Maximum Return Value */
 	DISPATCHER_STATUS_MAX
 };
 
 // Send packet to the dispatcher
 AllStar::Core::ACPPacket * DispatchPacket(AllStar::Core::ACPPacket * packet);
-bool DispatchNoResponse(AllStar::Core::ACPPacket * packet);
 
 DispatcherStatusEnum WaitForDispatchResponse(const Core::ACPPacket & packet, Core::ACPPacket ** retPacketin);
 
@@ -50,6 +45,7 @@ void AddUInt16(uint8 * buffer, uint16 data);
 void AddUInt32(uint8 * buffer, uint32 data);
 void AddFloat(uint8 * buffer, float data);
 void AddDouble(uint8 * buffer, double data);
+
 }
 }
 
