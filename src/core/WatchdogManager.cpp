@@ -19,7 +19,8 @@
 using namespace std;
 using namespace AllStar::Servers;
 
-#define WATCHDOG_MANAGER_DELAY 30000
+#define WATCHDOG_MANAGER_START_DELAY	30000 // in millis
+#define WATCHDOG_MANAGER_DELAY			30000 // in millis
 namespace AllStar{namespace Core{
 
 // -------------------------------------- Necessary Methods --------------------------------------
@@ -70,18 +71,39 @@ bool WatchdogManager::StartServer(SubsystemServer * serverIn, int waitIn, bool r
 void WatchdogManager::WatchdogManagerTask() {
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	clock_t startTime = getTimeInMillis();
-	int64 lastWakeTime = startTime;
+	int64 lastWakeTime = 0;
 
-	WatchdogManager * watchdogManager = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-	waitUntil(lastWakeTime, WATCHDOG_MANAGER_DELAY);
+	usleep(WATCHDOG_MANAGER_START_DELAY * 1000);
 
 	while (1) {
+		lastWakeTime = getTimeInMillis();
+
 		if (modeManager->GetMode() == MODE_RESET) {
 			usleep(30000000); // allow 30 seconds for reset
 		}
 
 		// check all threads
+		list<PThread *>::iterator thread;
+		for (thread = taskList.begin(); thread != taskList.end(); thread++) {
+			switch ((*thread)->server->getWDMState()) {
+			case WDM_UNKNOWN:
+				(*thread)->stop();
+				logger->Log(LOGGER_LEVEL_ERROR, "\x1b[31m" "Restarting inactive task" "\x1b[0m");
+				(*thread)->start();
+				break;
+			case WDM_ASLEEP:
+				// nothing to do
+				break;
+			case WDM_ALIVE:
+				(*thread)->server->wdmUnknown();
+				break;
+			default:
+				logger->Log(LOGGER_LEVEL_ERROR, "WatchdogManager: unknown server state for %s!", (*thread)->serverName.c_str());
+				break;
+			}
+		}
+
+		waitUntil(lastWakeTime, WATCHDOG_MANAGER_DELAY);
 	}
 }
 

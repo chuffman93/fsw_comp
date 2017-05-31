@@ -16,25 +16,51 @@
 #include "core/StdTypes.h"
 #include <stdint.h>
 
-namespace AllStar{
-namespace Servers{
+namespace AllStar {
+namespace Servers {
 
 struct StateStruct;
-class SubsystemServer : public Server
-{
+class SubsystemServer : public Server {
 public:
 	SubsystemServer(std::string nameIn, LocationIDType idIn);
+
 	SubsystemServer(std::string nameIn, LocationIDType idIn, int sleep, int delays);
+
 	virtual ~SubsystemServer();
+
 	SubsystemServer & operator=(const SubsystemServer & source);
+
 	virtual bool operator ==(const Server & check) const;
+
 	virtual void SubsystemLoop(void);
-	WDMStateType wdmState;
+
+	inline void wdmAlive(void) {
+		this->wdmState = WDM_ALIVE;
+	}
+
+	inline void wdmAsleep(void) {
+		this->wdmState = WDM_ASLEEP;
+	}
+
+	inline void wdmUnknown(void) {
+		this->wdmState = WDM_UNKNOWN;
+	}
+
+	inline WDMStateType getWDMState(void) {
+		return wdmState;
+	}
+
 protected:
+	WDMStateType wdmState;
+
 	uint16_t currentState;
+
 	int sleepTime;
+
 	int hsDelays;
+
 	virtual const StateStruct * GetStateMap() = 0;
+
 	virtual bool CheckHealthStatus(void);
 };
 

@@ -53,13 +53,13 @@ bool SubsystemServer::CheckHealthStatus() {
 void SubsystemServer::SubsystemLoop(void) {
 	while (1) {
 		for (int i = 0; i < hsDelays; i++) {
+			wdmAlive();
 			int64 LastWakeTime = getTimeInMillis();
-			//while(Listen(id));
-			waitUntil(LastWakeTime, sleepTime);
 
 			StateFunc function = GetStateMap()[currentState].function;
-
 			(this->*function)();
+
+			waitUntil(LastWakeTime, sleepTime);
 		}
 		
 		this->CheckHealthStatus();
