@@ -47,14 +47,6 @@ PLDServer & PLDServer::operator=(const PLDServer & source){
 	return *this;
 }
 
-void PLDServer::Initialize(void){
-}
-
-#ifdef TEST
-void PLDServer::Destroy(void){
-}
-#endif
-
 bool PLDServer::IsFullyInitialized(void){
 	return(Singleton::IsFullyInitialized());
 }

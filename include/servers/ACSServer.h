@@ -49,12 +49,6 @@ public:
 private:
 	ACSOrientationType ACSOrientation;
 
-	static void Initialize(void);
-
-#ifdef TEST
-	static void Destroy(void);
-#endif
-
 	bool IsFullyInitialized(void);
 
 	ACSServer(std::string nameIn, LocationIDType idIn);

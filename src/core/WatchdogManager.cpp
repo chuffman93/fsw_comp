@@ -43,14 +43,6 @@ WatchdogManager & WatchdogManager::operator=(const WatchdogManager & source){
 	return *this;
 }
 
-void WatchdogManager::Destroy(void){
-	return;
-}
-
-void WatchdogManager::Initialize(){
-	return;
-}
-
 bool WatchdogManager::IsFullyInitialized(void){
 	return (Singleton::IsFullyInitialized());
 }

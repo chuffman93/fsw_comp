@@ -33,13 +33,6 @@ public:
 	static EPSConfig EPSConfiguration;
 
 private:
-
-	static void Initialize(void);
-
-#ifdef TEST
-	static void Destroy(void);
-#endif
-
 	bool IsFullyInitialized(void);
 
 	EPSServer(std::string nameIn, LocationIDType idIn);

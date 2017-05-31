@@ -91,8 +91,6 @@ public:
 	static FMGConfig FMGConfiguration;
 
 private:
-	static void Initialize(void);
-
 	FileManager ACPLogger;
 	FileManager CMDLogger;
 	FileManager DGNLogger;
@@ -104,10 +102,6 @@ private:
 	FileManager SSSLogger;
 	FileManager SWPLogger;
 	FileManager RADLogger;
-
-#ifdef TEST
-	static void Destroy(void);
-#endif
 
 	bool IsFullyInitialized(void);
 

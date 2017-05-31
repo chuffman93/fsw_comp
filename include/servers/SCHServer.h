@@ -19,16 +19,16 @@ namespace Servers{
 #define SCHEDULE_MAX_SIZE		8
 #define DEFAULT_COM_DURATION	90
 
-class SCHServer : public SubsystemServer, public AllStar::Core::Singleton
-{
+class SCHServer : public SubsystemServer, public AllStar::Core::Singleton {
 	friend class AllStar::Core::Factory;
-
-
 
 public:
 	bool LoadDefaultScheduleConfigurations(char * filename);
+
 	void UpdateDefaultSchedule(int numItems);
+
 	void SetDefaultBusSchedule(void);
+
 	void SubsystemLoop(void);
 
 	bool RegisterHandlers();
@@ -51,17 +51,12 @@ public:
 	std::list<SCHItem> currentSchedule;
 
 private:
-
-	static void Initialize(void);
-
-#ifdef TEST
-	static void Destroy(void);
-#endif
-
 	bool IsFullyInitialized(void);
 
 	SCHServer(std::string nameIn, LocationIDType idIn);
+
 	~SCHServer();
+
 	SCHServer & operator=(const SCHServer & source);
 
 	bool surpriseCOM;

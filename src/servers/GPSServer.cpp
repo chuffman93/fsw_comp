@@ -67,14 +67,6 @@ GPSServer & GPSServer::operator=(const GPSServer & source) {
 	return *this;
 }
 
-void GPSServer::Initialize(void) {
-}
-
-#ifdef TEST
-void GPSServer::Destroy(void) {
-}
-#endif
-
 bool GPSServer::IsFullyInitialized(void) {
 	return(Singleton::IsFullyInitialized());
 }

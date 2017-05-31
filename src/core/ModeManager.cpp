@@ -19,22 +19,18 @@ namespace Core{
 bool ModeManager::validTransition[MODE_NUM_MODES][MODE_NUM_MODES] = {{false}};
 
 ModeManager::ModeManager(void)
-: Singleton(), mode(MODE_STARTUP){
-}
-
-ModeManager::~ModeManager(void){
-}
-
-void ModeManager::Initialize(void){
+: Singleton(), mode(MODE_STARTUP) {
 	//For the time being, only allow transitions to and from bus priority
-	for(int i = MODE_FIRST_MODE; i< MODE_NUM_MODES; i++)
-		for(int j = MODE_FIRST_MODE; j< MODE_NUM_MODES; j++)
+	for (int i = MODE_FIRST_MODE; i< MODE_NUM_MODES; i++)
+		for (int j = MODE_FIRST_MODE; j< MODE_NUM_MODES; j++)
 			validTransition[i][j] = false;
-	for(int i = MODE_FIRST_MODE; i< MODE_NUM_MODES; i++){
+	for (int i = MODE_FIRST_MODE; i< MODE_NUM_MODES; i++) {
 		validTransition[MODE_BUS_PRIORITY][i] = true;
 		validTransition[i][MODE_BUS_PRIORITY] = true;
 	}
 }
+
+ModeManager::~ModeManager(void) { }
 
 bool ModeManager::IsFullyInitialized(void){
 	return true;

@@ -36,7 +36,6 @@ namespace Servers{
 
 CDHConfig CDHServer::CDHConfiguration(0);
 
-
 // -------------------------------------- Necessary Methods --------------------------------------
 CDHServer::CDHServer(std::string nameIn, LocationIDType idIn) :
 		SubsystemServer(nameIn, idIn), Singleton(), readHealthFrequency(10) {
@@ -62,16 +61,6 @@ CDHServer & CDHServer::operator=(const CDHServer & source){
 
 	return *this;
 }
-
-void CDHServer::Initialize(void){
-
-}
-
-#ifdef TEST
-void CDHServer::Destroy(void){
-
-}
-#endif
 
 bool CDHServer::IsFullyInitialized(void){
 	return(Singleton::IsFullyInitialized());

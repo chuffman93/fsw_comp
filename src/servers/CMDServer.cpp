@@ -36,17 +36,10 @@ using namespace AllStar::Core;
 namespace AllStar{
 namespace Servers{
 
-//Message Handler for ACP Protocol Switches
-int CMDServer::subsystem_acp_protocol[HARDWARE_LOCATION_MAX];
-
 CMDConfig CMDServer::CMDConfiguration(360,1000,1000,10,10);
 
 CMDServer::CMDServer(string nameIn, LocationIDType idIn) :
 		SubsystemServer(nameIn, idIn), Singleton(), numFilesDWN(0), currFileNum(0) {
-	for (int i = HARDWARE_LOCATION_MIN; i < HARDWARE_LOCATION_MAX; i++) {
-		subsystem_acp_protocol[i] = ACP_PROTOCOL_SPI;
-	}
-
 	startTime = getTimeInSec();
 	CMDConfiguration.resetPeriod = 24*60*60; // 24 hrs * 60 min/hr * 60 sec/min
 	CMDConfiguration.fileChunkSize = 10240; // 10KB
@@ -57,14 +50,6 @@ CMDServer::CMDServer(string nameIn, LocationIDType idIn) :
 
 CMDServer::~CMDServer(){
 }
-
-void CMDServer::Initialize(void){
-}
-
-#ifdef TEST
-void CMDServer::Destroy(void){
-}
-#endif
 
 bool CMDServer::IsFullyInitialized(void){
 	return(Singleton::IsFullyInitialized());

@@ -12,25 +12,24 @@
 #include "core/Singleton.h"
 #include <set>
 
-namespace AllStar{
-namespace Core{
+namespace AllStar {
+namespace Core {
 
-class ModeManager : public Singleton{
+class ModeManager : public Singleton {
 	friend class Factory;
 	public:
 		SystemModeEnum GetMode(void);
+
 		bool SetMode(SystemModeEnum newMode);
 
 	protected:
 		ModeManager(void);
+
 		void NotifyAll(void);
 
 	private:
 		virtual ~ModeManager(void);
-		static void Initialize(void);
-#ifdef TEST
-		static void Destroy(void);
-#endif
+
 		bool IsFullyInitialized(void);
 
 		static bool validTransition[MODE_NUM_MODES][MODE_NUM_MODES];

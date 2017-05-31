@@ -44,14 +44,6 @@ COMServer & COMServer::operator=(const COMServer & source){
 	return *this;
 }
 
-void COMServer::Initialize(void){
-}
-
-#ifdef TEST
-void COMServer::Destroy(void){
-}
-#endif
-
 bool COMServer::IsFullyInitialized(void){
 	return(Singleton::IsFullyInitialized());
 }

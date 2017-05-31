@@ -38,12 +38,6 @@ public:
 	static COMConfig COMConfiguration;
 
 private:
-	static void Initialize(void);
-
-#ifdef TEST
-	static void Destroy(void);
-#endif
-
 	bool IsFullyInitialized(void);
 
 	COMServer(std::string nameIn, LocationIDType idIn);

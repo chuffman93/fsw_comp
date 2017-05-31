@@ -19,28 +19,20 @@ const bool Logger::printToStdOut = true;
 using namespace AllStar::Core;
 using namespace std;
 
-
-void Logger::Initialize(void){
-	printf("\n-------------- Logger initialized with threshold: %d --------------\n\n", threshold);
-}
-
-bool Logger::IsFullyInitialized(void)
-{
+bool Logger::IsFullyInitialized(void) {
         return (Singleton::IsFullyInitialized());
 }
 
-Logger::Logger(void){
-	//Left intentionally blank
+Logger::Logger(void) {
+	printf("\n-------------- Logger initialized with threshold: %d --------------\n\n", threshold);
 }
 
-Logger::~Logger(void){
-	//Left intentionally blank
-}
+Logger::~Logger(void) { }
 
 // TODO: The logging class should have the ability to output to the screen, a file, or both
-void Logger::Log(LoggerLevelType level_in, char const * fmt, ...){
+void Logger::Log(LoggerLevelType level_in, char const * fmt, ...) {
 
-	if(level_in >= threshold){
+	if (level_in >= threshold) {
 		PrintInfo(level_in);
 
 		char buff[500];
@@ -50,10 +42,11 @@ void Logger::Log(LoggerLevelType level_in, char const * fmt, ...){
 		va_end(args);
 
 		// Display the message
-		if(printToStdOut){
+		if (printToStdOut) {
 			printf("%s\n", buff);
 		}
-		if(printToFile){
+
+		if (printToFile) {
 			FILE * fp = fopen("fswOutput.txt", "a");
 			fprintf(fp, "%s\n", buff);
 			fclose(fp);
@@ -62,13 +55,13 @@ void Logger::Log(LoggerLevelType level_in, char const * fmt, ...){
 }
 
 
-void Logger::PrintInfo(LoggerLevelType level_in){
-	if(printToStdOut){
+void Logger::PrintInfo(LoggerLevelType level_in) {
+	if (printToStdOut) {
 		printf("(%lld)", getTimeInMillis());
 		printf("[TID: %lu] ", pthread_self());
 
 		// Display the log level
-		switch(level_in){
+		switch(level_in) {
 		case LOGGER_LEVEL_SUPER_DEBUG:
 			printf("\x1b[37m" "SUPER:    " "\x1b[0m");
 			break;
@@ -93,13 +86,13 @@ void Logger::PrintInfo(LoggerLevelType level_in){
 		}
 	}
 
-	if(printToFile){
+	if (printToFile) {
 		FILE * fp = fopen("fswOutput.txt", "a");
 		fprintf(fp, "(%lld)", getTimeInMillis());
 		fprintf(fp, "[TID: %lu] ", pthread_self());
 
 		// Display the log level
-		switch(level_in){
+		switch(level_in) {
 		case LOGGER_LEVEL_SUPER_DEBUG:
 			fprintf(fp, "SUPER:    ");
 			break;

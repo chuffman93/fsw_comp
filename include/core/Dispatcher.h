@@ -58,10 +58,6 @@ public:
 	static char * queueNameRX;
 
 private:
-	static void Initialize(void);
-
-	static void Destroy(void );
-
 	bool IsFullyInitialized(void);
 
 	static void * InvokeHandler(void * parameters);

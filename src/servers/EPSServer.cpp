@@ -44,14 +44,6 @@ EPSServer & EPSServer::operator=(const EPSServer & source){
 	return *this;
 }
 
-void EPSServer::Initialize(void){
-}
-
-#ifdef TEST
-void EPSServer::Destroy(void){
-}
-#endif
-
 bool EPSServer::IsFullyInitialized(void){
 	return(Singleton::IsFullyInitialized());
 }

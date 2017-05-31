@@ -32,9 +32,9 @@ class CMDServer : public SubsystemServer, public AllStar::Core::Singleton {
 
 public:
 	bool RegisterHandlers();
-	static int subsystem_acp_protocol[HARDWARE_LOCATION_MAX];
 
 	void bootConfig(); // read in configs on bootup
+
 	bool updateConfig(); // update configs after COM pass
 
 	struct BeaconStruct {
@@ -55,12 +55,6 @@ public:
 	bool CheckForBeacon(void);
 
 private:
-	static void Initialize(void);
-
-#ifdef TEST
-	static void Destroy(void);
-#endif
-
 	bool IsFullyInitialized(void);
 
 	CMDServer(std::string nameIn, LocationIDType idIn);

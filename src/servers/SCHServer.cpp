@@ -42,12 +42,6 @@ SCHServer & SCHServer::operator=(const SCHServer & source) {
 	return *this;
 }
 
-void SCHServer::Initialize(void) { }
-
-#ifdef TEST
-void SCHServer::Destroy(void) { }
-#endif
-
 bool SCHServer::IsFullyInitialized(void) {
 	return(Singleton::IsFullyInitialized());
 }

@@ -98,10 +98,6 @@ public:
 	bool subsystemPowerStates[HARDWARE_LOCATION_MAX];
 
 private:
-	static void Initialize(void);
-#ifdef TEST
-	static void Destroy(void);
-#endif
 	bool IsFullyInitialized(void);
 
 	CDHServer(std::string nameIn, LocationIDType idIn);

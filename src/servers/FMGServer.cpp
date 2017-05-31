@@ -133,18 +133,7 @@ FMGServer::FMGServer(string nameIn, LocationIDType idIn) :
 					{
 }
 
-FMGServer::~FMGServer(){
-}
-
-void FMGServer::Initialize(void){
-
-}
-
-#ifdef TEST
-void FMGServer::Destroy(void){
-
-}
-#endif
+FMGServer::~FMGServer() { }
 
 bool FMGServer::IsFullyInitialized(void){
 	return(Singleton::IsFullyInitialized());

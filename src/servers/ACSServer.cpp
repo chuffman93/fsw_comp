@@ -49,16 +49,6 @@ ACSServer & ACSServer::operator=(const ACSServer & source){
 	return *this;
 }
 
-void ACSServer::Initialize(void){
-
-}
-
-#ifdef TEST
-void ACSServer::Destroy(void){
-
-}
-#endif
-
 bool ACSServer::IsFullyInitialized(void){
 	return Singleton::IsFullyInitialized();
 }

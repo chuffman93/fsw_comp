@@ -36,8 +36,7 @@ namespace Core{
  *  to AllRunningTasksActive().  Otherwise, that method will return
  *  false, indicating that one or more tasks are no longer active.
  */
-class WatchdogManager : public Singleton
-{
+class WatchdogManager : public Singleton {
 	friend class Factory;
 
 public:
@@ -68,12 +67,7 @@ private:
 	typedef std::map<PThread *, TaskState *>::const_iterator ConstIteratorType;
 	std::map<PThread *, TaskState *> taskMap;
 
-
-	static void Initialize(void);
-
 	bool IsFullyInitialized(void);
-
-	static void Destroy(void);
 
 	virtual ~WatchdogManager(void);
 

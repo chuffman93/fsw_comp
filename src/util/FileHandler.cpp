@@ -27,7 +27,7 @@
 #define DEBUG_COUT(m) cout << m << endl;
 
 // Instantiate static members
-const char * FileHandler::modeLog = NULL;
+const char * FileHandler::modeLog = "Mode_Log.dat";
 const char * writeDir = "/media/sd1/filehandler/";
 const unsigned int sizeToZip = 10 * (1024);
 uint32 crcTable[256];
@@ -41,10 +41,6 @@ using namespace std;
 ////////////////////////////////
 /////// Initialization /////////
 ////////////////////////////////
-
-void FileHandler::Initialize(void){
-	modeLog = "Mode_Log.dat";
-}
 
 bool FileHandler::IsFullyInitialized(void){
 	return (Singleton::IsFullyInitialized());

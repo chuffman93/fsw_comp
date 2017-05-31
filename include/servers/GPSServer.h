@@ -67,12 +67,6 @@ public:
 	GPS_GPRMC * GPSCoordsHolder;
 
 private:
-	static void Initialize(void);
-
-#ifdef TEST
-	static void Destroy(void);
-#endif
-
 	bool IsFullyInitialized(void);
 
 	GPSServer(std::string nameIn, LocationIDType idIn);

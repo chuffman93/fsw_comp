@@ -20,30 +20,19 @@
 using namespace std;
 using namespace AllStar::Core;
 
-namespace AllStar{
-namespace Servers{
+namespace AllStar {
+namespace Servers {
 
 SubsystemServer::SubsystemServer(string nameIn, LocationIDType idIn)
-				: Server(nameIn, idIn), currentState(0), sleepTime(1000), hsDelays(10)
-{
-	// Left Intentionally Blank
-}
+				: Server(nameIn, idIn), currentState(0), sleepTime(1000), hsDelays(10) { }
 
 SubsystemServer::SubsystemServer(string nameIn, LocationIDType idIn, int sleep, int delays)
-				: Server(nameIn, idIn), currentState(0), sleepTime(sleep), hsDelays(delays)
-{
-	// Left Intentionally Blank
-}
+				: Server(nameIn, idIn), currentState(0), sleepTime(sleep), hsDelays(delays) { }
 
-SubsystemServer::~SubsystemServer()
-{
-	// Left Intentionally Blank
-}
+SubsystemServer::~SubsystemServer() { }
 
-SubsystemServer & SubsystemServer::operator=(const SubsystemServer & source)
-{
-	if (this == &source)
-	{
+SubsystemServer & SubsystemServer::operator=(const SubsystemServer & source) {
+	if (this == &source) {
 		return *this;
 	}
 
@@ -52,22 +41,19 @@ SubsystemServer & SubsystemServer::operator=(const SubsystemServer & source)
 	return *this;
 }
 
-bool SubsystemServer::operator ==(const Server & check) const
-{
+bool SubsystemServer::operator ==(const Server & check) const {
 	return (name == check.GetName() && id == check.GetID());
 }
 
-bool SubsystemServer::CheckHealthStatus(){
+bool SubsystemServer::CheckHealthStatus() {
 	return false;
 }
 
-void SubsystemServer::SubsystemLoop(void)
-{
+void SubsystemServer::SubsystemLoop(void) {
 	WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
-	while(1)
-	{
-		for(int i = 0; i < hsDelays; i++){
+	while (1) {
+		for (int i = 0; i < hsDelays; i++) {
 			int64 LastWakeTime = getTimeInMillis();
 			//while(Listen(id));
 			wdm->Kick();

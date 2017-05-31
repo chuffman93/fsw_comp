@@ -151,13 +151,6 @@ public:
         uint32 crcCheck(const char * filename);
 
 private:
-        /*! \brief Initialize the File Handler Class
-         *
-         *  Initializes the operating system constructs needed for
-         *  File Handler to work properly.
-         */
-        static void Initialize(void);
-
         /*! \brief Static Destructor for File Handler
          *
          *  Frees all internal memory use, frees all operating system

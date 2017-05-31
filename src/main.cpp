@@ -10,7 +10,6 @@
 #include "servers/FMGServer.h"
 #include "servers/SubsystemServer.h"
 #include "servers/DispatchStdTasks.h"
-#include "HAL/Ethernet_Server.h"
 #include "HAL/SPI_Server.h"
 #include "core/StdTypes.h"
 #include "core/WatchdogManager.h"
