@@ -47,7 +47,7 @@ private:
 
 	bool IsFullyInitialized(void);
 
-	void Destroy(void);
+	static void Destroy(void);
 
 	virtual ~WatchdogManager(void);
 

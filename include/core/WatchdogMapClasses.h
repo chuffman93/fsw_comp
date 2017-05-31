@@ -12,8 +12,8 @@
 #include "util/Logger.h"
 #include <pthread.h>
 
-namespace AllStar{
-namespace Core{
+namespace AllStar {
+namespace Core {
 
 // ------------------------------------ pthread_t Wrapper Class -------------------------------------
 class PThread {
@@ -42,10 +42,10 @@ public:
     	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
     	logger->Log(LOGGER_LEVEL_INFO, "Starting thread for %s Server!", serverName.c_str());
-    	if(pthread_create(&tid, NULL, &runServer, (void *) server) == 0){
+    	if (pthread_create(&tid, NULL, &runServer, (void *) server) == 0) {
 			logger->Log(LOGGER_LEVEL_INFO, "Thread created with tid: %u", tid);
     		isRunning = true;
-		}else{
+		} else {
 			isRunning = false;
 			logger->Log(LOGGER_LEVEL_FATAL, "Error creating thread for %s server!", serverName.c_str());
 		}

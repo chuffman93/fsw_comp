@@ -170,6 +170,7 @@ void SCHServer::SubsystemLoop(void) {
 	}
 
 	while(1) {
+		wdmAlive();
 		lastWakeTime = getTimeInMillis();
 
 		if (currentSchedule.empty()){

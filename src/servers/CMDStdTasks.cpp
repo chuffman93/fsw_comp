@@ -141,6 +141,7 @@ void runDiagnostic(void) {
 }
 
 void parseIEF(void) {
+	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FILE * fp;
 	char * line = NULL;
@@ -200,9 +201,11 @@ void parseIEF(void) {
 			command = (char *) cmd.c_str();
 
 			// execute the system command
+			cmdServer->wdmAsleep(); // set to asleep due to asynchronous call
 			if(system(command) == -1){
 				logger->Log(LOGGER_LEVEL_ERROR, "IEF unable to execute shell command");
 			}
+			cmdServer->wdmAlive();
 
 		// FSW command
 		}else if(strcmp(type,"FSW") == 0){ // fsw internal command
@@ -267,7 +270,9 @@ void parseIEF(void) {
 			// ---- Call the function to gather and create a tarball from the files
 			packageFiles((char *) archive.c_str(), dir, regex, numFiles); // TODO: error check this?
 
+			cmdServer->wdmAsleep(); // set to asleep due to asynchronous call
 			downlinkFile(archive);
+			cmdServer->wdmAlive();
 		}else{
 			logger->Log(LOGGER_LEVEL_WARN, "IEF: unknown command type");
 		}
@@ -460,6 +465,7 @@ void parseDLT(void) {
 }
 
 void parsePPE(void) {
+	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FILE * fp;
 	char * line = NULL;
@@ -513,9 +519,11 @@ void parsePPE(void) {
 			command = (char *) cmd.c_str();
 
 			// execute the system command
+			cmdServer->wdmAsleep(); // set to asleep due to asynchronous call
 			if(system(command) == -1){
 				logger->Log(LOGGER_LEVEL_ERROR, "PPE unable to execute shell command");
 			}
+			cmdServer->wdmAlive();
 		}else if(strcmp(type,"FSW") == 0){ // fsw internal command
 			command = strtok(NULL,",");
 			if(command == NULL){

@@ -19,8 +19,8 @@
 using namespace std;
 using namespace AllStar::Servers;
 
+#define WATCHDOG_MANAGER_DELAY			5000  // in millis
 #define WATCHDOG_MANAGER_START_DELAY	30000 // in millis
-#define WATCHDOG_MANAGER_DELAY			30000 // in millis
 namespace AllStar{namespace Core{
 
 // -------------------------------------- Necessary Methods --------------------------------------
@@ -28,24 +28,17 @@ WatchdogManager::WatchdogManager(void)
 : Singleton() {
 }
 
-WatchdogManager::WatchdogManager(const WatchdogManager & source) {
-}
+WatchdogManager::WatchdogManager(const WatchdogManager & source) { }
 
-WatchdogManager::~WatchdogManager(void) {
-
-}
+WatchdogManager::~WatchdogManager(void) { }
 
 WatchdogManager & WatchdogManager::operator=(const WatchdogManager & source) {
 	return *this;
 }
 
-void WatchdogManager::Destroy(void) {
-	return;
-}
+void WatchdogManager::Destroy(void) { }
 
-void WatchdogManager::Initialize() {
-	return;
-}
+void WatchdogManager::Initialize(void) { }
 
 bool WatchdogManager::IsFullyInitialized(void) {
 	return (Singleton::IsFullyInitialized());

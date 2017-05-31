@@ -260,7 +260,9 @@ void CMDServer::loopDownlink(){
 		filename = getDownlinkFile(currFileNum++);
 
 		// downlink the file
+		wdmAsleep();
 		downlinkFile(filename);
+		wdmAlive();
 	}else{
 		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: downlink finished");
 		numFilesDWN = 0;
