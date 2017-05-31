@@ -142,13 +142,10 @@ void CMDServer::loopPassPrep(){
 	hsDelays = CMDConfiguration.increasedBeaconPeriod; // up the beacon rate
 
 	// see if the fmgServer has prepped Verbose H&S
-//	if(fmgServer->isComReady()){
-//		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: finished COM pass prep");
-//		currentState = ST_LOGIN;
-//	}
-	// FIXME: fmgServer seg faults on entering COM mode
-
-	currentState = ST_LOGIN;
+	if(fmgServer->isComReady()){
+		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: finished COM pass prep");
+		currentState = ST_LOGIN;
+	}
 
 	// make sure that the COM pass hasn't concluded
 	if(modeManager->GetMode() != MODE_COM){
@@ -186,7 +183,7 @@ void CMDServer::loopVerboseHS(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	// downlink the Verbose H&S file
-	logger->Log(LOGGER_LEVEL_INFO, "CMDServer: finished downlinking Verbose H&S");
+	logger->Log(LOGGER_LEVEL_INFO, "CMDServer: Verbose H&S unimplemented");
 	currentState = ST_UPLINK;
 }
 

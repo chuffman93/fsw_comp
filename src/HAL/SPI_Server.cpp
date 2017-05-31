@@ -80,6 +80,7 @@ void SPI_HALServer::SubsystemLoop(void) {
 
 	while (1) {
 		errno = 0;
+		wdmAlive();
 		enterTime = getTimeInMillis();
 
 		// ---- TX ----------------------------------------------------------------------------------------------------------------
