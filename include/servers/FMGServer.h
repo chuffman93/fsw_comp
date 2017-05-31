@@ -85,10 +85,12 @@ public:
 	// FileQueue
 	queue<FilePacket> FileQueue;
 
+	uint32 loadBootCount();
 	void bootConfig(); // read in configs on bootup
 	bool updateConfig(); // update configs after COM pass
 
 	static FMGConfig FMGConfiguration;
+	static uint32 bootCount;
 
 private:
 	FileManager ACPLogger;

@@ -44,6 +44,7 @@ namespace Servers{
 #define GPS_CONFIG				CONFIG_DIRECTORY	"/GPSConfig"
 #define PLD_CONFIG				CONFIG_DIRECTORY	"/PLDConfig"
 #define SCH_CONFIG	 			CONFIG_DIRECTORY	"/SCHConfig"
+#define EPOCH_FILE				CONFIG_DIRECTORY	"/PolarCube_Epoch"
 
 #define SCH_UP					UPLINK_DIRECTORY	"/SCH"
 #define SCHEDULE_FILE 			"/home/root/SCH"

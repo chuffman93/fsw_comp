@@ -20,13 +20,14 @@
 using namespace std;
 using namespace AllStar::Core;
 
-namespace AllStar{
-namespace Servers{
+namespace AllStar {
+namespace Servers {
 
 FMGConfig FMGServer::FMGConfiguration(0);
+uint32 FMGServer::bootCount = 0;
 
 // ----- File Manager functions ------------------------------------------------------------------------------------
-FileManager::FileManager(string path, string tlmType){
+FileManager::FileManager(string path, string tlmType) {
 	file_path = path;
 	TLM_type = tlmType;
 	bytes_written = 0;
@@ -35,7 +36,7 @@ FileManager::FileManager(string path, string tlmType){
 	file = NULL;
 }
 
-void FileManager::CloseFile(){
+void FileManager::CloseFile() {
 	// Close the file
 	if (file_open) {
 		fclose(file);
@@ -48,7 +49,7 @@ void FileManager::CloseFile(){
 	}
 }
 
-void FileManager::MoveFile(){
+void FileManager::MoveFile() {
 	// Move the file out of CUR
 	string new_file_name = file_name;
 	new_file_name.erase(file_path.length(), 4);
@@ -56,29 +57,29 @@ void FileManager::MoveFile(){
 	file_name = new_file_name;
 }
 
-void FileManager::OpenFile(){
+void FileManager::OpenFile() {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	file = fopen(file_name.c_str(), "a");
-	if (file == NULL) { logger->Log(LOGGER_LEVEL_WARN, "Error opening file"); }
+	if (file == NULL)
+		logger->Log(LOGGER_LEVEL_WARN, "Error opening file");
 	file_open = true;
 	bytes_written = 0;
 }
 
-void FileManager::GetFileName(){
+void FileManager::GetFileName() {
 	int time = getTimeInSec();
-	int boot_count = 0;// TODO
 	char fileName[100];
-	sprintf(fileName, "%s/CUR/%s_%d_%d", file_path.c_str(), TLM_type.c_str(), boot_count, time);
+	sprintf(fileName, "%s/CUR/%s_%d_%d", file_path.c_str(), TLM_type.c_str(), FMGServer::bootCount, time);
 	file_name = fileName;
 }
 
-void FileManager::OpenNewFile(){
+void FileManager::OpenNewFile() {
 	GetFileName();
 	OpenFile();
 }
 
-void FileManager::Write(uint8 * buf, std::size_t buf_size){
+void FileManager::Write(uint8 * buf, std::size_t buf_size) {
 	fwrite(buf, sizeof(char), buf_size, file);
 	fflush(file);
 	bytes_written += buf_size + 1;
@@ -87,8 +88,9 @@ void FileManager::Write(uint8 * buf, std::size_t buf_size){
 bool FileManager::Log(uint8 * buf, std::size_t buf_size){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-	if (buf_size >= MAX_FILE_SIZE) { logger->Log(LOGGER_LEVEL_WARN, "Telemetry larger than file size"); }
-	else{
+	if (buf_size >= MAX_FILE_SIZE) {
+		logger->Log(LOGGER_LEVEL_WARN, "Telemetry larger than file size");
+	} else {
 		// Check if file is open
 		if (!file_open) {
 			logger->Log(LOGGER_LEVEL_DEBUG, "File not open");
@@ -97,8 +99,7 @@ bool FileManager::Log(uint8 * buf, std::size_t buf_size){
 
 		if (bytes_written + buf_size + 1 < MAX_FILE_SIZE) {
 			Write(buf, buf_size);
-		}
-		else { // File is full, open new file and write to it
+		} else { // File is full, open new file and write to it
 			CloseFile();
 			OpenNewFile();
 			Write(buf, buf_size);
@@ -135,12 +136,12 @@ FMGServer::FMGServer(string nameIn, LocationIDType idIn) :
 
 FMGServer::~FMGServer() { }
 
-bool FMGServer::IsFullyInitialized(void){
-	return(Singleton::IsFullyInitialized());
+bool FMGServer::IsFullyInitialized(void) {
+	return Singleton::IsFullyInitialized();
 }
 
-FMGServer & FMGServer::operator=(const FMGServer & source){
-	if (this == &source){
+FMGServer & FMGServer::operator=(const FMGServer & source) {
+	if (this == &source) {
 		return *this;
 	}
 
@@ -149,7 +150,7 @@ FMGServer & FMGServer::operator=(const FMGServer & source){
 	return *this;
 }
 
-void FMGServer::CloseAndMoveAllFiles(){
+void FMGServer::CloseAndMoveAllFiles() {
 	CMDLogger.CloseFile();
 	DGNLogger.CloseFile();
 	ERRLogger.CloseFile();
@@ -162,7 +163,7 @@ void FMGServer::CloseAndMoveAllFiles(){
     RADLogger.CloseFile();
 }
 
-void FMGServer::Log(FILServerDestinationEnum dest, uint8 * buf, size_t size){
+void FMGServer::Log(FILServerDestinationEnum dest, uint8 * buf, size_t size) {
 	FilePacket packet;
 	packet.buffer = buf;
 	packet.size = size;
@@ -170,13 +171,13 @@ void FMGServer::Log(FILServerDestinationEnum dest, uint8 * buf, size_t size){
 	FileQueue.push(packet);
 }
 
-void FMGServer::CallLog(){
+void FMGServer::CallLog() {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	uint8 * buf = FileQueue.front().buffer;
     size_t size = FileQueue.front().size;
 
-	switch (FileQueue.front().dest){
+	switch (FileQueue.front().dest) {
 	case DESTINATION_ACP:
 		if ( !ACPLogger.Log(buf, size) ) {
 			logger->Log(LOGGER_LEVEL_WARN, "Error writing to ACP File");
@@ -252,9 +253,10 @@ void FMGServer::PrepVerboseHST(void){
 
 
 // --------- State Machine -----------------------------------------------------------------------------------------
-void FMGServer::loopInit(void){
+void FMGServer::loopInit(void) {
 	//nothing to initialize
 	bootConfig();
+	bootCount = loadBootCount();
 	currentState = ST_RUN;
 }
 
@@ -265,11 +267,9 @@ void FMGServer::loopRun(void) {
 
 	if (!FileQueue.empty()) {
 		CallLog();
-	}
-	else if (modeManager->GetMode() == MODE_RESET) {
+	} else if (modeManager->GetMode() == MODE_RESET) {
 		currentState = ST_RESET;
-	}
-	else if (modeManager->GetMode() == MODE_COM){
+	} else if (modeManager->GetMode() == MODE_COM) {
 		currentState = ST_COM_PREP;
 	}
 }
@@ -290,14 +290,11 @@ void FMGServer::loopCom(void) {
 
 	if (!FileQueue.empty()){
 		CallLog();
-	}
-
-	else if (modeManager->GetMode() != MODE_COM) {
+	} else if (modeManager->GetMode() != MODE_COM) {
 		if (modeManager->GetMode() == MODE_RESET) {
 			comReady = false;
 			currentState = ST_RESET;
-		}
-		else {
+		} else {
 			move_from_CUR = true;
 			CloseAndMoveAllFiles();
 			system(CLEAR_CUR_DIRECTORIES_SCRIPT);
@@ -307,11 +304,11 @@ void FMGServer::loopCom(void) {
 	}
 }
 
-void FMGServer::loopReset(void){
+void FMGServer::loopReset(void) {
 	move_from_CUR = true;
 	CloseAndMoveAllFiles();
 	resetReady = true;
-	for(uint8 i = 0; i < 60; i++){
+	for (uint8 i = 0; i < 60; i++) {
 		usleep(1000000);
 	}
 
@@ -320,6 +317,32 @@ void FMGServer::loopReset(void){
 }
 
 // -----------------------------------------------------------------------------------------------------------------
+uint32 FMGServer::loadBootCount() {
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	if (access(EPOCH_FILE, F_OK) != -1) {
+		FILE * fp = fopen(EPOCH_FILE, "r");
+
+		if (fp == NULL) {
+			logger->Log(LOGGER_LEVEL_ERROR, "FMGServer: bad fp for epoch file");
+			return 0;
+		}
+
+		char * line = NULL;
+		size_t len = 0;
+		ssize_t bytesRead = getline(&line, &len, fp);
+
+		if (bytesRead < 1 || bytesRead > 5) {
+			logger->Log(LOGGER_LEVEL_ERROR, "FMGServer: problem reading epoch file");
+			return 0;
+		}
+
+		return strtoul(line, NULL, 10);
+	} else {
+		logger->Log(LOGGER_LEVEL_ERROR, "FMGServer: unable to open epoch file");
+	}
+	return 0;
+}
 
 void FMGServer::bootConfig() {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
