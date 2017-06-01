@@ -10,7 +10,6 @@
 #include "servers/FileSystem.h"
 #include "servers/Structs.h"
 #include "core/Dispatcher.h"
-#include "core/WatchdogManager.h"
 #include "core/StdTypes.h"
 #include "core/ModeManager.h"
 #include "util/Logger.h"
@@ -149,7 +148,6 @@ void SCHServer::SetDefaultBusSchedule(void) {
 
 void SCHServer::SubsystemLoop(void) {
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-	WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 	GPSServer * gpsServer = dynamic_cast<GPSServer *>(Factory::GetInstance(GPS_SERVER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
@@ -166,8 +164,8 @@ void SCHServer::SubsystemLoop(void) {
 	}
 
 	while(1) {
+		wdmAlive();
 		lastWakeTime = getTimeInMillis();
-		wdm->Kick();
 
 		if (currentSchedule.empty()){
 			logger->Log(LOGGER_LEVEL_INFO, "Fetching next schedule");

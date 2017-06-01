@@ -24,7 +24,6 @@
 #include "HAL/SPI_Server.h"
 #include "core/ACPPacket.h"
 #include "core/Dispatcher.h"
-#include "core/WatchdogManager.h"
 #include "util/Logger.h"
 #include "servers/SubsystemServer.h"
 
@@ -52,7 +51,6 @@ SPI_HALServer::~SPI_HALServer() {
 
 // Enter this loop
 void SPI_HALServer::SubsystemLoop(void) {
-	WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	ACPPacket * rxPacket;
 	struct pollfd fds;
@@ -80,8 +78,8 @@ void SPI_HALServer::SubsystemLoop(void) {
 
 	while (1) {
 		errno = 0;
+		wdmAlive();
 		enterTime = getTimeInMillis();
-		wdm->Kick();
 
 		// ---- TX ----------------------------------------------------------------------------------------------------------------
 		ACPPacket * txPacket;
@@ -324,7 +322,7 @@ int SPI_HALServer::get_int_fds(int subsystem, struct pollfd * poll_fds) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	memset((void*)poll_fds, 0, sizeof(struct pollfd));
 	int index;
-	switch(subsystem) {
+	switch (subsystem)  {
 		case HARDWARE_LOCATION_EPS:
 			index = 0;
 			break;
@@ -349,7 +347,7 @@ int SPI_HALServer::get_int_fds(int subsystem, struct pollfd * poll_fds) {
 int SPI_HALServer::get_slave_fd(int subsystem) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	int index;
-	switch(subsystem) {
+	switch (subsystem) {
 		case HARDWARE_LOCATION_EPS:
 			index = 0;
 			break;
@@ -375,7 +373,7 @@ void SPI_HALServer::set_packet_sourcedest(int index, ACPPacket * packet) {
 	LocationIDType dest;
 
 	// set based on index from RX loop that corresponds to the fd
-	switch(index) {
+	switch (index) {
 	case 0:
 		logger->Log(LOGGER_LEVEL_INFO, "--------------------------------------------------------- SPI RX Packet from " "\x1b[34m" "EPS" "\x1b[0m" " received");
 		source = HARDWARE_LOCATION_EPS;
@@ -438,7 +436,7 @@ void SPI_HALServer::GPIOsetup(void) {
 	gpioCheck &= (-1 != system("echo \"in\" > /sys/class/gpio/pioA25/direction"));
 	gpioCheck &= (-1 != system("echo \"falling\" > /sys/class/gpio/pioA25/edge"));
 
-	if(!gpioCheck){
+	if (!gpioCheck) {
 		// TODO: figure out if this needs handling
 		logger->Log(LOGGER_LEVEL_WARN, "SPI_Server: Loop(): Bad return on GPIO pin");
 	}
@@ -459,7 +457,7 @@ void SPI_HALServer::GPIOsetup(void) {
 
 	logger->Log(LOGGER_LEVEL_DEBUG, "SPI_Server: Loop(): Opening file descriptors");
 
-	for(i = 0; i < NUM_SLAVES; i++) {
+	for (i = 0; i < NUM_SLAVES; i++) {
 		spi_fds[i] = open(spi_devices[i], O_RDWR);
 		if (spi_fds[i] < 0) {
 			printf("%s\n", spi_devices[i]);

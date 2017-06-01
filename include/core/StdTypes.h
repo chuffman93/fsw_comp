@@ -49,6 +49,12 @@ typedef enum HardwareLocationIDEnum {
 	HARDWARE_LOCATION_MAX
 }HardwareLocationIDType;
 
+typedef enum WDMStateEnum {
+	WDM_UNKNOWN,
+	WDM_ASLEEP,
+	WDM_ALIVE
+}WDMStateType;
+
 enum ServerLocationIDEnum {
 	SERVER_LOCATION_MIN = HARDWARE_LOCATION_MAX,
 	SERVER_LOCATION_EPS = SERVER_LOCATION_MIN,

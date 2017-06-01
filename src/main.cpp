@@ -54,16 +54,17 @@ int main(int argc, char * argv[]) {
 	SPI_HALServer * spiServer = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
 
 	// ----------------------------- Start Servers -----------------------------------------------------------------
-	threadsCreated &= WatchdogManager::StartServer(acsServer, 50,	false);	 //ACS
-	threadsCreated &= WatchdogManager::StartServer(cdhServer, 20,	true);	 //CDH
-	threadsCreated &= WatchdogManager::StartServer(cmdServer, 50,	true);	 //CMD
-	threadsCreated &= WatchdogManager::StartServer(comServer, 10,	false);	 //COM
-	threadsCreated &= WatchdogManager::StartServer(epsServer, 10,	false);	 //EPS
-	threadsCreated &= WatchdogManager::StartServer(fmgServer, 0,	true);	 //FMG
-	threadsCreated &= WatchdogManager::StartServer(gpsServer, 50,	true);	 //GPS
-	threadsCreated &= WatchdogManager::StartServer(pldServer, 50,	false);	 //PLD
-	threadsCreated &= WatchdogManager::StartServer(schServer, 0,	true);	 //SCH
-	threadsCreated &= WatchdogManager::StartServer(spiServer, 0,	false);	 //SPI
+	WatchdogManager * watchdogManager = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
+	threadsCreated &= watchdogManager->StartServer(acsServer, 50,	false);	 //ACS
+	threadsCreated &= watchdogManager->StartServer(cdhServer, 20,	true);	 //CDH
+	threadsCreated &= watchdogManager->StartServer(cmdServer, 50,	true);	 //CMD
+	threadsCreated &= watchdogManager->StartServer(comServer, 10,	false);	 //COM
+	threadsCreated &= watchdogManager->StartServer(epsServer, 10,	false);	 //EPS
+	threadsCreated &= watchdogManager->StartServer(fmgServer, 0,	true);	 //FMG
+	threadsCreated &= watchdogManager->StartServer(gpsServer, 50,	true);	 //GPS
+	threadsCreated &= watchdogManager->StartServer(pldServer, 50,	false);	 //PLD
+	threadsCreated &= watchdogManager->StartServer(schServer, 0,	true);	 //SCH
+	threadsCreated &= watchdogManager->StartServer(spiServer, 0,	false);	 //SPI
 
 	if (!threadsCreated) {
 		logger->Log(LOGGER_LEVEL_FATAL, "Not all threads were created on startup!");
@@ -74,7 +75,7 @@ int main(int argc, char * argv[]) {
 		TLM_SERVERS_CREATED();
 	}
 
-	WatchdogManager::WatchdogManagerTask();
+	watchdogManager->WatchdogManagerTask();
 
 	logger->Log(LOGGER_LEVEL_FATAL, "Flight Software exiting from main! Watchdog exited!");
 

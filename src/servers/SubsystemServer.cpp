@@ -10,7 +10,6 @@
 #include "servers/SubsystemServer.h"
 #include "servers/DispatchStdTasks.h"
 
-#include "core/WatchdogManager.h"
 #include "core/ModeManager.h"
 #include "core/Dispatcher.h"
 #include "core/Singleton.h"
@@ -24,10 +23,12 @@ namespace AllStar {
 namespace Servers {
 
 SubsystemServer::SubsystemServer(string nameIn, LocationIDType idIn)
-				: Server(nameIn, idIn), currentState(0), sleepTime(1000), hsDelays(10) { }
+				: Server(nameIn, idIn), currentState(0), sleepTime(1000), hsDelays(10)
+{ }
 
 SubsystemServer::SubsystemServer(string nameIn, LocationIDType idIn, int sleep, int delays)
-				: Server(nameIn, idIn), currentState(0), sleepTime(sleep), hsDelays(delays) { }
+				: Server(nameIn, idIn), currentState(0), sleepTime(sleep), hsDelays(delays)
+{ }
 
 SubsystemServer::~SubsystemServer() { }
 
@@ -50,18 +51,15 @@ bool SubsystemServer::CheckHealthStatus() {
 }
 
 void SubsystemServer::SubsystemLoop(void) {
-	WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-
 	while (1) {
 		for (int i = 0; i < hsDelays; i++) {
+			wdmAlive();
 			int64 LastWakeTime = getTimeInMillis();
-			//while(Listen(id));
-			wdm->Kick();
-			waitUntil(LastWakeTime, sleepTime);
 
 			StateFunc function = GetStateMap()[currentState].function;
-
 			(this->*function)();
+
+			waitUntil(LastWakeTime, sleepTime);
 		}
 		
 		this->CheckHealthStatus();
