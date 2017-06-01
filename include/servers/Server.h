@@ -30,7 +30,7 @@ public:
 	LocationIDType GetID(void ) const;
 	std::string name;
 	LocationIDType id;
-	int startupWait;
+	int startupWait; // in seconds
 };
 
 }

@@ -20,9 +20,12 @@ void * runServer(void * args){
 	SubsystemServer * server = (SubsystemServer *) args;
 
 	// wait before starting the server
+	server->wdmAsleep();
 	for(int i = 0; i < server->startupWait; i++){
-		usleep(100000);
+		usleep(1000000);
 	}
+	server->wdmAlive();
+	server->startupWait = 0; // TODO: find better way to ensure restarted threads start immediately?
 
 	logger->Log(LOGGER_LEVEL_INFO, "Kicking off the %s Server", server->name.c_str());
 	server->SubsystemLoop();

@@ -68,7 +68,7 @@ void WatchdogManager::WatchdogManagerTask() {
 		lastWakeTime = getTimeInMillis();
 
 		if (modeManager->GetMode() == MODE_RESET) {
-			usleep(30000000); // allow 30 seconds for reset
+			usleep(60000000); // allow 60 seconds for reset
 		}
 
 		// check all threads

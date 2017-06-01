@@ -63,7 +63,9 @@ void ACSServer::loopInit(){
 	cdhServer->resetDeassert(HARDWARE_LOCATION_ACS);
 
 	// delay while ACS boots up
-	usleep(3000000);
+	wdmAsleep();
+	usleep(4000000);
+	wdmAlive();
 
 	if(ACSTestAlive()){
 		if(!ACSSelfCheck()){

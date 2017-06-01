@@ -128,7 +128,9 @@ void PLDServer::loopShutdown(){
 	ACPPacket * ret = DispatchPacket(turnOffScience);
 	delete ret;
 
-	usleep(1000000);
+	wdmAsleep();
+	usleep(3000000);
+	wdmAlive();
 
 	cdhServer->subPowerOff(HARDWARE_LOCATION_PLD);
 	//PLD is off. Goto idle loop

@@ -63,7 +63,9 @@ void EPSServer::loopInit(){
 		currentState = ST_MONITOR;
 	}else{
 		logger->Log(LOGGER_LEVEL_FATAL, "EPS non-responsive in init loop");
+		wdmAsleep();
 		usleep(3000000);
+		wdmAlive();
 	}
 }
 

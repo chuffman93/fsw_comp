@@ -70,11 +70,11 @@ void CMDServer::loopInit(void){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "CMDServer: Initializing");
 
-	hsDelays = CMDConfiguration.beaconPeriod;
-
 	// setup for uftp
 	uftpSetup();
+
 	bootConfig();
+	hsDelays = CMDConfiguration.beaconPeriod;
 
 	currentState = ST_IDLE;
 }
@@ -102,8 +102,9 @@ void CMDServer::loopIdle(void){
 		logger->Log(LOGGER_LEVEL_WARN, "CMDServer: surprise COM! Preparing to enter COM Mode");
 		SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
 		schServer->RequestCOMMode();
-		int64 currTime = getTimeInMillis();
-		waitUntil(currTime,5000);
+		wdmAsleep();
+		usleep(5000000);
+		wdmAlive();
 		currentState = ST_PASS_PREP;
 		return;
 	}
@@ -277,9 +278,11 @@ void CMDServer::loopReset(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "Daily reset encountered");
 
+	wdmAsleep();
 	for(uint8 i = 0; i < 30; i++){
 		usleep(1000000);
 	}
+	wdmAlive();
 
 	logger->Log(LOGGER_LEVEL_ERROR, "Daily reset failed, performing reboot");
 	system("reboot");

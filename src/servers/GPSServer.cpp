@@ -96,6 +96,7 @@ void GPSServer::SubsystemLoop(void) {
 		if (!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_GPS]) {
 			cdhServer->subPowerOn(HARDWARE_LOCATION_GPS);
 			usleep(2000000); // give it time to restart
+			downCount = 0;
 		}
 
 		check = ReadData(buffer, fd);
