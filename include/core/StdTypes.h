@@ -27,18 +27,6 @@ typedef int64_t int64;
 typedef uint16 LocationIDType; // see HardwareLocationIDEnum + ServerLocationIDEnum
 #define LOCATION_ID_INVALID 0  // used with LocationIDType
 
-enum PowerSubsystemEnum{
-	POWER_SUBSYSTEM_PROP = 0,
-	POWER_SUBSYSTEM_ACS,
-	POWER_SUBSYSTEM_COM,
-	POWER_SUBSYSTEM_PLD,
-	POWER_SUBSYSTEM_GPS,
-	POWER_SUBSYSTEM_STR,
-	POWER_NUM_SUBSYSTEMS
-};
-
-typedef uint8 MessageCodeType;
-
 typedef enum HardwareLocationIDEnum {
 	HARDWARE_LOCATION_MIN = (LOCATION_ID_INVALID + 1),
 	HARDWARE_LOCATION_EPS = HARDWARE_LOCATION_MIN,
@@ -47,13 +35,13 @@ typedef enum HardwareLocationIDEnum {
 	HARDWARE_LOCATION_PLD,
 	HARDWARE_LOCATION_GPS,
 	HARDWARE_LOCATION_MAX
-}HardwareLocationIDType;
+} HardwareLocationIDType;
 
 typedef enum WDMStateEnum {
 	WDM_UNKNOWN,
 	WDM_ASLEEP,
 	WDM_ALIVE
-}WDMStateType;
+} WDMStateType;
 
 enum ServerLocationIDEnum {
 	SERVER_LOCATION_MIN = HARDWARE_LOCATION_MAX,
@@ -79,7 +67,7 @@ typedef enum LoggerLevel {
 	LOGGER_LEVEL_WARN, // warnings (minor errors)
 	LOGGER_LEVEL_ERROR, // errors
 	LOGGER_LEVEL_FATAL, // fatal errors
-}LoggerLevelType;
+} LoggerLevelType;
 
 enum FileHandlerIDEnum {
 	SUBSYSTEM_COM = 1,
@@ -112,22 +100,22 @@ enum FILServerDestinationEnum {
 	DESTINATION_RAD // Is this needed?
 };
 
-typedef enum FSWCommandTypes{
+typedef enum FSWCommandTypes {
 	FSW_CMD_REQUEST_RESET = 1,
 	FSW_CMD_HARD_SATELLITE_RESET,
 	FSW_CMD_TX_SILENCE_START,
 	FSW_CMD_TX_SILENCE_END,
 	FSW_CMD_MAX = FSW_CMD_TX_SILENCE_END
-}FSWCommand;
+} FSWCommand;
 
-typedef enum IEFCommandTypes{
+typedef enum IEFCommandTypes {
 	IEF_CMD_DOWNLINK = 1,
 	IEF_CMD_MAX = IEF_CMD_DOWNLINK
-}IEFCommand;
+} IEFCommand;
 
 // ------------------------------------------------------------ Subsystem OpCodes --------------------------------------------------------
 
-enum SubsystemOpcodes{
+enum SubsystemOpcodes {
 	// Test Opcodes (0-7)
 	LED_ON_CMD = 0,
 	LED_RATE_CONFIG,
@@ -151,7 +139,7 @@ enum SubsystemOpcodes{
 	SUBSYSTEM_OPCODE_MAX = 255
 };
 
-enum ACSCommandEnum{
+enum ACSCommandEnum {
 	ACS_TEST_DRIVER = 9,
 
 	ACS_OPCODE_MIN = SUBSYSTEM_CMD_MIN,
@@ -164,7 +152,7 @@ enum ACSCommandEnum{
 	ACS_OPCODE_MAX
 };
 
-enum COMCommandEnum{
+enum COMCommandEnum {
 	COM_OPCODE_MIN = SUBSYSTEM_CMD_MIN,
 	COM_SIMPLEX = COM_OPCODE_MIN,
 	COM_HALF_DUPLEX,
@@ -173,14 +161,14 @@ enum COMCommandEnum{
 	COM_OPCODE_MAX
 };
 
-enum EPSCommandEnum{
+enum EPSCommandEnum {
 	EPS_OPCODE_MIN = SUBSYSTEM_CMD_MIN,
 	EPS_BATTERY_CONFIG = EPS_OPCODE_MIN,
 	EPS_CMD_MAX
 };
 
 // TODO: update payload opcodes to new scheme
-enum PLDCommandEnum{
+enum PLDCommandEnum {
 	PLD_CMD_MIN = SUBSYSTEM_CMD_MIN,
 	PLD_START_SCIENCE = PLD_CMD_MIN,
 	PLD_DATA_CMD,
@@ -195,108 +183,18 @@ enum PLDCommandEnum{
 	PLD_DATA_MAX
 };
 
-// ------------------------------------------------------------------- FSW OpCodes -----------------------------------------------------------
-
-enum CMDCommandEnum
-{
-	CMD_CMD_MIN = 1,
-	CMD_ACP_SWITCH,
-	CMD_CMD_MAX,
-
-	CMD_ACP_SWITCH_SUCCESS = 100,
-
-	CMD_ACP_ERROR_MIN = 200,
-	CMD_ACP_SWITCH_FAILURE = CMD_ACP_ERROR_MIN,
-	CMD_ACP_SWITCH_BAD_SUBSYS,
-	CMD_ACP_SWITCH_BAD_PROTOCOL,
-	CMD_ACP_ERROR_MAX
-};
-
-
-enum SCHCommandEnum
-{
-	SCH_BUILD_SCHEDULE_CMD = 1,
-	SCH_BUILD_PLD_SCHEDULE_CMD,
-	SCH_RUN_SCHEDULE_CMD,
-
-	SCH_DEFAULT_RANGE_CONFIG = 10,
-
-	SCH_BUILD_SCHEDULE_SUCCESS = 201,
-	SCH_BUILD_PLD_SCHEDULE_SUCCESS,
-	SCH_RUN_SCHEDULE_SUCCESS,
-
-	SCH_DEFAULT_RANGE_SUCCESS = 210,
-
-	SCH_CMD_ERROR_MIN = 101,
-	SCH_BUILD_SCHEDULE_FAILURE = SCH_CMD_ERROR_MIN,
-	SCH_BUILD_PLD_SCHEDULE_FAILURE,
-	SCH_RUN_SCHEDULE_FAILURE,
-	SCH_CMD_ERROR_MAX,
-
-	SCH_DEFAULT_RANGE_FAILURE = 110
-};
-
-enum CDHCommandEnum
-{
-
-	CDH_CMD_MIN=1,
-	CDH_CPU_USAGE_CMD = CDH_CMD_MIN,
-	CDH_MEM_USAGE_CMD,
-	CDH_STORAGE_CMD,
-	CDH_TEMP_START_CMD,
-	CDH_TEMP_READ_CMD,
-	CDH_HOT_SWAPS_CMD,
-	CDH_POWER_MONITORS_CMD,
-	CDH_START_PM_CMD,
-	CDH_CLEAN_FS_CMD,
-	CDH_CMD_MAX,
-
-	CDH_CPU_USAGE_SUCCESS = 201,
-	CDH_MEM_USAGE_SUCCESS,
-	CDH_STORAGE_SUCCESS,
-	CDH_TEMP_START_SUCCESS,
-	CDH_TEMP_READ_SUCCESS,
-	CDH_HOT_SWAPS_SUCCESS,
-	CDH_POWER_MONITORS_SUCCESS,
-	CDH_CLEAN_FS_SUCCESS,
-	CDH_START_PM_SUCCESS,
-
-	CDH_CMD_ERROR_MIN = 101,
-	CDH_CPU_USAGE_FAILURE = CDH_CMD_ERROR_MIN,
-	CDH_MEM_USAGE_FAILURE,
-	CDH_STORAGE_FAILURE,
-	CDH_TEMP_START_FAILURE,
-	CDH_TEMP_READ_FAILURE,
-	CDH_HOT_SWAPS_FAILURE,
-	CDH_POWER_MONITORS_FAILURE,
-	CDH_START_PM_FAILURE,
-	CDH_CLEAN_FS_FAILURE,
-	CDH_CMD_ERROR_MAX
-};
-
-/* Standard enumeration for general errors that can
-`* occur on any subsystem server.
- */
-enum ErrorCodeEnum
-{
+enum ErrorCodeEnum {
 	DISPATCHER_ERR_START = 180,
 	DISPATCHER_NO_INSTANCE = DISPATCHER_ERR_START,
 	DISPATCHER_STATUS_ERR,
 	DISPATCH_FAILED,
 	DISPATCHER_ERR_END = DISPATCH_FAILED,
-	FILE_HANDLER_ERR_START,
-	FILE_HANDLER_NO_INSTANCE = FILE_HANDLER_ERR_START,
-	FILE_HANDLER_FAILED,
-	FILE_HANDLER_ERR_END = FILE_HANDLER_FAILED,
-	MODEMAN_NO_INSTANCE,
-	WATCHDOGMAN_NO_INSTANCE,
 	ERROR_QUEUE_FAILED,
 	PACKET_FORMAT_FAIL,
 	ERROR_OPCODE_UNRECOGNIZED_TYPE
 };
 
-enum SystemModeEnum
-{
+enum SystemModeEnum {
 	MODE_FIRST_MODE = 0,
 	MODE_STARTUP,
 	MODE_BUS_PRIORITY,
@@ -305,18 +203,5 @@ enum SystemModeEnum
 	MODE_RESET,
 	MODE_NUM_MODES
 };
-
-enum COMProtocol
-{
-	ACP_PROTOCOL_MIN = 1,
-	ACP_PROTOCOL_SPI = ACP_PROTOCOL_MIN,
-	ACP_PROTOCOL_I2C,
-	ACP_PROTOCOL_ETH,
-	ACP_PROTOCOL_MAX
-};
-
-typedef uint32 ConfigItemType;
-
-typedef std::pair<LocationIDType, MessageCodeType> MessageIdentifierType;
 
 #endif /* _STDTYPES_H_ */

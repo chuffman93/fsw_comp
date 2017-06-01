@@ -17,7 +17,6 @@
 #include "core/WatchdogManager.h"
 #include "core/ModeManager.h"
 #include "util/Logger.h"
-#include "util/FileHandler.h"
 #include "util/StorageManager.h"
 #include <iostream>
 #include <sys/sysinfo.h>

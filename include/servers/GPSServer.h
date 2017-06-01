@@ -15,7 +15,6 @@
 #include "servers/SubsystemServer.h"
 #include "core/Dispatcher.h"
 #include "servers/GPSStdTasks.h"
-#include "util/FileHandler.h"
 #include "servers/SubsystemServer.h"
 
 #include <termios.h>

@@ -11,7 +11,6 @@
 #include "core/Factory.h"
 #include "core/StdTypes.h"
 #include "core/WatchdogManager.h"
-#include "util/FileHandler.h"
 #include "util/Logger.h"
 #include <iostream>
 #include <fstream>

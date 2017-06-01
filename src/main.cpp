@@ -32,7 +32,6 @@ int main(int argc, char * argv[]) {
 	mq_unlink("/queueHandleRX");
 
 	Factory::GetInstance(DISPATCHER_SINGLETON);
-	Factory::GetInstance(FILE_HANDLER_SINGLETON);
 	Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON);
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 

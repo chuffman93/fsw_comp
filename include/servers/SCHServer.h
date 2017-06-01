@@ -5,13 +5,11 @@
 #define SCHSERVER_H_
 
 #include <list>
-
 #include "servers/SubsystemServer.h"
 #include "servers/Structs.h"
 #include "core/StdTypes.h"
 #include "core/Dispatcher.h"
 #include "core/Singleton.h"
-#include "util/ConfigManager.h"
 
 namespace AllStar{
 namespace Servers{

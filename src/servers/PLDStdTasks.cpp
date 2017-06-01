@@ -10,7 +10,6 @@
 #include "core/Singleton.h"
 #include "core/Factory.h"
 #include "core/ModeManager.h"
-#include "util/FileHandler.h"
 #include "util/Logger.h"
 #include <stdio.h>
 #include <string.h>

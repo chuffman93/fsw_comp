@@ -11,11 +11,8 @@
 #include "servers/EPSStdTasks.h"
 #include "servers/DispatchStdTasks.h"
 #include "servers/COMServer.h"
-
 #include "core/Singleton.h"
 #include "core/Factory.h"
-
-#include "util/FileHandler.h"
 #include "util/Logger.h"
 
 //#include "boards/backplane/dbg_led.h"

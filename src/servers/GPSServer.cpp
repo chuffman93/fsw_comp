@@ -17,7 +17,6 @@
 #include "core/Factory.h"
 #include "core/ModeManager.h"
 #include "core/StdTypes.h"
-#include "util/FileHandler.h"
 #include "util/Logger.h"
 #include <math.h>
 #include <stdio.h>

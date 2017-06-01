@@ -6,7 +6,6 @@
  */
 
 #include "core/ModeManager.h"
-#include "util/FileHandler.h"
 #include "util/Logger.h"
 #include <stdio.h>
 #include <stdlib.h>

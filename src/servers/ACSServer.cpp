@@ -12,14 +12,11 @@
 #include "servers/DispatchStdTasks.h"
 #include "servers/CDHServer.h"
 #include "servers/FileSystem.h"
-
 #include "core/Singleton.h"
 #include "core/Factory.h"
 #include "core/WatchdogManager.h"
 #include "core/StdTypes.h"
 #include "core/Dispatcher.h"
-
-#include "util/FileHandler.h"
 #include "util/Logger.h"
 
 using namespace std;

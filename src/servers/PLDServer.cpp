@@ -16,7 +16,6 @@
 #include "core/WatchdogManager.h"
 #include "core/StdTypes.h"
 #include "core/ModeManager.h"
-#include "util/FileHandler.h"
 #include "util/Logger.h"
 #include "servers/CDHServer.h"
 

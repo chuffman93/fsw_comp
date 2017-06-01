@@ -14,7 +14,6 @@
 #include "core/StdTypes.h"
 #include "core/ModeManager.h"
 #include "core/Dispatcher.h"
-#include "util/FileHandler.h"
 
 namespace AllStar{
 namespace Servers{

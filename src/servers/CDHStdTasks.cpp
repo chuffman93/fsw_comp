@@ -14,7 +14,6 @@
 #include "core/ModeManager.h"
 #include "core/Dispatcher.h"
 #include "util/itoa.h"
-#include "util/FileHandler.h"
 #include "util/Logger.h"
 #include "util/TLM.h"
 #include <sys/sysinfo.h>

@@ -21,7 +21,6 @@
 #include "core/Dispatcher.h"
 #include "core/StdTypes.h"
 #include "core/ModeManager.h"
-#include "util/FileHandler.h"
 #include <queue>
 
 namespace AllStar{

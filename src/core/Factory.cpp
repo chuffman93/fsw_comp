@@ -14,18 +14,14 @@
 #include "servers/PLDServer.h"
 #include "servers/SCHServer.h"
 #include "servers/CDHServer.h"
-
 #include <stdio.h>
 #include <stdlib.h>
-
 #include "core/Factory.h"
 #include "core/Singleton.h"
 #include "core/Dispatcher.h"
 #include "core/ModeManager.h"
 #include "core/WatchdogManager.h"
-
 #include "HAL/SPI_Server.h"
-#include "util/FileHandler.h"
 #include "util/Logger.h"
 
 using namespace AllStar::Servers;
@@ -48,9 +44,6 @@ bool Factory::Initialize(SingletonType type) {
 			break;
 		case WATCHDOG_MANAGER_SINGLETON:
 			instance = new WatchdogManager( );
-			break;
-		case FILE_HANDLER_SINGLETON:
-			instance = new FileHandler( );
 			break;
 		case LOGGER_SINGLETON:
 			instance = new Logger( );

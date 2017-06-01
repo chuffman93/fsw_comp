@@ -10,8 +10,6 @@
 #include "core/Dispatcher.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
-
-#include "util/FileHandler.h"
 #include "util/Logger.h"
 #include <assert.h>
 
