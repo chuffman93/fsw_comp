@@ -6,14 +6,15 @@
 */
 
 #include "servers/ACSServer.h"
+#include "servers/CDHServer.h"
 #include "servers/CMDServer.h"
 #include "servers/COMServer.h"
 #include "servers/EPSServer.h"
+#include "servers/ERRServer.h"
 #include "servers/FMGServer.h"
 #include "servers/GPSServer.h"
 #include "servers/PLDServer.h"
 #include "servers/SCHServer.h"
-#include "servers/CDHServer.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,7 +33,7 @@ using namespace AllStar::Servers;
 
 namespace AllStar {
 namespace Core {
-		
+
 Singleton * Factory::instancePtrs[NUM_SINGLETON_TYPES] = {NULL};
 bool Factory::isInitialized[NUM_SINGLETON_TYPES] = {false};
 
@@ -81,6 +82,9 @@ bool Factory::Initialize(SingletonType type) {
 			break;
 		case CDH_SERVER_SINGLETON:
 			instance = new CDHServer("CDH", SERVER_LOCATION_CDH);
+			break;
+		case ERR_SERVER_SINGLETON:
+			instance = new ERRServer("ERR", SERVER_LOCATION_ERR);
 			break;
 		case SPI_HALSERVER_SINGLETON:
 			instance = new SPI_HALServer();

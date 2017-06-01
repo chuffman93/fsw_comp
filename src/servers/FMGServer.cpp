@@ -164,20 +164,35 @@ void FMGServer::CloseAndMoveAllFiles() {
 }
 
 void FMGServer::Log(FILServerDestinationEnum dest, uint8 * buf, size_t size) {
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FilePacket packet;
 	packet.buffer = buf;
 	packet.size = size;
 	packet.dest = dest;
-	FileQueue.push(packet);
+
+	if (this->TakeLock(MAX_BLOCK_TIME)) {
+		FileQueue.push(packet);
+	} else {
+		logger->Log(LOGGER_LEVEL_WARN, "FMGServer: Log() unable to take lock");
+	}
 }
 
 void FMGServer::CallLog() {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	FilePacket packet;
 
-	uint8 * buf = FileQueue.front().buffer;
-    size_t size = FileQueue.front().size;
+	if (this->TakeLock(MAX_BLOCK_TIME) && !FileQueue.empty()) {
+		packet = FileQueue.front();
+		FileQueue.pop();
+	} else {
+		logger->Log(LOGGER_LEVEL_WARN, "FMGServer: CallLog() unable to take lock");
+		return;
+	}
 
-	switch (FileQueue.front().dest) {
+	uint8 * buf = packet.buffer;
+    size_t size = packet.size;
+
+	switch (packet.dest) {
 	case DESTINATION_ACP:
 		if ( !ACPLogger.Log(buf, size) ) {
 			logger->Log(LOGGER_LEVEL_WARN, "Error writing to ACP File");
@@ -239,7 +254,6 @@ void FMGServer::CallLog() {
 	}
 
 	free(buf);
-	FileQueue.pop();
 }
 
 void FMGServer::PrepVerboseHST(void){
