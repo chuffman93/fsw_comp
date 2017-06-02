@@ -103,6 +103,7 @@ void ERRServer::ACSError(ErrorOpcodeType error) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	switch (error) {
+
 	// ACS does not respond to aliveness check
 	case ERR_ACS_NOTALIVE:
 		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: ACS is not alive");
@@ -113,10 +114,13 @@ void ERRServer::ACSError(ErrorOpcodeType error) {
 			ACSNotAliveCount = 0;
 		}
 		break;
+
 	// ACS does not pass self check
 	case ERR_ACS_SELFCHECK:
 		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: ACS failed self check");
 		break;
+
+	// This should never happen
 	default:
 		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: unknown ACS error");
 	}
@@ -147,12 +151,24 @@ void ERRServer::COMError(ErrorOpcodeType error) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	switch (error) {
+
+	// COM does not respond to an aliveness check
 	case ERR_COM_NOTALIVE:
-		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: com not alive");
+		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: COM is not alive");
+		if (++COMNotAliveCount >= 10) {
+			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+			cdhServer->subPowerOff(HARDWARE_LOCATION_COM);
+			logger->Log(LOGGER_LEVEL_FATAL, "ERRServer: powering COM off!");
+			COMNotAliveCount = 0;
+		}
 		break;
+
+	// COM does not pass its self check
 	case ERR_COM_SELFCHECK:
 		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: com failed self check");
 		break;
+
+	// This should never happen
 	default:
 		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: unknown COM error");
 	}
@@ -165,6 +181,7 @@ void ERRServer::EPSError(ErrorOpcodeType error) {
 	switch (error) {
 	case ERR_EPS_NOTALIVE:
 		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: eps not alive");
+		// FIXME: need to add EPS reset
 		break;
 	case ERR_EPS_SELFCHECK:
 		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: eps failed self check");
@@ -199,12 +216,24 @@ void ERRServer::PLDError(ErrorOpcodeType error) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	switch (error) {
+
+	// PLD does not respond to an aliveness check
 	case ERR_PLD_NOTALIVE:
-		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: pld not alive");
+		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: PLD is not alive");
+		if (++PLDNotAliveCount >= 10) {
+			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+			cdhServer->subPowerOff(HARDWARE_LOCATION_PLD);
+			logger->Log(LOGGER_LEVEL_FATAL, "ERRServer: powering PLD off!");
+			PLDNotAliveCount = 0;
+		}
 		break;
+
+	// PLD does not pass its self check
 	case ERR_PLD_SELFCHECK:
-		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: pld failed self check");
+		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: PLD failed self check");
 		break;
+
+	// This should never happen
 	default:
 		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: unknown PLD error");
 	}

@@ -120,10 +120,8 @@ bool PLDTestAlive(){
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret->isSuccess()){
-		logger->Log(LOGGER_LEVEL_DEBUG, "PLD is alive");
 		return true;
 	}else{
-		logger->Log(LOGGER_LEVEL_FATAL, "PLD is not alive");
 		return false;
 	}
 }

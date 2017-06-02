@@ -57,8 +57,9 @@ bool ACSServer::IsFullyInitialized(void){
 // -------------------------------------------- State Machine --------------------------------------------
 void ACSServer::loopInit() {
 	ERRServer * errServer = dynamic_cast<ERRServer *> (Factory::GetInstance(ERR_SERVER_SINGLETON));
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
 	if (!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS]) {
 		cdhServer->resetAssert(HARDWARE_LOCATION_ACS);
 		cdhServer->subPowerOn(HARDWARE_LOCATION_ACS);
@@ -83,8 +84,6 @@ void ACSServer::loopInit() {
 		logger->Log(LOGGER_LEVEL_INFO, "ACS passed self check");
 
 		bootConfig();
-
-		CheckHealthStatus();
 
 		currentState = ST_SUN_SOAK;
 	} else {

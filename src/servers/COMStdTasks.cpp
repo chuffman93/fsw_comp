@@ -117,10 +117,8 @@ bool COMTestAlive(){
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret->isSuccess()){
-		logger->Log(LOGGER_LEVEL_DEBUG, "COM is alive");
 		return true;
 	}else{
-		logger->Log(LOGGER_LEVEL_FATAL, "COM is not alive");
 		return false;
 	}
 }

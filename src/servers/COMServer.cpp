@@ -53,29 +53,36 @@ bool COMServer::IsFullyInitialized(void){
 // -------------------------------------------- State Machine ---------------------------------------------
 void COMServer::loopInit(){
 	ERRServer * errServer = dynamic_cast<ERRServer *> (Factory::GetInstance(ERR_SERVER_SINGLETON));
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
-	cdhServer->subPowerOn(HARDWARE_LOCATION_COM);
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-	wdmAsleep();
-	usleep(15000000); // wait 15s for boot
-	wdmAlive();
+	if (!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_COM]) {
+		cdhServer->subPowerOn(HARDWARE_LOCATION_COM);
 
-	if(COMTestAlive()){
-		// Debug LED initialization
-		if(!COMSelfCheck()){
-			logger->Log(LOGGER_LEVEL_FATAL, "COM failed self check!");
+		wdmAsleep();
+		usleep(15000000); // wait 15s for boot
+		wdmAlive();
+	}
+
+	if (COMTestAlive()) {
+		if (!COMSelfCheck()) {
 			errServer->SendError(ERR_COM_SELFCHECK);
+			wdmAsleep();
+			usleep(3000000);
+			wdmAlive();
 			return;
 		}
+
 		logger->Log(LOGGER_LEVEL_INFO, "COM passed self check");
 
 		bootConfig();
 
 		currentState = ST_BEACON;
-	}else{
-		logger->Log(LOGGER_LEVEL_FATAL, "COM non-responsive in init");
+	} else {
 		errServer->SendError(ERR_COM_NOTALIVE);
+		wdmAsleep();
+		usleep(3000000);
+		wdmAlive();
 	}
 }
 
