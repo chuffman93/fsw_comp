@@ -226,6 +226,8 @@ typedef enum ErrorOpcodeEnum {
 
 	// EPS Errors
 	ERR_EPS_MIN = 400,
+	ERR_EPS_NOTALIVE,
+	ERR_EPS_SELFCHECK,
 	ERR_EPS_MAX,
 
 	// FMG Errors

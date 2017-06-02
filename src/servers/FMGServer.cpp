@@ -172,6 +172,7 @@ void FMGServer::Log(FILServerDestinationEnum dest, uint8 * buf, size_t size) {
 
 	if (this->TakeLock(MAX_BLOCK_TIME)) {
 		FileQueue.push(packet);
+		this->GiveLock();
 	} else {
 		logger->Log(LOGGER_LEVEL_WARN, "FMGServer: Log() unable to take lock");
 	}
@@ -184,6 +185,7 @@ void FMGServer::CallLog() {
 	if (this->TakeLock(MAX_BLOCK_TIME) && !FileQueue.empty()) {
 		packet = FileQueue.front();
 		FileQueue.pop();
+		this->GiveLock();
 	} else {
 		logger->Log(LOGGER_LEVEL_WARN, "FMGServer: CallLog() unable to take lock");
 		return;

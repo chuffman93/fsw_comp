@@ -19,6 +19,18 @@ public:
 	void SendError(ErrorOpcodeType error);
 
 private:
+	void SortError(ErrorOpcodeType error);
+
+	void ACSError(ErrorOpcodeType error);
+	void CDHError(ErrorOpcodeType error);
+	void CMDError(ErrorOpcodeType error);
+	void COMError(ErrorOpcodeType error);
+	void EPSError(ErrorOpcodeType error);
+	void FMGError(ErrorOpcodeType error);
+	void GPSError(ErrorOpcodeType error);
+	void PLDError(ErrorOpcodeType error);
+	void SCHError(ErrorOpcodeType error);
+
 	bool IsFullyInitialized(void);
 
 	ERRServer(std::string nameIn, LocationIDType idIn);

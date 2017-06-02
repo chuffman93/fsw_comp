@@ -58,7 +58,7 @@ int main(int argc, char * argv[]) {
 	// ----------------------------- Start Servers -----------------------------------------------------------------
 	WatchdogManager * watchdogManager = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 	threadsCreated &= watchdogManager->StartServer(acsServer, 5,	false);	 //ACS
-	threadsCreated &= watchdogManager->StartServer(cdhServer, 2,	false);	 //CDH
+	threadsCreated &= watchdogManager->StartServer(cdhServer, 2,	true);	 //CDH
 	threadsCreated &= watchdogManager->StartServer(cmdServer, 5,	true);	 //CMD
 	threadsCreated &= watchdogManager->StartServer(comServer, 1,	false);	 //COM
 	threadsCreated &= watchdogManager->StartServer(epsServer, 1,	true);	 //EPS
@@ -67,7 +67,7 @@ int main(int argc, char * argv[]) {
 	threadsCreated &= watchdogManager->StartServer(gpsServer, 5,	false);	 //GPS
 	threadsCreated &= watchdogManager->StartServer(pldServer, 5,	false);	 //PLD
 	threadsCreated &= watchdogManager->StartServer(schServer, 0,	true);	 //SCH
-	threadsCreated &= watchdogManager->StartServer(spiServer, 0,	false);	 //SPI
+	threadsCreated &= watchdogManager->StartServer(spiServer, 0,	true);	 //SPI
 
 	if (!threadsCreated) {
 		logger->Log(LOGGER_LEVEL_FATAL, "Not all threads were created on startup!");

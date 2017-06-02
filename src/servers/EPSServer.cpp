@@ -13,6 +13,7 @@
 #include "core/StdTypes.h"
 #include "servers/EPSServer.h"
 #include "servers/EPSStdTasks.h"
+#include "servers/ERRServer.h"
 #include "servers/FMGServer.h"
 #include "servers/DispatchStdTasks.h"
 #include "servers/CDHServer.h"
@@ -49,12 +50,14 @@ bool EPSServer::IsFullyInitialized(void){
 }
 
 // -------------------------------------------- State Machine ---------------------------------------------
-void EPSServer::loopInit(){
+void EPSServer::loopInit() {
+	ERRServer * errServer = dynamic_cast<ERRServer *> (Factory::GetInstance(ERR_SERVER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	if(EPSTestAlive()){
 		if(!EPSSelfCheck()){
 			logger->Log(LOGGER_LEVEL_FATAL, "EPS failed self check!");
+			errServer->SendError(ERR_EPS_SELFCHECK);
 		}
 		logger->Log(LOGGER_LEVEL_INFO, "EPS passed self check");
 
@@ -63,6 +66,7 @@ void EPSServer::loopInit(){
 		currentState = ST_MONITOR;
 	}else{
 		logger->Log(LOGGER_LEVEL_FATAL, "EPS non-responsive in init loop");
+		errServer->SendError(ERR_EPS_NOTALIVE);
 		wdmAsleep();
 		usleep(3000000);
 		wdmAlive();
