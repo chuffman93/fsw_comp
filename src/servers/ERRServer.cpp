@@ -5,6 +5,7 @@
 *      Author: Alex St. Clair
 */
 #include "servers/ERRServer.h"
+#include "servers/CDHServer.h"
 #include "core/StdTypes.h"
 #include "util/Logger.h"
 
@@ -13,8 +14,12 @@ namespace Servers {
 
 // --------------------- Necessary Methods --------------------------
 ERRServer::ERRServer(string nameIn, LocationIDType idIn)
-		: SubsystemServer(nameIn, idIn), Singleton()
-{ }
+		: SubsystemServer(nameIn, idIn), Singleton() {
+	ACSNotAliveCount = 0;
+	COMNotAliveCount = 0;
+	EPSNotAliveCount = 0;
+	PLDNotAliveCount = 0;
+}
 
 ERRServer::~ERRServer() { }
 
@@ -84,6 +89,8 @@ void ERRServer::SortError(ErrorOpcodeType error) {
 		PLDError(error);
 	} else if (error >= ERR_SCH_MIN && error < ERR_SCH_MAX) {
 		SCHError(error);
+	} else if (error >= ERR_GEN_MIN && error < ERR_GEN_MAX) {
+		GENError(error);
 	} else if (error >= ERR_MAX) {
 		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: error out of range!");
 	} else {
@@ -96,6 +103,20 @@ void ERRServer::ACSError(ErrorOpcodeType error) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	switch (error) {
+	// ACS does not respond to aliveness check
+	case ERR_ACS_NOTALIVE:
+		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: ACS is not alive");
+		if (++ACSNotAliveCount >= 10) {
+			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+			cdhServer->subPowerOff(HARDWARE_LOCATION_ACS);
+			logger->Log(LOGGER_LEVEL_FATAL, "ERRServer: powering ACS off!");
+			ACSNotAliveCount = 0;
+		}
+		break;
+	// ACS does not pass self check
+	case ERR_ACS_SELFCHECK:
+		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: ACS failed self check");
+		break;
 	default:
 		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: unknown ACS error");
 	}
@@ -126,6 +147,12 @@ void ERRServer::COMError(ErrorOpcodeType error) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	switch (error) {
+	case ERR_COM_NOTALIVE:
+		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: com not alive");
+		break;
+	case ERR_COM_SELFCHECK:
+		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: com failed self check");
+		break;
 	default:
 		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: unknown COM error");
 	}
@@ -172,6 +199,12 @@ void ERRServer::PLDError(ErrorOpcodeType error) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	switch (error) {
+	case ERR_PLD_NOTALIVE:
+		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: pld not alive");
+		break;
+	case ERR_PLD_SELFCHECK:
+		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: pld failed self check");
+		break;
 	default:
 		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: unknown PLD error");
 	}
@@ -184,6 +217,16 @@ void ERRServer::SCHError(ErrorOpcodeType error) {
 	switch (error) {
 	default:
 		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: unknown SCH error");
+	}
+}
+
+
+void ERRServer::GENError(ErrorOpcodeType error) {
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	switch (error) {
+	default:
+		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: unknown GEN error");
 	}
 }
 

@@ -9,6 +9,7 @@
 #include "servers/COMStdTasks.h"
 #include "servers/CDHServer.h"
 #include "servers/CMDServer.h"
+#include "servers/ERRServer.h"
 #include "servers/DispatchStdTasks.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
@@ -51,6 +52,7 @@ bool COMServer::IsFullyInitialized(void){
 // TODO: ultimately remove Half and Full Duplex states and have a struct to track those COM states through H&S
 // -------------------------------------------- State Machine ---------------------------------------------
 void COMServer::loopInit(){
+	ERRServer * errServer = dynamic_cast<ERRServer *> (Factory::GetInstance(ERR_SERVER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 	cdhServer->subPowerOn(HARDWARE_LOCATION_COM);
@@ -63,6 +65,7 @@ void COMServer::loopInit(){
 		// Debug LED initialization
 		if(!COMSelfCheck()){
 			logger->Log(LOGGER_LEVEL_FATAL, "COM failed self check!");
+			errServer->SendError(ERR_COM_SELFCHECK);
 			return;
 		}
 		logger->Log(LOGGER_LEVEL_INFO, "COM passed self check");
@@ -72,6 +75,7 @@ void COMServer::loopInit(){
 		currentState = ST_BEACON;
 	}else{
 		logger->Log(LOGGER_LEVEL_FATAL, "COM non-responsive in init");
+		errServer->SendError(ERR_COM_NOTALIVE);
 	}
 }
 

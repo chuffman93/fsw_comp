@@ -210,6 +210,8 @@ typedef enum ErrorOpcodeEnum {
 
 	// ACS Errors
 	ERR_ACS_MIN = ERR_MIN,
+	ERR_ACS_NOTALIVE,
+	ERR_ACS_SELFCHECK,
 	ERR_ACS_MAX,
 
 	// CDH Errors
@@ -222,6 +224,8 @@ typedef enum ErrorOpcodeEnum {
 
 	// COM Errors
 	ERR_COM_MIN = 300,
+	ERR_COM_NOTALIVE,
+	ERR_COM_SELFCHECK,
 	ERR_COM_MAX,
 
 	// EPS Errors
@@ -240,11 +244,17 @@ typedef enum ErrorOpcodeEnum {
 
 	// PLD Errors
 	ERR_PLD_MIN = 700,
+	ERR_PLD_NOTALIVE,
+	ERR_PLD_SELFCHECK,
 	ERR_PLD_MAX,
 
 	// SCH Errors
 	ERR_SCH_MIN = 800,
 	ERR_SCH_MAX,
+
+	// General errors (from the core)
+	ERR_GEN_MIN = 900,
+	ERR_GEN_MAX,
 
 	ERR_MAX
 } ErrorOpcodeType;

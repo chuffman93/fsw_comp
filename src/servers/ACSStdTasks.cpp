@@ -117,10 +117,8 @@ bool ACSTestAlive(){
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret->isSuccess()){
-		logger->Log(LOGGER_LEVEL_DEBUG, "ACS is alive");
 		return true;
 	}else{
-		logger->Log(LOGGER_LEVEL_FATAL, "ACS is not alive");
 		return false;
 	}
 }

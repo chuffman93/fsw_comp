@@ -10,6 +10,7 @@
 #include "servers/PLDServer.h"
 #include "servers/PLDStdTasks.h"
 #include "servers/DispatchStdTasks.h"
+#include "servers/ERRServer.h"
 #include "servers/FileSystem.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
@@ -84,6 +85,7 @@ void PLDServer::loopIdle(){
 }
 
 void PLDServer::loopStartup(){
+	ERRServer * errServer = dynamic_cast<ERRServer *> (Factory::GetInstance(ERR_SERVER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 	cdhServer->resetAssert(HARDWARE_LOCATION_PLD);
@@ -96,14 +98,14 @@ void PLDServer::loopStartup(){
 	if(PLDTestAlive()){
 		if(!PLDSelfCheck()){
 			logger->Log(LOGGER_LEVEL_FATAL, "PLD failed self check!");
-			cdhServer->subPowerOff(HARDWARE_LOCATION_PLD);
+			errServer->SendError(ERR_PLD_SELFCHECK);
 			currentState = ST_IDLE;
 			return;
 		}
 		logger->Log(LOGGER_LEVEL_INFO, "PLD passed self check");
 	}else{
 		logger->Log(LOGGER_LEVEL_FATAL, "PLD non-responsive in init loop");
-		cdhServer->subPowerOff(HARDWARE_LOCATION_PLD);
+		errServer->SendError(ERR_PLD_NOTALIVE);
 		currentState = ST_IDLE;
 		return;
 	}

@@ -11,6 +11,7 @@
 #include "servers/ACSServer.h"
 #include "servers/DispatchStdTasks.h"
 #include "servers/CDHServer.h"
+#include "servers/ERRServer.h"
 #include "servers/FileSystem.h"
 
 #include "core/Singleton.h"
@@ -54,22 +55,28 @@ bool ACSServer::IsFullyInitialized(void){
 }
 
 // -------------------------------------------- State Machine --------------------------------------------
-void ACSServer::loopInit(){
+void ACSServer::loopInit() {
+	ERRServer * errServer = dynamic_cast<ERRServer *> (Factory::GetInstance(ERR_SERVER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
-	cdhServer->resetAssert(HARDWARE_LOCATION_ACS);
-	cdhServer->subPowerOn(HARDWARE_LOCATION_ACS);
-	usleep(100000);
-	cdhServer->resetDeassert(HARDWARE_LOCATION_ACS);
+	if (!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS]) {
+		cdhServer->resetAssert(HARDWARE_LOCATION_ACS);
+		cdhServer->subPowerOn(HARDWARE_LOCATION_ACS);
+		usleep(100000);
+		cdhServer->resetDeassert(HARDWARE_LOCATION_ACS);
 
-	// delay while ACS boots up
-	wdmAsleep();
-	usleep(4000000);
-	wdmAlive();
+		// delay while ACS boots up
+		wdmAsleep();
+		usleep(4000000);
+		wdmAlive();
+	}
 
-	if(ACSTestAlive()){
-		if(!ACSSelfCheck()){
-			logger->Log(LOGGER_LEVEL_FATAL, "ACS failed self check!");
+	if (ACSTestAlive()) {
+		if (!ACSSelfCheck()) {
+			errServer->SendError(ERR_ACS_SELFCHECK);
+			wdmAsleep();
+			usleep(3000000);
+			wdmAlive();
 			return;
 		}
 
@@ -80,8 +87,11 @@ void ACSServer::loopInit(){
 		CheckHealthStatus();
 
 		currentState = ST_SUN_SOAK;
-	}else{
-		logger->Log(LOGGER_LEVEL_FATAL, "ACS non-responsive in init");
+	} else {
+		errServer->SendError(ERR_ACS_NOTALIVE);
+		wdmAsleep();
+		usleep(3000000);
+		wdmAlive();
 	}
 }
 
@@ -188,6 +198,10 @@ void ACSServer::loopReset(){
 
 // -------------------------------------------- ACS Methods --------------------------------------------
 bool ACSServer::CheckHealthStatus(){
+	if (currentState == ST_INIT) {
+		return false;
+	}
+
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, HEALTH_STATUS_CMD);

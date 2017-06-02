@@ -30,6 +30,13 @@ private:
 	void GPSError(ErrorOpcodeType error);
 	void PLDError(ErrorOpcodeType error);
 	void SCHError(ErrorOpcodeType error);
+	void GENError(ErrorOpcodeType error);
+
+	// counters and flags
+	uint8 ACSNotAliveCount;
+	uint8 COMNotAliveCount;
+	uint8 EPSNotAliveCount;
+	uint8 PLDNotAliveCount;
 
 	bool IsFullyInitialized(void);
 

@@ -57,11 +57,11 @@ int main(int argc, char * argv[]) {
 
 	// ----------------------------- Start Servers -----------------------------------------------------------------
 	WatchdogManager * watchdogManager = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
-	threadsCreated &= watchdogManager->StartServer(acsServer, 5,	false);	 //ACS
+	threadsCreated &= watchdogManager->StartServer(acsServer, 5,	true);	 //ACS
 	threadsCreated &= watchdogManager->StartServer(cdhServer, 2,	true);	 //CDH
 	threadsCreated &= watchdogManager->StartServer(cmdServer, 5,	true);	 //CMD
 	threadsCreated &= watchdogManager->StartServer(comServer, 1,	false);	 //COM
-	threadsCreated &= watchdogManager->StartServer(epsServer, 1,	true);	 //EPS
+	threadsCreated &= watchdogManager->StartServer(epsServer, 1,	false);	 //EPS
 	threadsCreated &= watchdogManager->StartServer(errServer, 0,	true);	 //ERR
 	threadsCreated &= watchdogManager->StartServer(fmgServer, 0,	false);	 //FMG
 	threadsCreated &= watchdogManager->StartServer(gpsServer, 5,	false);	 //GPS
