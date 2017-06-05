@@ -24,6 +24,15 @@ SSS
 SWP
 "
 
+# All health and status directories
+export HST_DIRECTORIES="
+ACS
+CDH
+COM
+EPS
+PLD
+"
+
 # All directories to go on /SD_3
 export SCI_DIRECTORIES="
 RAD
