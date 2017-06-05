@@ -60,11 +60,17 @@ namespace Servers{
 #define ERR_FILE_PATH			"/SD_2/ERR"
 #define GEN_FILE_PATH			"/SD_2/GEN"
 #define FSS_FILE_PATH			"/SD_2/FSS"
-#define HST_FILE_PATH			"/SD_2/HST"
 #define MOD_FILE_PATH			"/SD_2/MOD"
 #define SSS_FILE_PATH			"/SD_2/SSS"
 #define SWP_FILE_PATH			"/SD_2/SWP"
 #define RAD_FILE_PATH			"/SD_3/RAD"
+
+#define HST_FILE_PATH			"/SD_2/HST"
+#define ACS_HST_PATH			HST_FILE_PATH	"/ACS"
+#define CDH_HST_PATH			HST_FILE_PATH	"/CDH"
+#define COM_HST_PATH			HST_FILE_PATH	"/COM"
+#define EPS_HST_PATH			HST_FILE_PATH	"/EPS"
+#define PLD_HST_PATH			HST_FILE_PATH	"/PLD"
 
 #define UPLK_PASSWORD			"P0!@rCube\n"
 #define UPLK_PASSWORD_SKIP		"P0!@rCube_1\n"

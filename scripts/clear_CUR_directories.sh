@@ -29,6 +29,14 @@ do
   done
 done
 
+for dir in $HST_DIRECTORIES
+do
+  for file in `ls /SD_2/HST/$dir/CUR`
+  do
+    mv /SD_2/HST/$dir/CUR/$file /SD_2/HST/$dir/$file
+  done
+done
+
 for dir in $SCI_DIRECTORIES
 do
   for file in `ls /SD_2/$dir/CUR`

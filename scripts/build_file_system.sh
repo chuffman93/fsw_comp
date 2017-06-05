@@ -25,6 +25,12 @@ do
   mkdir /SD_2/$dir/CUR
 done
 
+for dir in $HST_DIRECTORIES
+do
+  mkdir /SD_2/HST/$dir
+  mkdir /SD_2/HST/$dir/CUR
+done
+
 for dir in $SCI_DIRECTORIES
 do
   mkdir /SD_3/$dir

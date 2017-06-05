@@ -17,28 +17,42 @@ cd $OLDPWD
 
 for dir in $TLM_DIRECTORIES
 do
-  echo "Cleanning /SD_2/$dir"
+  echo "Cleaning /SD_2/$dir"
   for file in `ls -p /SD_2/$dir | grep -v /`
-    do
-      rm /SD_2/$dir/$file
-    done
+  do
+    rm /SD_2/$dir/$file
+  done
 
   for file in `ls -p /SD_2/$dir/CUR | grep -v /`
-    do
-      rm /SD_2/$dir/CUR/$file
-    done
+  do
+    rm /SD_2/$dir/CUR/$file
+  done
+done
+
+for dir in $HST_DIRECTORIES
+do
+  echo "Cleaning /SD_2/HST/$dir"
+  for file in `ls -p /SD_2/HST/$dir | grep -v /`
+  do
+    rm /SD_2/HST/$dir/$file
+  done
+
+  for file in `ls -p /SD_2/HST/&dir/CUR | grep -v /`
+  do
+    rm /SD_2/HST/$dir/CUR/$file
+  done
 done
 
 for dir in $SCI_DIRECTORIES
 do
-  echo "Cleanning /SD_3/$dir"
+  echo "Cleaning /SD_3/$dir"
   for file in `ls -p /SD_3/$dir | grep -v /`
-    do
-      rm /SD_3/$dir/$file
-    done
+  do
+    rm /SD_3/$dir/$file
+  done
 
   for file in `ls -p /SD_3/$dir/CUR | grep -v /`
-    do
-      rm /SD_3/$dir/CUR/$file
-    done
+  do
+    rm /SD_3/$dir/CUR/$file
+  done
 done

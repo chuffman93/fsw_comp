@@ -98,11 +98,14 @@ private:
 	FileManager ERRLogger;
 	FileManager FSSLogger;
 	FileManager GENLogger;
-	FileManager HSTLogger;
 	FileManager MODLogger;
 	FileManager SSSLogger;
 	FileManager SWPLogger;
-	FileManager RADLogger;
+	FileManager ACS_HSTLogger;
+	FileManager CDH_HSTLogger;
+	FileManager COM_HSTLogger;
+	FileManager EPS_HSTLogger;
+	FileManager PLD_HSTLogger;
 
 	bool IsFullyInitialized(void);
 

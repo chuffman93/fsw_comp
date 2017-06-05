@@ -126,7 +126,11 @@ FMGServer::FMGServer(string nameIn, LocationIDType idIn) :
 					MODLogger(MOD_FILE_PATH, "MOD"),
 					SSSLogger(SSS_FILE_PATH, "SSS"),
 					SWPLogger(SWP_FILE_PATH, "SWP"),
-					RADLogger(RAD_FILE_PATH, "RAD"),
+					ACS_HSTLogger(ACS_HST_PATH, "ACS"),
+					CDH_HSTLogger(CDH_HST_PATH, "CDH"),
+					COM_HSTLogger(COM_HST_PATH, "COM"),
+					EPS_HSTLogger(EPS_HST_PATH, "EPS"),
+					PLD_HSTLogger(PLD_HST_PATH, "PLD"),
 					resetReady(false),
 					comReady(false),
 					move_from_CUR(false)
@@ -159,7 +163,11 @@ void FMGServer::CloseAndMoveAllFiles() {
 	MODLogger.CloseFile();
 	SSSLogger.CloseFile();
 	SWPLogger.CloseFile();
-    RADLogger.CloseFile();
+	ACS_HSTLogger.CloseFile();
+	CDH_HSTLogger.CloseFile();
+	COM_HSTLogger.CloseFile();
+	EPS_HSTLogger.CloseFile();
+	PLD_HSTLogger.CloseFile();
 }
 
 void FMGServer::Log(FILServerDestinationEnum dest, uint8 * buf, size_t size) {
@@ -224,11 +232,6 @@ void FMGServer::CallLog() {
 			logger->Log(LOGGER_LEVEL_WARN, "Error writing to General File");
 		}
 		break;
-	case DESTINATION_HST:
-		if( !HSTLogger.Log(buf, size) ) {
-			logger->Log(LOGGER_LEVEL_WARN, "Error writing to Health and Status File");
-		}
-		break;
 	case DESTINATION_MOD:
 		if( !MODLogger.Log(buf, size) ) {
 			logger->Log(LOGGER_LEVEL_WARN, "Error writing to Mode File");
@@ -244,9 +247,29 @@ void FMGServer::CallLog() {
 			logger->Log(LOGGER_LEVEL_WARN, "Error writing to HotSwap File");
 		}
 		break;
-	case DESTINATION_RAD:
-		if ( !RADLogger.Log(buf, size) ) {
-			logger->Log(LOGGER_LEVEL_WARN, "Error writing to Rad File");
+	case DESTINATION_ACS_HST:
+		if ( !ACS_HSTLogger.Log(buf, size) ) {
+			logger->Log(LOGGER_LEVEL_WARN, "Error writing to ACS HST File");
+		}
+		break;
+	case DESTINATION_CDH_HST:
+		if ( !CDH_HSTLogger.Log(buf, size) ) {
+			logger->Log(LOGGER_LEVEL_WARN, "Error writing to CDH HST File");
+		}
+		break;
+	case DESTINATION_COM_HST:
+		if ( !COM_HSTLogger.Log(buf, size) ) {
+			logger->Log(LOGGER_LEVEL_WARN, "Error writing to COM HST File");
+		}
+		break;
+	case DESTINATION_EPS_HST:
+		if ( !EPS_HSTLogger.Log(buf, size) ) {
+			logger->Log(LOGGER_LEVEL_WARN, "Error writing to EPS HST File");
+		}
+		break;
+	case DESTINATION_PLD_HST:
+		if ( !PLD_HSTLogger.Log(buf, size) ) {
+			logger->Log(LOGGER_LEVEL_WARN, "Error writing to PLD HST File");
 		}
 		break;
 	default:
