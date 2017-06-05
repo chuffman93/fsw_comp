@@ -13,7 +13,7 @@
 namespace AllStar{
 namespace Core{
 
-#define DISPATCHER_QUEUE_LENGTH 		32
+#define DISPATCHER_QUEUE_LENGTH 		16
 
 #define DISPATCHER_WAIT_TIME			(100000) //was 100 kernel ticks, 100 ms
 
@@ -27,7 +27,6 @@ class Dispatcher : public Singleton {
 	friend class Factory;
 
 public:
-
 	typedef enum DispatcherCheckEnum{
 		CHECK_MATCHING_RESPONSE,
 		CHECK_DEST_SOURCE,

@@ -10,6 +10,7 @@
 #include "servers/PLDServer.h"
 #include "servers/PLDStdTasks.h"
 #include "servers/DispatchStdTasks.h"
+#include "servers/ERRServer.h"
 #include "servers/FileSystem.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
@@ -69,8 +70,14 @@ void PLDServer::loopInit(){
 
 void PLDServer::loopIdle(){
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 	SystemModeEnum currentMode = modeManager->GetMode();
 	switch(currentMode){
+	case MODE_BUS_PRIORITY:
+		if (cdhServer->subsystemPowerStates[HARDWARE_LOCATION_PLD]) {
+			cdhServer->subPowerOff(HARDWARE_LOCATION_PLD);
+		}
+		break;
 	case MODE_PLD_PRIORITY:
 		currentState = ST_STARTUP;
 		break;
@@ -83,26 +90,38 @@ void PLDServer::loopIdle(){
 }
 
 void PLDServer::loopStartup(){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	ERRServer * errServer = dynamic_cast<ERRServer *> (Factory::GetInstance(ERR_SERVER_SINGLETON));
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
-	cdhServer->resetAssert(HARDWARE_LOCATION_PLD);
-	cdhServer->subPowerOn(HARDWARE_LOCATION_PLD);
-	usleep(300000);
-	cdhServer->resetDeassert(HARDWARE_LOCATION_PLD);
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-	usleep(1000000);
+	if (!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_PLD]) {
+		cdhServer->resetAssert(HARDWARE_LOCATION_PLD);
+		cdhServer->subPowerOn(HARDWARE_LOCATION_PLD);
+		usleep(300000);
+		cdhServer->resetDeassert(HARDWARE_LOCATION_PLD);
 
-	if(PLDTestAlive()){
-		if(!PLDSelfCheck()){
-			logger->Log(LOGGER_LEVEL_FATAL, "PLD failed self check!");
-			cdhServer->subPowerOff(HARDWARE_LOCATION_PLD);
+		// delay while PLD boots
+		wdmAsleep();
+		usleep(4000000);
+		wdmAlive();
+	}
+
+	if (PLDTestAlive()) {
+		if (!PLDSelfCheck()) {
+			errServer->SendError(ERR_PLD_SELFCHECK);
+			wdmAsleep();
+			usleep(3000000);
+			wdmAlive();
 			currentState = ST_IDLE;
 			return;
 		}
+
 		logger->Log(LOGGER_LEVEL_INFO, "PLD passed self check");
-	}else{
-		logger->Log(LOGGER_LEVEL_FATAL, "PLD non-responsive in init loop");
-		cdhServer->subPowerOff(HARDWARE_LOCATION_PLD);
+	} else {
+		errServer->SendError(ERR_PLD_NOTALIVE);
+		wdmAsleep();
+		usleep(3000000);
+		wdmAlive();
 		currentState = ST_IDLE;
 		return;
 	}

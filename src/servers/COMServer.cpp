@@ -9,6 +9,7 @@
 #include "servers/COMStdTasks.h"
 #include "servers/CDHServer.h"
 #include "servers/CMDServer.h"
+#include "servers/ERRServer.h"
 #include "servers/DispatchStdTasks.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
@@ -50,27 +51,37 @@ bool COMServer::IsFullyInitialized(void){
 // TODO: ultimately remove Half and Full Duplex states and have a struct to track those COM states through H&S
 // -------------------------------------------- State Machine ---------------------------------------------
 void COMServer::loopInit(){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	ERRServer * errServer = dynamic_cast<ERRServer *> (Factory::GetInstance(ERR_SERVER_SINGLETON));
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
-	cdhServer->subPowerOn(HARDWARE_LOCATION_COM);
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-	wdmAsleep();
-	usleep(15000000); // wait 15s for boot
-	wdmAlive();
+	if (!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_COM]) {
+		cdhServer->subPowerOn(HARDWARE_LOCATION_COM);
 
-	if(COMTestAlive()){
-		// Debug LED initialization
-		if(!COMSelfCheck()){
-			logger->Log(LOGGER_LEVEL_FATAL, "COM failed self check!");
+		wdmAsleep();
+		usleep(15000000); // wait 15s for boot
+		wdmAlive();
+	}
+
+	if (COMTestAlive()) {
+		if (!COMSelfCheck()) {
+			errServer->SendError(ERR_COM_SELFCHECK);
+			wdmAsleep();
+			usleep(3000000);
+			wdmAlive();
 			return;
 		}
+
 		logger->Log(LOGGER_LEVEL_INFO, "COM passed self check");
 
 		bootConfig();
 
 		currentState = ST_BEACON;
-	}else{
-		logger->Log(LOGGER_LEVEL_FATAL, "COM non-responsive in init");
+	} else {
+		errServer->SendError(ERR_COM_NOTALIVE);
+		wdmAsleep();
+		usleep(3000000);
+		wdmAlive();
 	}
 }
 

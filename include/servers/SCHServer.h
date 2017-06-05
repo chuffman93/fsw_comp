@@ -29,8 +29,6 @@ public:
 
 	void SubsystemLoop(void);
 
-	bool RegisterHandlers();
-
 	void RequestCOMMode(void);
 
 	void RequestReset(void);
