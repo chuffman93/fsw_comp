@@ -152,6 +152,16 @@ bool EPSServer::CheckHealthStatus(){
 		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Conv curr w:     %u", EPSState.convCurrentW);
 		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Conv thresh w:   %u", EPSState.convThreshW);
 
+		int32 currTime = getTimeInSec();
+		if (currTime >= (lastHSTLog + 60)) {
+			lastHSTLog = currTime;
+
+			FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
+			EPSState.update(msgPtr, EPSStatus::size, 0, 0);
+			EPSState.serialize();
+			fmgServer->Log(DESTINATION_EPS_HST, msgPtr, EPSStatus::size);
+		}
+
 		return true;
 	}
 }

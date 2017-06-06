@@ -43,6 +43,8 @@ private:
 	void loopMonitor();
 	void loopReset();
 
+	int32 lastHSTLog;
+
 	BEGIN_STATE_MAP
 	STATE_MAP_ENTRY(&EPSServer::loopInit)
 	STATE_MAP_ENTRY(&EPSServer::loopMonitor)
