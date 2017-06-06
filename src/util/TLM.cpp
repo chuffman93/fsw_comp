@@ -75,19 +75,6 @@ void TLM_CREATING_ACPPACKET(int32 arg0) {
   fmgServer->Log(DESTINATION_ACP, buf, size);
 }
 
-void TLM_CDH_HEALTH_AND_STATUS(int32 arg0, float arg1, float arg2, float arg3, float arg4) {
-  size_t size = 23;
-  uint8_t * buf = (uint8_t *) malloc(size);
-  Serialize ser(buf, size);
-  ser.serialize_uint16(0x0500);
-  ser.serialize_int32(arg0);
-  ser.serialize_float(arg1);
-  ser.serialize_float(arg2);
-  ser.serialize_float(arg3);
-  ser.serialize_float(arg4);
-  fmgServer->Log(DESTINATION_HST, buf, size);
-}
-
 }
 }
 

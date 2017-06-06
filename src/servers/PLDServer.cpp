@@ -218,6 +218,7 @@ bool PLDServer::CheckHealthStatus(){
 			}
 
 			// deserialize the message
+			PLDState.time = getTimeInSec();
 			PLDState.update(msgPtr, PLDState.size, 0, 0);
 			PLDState.deserialize();
 

@@ -14,7 +14,8 @@ namespace Servers{
 
 CDHStatus::CDHStatus() { }
 
-CDHStatus::CDHStatus(float cpu1, float cpu5, float cpu15, float memory) {
+CDHStatus::CDHStatus(int32 time, float cpu1, float cpu5, float cpu15, float memory) {
+  this->time = time;
   this->cpu1 = cpu1;
   this->cpu5 = cpu5;
   this->cpu15 = cpu15;
@@ -22,6 +23,7 @@ CDHStatus::CDHStatus(float cpu1, float cpu5, float cpu15, float memory) {
 }
 
 void CDHStatus::serialize(void) {
+  this->serialize_int32(this->time);
   this->serialize_float(this->cpu1);
   this->serialize_float(this->cpu5);
   this->serialize_float(this->cpu15);
@@ -29,6 +31,7 @@ void CDHStatus::serialize(void) {
 }
 
 void CDHStatus::deserialize(void) {
+  this->time = this->deserialize_int32();
   this->cpu1 = this->deserialize_float();
   this->cpu5 = this->deserialize_float();
   this->cpu15 = this->deserialize_float();
@@ -37,7 +40,8 @@ void CDHStatus::deserialize(void) {
 
 ACSStatus::ACSStatus() { }
 
-ACSStatus::ACSStatus(uint32 MRP_X, uint32 MRP_Y, uint32 MRP_Z, uint32 ST_Status, uint32 RW_Speed_X, uint32 RW_Speed_Y, uint32 RW_Speed_Z) {
+ACSStatus::ACSStatus(int32 time, uint32 MRP_X, uint32 MRP_Y, uint32 MRP_Z, uint32 ST_Status, uint32 RW_Speed_X, uint32 RW_Speed_Y, uint32 RW_Speed_Z) {
+  this->time = time;
   this->MRP_X = MRP_X;
   this->MRP_Y = MRP_Y;
   this->MRP_Z = MRP_Z;
@@ -48,6 +52,7 @@ ACSStatus::ACSStatus(uint32 MRP_X, uint32 MRP_Y, uint32 MRP_Z, uint32 ST_Status,
 }
 
 void ACSStatus::serialize(void) {
+  this->serialize_int32(this->time);
   this->serialize_uint32(this->MRP_X);
   this->serialize_uint32(this->MRP_Y);
   this->serialize_uint32(this->MRP_Z);
@@ -58,6 +63,7 @@ void ACSStatus::serialize(void) {
 }
 
 void ACSStatus::deserialize(void) {
+  this->time = this->deserialize_int32();
   this->MRP_X = this->deserialize_uint32();
   this->MRP_Y = this->deserialize_uint32();
   this->MRP_Z = this->deserialize_uint32();
@@ -69,7 +75,8 @@ void ACSStatus::deserialize(void) {
 
 PLDStatus::PLDStatus() { }
 
-PLDStatus::PLDStatus(uint8 powerFault, uint16 motorSpeed, uint8 thermistors[10], uint8 adcDataWorking, uint16 control, uint8 byteSize) {
+PLDStatus::PLDStatus(int32 time, uint8 powerFault, uint16 motorSpeed, uint8 thermistors[10], uint8 adcDataWorking, uint16 control, uint8 byteSize) {
+  this->time = time;
   this->powerFault = powerFault;
   this->motorSpeed = motorSpeed;
   for (int iter = 0; iter < 10; iter++) {
@@ -81,6 +88,7 @@ PLDStatus::PLDStatus(uint8 powerFault, uint16 motorSpeed, uint8 thermistors[10],
 }
 
 void PLDStatus::serialize(void) {
+  this->serialize_int32(this->time);
   this->serialize_uint8(this->powerFault);
   this->serialize_uint16(this->motorSpeed);
   for (int iter = 0; iter < 10; iter++) {
@@ -92,6 +100,7 @@ void PLDStatus::serialize(void) {
 }
 
 void PLDStatus::deserialize(void) {
+  this->time = this->deserialize_int32();
   this->powerFault = this->deserialize_uint8();
   this->motorSpeed = this->deserialize_uint16();
   for (int iter = 0; iter < 10; iter++) {
@@ -104,7 +113,8 @@ void PLDStatus::deserialize(void) {
 
 EPSStatus::EPSStatus() { }
 
-EPSStatus::EPSStatus(uint16 current3v3, uint16 voltage3v3, uint16 currentVbat, uint16 voltageVbat, uint16 current12v, uint16 voltage12v, uint16 remainingCapacity, uint16 battCurrent, uint16 battVoltage, uint16 battStatus, uint16 frangCurrent, uint16 frangVoltage, uint16 convCurrentX, uint16 convThreshX, uint16 convCurrentY, uint16 convThreshY, uint16 convCurrentW, uint16 convThreshW) {
+EPSStatus::EPSStatus(int32 time, uint16 current3v3, uint16 voltage3v3, uint16 currentVbat, uint16 voltageVbat, uint16 current12v, uint16 voltage12v, uint16 remainingCapacity, uint16 battCurrent, uint16 battVoltage, uint16 battStatus, uint16 frangCurrent, uint16 frangVoltage, uint16 convCurrentX, uint16 convThreshX, uint16 convCurrentY, uint16 convThreshY, uint16 convCurrentW, uint16 convThreshW) {
+  this->time = time;
   this->current3v3 = current3v3;
   this->voltage3v3 = voltage3v3;
   this->currentVbat = currentVbat;
@@ -126,6 +136,7 @@ EPSStatus::EPSStatus(uint16 current3v3, uint16 voltage3v3, uint16 currentVbat, u
 }
 
 void EPSStatus::serialize(void) {
+  this->serialize_int32(this->time);
   this->serialize_uint16(this->current3v3);
   this->serialize_uint16(this->voltage3v3);
   this->serialize_uint16(this->currentVbat);
@@ -147,6 +158,7 @@ void EPSStatus::serialize(void) {
 }
 
 void EPSStatus::deserialize(void) {
+  this->time = this->deserialize_int32();
   this->current3v3 = this->deserialize_uint16();
   this->voltage3v3 = this->deserialize_uint16();
   this->currentVbat = this->deserialize_uint16();

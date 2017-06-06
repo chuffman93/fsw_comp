@@ -28,7 +28,7 @@ public:
 	uint64_t deserialize_uint64(void);
 	bool     deserialize_bool(void);
 	float    deserialize_float(void);
-	double  deserialize_double(void);
+	double   deserialize_double(void);
 
 	// ---- Serialize ----------------------------------
 	int serialize_int8(int8_t data);

@@ -44,7 +44,7 @@ public:
 
 	static ACSConfig ACSConfiguration;
 
-	ACSStatus ACSState;
+	static ACSStatus ACSState;
 
 private:
 	ACSOrientationType ACSOrientation;

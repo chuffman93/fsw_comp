@@ -26,16 +26,14 @@ using namespace AllStar::Core;
 namespace AllStar{
 namespace Servers{
 
+ACSStatus ACSServer::ACSState(0,0,0,0,0,0,0,0);
 ACSConfig ACSServer::ACSConfiguration(0);
 
 // -------------------------------------- Necessary Methods --------------------------------------
 ACSServer::ACSServer(string nameIn, LocationIDType idIn) :
-		SubsystemServer(nameIn, idIn, ACS_SLEEP_TIME, ACS_HS_DELAYS), Singleton(), ACSOrientation(ACS_UNORIENTED), testsRun(false),
-		ACSState(0,0,0,0,0,0,0) {
-}
+		SubsystemServer(nameIn, idIn, ACS_SLEEP_TIME, ACS_HS_DELAYS), Singleton(), ACSOrientation(ACS_UNORIENTED), testsRun(false) { }
 
-ACSServer::~ACSServer() {
-}
+ACSServer::~ACSServer() { }
 
 ACSServer & ACSServer::operator=(const ACSServer & source){
 	if (this == &source)
@@ -224,6 +222,7 @@ bool ACSServer::CheckHealthStatus(){
 		}
 
 		// deserialize the buffer
+		ACSState.time = getTimeInSec();
 		ACSState.update(msgPtr,ACSState.size,0,0);
 		ACSState.deserialize();
 

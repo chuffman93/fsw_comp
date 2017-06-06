@@ -37,7 +37,7 @@ CDHConfig CDHServer::CDHConfiguration(0);
 
 // -------------------------------------- Necessary Methods --------------------------------------
 CDHServer::CDHServer(std::string nameIn, LocationIDType idIn) :
-		SubsystemServer(nameIn, idIn), Singleton(), readHealthFrequency(10) {
+		SubsystemServer(nameIn, idIn), Singleton(), readHealthFrequency(10), lastHSTLog(0) {
 	devMngr = new I2CDeviceManager();
 
 	// all subsystems are off on startup except for EPS
@@ -47,12 +47,12 @@ CDHServer::CDHServer(std::string nameIn, LocationIDType idIn) :
 	subsystemPowerStates[HARDWARE_LOCATION_EPS] = true;
 }
 
-CDHServer::~CDHServer(){
+CDHServer::~CDHServer() {
 	delete devMngr;
 }
 
-CDHServer & CDHServer::operator=(const CDHServer & source){
-	if (this == &source){
+CDHServer & CDHServer::operator=(const CDHServer & source) {
+	if (this == &source) {
 		return *this;
 	}
 
@@ -61,19 +61,19 @@ CDHServer & CDHServer::operator=(const CDHServer & source){
 	return *this;
 }
 
-bool CDHServer::IsFullyInitialized(void){
+bool CDHServer::IsFullyInitialized(void) {
 	return(Singleton::IsFullyInitialized());
 }
 
 // -------------------------------------------- Loops ---------------------------------------------
-void CDHServer::loopInit(){
+void CDHServer::loopInit() {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	logger->Log(LOGGER_LEVEL_INFO, "CDHServer: Initializing");
 
 #if HS_EN
 	bool initHS = devMngr->initializeHS();
-	if(!initHS){
+	if (!initHS) {
 		logger->Log(LOGGER_LEVEL_ERROR, "CDHServer: Error initializing hot swaps!");
 	}
 #endif

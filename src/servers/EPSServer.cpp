@@ -27,7 +27,7 @@ using namespace AllStar::Core;
 namespace AllStar{
 namespace Servers{
 
-EPSStatus EPSServer::EPSState(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+EPSStatus EPSServer::EPSState(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
 EPSConfig EPSServer::EPSConfiguration(0,0,0);
 
 // -------------------------------------- Necessary Methods --------------------------------------
@@ -129,6 +129,7 @@ bool EPSServer::CheckHealthStatus(){
 		}
 
 		// deserialize the message
+		EPSState.time = getTimeInSec();
 		EPSState.update(msgPtr, EPSState.size, 0, 0);
 		EPSState.deserialize();
 

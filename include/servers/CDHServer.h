@@ -93,6 +93,8 @@ public:
 
 	float temperatures[4][16];
 
+	int32 lastHSTLog;
+
 	// Allows for easy look into memory usage
 	I2CDeviceManager * devMngr;
 	bool subsystemPowerStates[HARDWARE_LOCATION_MAX];

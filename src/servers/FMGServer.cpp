@@ -122,7 +122,6 @@ FMGServer::FMGServer(string nameIn, LocationIDType idIn) :
 					ERRLogger(ERR_FILE_PATH, "ERR"),
 					FSSLogger(FSS_FILE_PATH, "FSS"),
 					GENLogger(GEN_FILE_PATH, "GEN"),
-					HSTLogger(HST_FILE_PATH, "HST"),
 					MODLogger(MOD_FILE_PATH, "MOD"),
 					SSSLogger(SSS_FILE_PATH, "SSS"),
 					SWPLogger(SWP_FILE_PATH, "SWP"),
@@ -159,7 +158,6 @@ void FMGServer::CloseAndMoveAllFiles() {
 	ERRLogger.CloseFile();
 	FSSLogger.CloseFile();
 	GENLogger.CloseFile();
-	HSTLogger.CloseFile();
 	MODLogger.CloseFile();
 	SSSLogger.CloseFile();
 	SWPLogger.CloseFile();

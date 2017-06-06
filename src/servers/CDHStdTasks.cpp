@@ -41,6 +41,7 @@ void CDHSystemInfo(void){
 	}
 
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	cdhServer->CDHState.time  = getTimeInSec();
 	cdhServer->CDHState.cpu1  = si.loads[0]/6553.6;
 	cdhServer->CDHState.cpu5  = si.loads[1]/6553.6;
 	cdhServer->CDHState.cpu15 = si.loads[2]/6553.6;
@@ -52,7 +53,16 @@ void CDHSystemInfo(void){
 	logger->Log(LOGGER_LEVEL_DEBUG, "    CPU 15 min: %f", cdhServer->CDHState.cpu15);
 	logger->Log(LOGGER_LEVEL_DEBUG, "    CPU memory: %f", cdhServer->CDHState.memory);
 
-	TLM_CDH_HEALTH_AND_STATUS(getTimeInSec(),cdhServer->CDHState.cpu1,cdhServer->CDHState.cpu5,cdhServer->CDHState.cpu15,cdhServer->CDHState.memory);
+	int32 currTime = getTimeInSec();
+	if (currTime >= (cdhServer->lastHSTLog + 60)) {
+		cdhServer->lastHSTLog = currTime;
+
+		FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
+		uint8 * buffer = new uint8[CDHStatus::size];
+		cdhServer->CDHState.update(buffer, CDHStatus::size, 0, 0);
+		cdhServer->CDHState.serialize();
+		fmgServer->Log(DESTINATION_CDH_HST, buffer, CDHStatus::size);
+	}
 }
 
 void CDHTempStart(void){
