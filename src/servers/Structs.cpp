@@ -14,12 +14,18 @@ namespace Servers{
 
 CDHStatus::CDHStatus() { }
 
-CDHStatus::CDHStatus(int32 time, float cpu1, float cpu5, float cpu15, float memory) {
+CDHStatus::CDHStatus(int32 time, float cpu1, float cpu5, float cpu15, float memory, float hotswaps[32], float tempSensors[64]) {
   this->time = time;
   this->cpu1 = cpu1;
   this->cpu5 = cpu5;
   this->cpu15 = cpu15;
   this->memory = memory;
+  for (int iter = 0; iter < 32; iter++) {
+    this->hotswaps[iter] = hotswaps[iter];
+  }
+  for (int iter = 0; iter < 64; iter++) {
+    this->tempSensors[iter] = tempSensors[iter];
+  }
 }
 
 void CDHStatus::serialize(void) {
@@ -28,6 +34,12 @@ void CDHStatus::serialize(void) {
   this->serialize_float(this->cpu5);
   this->serialize_float(this->cpu15);
   this->serialize_float(this->memory);
+  for (int iter = 0; iter < 32; iter++) {
+    this->serialize_float(this->hotswaps[iter]);
+  }
+  for (int iter = 0; iter < 64; iter++) {
+    this->serialize_float(this->tempSensors[iter]);
+  }
 }
 
 void CDHStatus::deserialize(void) {
@@ -36,6 +48,12 @@ void CDHStatus::deserialize(void) {
   this->cpu5 = this->deserialize_float();
   this->cpu15 = this->deserialize_float();
   this->memory = this->deserialize_float();
+  for (int iter = 0; iter < 32; iter++) {
+    this->hotswaps[iter] = this->deserialize_float();
+  }
+  for (int iter = 0; iter < 64; iter++) {
+    this->tempSensors[iter] = this->deserialize_float();
+  }
 }
 
 ACSStatus::ACSStatus() { }

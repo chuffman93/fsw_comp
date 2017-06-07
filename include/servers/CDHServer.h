@@ -106,10 +106,9 @@ private:
 	~CDHServer();
 	CDHServer & operator=(const CDHServer & source);
 
-	uint8 readHealthFrequency;
-
 	// Gather CDH data at a given frequency
-	void readHealth(uint8 frequency, uint32 timeUnit);
+	void readHealth();
+	int healthCount;
 
 	// Modes
 	void loopInit();

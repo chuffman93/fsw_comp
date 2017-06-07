@@ -17,14 +17,16 @@ namespace Servers{
 
 class CDHStatus : public Serialize {
 public:
-  const static int size = 20;
+  const static int size = 404;
   CDHStatus();
-  CDHStatus(int32 time, float cpu1, float cpu5, float cpu15, float memory);
+  CDHStatus(int32 time, float cpu1, float cpu5, float cpu15, float memory, float hotswaps[32], float tempSensors[64]);
   int32 time; // log the time the stats were taken
   float cpu1; // 1  minute loads (% of CPU)
   float cpu5; // 5  minute loads (% of CPU)
   float cpu15; // 15 minute loads (% of CPU)
   float memory; // % of memory
+  float hotswaps[32]; 
+  float tempSensors[64]; 
   void serialize(void);
   void deserialize(void);
 };

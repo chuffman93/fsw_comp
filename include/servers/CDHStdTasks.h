@@ -17,7 +17,7 @@ namespace Servers{
 void prepPowerGPIOs(void);
 void CDHSystemInfo(void);
 void CDHTempStart(void);
-void CDHTempRead(float tempArray[4][16]);
+void CDHTempRead(float * tempArray);
 void toggleResetLine(HardwareLocationIDType subsystem, bool state);
 void toggleSubPower(HardwareLocationIDType subsystem, bool state);
 

@@ -9,6 +9,7 @@
 #include "servers/CDHStdTasks.h"
 #include "servers/DispatchStdTasks.h"
 #include "servers/FileSystem.h"
+#include "servers/FMGServer.h"
 #include "HAL/I2C/HotSwaps.h"
 #include "HAL/I2C/PowerMonitor.h"
 #include "core/Singleton.h"
@@ -26,7 +27,7 @@ using namespace AllStar::HAL;
 using namespace std;
 
 #define SYS_EN 	1
-#define TEMP_EN 0
+#define TEMP_EN 1
 #define HS_EN	1
 #define PM_EN	0
 
@@ -37,7 +38,7 @@ CDHConfig CDHServer::CDHConfiguration(0);
 
 // -------------------------------------- Necessary Methods --------------------------------------
 CDHServer::CDHServer(std::string nameIn, LocationIDType idIn) :
-		SubsystemServer(nameIn, idIn), Singleton(), readHealthFrequency(10), lastHSTLog(0) {
+		SubsystemServer(nameIn, idIn), Singleton(), healthCount(0), lastHSTLog(0) {
 	devMngr = new I2CDeviceManager();
 
 	// all subsystems are off on startup except for EPS
@@ -91,7 +92,7 @@ void CDHServer::loopMonitor(){
 	int64 currTime = getTimeInMillis();
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
-	readHealth(readHealthFrequency, (uint32) currTime/1000);
+	readHealth();
 
 	// Check for state transitions based on mode switches
 	SystemModeEnum currentMode = modeManager->GetMode();
@@ -114,42 +115,57 @@ void CDHServer::loopReset(){
 }
 
 // ----------------------------------------- CDH Methods -----------------------------------------
-void CDHServer::readHealth(uint8 frequency, uint32 timeUnit){
+void CDHServer::readHealth(){
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	// Start sensors for reading next round
 #if PM_EN
-	if((timeUnit % 10) == 0){
+	if(healthCount == 0){
 		devMngr->startPMMeas(); // start power monitor measurements
 	}
 #endif //PM_EN
 
 #if TEMP_EN
-	if(((timeUnit - frequency - 2) % frequency) == 0){
+	if(healthCount == 8){
 		CDHTempStart();
 	}
 #endif //TEMP_EN
 
 	// Get all CDH information
-	if(((timeUnit - frequency - 1) % frequency) == 0){
+	if(healthCount == 9){
 		logger->Log(LOGGER_LEVEL_DEBUG, "CDHServer: Gathering information");
+		CDHState.time  = getTimeInSec();
 
 #if SYS_EN
 		CDHSystemInfo();
 #endif
 
 #if TEMP_EN
-		CDHTempRead(temperatures); // Read Temp sensors
+		CDHTempRead(CDHState.tempSensors); // Read Temp sensors
 #endif //TEMP_EN
 
 #if HS_EN
-		devMngr->getHSStatus(CDH_hotswaps.hs_buffer); // Read Hot swaps
+		devMngr->getHSStatus(CDHState.hotswaps); // Read Hot swaps
 #endif //HS_EN
 
 #if PM_EN
 		devMngr->getPMStatus(CDH_powermonitors); // Read Power Monitors
 #endif //PM_EN
+
+		int32 currTime = getTimeInSec();
+		if (currTime >= (lastHSTLog + 60)) {
+			logger->Log(LOGGER_LEVEL_INFO, "CDHServer: logging health and status");
+			lastHSTLog = currTime;
+
+			FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
+			uint8 * buffer = new uint8[CDHStatus::size];
+			CDHState.update(buffer, CDHStatus::size, 0, 0);
+			CDHState.serialize();
+			fmgServer->Log(DESTINATION_CDH_HST, buffer, CDHStatus::size);
+		}
 	}
+
+	healthCount = (healthCount == 9) ? 0 : healthCount + 1;
 }
 
 void CDHServer::subPowerOn(HardwareLocationIDType subsystem){

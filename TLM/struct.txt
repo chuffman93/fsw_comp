@@ -4,6 +4,8 @@ CDHStatus
 	float cpu5   // 5  minute loads (% of CPU)
 	float cpu15  // 15 minute loads (% of CPU)
 	float memory // % of memory
+	float hotswaps[32]
+	float tempSensors[64]
 
 ACSStatus
 	int32 time   // log the time the stats were taken

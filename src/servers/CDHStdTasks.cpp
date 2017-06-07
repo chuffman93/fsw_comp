@@ -26,22 +26,21 @@
 using namespace std;
 using namespace AllStar::Core;
 
-namespace AllStar{
-namespace Servers{
+namespace AllStar {
+namespace Servers {
 
 struct stat sb;
 
 //------------------------------------------- Message Handlers -------------------------------------------
-void CDHSystemInfo(void){
+void CDHSystemInfo(void) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	struct sysinfo si;
-	if(sysinfo(&si) != 0){
+	if (sysinfo(&si) != 0) {
 		logger->Log(LOGGER_LEVEL_ERROR, "CDHStdTasks: CDHCPUUsage(): Error");
 		return;
 	}
 
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
-	cdhServer->CDHState.time  = getTimeInSec();
 	cdhServer->CDHState.cpu1  = si.loads[0]/6553.6;
 	cdhServer->CDHState.cpu5  = si.loads[1]/6553.6;
 	cdhServer->CDHState.cpu15 = si.loads[2]/6553.6;
@@ -52,80 +51,79 @@ void CDHSystemInfo(void){
 	logger->Log(LOGGER_LEVEL_DEBUG, "    CPU  5 min: %f", cdhServer->CDHState.cpu5);
 	logger->Log(LOGGER_LEVEL_DEBUG, "    CPU 15 min: %f", cdhServer->CDHState.cpu15);
 	logger->Log(LOGGER_LEVEL_DEBUG, "    CPU memory: %f", cdhServer->CDHState.memory);
-
-	int32 currTime = getTimeInSec();
-	if (currTime >= (cdhServer->lastHSTLog + 60)) {
-		cdhServer->lastHSTLog = currTime;
-
-		FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
-		uint8 * buffer = new uint8[CDHStatus::size];
-		cdhServer->CDHState.update(buffer, CDHStatus::size, 0, 0);
-		cdhServer->CDHState.serialize();
-		fmgServer->Log(DESTINATION_CDH_HST, buffer, CDHStatus::size);
-	}
 }
 
-void CDHTempStart(void){
+void CDHTempStart(void) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	// Start all of the sensors
-	bool sensor = false;
+	bool sensorResult = false;
 	bool someSuccess = false;
 	bool allSuccess = true;
-	for(uint8 bus = 0; bus < 4; bus++){
-		for(uint8 sensor = 0; sensor < 16; sensor++){
-			printf("sensor %u, %u\n", bus, sensor);
-			sensor = StartTempSensor(bus+1,sensor);
-			someSuccess |= sensor;
-			allSuccess &= sensor;
+	for (uint8 bus = 0; bus < 4; bus++) {
+		for (uint8 sensor = 0; sensor < 16; sensor++) {
+			sensorResult = StartTempSensor(bus+1,sensor);
+			someSuccess |= sensorResult;
+			allSuccess &= sensorResult;
 		}
 	}
 
-	if(allSuccess){
+	if (allSuccess) {
 		logger->Log(LOGGER_LEVEL_DEBUG, "CDHStdTasks: started all temp sensors");
-	}else if(someSuccess){
+	} else if (someSuccess) {
 		logger->Log(LOGGER_LEVEL_WARN, "CDHStdTasks: error starting some temp sensors");
-	}else{
+	} else {
 		logger->Log(LOGGER_LEVEL_ERROR, "CDHStdTasks: error starting all temp sensors");
 	}
 }
 
-void CDHTempRead(float tempArray[4][16]){
+void CDHTempRead(float * tempArray) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_DEBUG, "CDHStdTasks: CDHTempRead(): Reading temp sensors");
 
 	// Read and add to list
-	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
-	for(uint8 bus = 0; bus < 4; bus++){
-		for(uint8 sensor = 0; sensor < 16; sensor++){
-			tempArray[bus][sensor] = ReadTempSensor(bus+1,sensor);
+	for (uint8 bus = 0; bus < 4; bus++) {
+		for (uint8 sensor = 0; sensor < 16; sensor++) {
+			tempArray[(bus * 16) + sensor] = ReadTempSensor(bus+1,sensor);
 		}
 	}
 }
 
 // Helper Functions ---------------------------------------------------------------
-bool StartTempSensor(int bus, int sensor){
+bool StartTempSensor(int bus, int sensor) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	// create filename
-	char * temp = new char[1];
+
+	char busChar[3];
+	itoa(bus, busChar, 10);
+	char sensChar[3];
+	itoa(sensor, sensChar, 10);
+
+	// make the filename and check if it exists
+	string tempFile = "/sys/bus/w1/devices/w1_bus_master";
+	tempFile.append(busChar);
+	tempFile.append("/TEMP");
+	tempFile.append(sensChar);
+	tempFile.append("/temp");
+	if (access(tempFile.c_str(), F_OK) == -1) {
+		return false;
+	}
+
+	// create the start command
 	string start = "echo 1 > /sys/bus/w1/devices/w1_bus_master";
-	itoa(bus, temp, 10);
-	start.append(temp);
+	start.append(busChar);
 	start.append("/TEMP");
-	itoa(sensor, temp, 10);
-	start.append(temp);
+	start.append(sensChar);
 	start.append("/start");
-	delete temp;
 
 	// start sensor
-	if(system(start.c_str()) == -1){
+	if (system(start.c_str()) == -1) {
 		logger->Log(LOGGER_LEVEL_DEBUG, "CDHStdTasks: StartTempSensor(): Error Starting Sensor!");
 		return false;
 	}
 	return true;
 }
 
-float ReadTempSensor(int bus, int sensor){
+float ReadTempSensor(int bus, int sensor) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	// create filename
 	char * temp = new char[1];
@@ -142,8 +140,7 @@ float ReadTempSensor(int bus, int sensor){
 	fp = fopen(read.c_str(), "r");
 
 	bool isGood = false;
-	if(fp)
-	{
+	if (fp) {
 		char * c = new char[1];
 		char * tempRead = new char[9];
 		int tempHold;
@@ -151,8 +148,7 @@ float ReadTempSensor(int bus, int sensor){
 		float temperature;
 
 		// Get temperature part of string
-		while((*c = fgetc(fp)) != '\n')
-		{
+		while ((*c = fgetc(fp)) != '\n') {
 			tempRead[count] = *c;
 			count++;
 		}
@@ -160,97 +156,96 @@ float ReadTempSensor(int bus, int sensor){
 		// Get float value
 		sscanf(tempRead, "t=%d", &tempHold);
 		temperature = (float) tempHold / 1000.0;
-		//cout<<"Current Temperature: "<<temperature<<endl;
 
 		// Check validity
-		for(int i = 0; i < 28; i++){
+		for (int i = 0; i < 28; i++) {
 			*c = fgetc(fp);
-			if(i==27){
-				if(*c=='V'){
+			if (i==27) {
+				if (*c=='V') {
 					isGood = true;
 				}
 			}
 		}
 
 		// Act on validity
-		if(isGood){
-			logger->Log(LOGGER_LEVEL_DEBUG, "CDHStdTasks: ReadTempSensor: Good data from sensor %d on bus %d", sensor, bus);
+		if (isGood) {
+			logger->Log(LOGGER_LEVEL_DEBUG, "CDHStdTasks: ReadTempSensor: Good data (%0.2f) from sensor %d on bus %d", temperature, sensor, bus);
 			delete c;
 			delete tempRead;
 			fclose(fp);
 			return temperature;
-		}else{
+		} else {
 			logger->Log(LOGGER_LEVEL_DEBUG, "CDHStdTasks: ReadTempSensor: Bad data from sensor %d on bus %d!", sensor, bus);
 			delete c;
 			delete tempRead;
 			fclose(fp);
 			return -300;
 		}
-	}else{
+	} else {
 		logger->Log(LOGGER_LEVEL_DEBUG, "CDHStdTasks: ReadTempSensor: Error opening file: sensor %d on bus %d", sensor, bus);
 		return -301;
 	}
 }
 
-void prepPowerGPIOs(void){
+void prepPowerGPIOs(void) {
 	// COM
-	if(!(stat("/sys/class/gpio/pioB15/", &sb) == 0 && S_ISDIR(sb.st_mode))){
+	if (!(stat("/sys/class/gpio/pioB15/", &sb) == 0 && S_ISDIR(sb.st_mode))) {
 		system("echo 47 > \"/sys/class/gpio/export\"");
 		system("echo \"out\" > \"/sys/class/gpio/pioB15/direction\"");
 	}
 
 	// ACS
-	if(!(stat("/sys/class/gpio/pioB25/", &sb) == 0 && S_ISDIR(sb.st_mode))){
+	if (!(stat("/sys/class/gpio/pioB25/", &sb) == 0 && S_ISDIR(sb.st_mode))) {
 		system("echo 57 > \"/sys/class/gpio/export\"");
 		system("echo \"out\" > \"/sys/class/gpio/pioB25/direction\"");
 	}
 
 	// PLD
-	if(!(stat("/sys/class/gpio/pioB17/", &sb) == 0 && S_ISDIR(sb.st_mode))){
+	if (!(stat("/sys/class/gpio/pioB17/", &sb) == 0 && S_ISDIR(sb.st_mode))) {
 		system("echo 49 > \"/sys/class/gpio/export\"");
 		system("echo \"out\" > \"/sys/class/gpio/pioB17/direction\"");
 	}
 
 	// GPS
-	if(!(stat("/sys/class/gpio/pioB27/", &sb) == 0 && S_ISDIR(sb.st_mode))){
+	if (!(stat("/sys/class/gpio/pioB27/", &sb) == 0 && S_ISDIR(sb.st_mode))) {
 		system("echo 59 > \"/sys/class/gpio/export\"");
 		system("echo \"out\" > \"/sys/class/gpio/pioB27/direction\"");
 	}
 
 	// AUXCOM
-	if(!(stat("/sys/class/gpio/pioB11/", &sb) == 0 && S_ISDIR(sb.st_mode))){
+	if (!(stat("/sys/class/gpio/pioB11/", &sb) == 0 && S_ISDIR(sb.st_mode))) {
 		system("echo 43 > \"/sys/class/gpio/export\"");
 		system("echo \"out\" > \"/sys/class/gpio/pioB11/direction\"");
 	}
 
 	//-----------------------RESET LINES--------------------------------------
 	//EPS
-	if(!(stat("/sys/class/gpio/pioE10/", &sb) == 0 && S_ISDIR(sb.st_mode))){
+	if (!(stat("/sys/class/gpio/pioE10/", &sb) == 0 && S_ISDIR(sb.st_mode))) {
 		system("echo 138 > \"/sys/class/gpio/export\"");
 		system("echo \"out\" > \"/sys/class/gpio/pioE10/direction\"");
 	}
 
 	//COM
-	if(!(stat("/sys/class/gpio/pioA11/", &sb) == 0 && S_ISDIR(sb.st_mode))){
+	if (!(stat("/sys/class/gpio/pioA11/", &sb) == 0 && S_ISDIR(sb.st_mode))) {
 		system("echo 11 > \"/sys/class/gpio/export\"");
 		system("echo \"out\" > \"/sys/class/gpio/pioA11/direction\"");
 	}
 	system("echo 1 > \"/sys/class/gpio/pioA11/value\"");
 
 	//ACS
-	if(!(stat("/sys/class/gpio/pioA12/", &sb) == 0 && S_ISDIR(sb.st_mode))){
+	if (!(stat("/sys/class/gpio/pioA12/", &sb) == 0 && S_ISDIR(sb.st_mode))) {
 		system("echo 12 > \"/sys/class/gpio/export\"");
 		system("echo \"out\" > \"/sys/class/gpio/pioA12/direction\"");
 	}
 
 	//PLD
-	if(!(stat("/sys/class/gpio/pioE11/", &sb) == 0 && S_ISDIR(sb.st_mode))){
+	if (!(stat("/sys/class/gpio/pioE11/", &sb) == 0 && S_ISDIR(sb.st_mode))) {
 		system("echo 139 > \"/sys/class/gpio/export\"");
 		system("echo \"out\" > \"/sys/class/gpio/pioE11/direction\"");
 	}
 }
 
-void toggleSubPower(HardwareLocationIDType subsystem, bool state){
+void toggleSubPower(HardwareLocationIDType subsystem, bool state) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	string cmd = "echo ";
 
@@ -285,17 +280,17 @@ void toggleSubPower(HardwareLocationIDType subsystem, bool state){
 	system(cmd.c_str());
 }
 
-void toggleResetLine(HardwareLocationIDType subsystem, bool state){
+void toggleResetLine(HardwareLocationIDType subsystem, bool state) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	string cmd = "echo ";
 
-	if(state){
+	if (state) {
 		cmd.append("1 > \"/sys/class/gpio/pio");
-	}else{
+	} else {
 		cmd.append("0 > \"/sys/class/gpio/pio");
 	}
 
-	switch(subsystem){
+	switch (subsystem) {
 	case HARDWARE_LOCATION_EPS:
 		logger->Log(LOGGER_LEVEL_INFO, "CDHStdTasks: Resetting EPS");
 		cmd.append("E10/value\"");
