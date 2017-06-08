@@ -37,7 +37,7 @@ do
     rm /SD_2/HST/$dir/$file
   done
 
-  for file in `ls -p /SD_2/HST/&dir/CUR | grep -v /`
+  for file in `ls -p /SD_2/HST/$dir/CUR | grep -v /`
   do
     rm /SD_2/HST/$dir/CUR/$file
   done
