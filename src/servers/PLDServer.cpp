@@ -9,6 +9,7 @@
 
 #include "servers/PLDServer.h"
 #include "servers/PLDStdTasks.h"
+#include "servers/FMGServer.h"
 #include "servers/DispatchStdTasks.h"
 #include "servers/ERRServer.h"
 #include "servers/FileSystem.h"
@@ -29,7 +30,7 @@ namespace Servers{
 PLDConfig PLDServer::PLDConfiguration(0);
 
 PLDServer::PLDServer(string nameIn, LocationIDType idIn) :
-		SubsystemServer(nameIn, idIn, 1000, 20), Singleton() {
+		SubsystemServer(nameIn, idIn, 1000, 20), Singleton(), tftp_pid(0) {
 		//PLDState(0,0,{0,0,0,0,0,0,0,0,0,0},0,0,0){
 	PLDState.byteSize = 12*sizeof(uint8) + 2*sizeof(uint16);
 }
@@ -133,7 +134,18 @@ void PLDServer::loopStartup(){
 		currentState = ST_IDLE;
 	}
 	delete ret;
+
+	// fork a process to manage the data collection over tftp
+	sprintf(dataFile, "RAD_%d_%d", FMGServer::bootCount, getTimeInSec());
+	int pid = fork();
+	if (pid == 0) {
+		char * argv[] = {"/usr/bin/tftp", "-g", "-r", dataFile, "10.14.134.207", NULL};
+		execve("/usr/bin/tftp", argv, {NULL});
+		exit(0);
+	}
+
 	//PLD is on and in science mode. Goto science loop
+	tftp_pid = pid;
 	sleepTime = 3000;
 	currentState = ST_SCIENCE;
 }
@@ -141,6 +153,21 @@ void PLDServer::loopStartup(){
 // Graceful shutdown
 void PLDServer::loopShutdown(){
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+
+	// kill the tftp process if it's still running
+	kill(tftp_pid, SIGINT);
+
+	// compress, move and split the data
+	char archiveName[100];
+	char command[300];
+	sprintf(archiveName, RAD_FILE_PATH "/%s.tar.gz", dataFile);
+	sprintf(command, "tar -czf %s %s", archiveName, dataFile);
+	printf(dataFile);
+	printf("\n");
+	printf(command);
+	printf("\n");
+	system(command);
+	remove(dataFile);
 
 	ACPPacket * turnOffScience = new ACPPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, SUBSYSTEM_RESET_CMD);
 	ACPPacket * ret = DispatchPacket(turnOffScience);
@@ -154,8 +181,8 @@ void PLDServer::loopShutdown(){
 	//PLD is off. Goto idle loop
 	sleepTime = 1000;
 	currentState = ST_IDLE;
-
 }
+
 void PLDServer::loopScience(){
 	// Make sure PLD hasn't been turned off due to a fault, if it has, go back into startup
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
