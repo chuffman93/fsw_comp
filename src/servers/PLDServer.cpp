@@ -27,7 +27,7 @@ using namespace AllStar::Core;
 namespace AllStar{
 namespace Servers{
 
-PLDConfig PLDServer::PLDConfiguration(0);
+PLDConfig PLDServer::PLDConfiguration(500000);
 
 PLDServer::PLDServer(string nameIn, LocationIDType idIn) :
 		SubsystemServer(nameIn, idIn, 1000, 20), Singleton(), tftp_pid(0) {
@@ -154,30 +154,37 @@ void PLDServer::loopStartup(){
 void PLDServer::loopShutdown(){
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
-	// kill the tftp process if it's still running
-	kill(tftp_pid, SIGINT);
-
-	// compress, move and split the data
-	char archiveName[100];
-	char command[300];
-	sprintf(archiveName, RAD_FILE_PATH "/%s.tar.gz", dataFile);
-	sprintf(command, "tar -czf %s %s", archiveName, dataFile);
-	printf(dataFile);
-	printf("\n");
-	printf(command);
-	printf("\n");
-	system(command);
-	remove(dataFile);
-
+	// turn off science mode
 	ACPPacket * turnOffScience = new ACPPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, SUBSYSTEM_RESET_CMD);
 	ACPPacket * ret = DispatchPacket(turnOffScience);
 	delete ret;
 
+	// wait, then turn off the payload
 	wdmAsleep();
 	usleep(3000000);
 	wdmAlive();
-
 	cdhServer->subPowerOff(HARDWARE_LOCATION_PLD);
+
+	// kill the tftp process if it's still running
+	kill(tftp_pid, SIGINT);
+
+	// compress and move the data
+	char archiveName[100];
+	char command[300];
+	sprintf(archiveName, RAD_FILE_PATH "/%s.tar.gz", dataFile);
+	sprintf(command, "tar -czf %s %s", archiveName, dataFile);
+	wdmAsleep();
+	system(command);
+	wdmAlive();
+	remove(dataFile);
+
+	// split the data
+	sprintf(command, "split -b %d -d -a 3 %s %s.", PLDConfiguration.chunkSize, archiveName, archiveName);
+	wdmAsleep();
+	system(command);
+	wdmAlive();
+	remove(archiveName);
+
 	//PLD is off. Goto idle loop
 	sleepTime = 1000;
 	currentState = ST_IDLE;
@@ -196,11 +203,12 @@ void PLDServer::loopScience(){
 		currentState = ST_SHUTDOWN;
 	}
 
-	ACPPacket * dataRequest = new ACPPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, PLD_BACKUP_SEND_SCIENCE);
-	ACPPacket * data = DispatchPacket(dataRequest);
+	// TODO: figure out when to use the SPI backup
+//	ACPPacket * dataRequest = new ACPPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, PLD_BACKUP_SEND_SCIENCE);
+//	ACPPacket * data = DispatchPacket(dataRequest);
 
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log(LOGGER_LEVEL_INFO, "PLDServer: received data %d", data->getLength());
+//	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+//	logger->Log(LOGGER_LEVEL_INFO, "PLDServer: received data %d", data->getLength());
 }
 
 void PLDServer::loopReset(){
@@ -230,7 +238,6 @@ bool PLDServer::CheckHealthStatus(){
 
 		if(HSRet->getLength() != PLDState.byteSize){
 			logger->Log(LOGGER_LEVEL_WARN, "PLDServer: CheckHealthStatus(): incorrect message length!");
-			printf("Length: %u\n", HSRet->getLength());
 
 			//TODO: return error?
 			return false;

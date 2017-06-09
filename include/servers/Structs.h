@@ -162,8 +162,8 @@ class PLDConfig : public Serialize {
 public:
   const static int size = 4;
   PLDConfig();
-  PLDConfig(int32 testConfig);
-  int32 testConfig; 
+  PLDConfig(int32 chunkSize);
+  int32 chunkSize; 
   void serialize(void);
   void deserialize(void);
 };
