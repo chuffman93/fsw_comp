@@ -46,7 +46,7 @@ void CDHSystemInfo(void) {
 	cdhServer->CDHState.cpu15 = si.loads[2]/6553.6;
 	cdhServer->CDHState.memory = 100.0*(259964928.0 - ((float) si.freeram)) / (259964928.0); //hard-coded total ram: 100*(total - free)/total = percent use
 
-	logger->Log(LOGGER_LEVEL_INFO, "CDHCPUUsage(): Checking loads");
+	logger->Log(LOGGER_LEVEL_DEBUG, "CDHCPUUsage(): Checking loads");
 	logger->Log(LOGGER_LEVEL_DEBUG, "    CPU  1 min: %f", cdhServer->CDHState.cpu1);
 	logger->Log(LOGGER_LEVEL_DEBUG, "    CPU  5 min: %f", cdhServer->CDHState.cpu5);
 	logger->Log(LOGGER_LEVEL_DEBUG, "    CPU 15 min: %f", cdhServer->CDHState.cpu15);
@@ -71,7 +71,7 @@ void CDHTempStart(void) {
 	if (allSuccess) {
 		logger->Log(LOGGER_LEVEL_DEBUG, "CDHStdTasks: started all temp sensors");
 	} else if (someSuccess) {
-		logger->Log(LOGGER_LEVEL_WARN, "CDHStdTasks: error starting some temp sensors");
+		logger->Log(LOGGER_LEVEL_DEBUG, "CDHStdTasks: error starting some temp sensors");
 	} else {
 		logger->Log(LOGGER_LEVEL_ERROR, "CDHStdTasks: error starting all temp sensors");
 	}

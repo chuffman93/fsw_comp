@@ -30,7 +30,7 @@ namespace Servers{
 PLDConfig PLDServer::PLDConfiguration(500000);
 
 PLDServer::PLDServer(string nameIn, LocationIDType idIn) :
-		SubsystemServer(nameIn, idIn, 1000, 20), Singleton(), tftp_pid(0) {
+		SubsystemServer(nameIn, idIn, 1000, 20), Singleton(), tftp_pid(-1) {
 		//PLDState(0,0,{0,0,0,0,0,0,0,0,0,0},0,0,0){
 	PLDState.byteSize = 12*sizeof(uint8) + 2*sizeof(uint16);
 }
@@ -165,25 +165,28 @@ void PLDServer::loopShutdown(){
 	wdmAlive();
 	cdhServer->subPowerOff(HARDWARE_LOCATION_PLD);
 
-	// kill the tftp process if it's still running
-	kill(tftp_pid, SIGINT);
+	if (tftp_pid != -1) {
+		// kill the tftp process if it's still running
+		kill(tftp_pid, SIGINT);
+		tftp_pid = -1;
 
-	// compress and move the data
-	char archiveName[100];
-	char command[300];
-	sprintf(archiveName, RAD_FILE_PATH "/%s.tar.gz", dataFile);
-	sprintf(command, "tar -czf %s %s", archiveName, dataFile);
-	wdmAsleep();
-	system(command);
-	wdmAlive();
-	remove(dataFile);
+		// compress and move the data
+		char archiveName[100];
+		char command[300];
+		sprintf(archiveName, RAD_FILE_PATH "/%s.tar.gz", dataFile);
+		sprintf(command, "tar -czf %s %s", archiveName, dataFile);
+		wdmAsleep();
+		system(command);
+		wdmAlive();
+		remove(dataFile);
 
-	// split the data
-	sprintf(command, "split -b %d -d -a 3 %s %s.", PLDConfiguration.chunkSize, archiveName, archiveName);
-	wdmAsleep();
-	system(command);
-	wdmAlive();
-	remove(archiveName);
+		// split the data
+		sprintf(command, "split -b %d -d -a 3 %s %s.", PLDConfiguration.chunkSize, archiveName, archiveName);
+		wdmAsleep();
+		system(command);
+		wdmAlive();
+		remove(archiveName);
+	}
 
 	//PLD is off. Goto idle loop
 	sleepTime = 1000;
