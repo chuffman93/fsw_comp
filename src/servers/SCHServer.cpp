@@ -152,7 +152,6 @@ void SCHServer::SubsystemLoop(void) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	modeManager->SetMode(MODE_BUS_PRIORITY);
-	LoadDefaultScheduleConfigurations((char *) SCH_CONFIG);
 
 	currentSchedule = std::list<SCHItem>();
 	itemEntered = false;
@@ -244,6 +243,7 @@ void SCHServer::SubsystemLoop(void) {
 void SCHServer::LoadDefaultSchedule(void) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
+	LoadDefaultScheduleConfigurations((char *) SCH_CONFIG);
 	currentSchedule = defaultSchedule;
 	logger->Log(LOGGER_LEVEL_INFO, "Default Schedule Loaded");
 	if (access(SCHEDULE_FILE, F_OK) != -1) {
