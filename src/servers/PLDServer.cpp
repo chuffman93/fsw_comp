@@ -127,6 +127,7 @@ void PLDServer::loopStartup(){
 		return;
 	}
 
+	wdmAlive();
 	ACPPacket * turnOnScience = new ACPPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, PLD_START_SCIENCE);
 	ACPPacket * ret = DispatchPacket(turnOnScience);
 	if(ret->getOpcode() != PLD_START_SCIENCE){

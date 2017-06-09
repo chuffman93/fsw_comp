@@ -80,12 +80,25 @@ void ACSServer::loopInit() {
 
 		bootConfig();
 
-		currentState = ST_SUN_SOAK;
+		currentState = ST_DETUMBLE;
 	} else {
 		errServer->SendError(ERR_ACS_NOTALIVE);
 		wdmAsleep();
 		usleep(3000000);
 		wdmAlive();
+	}
+}
+
+void ACSServer::loopDetumble() {
+	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	if (!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS])
+		currentState = ST_INIT;
+
+	if (ACSOrientation != ACS_DETUMBLING) {
+		ACSDetumble();
+		ACSOrientation = ACS_DETUMBLING;
+	} else if (isDetumbled()) {
+		currentState = ST_SUN_SOAK;
 	}
 }
 
@@ -208,8 +221,6 @@ bool ACSServer::CheckHealthStatus(){
 
 	if(HSRet->getLength() != ACSState.size){
 		logger->Log(LOGGER_LEVEL_WARN, "ACSServer: CheckHealthStatus(): incorrect message length! %u", HSRet->getLength());
-
-		//TODO: return error?
 		return false;
 	}else{
 		logger->Log(LOGGER_LEVEL_INFO, "ACSServer: CheckHealthStatus(): packet dispatched, HSRet acquired");
@@ -288,6 +299,11 @@ bool ACSServer::updateConfig() {
 		fclose(fp);
 		return false;
 	}
+}
+
+bool ACSServer::isDetumbled() {
+	// TODO: determine if detumbled
+	return true;
 }
 
 } // End Namespace servers

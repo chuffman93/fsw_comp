@@ -35,6 +35,7 @@ bool ACSPointSun();
 bool ACSPointNadir();
 bool ACSPointGND();
 bool ACSPointDest();
+bool ACSDetumble();
 
 // Non-opcode tasks
 bool ACSSelfCheck();

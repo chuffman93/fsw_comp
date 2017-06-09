@@ -28,7 +28,8 @@ typedef enum ACSPoint{
 	ACS_SUN_ORIENTED,
 	ACS_NADIR_ORIENTED,
 	ACS_GND_ORIENTED,
-	ACS_DEST_ORIENTED
+	ACS_DEST_ORIENTED,
+	ACS_DETUMBLING
 }ACSOrientationType;
 
 class ACSServer : public SubsystemServer, public AllStar::Core::Singleton{
@@ -41,6 +42,7 @@ public:
 
 	void bootConfig(); // read in configs on bootup
 	bool updateConfig(); // update configs after COM pass
+	bool isDetumbled();
 
 	static ACSConfig ACSConfiguration;
 
@@ -58,6 +60,7 @@ private:
 
 	// ------ State Machine ----------------------------------------------------------
 	void loopInit();
+	void loopDetumble();
 	void loopSunSoak();
 	void loopPLDStart();
 	void loopPLDPointing();
@@ -69,6 +72,7 @@ private:
 
 	BEGIN_STATE_MAP
 	STATE_MAP_ENTRY(&ACSServer::loopInit)
+	STATE_MAP_ENTRY(&ACSServer::loopDetumble)
 	STATE_MAP_ENTRY(&ACSServer::loopSunSoak)
 	STATE_MAP_ENTRY(&ACSServer::loopPLDStart)
 	STATE_MAP_ENTRY(&ACSServer::loopPLDPointing)
@@ -81,6 +85,7 @@ private:
 
 	enum ACS_State{
 		ST_INIT,
+		ST_DETUMBLE,
 		ST_SUN_SOAK,
 		ST_PLD_START,
 		ST_PLD_POINTING,

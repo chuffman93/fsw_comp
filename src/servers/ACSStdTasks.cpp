@@ -17,11 +17,11 @@ using namespace std;
 using namespace AllStar::Core;
 using namespace AllStar::Servers;
 
-namespace AllStar{
-namespace Servers{
+namespace AllStar {
+namespace Servers {
 
 // Debug
-bool ACSToggleLED(bool state){
+bool ACSToggleLED(bool state) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	uint8 * buffer = (uint8 *) malloc(sizeof(uint8));
@@ -51,7 +51,7 @@ bool ACSToggleLED(bool state){
 	}
 }
 
-bool ACSBlinkRate(uint16 rate){
+bool ACSBlinkRate(uint16 rate) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	uint8 * bufferOut = (uint8 *) malloc(sizeof(uint16));
@@ -74,7 +74,7 @@ bool ACSBlinkRate(uint16 rate){
 	}
 }
 
-int ACSLEDData(){
+int ACSLEDData() {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	ACPPacket * query = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, LED_RATE_DATA);
@@ -104,13 +104,13 @@ int ACSLEDData(){
 }
 
 // Standard
-void ACSPrepReset(){
+void ACSPrepReset() {
 	ACPPacket * cmd = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, SUBSYSTEM_RESET_CMD);
 	ACPPacket * ret = DispatchPacket(cmd); // no need to check the return, we're restarting anyway
 }
 
 // Diagnostic
-bool ACSTestAlive(){
+bool ACSTestAlive() {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	ACPPacket * query = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, TEST_ALIVE_CMD);
@@ -123,7 +123,7 @@ bool ACSTestAlive(){
 	}
 }
 
-bool ACSTestDriver(uint8 driverID, float rwTorque, float trTorque){
+bool ACSTestDriver(uint8 driverID, float rwTorque, float trTorque) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "ACSStdTasks: running test driver");
 
@@ -151,7 +151,7 @@ bool ACSTestDriver(uint8 driverID, float rwTorque, float trTorque){
 }
 
 // Command/Data
-bool ACSSendGPS(){
+bool ACSSendGPS() {
 	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_DEBUG, "ACSStdTasks: ACSSendGPS(): Entered");
@@ -169,47 +169,57 @@ bool ACSSendGPS(){
 	ACPPacket * send = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_GPS_CMD, 6*sizeof(double)+sizeof(float)+sizeof(int), buffer);
 	ACPPacket * ret = DispatchPacket(send);
 
-	return(ret->isSuccess());
+	return (ret->isSuccess());
 }
 
-bool ACSPointSun(){
+bool ACSPointSun() {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "ACS: commanding ACS to point towards the sun");
 
 	ACPPacket * command = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_POINT_SUN);
 	ACPPacket * response = DispatchPacket(command);
 
-	return(response->getOpcode() == ACS_POINT_SUN && response->isSuccess());
+	return (response->getOpcode() == ACS_POINT_SUN && response->isSuccess());
 }
 
-bool ACSPointNadir(){
+bool ACSPointNadir() {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "ACS: commanding ACS to point towards nadir");
 
 	ACPPacket * command = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_POINT_NADIR);
 	ACPPacket * response = DispatchPacket(command);
 
-	return(response->isSuccess());
+	return (response->isSuccess());
 }
 
-bool ACSPointGND(){
+bool ACSPointGND() {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "ACS: commanding ACS to point towards the ground station");
 
 	ACPPacket * command = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_POINT_GND);
 	ACPPacket * response = DispatchPacket(command);
 
-	return(response->isSuccess());
+	return (response->isSuccess());
 }
 
-bool ACSPointDest(){
+bool ACSPointDest() {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "ACS: commanding ACS to point towards a given destination");
 
 	ACPPacket * command = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_POINT_DEST);
 	ACPPacket * response = DispatchPacket(command);
 
-	return(response->isSuccess());
+	return (response->isSuccess());
+}
+
+bool ACSDetumble() {
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Log(LOGGER_LEVEL_INFO, "ACS: commanding ACS to detumble");
+
+	ACPPacket * command = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_DETUMBLE);
+	ACPPacket * response = DispatchPacket(command);
+
+	return (response->isSuccess());
 }
 
 // Non-opcode tasks
