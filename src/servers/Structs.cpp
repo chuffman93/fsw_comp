@@ -301,16 +301,16 @@ void FMGConfig::deserialize(void) {
 
 PLDConfig::PLDConfig() { }
 
-PLDConfig::PLDConfig(int32 testConfig) {
-  this->testConfig = testConfig;
+PLDConfig::PLDConfig(int32 chunkSize) {
+  this->chunkSize = chunkSize;
 }
 
 void PLDConfig::serialize(void) {
-  this->serialize_int32(this->testConfig);
+  this->serialize_int32(this->chunkSize);
 }
 
 void PLDConfig::deserialize(void) {
-  this->testConfig = this->deserialize_int32();
+  this->chunkSize = this->deserialize_int32();
 }
 
 SCHItem::SCHItem() { }

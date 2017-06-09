@@ -72,7 +72,7 @@ FMGConfig
 	int32 testConfig
 	
 PLDConfig
-	int32 testConfig
+	int32 chunkSize
 
 SCHItem
 	double latitude

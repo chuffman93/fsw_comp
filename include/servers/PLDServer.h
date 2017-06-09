@@ -40,6 +40,9 @@ private:
 	~PLDServer();
 	PLDServer & operator=(const PLDServer & source); //possibly for firmware update
 
+	int tftp_pid;
+	char dataFile[100];
+
 	void loopInit();
 	void loopIdle();
 	void loopStartup();
