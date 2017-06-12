@@ -17,23 +17,21 @@
 #include "core/Singleton.h"
 #include "servers/Structs.h"
 
-namespace AllStar{
-namespace Servers{
+namespace AllStar {
+namespace Servers {
 
 #define ACS_SLEEP_TIME	5000
 #define ACS_HS_DELAYS	3
 
-typedef enum ACSPoint{
-	ACS_UNORIENTED,
-	ACS_SUN_ORIENTED,
-	ACS_NADIR_ORIENTED,
-	ACS_GND_ORIENTED,
-	ACS_DEST_ORIENTED,
-	ACS_DETUMBLING
-}ACSOrientationType;
+typedef enum ACSModes {
+	ACS_MODE_DETUMBLE = 0,
+	ACS_MODE_SUN = 1,
+	ACS_MODE_GND = 2,
+	ACS_MODE_NADIR = 3,
+	ACS_MODE_UNKNOWN = 10
+} ACSModeType;
 
-class ACSServer : public SubsystemServer, public AllStar::Core::Singleton{
-
+class ACSServer : public SubsystemServer, public AllStar::Core::Singleton {
 	friend class AllStar::Core::Factory;
 
 public:
@@ -49,8 +47,6 @@ public:
 	static ACSStatus ACSState;
 
 private:
-	ACSOrientationType ACSOrientation;
-
 	bool IsFullyInitialized(void);
 
 	ACSServer(std::string nameIn, LocationIDType idIn);
@@ -83,7 +79,7 @@ private:
 	STATE_MAP_ENTRY(&ACSServer::loopReset)
 	END_STATE_MAP
 
-	enum ACS_State{
+	enum ACS_State {
 		ST_INIT,
 		ST_DETUMBLE,
 		ST_SUN_SOAK,
@@ -95,7 +91,6 @@ private:
 		ST_COM_STOP,
 		ST_RESET
 	};
-
 };
 
 }

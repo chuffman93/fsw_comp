@@ -26,18 +26,17 @@ using namespace AllStar::Core;
 namespace AllStar{
 namespace Servers{
 
-ACSStatus ACSServer::ACSState(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+ACSStatus ACSServer::ACSState(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
 ACSConfig ACSServer::ACSConfiguration(0);
 
 // -------------------------------------- Necessary Methods --------------------------------------
 ACSServer::ACSServer(string nameIn, LocationIDType idIn) :
-		SubsystemServer(nameIn, idIn, ACS_SLEEP_TIME, ACS_HS_DELAYS), Singleton(), ACSOrientation(ACS_UNORIENTED), testsRun(false) { }
+		SubsystemServer(nameIn, idIn, ACS_SLEEP_TIME, ACS_HS_DELAYS), Singleton(), testsRun(false) { }
 
 ACSServer::~ACSServer() { }
 
-ACSServer & ACSServer::operator=(const ACSServer & source){
-	if (this == &source)
-	{
+ACSServer & ACSServer::operator=(const ACSServer & source) {
+	if (this == &source) {
 		return *this;
 	}
 
@@ -45,7 +44,7 @@ ACSServer & ACSServer::operator=(const ACSServer & source){
 	return *this;
 }
 
-bool ACSServer::IsFullyInitialized(void){
+bool ACSServer::IsFullyInitialized(void) {
 	return Singleton::IsFullyInitialized();
 }
 
@@ -54,6 +53,8 @@ void ACSServer::loopInit() {
 	ERRServer * errServer = dynamic_cast<ERRServer *> (Factory::GetInstance(ERR_SERVER_SINGLETON));
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	ACSState.mode = ACS_MODE_UNKNOWN;
 
 	if (!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS]) {
 		cdhServer->resetAssert(HARDWARE_LOCATION_ACS);
@@ -94,27 +95,25 @@ void ACSServer::loopDetumble() {
 	if (!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS])
 		currentState = ST_INIT;
 
-	if (ACSOrientation != ACS_DETUMBLING) {
-		ACSDetumble();
-		ACSOrientation = ACS_DETUMBLING;
+	if (ACSState.mode != ACS_MODE_DETUMBLE) {
+		if (ACSDetumble())
+			ACSState.mode = ACS_MODE_DETUMBLE;
 	} else if (isDetumbled()) {
 		currentState = ST_SUN_SOAK;
 	}
 }
 
-void ACSServer::loopSunSoak(){
+void ACSServer::loopSunSoak() {
 	ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
-	if(ACSOrientation != ACS_SUN_ORIENTED){
-		if(ACSPointSun()){
-			ACSOrientation = ACS_SUN_ORIENTED;
-		}
-	}
+	// if ACS is powered off due to a fault, switch to the init state
+	if (!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS])
+		currentState = ST_INIT;
 
 	// check for state transitions from mode switches
 	SystemModeEnum currentMode = modeManager->GetMode();
-	switch(currentMode){
+	switch (currentMode) {
 	case MODE_COM:
 		currentState = ST_COM_START;
 		break;
@@ -128,75 +127,88 @@ void ACSServer::loopSunSoak(){
 		break;
 	}
 
-	// if ACS is powered off due to a fault, switch to the init state
-	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS])
-		currentState = ST_INIT;
+	if (ACSState.mode != ACS_MODE_SUN) {
+		if (ACSPointSun())
+			ACSState.mode = ACS_MODE_SUN;
+	}
+
+	ACSSendGPS();
 }
 
-void ACSServer::loopPLDStart(){
-	if(ACSPointNadir()){
+void ACSServer::loopPLDStart() {
+	if (ACSPointNadir()) {
+		ACSState.mode = ACS_MODE_NADIR;
 		currentState = ST_PLD_POINTING;
-		ACSOrientation = ACS_NADIR_ORIENTED;
 		sleepTime = 1000;
 		hsDelays = 15;
-	}else{
+	} else {
 		currentState = ST_SUN_SOAK;
 	}
 }
 
-void ACSServer::loopPLDPointing(){
+void ACSServer::loopPLDPointing() {
 	ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
 	// if ACS is powered off due to a fault, switch to the init state
-	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS]){
+	if (!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS]) {
 		currentState = ST_INIT;
 	}
 
-	ACSSendGPS();
-
-	if(modeManager->GetMode() != MODE_PLD_PRIORITY)
+	if (modeManager->GetMode() != MODE_PLD_PRIORITY)
 		currentState = ST_PLD_STOP;
+
+	if (ACSState.mode != ACS_MODE_NADIR) {
+		if (ACSPointNadir())
+			ACSState.mode = ACS_MODE_NADIR;
+	}
+
+	ACSSendGPS();
 }
 
-void ACSServer::loopPLDStop(){
+void ACSServer::loopPLDStop() {
 	sleepTime = 5000;
 	hsDelays = 3;
 	currentState = ST_SUN_SOAK;
 }
 
-void ACSServer::loopCOMStart(){
-	if(ACSPointGND()){
+void ACSServer::loopCOMStart() {
+	if (ACSPointGND()) {
+		ACSState.mode = ACS_MODE_GND;
 		currentState = ST_COM_POINTING;
-		ACSOrientation = ACS_GND_ORIENTED;
-	}else{
+	} else {
 		currentState = ST_SUN_SOAK;
 	}
 }
 
-void ACSServer::loopCOMPointing(){
+void ACSServer::loopCOMPointing() {
 	ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
 	// if ACS is powered off due to a fault, switch to the init state
-	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS]){
+	if (!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS]) {
 		currentState = ST_INIT;
 	}
 
-	ACSSendGPS();
-
-	if(modeManager->GetMode() != MODE_COM)
+	if (modeManager->GetMode() != MODE_COM)
 		currentState = ST_COM_STOP;
+
+	if (ACSState.mode != ACS_POINT_GND) {
+		if (ACSPointGND())
+			ACSState.mode = ACS_POINT_GND;
+	}
+
+	ACSSendGPS();
 }
 
-void ACSServer::loopCOMStop(){
+void ACSServer::loopCOMStop() {
 	currentState = ST_SUN_SOAK;
 }
 
-void ACSServer::loopReset(){
+void ACSServer::loopReset() {
 	ACSPrepReset();
 
-	for(uint8 i = 0; i < 60; i++){
+	for (uint8 i = 0; i < 60; i++) {
 		usleep(1000000);
 	}
 
@@ -204,7 +216,7 @@ void ACSServer::loopReset(){
 }
 
 // -------------------------------------------- ACS Methods --------------------------------------------
-bool ACSServer::CheckHealthStatus(){
+bool ACSServer::CheckHealthStatus() {
 	if (currentState == ST_INIT) {
 		return false;
 	}
@@ -214,20 +226,20 @@ bool ACSServer::CheckHealthStatus(){
 	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, HEALTH_STATUS_CMD);
 	ACPPacket * HSRet = DispatchPacket(HSQuery);
 
-	if(HSRet == NULL){
+	if (HSRet == NULL) {
 		logger->Log(LOGGER_LEVEL_ERROR, "ACSServer: NULL HSRet");
 		return false;
 	}
 
-	if(HSRet->getLength() != ACSState.size){
+	if (HSRet->getLength() != ACSState.size) {
 		logger->Log(LOGGER_LEVEL_WARN, "ACSServer: CheckHealthStatus(): incorrect message length! %u", HSRet->getLength());
 		return false;
-	}else{
+	} else {
 		logger->Log(LOGGER_LEVEL_INFO, "ACSServer: CheckHealthStatus(): packet dispatched, HSRet acquired");
 
 		// Parse buffer
 		uint8 * msgPtr = HSRet->getMessageBuff();
-		if(msgPtr==NULL){
+		if (msgPtr==NULL) {
 			logger->Log(LOGGER_LEVEL_ERROR, "ACSServer: CheckHealthStatus(): NULL msgPtr");
 			return false;
 		}

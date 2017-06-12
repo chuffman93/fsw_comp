@@ -33,28 +33,35 @@ public:
 
 class ACSStatus : public Serialize {
 public:
-  const static int size = 76;
+  const static int size = 101;
   ACSStatus();
-  ACSStatus(int32 time, float magx, float magy, float magz, float curr_mrpx, float curr_mrpy, float curr_mrpz, float des_mrpx, float des_mrpy, float des_mrpz, float rwspeedx, float rwspeedy, float rwspeedz, float scx, float scy, float scz, float gyrox, float gyroy, float gyroz);
+  ACSStatus(int32 time, float mag_x, float mag_y, float mag_z, float curr_mrp_x, float curr_mrp_y, float curr_mrp_z, float targ_mrp_x, float targ_mrp_y, float targ_mrp_z, float rwspeed_x, float rwspeed_y, float rwspeed_z, float angrate_x, float angrate_y, float angrate_z, float gyro_x, float gyro_y, float gyro_z, float rw_pwm_x, float rw_pwm_y, float rw_pwm_z, float tr_x, float tr_y, float tr_z, int8 mode);
   int32 time; // log the time the stats were taken
-  float magx; 
-  float magy; 
-  float magz; 
-  float curr_mrpx; 
-  float curr_mrpy; 
-  float curr_mrpz; 
-  float des_mrpx; 
-  float des_mrpy; 
-  float des_mrpz; 
-  float rwspeedx; 
-  float rwspeedy; 
-  float rwspeedz; 
-  float scx; 
-  float scy; 
-  float scz; 
-  float gyrox; 
-  float gyroy; 
-  float gyroz; 
+  float mag_x; 
+  float mag_y; 
+  float mag_z; 
+  float curr_mrp_x; 
+  float curr_mrp_y; 
+  float curr_mrp_z; 
+  float targ_mrp_x; 
+  float targ_mrp_y; 
+  float targ_mrp_z; 
+  float rwspeed_x; 
+  float rwspeed_y; 
+  float rwspeed_z; 
+  float angrate_x; 
+  float angrate_y; 
+  float angrate_z; 
+  float gyro_x; 
+  float gyro_y; 
+  float gyro_z; 
+  float rw_pwm_x; 
+  float rw_pwm_y; 
+  float rw_pwm_z; 
+  float tr_x; 
+  float tr_y; 
+  float tr_z; 
+  int8 mode; 
   void serialize(void);
   void deserialize(void);
 };
