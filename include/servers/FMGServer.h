@@ -21,7 +21,7 @@ namespace Servers{
 #define CLEAR_CUR_DIRECTORIES_SCRIPT "/home/root/scripts/clear_CUR_directories.sh"
 
 // TODO: Do we want to be able to set this from the ground?
-#define MAX_FILE_SIZE		2000
+#define MAX_FILE_SIZE		5000 // 5 kB
 
 void LogFSS(void);
 

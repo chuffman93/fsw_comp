@@ -14,8 +14,8 @@
 namespace AllStar{
 namespace Servers{
 
-#define SCHEDULE_MAX_SIZE		8
-#define DEFAULT_COM_DURATION	90
+#define SCHEDULE_MAX_SIZE		15
+#define DEFAULT_COM_DURATION	15*60 // 15 min
 
 class SCHServer : public SubsystemServer, public AllStar::Core::Singleton {
 	friend class AllStar::Core::Factory;

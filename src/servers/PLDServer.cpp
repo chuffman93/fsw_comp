@@ -27,7 +27,7 @@ using namespace AllStar::Core;
 namespace AllStar{
 namespace Servers{
 
-PLDConfig PLDServer::PLDConfiguration(500000);
+PLDConfig PLDServer::PLDConfiguration(RAD_CHUNK_SIZE);
 
 PLDServer::PLDServer(string nameIn, LocationIDType idIn) :
 		SubsystemServer(nameIn, idIn, 1000, 20), Singleton(), tftp_pid(-1) {

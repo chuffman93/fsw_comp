@@ -51,48 +51,6 @@ public:
 
 	PowerMonitor_Data CDH_powermonitors[4];
 
-	union hs_union {
-	  float hs_buffer[32];
-	  struct {
-	    float com3V3volt;
-	    float com3V3curr;
-	    float comBATvolt;
-	    float comBATcurr;
-	    float com12Vvolt;
-	    float com12Vcurr;
-	    float acs3V3volt;
-	    float acs3V3curr;
-	    float acsBATvolt;
-	    float acsBATcurr;
-	    float acs12Vvolt;
-	    float acs12Vcurr;
-	    float prop3V3volt;
-	    float prop3V3curr;
-	    float propBATvolt;
-	    float propBATcurr;
-	    float prop12Vvolt;
-	    float prop12Vcurr;
-	    float pld3V3volt;
-	    float pld3V3curr;
-	    float pldBATvolt;
-	    float pldBATcurr;
-	    float pld12Vvolt;
-	    float pld12Vcurr;
-	    float gps3V3volt;
-	    float gps3V3curr;
-	    float gpsBATvolt;
-	    float gpsBATcurr;
-	    float aux3V3volt;
-	    float aux3V3curr;
-	    float auxBATvolt;
-	    float auxBATcurr;
-	  };
-	};
-
-	hs_union CDH_hotswaps;
-
-	float temperatures[4][16];
-
 	int32 lastHSTLog;
 
 	// Allows for easy look into memory usage

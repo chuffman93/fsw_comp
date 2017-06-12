@@ -40,8 +40,8 @@ CMDConfig CMDServer::CMDConfiguration(360,1000,1000,10,10);
 CMDServer::CMDServer(string nameIn, LocationIDType idIn) :
 		SubsystemServer(nameIn, idIn), Singleton(), numFilesDWN(0), currFileNum(0) {
 	startTime = getTimeInSec();
-	CMDConfiguration.resetPeriod = 24*60*60; // 24 hrs * 60 min/hr * 60 sec/min
-	CMDConfiguration.fileChunkSize = 10240; // 10KB
+	CMDConfiguration.resetPeriod = 3*60*60; // 3 hrs FIXME: change for flight
+	CMDConfiguration.fileChunkSize = 204800; // 200 kB
 	CMDConfiguration.maxDownlinkSize = 15728640;
 	CMDConfiguration.beaconPeriod = 15;
 	CMDConfiguration.increasedBeaconPeriod = 8;
