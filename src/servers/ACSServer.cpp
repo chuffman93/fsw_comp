@@ -26,7 +26,7 @@ using namespace AllStar::Core;
 namespace AllStar{
 namespace Servers{
 
-ACSStatus ACSServer::ACSState(0,0,0,0,0,0,0,0);
+ACSStatus ACSServer::ACSState(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
 ACSConfig ACSServer::ACSConfiguration(0);
 
 // -------------------------------------- Necessary Methods --------------------------------------
@@ -236,14 +236,6 @@ bool ACSServer::CheckHealthStatus(){
 		ACSState.time = getTimeInSec();
 		ACSState.update(msgPtr,ACSState.size,0,0);
 		ACSState.deserialize();
-
-		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: MRP X:       %lx", ACSState.MRP_X);
-		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: MRP Y:       %lx", ACSState.MRP_Y);
-		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: MRP Z:       %lx", ACSState.MRP_Z);
-		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: ST Status:   %lx", ACSState.ST_Status);
-		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: RW Speed X:  %u", ACSState.RW_Speed_X);
-		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: RW Speed Y:  %u", ACSState.RW_Speed_Y);
-		logger->Log(LOGGER_LEVEL_DEBUG, "ACS H&S: RW Speed Z:  %u", ACSState.RW_Speed_Z);
 
 		return true;
 	}

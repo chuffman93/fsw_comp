@@ -58,37 +58,70 @@ void CDHStatus::deserialize(void) {
 
 ACSStatus::ACSStatus() { }
 
-ACSStatus::ACSStatus(int32 time, uint32 MRP_X, uint32 MRP_Y, uint32 MRP_Z, uint32 ST_Status, uint32 RW_Speed_X, uint32 RW_Speed_Y, uint32 RW_Speed_Z) {
+ACSStatus::ACSStatus(int32 time, float magx, float magy, float magz, float curr_mrpx, float curr_mrpy, float curr_mrpz, float des_mrpx, float des_mrpy, float des_mrpz, float rwspeedx, float rwspeedy, float rwspeedz, float scx, float scy, float scz, float gyrox, float gyroy, float gyroz) {
   this->time = time;
-  this->MRP_X = MRP_X;
-  this->MRP_Y = MRP_Y;
-  this->MRP_Z = MRP_Z;
-  this->ST_Status = ST_Status;
-  this->RW_Speed_X = RW_Speed_X;
-  this->RW_Speed_Y = RW_Speed_Y;
-  this->RW_Speed_Z = RW_Speed_Z;
+  this->magx = magx;
+  this->magy = magy;
+  this->magz = magz;
+  this->curr_mrpx = curr_mrpx;
+  this->curr_mrpy = curr_mrpy;
+  this->curr_mrpz = curr_mrpz;
+  this->des_mrpx = des_mrpx;
+  this->des_mrpy = des_mrpy;
+  this->des_mrpz = des_mrpz;
+  this->rwspeedx = rwspeedx;
+  this->rwspeedy = rwspeedy;
+  this->rwspeedz = rwspeedz;
+  this->scx = scx;
+  this->scy = scy;
+  this->scz = scz;
+  this->gyrox = gyrox;
+  this->gyroy = gyroy;
+  this->gyroz = gyroz;
 }
 
 void ACSStatus::serialize(void) {
   this->serialize_int32(this->time);
-  this->serialize_uint32(this->MRP_X);
-  this->serialize_uint32(this->MRP_Y);
-  this->serialize_uint32(this->MRP_Z);
-  this->serialize_uint32(this->ST_Status);
-  this->serialize_uint32(this->RW_Speed_X);
-  this->serialize_uint32(this->RW_Speed_Y);
-  this->serialize_uint32(this->RW_Speed_Z);
+  this->serialize_float(this->magx);
+  this->serialize_float(this->magy);
+  this->serialize_float(this->magz);
+  this->serialize_float(this->curr_mrpx);
+  this->serialize_float(this->curr_mrpy);
+  this->serialize_float(this->curr_mrpz);
+  this->serialize_float(this->des_mrpx);
+  this->serialize_float(this->des_mrpy);
+  this->serialize_float(this->des_mrpz);
+  this->serialize_float(this->rwspeedx);
+  this->serialize_float(this->rwspeedy);
+  this->serialize_float(this->rwspeedz);
+  this->serialize_float(this->scx);
+  this->serialize_float(this->scy);
+  this->serialize_float(this->scz);
+  this->serialize_float(this->gyrox);
+  this->serialize_float(this->gyroy);
+  this->serialize_float(this->gyroz);
 }
 
 void ACSStatus::deserialize(void) {
   this->time = this->deserialize_int32();
-  this->MRP_X = this->deserialize_uint32();
-  this->MRP_Y = this->deserialize_uint32();
-  this->MRP_Z = this->deserialize_uint32();
-  this->ST_Status = this->deserialize_uint32();
-  this->RW_Speed_X = this->deserialize_uint32();
-  this->RW_Speed_Y = this->deserialize_uint32();
-  this->RW_Speed_Z = this->deserialize_uint32();
+  this->magx = this->deserialize_float();
+  this->magy = this->deserialize_float();
+  this->magz = this->deserialize_float();
+  this->curr_mrpx = this->deserialize_float();
+  this->curr_mrpy = this->deserialize_float();
+  this->curr_mrpz = this->deserialize_float();
+  this->des_mrpx = this->deserialize_float();
+  this->des_mrpy = this->deserialize_float();
+  this->des_mrpz = this->deserialize_float();
+  this->rwspeedx = this->deserialize_float();
+  this->rwspeedy = this->deserialize_float();
+  this->rwspeedz = this->deserialize_float();
+  this->scx = this->deserialize_float();
+  this->scy = this->deserialize_float();
+  this->scz = this->deserialize_float();
+  this->gyrox = this->deserialize_float();
+  this->gyroy = this->deserialize_float();
+  this->gyroz = this->deserialize_float();
 }
 
 PLDStatus::PLDStatus() { }

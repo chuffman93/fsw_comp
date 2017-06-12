@@ -33,17 +33,28 @@ public:
 
 class ACSStatus : public Serialize {
 public:
-  const static int size = 32;
+  const static int size = 76;
   ACSStatus();
-  ACSStatus(int32 time, uint32 MRP_X, uint32 MRP_Y, uint32 MRP_Z, uint32 ST_Status, uint32 RW_Speed_X, uint32 RW_Speed_Y, uint32 RW_Speed_Z);
+  ACSStatus(int32 time, float magx, float magy, float magz, float curr_mrpx, float curr_mrpy, float curr_mrpz, float des_mrpx, float des_mrpy, float des_mrpz, float rwspeedx, float rwspeedy, float rwspeedz, float scx, float scy, float scz, float gyrox, float gyroy, float gyroz);
   int32 time; // log the time the stats were taken
-  uint32 MRP_X; 
-  uint32 MRP_Y; 
-  uint32 MRP_Z; 
-  uint32 ST_Status; 
-  uint32 RW_Speed_X; 
-  uint32 RW_Speed_Y; 
-  uint32 RW_Speed_Z; 
+  float magx; 
+  float magy; 
+  float magz; 
+  float curr_mrpx; 
+  float curr_mrpy; 
+  float curr_mrpz; 
+  float des_mrpx; 
+  float des_mrpy; 
+  float des_mrpz; 
+  float rwspeedx; 
+  float rwspeedy; 
+  float rwspeedz; 
+  float scx; 
+  float scy; 
+  float scz; 
+  float gyrox; 
+  float gyroy; 
+  float gyroz; 
   void serialize(void);
   void deserialize(void);
 };
