@@ -8,7 +8,6 @@ CDHStatus
 	float tempSensors[64]
 
 ACSStatus
-	int32 time   // log the time the stats were taken
 	float mag_x
 	float mag_y
 	float mag_z
@@ -36,16 +35,13 @@ ACSStatus
 	int8 mode
 
 PLDStatus
-	int32 time   // log the time the stats were taken
 	uint8 powerFault
 	uint16 motorSpeed
 	uint8 thermistors[10]
 	uint8 adcDataWorking
 	uint16 control
-	uint8 byteSize
 
 EPSStatus
-	int32 time   // log the time the stats were taken
 	uint16 current3v3
 	uint16 voltage3v3
 	uint16 currentVbat

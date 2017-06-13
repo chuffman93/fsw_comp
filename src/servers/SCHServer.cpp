@@ -236,6 +236,7 @@ void SCHServer::SubsystemLoop(void) {
 				}
 			}
 		}
+
 		waitUntil(lastWakeTime, 1000);
 	}
 }

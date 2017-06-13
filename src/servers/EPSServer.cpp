@@ -27,7 +27,7 @@ using namespace AllStar::Core;
 namespace AllStar{
 namespace Servers{
 
-EPSStatus EPSServer::EPSState(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+EPSStatus EPSServer::EPSState(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
 EPSConfig EPSServer::EPSConfiguration(0,0,0);
 
 // -------------------------------------- Necessary Methods --------------------------------------
@@ -113,7 +113,7 @@ bool EPSServer::CheckHealthStatus(){
 		return false;
 	}
 
-	if(HSRet->getLength() != 18*sizeof(uint16)){
+	if(HSRet->getLength() != EPSStatus::size) {
 		logger->Log(LOGGER_LEVEL_WARN, "EPSServer: CheckHealthStatus(): incorrect message length!");
 
 		//TODO: return error?
@@ -129,7 +129,6 @@ bool EPSServer::CheckHealthStatus(){
 		}
 
 		// deserialize the message
-		EPSState.time = getTimeInSec();
 		EPSState.update(msgPtr, EPSState.size, 0, 0);
 		EPSState.deserialize();
 

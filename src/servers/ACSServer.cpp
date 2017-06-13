@@ -26,7 +26,7 @@ using namespace AllStar::Core;
 namespace AllStar{
 namespace Servers{
 
-ACSStatus ACSServer::ACSState(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+ACSStatus ACSServer::ACSState(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
 ACSConfig ACSServer::ACSConfiguration(0);
 
 // -------------------------------------- Necessary Methods --------------------------------------
@@ -245,7 +245,6 @@ bool ACSServer::CheckHealthStatus() {
 		}
 
 		// deserialize the buffer
-		ACSState.time = getTimeInSec();
 		ACSState.update(msgPtr,ACSState.size,0,0);
 		ACSState.deserialize();
 

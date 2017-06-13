@@ -33,10 +33,9 @@ public:
 
 class ACSStatus : public Serialize {
 public:
-  const static int size = 101;
+  const static int size = 97;
   ACSStatus();
-  ACSStatus(int32 time, float mag_x, float mag_y, float mag_z, float curr_mrp_x, float curr_mrp_y, float curr_mrp_z, float targ_mrp_x, float targ_mrp_y, float targ_mrp_z, float rwspeed_x, float rwspeed_y, float rwspeed_z, float angrate_x, float angrate_y, float angrate_z, float gyro_x, float gyro_y, float gyro_z, float rw_pwm_x, float rw_pwm_y, float rw_pwm_z, float tr_x, float tr_y, float tr_z, int8 mode);
-  int32 time; // log the time the stats were taken
+  ACSStatus(float mag_x, float mag_y, float mag_z, float curr_mrp_x, float curr_mrp_y, float curr_mrp_z, float targ_mrp_x, float targ_mrp_y, float targ_mrp_z, float rwspeed_x, float rwspeed_y, float rwspeed_z, float angrate_x, float angrate_y, float angrate_z, float gyro_x, float gyro_y, float gyro_z, float rw_pwm_x, float rw_pwm_y, float rw_pwm_z, float tr_x, float tr_y, float tr_z, int8 mode);
   float mag_x; 
   float mag_y; 
   float mag_z; 
@@ -68,26 +67,23 @@ public:
 
 class PLDStatus : public Serialize {
 public:
-  const static int size = 21;
+  const static int size = 16;
   PLDStatus();
-  PLDStatus(int32 time, uint8 powerFault, uint16 motorSpeed, uint8 thermistors[10], uint8 adcDataWorking, uint16 control, uint8 byteSize);
-  int32 time; // log the time the stats were taken
+  PLDStatus(uint8 powerFault, uint16 motorSpeed, uint8 thermistors[10], uint8 adcDataWorking, uint16 control);
   uint8 powerFault; 
   uint16 motorSpeed; 
   uint8 thermistors[10]; 
   uint8 adcDataWorking; 
   uint16 control; 
-  uint8 byteSize; 
   void serialize(void);
   void deserialize(void);
 };
 
 class EPSStatus : public Serialize {
 public:
-  const static int size = 40;
+  const static int size = 36;
   EPSStatus();
-  EPSStatus(int32 time, uint16 current3v3, uint16 voltage3v3, uint16 currentVbat, uint16 voltageVbat, uint16 current12v, uint16 voltage12v, uint16 remainingCapacity, uint16 battCurrent, uint16 battVoltage, uint16 battStatus, uint16 frangCurrent, uint16 frangVoltage, uint16 convCurrentX, uint16 convThreshX, uint16 convCurrentY, uint16 convThreshY, uint16 convCurrentW, uint16 convThreshW);
-  int32 time; // log the time the stats were taken
+  EPSStatus(uint16 current3v3, uint16 voltage3v3, uint16 currentVbat, uint16 voltageVbat, uint16 current12v, uint16 voltage12v, uint16 remainingCapacity, uint16 battCurrent, uint16 battVoltage, uint16 battStatus, uint16 frangCurrent, uint16 frangVoltage, uint16 convCurrentX, uint16 convThreshX, uint16 convCurrentY, uint16 convThreshY, uint16 convCurrentW, uint16 convThreshW);
   uint16 current3v3; 
   uint16 voltage3v3; 
   uint16 currentVbat; 

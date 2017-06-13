@@ -36,7 +36,7 @@ void ERRServer::SubsystemLoop() {
 
 	while (1) {
 		wdmAlive();
-		lastWakeTime = getTimeInSec();
+		lastWakeTime = getTimeInMillis();
 
 		if (!ErrorQueue.empty()) {
 			if (this->TakeLock(MAX_BLOCK_TIME) && !ErrorQueue.empty()) {

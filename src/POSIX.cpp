@@ -132,10 +132,12 @@ bool xSemaphoreGive(sem_t *sem)
 
 // Function not exact,
 void waitUntil(int64 lastTimeTick, int waitTimeMS){
-	int64 target = getTimeInMillis() + waitTimeMS;
-	int64 difference = target - lastTimeTick;
-	if(difference > 0 && difference <= waitTimeMS + 100){ // fixme: how could (target + waitTime) > lastTimeTick happen sometimes?
+	int64 target = lastTimeTick + waitTimeMS;
+	int64 difference = target - getTimeInMillis();
+	if (difference > 0 && difference <= waitTimeMS) {
 		usleep(difference*1000);
+	} else if (difference > 0) {
+		printf("\nPOSIX: wait too large\n\n");
 	}
 }
 
