@@ -1,3 +1,23 @@
+BeaconStruct
+	int32 GPSWeek
+	float GPSSec
+	double xPosition
+	double yPosition
+	double zPosition
+	double xVelocity
+	double yVelocity
+	double zVelocity
+	uint8 systemMode
+	uint8 subpowerStates
+	int16 epochNumber
+	uint16 radNumber
+	uint32 spiSent
+	uint32 spiDropped
+	uint16 batteryCap
+	int8 acsMode
+	float memory
+	float cpu15
+
 CDHStatus
 	int32 time   // log the time the stats were taken
 	float cpu1   // 1  minute loads (% of CPU)
@@ -63,7 +83,7 @@ EPSStatus
 
 ACSConfig
 	int32 testConfig
-	
+
 CDHConfig
 	int32 testConfig
 
@@ -73,18 +93,18 @@ CMDConfig
 	int32 maxDownlinkSize
 	int32 beaconPeriod
 	int32 increasedBeaconPeriod
-	
+
 COMConfig
 	int32 testConfig
-	
+
 EPSConfig
 	uint16 minCOMCharge
 	uint16 minPLDCharge
 	uint16 minDSTCharge
-	
+
 FMGConfig
 	int32 testConfig
-	
+
 PLDConfig
 	int32 chunkSize
 

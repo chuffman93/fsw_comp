@@ -28,9 +28,10 @@ namespace AllStar{
 namespace Servers{
 
 PLDConfig PLDServer::PLDConfiguration(RAD_CHUNK_SIZE);
+uint16 PLDServer::PLDDataNumber = 1;
 
 PLDServer::PLDServer(string nameIn, LocationIDType idIn) :
-		SubsystemServer(nameIn, idIn, 1000, 20), Singleton(), tftp_pid(-1), PLDDataNumber(1) { }
+		SubsystemServer(nameIn, idIn, 1000, 20), Singleton(), tftp_pid(-1) { }
 
 PLDServer::~PLDServer() { }
 
@@ -269,6 +270,7 @@ bool PLDServer::CheckHealthStatus() {
 			return true;
 		}
 	}
+	return true;
 }
 
 void PLDServer::bootConfig() {

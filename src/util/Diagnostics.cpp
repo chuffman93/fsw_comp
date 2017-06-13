@@ -27,29 +27,29 @@ void BusLoadTest(bool enable){
 
 void SPIStats(bool enable){
 	if(enable){
-		Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-		logger->Log(LOGGER_LEVEL_INFO, "Running SPI Statistics");
-
-		SPI_HALServer * spiServer = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
-		uint64 duration = spiServer->ResetStatsTime();
-
-		FILE * fp = fopen("diagnostic_results.txt", "a+");
-		fprintf(fp, "SPI Stats:\n\tPackets Dropped: %lu %lu %lu %lu\n",
-				spiServer->packetsDroppedTX[0], spiServer->packetsDroppedTX[1], spiServer->packetsDroppedTX[2], spiServer->packetsDroppedTX[3]);
-		fprintf(fp, "\tPackets Sent: %lu %lu %lu %lu\n",
-				spiServer->packetsSentTX[0], spiServer->packetsSentTX[1], spiServer->packetsSentTX[2], spiServer->packetsSentTX[3]);
-		fprintf(fp, "\tBytes Dropped: %llu %llu %llu %llu\n",
-				spiServer->bytesDroppedTX[0], spiServer->bytesDroppedTX[1], spiServer->bytesDroppedTX[2], spiServer->bytesDroppedTX[3]);
-		fprintf(fp, "\tBytes Sent: %llu %llu %llu %llu\n",
-				spiServer->bytesSentTX[0], spiServer->bytesSentTX[1], spiServer->bytesSentTX[2], spiServer->bytesSentTX[3]);
-		fprintf(fp, "\tDuration: %llu ms\n", duration);
-		fclose(fp);
-		for(uint8 i = 0; i < 4; i++){
-			spiServer->packetsDroppedTX[i] = 0;
-			spiServer->packetsSentTX[i] = 0;
-			spiServer->bytesDroppedTX[i] = 0;
-			spiServer->bytesSentTX[i] = 0;
-		}
+//		Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+//		logger->Log(LOGGER_LEVEL_INFO, "Running SPI Statistics");
+//
+//		SPI_HALServer * spiServer = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
+//		uint64 duration = spiServer->ResetStatsTime();
+//
+//		FILE * fp = fopen("diagnostic_results.txt", "a+");
+//		fprintf(fp, "SPI Stats:\n\tPackets Dropped: %lu %lu %lu %lu\n",
+//				spiServer->packetsDroppedTX[0], spiServer->packetsDroppedTX[1], spiServer->packetsDroppedTX[2], spiServer->packetsDroppedTX[3]);
+//		fprintf(fp, "\tPackets Sent: %lu %lu %lu %lu\n",
+//				spiServer->packetsSentTX[0], spiServer->packetsSentTX[1], spiServer->packetsSentTX[2], spiServer->packetsSentTX[3]);
+//		fprintf(fp, "\tBytes Dropped: %llu %llu %llu %llu\n",
+//				spiServer->bytesDroppedTX[0], spiServer->bytesDroppedTX[1], spiServer->bytesDroppedTX[2], spiServer->bytesDroppedTX[3]);
+//		fprintf(fp, "\tBytes Sent: %llu %llu %llu %llu\n",
+//				spiServer->bytesSentTX[0], spiServer->bytesSentTX[1], spiServer->bytesSentTX[2], spiServer->bytesSentTX[3]);
+//		fprintf(fp, "\tDuration: %llu ms\n", duration);
+//		fclose(fp);
+//		for(uint8 i = 0; i < 4; i++){
+//			spiServer->packetsDroppedTX[i] = 0;
+//			spiServer->packetsSentTX[i] = 0;
+//			spiServer->bytesDroppedTX[i] = 0;
+//			spiServer->bytesSentTX[i] = 0;
+//		}
 	}
 }
 

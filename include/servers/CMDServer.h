@@ -36,19 +36,10 @@ public:
 
 	bool updateConfig(); // update configs after COM pass
 
-	struct BeaconStruct {
-		SystemModeEnum currentMode;
-		uint8 subPowerState;
-		int32 uptime;
-		EPSStatus epsHS;
-		ACSStatus acsHS;
-		CDHStatus cdhHS;
-		PLDStatus pldHS;
-	};
-
-	void serializeBeacon(uint8 * buf, std::size_t size);
+	void serializeBeacon(uint8 * buf);
 
 	static CMDConfig CMDConfiguration;
+
 	BeaconStruct beacon;
 
 	bool CheckForBeacon(void);
@@ -108,7 +99,7 @@ private:
 	};
 
 	bool CheckHealthStatus(void);
-	void CreateBeacon(void);
+	void UpdateBeacon(void);
 };
 
 }

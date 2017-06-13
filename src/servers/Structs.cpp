@@ -12,6 +12,71 @@
 namespace AllStar{
 namespace Servers{
 
+BeaconStruct::BeaconStruct() { }
+
+BeaconStruct::BeaconStruct(int32 GPSWeek, float GPSSec, double xPosition, double yPosition, double zPosition, double xVelocity, double yVelocity, double zVelocity, uint8 systemMode, uint8 subpowerStates, int16 epochNumber, uint16 radNumber, uint32 spiSent, uint32 spiDropped, uint16 batteryCap, int8 acsMode, float memory, float cpu15) {
+  this->GPSWeek = GPSWeek;
+  this->GPSSec = GPSSec;
+  this->xPosition = xPosition;
+  this->yPosition = yPosition;
+  this->zPosition = zPosition;
+  this->xVelocity = xVelocity;
+  this->yVelocity = yVelocity;
+  this->zVelocity = zVelocity;
+  this->systemMode = systemMode;
+  this->subpowerStates = subpowerStates;
+  this->epochNumber = epochNumber;
+  this->radNumber = radNumber;
+  this->spiSent = spiSent;
+  this->spiDropped = spiDropped;
+  this->batteryCap = batteryCap;
+  this->acsMode = acsMode;
+  this->memory = memory;
+  this->cpu15 = cpu15;
+}
+
+void BeaconStruct::serialize(void) {
+  this->serialize_int32(this->GPSWeek);
+  this->serialize_float(this->GPSSec);
+  this->serialize_double(this->xPosition);
+  this->serialize_double(this->yPosition);
+  this->serialize_double(this->zPosition);
+  this->serialize_double(this->xVelocity);
+  this->serialize_double(this->yVelocity);
+  this->serialize_double(this->zVelocity);
+  this->serialize_uint8(this->systemMode);
+  this->serialize_uint8(this->subpowerStates);
+  this->serialize_int16(this->epochNumber);
+  this->serialize_uint16(this->radNumber);
+  this->serialize_uint32(this->spiSent);
+  this->serialize_uint32(this->spiDropped);
+  this->serialize_uint16(this->batteryCap);
+  this->serialize_int8(this->acsMode);
+  this->serialize_float(this->memory);
+  this->serialize_float(this->cpu15);
+}
+
+void BeaconStruct::deserialize(void) {
+  this->GPSWeek = this->deserialize_int32();
+  this->GPSSec = this->deserialize_float();
+  this->xPosition = this->deserialize_double();
+  this->yPosition = this->deserialize_double();
+  this->zPosition = this->deserialize_double();
+  this->xVelocity = this->deserialize_double();
+  this->yVelocity = this->deserialize_double();
+  this->zVelocity = this->deserialize_double();
+  this->systemMode = this->deserialize_uint8();
+  this->subpowerStates = this->deserialize_uint8();
+  this->epochNumber = this->deserialize_int16();
+  this->radNumber = this->deserialize_uint16();
+  this->spiSent = this->deserialize_uint32();
+  this->spiDropped = this->deserialize_uint32();
+  this->batteryCap = this->deserialize_uint16();
+  this->acsMode = this->deserialize_int8();
+  this->memory = this->deserialize_float();
+  this->cpu15 = this->deserialize_float();
+}
+
 CDHStatus::CDHStatus() { }
 
 CDHStatus::CDHStatus(int32 time, float cpu1, float cpu5, float cpu15, float memory, float hotswaps[32], float tempSensors[64]) {

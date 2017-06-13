@@ -23,7 +23,7 @@ namespace AllStar {
 namespace Servers {
 
 FMGConfig FMGServer::FMGConfiguration(0);
-uint32 FMGServer::bootCount = 0;
+uint16 FMGServer::bootCount = 0;
 
 // ----- File Manager functions ------------------------------------------------------------------------------------
 FileManager::FileManager(string path, string tlmType) {
@@ -69,7 +69,7 @@ void FileManager::OpenFile() {
 void FileManager::GetFileName() {
 	int time = getTimeInSec();
 	char fileName[100];
-	sprintf(fileName, "%s/CUR/%s_%d_%d", file_path.c_str(), TLM_type.c_str(), FMGServer::bootCount, time);
+	sprintf(fileName, "%s/CUR/%s_%u_%d", file_path.c_str(), TLM_type.c_str(), FMGServer::bootCount, time);
 	file_name = fileName;
 }
 
@@ -353,7 +353,7 @@ void FMGServer::loopReset(void) {
 }
 
 // -----------------------------------------------------------------------------------------------------------------
-uint32 FMGServer::loadBootCount() {
+uint16 FMGServer::loadBootCount() {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	if (access(EPOCH_FILE, F_OK) != -1) {
@@ -373,7 +373,7 @@ uint32 FMGServer::loadBootCount() {
 			return 0;
 		}
 
-		return strtoul(line, NULL, 10);
+		return (uint16) strtoul(line, NULL, 10);
 	} else {
 		logger->Log(LOGGER_LEVEL_ERROR, "FMGServer: unable to open epoch file");
 	}

@@ -167,29 +167,18 @@ bool COMFullDuplex(){
 }
 
 bool COMSendBeacon(){
+	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "COM: sending beacon");
-	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
 
-	std::size_t size = sizeof(cmdServer->beacon);
-	uint8 * bufferOut = (uint8 *) malloc(size);
-	cmdServer->serializeBeacon(bufferOut, size);
+	uint8 * buffer = new uint8[BeaconStruct::size];
+	cmdServer->serializeBeacon(buffer);
 
-	ACPPacket * command = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, COM_BEACON, sizeof(cmdServer->beacon), bufferOut);
+	ACPPacket * command = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, COM_BEACON, BeaconStruct::size, buffer);
 	ACPPacket * response = DispatchPacket(command);
 
 	return(response->isSuccess());
 }
-
-//ACPPacket * COMHealthStatus(void){
-//	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, COM_HS_CMD);
-//	ACPPacket * HSRet = DispatchPacket(HSQuery);
-//
-//	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-//	logger->Log(LOGGER_LEVEL_FATAL, "COMStdTasks: unfinished function entered!");
-//
-//	return HSRet;
-//}
 
 // Non-opcode tasks
 bool COMSelfCheck(){

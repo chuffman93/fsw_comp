@@ -114,8 +114,6 @@ int PLDLEDData(){
 
 // Diagnostic
 bool PLDTestAlive(){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-
 	ACPPacket * query = new ACPPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, TEST_ALIVE_CMD);
 	ACPPacket * ret = DispatchPacket(query);
 

@@ -35,7 +35,7 @@ public:
 
 	PLDStatus PLDState;
 
-	uint16 PLDDataNumber;
+	static uint16 PLDDataNumber;
 
 private:
 	bool IsFullyInitialized(void);

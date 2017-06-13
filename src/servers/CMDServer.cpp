@@ -15,12 +15,14 @@
 #include "servers/ACSServer.h"
 #include "servers/CDHServer.h"
 #include "servers/PLDServer.h"
+#include "servers/GPSServer.h"
 #include "servers/FileSystem.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
 #include "core/StdTypes.h"
 #include "core/WatchdogManager.h"
 #include "util/Logger.h"
+#include "HAL/SPI_Server.h"
 #include "POSIX.h"
 #include <iostream>
 #include <termios.h>
@@ -45,6 +47,7 @@ CMDServer::CMDServer(string nameIn, LocationIDType idIn) :
 	CMDConfiguration.maxDownlinkSize = 15728640;
 	CMDConfiguration.beaconPeriod = 15;
 	CMDConfiguration.increasedBeaconPeriod = 8;
+	beaconValid = false;
 }
 
 CMDServer::~CMDServer(){
@@ -292,72 +295,80 @@ void CMDServer::loopReset(){
 // Note: this function is configured to be called in the subsystem loop defined in SubsystemServer.cpp
 // since we can configure it to be called whenever we like, we can effectively set the beacon rate
 
-
-void CMDServer::serializeBeacon(uint8 * buf, std::size_t size) {
-	Serialize ser(buf, size);
-
-	ser.serialize_int32(beacon.currentMode);
-	ser.serialize_uint8(beacon.subPowerState);
-	ser.serialize_int32(beacon.uptime);
-
-	beacon.epsHS.update(buf, size, ser.get_serialize_index(), ser.get_deserialize_index());
-	beacon.epsHS.serialize();
-
-	beacon.acsHS.update(buf, size, beacon.epsHS.get_serialize_index(), beacon.epsHS.get_deserialize_index());
-	beacon.acsHS.serialize();
-
-	beacon.cdhHS.update(buf, size, beacon.acsHS.get_serialize_index(), beacon.acsHS.get_deserialize_index());
-	beacon.cdhHS.serialize();
-
-	beacon.pldHS.update(buf, size, beacon.cdhHS.get_serialize_index(), beacon.cdhHS.get_deserialize_index());
-	beacon.pldHS.serialize();
-}
-
 bool CMDServer::CheckHealthStatus(void) {
 	if(currentState == ST_IDLE || currentState == ST_PASS_PREP || currentState == ST_LOGIN || currentState == ST_POST_PASS){
-		CreateBeacon();
+		UpdateBeacon();
 		return true;
 	}
 	return false;
 }
 
-void CMDServer::CreateBeacon() {
+void CMDServer::UpdateBeacon() {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "Creating Beacon");
 
-	beaconValid = false;
+	BeaconStruct tempBeacon;
+
+	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
+	tempBeacon.GPSWeek = gpsServer->GPSDataHolder->GPSWeek;
+	tempBeacon.GPSSec = gpsServer->GPSDataHolder->GPSSec;
+	tempBeacon.xPosition = gpsServer->GPSDataHolder->posX;
+	tempBeacon.yPosition = gpsServer->GPSDataHolder->posY;
+	tempBeacon.zPosition = gpsServer->GPSDataHolder->posZ;
+	tempBeacon.xVelocity = gpsServer->GPSDataHolder->velX;
+	tempBeacon.yVelocity = gpsServer->GPSDataHolder->velY;
+	tempBeacon.zVelocity = gpsServer->GPSDataHolder->velZ;
 
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-	beacon.currentMode = modeManager->GetMode();
+	tempBeacon.systemMode = modeManager->GetMode();
 
 	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
-	beacon.subPowerState = 		(cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS] & 0x01) |
-										(cdhServer->subsystemPowerStates[HARDWARE_LOCATION_COM] & 0x02) |
-										(cdhServer->subsystemPowerStates[HARDWARE_LOCATION_GPS] & 0x04) |
-										(cdhServer->subsystemPowerStates[HARDWARE_LOCATION_PLD] & 0x08);
+	tempBeacon.subpowerStates = ((uint8) cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS]) << 3 |
+							((uint8) cdhServer->subsystemPowerStates[HARDWARE_LOCATION_COM]) << 2 |
+							((uint8) cdhServer->subsystemPowerStates[HARDWARE_LOCATION_GPS]) << 1 |
+							((uint8) cdhServer->subsystemPowerStates[HARDWARE_LOCATION_PLD]);
+	tempBeacon.memory = cdhServer->CDHState.memory;
+	tempBeacon.cpu15 = cdhServer->CDHState.cpu15;
 
-	beacon.cdhHS = cdhServer->CDHState;
-
-	beacon.uptime = getTimeInMillis() - startTime;
-
-	EPSServer * epsServer = dynamic_cast<EPSServer *> (Factory::GetInstance(EPS_SERVER_SINGLETON));
-	beacon.epsHS = epsServer->EPSState;
-
-	ACSServer * acsServer = dynamic_cast<ACSServer *> (Factory::GetInstance(ACS_SERVER_SINGLETON));
-	beacon.acsHS = acsServer->ACSState;
+	FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
+	tempBeacon.epochNumber = fmgServer->bootCount;
 
 	PLDServer * pldServer = dynamic_cast<PLDServer *> (Factory::GetInstance(PLD_SERVER_SINGLETON));
-	beacon.pldHS = pldServer->PLDState;
+	tempBeacon.radNumber = pldServer->PLDDataNumber;
 
-	beaconValid = true;
+	SPI_HALServer * spiServer = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
+	tempBeacon.spiSent = spiServer->packetsSentTX;
+	tempBeacon.spiDropped = spiServer->packetsDroppedTX;
+
+	EPSServer * epsServer = dynamic_cast<EPSServer *> (Factory::GetInstance(EPS_SERVER_SINGLETON));
+	tempBeacon.batteryCap = epsServer->EPSState.remainingCapacity;
+
+	ACSServer * acsServer = dynamic_cast<ACSServer *> (Factory::GetInstance(ACS_SERVER_SINGLETON));
+	tempBeacon.acsMode = acsServer->ACSState.mode;
+
+	if (this->TakeLock(MAX_BLOCK_TIME)) {
+		beacon = tempBeacon;
+		this->GiveLock();
+		beaconValid = true;
+	} else {
+		logger->Log(LOGGER_LEVEL_WARN, "CMDServer: unable to take lock to update beacon");
+	}
 }
 
 bool CMDServer::CheckForBeacon() {
-	if(beaconValid) {
+	return beaconValid;
+}
+
+void CMDServer::serializeBeacon(uint8 * buffer) {
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	if (this->TakeLock(MAX_BLOCK_TIME)) {
+		beacon.update(buffer, BeaconStruct::size);
+		beacon.serialize();
+		this->GiveLock();
 		beaconValid = false;
-		return true;
 	} else {
-		return false;
+		logger->Log(LOGGER_LEVEL_WARN, "CMDServer: unable to take lock to serialize beacon");
 	}
 }
 

@@ -39,8 +39,7 @@ static int timeout = 200;
 char * SPI_HALServer::queueNameSPITX = (char *) "/queueHandleSPITX";
 
 SPI_HALServer::SPI_HALServer()
-	: AllStar::Servers::SubsystemServer("SPI", SERVER_LOCATION_SPI) {
-	lastStatsCheck = 0;
+	: AllStar::Servers::SubsystemServer("SPI", SERVER_LOCATION_SPI), packetsSentTX(0), packetsDroppedTX(0) {
 	mq_unlink(queueNameSPITX);
 	qInitTX = mqCreate(&queueHandleTX, &queueAttrTX, queueNameSPITX);
 }
@@ -64,13 +63,6 @@ void SPI_HALServer::SubsystemLoop(void) {
 
 	// Setup the GPIOs for SPI
 	GPIOsetup();
-	lastStatsCheck = getTimeInMillis();
-	for (uint8 sub = 0; sub < 4; sub++) {
-		packetsDroppedTX[sub] = 0;
-		packetsSentTX[sub] = 0;
-		bytesDroppedTX[sub] = 0;
-		bytesSentTX[sub] = 0;
-	}
 
 	logger->Log(LOGGER_LEVEL_INFO, "*****************************************************");
 	logger->Log(LOGGER_LEVEL_INFO, "SPI_HAL Server: Entering Loop --------------------- *");
@@ -87,8 +79,7 @@ void SPI_HALServer::SubsystemLoop(void) {
 			if (mq_timed_receive(queueNameSPITX, &txPacket, 0, DISPATCHER_MAX_DELAY)) {
 				LocationIDType dest = txPacket->getDestination();
 				if (0 < dest && dest < 5) {
-					packetsSentTX[dest-1]++; // increment packets sent counter for that subsystem
-					bytesSentTX[dest-1] += txPacket->getLength() + 8;
+					packetsSentTX++;
 					if (SPIDispatch(*txPacket)) {
 						logger->Log(LOGGER_LEVEL_DEBUG, "SPI_HAL Server: Successfully dispatched packet");
 					} else {
@@ -96,8 +87,7 @@ void SPI_HALServer::SubsystemLoop(void) {
 						logger->Log(LOGGER_LEVEL_WARN, "SPI_HAL Server: " "\x1b[33m" "Packet dispatch failed!" "\x1b[0m" " Subystem: ", txPacket->getDestination());
 
 						// increment dropped packets counter for that subsystem
-						packetsDroppedTX[dest-1]++;
-						bytesDroppedTX[dest-1] += txPacket->getLength() + 8;
+						packetsDroppedTX++;
 					}
 				} else {
 					logger->Log(LOGGER_LEVEL_WARN, "SPI_HALServer: Invalid TX destination!");
@@ -490,11 +480,3 @@ void SPI_HALServer::GPIOsetup(void) {
 		read(int_fds[i], &clearBuf, 1);
 	}
 }
-
-uint64 SPI_HALServer::ResetStatsTime(void) {
-	uint64 currTime = getTimeInMillis();
-	uint64 duration = currTime - lastStatsCheck;
-	lastStatsCheck = currTime;
-	return duration;
-}
-
