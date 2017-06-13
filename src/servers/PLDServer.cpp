@@ -30,7 +30,7 @@ namespace Servers{
 PLDConfig PLDServer::PLDConfiguration(RAD_CHUNK_SIZE);
 
 PLDServer::PLDServer(string nameIn, LocationIDType idIn) :
-		SubsystemServer(nameIn, idIn, 1000, 20), Singleton(), tftp_pid(-1) { }
+		SubsystemServer(nameIn, idIn, 1000, 20), Singleton(), tftp_pid(-1), PLDDataNumber(1) { }
 
 PLDServer::~PLDServer() { }
 
@@ -52,6 +52,8 @@ bool PLDServer::IsFullyInitialized(void) {
 void PLDServer::loopInit() {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "PLDServer: initializing");
+
+	PLDDataNumber = PLDReadDataNumber();
 
 	bootConfig();
 
@@ -133,7 +135,8 @@ void PLDServer::loopStartup() {
 	delete ret;
 
 	// fork a process to manage the data collection over tftp
-	sprintf(dataFile, "RAD_%d_%d", FMGServer::bootCount, getTimeInSec());
+	PLDDataNumber = PLDUpdateDataNumber();
+	sprintf(dataFile, "RAD_%u", PLDDataNumber);
 	int pid = fork();
 	if (pid == 0) {
 		char * argv[] = {"/usr/bin/tftp", "-g", "-r", dataFile, "10.14.134.207", NULL};

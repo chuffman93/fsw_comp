@@ -31,6 +31,8 @@ void PLDPrepReset();
 
 // Non-opcode standard tasks
 bool PLDSelfCheck();
+uint16 PLDUpdateDataNumber();
+uint16 PLDReadDataNumber();
 
 }
 }

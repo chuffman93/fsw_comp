@@ -7,6 +7,7 @@
 #include "servers/PLDStdTasks.h"
 #include "servers/PLDServer.h"
 #include "servers/DispatchStdTasks.h"
+#include "servers/FileSystem.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
 #include "core/ModeManager.h"
@@ -142,6 +143,54 @@ bool PLDSelfCheck(){
 	if(!(PLDLEDData() == 1001))
 		return false;
 	return true;
+}
+
+uint16 PLDUpdateDataNumber() {
+	uint16 dataNumber;
+	FILE * fp;
+	uint8 buffer[2];
+	bool success = true;
+
+	// read the current value
+	dataNumber = PLDReadDataNumber();
+	dataNumber++;
+
+	// write the updated value
+	buffer[0] = (dataNumber & 0xFF00) >> 8;
+	buffer[1] = (dataNumber & 0x00FF);
+	fp = fopen(RAD_NUM_FILE, "wb");
+	if (fp != NULL) {
+		success &= (fputc(buffer[0], fp) != EOF);
+		success &= (fputc(buffer[1], fp) != EOF);
+		fclose(fp);
+	}
+
+	if (!success) {
+		remove(RAD_NUM_FILE);
+	}
+
+	return dataNumber;
+}
+
+uint16 PLDReadDataNumber() {
+	uint16 dataNumber = 1;
+	FILE * fp;
+	int char1, char2;
+	bool success = true;
+
+	if (access(RAD_NUM_FILE, F_OK) != -1) {
+		fp = fopen(RAD_NUM_FILE, "rb");
+		if (fp != NULL) {
+			success &= (char1 = fgetc(fp)) != EOF;
+			success &= (char2 = fgetc(fp)) != EOF;
+			if (success) {
+				dataNumber = ((uint16) char1) << 8 | ((uint16) char2);
+			}
+			fclose(fp);
+		}
+	}
+
+	return dataNumber;
 }
 
 } // end namespace servers
