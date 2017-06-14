@@ -309,6 +309,8 @@ void CMDServer::UpdateBeacon() {
 
 	BeaconStruct tempBeacon;
 
+	tempBeacon.satTime = getTimeInSec();
+
 	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 	tempBeacon.GPSWeek = gpsServer->GPSDataHolder->GPSWeek;
 	tempBeacon.GPSSec = gpsServer->GPSDataHolder->GPSSec;
@@ -353,6 +355,14 @@ void CMDServer::UpdateBeacon() {
 	} else {
 		logger->Log(LOGGER_LEVEL_WARN, "CMDServer: unable to take lock to update beacon");
 	}
+
+	// log beacons to a file for testing purposes
+	uint8 buffer[BeaconStruct::size];
+	beacon.update(buffer,BeaconStruct::size);
+	beacon.serialize();
+	FILE * fp = fopen(HOME_DIRECTORY "/BeaconLog", "a");
+	fwrite(buffer, sizeof(uint8), BeaconStruct::size, fp);
+	fclose(fp);
 }
 
 bool CMDServer::CheckForBeacon() {

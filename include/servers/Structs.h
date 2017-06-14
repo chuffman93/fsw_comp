@@ -17,9 +17,10 @@ namespace Servers{
 
 class BeaconStruct : public Serialize {
 public:
-  const static int size = 81;
+  const static int size = 85;
   BeaconStruct();
-  BeaconStruct(int32 GPSWeek, float GPSSec, double xPosition, double yPosition, double zPosition, double xVelocity, double yVelocity, double zVelocity, uint8 systemMode, uint8 subpowerStates, int16 epochNumber, uint16 radNumber, uint32 spiSent, uint32 spiDropped, uint16 batteryCap, int8 acsMode, float memory, float cpu15);
+  BeaconStruct(int32 satTime, int32 GPSWeek, float GPSSec, double xPosition, double yPosition, double zPosition, double xVelocity, double yVelocity, double zVelocity, uint8 systemMode, uint8 subpowerStates, int16 epochNumber, uint16 radNumber, uint32 spiSent, uint32 spiDropped, uint16 batteryCap, int8 acsMode, float memory, float cpu15);
+  int32 satTime; 
   int32 GPSWeek; 
   float GPSSec; 
   double xPosition; 

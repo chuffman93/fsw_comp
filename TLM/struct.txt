@@ -1,4 +1,5 @@
 BeaconStruct
+	int32 satTime
 	int32 GPSWeek
 	float GPSSec
 	double xPosition

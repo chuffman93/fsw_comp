@@ -14,7 +14,8 @@ namespace Servers{
 
 BeaconStruct::BeaconStruct() { }
 
-BeaconStruct::BeaconStruct(int32 GPSWeek, float GPSSec, double xPosition, double yPosition, double zPosition, double xVelocity, double yVelocity, double zVelocity, uint8 systemMode, uint8 subpowerStates, int16 epochNumber, uint16 radNumber, uint32 spiSent, uint32 spiDropped, uint16 batteryCap, int8 acsMode, float memory, float cpu15) {
+BeaconStruct::BeaconStruct(int32 satTime, int32 GPSWeek, float GPSSec, double xPosition, double yPosition, double zPosition, double xVelocity, double yVelocity, double zVelocity, uint8 systemMode, uint8 subpowerStates, int16 epochNumber, uint16 radNumber, uint32 spiSent, uint32 spiDropped, uint16 batteryCap, int8 acsMode, float memory, float cpu15) {
+  this->satTime = satTime;
   this->GPSWeek = GPSWeek;
   this->GPSSec = GPSSec;
   this->xPosition = xPosition;
@@ -36,6 +37,7 @@ BeaconStruct::BeaconStruct(int32 GPSWeek, float GPSSec, double xPosition, double
 }
 
 void BeaconStruct::serialize(void) {
+  this->serialize_int32(this->satTime);
   this->serialize_int32(this->GPSWeek);
   this->serialize_float(this->GPSSec);
   this->serialize_double(this->xPosition);
@@ -57,6 +59,7 @@ void BeaconStruct::serialize(void) {
 }
 
 void BeaconStruct::deserialize(void) {
+  this->satTime = this->deserialize_int32();
   this->GPSWeek = this->deserialize_int32();
   this->GPSSec = this->deserialize_float();
   this->xPosition = this->deserialize_double();

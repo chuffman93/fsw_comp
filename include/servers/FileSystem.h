@@ -11,13 +11,15 @@ using namespace std;
 namespace AllStar{
 namespace Servers{
 
-#define DOWNLINK_DIRECTORY		"/home/root/.downlink"
-#define UPLINK_DIRECTORY		"/home/root/.uplink"
-#define IMMED_DIRECTORY			"/home/root/.immed"
-#define CONFIG_DIRECTORY		"/home/root/.config"
-#define VERBOSE_HST_DIRECTORY	"/home/root/.vhs"
-#define RAD_DATA_DIRECTORY		"/home/root/.rad"
-#define BINARIES_DIRECTORY		"/home/root/binaries"
+#define HOME_DIRECTORY			"/home/root"
+
+#define DOWNLINK_DIRECTORY		HOME_DIRECTORY	"/.downlink"
+#define UPLINK_DIRECTORY		HOME_DIRECTORY	"/.uplink"
+#define IMMED_DIRECTORY			HOME_DIRECTORY	"/.immed"
+#define CONFIG_DIRECTORY		HOME_DIRECTORY	"/.config"
+#define VERBOSE_HST_DIRECTORY	HOME_DIRECTORY	"/.vhs"
+#define RAD_DATA_DIRECTORY		HOME_DIRECTORY	"/.rad"
+#define BINARIES_DIRECTORY		HOME_DIRECTORY	"/binaries"
 
 #define SOT_PATH				UPLINK_DIRECTORY	"/SOT.txt"
 #define DRF_PATH				UPLINK_DIRECTORY	"/DRF.txt"
