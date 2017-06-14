@@ -31,6 +31,10 @@ public:
 
 	void RequestCOMMode(void);
 
+	void EndCOMMode(void);
+
+	void UpdateNewSchedule();
+
 	void RequestReset(void);
 
 	void LoadDefaultSchedule(void);
@@ -56,6 +60,8 @@ private:
 	SCHServer & operator=(const SCHServer & source);
 
 	bool surpriseCOM;
+	bool endCOM;
+	bool newSchedule;
 	bool resetRequest;
 	int64 lastWakeTime;
 	int32 modeEnterTime;

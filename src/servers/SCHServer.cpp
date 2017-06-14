@@ -26,7 +26,7 @@ namespace AllStar{
 namespace Servers{
 
 SCHServer::SCHServer(string nameIn, LocationIDType idIn)
-		: SubsystemServer(nameIn, idIn), Singleton(), surpriseCOM(false), resetRequest(false), lastWakeTime(0), modeEnterTime(0), lastBusEnter(0), itemEntered(false)
+		: SubsystemServer(nameIn, idIn), Singleton(), surpriseCOM(false), newSchedule(true), endCOM(false), resetRequest(false), lastWakeTime(0), modeEnterTime(0), lastBusEnter(0), itemEntered(false)
 { }
 
 SCHServer::~SCHServer() { }
@@ -47,6 +47,14 @@ bool SCHServer::IsFullyInitialized(void) {
 
 void SCHServer::RequestCOMMode(void) {
 	surpriseCOM = true;
+}
+
+void SCHServer::EndCOMMode(void) {
+	endCOM = true;
+}
+
+void SCHServer::UpdateNewSchedule(void) {
+	newSchedule = true;
 }
 
 void SCHServer::RequestReset(void) {
@@ -166,12 +174,22 @@ void SCHServer::SubsystemLoop(void) {
 		wdmAlive();
 		lastWakeTime = getTimeInMillis();
 
-		if (currentSchedule.empty()){
+		if (newSchedule) {
+			newSchedule = false;
+			modeManager->SetMode(MODE_BUS_PRIORITY);
+			lastBusEnter = getTimeInSec();
+			itemEntered = false;
+			while (!currentSchedule.empty()) {
+				currentSchedule.pop_front();
+			}
+		}
+
+		if (currentSchedule.empty()) {
 			logger->Log(LOGGER_LEVEL_INFO, "Fetching next schedule");
 			LoadNextSchedule();
 		}
 
-		if(surpriseCOM){
+		if (surpriseCOM) {
 			surpriseCOM = false;
 			modeManager->SetMode(MODE_BUS_PRIORITY);
 			if(itemEntered){
@@ -182,7 +200,18 @@ void SCHServer::SubsystemLoop(void) {
 			currentSchedule.push_front(newCOM);
 		}
 
-		if(resetRequest){
+		if (endCOM) {
+			endCOM = false;
+			if (modeManager->GetMode() == MODE_COM) {
+				logger->Log(LOGGER_LEVEL_INFO, "SCHServer: COM pass over");
+				modeManager->SetMode(MODE_BUS_PRIORITY);
+				lastBusEnter = getTimeInSec();
+				currentSchedule.pop_front();
+				itemEntered = false;
+			}
+		}
+
+		if (resetRequest) {
 			resetRequest = false;
 			modeManager->SetMode(MODE_RESET);
 			SCHItem resetItem(0,0,-1,1,15,MODE_RESET,30);

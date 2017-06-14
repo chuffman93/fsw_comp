@@ -257,6 +257,7 @@ void CMDServer::loopDownlink(){
 }
 
 void CMDServer::loopPostPass(){
+	SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
 	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	parsePPE();
 
@@ -270,9 +271,12 @@ void CMDServer::loopPostPass(){
 	// Clear uplink directory
 	system("rm -rf " UPLINK_DIRECTORY "/*");
 
-	if(modeManager->GetMode() == MODE_COM){
-		modeManager->SetMode(MODE_BUS_PRIORITY);
+	if (access(SCHEDULE_FILE, F_OK) != -1) {
+		schServer->UpdateNewSchedule();
+	} else if (modeManager->GetMode() == MODE_COM) {
+		schServer->EndCOMMode();
 	}
+
 	currentState = ST_IDLE;
 }
 

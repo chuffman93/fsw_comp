@@ -275,7 +275,7 @@ bool PLDServer::CheckHealthStatus() {
 				uint8 * buffer = new uint8[PLDStatus::size + sizeof(int32)];
 				AddUInt32(buffer, currTime);
 
-				// add the ACS H&S to the buffer
+				// add the PLD H&S to the buffer
 				PLDState.update(buffer, PLDStatus::size, 4, 0);
 				PLDState.serialize();
 
