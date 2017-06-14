@@ -129,7 +129,7 @@ bool EPSServer::CheckHealthStatus(){
 		}
 
 		// deserialize the message
-		EPSState.update(msgPtr, EPSState.size, 0, 0);
+		EPSState.update(msgPtr, EPSStatus::size);
 		EPSState.deserialize();
 
 		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: 3v3 Current:     %u", EPSState.current3v3);
@@ -155,10 +155,16 @@ bool EPSServer::CheckHealthStatus(){
 		if (currTime >= (lastHSTLog + 60)) {
 			lastHSTLog = currTime;
 
-			FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
-			EPSState.update(msgPtr, EPSStatus::size, 0, 0);
+			// add the current spacecraft time to the log buffer
+			uint8 * buffer = new uint8[EPSStatus::size + sizeof(int32)];
+			AddUInt32(buffer, currTime);
+
+			// add the EPS H&S to the buffer
+			EPSState.update(buffer, EPSStatus::size, 4, 0);
 			EPSState.serialize();
-			fmgServer->Log(DESTINATION_EPS_HST, msgPtr, EPSStatus::size);
+
+			FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
+			fmgServer->Log(DESTINATION_EPS_HST, buffer, EPSStatus::size + sizeof(int32));
 		}
 
 		return true;

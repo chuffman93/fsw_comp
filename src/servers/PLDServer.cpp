@@ -267,6 +267,22 @@ bool PLDServer::CheckHealthStatus() {
 			logger->Log(LOGGER_LEVEL_DEBUG, "PLD H&S: ACS Working:     %u", PLDState.adcDataWorking);
 			logger->Log(LOGGER_LEVEL_DEBUG, "PLD H&S: Control:         %u", PLDState.control);
 
+			int32 currTime = getTimeInSec();
+			if (currTime >= (lastHSTLog + 60)) {
+				lastHSTLog = currTime;
+
+				// add the current spacecraft time to the log buffer
+				uint8 * buffer = new uint8[PLDStatus::size + sizeof(int32)];
+				AddUInt32(buffer, currTime);
+
+				// add the ACS H&S to the buffer
+				PLDState.update(buffer, PLDStatus::size, 4, 0);
+				PLDState.serialize();
+
+				FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
+				fmgServer->Log(DESTINATION_PLD_HST, buffer, PLDStatus::size + sizeof(int32));
+			}
+
 			return true;
 		}
 	}

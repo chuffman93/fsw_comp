@@ -120,18 +120,14 @@ bool GetBool(uint8 * buffer) {
 }
 
 float GetFloat(uint8 * buffer) {
-	float result;
 	uint32 temp = (uint32) buffer[0] << 24 | (uint32) buffer[1] << 16 | (uint32) buffer[2] << 8 | (uint32) buffer[3];
-	memcpy(&result, &temp, 4);
-	return result;
+	return *((float *) &temp);
 }
 
 double GetDouble(uint8 * buffer) {
-	double result;
 	uint64 temp = (uint64) buffer[0] << 56 | (uint64) buffer[1] << 48 | (uint64) buffer[2] << 40 | (uint64) buffer[3] << 32 |
 			(uint64) buffer[4] << 24 | (uint64) buffer[5] << 16 | (uint64) buffer[6] << 8 | (uint64) buffer[7];
-	memcpy(&result, &temp, 8);
-	return result;
+	return *((double *) &temp);
 }
 
 void AddUInt16(uint8 * buffer, uint16 data) {
@@ -147,8 +143,7 @@ void AddUInt32(uint8 * buffer, uint32 data) {
 }
 
 void AddFloat(uint8 * buffer, float data) {
-	uint32 temp;
-	memcpy(&temp, &data, sizeof(float));
+	uint32 temp = *((uint32 *) &data);
 	buffer[0] = (temp & 0xFF000000) >> 24;
 	buffer[1] = (temp & 0x00FF0000) >> 16;
 	buffer[2] = (temp & 0x0000FF00) >> 8;
@@ -156,8 +151,7 @@ void AddFloat(uint8 * buffer, float data) {
 }
 
 void AddDouble(uint8 * buffer, double data) {
-	uint64 temp;
-	memcpy(&temp, &data, sizeof(double));
+	uint64 temp = *((uint64 *) &data);
 	buffer[0] = (temp & 0xFF00000000000000) >> 56;
 	buffer[1] = (temp & 0x00FF000000000000) >> 48;
 	buffer[2] = (temp & 0x0000FF0000000000) >> 40;

@@ -46,6 +46,7 @@ private:
 
 	int tftp_pid;
 	char dataFile[100];
+	int32 lastHSTLog;
 
 	void loopInit();
 	void loopIdle();

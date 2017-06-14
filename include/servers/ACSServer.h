@@ -53,6 +53,7 @@ private:
 	~ACSServer(void);
 	ACSServer & operator=(const ACSServer & source);
 	bool testsRun;
+	int32 lastHSTLog;
 
 	// ------ State Machine ----------------------------------------------------------
 	void loopInit();

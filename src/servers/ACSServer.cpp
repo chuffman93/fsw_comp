@@ -13,6 +13,7 @@
 #include "servers/CDHServer.h"
 #include "servers/ERRServer.h"
 #include "servers/FileSystem.h"
+#include "servers/FMGServer.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
 #include "core/WatchdogManager.h"
@@ -247,6 +248,22 @@ bool ACSServer::CheckHealthStatus() {
 		// deserialize the buffer
 		ACSState.update(msgPtr,ACSState.size,0,0);
 		ACSState.deserialize();
+
+		int32 currTime = getTimeInSec();
+		if (currTime >= (lastHSTLog + 60)) {
+			lastHSTLog = currTime;
+
+			// add the current spacecraft time to the log buffer
+			uint8 * buffer = new uint8[ACSStatus::size + sizeof(int32)];
+			AddUInt32(buffer, currTime);
+
+			// add the ACS H&S to the buffer
+			ACSState.update(buffer, ACSStatus::size, 4, 0);
+			ACSState.serialize();
+
+			FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
+			fmgServer->Log(DESTINATION_ACS_HST, buffer, ACSStatus::size + sizeof(int32));
+		}
 
 		return true;
 	}
