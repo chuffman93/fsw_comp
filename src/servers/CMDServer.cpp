@@ -273,8 +273,14 @@ void CMDServer::loopPostPass(){
 
 	if (access(SCHEDULE_FILE, F_OK) != -1) {
 		schServer->UpdateNewSchedule();
+		wdmAsleep();
+		usleep(3000000);
+		wdmAlive();
 	} else if (modeManager->GetMode() == MODE_COM) {
 		schServer->EndCOMMode();
+		wdmAsleep();
+		usleep(3000000);
+		wdmAlive();
 	}
 
 	currentState = ST_IDLE;

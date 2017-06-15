@@ -28,6 +28,8 @@ void parseDLT(void);
 void parsePPE(void);
 void processUplinkFiles(void);
 string trimNewline(string buf);
+void prepRADDownlink(char * line);
+void prepDataDownlink(char * line);
 const long getFileSize(const char * filePath, const char * regex, const int maxFiles);
 const int packageFiles(const char * destination, const char * filePath, const char * regex, const int maxFiles);
 int deleteOldest(char * filePath, int numFiles);

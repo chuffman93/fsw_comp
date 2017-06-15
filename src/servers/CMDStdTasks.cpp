@@ -313,75 +313,153 @@ void parseDRF(void) {
 	}
 
 	// parse the file line by line
-	char * arch;
-	char * dir;
-	char * num;
-	int numFiles;
-	char * regex;
+	char * token;
+	char parseArray[200];
 	while ((bytesRead = getline(&line, &len, fp)) != -1) {
-		// ---- Parse line
-		arch = strtok(line,",");
-		if(arch == NULL){
-			logger->Log(LOGGER_LEVEL_WARN, "Incomplete DRF line at archive");
-			continue; // skip to the next line
-		}
-
-		dir = strtok(NULL,",");
-		if(dir == NULL){
-			logger->Log(LOGGER_LEVEL_WARN, "Incomplete DRF line at directory");
-			continue; // skip to the next line
-		}
-
-		num = strtok(NULL,",");
-		if(num == NULL){
-			logger->Log(LOGGER_LEVEL_WARN, "Incomplete DRF line at number");
-			continue; // skip to the next line
-		}
-		numFiles = atoi(num);
-		if(numFiles < 1){
-			logger->Log(LOGGER_LEVEL_WARN, "Invalid DRF line at number");
-			continue; // skip to the next line
-		}
-
-		regex = strtok(NULL,",");
-		if(regex == NULL){
-			logger->Log(LOGGER_LEVEL_WARN, "Incomplete DRF line at regex");
-			continue; // skip to the next line
-		}
-
-		// get rid of the newline
-		string rgx = trimNewline(string(regex));
-		regex = (char *) rgx.c_str();
-
-		// ---- Check if there is a regex
-		if(strcmp(regex,"X") == 0)
-			regex = (char *) "";
-
-		// ---- Prepend the downlink directory path to the archive name
-		string archive = string(DOWNLINK_DIRECTORY) + "/" + string(arch);
-
-		// ---- Call the function to gather and create a tarball from the files
-		packageFiles((char *) archive.c_str(), dir, regex, numFiles); // TODO: error check this?
-
-		// ---- Split the tarball into chunks
-		CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
-		char chunkSize[16];
-		sprintf(chunkSize, "%lu", cmdServer->CMDConfiguration.fileChunkSize);
-		string split_cmd = "split -b " + string(chunkSize) + " -d -a 3 " + archive + " " + archive + ".";
-		if(system(split_cmd.c_str()) == -1){
-			logger->Log(LOGGER_LEVEL_ERROR, "Failed to split DRF archive into chunks");
-		}
-
-		// ---- Delete the full archive
-		string del_cmd = "rm " + archive;
-		if(system(del_cmd.c_str()) == -1){
-			logger->Log(LOGGER_LEVEL_ERROR, "Failed to delete DRF archive");
+		strcpy(parseArray, line);
+		token = strtok(line,",");
+		if (strcmp(token, "RAD") == 0) {
+			prepRADDownlink(parseArray);
+		} else {
+			prepDataDownlink(parseArray);
 		}
 	}
 
 	fclose(fp);
 
 	logger->Log(LOGGER_LEVEL_INFO, "Finished DRF");
+}
+
+void prepRADDownlink(char * line) {
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	char * rad;
+	char * passNumStr;
+	char * startStr;
+	char * endStr;
+	int passNum, startChunk, endChunk;
+
+	// ---- Parse the line
+	rad = strtok(line, ",");
+	if (rad == NULL || strcmp(rad, "RAD") != 0) {
+		logger->Log(LOGGER_LEVEL_WARN, "DRF: error at RAD");
+		return;
+	}
+
+	passNumStr = strtok(NULL, ",");
+	if (passNumStr == NULL) {
+		logger->Log(LOGGER_LEVEL_WARN, "DRF: incomplete at pass num");
+		return;
+	}
+
+	startStr = strtok(NULL, ",");
+	if (startStr == NULL) {
+		logger->Log(LOGGER_LEVEL_WARN, "DRF: incomplete at start num");
+		return;
+	}
+
+	endStr = strtok(NULL, ",");
+	if (endStr == NULL) {
+		logger->Log(LOGGER_LEVEL_WARN, "DRF: incomplete at end num");
+		return;
+	}
+
+	// get rid of the newline
+	string endc = trimNewline(string(endStr));
+	endStr = (char *) endc.c_str();
+
+	// convert to integers
+	passNum = atoi(passNumStr);
+	if(passNum < 1){
+		logger->Log(LOGGER_LEVEL_WARN, "Invalid DRF line at pass num");
+		return; // skip to the next line
+	}
+
+	startChunk = atoi(startStr);
+	if(startChunk < 0){
+		logger->Log(LOGGER_LEVEL_WARN, "Invalid DRF line at start chunk");
+		return; // skip to the next line
+	}
+
+	endChunk = atoi(endStr);
+	if(endChunk < 0){
+		logger->Log(LOGGER_LEVEL_WARN, "Invalid DRF line at end chunk");
+		return; // skip to the next line
+	}
+
+	// copy the appropriate files
+	char command[200];
+	for (int i = startChunk; i <= endChunk; i++) {
+		sprintf(command, "cp " RAD_FILE_PATH "/RAD_%d.tar.gz.%03d " DOWNLINK_DIRECTORY "/", passNum, i);
+		system(command);
+	}
+}
+
+void prepDataDownlink(char * line) {
+	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	char * arch;
+	char * dir;
+	char * num;
+	int numFiles;
+	char * regex;
+
+	// ---- Parse the line
+	arch = strtok(line,",");
+	if(arch == NULL){
+		logger->Log(LOGGER_LEVEL_WARN, "Incomplete DRF line at archive");
+		return; // skip to the next line
+	}
+
+	dir = strtok(NULL,",");
+	if(dir == NULL){
+		logger->Log(LOGGER_LEVEL_WARN, "Incomplete DRF line at directory");
+		return; // skip to the next line
+	}
+
+	num = strtok(NULL,",");
+	if(num == NULL){
+		logger->Log(LOGGER_LEVEL_WARN, "Incomplete DRF line at number");
+		return; // skip to the next line
+	}
+	numFiles = atoi(num);
+	if(numFiles < 1){
+		logger->Log(LOGGER_LEVEL_WARN, "Invalid DRF line at number");
+		return; // skip to the next line
+	}
+
+	regex = strtok(NULL,",");
+	if(regex == NULL){
+		logger->Log(LOGGER_LEVEL_WARN, "Incomplete DRF line at regex");
+		return; // skip to the next line
+	}
+
+	// get rid of the newline
+	string rgx = trimNewline(string(regex));
+	regex = (char *) rgx.c_str();
+
+	// ---- Check if there is a regex
+	if(strcmp(regex,"X") == 0)
+		regex = (char *) "";
+
+	// ---- Prepend the downlink directory path to the archive name
+	string archive = string(DOWNLINK_DIRECTORY) + "/" + string(arch);
+
+	// ---- Call the function to gather and create a tarball from the files
+	packageFiles((char *) archive.c_str(), dir, regex, numFiles); // TODO: error check this?
+
+	// ---- Split the tarball into chunks
+	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
+	char chunkSize[16];
+	sprintf(chunkSize, "%lu", cmdServer->CMDConfiguration.fileChunkSize);
+	string split_cmd = "split -b " + string(chunkSize) + " -d -a 3 " + archive + " " + archive + ".";
+	if(system(split_cmd.c_str()) == -1){
+		logger->Log(LOGGER_LEVEL_ERROR, "Failed to split DRF archive into chunks");
+	}
+
+	// ---- Delete the full archive
+	string del_cmd = "rm " + archive;
+	if(system(del_cmd.c_str()) == -1){
+		logger->Log(LOGGER_LEVEL_ERROR, "Failed to delete DRF archive");
+	}
 }
 
 void parseDLT(void) {
