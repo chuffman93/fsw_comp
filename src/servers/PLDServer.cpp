@@ -141,7 +141,9 @@ void PLDServer::loopStartup() {
 	int pid = fork();
 	if (pid == 0) {
 		char * argv[] = {"/usr/bin/tftp", "-g", "-r", dataFile, "10.14.134.207", NULL};
-		execve("/usr/bin/tftp", argv, {NULL});
+		if (execve("/usr/bin/tftp", argv, {NULL}) == -1) {
+			// TODO: handle this
+		}
 		exit(0);
 	}
 

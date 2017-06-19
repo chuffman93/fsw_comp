@@ -21,7 +21,6 @@ namespace Servers{
 
 void uftpSetup(void);
 void downlinkFile(string filename);
-void runDiagnostic(void);
 void parseIEF(void);
 void parseDRF(void);
 void parseDLT(void);

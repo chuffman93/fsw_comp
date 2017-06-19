@@ -126,10 +126,6 @@ enum SubsystemOpcodes {
 
 	// Diagnostic Opcodes (8-15)
 	TEST_ALIVE_CMD = 8,
-	DIAGNOSTIC_1_CMD = 12,
-	DIAGNOSTIC_2_CMD,
-	DIAGNOSTIC_3_CMD,
-	DIAGNOSTIC_4_CMD,
 
 	// Standard Opcodes (16-31)
 	HEALTH_STATUS_CMD = 16,

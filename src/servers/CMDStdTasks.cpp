@@ -27,7 +27,6 @@
 #include "core/WatchdogManager.h"
 #include "core/ModeManager.h"
 #include "util/Logger.h"
-#include "util/Diagnostics.h"
 #include <termios.h>
 #include <string>
 #include <string.h>
@@ -39,8 +38,6 @@ using namespace std;
 
 namespace AllStar{
 namespace Servers{
-
-#define NUM_DIAGNOSTIC_TESTS 4
 
 void uftpSetup(void) {
 	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
@@ -93,50 +90,6 @@ void downlinkFile(string filename) {
 	char sh_cmd[256];
 	sprintf(sh_cmd, "%s -Y aes256-gcm -h sha256 -I ax0 -H 1.1.1.2 -x 1 %s", UFTP_PATH, filename.c_str()); // can add "-H 1.1.1.2" to only downlink to one IP, "-x 1" decreases the log statement verboseness
 	system(sh_cmd);
-}
-
-void runDiagnostic(void) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log(LOGGER_LEVEL_INFO, "CMDServer: running diagnostics tests");
-	FILE * fp = fopen("diagnostics.txt", "r");
-
-	if(fp == NULL){
-		logger->Log(LOGGER_LEVEL_WARN, "Error opening diagnostic tests file");
-
-		// TODO: should we run a pre-specified test?
-		FILE * fpr = fopen("diagnostic_results.txt", "a+");
-		char results[] = "No tests to run\n";
-		fwrite(results, 1, sizeof(results), fpr);
-		fclose(fpr);
-	}else{
-		uint8 i = 0;
-		bool isActive[NUM_DIAGNOSTIC_TESTS] = {false};
-		char c;
-		while(i < NUM_DIAGNOSTIC_TESTS){
-			c = fgetc(fp);
-			if(c == EOF){
-				logger->Log(LOGGER_LEVEL_WARN, "Diagnostic tests file too short!");
-				break;
-			}
-			isActive[i] = (c == '1') ? true : false;
-			i++;
-		}
-
-		FILE * fpr = fopen("diagnostic_results.txt", "a+");
-		fprintf(fpr, "Diagnostics Test @ %lld\n", getTimeInMillis());
-		fclose(fpr);
-
-		// Conditionally run tests here TODO: rewrite with function pointers
-		BusLoadTest(isActive[0]);
-		SPIStats(isActive[1]);
-		SampleTest2(isActive[2]);
-		SampleTest3(isActive[3]);
-
-		fclose(fp);
-
-		// FIXME: decide on deletion/transfer scheme
-		//remove("diagnostics.txt");
-	}
 }
 
 void parseIEF(void) {

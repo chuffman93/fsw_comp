@@ -139,7 +139,7 @@ void CMDServer::loopPassPrep(){
 	if(modeManager->GetMode() != MODE_COM){
 		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: FMGServer never prepped for COM, COM pass over");
 		hsDelays = CMDConfiguration.beaconPeriod; // reset beacon period
-		currentState = ST_POST_PASS;
+		currentState = ST_IDLE;
 	}
 }
 
