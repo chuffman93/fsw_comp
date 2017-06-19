@@ -16,6 +16,17 @@
 void TLM_STARTUP_ERROR(void);
 void TLM_SERVERS_CREATED(void);
 void TLM_MAIN_EXIT(void);
+void TLM_SPI_ACS_TX_FAIL(uint8 arg0);
+void TLM_SPI_COM_TX_FAIL(uint8 arg0);
+void TLM_SPI_EPS_TX_FAIL(uint8 arg0);
+void TLM_SPI_PLD_TX_FAIL(uint8 arg0);
 void TLM_MODE_SWITCH(uint8 arg0);
-void TLM_CREATING_ACPPACKET(int32 arg0);
+void TLM_SPI_ACS_RX(uint8 arg0);
+void TLM_SPI_COM_RX(uint8 arg0);
+void TLM_SPI_EPS_RX(uint8 arg0);
+void TLM_SPI_PLD_RX(uint8 arg0);
+void TLM_SPI_ACS_TX(uint8 arg0);
+void TLM_SPI_COM_TX(uint8 arg0);
+void TLM_SPI_EPS_TX(uint8 arg0);
+void TLM_SPI_PLD_TX(uint8 arg0);
 #endif

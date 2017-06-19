@@ -86,14 +86,16 @@ class TLM_AutoCoder():
   def parse_params(self):
     self.arg_list = []
     self.type_list = []
-    if self.param_types != "None":
+    if self.param_types != "None" and self.param_types != "none":
       self.type_list = self.param_types.split(",")
       self.list_len = len(self.type_list);
       for i in range(self.list_len):
         self.arg_list.append("arg" + str(i))
+    else:
+      self.list_len = 0
 
   def get_buf_size(self):
-    self.buf_size = 2;
+    self.buf_size = 6;
     for t in self.type_list:
       self.buf_size += self.type_sizes[t]
 

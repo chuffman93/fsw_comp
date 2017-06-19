@@ -1,9 +1,0 @@
-BeaconStruct
-	SystemModeEnum currentMode
-	uint8 subPowerState
-	int32 uptime
-	EPSStatus epsHS
-	ACSStatus acsHS
-	CDHStatus cdhHS
-	PLDStatus pldHS
-

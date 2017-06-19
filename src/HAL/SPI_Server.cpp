@@ -20,16 +20,14 @@
 #include <sys/ioctl.h>
 #include <linux/spi/spidev.h>
 
-
 #include "HAL/SPI_Server.h"
 #include "core/ACPPacket.h"
 #include "core/Dispatcher.h"
 #include "util/Logger.h"
+#include "util/TLM.h"
 #include "servers/SubsystemServer.h"
 
-#define NELEMS(x)  (sizeof(x) / sizeof((x)[0]))
 #define STR_LEN	   50
-#define RX_BUF_LEN 300
 
 using namespace AllStar;
 using namespace Core;
@@ -82,9 +80,10 @@ void SPI_HALServer::SubsystemLoop(void) {
 					packetsSentTX++;
 					if (SPIDispatch(*txPacket)) {
 						logger->Log(LOGGER_LEVEL_DEBUG, "SPI_HAL Server: Successfully dispatched packet");
+						logTXSuccess(dest, txPacket->getOpcode());
 					} else {
-						// TODO: send error to RX queue?
-						logger->Log(LOGGER_LEVEL_WARN, "SPI_HAL Server: " "\x1b[33m" "Packet dispatch failed!" "\x1b[0m" " Subystem: ", txPacket->getDestination());
+						logger->Log(LOGGER_LEVEL_WARN, "SPI_HAL Server: " "\x1b[33m" "Packet dispatch failed!" "\x1b[0m" " Subsystem: ", txPacket->getDestination());
+						logTXFailure(dest, txPacket->getOpcode());
 
 						// increment dropped packets counter for that subsystem
 						packetsDroppedTX++;
@@ -132,7 +131,6 @@ void SPI_HALServer::SubsystemLoop(void) {
 				}
 			}
 		}
-		// FIXME: figure out wait time
 		waitUntil(enterTime, 5); // wait 5 ms
 	}
 }
@@ -357,6 +355,44 @@ int SPI_HALServer::get_slave_fd(int subsystem) {
 	return spi_fds[index];
 }
 
+void SPI_HALServer::logTXSuccess(int dest, uint8 opcode) {
+	switch (dest) {
+	case HARDWARE_LOCATION_EPS:
+		TLM_SPI_EPS_TX(opcode);
+		break;
+	case HARDWARE_LOCATION_COM:
+		TLM_SPI_EPS_TX(opcode);
+		break;
+	case HARDWARE_LOCATION_ACS:
+		TLM_SPI_EPS_TX(opcode);
+		break;
+	case HARDWARE_LOCATION_PLD:
+		TLM_SPI_EPS_TX(opcode);
+		break;
+	default:
+		break;
+	}
+}
+
+void SPI_HALServer::logTXFailure(int dest, uint8 opcode) {
+	switch (dest) {
+	case HARDWARE_LOCATION_EPS:
+		TLM_SPI_EPS_TX_FAIL(opcode);
+		break;
+	case HARDWARE_LOCATION_COM:
+		TLM_SPI_EPS_TX_FAIL(opcode);
+		break;
+	case HARDWARE_LOCATION_ACS:
+		TLM_SPI_EPS_TX_FAIL(opcode);
+		break;
+	case HARDWARE_LOCATION_PLD:
+		TLM_SPI_EPS_TX_FAIL(opcode);
+		break;
+	default:
+		break;
+	}
+}
+
 void SPI_HALServer::set_packet_sourcedest(int index, ACPPacket * packet) {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	LocationIDType source;
@@ -366,21 +402,25 @@ void SPI_HALServer::set_packet_sourcedest(int index, ACPPacket * packet) {
 	switch (index) {
 	case 0:
 		logger->Log(LOGGER_LEVEL_INFO, "--------------------------------------------------------- SPI RX Packet from " "\x1b[34m" "EPS" "\x1b[0m" " received");
+		TLM_SPI_EPS_RX(packet->getOpcode());
 		source = HARDWARE_LOCATION_EPS;
 		dest = SERVER_LOCATION_EPS;
 		break;
 	case 1:
 		logger->Log(LOGGER_LEVEL_INFO, "--------------------------------------------------------- SPI RX Packet from " "\x1b[34m" "COM" "\x1b[0m" " received");
+		TLM_SPI_COM_RX(packet->getOpcode());
 		source = HARDWARE_LOCATION_COM;
 		dest = SERVER_LOCATION_COM;
 		break;
 	case 2:
 		logger->Log(LOGGER_LEVEL_INFO, "--------------------------------------------------------- SPI RX Packet from " "\x1b[34m" "ACS" "\x1b[0m" " received");
+		TLM_SPI_ACS_RX(packet->getOpcode());
 		source = HARDWARE_LOCATION_ACS;
 		dest = SERVER_LOCATION_ACS;
 		break;
 	case 3:
 		logger->Log(LOGGER_LEVEL_INFO, "--------------------------------------------------------- SPI RX Packet from " "\x1b[34m" "PLD" "\x1b[0m" " received");
+		TLM_SPI_PLD_RX(packet->getOpcode());
 		source = HARDWARE_LOCATION_PLD;
 		dest = SERVER_LOCATION_PLD;
 		break;

@@ -69,6 +69,10 @@ class SPI_HALServer: public AllStar::Servers::SubsystemServer, public AllStar::C
 
 		int get_slave_fd(int subsystem);
 
+		void logTXSuccess(int dest, uint8 opcode);
+
+		void logTXFailure(int dest, uint8 opcode);
+
 		void set_packet_sourcedest(int subsystem, AllStar::Core::ACPPacket * packet);
 
 		BEGIN_STATE_MAP

@@ -290,7 +290,7 @@ void FMGServer::PrepVerboseHST(void){
 
 // --------- State Machine -----------------------------------------------------------------------------------------
 void FMGServer::loopInit(void) {
-	//nothing to initialize
+	system(CLEAR_CUR_DIRECTORIES_SCRIPT);
 	bootConfig();
 	bootCount = loadBootCount();
 	currentState = ST_RUN;

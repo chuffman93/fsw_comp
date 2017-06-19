@@ -66,14 +66,80 @@ ERR
 FSW exiting from main! Watchdog exited.
 None
 
+SPI_ACS_TX_FAIL
+0x0004
+ERR
+SPI packet failure to ACS. Opcode: %u
+uint8
+
+SPI_COM_TX_FAIL
+0x0005
+ERR
+SPI packet failure to COM. Opcode: %u
+uint8
+
+SPI_EPS_TX_FAIL
+0x0006
+ERR
+SPI packet failure to EPS. Opcode: %u
+uint8
+
+SPI_PLD_TX_FAIL
+0x0007
+ERR
+SPI packet failure to PLD. Opcode: %u
+uint8
+
 MODE_SWITCH
 0x0100
 MOD
 Switched mode to mode number %d
 uint8
 
-CREATING_ACPPACKET
-0x0400
+SPI_ACS_RX
+0x0401
 ACP
-Creating ACPPacket from buffer of size %d
-int32
+SPI packet received from ACS. Opcode: %u
+uint8
+
+SPI_COM_RX
+0x0402
+ACP
+SPI packet received from COM. Opcode: %u
+uint8
+
+SPI_EPS_RX
+0x0403
+ACP
+SPI packet received from EPS. Opcode: %u
+uint8
+
+SPI_PLD_RX
+0x0404
+ACP
+SPI packet received from PLD. Opcode: %u
+uint8
+
+SPI_ACS_TX
+0x0405
+ACP
+SPI packet sent to ACS. Opcode: %u
+uint8
+
+SPI_COM_TX
+0x0406
+ACP
+SPI packet sent to COM. Opcode: %u
+uint8
+
+SPI_EPS_TX
+0x0407
+ACP
+SPI packet sent to EPS. Opcode: %u
+uint8
+
+SPI_PLD_TX
+0x0408
+ACP
+SPI packet sent to PLD. Opcode: %u
+uint8
