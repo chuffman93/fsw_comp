@@ -61,6 +61,8 @@ int main(int argc, char * argv[]) {
 	if (!threadsCreated) {
 		logger->Log(LOGGER_LEVEL_FATAL, "Not all threads were created on startup!");
 		TLM_STARTUP_ERROR();
+		sleep(5); // attempt to let the FMGServer log the error before rebooting
+		system("reboot");
 	} else {
 		logger->Log(LOGGER_LEVEL_INFO, "All servers created!");
 		TLM_SERVERS_CREATED();
@@ -69,4 +71,7 @@ int main(int argc, char * argv[]) {
 	watchdogManager->WatchdogManagerTask();
 
 	logger->Log(LOGGER_LEVEL_FATAL, "Flight Software exiting from main! Watchdog exited!");
+	TLM_MAIN_EXIT();
+	sleep(5); // attempt to let the FMGServer log the error before rebooting
+	system("reboot");
 }

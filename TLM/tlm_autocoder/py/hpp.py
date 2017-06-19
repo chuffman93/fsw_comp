@@ -35,10 +35,8 @@ class HPP_AutoCoder(TLM_AutoCoder):
   def autocode(self):
     self.header()
     self.guards_start()
-    self.namespace_start()
     self.include()
     self.autocode_all_tlm()
-    self.namespace_end()
     self.guards_end()
 
 

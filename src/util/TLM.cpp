@@ -12,9 +12,7 @@
 
 using namespace std;
 using namespace AllStar::Core;
-
-namespace AllStar{
-namespace Servers{
+using namespace AllStar::Servers;
 
 FMGServer * fmgServer = static_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
 
@@ -34,36 +32,21 @@ void TLM_SERVERS_CREATED(void) {
   fmgServer->Log(DESTINATION_ERR, buf, size);
 }
 
-void TLM_BUS_LOAD_TEST(void) {
+void TLM_MAIN_EXIT(void) {
   size_t size = 3;
+  uint8_t * buf = (uint8_t *) malloc(size);
+  Serialize ser(buf, size);
+  ser.serialize_uint16(0x0003);
+  fmgServer->Log(DESTINATION_ERR, buf, size);
+}
+
+void TLM_MODE_SWITCH(uint8 arg0) {
+  size_t size = 4;
   uint8_t * buf = (uint8_t *) malloc(size);
   Serialize ser(buf, size);
   ser.serialize_uint16(0x0100);
-  fmgServer->Log(DESTINATION_DGN, buf, size);
-}
-
-void TLM_SPI_STATS(void) {
-  size_t size = 3;
-  uint8_t * buf = (uint8_t *) malloc(size);
-  Serialize ser(buf, size);
-  ser.serialize_uint16(0x0101);
-  fmgServer->Log(DESTINATION_DGN, buf, size);
-}
-
-void TLM_SAMPLE_TEST_2(void) {
-  size_t size = 3;
-  uint8_t * buf = (uint8_t *) malloc(size);
-  Serialize ser(buf, size);
-  ser.serialize_uint16(0x0102);
-  fmgServer->Log(DESTINATION_DGN, buf, size);
-}
-
-void TLM_SAMPLE_TEST_3(void) {
-  size_t size = 3;
-  uint8_t * buf = (uint8_t *) malloc(size);
-  Serialize ser(buf, size);
-  ser.serialize_uint16(0x0103);
-  fmgServer->Log(DESTINATION_DGN, buf, size);
+  ser.serialize_uint8(arg0);
+  fmgServer->Log(DESTINATION_MOD, buf, size);
 }
 
 void TLM_CREATING_ACPPACKET(int32 arg0) {
@@ -73,8 +56,5 @@ void TLM_CREATING_ACPPACKET(int32 arg0) {
   ser.serialize_uint16(0x0400);
   ser.serialize_int32(arg0);
   fmgServer->Log(DESTINATION_ACP, buf, size);
-}
-
-}
 }
 

@@ -7,13 +7,14 @@
 
 #include "core/ModeManager.h"
 #include "util/Logger.h"
+#include "util/TLM.h"
 #include <stdio.h>
 #include <stdlib.h>
 
 using namespace std;
 
-namespace AllStar{
-namespace Core{
+namespace AllStar {
+namespace Core {
 
 bool ModeManager::validTransition[MODE_NUM_MODES][MODE_NUM_MODES] = {{false}};
 
@@ -59,12 +60,15 @@ bool ModeManager::SetMode(SystemModeEnum newMode){
 			return false;
 		}
 
-		if (newMode == this->mode){
+		if (!validTransition[this->mode][newMode]){
 			this->GiveLock();
 			return false;
 		}
 
-		if (!validTransition[this->mode][newMode]){
+		// log the switch (we might already be in the mode, but the information is useful regardless)
+		TLM_MODE_SWITCH(newMode);
+
+		if (newMode == this->mode){
 			this->GiveLock();
 			return false;
 		}
@@ -90,7 +94,6 @@ bool ModeManager::SetMode(SystemModeEnum newMode){
 			break;
 		}
 
-		// TODO: need mode logger here
 		this->mode = newMode;
 
 		this->GiveLock();

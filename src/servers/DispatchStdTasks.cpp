@@ -33,7 +33,7 @@ ACPPacket * DispatchPacket(ACPPacket * query) {
 		return ret;
 	}
 
-	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+	Dispatcher * dispatcher = static_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 	query->setPacketID(dispatcher->packetNumber++);
 
 	// Dispatch packet, if it fails return DISPATCH_FAILED
@@ -64,7 +64,7 @@ ACPPacket * DispatchPacket(ACPPacket * query) {
 
 DispatcherStatusEnum WaitForDispatchResponse(const ACPPacket & packet, ACPPacket ** retPacketin) {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+	Dispatcher * dispatcher = static_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 	size_t i;
 	ACPPacket * retPacket;
 

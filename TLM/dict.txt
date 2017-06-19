@@ -60,29 +60,17 @@ ERR
 All servers created!
 None
 
-BUS_LOAD_TEST
+MAIN_EXIT
+0x0003
+ERR
+FSW exiting from main! Watchdog exited.
+None
+
+MODE_SWITCH
 0x0100
-DGN
-Running bus load test
-None
-
-SPI_STATS
-0x0101
-DGN
-Running SPI Statistics
-None
-
-SAMPLE_TEST_2
-0x0102
-DGN
-Running Sample Test 2
-None
-
-SAMPLE_TEST_3
-0x0103
-DGN
-Running Sample Test 3
-None
+MOD
+Switched mode to mode number %d
+uint8
 
 CREATING_ACPPACKET
 0x0400

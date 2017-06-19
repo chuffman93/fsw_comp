@@ -14,7 +14,6 @@ export SD3="/SD_3" # Science Data Storage partition
 # All directories to go on /SD_2
 export TLM_DIRECTORIES="
 CMD
-DGN
 ERR
 FSS
 GEN
@@ -45,4 +44,5 @@ export HR_DIRECTORIES="
 .immed
 .vhs
 .uplink
+.rad
 "

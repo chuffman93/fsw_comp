@@ -105,7 +105,7 @@ void ACSServer::loopDetumble() {
 }
 
 void ACSServer::loopSunSoak() {
-	ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	ModeManager * modeManager = static_cast<ModeManager *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
 	// if ACS is powered off due to a fault, switch to the init state
@@ -148,7 +148,7 @@ void ACSServer::loopPLDStart() {
 }
 
 void ACSServer::loopPLDPointing() {
-	ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	ModeManager * modeManager = static_cast<ModeManager *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
 	// if ACS is powered off due to a fault, switch to the init state
@@ -183,7 +183,7 @@ void ACSServer::loopCOMStart() {
 }
 
 void ACSServer::loopCOMPointing() {
-	ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	ModeManager * modeManager = static_cast<ModeManager *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
 	// if ACS is powered off due to a fault, switch to the init state

@@ -121,7 +121,7 @@ void SPI_HALServer::SubsystemLoop(void) {
 					logger->Log(LOGGER_LEVEL_WARN, "SPI_HAL Server: ACP Packet dest invalid (bit flip). Not placing on queue!");
 					delete rxPacket;
 				} else {
-					Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
+					Dispatcher * dispatcher = static_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 					queueSize = mq_size(dispatcher->queueHandleRX, dispatcher->queueAttrRX);
 					if (queueSize < DISPATCHER_QUEUE_LENGTH) {
 						logger->Log(LOGGER_LEVEL_DEBUG, "SPI_Server: placing RX message on dispatcher RX queue");

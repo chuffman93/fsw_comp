@@ -15,6 +15,7 @@ class CPP_AutoCoder(TLM_AutoCoder):
   def using_namespace(self):
     print "using namespace std;"
     print "using namespace AllStar::Core;"
+    print "using namespace AllStar::Servers;"
     print
 
   def fmg_server(self):
@@ -48,11 +49,8 @@ class CPP_AutoCoder(TLM_AutoCoder):
     self.header()
     self.include()
     self.using_namespace()
-    self.namespace_start()
     self.fmg_server()
     self.autocode_all_tlm()
-    self.namespace_end()
-
 
 
 if len(sys.argv) < 2:

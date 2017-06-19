@@ -15,7 +15,7 @@ class TLM_AutoCoder():
     self.dest = ""
     self.fmt_str = ""
     self.param_types = ""
-    
+
     # Buffer size to calculate
     self.buf_size = 0
 
@@ -24,7 +24,7 @@ class TLM_AutoCoder():
     self.arg_list = []
     self.list_len = 0
     self.args = ""
-    
+
     # Skip to the proper place in the file
     self.skip_to_begin_tlm()
 
@@ -70,16 +70,6 @@ class TLM_AutoCoder():
     print "#include <stdint.h>"
     print "#include \"util/serialize.h\""
     print "#include \"servers/FMGServer.h\""
-    print
-
-  def namespace_start(self):
-    print "namespace AllStar{"
-    print "namespace Servers{"
-    print
-
-  def namespace_end(self):
-    print "}"
-    print "}"
     print
 
   def parse_data(self):

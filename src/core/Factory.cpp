@@ -16,8 +16,6 @@
 #include "servers/PLDServer.h"
 #include "servers/SCHServer.h"
 #include "servers/CDHServer.h"
-#include <stdio.h>
-#include <stdlib.h>
 #include "core/Factory.h"
 #include "core/Singleton.h"
 #include "core/Dispatcher.h"
@@ -25,6 +23,8 @@
 #include "core/WatchdogManager.h"
 #include "HAL/SPI_Server.h"
 #include "util/Logger.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 using namespace AllStar::Servers;
 
