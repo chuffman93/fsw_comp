@@ -29,7 +29,7 @@ void semWaitDelay(struct timespec *ts, size_t seconds, uint64_t nanoseconds)//in
 
 size_t mqCreate(mqd_t * queueHandle, struct mq_attr * queueAttr, char * mqName)
 {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	mode_t mode  = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 	queueAttr->mq_flags = 0;
 	queueAttr->mq_maxmsg = QUEUE_LENGTH;
@@ -52,7 +52,7 @@ size_t mq_size(mqd_t queueHandle, struct mq_attr queueAttr)
 
 bool mq_timed_send(char * queueName, ACPPacket ** inPacket, size_t sec, uint64_t nSec)
 {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	struct timespec ts;
 	semWaitDelay(&ts, sec, nSec);
 
@@ -70,7 +70,7 @@ bool mq_timed_send(char * queueName, ACPPacket ** inPacket, size_t sec, uint64_t
 
 bool mq_timed_receive(char * queueName, ACPPacket ** packetOut, size_t sec, uint64_t nSec)
 {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	struct timespec ts;
 	semWaitDelay(&ts, sec, nSec);
 
@@ -105,7 +105,7 @@ bool xSemaphoreTake(sem_t *sem)
 
 bool xSemaphoreTake(sem_t *sem, size_t sec, uint64_t nSec)
 {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	struct timespec ts;
 	semWaitDelay(&ts, sec, nSec);
 	if(liSUCCESS != sem_timedwait(sem, &ts))

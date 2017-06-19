@@ -62,7 +62,7 @@ void SCHServer::RequestReset(void) {
 }
 
 bool SCHServer::LoadDefaultScheduleConfigurations(char * filename) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	FILE * fp = fopen(filename, "rb");
 	uint8 buffer[SCHItem::size * SCHEDULE_MAX_SIZE];
@@ -121,7 +121,7 @@ bool SCHServer::LoadDefaultScheduleConfigurations(char * filename) {
 }
 
 void SCHServer::UpdateDefaultSchedule(int numItems) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	for (uint8 j = 0; j < 5; j++) {
 		if (this->TakeLock(MAX_BLOCK_TIME)) {
@@ -138,7 +138,7 @@ void SCHServer::UpdateDefaultSchedule(int numItems) {
 }
 
 void SCHServer::SetDefaultBusSchedule(void) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	SCHItem defaultItem(0,0,-1,1,1,MODE_BUS_PRIORITY,300);
 	for (uint8 i = 0; i < 5; i++) {
@@ -155,9 +155,9 @@ void SCHServer::SetDefaultBusSchedule(void) {
 }
 
 void SCHServer::SubsystemLoop(void) {
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-	GPSServer * gpsServer = dynamic_cast<GPSServer *>(Factory::GetInstance(GPS_SERVER_SINGLETON));
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	GPSServer * gpsServer = static_cast<GPSServer *>(Factory::GetInstance(GPS_SERVER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	modeManager->SetMode(MODE_BUS_PRIORITY);
 
@@ -271,7 +271,7 @@ void SCHServer::SubsystemLoop(void) {
 }
 
 void SCHServer::LoadDefaultSchedule(void) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	LoadDefaultScheduleConfigurations((char *) SCH_CONFIG);
 	currentSchedule = defaultSchedule;
@@ -282,7 +282,7 @@ void SCHServer::LoadDefaultSchedule(void) {
 }
 
 void SCHServer::UpdateSchedule(int numItems) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	for (uint8 j = 0; j < 5; j++) {
 		if (this->TakeLock(MAX_BLOCK_TIME)) {
@@ -299,7 +299,7 @@ void SCHServer::UpdateSchedule(int numItems) {
 }
 
 int SCHServer::LoadNextSchedule(void) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	currentSchedule.clear();
 	if (access(SCHEDULE_FILE, F_OK) == -1) {

@@ -32,14 +32,14 @@ public:
     }
 
     void stop() {
-    	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+    	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
     	logger->Log(LOGGER_LEVEL_WARN, "Stopping thread for %s Server!", serverName.c_str());
     	pthread_cancel(tid);
     	isRunning = false;
     }
 
     void start() {
-    	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+    	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
     	logger->Log(LOGGER_LEVEL_INFO, "Starting thread for %s Server!", serverName.c_str());
     	if (pthread_create(&tid, NULL, &runServer, (void *) server) == 0) {

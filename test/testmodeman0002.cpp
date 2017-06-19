@@ -28,7 +28,7 @@ static void * taskTest(void * parameters)
     TestListener listener;
     bool ret;
 
-    manager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+    manager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
     if (NULL == manager)
     {

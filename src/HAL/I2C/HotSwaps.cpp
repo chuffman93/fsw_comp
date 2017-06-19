@@ -12,7 +12,7 @@
 #include <unistd.h>
 
 using namespace AllStar::Core;
-Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
+Logger * logger = static_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 
 namespace AllStar
 {

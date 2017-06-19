@@ -30,8 +30,8 @@ using namespace AllStar::Servers;
 
 /*void * taskRunERR(void * params)
 {
-	ERRServer * errServer = dynamic_cast<ERRServer *> (Factory::GetInstance(ERR_SERVER_SINGLETON));
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	ERRServer * errServer = static_cast<ERRServer *> (Factory::GetInstance(ERR_SERVER_SINGLETON));
+	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
 	modeManager->Attach(*errServer);
@@ -46,7 +46,7 @@ TEST(DISABLED_TestErrorHandling, testLog)
 {
 //	// Grab necessary instances, set mode ---------------------------------------------------------------------------------------
 //	FileHandler * fileHandler = dynamic_cast<FileHandler *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
-//	ModeManager * modeManager = dynamic_cast<ModeManager *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
+//	ModeManager * modeManager = static_cast<ModeManager *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 //	modeManager->SetMode(MODE_ACCESS, LOCATION_ID_INVALID);
 //
 //
@@ -59,7 +59,7 @@ TEST(DISABLED_TestErrorHandling, testLog)
 //		printf("CDH Server Thread Creation Failed\n");
 //	}
 //
-//	ERRServer * errServer = dynamic_cast<ERRServer *>(Factory::GetInstance(ERR_SERVER_SINGLETON));
+//	ERRServer * errServer = static_cast<ERRServer *>(Factory::GetInstance(ERR_SERVER_SINGLETON));
 //	EXPECT_TRUE(!threadCreated);
 //	usleep(5000000);
 //

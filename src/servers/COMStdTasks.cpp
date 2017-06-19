@@ -22,7 +22,7 @@ namespace Servers{
 
 // Debug
 bool COMToggleLED(bool state){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	uint8 * buffer = (uint8 *) malloc(sizeof(uint8));
 	uint8 stateOut;
@@ -52,7 +52,7 @@ bool COMToggleLED(bool state){
 }
 
 bool COMBlinkRate(uint16 rate){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	uint8 * bufferOut = (uint8 *) malloc(sizeof(uint16));
 	AddUInt16(bufferOut, rate);
@@ -75,7 +75,7 @@ bool COMBlinkRate(uint16 rate){
 }
 
 int COMLEDData(){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	ACPPacket * query = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, LED_RATE_DATA);
 	ACPPacket * ret = DispatchPacket(query);
@@ -111,7 +111,7 @@ void COMPrepReset(){
 
 // Diagnostic
 bool COMTestAlive(){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	ACPPacket * query = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, TEST_ALIVE_CMD);
 	ACPPacket * ret = DispatchPacket(query);
@@ -125,7 +125,7 @@ bool COMTestAlive(){
 
 // COM Specific
 bool COMSimplex(){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "COM: commanding COM into simplex");
 
 	ACPPacket * command = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, COM_SIMPLEX);
@@ -139,7 +139,7 @@ bool COMSimplex(){
 }
 
 bool COMHalfDuplex(){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "COM: commanding COM into half duplex");
 
 	ACPPacket * command = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, COM_HALF_DUPLEX);
@@ -153,7 +153,7 @@ bool COMHalfDuplex(){
 }
 
 bool COMFullDuplex(){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "COM: commanding COM into full duplex");
 
 	ACPPacket * command = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, COM_FULL_DUPLEX);
@@ -167,8 +167,8 @@ bool COMFullDuplex(){
 }
 
 bool COMSendBeacon(){
-	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	CMDServer * cmdServer = static_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "COM: sending beacon");
 
 	uint8 * buffer = new uint8[BeaconStruct::size];

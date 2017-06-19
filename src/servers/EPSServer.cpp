@@ -51,8 +51,8 @@ bool EPSServer::IsFullyInitialized(void){
 
 // -------------------------------------------- State Machine ---------------------------------------------
 void EPSServer::loopInit() {
-	ERRServer * errServer = dynamic_cast<ERRServer *> (Factory::GetInstance(ERR_SERVER_SINGLETON));
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	ERRServer * errServer = static_cast<ERRServer *> (Factory::GetInstance(ERR_SERVER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	if(EPSTestAlive()){
 		if(!EPSSelfCheck()){
@@ -74,7 +74,7 @@ void EPSServer::loopInit() {
 }
 
 void EPSServer::loopMonitor(){
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	SystemModeEnum currentMode = modeManager->GetMode();
 	switch(currentMode){
 	case MODE_RESET:
@@ -86,8 +86,8 @@ void EPSServer::loopMonitor(){
 }
 
 void EPSServer::loopReset(){
-	FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	FMGServer * fmgServer = static_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	logger->Log(LOGGER_LEVEL_INFO, "EPS ready for reset");
 
@@ -103,7 +103,7 @@ void EPSServer::loopReset(){
 
 // -------------------------------------------- EPS Methods ---------------------------------------------
 bool EPSServer::CheckHealthStatus(){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, HEALTH_STATUS_CMD);
 	ACPPacket * HSRet = DispatchPacket(HSQuery);
@@ -163,7 +163,7 @@ bool EPSServer::CheckHealthStatus(){
 			EPSState.update(buffer, EPSStatus::size, 4, 0);
 			EPSState.serialize();
 
-			FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
+			FMGServer * fmgServer = static_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
 			fmgServer->Log(DESTINATION_EPS_HST, buffer, EPSStatus::size + sizeof(int32));
 		}
 
@@ -172,7 +172,7 @@ bool EPSServer::CheckHealthStatus(){
 }
 
 void EPSServer::bootConfig() {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	FILE * fp = fopen(EPS_CONFIG, "r");
 	uint8 buffer[EPSConfiguration.size];
@@ -198,7 +198,7 @@ void EPSServer::bootConfig() {
 }
 
 bool EPSServer::updateConfig() {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	FILE * fp = fopen(EPS_CFG_UP, "r");
 	uint8 buffer[EPSConfiguration.size];

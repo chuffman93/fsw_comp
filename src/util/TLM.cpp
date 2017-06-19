@@ -16,7 +16,7 @@ using namespace AllStar::Core;
 namespace AllStar{
 namespace Servers{
 
-FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
+FMGServer * fmgServer = static_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
 
 void TLM_STARTUP_ERROR(void) {
   size_t size = 3;

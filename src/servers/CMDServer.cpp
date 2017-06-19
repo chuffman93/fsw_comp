@@ -69,7 +69,7 @@ CMDServer & CMDServer::operator=(const CMDServer & source){
 
 // --------- State Machine -----------------------------------------------------------------------------------------
 void CMDServer::loopInit(void){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "CMDServer: Initializing");
 
 	// setup for uftp
@@ -82,9 +82,9 @@ void CMDServer::loopInit(void){
 }
 
 void CMDServer::loopIdle(void){
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	// check for state transitions from mode switches
 	SystemModeEnum currentMode = modeManager->GetMode();
@@ -102,7 +102,7 @@ void CMDServer::loopIdle(void){
 	// Check for ground login
 	if(checkForSOT() != 0){
 		logger->Log(LOGGER_LEVEL_WARN, "CMDServer: surprise COM! Preparing to enter COM Mode");
-		SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
+		SCHServer * schServer = static_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
 		schServer->RequestCOMMode();
 		wdmAsleep();
 		usleep(5000000);
@@ -113,7 +113,7 @@ void CMDServer::loopIdle(void){
 
 	// Monitor daily reset
 	if(getTimeInSec() > (startTime + CMDConfiguration.resetPeriod) && (modeManager->GetMode() == MODE_BUS_PRIORITY)){
-		SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
+		SCHServer * schServer = static_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
 		schServer->RequestReset();
 		currentState = ST_RESET;
 		return;
@@ -123,9 +123,9 @@ void CMDServer::loopIdle(void){
 }
 
 void CMDServer::loopPassPrep(){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	FMGServer * fmgServer = static_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
+	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
 	hsDelays = CMDConfiguration.increasedBeaconPeriod; // up the beacon rate
 
@@ -144,8 +144,8 @@ void CMDServer::loopPassPrep(){
 }
 
 void CMDServer::loopLogin(){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
 	// block until the start of transmission file has been uplinked
 	int SOTresult = checkForSOT();
@@ -168,7 +168,7 @@ void CMDServer::loopLogin(){
 }
 
 void CMDServer::loopVerboseHS(){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	// downlink the Verbose H&S file
 	logger->Log(LOGGER_LEVEL_INFO, "CMDServer: Verbose H&S unimplemented");
@@ -176,8 +176,8 @@ void CMDServer::loopVerboseHS(){
 }
 
 void CMDServer::loopUplink(){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
 	// check if the EOT file has been uplinked
 	if(access(EOT_PATH,F_OK) == 0) {
@@ -199,7 +199,7 @@ void CMDServer::loopUplink(){
 }
 
 void CMDServer::loopImmediateExecution() {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "CMDServer: starting immediate execution");
 
 	parseIEF();
@@ -210,7 +210,7 @@ void CMDServer::loopImmediateExecution() {
 	// Clear uplink directory
 	system("rm -rf " UPLINK_DIRECTORY "/*");
 
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	if(modeManager->GetMode() != MODE_COM){
 		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: uplink not finished, COM pass over");
 		currentState = ST_POST_PASS;
@@ -220,7 +220,7 @@ void CMDServer::loopImmediateExecution() {
 }
 
 void CMDServer::loopDownlinkPrep(){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	numFilesDWN = getNumFiles((char *) DOWNLINK_DIRECTORY);
 	currFileNum = 1;
@@ -230,8 +230,8 @@ void CMDServer::loopDownlinkPrep(){
 }
 
 void CMDServer::loopDownlink(){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	string filename;
 
 	if(modeManager->GetMode() != MODE_COM){
@@ -257,8 +257,8 @@ void CMDServer::loopDownlink(){
 }
 
 void CMDServer::loopPostPass(){
-	SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	SCHServer * schServer = static_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
+	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	parsePPE();
 
 	// Clear downlink directory
@@ -287,7 +287,7 @@ void CMDServer::loopPostPass(){
 }
 
 void CMDServer::loopReset(){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "Daily reset encountered");
 
 	wdmAsleep();
@@ -314,14 +314,14 @@ bool CMDServer::CheckHealthStatus(void) {
 }
 
 void CMDServer::UpdateBeacon() {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "Creating Beacon");
 
 	BeaconStruct tempBeacon;
 
 	tempBeacon.satTime = getTimeInSec();
 
-	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
+	GPSServer * gpsServer = static_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 	tempBeacon.GPSWeek = gpsServer->GPSDataHolder->GPSWeek;
 	tempBeacon.GPSSec = gpsServer->GPSDataHolder->GPSSec;
 	tempBeacon.xPosition = gpsServer->GPSDataHolder->posX;
@@ -331,10 +331,10 @@ void CMDServer::UpdateBeacon() {
 	tempBeacon.yVelocity = gpsServer->GPSDataHolder->velY;
 	tempBeacon.zVelocity = gpsServer->GPSDataHolder->velZ;
 
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	tempBeacon.systemMode = modeManager->GetMode();
 
-	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 	tempBeacon.subpowerStates = ((uint8) cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS]) << 3 |
 							((uint8) cdhServer->subsystemPowerStates[HARDWARE_LOCATION_COM]) << 2 |
 							((uint8) cdhServer->subsystemPowerStates[HARDWARE_LOCATION_GPS]) << 1 |
@@ -342,20 +342,20 @@ void CMDServer::UpdateBeacon() {
 	tempBeacon.memory = cdhServer->CDHState.memory;
 	tempBeacon.cpu15 = cdhServer->CDHState.cpu15;
 
-	FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
+	FMGServer * fmgServer = static_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
 	tempBeacon.epochNumber = fmgServer->bootCount;
 
-	PLDServer * pldServer = dynamic_cast<PLDServer *> (Factory::GetInstance(PLD_SERVER_SINGLETON));
+	PLDServer * pldServer = static_cast<PLDServer *> (Factory::GetInstance(PLD_SERVER_SINGLETON));
 	tempBeacon.radNumber = pldServer->PLDDataNumber;
 
-	SPI_HALServer * spiServer = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
+	SPI_HALServer * spiServer = static_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
 	tempBeacon.spiSent = spiServer->packetsSentTX;
 	tempBeacon.spiDropped = spiServer->packetsDroppedTX;
 
-	EPSServer * epsServer = dynamic_cast<EPSServer *> (Factory::GetInstance(EPS_SERVER_SINGLETON));
+	EPSServer * epsServer = static_cast<EPSServer *> (Factory::GetInstance(EPS_SERVER_SINGLETON));
 	tempBeacon.batteryCap = epsServer->EPSState.remainingCapacity;
 
-	ACSServer * acsServer = dynamic_cast<ACSServer *> (Factory::GetInstance(ACS_SERVER_SINGLETON));
+	ACSServer * acsServer = static_cast<ACSServer *> (Factory::GetInstance(ACS_SERVER_SINGLETON));
 	tempBeacon.acsMode = acsServer->ACSState.mode;
 
 	if (this->TakeLock(MAX_BLOCK_TIME)) {
@@ -380,7 +380,7 @@ bool CMDServer::CheckForBeacon() {
 }
 
 void CMDServer::serializeBeacon(uint8 * buffer) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	if (this->TakeLock(MAX_BLOCK_TIME)) {
 		beacon.update(buffer, BeaconStruct::size);
@@ -393,7 +393,7 @@ void CMDServer::serializeBeacon(uint8 * buffer) {
 }
 
 void CMDServer::bootConfig() {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	FILE * fp = fopen(CMD_CONFIG, "r");
 	uint8 buffer[CMDConfiguration.size];
@@ -419,7 +419,7 @@ void CMDServer::bootConfig() {
 }
 
 bool CMDServer::updateConfig() {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	FILE * fp = fopen(CMD_CFG_UP, "r");
 	uint8 buffer[CMDConfiguration.size];

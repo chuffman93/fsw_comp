@@ -82,7 +82,7 @@ ACPPacket::ACPPacket(const ACPPacket & packetSource){
 
 // --- Construct from a buffer --------------------------------------------------------------------------------------
 ACPPacket::ACPPacket(uint8 * buffer, std::size_t size_in){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_DEBUG, "Creating ACPPacket from buffer of size %d", (int) size_in);
 
 	std::size_t size = size_in;

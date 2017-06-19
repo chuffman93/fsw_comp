@@ -45,7 +45,7 @@ bool Dispatcher::IsFullyInitialized(void) {
 bool Dispatcher::CheckQueueForMatchingPacket(const ACPPacket & packetIn, ACPPacket * &packetOut, DispatcherCheckType type) {
 	size_t numPackets, i;
 	ACPPacket * tmpPacket;
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	PacketCheckFunctionType Check;
 
 	switch(type){
@@ -125,7 +125,7 @@ bool Dispatcher::CheckQueueForMatchingPacket(const ACPPacket & packetIn, ACPPack
 }
 
 bool Dispatcher::IsPacketMatchingResponse(const ACPPacket & packetIn, const ACPPacket & packetOut) const {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_SUPER_DEBUG, "IsPacketMatchingResponse result: %d", ((packetOut.isFromHardware())
 			&& (packetOut.getPacketID( ) == packetIn.getPacketID( ))));
 
@@ -148,7 +148,7 @@ bool Dispatcher::IsPacketSame(const ACPPacket & packetIn, const ACPPacket & pack
 }
 
 bool Dispatcher::Dispatch(ACPPacket & packet) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_DEBUG, "Dispatcher: Dispatch, packet number: %d", packet.getPacketID());
 
 	// check bounds
@@ -195,7 +195,7 @@ bool Dispatcher::Dispatch(ACPPacket & packet) {
 		return false;
 	}
 
-	SPI_HALServer * spi_server = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
+	SPI_HALServer * spi_server = static_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
 	ACPPacket * txPacket = &packet;
 	bool sendSuccess = false;
 	size_t numPackets;
@@ -221,7 +221,7 @@ bool Dispatcher::Dispatch(ACPPacket & packet) {
 }
 
 void Dispatcher::CleanRXQueue() {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	ACPPacket * iterator;
 	size_t numPackets;
 

@@ -54,7 +54,7 @@ static void* taskTest(void * parameters)
     TestMode * testMode, *testMode2;
     TestListener0005 tlist1, tlist2;
 
-    manager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+    manager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
     testMode = TestMode::GetInstance(0);
     testMode2 = TestMode::GetInstance(1);
 

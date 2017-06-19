@@ -24,7 +24,7 @@ TEST(testConfig, testNominal) {
 	fclose(fp);
 
 	// update the config
-	EPSServer * epsServer = dynamic_cast<EPSServer *> (Factory::GetInstance(EPS_SERVER_SINGLETON));
+	EPSServer * epsServer = static_cast<EPSServer *> (Factory::GetInstance(EPS_SERVER_SINGLETON));
 	epsServer->updateConfig();
 
 	remove(EPS_CFG_UP);
@@ -38,7 +38,7 @@ TEST(testConfig, testEmpty) {
 	system("touch " EPS_CFG_UP);
 
 	// update the config
-	EPSServer * epsServer = dynamic_cast<EPSServer *> (Factory::GetInstance(EPS_SERVER_SINGLETON));
+	EPSServer * epsServer = static_cast<EPSServer *> (Factory::GetInstance(EPS_SERVER_SINGLETON));
 	epsServer->EPSConfiguration.minCOMCharge = 0;
 	epsServer->EPSConfiguration.minPLDCharge = 0;
 	epsServer->EPSConfiguration.minDSTCharge = 0;
@@ -56,7 +56,7 @@ TEST(testConfig, testPartial) {
 	system("echo -n -e '\x00' > " EPS_CFG_UP);
 
 	// update the config
-	EPSServer * epsServer = dynamic_cast<EPSServer *> (Factory::GetInstance(EPS_SERVER_SINGLETON));
+	EPSServer * epsServer = static_cast<EPSServer *> (Factory::GetInstance(EPS_SERVER_SINGLETON));
 	epsServer->EPSConfiguration.minCOMCharge = 0;
 	epsServer->EPSConfiguration.minPLDCharge = 0;
 	epsServer->EPSConfiguration.minDSTCharge = 0;

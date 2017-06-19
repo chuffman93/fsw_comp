@@ -19,7 +19,7 @@ namespace AllStar
 		}
 
 		void PowerMonitor::Init(PowerMonitor_Config *config){
-			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 			logger->Log(LOGGER_LEVEL_DEBUG, "PowerMonitor: Initializing");
 
 			//Write to the configuration register
@@ -67,7 +67,7 @@ namespace AllStar
 		}
 
 		void PowerMonitor::StartMeasurement(){
-			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 			logger->Log(LOGGER_LEVEL_DEBUG, "PowerMonitor: StartMeasurement()");
 
 			I2C_writeReg(PWRMON_CONTROL, I2C_readReg(PWRMON_CONTROL) | 0x10);
@@ -98,7 +98,7 @@ namespace AllStar
 		}
 
 		void PowerMonitor::Status(PowerMonitor_Data *data){
-			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 			logger->Log(LOGGER_LEVEL_DEBUG, "PowerMonitor: Status()");
 
 			uint32_t raw;

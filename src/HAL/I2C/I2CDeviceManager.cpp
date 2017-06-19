@@ -92,8 +92,8 @@ void I2CDeviceManager::getPMStatus(PowerMonitor_Data * data){
 }
 
 void I2CDeviceManager::checkHS(void){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
 	// check COM -----------------------------------------------------------------------------------------
 	bool comStatus = true;

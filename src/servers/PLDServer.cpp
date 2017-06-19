@@ -51,7 +51,7 @@ bool PLDServer::IsFullyInitialized(void) {
 
 // ------------------------------------ State Machine ------------------------------------------------------------
 void PLDServer::loopInit() {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "PLDServer: initializing");
 
 	PLDDataNumber = PLDReadDataNumber();
@@ -61,7 +61,7 @@ void PLDServer::loopInit() {
 	// TODO: synchronize clock with GPS
 
 	//No need to do anything
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	if(modeManager->GetMode() != MODE_STARTUP){
 		//Wait until we are not in startup mode, then transition to IDLE
 		currentState = ST_IDLE;
@@ -69,8 +69,8 @@ void PLDServer::loopInit() {
 }
 
 void PLDServer::loopIdle() {
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 	SystemModeEnum currentMode = modeManager->GetMode();
 	switch(currentMode){
 	case MODE_BUS_PRIORITY:
@@ -90,9 +90,9 @@ void PLDServer::loopIdle() {
 }
 
 void PLDServer::loopStartup() {
-	ERRServer * errServer = dynamic_cast<ERRServer *> (Factory::GetInstance(ERR_SERVER_SINGLETON));
-	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	ERRServer * errServer = static_cast<ERRServer *> (Factory::GetInstance(ERR_SERVER_SINGLETON));
+	CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	if (!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_PLD]) {
 		cdhServer->resetAssert(HARDWARE_LOCATION_PLD);
@@ -155,7 +155,7 @@ void PLDServer::loopStartup() {
 
 // Graceful shutdown
 void PLDServer::loopShutdown() {
-	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
 	// turn off science mode
 	ACPPacket * turnOffScience = new ACPPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, SUBSYSTEM_RESET_CMD);
@@ -198,13 +198,13 @@ void PLDServer::loopShutdown() {
 
 void PLDServer::loopScience() {
 	// Make sure PLD hasn't been turned off due to a fault, if it has, go back into startup
-	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 	if (cdhServer->subsystemPowerStates[HARDWARE_LOCATION_PLD] == false) {
 		currentState = ST_STARTUP;
 	}
 
 	// Stay in science mode until we move out of PLD_PRIORITY
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	if (modeManager->GetMode() != MODE_PLD_PRIORITY) {
 		currentState = ST_SHUTDOWN;
 	}
@@ -213,7 +213,7 @@ void PLDServer::loopScience() {
 //	ACPPacket * dataRequest = new ACPPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, PLD_BACKUP_SEND_SCIENCE);
 //	ACPPacket * data = DispatchPacket(dataRequest);
 
-//	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+//	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 //	logger->Log(LOGGER_LEVEL_INFO, "PLDServer: received data %d", data->getLength());
 }
 
@@ -229,10 +229,10 @@ void PLDServer::loopReset() {
 
 // -------------------------------------------- PLD Methods ---------------------------------------------
 bool PLDServer::CheckHealthStatus() {
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
 	if (modeManager->GetMode() == MODE_PLD_PRIORITY) {
-		Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+		Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 		ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, HEALTH_STATUS_CMD);
 		ACPPacket * HSRet = DispatchPacket(HSQuery);
@@ -281,7 +281,7 @@ bool PLDServer::CheckHealthStatus() {
 				PLDState.update(buffer, PLDStatus::size, 4, 0);
 				PLDState.serialize();
 
-				FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
+				FMGServer * fmgServer = static_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
 				fmgServer->Log(DESTINATION_PLD_HST, buffer, PLDStatus::size + sizeof(int32));
 			}
 
@@ -292,7 +292,7 @@ bool PLDServer::CheckHealthStatus() {
 }
 
 void PLDServer::bootConfig() {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	FILE * fp = fopen(PLD_CONFIG, "r");
 	uint8 buffer[PLDConfiguration.size];
@@ -318,7 +318,7 @@ void PLDServer::bootConfig() {
 }
 
 bool PLDServer::updateConfig() {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	FILE * fp = fopen(PLD_CFG_UP, "r");
 	uint8 buffer[PLDConfiguration.size];

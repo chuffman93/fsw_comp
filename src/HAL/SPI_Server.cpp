@@ -50,7 +50,7 @@ SPI_HALServer::~SPI_HALServer() {
 
 // Enter this loop
 void SPI_HALServer::SubsystemLoop(void) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	ACPPacket * rxPacket;
 	struct pollfd fds;
 	int64 enterTime;
@@ -138,7 +138,7 @@ void SPI_HALServer::SubsystemLoop(void) {
 }
 
 bool SPI_HALServer::SPIDispatch(AllStar::Core::ACPPacket & packet) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	int bytes_copied;
 	int ret;
 	int slave_fd;
@@ -178,7 +178,7 @@ bool SPI_HALServer::SPIDispatch(AllStar::Core::ACPPacket & packet) {
 }
 
 int SPI_HALServer::spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, int len) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	int buf_pt = 0;
 	int wr_size = 1;
 	int ret;
@@ -219,7 +219,7 @@ int SPI_HALServer::spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, in
 }
 
 int SPI_HALServer::spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_bufp) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	int buf_pt = 0;
 	int i;
 	int fd = fds->fd;
@@ -309,7 +309,7 @@ int SPI_HALServer::spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_bufp) 
 }
 
 int SPI_HALServer::get_int_fds(int subsystem, struct pollfd * poll_fds) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	memset((void*)poll_fds, 0, sizeof(struct pollfd));
 	int index;
 	switch (subsystem)  {
@@ -335,7 +335,7 @@ int SPI_HALServer::get_int_fds(int subsystem, struct pollfd * poll_fds) {
 }
 
 int SPI_HALServer::get_slave_fd(int subsystem) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	int index;
 	switch (subsystem) {
 		case HARDWARE_LOCATION_EPS:
@@ -358,7 +358,7 @@ int SPI_HALServer::get_slave_fd(int subsystem) {
 }
 
 void SPI_HALServer::set_packet_sourcedest(int index, ACPPacket * packet) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	LocationIDType source;
 	LocationIDType dest;
 
@@ -395,7 +395,7 @@ void SPI_HALServer::set_packet_sourcedest(int index, ACPPacket * packet) {
 }
 
 void SPI_HALServer::GPIOsetup(void) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	char spi_devices[NUM_SLAVES][STR_LEN];
 	char int_val[NUM_SLAVES][STR_LEN];
 

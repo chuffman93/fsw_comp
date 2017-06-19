@@ -11,8 +11,8 @@ using namespace AllStar::Core;
 
 void * StartSPI_HAL(void * params)
 {
-	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
-	SPI_HALServer * spi_server = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
+	Logger * logger = static_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
+	SPI_HALServer * spi_server = static_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
 
 	for(int i = 0; i < 10; i++)
 	{
@@ -26,7 +26,7 @@ void * StartSPI_HAL(void * params)
 }
 
 TEST(TestPLD, sendSPI){
-	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 
 	// ------------------------------------- SPI Thread -------------------------------------
 	pthread_t SPIThread;
@@ -43,7 +43,7 @@ TEST(TestPLD, sendSPI){
 
 	usleep(1500000);
 
-	SPI_HALServer * spi_server = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
+	SPI_HALServer * spi_server = static_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
 	ACPPacket * packet = new ACPPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, 0, true, false, MESSAGE_TYPE_COMMAND);
 	//spi_server->SPIDispatch(*packet);
 }

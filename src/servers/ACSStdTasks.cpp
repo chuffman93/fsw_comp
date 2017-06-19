@@ -22,7 +22,7 @@ namespace Servers {
 
 // Debug
 bool ACSToggleLED(bool state) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	uint8 * buffer = (uint8 *) malloc(sizeof(uint8));
 	uint8 stateOut;
@@ -52,7 +52,7 @@ bool ACSToggleLED(bool state) {
 }
 
 bool ACSBlinkRate(uint16 rate) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	uint8 * bufferOut = (uint8 *) malloc(sizeof(uint16));
 	AddUInt16(bufferOut, rate);
@@ -75,7 +75,7 @@ bool ACSBlinkRate(uint16 rate) {
 }
 
 int ACSLEDData() {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	ACPPacket * query = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, LED_RATE_DATA);
 	ACPPacket * ret = DispatchPacket(query);
@@ -111,7 +111,7 @@ void ACSPrepReset() {
 
 // Diagnostic
 bool ACSTestAlive() {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	ACPPacket * query = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, TEST_ALIVE_CMD);
 	ACPPacket * ret = DispatchPacket(query);
@@ -124,7 +124,7 @@ bool ACSTestAlive() {
 }
 
 bool ACSTestDriver(uint8 driverID, float rwTorque, float trTorque) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "ACSStdTasks: running test driver");
 
 	uint8 * bufferOut = (uint8 *) malloc(1+2*sizeof(float));
@@ -152,8 +152,8 @@ bool ACSTestDriver(uint8 driverID, float rwTorque, float trTorque) {
 
 // Command/Data
 bool ACSSendGPS() {
-	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	GPSServer * gpsServer = static_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_DEBUG, "ACSStdTasks: ACSSendGPS(): Entered");
 
 	uint8 * buffer = (uint8 *) malloc(6*sizeof(double)+sizeof(float)+sizeof(int));
@@ -173,7 +173,7 @@ bool ACSSendGPS() {
 }
 
 bool ACSPointSun() {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "ACS: commanding ACS to point towards the sun");
 
 	ACPPacket * command = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_POINT_SUN);
@@ -183,7 +183,7 @@ bool ACSPointSun() {
 }
 
 bool ACSPointNadir() {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "ACS: commanding ACS to point towards nadir");
 
 	ACPPacket * command = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_POINT_NADIR);
@@ -193,7 +193,7 @@ bool ACSPointNadir() {
 }
 
 bool ACSPointGND() {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "ACS: commanding ACS to point towards the ground station");
 
 	ACPPacket * command = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_POINT_GND);
@@ -203,7 +203,7 @@ bool ACSPointGND() {
 }
 
 bool ACSPointDest() {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "ACS: commanding ACS to point towards a given destination");
 
 	ACPPacket * command = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_POINT_DEST);
@@ -213,7 +213,7 @@ bool ACSPointDest() {
 }
 
 bool ACSDetumble() {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "ACS: commanding ACS to detumble");
 
 	ACPPacket * command = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_DETUMBLE);

@@ -26,8 +26,8 @@ using namespace AllStar::Servers;
 
 /*void* taskRunCMD(void * params)
 {
-	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	CMDServer * cmdServer = static_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
+	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 
 	modeManager->Attach(*cmdServer);
@@ -47,8 +47,8 @@ using namespace AllStar::Servers;
 
 TEST(DISABLED_TestACP, initialization){
 
-	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	CMDServer * cmdServer = static_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
+	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
 	// Check all hardware initializations
 	bool success = true;
@@ -70,7 +70,7 @@ TEST(DISABLED_TestACP, initialization){
 
 /*TEST(DISABLED_TestACP, protocolSwitch){
 
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	modeManager->SetMode(MODE_ACCESS,LOCATION_ID_INVALID);
 
 	// Create CMDServer
@@ -87,7 +87,7 @@ TEST(DISABLED_TestACP, initialization){
 
 	usleep(1000000);
 
-	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
+	CMDServer * cmdServer = static_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
 
 	uint8 temp[8];
 	uint8 * message = new uint8[8];

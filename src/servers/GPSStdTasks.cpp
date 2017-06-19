@@ -37,8 +37,8 @@ ACPPacket * GPSReset(){
 }
 
 bool BESTXYZProcess(char * buffer, const size_t size) {
-	GPSServer * gpsServer = dynamic_cast<GPSServer *>(Factory::GetInstance(GPS_SERVER_SINGLETON));
-	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
+	GPSServer * gpsServer = static_cast<GPSServer *>(Factory::GetInstance(GPS_SERVER_SINGLETON));
+	Logger * logger = static_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 	GPS_BESTXYZ * gpsData = gpsServer->GetGPSDataPtr();
 	char * token;
 	char * buffPtr = buffer;
@@ -146,8 +146,8 @@ bool BESTXYZProcess(char * buffer, const size_t size) {
 }
 
 bool GPRMCProcess(char * buffer, const size_t size) {
-	GPSServer * gpsServer = dynamic_cast<GPSServer *>(Factory::GetInstance(GPS_SERVER_SINGLETON));
-	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
+	GPSServer * gpsServer = static_cast<GPSServer *>(Factory::GetInstance(GPS_SERVER_SINGLETON));
+	Logger * logger = static_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 	double doubleHolder;
 	char * token;
 	char * buffPtr = buffer;

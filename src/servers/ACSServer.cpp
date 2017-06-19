@@ -51,9 +51,9 @@ bool ACSServer::IsFullyInitialized(void) {
 
 // -------------------------------------------- State Machine --------------------------------------------
 void ACSServer::loopInit() {
-	ERRServer * errServer = dynamic_cast<ERRServer *> (Factory::GetInstance(ERR_SERVER_SINGLETON));
-	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	ERRServer * errServer = static_cast<ERRServer *> (Factory::GetInstance(ERR_SERVER_SINGLETON));
+	CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	ACSState.mode = ACS_MODE_UNKNOWN;
 
@@ -92,7 +92,7 @@ void ACSServer::loopInit() {
 }
 
 void ACSServer::loopDetumble() {
-	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 	if (!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS])
 		currentState = ST_INIT;
 
@@ -106,7 +106,7 @@ void ACSServer::loopDetumble() {
 
 void ACSServer::loopSunSoak() {
 	ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
-	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
 	// if ACS is powered off due to a fault, switch to the init state
 	if (!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS])
@@ -149,7 +149,7 @@ void ACSServer::loopPLDStart() {
 
 void ACSServer::loopPLDPointing() {
 	ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
-	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
 	// if ACS is powered off due to a fault, switch to the init state
 	if (!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS]) {
@@ -184,7 +184,7 @@ void ACSServer::loopCOMStart() {
 
 void ACSServer::loopCOMPointing() {
 	ModeManager * modeManager = dynamic_cast<ModeManager*>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
-	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
 	// if ACS is powered off due to a fault, switch to the init state
 	if (!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS]) {
@@ -222,7 +222,7 @@ bool ACSServer::CheckHealthStatus() {
 		return false;
 	}
 
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, HEALTH_STATUS_CMD);
 	ACPPacket * HSRet = DispatchPacket(HSQuery);
@@ -261,7 +261,7 @@ bool ACSServer::CheckHealthStatus() {
 			ACSState.update(buffer, ACSStatus::size, 4, 0);
 			ACSState.serialize();
 
-			FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
+			FMGServer * fmgServer = static_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
 			fmgServer->Log(DESTINATION_ACS_HST, buffer, ACSStatus::size + sizeof(int32));
 		}
 
@@ -270,7 +270,7 @@ bool ACSServer::CheckHealthStatus() {
 }
 
 void ACSServer::bootConfig() {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	FILE * fp = fopen(ACS_CONFIG, "r");
 	uint8 buffer[ACSConfiguration.size];
@@ -296,7 +296,7 @@ void ACSServer::bootConfig() {
 }
 
 bool ACSServer::updateConfig() {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	FILE * fp = fopen(ACS_CFG_UP, "r");
 	uint8 buffer[ACSConfiguration.size];

@@ -70,8 +70,8 @@ bool GPSServer::IsFullyInitialized(void) {
 }
 
 void GPSServer::SubsystemLoop(void) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
 	logger->Log(LOGGER_LEVEL_INFO, "GPSServer: entered subsystem loop");
 	gpsResponsive = false;
@@ -120,7 +120,7 @@ void GPSServer::SubsystemLoop(void) {
 
 // TODO: error handling
 int GPSServer::CreatePort(void) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 
 	int portfd = open(portname, O_RDWR | O_NOCTTY | O_NDELAY);
@@ -177,7 +177,7 @@ uint32 GPSServer::GetRoundSeconds(void) {
 }
 
 bool GPSServer::ReadData(char * buffer, int fd) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	char c, c1;
 	uint16 counter = 0;

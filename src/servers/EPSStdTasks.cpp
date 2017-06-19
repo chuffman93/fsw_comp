@@ -25,7 +25,7 @@ namespace Servers{
 
 // Debug
 bool EPSToggleLED(bool state){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	uint8 * buffer = (uint8 *) malloc(sizeof(uint8));
 	uint8 stateOut;
@@ -55,7 +55,7 @@ bool EPSToggleLED(bool state){
 }
 
 bool EPSBlinkRate(uint16 rate){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	uint8 * bufferOut = (uint8 *) malloc(sizeof(uint16));
 	AddUInt16(bufferOut, rate);
@@ -78,7 +78,7 @@ bool EPSBlinkRate(uint16 rate){
 }
 
 int EPSLEDData(){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	ACPPacket * query = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, LED_RATE_DATA);
 	ACPPacket * ret = DispatchPacket(query);
@@ -108,7 +108,7 @@ int EPSLEDData(){
 
 // Diagnostic
 bool EPSTestAlive(){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	ACPPacket * query = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, TEST_ALIVE_CMD);
 	ACPPacket * ret = DispatchPacket(query);
@@ -125,7 +125,7 @@ bool EPSTestAlive(){
 // Command/Data
 void EPSPowerCycle()
 {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_FATAL, "Sending EPS power cycle!");
 	ACPPacket * query = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, SUBSYSTEM_RESET_CMD);
 	ACPPacket * response = DispatchPacket(query);

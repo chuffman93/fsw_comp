@@ -40,7 +40,7 @@ namespace AllStar{
 namespace Servers{
 
 void uftpSetup(void) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	char portname[20] = "/dev/ttyS2";
 	struct termios port;
@@ -80,7 +80,7 @@ void uftpSetup(void) {
 
 // note the filename should be the absolute path
 void downlinkFile(string filename) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	if(access(filename.c_str(), F_OK) != 0) {
 		logger->Log(LOGGER_LEVEL_ERROR, "downlinkFile: file doesn't exist!");
@@ -93,8 +93,8 @@ void downlinkFile(string filename) {
 }
 
 void parseIEF(void) {
-	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	CMDServer * cmdServer = static_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FILE * fp;
 	char * line = NULL;
 	size_t len = 0;
@@ -236,7 +236,7 @@ void parseIEF(void) {
 }
 
 void parseDRF(void) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FILE * fp;
 	char * line = NULL;
 	size_t len = 0;
@@ -284,7 +284,7 @@ void parseDRF(void) {
 }
 
 void prepRADDownlink(char * line) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	char * rad;
 	char * passNumStr;
 	char * startStr;
@@ -348,7 +348,7 @@ void prepRADDownlink(char * line) {
 }
 
 void prepDataDownlink(char * line) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	char * arch;
 	char * dir;
 	char * num;
@@ -400,7 +400,7 @@ void prepDataDownlink(char * line) {
 	packageFiles((char *) archive.c_str(), dir, regex, numFiles); // TODO: error check this?
 
 	// ---- Split the tarball into chunks
-	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
+	CMDServer * cmdServer = static_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
 	char chunkSize[16];
 	sprintf(chunkSize, "%lu", cmdServer->CMDConfiguration.fileChunkSize);
 	string split_cmd = "split -b " + string(chunkSize) + " -d -a 3 " + archive + " " + archive + ".";
@@ -416,7 +416,7 @@ void prepDataDownlink(char * line) {
 }
 
 void parseDLT(void) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FILE * fp;
 	char * line = NULL;
 	size_t len = 0;
@@ -495,8 +495,8 @@ void parseDLT(void) {
 }
 
 void parsePPE(void) {
-	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	CMDServer * cmdServer = static_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FILE * fp;
 	char * line = NULL;
 	size_t len = 0;
@@ -582,7 +582,7 @@ void parsePPE(void) {
 // A primary responsibility of this function is to deal with configuration updates.
 // Before replacing old configurations, it checks the validity of the new configs.
 void processUplinkFiles(void) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	// Move new schedule from the uplink directory to its final directory
 	if (access(SCH_UP, F_OK) != -1) {
@@ -593,7 +593,7 @@ void processUplinkFiles(void) {
 
 	// Update Config Schedule
 	if (access(SCH_CFG_UP, F_OK) != -1) {
-		SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
+		SCHServer * schServer = static_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
 		if(schServer->LoadDefaultScheduleConfigurations((char *) SCH_CFG_UP)) {
 			rename(SCH_CFG_UP, SCH_CONFIG);
 		} else {
@@ -617,7 +617,7 @@ void processUplinkFiles(void) {
 
 	// Update CMD config
 	if (access(CMD_CFG_UP, F_OK) != -1) {
-		CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
+		CMDServer * cmdServer = static_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
 		if(cmdServer->updateConfig()) {
 			rename(CMD_CFG_UP, CMD_CONFIG);
 		} else {
@@ -634,7 +634,7 @@ void processUplinkFiles(void) {
 
 	// Update EPS config
 	if (access(EPS_CFG_UP, F_OK) != -1) {
-		EPSServer * epsServer = dynamic_cast<EPSServer *> (Factory::GetInstance(EPS_SERVER_SINGLETON));
+		EPSServer * epsServer = static_cast<EPSServer *> (Factory::GetInstance(EPS_SERVER_SINGLETON));
 		if(epsServer->updateConfig()) {
 			rename(EPS_CFG_UP, EPS_CONFIG);
 		} else {
@@ -674,7 +674,7 @@ string trimNewline(string buf) {
 }
 
 const long getFileSize(const char * filePath, const char * regex, const int maxFiles){
-    Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+    Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FILE * fd;
 	int size = 0;
 
@@ -709,12 +709,12 @@ const long getFileSize(const char * filePath, const char * regex, const int maxF
 
 const int packageFiles(const char * destination, const char * filePath, const char * regex, const int maxFiles) {
 	// This function will tar up `maxFiles` number of files in `filePath` matching the regular expression `regex` into a tarball named `destination`.
-    Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+    Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FILE * fd;
 
 	const long size = getFileSize(filePath, regex, maxFiles);
 
-	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
+	CMDServer * cmdServer = static_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
 
 	if (size < 0) {
 		logger->Log(LOGGER_LEVEL_ERROR, "PackageFiles: Error detected, aborting packaging");
@@ -743,7 +743,7 @@ const int packageFiles(const char * destination, const char * filePath, const ch
 }
 
 int deleteOldest(char * filePath, int numFiles) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FILE * fd;
 
 	// sh command to remove the oldest numFiles from filePath
@@ -764,7 +764,7 @@ int deleteOldest(char * filePath, int numFiles) {
 }
 
 int deleteRegex(char * filePath, char * regex) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FILE * fd;
 
 	// sh command to remove all files from filePath matching regex
@@ -785,7 +785,7 @@ int deleteRegex(char * filePath, char * regex) {
 }
 
 int getNumFiles(char * dir) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FILE * fd;
 	int num = 0;
 
@@ -819,7 +819,7 @@ int getNumFiles(char * dir) {
 }
 
 string getDownlinkFile(int fileNum) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FILE * fd;
 	char fileName[128];
 
@@ -853,10 +853,10 @@ string getDownlinkFile(int fileNum) {
 }
 
 void executeFSWCommand(int command) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	COMServer * comServer = dynamic_cast<COMServer *> (Factory::GetInstance(COM_SERVER_SINGLETON));
-	SCHServer * schServer = dynamic_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
-	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	COMServer * comServer = static_cast<COMServer *> (Factory::GetInstance(COM_SERVER_SINGLETON));
+	SCHServer * schServer = static_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
+	CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
 	switch(command){
 	case FSW_CMD_REQUEST_RESET:
@@ -882,7 +882,7 @@ void executeFSWCommand(int command) {
 }
 
 int checkForSOT(void) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	if(access(SOT_PATH,F_OK) == 0){
 		char * line = NULL;
 		size_t len = 0;

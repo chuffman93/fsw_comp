@@ -68,7 +68,7 @@ bool CDHServer::IsFullyInitialized(void) {
 
 // -------------------------------------------- Loops ---------------------------------------------
 void CDHServer::loopInit() {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	logger->Log(LOGGER_LEVEL_INFO, "CDHServer: Initializing");
 
@@ -90,7 +90,7 @@ void CDHServer::loopInit() {
 
 void CDHServer::loopMonitor(){
 	int64 currTime = getTimeInMillis();
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
 	readHealth();
 
@@ -116,7 +116,7 @@ void CDHServer::loopReset(){
 
 // ----------------------------------------- CDH Methods -----------------------------------------
 void CDHServer::readHealth(){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	// Start sensors for reading next round
 #if PM_EN
@@ -157,7 +157,7 @@ void CDHServer::readHealth(){
 			logger->Log(LOGGER_LEVEL_INFO, "CDHServer: logging health and status");
 			lastHSTLog = currTime;
 
-			FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
+			FMGServer * fmgServer = static_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
 			uint8 * buffer = new uint8[CDHStatus::size];
 			CDHState.update(buffer, CDHStatus::size, 0, 0);
 			CDHState.serialize();
@@ -187,7 +187,7 @@ void CDHServer::resetDeassert(HardwareLocationIDType subsystem){
 }
 
 void CDHServer::bootConfig() {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	FILE * fp = fopen(CDH_CONFIG, "r");
 	uint8 buffer[CDHConfiguration.size];
@@ -213,7 +213,7 @@ void CDHServer::bootConfig() {
 }
 
 bool CDHServer::updateConfig() {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	FILE * fp = fopen(CDH_CFG_UP, "r");
 	uint8 buffer[CDHConfiguration.size];

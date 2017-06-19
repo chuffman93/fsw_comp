@@ -33,14 +33,14 @@ struct stat sb;
 
 //------------------------------------------- Message Handlers -------------------------------------------
 void CDHSystemInfo(void) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	struct sysinfo si;
 	if (sysinfo(&si) != 0) {
 		logger->Log(LOGGER_LEVEL_ERROR, "CDHStdTasks: CDHCPUUsage(): Error");
 		return;
 	}
 
-	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 	cdhServer->CDHState.cpu1  = si.loads[0]/6553.6;
 	cdhServer->CDHState.cpu5  = si.loads[1]/6553.6;
 	cdhServer->CDHState.cpu15 = si.loads[2]/6553.6;
@@ -54,7 +54,7 @@ void CDHSystemInfo(void) {
 }
 
 void CDHTempStart(void) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	// Start all of the sensors
 	bool sensorResult = false;
@@ -78,7 +78,7 @@ void CDHTempStart(void) {
 }
 
 void CDHTempRead(float * tempArray) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_DEBUG, "CDHStdTasks: CDHTempRead(): Reading temp sensors");
 
 	// Read and add to list
@@ -91,7 +91,7 @@ void CDHTempRead(float * tempArray) {
 
 // Helper Functions ---------------------------------------------------------------
 bool StartTempSensor(int bus, int sensor) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	char busChar[3];
 	itoa(bus, busChar, 10);
@@ -124,7 +124,7 @@ bool StartTempSensor(int bus, int sensor) {
 }
 
 float ReadTempSensor(int bus, int sensor) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	// create filename
 	char * temp = new char[1];
 	string read = "/sys/bus/w1/devices/w1_bus_master";
@@ -246,7 +246,7 @@ void prepPowerGPIOs(void) {
 }
 
 void toggleSubPower(HardwareLocationIDType subsystem, bool state) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	string cmd = "echo ";
 
 	if(state){
@@ -281,7 +281,7 @@ void toggleSubPower(HardwareLocationIDType subsystem, bool state) {
 }
 
 void toggleResetLine(HardwareLocationIDType subsystem, bool state) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	string cmd = "echo ";
 
 	if (state) {

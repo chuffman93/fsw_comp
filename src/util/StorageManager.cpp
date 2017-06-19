@@ -13,8 +13,8 @@ using namespace AllStar::Core;
 using namespace AllStar::Servers;
 
 StorageManager::StorageManager(float threshold_in){
-	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	GPSServer * gpsServer = static_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	logger->Log(LOGGER_LEVEL_INFO, "StorageManager started using GPS time as threshold");
 
@@ -25,7 +25,7 @@ StorageManager::StorageManager(float threshold_in){
 }
 
 StorageManager::StorageManager(int week_start, float seconds_start, float threshold_in){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	logger->Log(LOGGER_LEVEL_INFO, "StorageManager started using input threshold");
 
@@ -39,7 +39,7 @@ StorageManager::StorageManager(int week_start, float seconds_start, float thresh
 }
 
 int StorageManager::CheckAndClean(void){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	if(!errorMode){
 		if(!CheckStorage()){
@@ -63,7 +63,7 @@ int StorageManager::CheckAndClean(void){
 
 // TODO: update with SD cards
 bool StorageManager::CheckStorage(){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	if(statvfs((char *) "/media/sd1/filehandler/", &svfs) != 0){
 		// TODO: handle this
@@ -75,7 +75,7 @@ bool StorageManager::CheckStorage(){
 }
 
 void StorageManager::CleanFiles(void){
-	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
+	GPSServer * gpsServer = static_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 	string subsystems[8] = {"ACS", "COM", "EPS", "GPS", "PLD", "SCH", "CMD", "CDH"};
 	string cmd;
 	char * temp = new char[16];

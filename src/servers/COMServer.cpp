@@ -51,9 +51,9 @@ bool COMServer::IsFullyInitialized(void){
 // TODO: ultimately remove Half and Full Duplex states and have a struct to track those COM states through H&S
 // -------------------------------------------- State Machine ---------------------------------------------
 void COMServer::loopInit(){
-	ERRServer * errServer = dynamic_cast<ERRServer *> (Factory::GetInstance(ERR_SERVER_SINGLETON));
-	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	ERRServer * errServer = static_cast<ERRServer *> (Factory::GetInstance(ERR_SERVER_SINGLETON));
+	CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	if (!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_COM]) {
 		cdhServer->subPowerOn(HARDWARE_LOCATION_COM);
@@ -86,13 +86,13 @@ void COMServer::loopInit(){
 }
 
 void COMServer::loopBeacon(){
-	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
 	if(!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_COM]){
 		currentState = ST_INIT;
 	}
 
-	ModeManager * modeManager = dynamic_cast<ModeManager *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	ModeManager * modeManager = static_cast<ModeManager *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	SystemModeEnum currentMode = modeManager->GetMode();
 	switch(currentMode){
 	case MODE_RESET:
@@ -106,14 +106,14 @@ void COMServer::loopBeacon(){
 		currentState = ST_ENTER_TX_SILENCE;
 	}
 
-	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
+	CMDServer * cmdServer = static_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
 	if(cmdServer->CheckForBeacon()){
 		COMSendBeacon();
 	}
 }
 
 void COMServer::loopEnterTXSilence(){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	if(!COMSimplex()){
 		uint8 i = 0;
@@ -147,7 +147,7 @@ void COMServer::loopReset(){
 }
 
 void COMServer::bootConfig() {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	FILE * fp = fopen(COM_CONFIG, "r");
 	uint8 buffer[COMConfiguration.size];
@@ -173,7 +173,7 @@ void COMServer::bootConfig() {
 }
 
 bool COMServer::updateConfig() {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	FILE * fp = fopen(COM_CFG_UP, "r");
 	uint8 buffer[COMConfiguration.size];

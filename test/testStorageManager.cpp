@@ -16,9 +16,9 @@ using namespace AllStar::Servers;
 // Necessary to test CDH
 void * taskRunCDH(void * params) {
 
-	CDHServer * cdhServer = dynamic_cast<CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
-	ModeManager * modeManager = dynamic_cast<ModeManager *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
-	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
+	CDHServer * cdhServer = static_cast<CDHServer *>(Factory::GetInstance(CDH_SERVER_SINGLETON));
+	ModeManager * modeManager = static_cast<ModeManager *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	Logger * logger = static_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 
 	logger->Log(LOGGER_LEVEL_INFO, "taskRunCDH");
 
@@ -41,7 +41,7 @@ void * taskRunCDH(void * params) {
 }
 
 TEST(TestStorageManager, testClean){
-	ModeManager * modeManager = dynamic_cast<ModeManager *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	ModeManager * modeManager = static_cast<ModeManager *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	modeManager->SetMode(MODE_ACCESS, LOCATION_ID_INVALID);
 
 	// Create CDHServer ---------------------------------------------------------------------------------------------------------------

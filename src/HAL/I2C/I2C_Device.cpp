@@ -53,7 +53,7 @@ namespace AllStar
 		}
 
 		bool I2C_Device::I2C_read(uint8_t* buffer, int numBytes){
-			Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+			Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 			logger->Log(LOGGER_LEVEL_DEBUG, "I2CDevice Filename: %s", i2c_chip_info.filename);
 			int fd = open(i2c_chip_info.filename, O_RDONLY);
 			if(fd < 0){

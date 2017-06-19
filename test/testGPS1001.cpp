@@ -18,7 +18,7 @@ TEST(TestGPS, testDataParse){
 		"0.0099,0.0219,0.0115,SOL_COMPUTED,NARROW_INT,0.0011,-0.0049,-0.0001,"
 		"0.0199,0.0439,0.0230,\"AAAA\",0.250,1.000,0.000,12,11,11,11,0,01,0,33*e9eafeca\r\n";
 
-	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
+	GPSServer * gpsServer = static_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 
 	ASSERT_TRUE(BESTXYZProcess(testBuffer, 281));
 	ASSERT_EQ(gpsServer->GetGPSDataPtr()->numTracked, 12);
@@ -28,7 +28,7 @@ TEST(TestGPS, testDataParse){
 TEST(TestGPS, testCoordsParse){
 	char testBuffer[81] = "GPRMC,144326.00,A,5107.0017737,N,11402.3291611,W,0.080,323.3,210307,0.0,E,A*20\r\n";
 
-	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
+	GPSServer * gpsServer = static_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 
 	ASSERT_TRUE(GPRMCProcess(testBuffer, 81));
 	ASSERT_EQ(51.1167, gpsServer->GetGPSCoordsPtr()->latitude);

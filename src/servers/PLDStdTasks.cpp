@@ -31,7 +31,7 @@ ACPPacket * PLDHealthStatus(void)
 
 // Debug
 bool PLDToggleLED(bool state){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	uint8 * buffer = (uint8 *) malloc(sizeof(uint8));
 	uint8 stateOut;
@@ -61,7 +61,7 @@ bool PLDToggleLED(bool state){
 }
 
 bool PLDBlinkRate(uint16 rate){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	uint8 * bufferOut = (uint8 *) malloc(sizeof(uint16));
 	AddUInt16(bufferOut, rate);
@@ -84,7 +84,7 @@ bool PLDBlinkRate(uint16 rate){
 }
 
 int PLDLEDData(){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	ACPPacket * query = new ACPPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, LED_RATE_DATA);
 	ACPPacket * ret = DispatchPacket(query);

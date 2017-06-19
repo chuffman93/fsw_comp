@@ -30,7 +30,7 @@ bool ERRServer::IsFullyInitialized(void) {
 
 // ---------------------- Subsystem Loop ----------------------------
 void ERRServer::SubsystemLoop() {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	ErrorOpcodeType error;
 	int64 lastWakeTime;
 
@@ -57,7 +57,7 @@ void ERRServer::SubsystemLoop() {
 
 // ----------------------- Other Methods ----------------------------
 void ERRServer::SendError(ErrorOpcodeType error) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	if (this->TakeLock(MAX_BLOCK_TIME)) {
 		ErrorQueue.push(error);
@@ -69,7 +69,7 @@ void ERRServer::SendError(ErrorOpcodeType error) {
 
 
 void ERRServer::SortError(ErrorOpcodeType error) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	if (error >= ERR_ACS_MIN && error < ERR_ACS_MAX) {
 		ACSError(error);
@@ -100,7 +100,7 @@ void ERRServer::SortError(ErrorOpcodeType error) {
 
 
 void ERRServer::ACSError(ErrorOpcodeType error) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	switch (error) {
 
@@ -108,7 +108,7 @@ void ERRServer::ACSError(ErrorOpcodeType error) {
 	case ERR_ACS_NOTALIVE:
 		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: ACS is not alive");
 		if (++ACSNotAliveCount >= 10) {
-			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+			CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 			cdhServer->subPowerOff(HARDWARE_LOCATION_ACS);
 			logger->Log(LOGGER_LEVEL_FATAL, "ERRServer: powering ACS off!");
 			ACSNotAliveCount = 0;
@@ -128,7 +128,7 @@ void ERRServer::ACSError(ErrorOpcodeType error) {
 
 
 void ERRServer::CDHError(ErrorOpcodeType error) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	switch (error) {
 	default:
@@ -138,7 +138,7 @@ void ERRServer::CDHError(ErrorOpcodeType error) {
 
 
 void ERRServer::CMDError(ErrorOpcodeType error) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	switch (error) {
 	default:
@@ -148,7 +148,7 @@ void ERRServer::CMDError(ErrorOpcodeType error) {
 
 
 void ERRServer::COMError(ErrorOpcodeType error) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	switch (error) {
 
@@ -156,7 +156,7 @@ void ERRServer::COMError(ErrorOpcodeType error) {
 	case ERR_COM_NOTALIVE:
 		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: COM is not alive");
 		if (++COMNotAliveCount >= 10) {
-			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+			CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 			cdhServer->subPowerOff(HARDWARE_LOCATION_COM);
 			logger->Log(LOGGER_LEVEL_FATAL, "ERRServer: powering COM off!");
 			COMNotAliveCount = 0;
@@ -176,7 +176,7 @@ void ERRServer::COMError(ErrorOpcodeType error) {
 
 
 void ERRServer::EPSError(ErrorOpcodeType error) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	switch (error) {
 	case ERR_EPS_NOTALIVE:
@@ -193,7 +193,7 @@ void ERRServer::EPSError(ErrorOpcodeType error) {
 
 
 void ERRServer::FMGError(ErrorOpcodeType error) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	switch (error) {
 	default:
@@ -203,7 +203,7 @@ void ERRServer::FMGError(ErrorOpcodeType error) {
 
 
 void ERRServer::GPSError(ErrorOpcodeType error) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	switch (error) {
 	default:
@@ -213,7 +213,7 @@ void ERRServer::GPSError(ErrorOpcodeType error) {
 
 
 void ERRServer::PLDError(ErrorOpcodeType error) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	switch (error) {
 
@@ -221,7 +221,7 @@ void ERRServer::PLDError(ErrorOpcodeType error) {
 	case ERR_PLD_NOTALIVE:
 		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: PLD is not alive");
 		if (++PLDNotAliveCount >= 10) {
-			CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+			CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 			cdhServer->subPowerOff(HARDWARE_LOCATION_PLD);
 			logger->Log(LOGGER_LEVEL_FATAL, "ERRServer: powering PLD off!");
 			PLDNotAliveCount = 0;
@@ -241,7 +241,7 @@ void ERRServer::PLDError(ErrorOpcodeType error) {
 
 
 void ERRServer::SCHError(ErrorOpcodeType error) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	switch (error) {
 	default:
@@ -251,7 +251,7 @@ void ERRServer::SCHError(ErrorOpcodeType error) {
 
 
 void ERRServer::GENError(ErrorOpcodeType error) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	switch (error) {
 	default:

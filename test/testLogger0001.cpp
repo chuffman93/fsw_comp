@@ -19,7 +19,7 @@ using namespace AllStar::Core;
 
 
 TEST(TestLogger, testSingleton){
-	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 
 	logger->Log(LOGGER_LEVEL_INFO, "Test info");
 	logger->Log(LOGGER_LEVEL_DEBUG, "Test debug");
@@ -29,7 +29,7 @@ TEST(TestLogger, testSingleton){
 }
 
 TEST(TestLogger, testOverload){
-	Logger * logger = dynamic_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 
 	string str = "string";
 	string str2 = "Test string 2: %s";

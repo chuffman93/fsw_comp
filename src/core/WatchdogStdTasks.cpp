@@ -15,7 +15,7 @@ namespace AllStar{
 namespace Core{
 
 void * runServer(void * args){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	SubsystemServer * server = (SubsystemServer *) args;
 

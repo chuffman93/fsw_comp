@@ -28,10 +28,10 @@ using namespace AllStar::Core;
 using namespace AllStar::Servers;
 
 //void* taskRunACS(void * params) {
-//	ACSServer * acsServer = dynamic_cast<ACSServer *>(Factory::GetInstance(
+//	ACSServer * acsServer = static_cast<ACSServer *>(Factory::GetInstance(
 //			ACS_SERVER_SINGLETON));
 //	ModeManager * modeManager =
-//			dynamic_cast<ModeManager *>(Factory::GetInstance(
+//			static_cast<ModeManager *>(Factory::GetInstance(
 //					MODE_MANAGER_SINGLETON));
 //	//WatchdogManager * wdm = dynamic_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 //
@@ -54,7 +54,7 @@ TEST(TestHandlers, test1){
 //			dynamic_cast<FileHandler *>(Factory::GetInstance(
 //					MODE_MANAGER_SINGLETON));
 //	ModeManager * modeManager =
-//			dynamic_cast<ModeManager *>(Factory::GetInstance(
+//			static_cast<ModeManager *>(Factory::GetInstance(
 //					MODE_MANAGER_SINGLETON));
 //	modeManager->SetMode(MODE_ACCESS, LOCATION_ID_INVALID);
 //
@@ -67,7 +67,7 @@ TEST(TestHandlers, test1){
 //		printf("ACS Server Thread Creation Failed\n");
 //	}
 //
-//	ACSServer * acsServer = dynamic_cast<ACSServer *>(Factory::GetInstance(
+//	ACSServer * acsServer = static_cast<ACSServer *>(Factory::GetInstance(
 //			ACS_SERVER_SINGLETON));
 //	EXPECT_TRUE(!threadCreated);
 //

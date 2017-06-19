@@ -23,7 +23,7 @@ static void * taskTest(void * parameters)
 {
     ModeManager * manager, *manager2;
 
-    manager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));;
+    manager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));;
 
     cout << "Got instance 1" << endl;
 
@@ -32,7 +32,7 @@ static void * taskTest(void * parameters)
         ADD_FAILURE(); pthread_exit(0);
     }
 
-    manager2 = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));;
+    manager2 = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));;
 
     cout << "Got instance 2" << endl;
 

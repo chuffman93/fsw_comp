@@ -20,7 +20,7 @@ namespace AllStar{
 namespace Servers{
 
 ACPPacket * DispatchPacket(ACPPacket * query) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_DEBUG, "DispatchStdTasks: DispatchPacket() Called with ACPPacket");
 
 	//check inputs
@@ -63,7 +63,7 @@ ACPPacket * DispatchPacket(ACPPacket * query) {
 }
 
 DispatcherStatusEnum WaitForDispatchResponse(const ACPPacket & packet, ACPPacket ** retPacketin) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	Dispatcher * dispatcher = dynamic_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 	size_t i;
 	ACPPacket * retPacket;

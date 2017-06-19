@@ -42,7 +42,7 @@ void FileManager::CloseFile() {
 	}
 	file_open = false;
 
-	FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
+	FMGServer * fmgServer = static_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
 	if (fmgServer->checkMoveFromCur() && strcmp("",file_name.c_str()) != 0) { // ensure that the filename exists
 		MoveFile();
 	}
@@ -57,7 +57,7 @@ void FileManager::MoveFile() {
 }
 
 void FileManager::OpenFile() {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	file = fopen(file_name.c_str(), "a");
 	if (file == NULL)
@@ -85,7 +85,7 @@ void FileManager::Write(uint8 * buf, std::size_t buf_size) {
 }
 
 bool FileManager::Log(uint8 * buf, std::size_t buf_size){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	if (buf_size >= MAX_FILE_SIZE) {
 		logger->Log(LOGGER_LEVEL_WARN, "Telemetry larger than file size");
@@ -169,7 +169,7 @@ void FMGServer::CloseAndMoveAllFiles() {
 }
 
 void FMGServer::Log(FILServerDestinationEnum dest, uint8 * buf, size_t size) {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FilePacket packet;
 	packet.buffer = buf;
 	packet.size = size;
@@ -184,7 +184,7 @@ void FMGServer::Log(FILServerDestinationEnum dest, uint8 * buf, size_t size) {
 }
 
 void FMGServer::CallLog() {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FilePacket packet;
 
 	if (this->TakeLock(MAX_BLOCK_TIME) && !FileQueue.empty()) {
@@ -297,7 +297,7 @@ void FMGServer::loopInit(void) {
 }
 
 void FMGServer::loopRun(void) {
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
 	move_from_CUR = true;
 
@@ -321,7 +321,7 @@ void FMGServer::loopComPrep(void) {
 }
 
 void FMGServer::loopCom(void) {
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
 
 	if (!FileQueue.empty()){
@@ -354,7 +354,7 @@ void FMGServer::loopReset(void) {
 
 // -----------------------------------------------------------------------------------------------------------------
 uint16 FMGServer::loadBootCount() {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	if (access(EPOCH_FILE, F_OK) != -1) {
 		FILE * fp = fopen(EPOCH_FILE, "r");
@@ -381,7 +381,7 @@ uint16 FMGServer::loadBootCount() {
 }
 
 void FMGServer::bootConfig() {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	FILE * fp = fopen(FMG_CONFIG, "r");
 	uint8 buffer[FMGConfiguration.size];
@@ -407,7 +407,7 @@ void FMGServer::bootConfig() {
 }
 
 bool FMGServer::updateConfig() {
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	FILE * fp = fopen(FMG_CFG_UP, "r");
 	uint8 buffer[FMGConfiguration.size];

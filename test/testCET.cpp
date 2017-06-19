@@ -24,7 +24,7 @@ using namespace AllStar::Servers;
 
 // initialize junk GPS data for testing purposes
 void prepGPSData(void){
-	GPSServer * gpsServer = dynamic_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
+	GPSServer * gpsServer = static_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 	gpsServer->GPSDataHolder->posX = 1.1;
 	gpsServer->GPSDataHolder->posY = 1.2;
 	gpsServer->GPSDataHolder->posZ = 1.3;
@@ -37,7 +37,7 @@ void prepGPSData(void){
 
 // initialize junk beacon data for testing purposes
 //void prepBeacon(void){
-//	CMDServer * cmdServer = dynamic_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
+//	CMDServer * cmdServer = static_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
 //
 //	cmdServer->beacon.bStruct.acsHS = {101,102,103,104,105,106,107};
 //	cmdServer->beacon.bStruct.cdhHS = {1.01,1.02,1.03,1.04};
@@ -49,14 +49,14 @@ void prepGPSData(void){
 //}
 
 void startSPIServer(){
-	SPI_HALServer * spiServer = dynamic_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
+	SPI_HALServer * spiServer = static_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
 	bool threadsCreated = true;
 
 	threadsCreated &= WatchdogManager::StartServer(spiServer, 0,	true);	 //SPI
 }
 
 bool ACSHealthStatus(){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	ACPPacket * HSQuery = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, HEALTH_STATUS_CMD);
 	ACPPacket * HSRet = DispatchPacket(HSQuery);
@@ -100,10 +100,10 @@ bool ACSHealthStatus(){
 // ------------------------------- Subsystem Tests -------------------------------
 
 TEST(testCET, testACS){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	prepPowerGPIOs();
 	startSPIServer();
-	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 	//cdhServer->resetAssert(HARDWARE_LOCATION_ACS);
 	cdhServer->subPowerOn(HARDWARE_LOCATION_ACS);
 	//usleep(1000000);
@@ -160,12 +160,12 @@ TEST(testCET, testACS){
 
 // test error response to unimplemented opcodes
 TEST(testCET, testACSError){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->threshold = LOGGER_LEVEL_WARN;
 
 	prepPowerGPIOs();
 	startSPIServer();
-	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 	cdhServer->subPowerOn(HARDWARE_LOCATION_ACS);
 	usleep(4000000);
 
@@ -214,10 +214,10 @@ TEST(testCET, testACSError){
 }
 
 TEST(testCET, testCOM){
-//	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+//	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 //	prepPowerGPIOs();
 //	startSPIServer();
-//	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+//	CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 //	cdhServer->subPowerOn(HARDWARE_LOCATION_COM);
 //	usleep(1000000);
 //
@@ -254,12 +254,12 @@ TEST(testCET, testCOM){
 
 // test error response to unimplemented opcodes
 TEST(testCET, testCOMError){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->threshold = LOGGER_LEVEL_WARN;
 
 	prepPowerGPIOs();
 	startSPIServer();
-	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 	cdhServer->subPowerOn(HARDWARE_LOCATION_COM);
 	usleep(4000000);
 
@@ -308,10 +308,10 @@ TEST(testCET, testCOMError){
 }
 
 TEST(testCET, testPLD){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	prepPowerGPIOs();
 	startSPIServer();
-	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 	cdhServer->resetAssert(HARDWARE_LOCATION_PLD);
 	cdhServer->subPowerOn(HARDWARE_LOCATION_PLD);
 	usleep(1000000);
@@ -333,7 +333,7 @@ TEST(testCET, testPLD){
 	usleep(1000000);
 
 	// test PLD health and status
-	PLDServer * pldServer = dynamic_cast<PLDServer *> (Factory::GetInstance(PLD_SERVER_SINGLETON));
+	PLDServer * pldServer = static_cast<PLDServer *> (Factory::GetInstance(PLD_SERVER_SINGLETON));
 	bool hs = pldServer->CheckHealthStatus();
 	ASSERT_TRUE(hs);
 
@@ -342,12 +342,12 @@ TEST(testCET, testPLD){
 
 // test error response to unimplemented opcodes
 TEST(testCET, testPLDError){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->threshold = LOGGER_LEVEL_WARN;
 
 	prepPowerGPIOs();
 	startSPIServer();
-	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 	cdhServer->subPowerOn(HARDWARE_LOCATION_PLD);
 	usleep(4000000);
 
@@ -416,7 +416,7 @@ TEST(testCET, testPLDError){
 }
 
 TEST(testCET, testEPS){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	startSPIServer();
 	usleep(1000000);
 
@@ -435,7 +435,7 @@ TEST(testCET, testEPS){
 	usleep(1000000);
 
 	// test EPS health and status
-	EPSServer * epsServer = dynamic_cast<EPSServer *> (Factory::GetInstance(EPS_SERVER_SINGLETON));
+	EPSServer * epsServer = static_cast<EPSServer *> (Factory::GetInstance(EPS_SERVER_SINGLETON));
 	bool hs = epsServer->CheckHealthStatus();
 	ASSERT_TRUE(hs);
 
@@ -451,12 +451,12 @@ TEST(testCET, testEPSReset){
 
 // test error response to unimplemented opcodes
 TEST(testCET, testEPSError){
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->threshold = LOGGER_LEVEL_WARN;
 
 	prepPowerGPIOs();
 	startSPIServer();
-	CDHServer * cdhServer = dynamic_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 	cdhServer->subPowerOn(HARDWARE_LOCATION_EPS);
 	usleep(4000000);
 

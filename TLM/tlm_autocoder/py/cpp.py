@@ -18,7 +18,7 @@ class CPP_AutoCoder(TLM_AutoCoder):
     print
 
   def fmg_server(self):
-    print "FMGServer * fmgServer = dynamic_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));"
+    print "FMGServer * fmgServer = static_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));"
     print
 
   def print_func(self):

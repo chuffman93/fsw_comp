@@ -58,8 +58,8 @@ bool WatchdogManager::StartServer(SubsystemServer * serverIn, int waitIn, bool r
 }
 
 void WatchdogManager::WatchdogManagerTask() {
-	ModeManager * modeManager = dynamic_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-	Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	int64 lastWakeTime = 0;
 
 	usleep(WATCHDOG_MANAGER_START_DELAY * 1000);
