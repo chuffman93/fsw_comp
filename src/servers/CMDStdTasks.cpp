@@ -78,20 +78,6 @@ void uftpSetup(void) {
 	system(UFTPD_PATH " -I ax0 -E -D " UPLINK_DIRECTORY);
 }
 
-// note the filename should be the absolute path
-void downlinkFile(string filename) {
-	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-
-	if(access(filename.c_str(), F_OK) != 0) {
-		logger->Log(LOGGER_LEVEL_ERROR, "downlinkFile: file doesn't exist!");
-		return;
-	}
-
-	char sh_cmd[256];
-	sprintf(sh_cmd, "%s -Y aes256-gcm -h sha256 -I ax0 -H 1.1.1.2 -x 1 %s", UFTP_PATH, filename.c_str()); // can add "-H 1.1.1.2" to only downlink to one IP, "-x 1" decreases the log statement verboseness
-	system(sh_cmd);
-}
-
 void parseIEF(void) {
 	CMDServer * cmdServer = static_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
@@ -223,7 +209,7 @@ void parseIEF(void) {
 			packageFiles((char *) archive.c_str(), dir, regex, numFiles); // TODO: error check this?
 
 			cmdServer->wdmAsleep(); // set to asleep due to asynchronous call
-			downlinkFile(archive);
+			cmdServer->DownlinkFile(archive);
 			cmdServer->wdmAlive();
 		}else{
 			logger->Log(LOGGER_LEVEL_WARN, "IEF: unknown command type");

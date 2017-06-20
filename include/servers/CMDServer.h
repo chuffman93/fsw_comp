@@ -44,6 +44,8 @@ public:
 
 	bool CheckForBeacon(void);
 
+	void DownlinkFile(string fileName);
+
 private:
 	bool IsFullyInitialized(void);
 
@@ -56,6 +58,8 @@ private:
 	int currFileNum;
 	int32 startTime;
 	bool beaconValid;
+	int uftp_pid;
+	bool downlinkInProgress;
 
 	// Modes
 	void loopInit();

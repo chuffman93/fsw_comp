@@ -40,7 +40,7 @@ namespace Servers{
 CMDConfig CMDServer::CMDConfiguration(360,1000,1000,10,10);
 
 CMDServer::CMDServer(string nameIn, LocationIDType idIn) :
-		SubsystemServer(nameIn, idIn), Singleton(), numFilesDWN(0), currFileNum(0) {
+		SubsystemServer(nameIn, idIn), Singleton(), numFilesDWN(0), currFileNum(0), uftp_pid(-1), downlinkInProgress(false) {
 	startTime = getTimeInSec();
 	CMDConfiguration.resetPeriod = 3*60*60; // 3 hrs FIXME: change for flight
 	CMDConfiguration.fileChunkSize = 204800; // 200 kB
@@ -229,26 +229,36 @@ void CMDServer::loopDownlinkPrep(){
 	currentState = ST_DOWNLINK;
 }
 
-void CMDServer::loopDownlink(){
+void CMDServer::loopDownlink() {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	string filename;
 
-	if(modeManager->GetMode() != MODE_COM){
+	if (modeManager->GetMode() != MODE_COM) {
 		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: downlink timed out, COM pass over");
 		numFilesDWN = 0;
 		currFileNum = 1;
+		kill(uftp_pid, SIGINT);
+		downlinkInProgress = false;
+		uftp_pid = -1;
 		currentState = ST_POST_PASS;
 	}
 
-	if(currFileNum < numFilesDWN + 1){
-		filename = getDownlinkFile(currFileNum++);
+	if (downlinkInProgress) {
+		int status;
+		if (waitpid(uftp_pid, &status, WNOHANG) != 0) {
+			kill(uftp_pid, SIGINT);
+			downlinkInProgress = false;
+			uftp_pid = -1;
+		} else {
+			return;
+		}
+	}
 
-		// downlink the file
-		wdmAsleep();
-		downlinkFile(filename);
-		wdmAlive();
-	}else{
+	if (currFileNum < numFilesDWN + 1 && !downlinkInProgress) {
+		filename = getDownlinkFile(currFileNum++);
+		DownlinkFile(filename);
+	} else {
 		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: downlink finished");
 		numFilesDWN = 0;
 		currFileNum = 1;
@@ -256,7 +266,7 @@ void CMDServer::loopDownlink(){
 	}
 }
 
-void CMDServer::loopPostPass(){
+void CMDServer::loopPostPass() {
 	SCHServer * schServer = static_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
 	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	parsePPE();
@@ -442,6 +452,28 @@ bool CMDServer::updateConfig() {
 		fclose(fp);
 		return false;
 	}
+}
+
+// Note: the filename must be the absolute path
+void CMDServer::DownlinkFile(string fileName) {
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	if(access(fileName.c_str(), F_OK) != 0) {
+		logger->Log(LOGGER_LEVEL_ERROR, "downlinkFile: file doesn't exist!");
+		return;
+	}
+
+	int pid = fork();
+	if (pid == 0) {
+		char * argv[] = {UFTP_PATH, "-Y", "aes256-gcm", "-h", "sha256", "-I", "ax0", "-H", "1.1.1.2", "-x", "1", (char *) fileName.c_str(), NULL};
+		if (execve(UFTP_PATH, argv, {NULL}) == -1) {
+			// TODO: handle this
+		}
+		exit(0);
+	}
+
+	downlinkInProgress = true;
+	uftp_pid = pid;
 }
 
 } // End of namespace Servers
