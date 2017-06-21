@@ -13,6 +13,7 @@
 #include "core/StdTypes.h"
 #include "core/ModeManager.h"
 #include "util/Logger.h"
+#include "util/TLM.h"
 
 #include <sys/mman.h>
 #include <stdio.h>
@@ -214,7 +215,8 @@ void SCHServer::SubsystemLoop(void) {
 		if (resetRequest) {
 			resetRequest = false;
 			modeManager->SetMode(MODE_RESET);
-			SCHItem resetItem(0,0,-1,1,15,MODE_RESET,30);
+			SCHItem resetItem(0, 0, -1, 1, getTimeInSec() + 15, MODE_RESET, 30);
+			TLM_RESET_COMMANDED();
 			itemEntered = false;
 			currentSchedule.push_front(resetItem);
 		}

@@ -90,11 +90,71 @@ ERR
 SPI packet failure to PLD. Opcode: %u
 uint8
 
+DWLK_NOT_CLEARED
+0x0009
+CMD
+Failed to clear the downlink directory
+None
+
+UPLK_NOT_CLEARED
+0x0010
+CMD
+Failed to clear the uplink directory
+None
+
+IMMED_NOT_CLEARED
+0x0011
+CMD
+Failed to clear the immediate directory
+None
+
 MODE_SWITCH
 0x0100
 MOD
 Switched mode to mode number %d
 uint8
+
+SYS_CALL
+0x0200
+CMD
+Uplink system command executed with return: %d
+int16
+
+RESET_COMMANDED
+0x0201
+CMD
+Entering commanded reset
+None
+
+TX_SILENCE_ENTERED
+0x0202
+CMD
+Successfully entered transmitter silence mode
+None
+
+TX_SILENCE_EXITED
+0x0203
+CMD
+Successfully exited transmitter silence mode
+None
+
+DWLK_CLEARED
+0x0204
+CMD
+Successfully cleared the downlink directory
+None
+
+UPLK_CLEARED
+0x0205
+CMD
+Successfully cleared the uplink directory
+None
+
+IMMED_CLEARED
+0x0206
+CMD
+Successfully cleared the immediate directory
+None
 
 SPI_ACS_RX
 0x0401

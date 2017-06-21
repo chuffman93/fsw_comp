@@ -27,6 +27,7 @@
 #include "core/WatchdogManager.h"
 #include "core/ModeManager.h"
 #include "util/Logger.h"
+#include "util/TLM.h"
 #include <termios.h>
 #include <string>
 #include <string.h>
@@ -78,38 +79,40 @@ void uftpSetup(void) {
 	system(UFTPD_PATH " -I ax0 -E -D " UPLINK_DIRECTORY);
 }
 
-void parseIEF(void) {
-	CMDServer * cmdServer = static_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
+bool openIEF(FILE ** fp, char ** line, size_t * len) {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	FILE * fp;
-	char * line = NULL;
-	size_t len = 0;
 	ssize_t bytesRead;
 
 	// check if an IEF file has been uplinked
-	if(access(IEF_PATH, F_OK) != 0){
+	if (access(IEF_PATH, F_OK) != 0) {
 		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: no IEF");
-		return;
+		return false;
 	}
 
-	// open the files to downlink file
-	fp = fopen(IEF_PATH, "r");
-	if (fp == NULL){
+	*fp = fopen(IEF_PATH, "r");
+	if (fp == NULL) {
 		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: error opening IEF");
 		remove(IEF_PATH);
-		return;
+		return false;
 	}
 
 	// check password
-	bytesRead = getline(&line, &len, fp);
-	if(strcmp(line,UPLK_PASSWORD) != 0){
+	bytesRead = getline(line, len, *fp);
+	if (strcmp(*line,UPLK_PASSWORD) != 0) {
 		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: invalid IEF password");
-		fclose(fp);
+		fclose(*fp);
 		remove(IEF_PATH);
-		return;
+		return false;
 	}
 
-	// parse the file line by line
+	return true;
+}
+
+// returns false if EOF is encountered
+bool parseIEFLine(FILE * fp, char ** line, size_t * len) {
+	CMDServer * cmdServer = static_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	size_t bytesRead;
 	char * type;
 	char * command;
 	char * arch;
@@ -117,108 +120,109 @@ void parseIEF(void) {
 	char * num;
 	char * regex;
 	int numFiles;
-	while ((bytesRead = getline(&line, &len, fp)) != -1) {
-		// ---- Parse line
-		type = strtok(line,",");
-		if(type == NULL){
-			logger->Log(LOGGER_LEVEL_WARN, "Incomplete IEF line at type");
-			continue; // skip to the next line
-		}
 
-		// check the type of command and perform accordingly
-		// SYS command
-		if(strcmp(type,"SYS") == 0){ // shell command
-			command = strtok(NULL,",");
-			if(command == NULL){
-				logger->Log(LOGGER_LEVEL_WARN, "Incomplete IEF line at command");
-				continue; // skip to the next line
-			}
-
-			// get rid of the newline
-			string cmd = trimNewline(string(command));
-			command = (char *) cmd.c_str();
-
-			// execute the system command
-			cmdServer->wdmAsleep(); // set to asleep due to asynchronous call
-			if(system(command) == -1){
-				logger->Log(LOGGER_LEVEL_ERROR, "IEF unable to execute shell command");
-			}
-			cmdServer->wdmAlive();
-
-		// FSW command
-		}else if(strcmp(type,"FSW") == 0){ // fsw internal command
-			command = strtok(NULL,",");
-			if(command == NULL){
-				logger->Log(LOGGER_LEVEL_WARN, "Incomplete IEF line at command");
-				continue; // skip to the next line
-			}
-
-			int cmd = atoi(command);
-			if(cmd <= 0 || cmd > FSW_CMD_MAX){
-				logger->Log(LOGGER_LEVEL_WARN, "Invalid IEF command number");
-				continue; // skip to the next line
-			}
-
-			// call a function to find and execute the command
-			executeFSWCommand(cmd);
-
-		// Downlink
-		}else if(strcmp(type,"DWN") == 0){
-			// ---- Parse line
-			arch = strtok(NULL,",");
-			if(arch == NULL){
-				logger->Log(LOGGER_LEVEL_WARN, "Incomplete IEF line at archive");
-				continue; // skip to the next line
-			}
-
-			dir = strtok(NULL,",");
-			if(dir == NULL){
-				logger->Log(LOGGER_LEVEL_WARN, "Incomplete IEF line at directory");
-				continue; // skip to the next line
-			}
-
-			num = strtok(NULL,",");
-			if(num == NULL){
-				logger->Log(LOGGER_LEVEL_WARN, "Incomplete IEF line at number");
-				continue; // skip to the next line
-			}
-			numFiles = atoi(num);
-			if(numFiles < 1){
-				logger->Log(LOGGER_LEVEL_WARN, "Invalid IEF line at number");
-				continue; // skip to the next line
-			}
-
-			regex = strtok(NULL,",");
-			if(regex == NULL){
-				logger->Log(LOGGER_LEVEL_WARN, "Incomplete IEF line at regex");
-				continue; // skip to the next line
-			}
-
-			// get rid of the newline
-			string rgx = trimNewline(string(regex));
-			regex = (char *) rgx.c_str();
-
-			// ---- Check if there is a regex
-			if(strcmp(regex,"X") == 0)
-				regex = (char *) "";
-
-			// ---- Prepend the downlink directory path to the archive name
-			string archive = string(IMMED_DIRECTORY) + "/" + string(arch);
-
-			// ---- Call the function to gather and create a tarball from the files
-			packageFiles((char *) archive.c_str(), dir, regex, numFiles); // TODO: error check this?
-
-			cmdServer->wdmAsleep(); // set to asleep due to asynchronous call
-			cmdServer->DownlinkFile(archive);
-			cmdServer->wdmAlive();
-		}else{
-			logger->Log(LOGGER_LEVEL_WARN, "IEF: unknown command type");
-		}
+	bytesRead = getline(line, len, fp);
+	if (bytesRead == -1) {
+		return false; // end of file
 	}
 
-	fclose(fp);
+	// ---- Parse line
+	type = strtok(*line,",");
+	if (type == NULL) {
+		logger->Log(LOGGER_LEVEL_WARN, "Incomplete IEF line at type");
+		return true;
+	}
 
-	logger->Log(LOGGER_LEVEL_INFO, "Finished IEF");
+	// SYS command
+	if (strcmp(type,"SYS") == 0) { // shell command
+		command = strtok(NULL,",");
+		if (command == NULL) {
+			logger->Log(LOGGER_LEVEL_WARN, "Incomplete IEF line at command");
+			return true;
+		}
+
+		// get rid of the newline
+		string cmd = trimNewline(string(command));
+		command = (char *) cmd.c_str();
+
+		// execute the system command
+		logger->Log(LOGGER_LEVEL_INFO, "Executing IEF system call");
+		cmdServer->wdmAsleep(); // set to asleep due to asynchronous call
+		int16 ret = system(command);
+		cmdServer->wdmAlive();
+		TLM_SYS_CALL(ret);
+		return true;
+
+	// FSW command
+	} else if(strcmp(type,"FSW") == 0) { // fsw internal command
+		command = strtok(NULL,",");
+		if (command == NULL) {
+			logger->Log(LOGGER_LEVEL_WARN, "Incomplete IEF line at command");
+			return true;
+		}
+
+		int cmd = atoi(command);
+		if (cmd <= 0 || cmd >= FSW_CMD_MAX) {
+			logger->Log(LOGGER_LEVEL_WARN, "Invalid IEF command number");
+			return true;
+		}
+
+		// call a function to find and execute the command
+		executeFSWCommand(cmd);
+		return true;
+
+	// Downlink
+	} else if(strcmp(type,"DWN") == 0) {
+		// ---- Parse line
+		arch = strtok(NULL,",");
+		if (arch == NULL) {
+			logger->Log(LOGGER_LEVEL_WARN, "Incomplete IEF line at archive");
+			return true;
+		}
+
+		dir = strtok(NULL,",");
+		if (dir == NULL) {
+			logger->Log(LOGGER_LEVEL_WARN, "Incomplete IEF line at directory");
+			return true;
+		}
+
+		num = strtok(NULL,",");
+		if (num == NULL) {
+			logger->Log(LOGGER_LEVEL_WARN, "Incomplete IEF line at number");
+			return true;
+		}
+		numFiles = atoi(num);
+		if (numFiles < 1) {
+			logger->Log(LOGGER_LEVEL_WARN, "Invalid IEF line at number");
+			return true;
+		}
+
+		regex = strtok(NULL,",");
+		if (regex == NULL) {
+			logger->Log(LOGGER_LEVEL_WARN, "Incomplete IEF line at regex");
+			return true;
+		}
+
+		// get rid of the newline
+		string rgx = trimNewline(string(regex));
+		regex = (char *) rgx.c_str();
+
+		// ---- Check if there is a regex
+		if (strcmp(regex,"X") == 0)
+			regex = (char *) "";
+
+		// ---- Prepend the downlink directory path to the archive name
+		string archive = string(IMMED_DIRECTORY) + "/" + string(arch);
+
+		// ---- Call the function to gather and create a tarball from the files
+		packageFiles((char *) archive.c_str(), dir, regex, numFiles); // TODO: error check this?
+
+		cmdServer->DownlinkFile(archive);
+		return true;
+	} else {
+		logger->Log(LOGGER_LEVEL_WARN, "IEF: unknown command type");
+		return true;
+	}
 }
 
 void parseDRF(void) {
@@ -536,10 +540,9 @@ void parsePPE(void) {
 
 			// execute the system command
 			cmdServer->wdmAsleep(); // set to asleep due to asynchronous call
-			if(system(command) == -1){
-				logger->Log(LOGGER_LEVEL_ERROR, "PPE unable to execute shell command");
-			}
+			int16 ret = system(command);
 			cmdServer->wdmAlive();
+			TLM_SYS_CALL(ret);
 		}else if(strcmp(type,"FSW") == 0){ // fsw internal command
 			command = strtok(NULL,",");
 			if(command == NULL){
@@ -548,7 +551,7 @@ void parsePPE(void) {
 			}
 
 			int cmd = atoi(command);
-			if(cmd == 0 || cmd < 0 || cmd > FSW_CMD_MAX){
+			if(cmd == 0 || cmd < 0 || cmd >= FSW_CMD_MAX){
 				logger->Log(LOGGER_LEVEL_WARN, "Invalid PPE command number");
 				continue; // skip to the next line
 			}
@@ -846,7 +849,8 @@ void executeFSWCommand(int command) {
 
 	switch(command){
 	case FSW_CMD_REQUEST_RESET:
-		logger->Log(LOGGER_LEVEL_INFO, "PPE reset requested");
+		logger->Log(LOGGER_LEVEL_INFO, "Uplink reset requested");
+		TLM_RESET_COMMANDED();
 		schServer->RequestReset();
 		break;
 	case FSW_CMD_HARD_SATELLITE_RESET:
@@ -855,11 +859,40 @@ void executeFSWCommand(int command) {
 		break;
 	case FSW_CMD_TX_SILENCE_START:
 		logger->Log(LOGGER_LEVEL_WARN, "Commanding transmitter silence");
+		TLM_TX_SILENCE_ENTERED();
 		comServer->setTxSilence(true);
 		break;
 	case FSW_CMD_TX_SILENCE_END:
 		logger->Log(LOGGER_LEVEL_WARN, "Ending transmitter silence");
+		TLM_TX_SILENCE_EXITED();
 		comServer->setTxSilence(false);
+		break;
+	case FSW_CMD_CLEAR_DWNLK:
+		if (system("rm -rf " DOWNLINK_DIRECTORY "/*") > 0) {
+			TLM_DWLK_CLEARED();
+			logger->Log(LOGGER_LEVEL_INFO, "Cleared downlink directory");
+		} else {
+			TLM_DWLK_NOT_CLEARED();
+			logger->Log(LOGGER_LEVEL_INFO, "Unable to clear downlink directory");
+		}
+		break;
+	case FSW_CMD_CLEAR_IMMED:
+		if (system("rm -rf " IMMED_DIRECTORY "/*") > 0) {
+			TLM_IMMED_CLEARED();
+			logger->Log(LOGGER_LEVEL_INFO, "Cleared immediate execution directory");
+		} else {
+			TLM_IMMED_NOT_CLEARED();
+			logger->Log(LOGGER_LEVEL_INFO, "Unable to clear immediate execution directory");
+		}
+		break;
+	case FSW_CMD_CLEAR_UPLK:
+		if (system("rm -rf " UPLINK_DIRECTORY "/*") > 0) {
+			TLM_UPLK_CLEARED();
+			logger->Log(LOGGER_LEVEL_INFO, "Cleared uplink directory");
+		} else {
+			TLM_UPLK_NOT_CLEARED();
+			logger->Log(LOGGER_LEVEL_INFO, "Unable to clear uplink directory");
+		}
 		break;
 	default:
 		logger->Log(LOGGER_LEVEL_ERROR, "Unknown FSW command (bit flip probable)");

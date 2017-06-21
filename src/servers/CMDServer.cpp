@@ -184,7 +184,13 @@ void CMDServer::loopUplink(){
 		// if EOT, check for IEF
 		if(access(IEF_PATH,F_OK) == 0) {
 			logger->Log(LOGGER_LEVEL_INFO, "CMDServer: uplink concluded, beginning immediate execution");
-			currentState = ST_IMMEDIATE_EXECUTION;
+			IEFline = NULL;
+			IEFlen = 0;
+			if (openIEF(&IEFfp, &IEFline, &IEFlen)) {
+				currentState = ST_IMMEDIATE_EXECUTION;
+			} else {
+				// TODO: send IEF NAK
+			}
 		} else {
 			logger->Log(LOGGER_LEVEL_INFO, "CMDServer: uplink concluded, starting planned downlink");
 			currentState = ST_DOWNLINK_PREP;
@@ -200,21 +206,41 @@ void CMDServer::loopUplink(){
 
 void CMDServer::loopImmediateExecution() {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log(LOGGER_LEVEL_INFO, "CMDServer: starting immediate execution");
 
-	parseIEF();
+	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
+	if(modeManager->GetMode() != MODE_COM){
+		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: immediate execution timeout, COM pass over");
+		if (downlinkInProgress) {
+			downlinkInProgress = false;
+			kill(uftp_pid, SIGINT);
+			uftp_pid = -1;
+		}
+		currentState = ST_POST_PASS;
+	} else if (downlinkInProgress) {
+		int status;
+		if (waitpid(uftp_pid, &status, WNOHANG) != 0) {
+			downlinkInProgress = false;
+			uftp_pid = -1;
+		}
+		return;
+	}
+
+	while (parseIEFLine(IEFfp, &IEFline, &IEFlen)) {
+		wdmAlive();
+		if (downlinkInProgress) {
+			return;
+		}
+	}
+
+	logger->Log(LOGGER_LEVEL_INFO, "Finished immediate execution, resuming uplink");
+
+	fclose(IEFfp);
 
 	// Clear immed directory
 	system("rm -rf " IMMED_DIRECTORY "/*");
 
 	// Clear uplink directory
 	system("rm -rf " UPLINK_DIRECTORY "/*");
-
-	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-	if(modeManager->GetMode() != MODE_COM){
-		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: uplink not finished, COM pass over");
-		currentState = ST_POST_PASS;
-	}
 
 	currentState = ST_UPLINK;
 }
@@ -247,7 +273,6 @@ void CMDServer::loopDownlink() {
 	if (downlinkInProgress) {
 		int status;
 		if (waitpid(uftp_pid, &status, WNOHANG) != 0) {
-			kill(uftp_pid, SIGINT);
 			downlinkInProgress = false;
 			uftp_pid = -1;
 		} else {
@@ -466,9 +491,8 @@ void CMDServer::DownlinkFile(string fileName) {
 	int pid = fork();
 	if (pid == 0) {
 		char * argv[] = {UFTP_PATH, "-Y", "aes256-gcm", "-h", "sha256", "-I", "ax0", "-H", "1.1.1.2", "-x", "1", (char *) fileName.c_str(), NULL};
-		if (execve(UFTP_PATH, argv, {NULL}) == -1) {
-			// TODO: handle this
-		}
+		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: downlinking file");
+		execve(UFTP_PATH, argv, {NULL});
 		exit(0);
 	}
 

@@ -20,7 +20,8 @@ namespace AllStar{
 namespace Servers{
 
 void uftpSetup(void);
-void parseIEF(void);
+bool openIEF(FILE ** fp, char ** line, size_t * len);
+bool parseIEFLine(FILE * fp, char ** line, size_t * len);
 void parseDRF(void);
 void parseDLT(void);
 void parsePPE(void);

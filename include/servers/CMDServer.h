@@ -38,13 +38,15 @@ public:
 
 	void serializeBeacon(uint8 * buf);
 
-	static CMDConfig CMDConfiguration;
-
-	BeaconStruct beacon;
-
 	bool CheckForBeacon(void);
 
 	void DownlinkFile(string fileName);
+
+	static CMDConfig CMDConfiguration;
+	BeaconStruct beacon;
+	FILE * IEFfp;
+	char * IEFline;
+	size_t IEFlen;
 
 private:
 	bool IsFullyInitialized(void);
