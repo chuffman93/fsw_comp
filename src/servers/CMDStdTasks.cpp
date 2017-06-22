@@ -847,6 +847,7 @@ void executeFSWCommand(int command) {
 	SCHServer * schServer = static_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
 	CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
+	int ret = 0;
 	switch(command){
 	case FSW_CMD_REQUEST_RESET:
 		logger->Log(LOGGER_LEVEL_INFO, "Uplink reset requested");
@@ -868,31 +869,16 @@ void executeFSWCommand(int command) {
 		comServer->setTxSilence(false);
 		break;
 	case FSW_CMD_CLEAR_DWNLK:
-		if (system("rm -rf " DOWNLINK_DIRECTORY "/*") > 0) {
-			TLM_DWLK_CLEARED();
-			logger->Log(LOGGER_LEVEL_INFO, "Cleared downlink directory");
-		} else {
-			TLM_DWLK_NOT_CLEARED();
-			logger->Log(LOGGER_LEVEL_INFO, "Unable to clear downlink directory");
-		}
+		ret = system("rm -rf " DOWNLINK_DIRECTORY "/*");
+		TLM_DWLK_CLEARED(ret);
 		break;
 	case FSW_CMD_CLEAR_IMMED:
-		if (system("rm -rf " IMMED_DIRECTORY "/*") > 0) {
-			TLM_IMMED_CLEARED();
-			logger->Log(LOGGER_LEVEL_INFO, "Cleared immediate execution directory");
-		} else {
-			TLM_IMMED_NOT_CLEARED();
-			logger->Log(LOGGER_LEVEL_INFO, "Unable to clear immediate execution directory");
-		}
+		ret = system("rm -rf " IMMED_DIRECTORY "/*");
+		TLM_IMMED_CLEARED(ret);
 		break;
 	case FSW_CMD_CLEAR_UPLK:
-		if (system("rm -rf " UPLINK_DIRECTORY "/*") > 0) {
-			TLM_UPLK_CLEARED();
-			logger->Log(LOGGER_LEVEL_INFO, "Cleared uplink directory");
-		} else {
-			TLM_UPLK_NOT_CLEARED();
-			logger->Log(LOGGER_LEVEL_INFO, "Unable to clear uplink directory");
-		}
+		ret = system("rm -rf " UPLINK_DIRECTORY "/*");
+		TLM_UPLK_CLEARED(ret);
 		break;
 	default:
 		logger->Log(LOGGER_LEVEL_ERROR, "Unknown FSW command (bit flip probable)");

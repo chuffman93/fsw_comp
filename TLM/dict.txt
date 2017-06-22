@@ -66,48 +66,6 @@ ERR
 FSW exiting from main! Watchdog exited.
 None
 
-SPI_ACS_TX_FAIL
-0x0004
-ERR
-SPI packet failure to ACS. Opcode: %u
-uint8
-
-SPI_COM_TX_FAIL
-0x0005
-ERR
-SPI packet failure to COM. Opcode: %u
-uint8
-
-SPI_EPS_TX_FAIL
-0x0006
-ERR
-SPI packet failure to EPS. Opcode: %u
-uint8
-
-SPI_PLD_TX_FAIL
-0x0007
-ERR
-SPI packet failure to PLD. Opcode: %u
-uint8
-
-DWLK_NOT_CLEARED
-0x0009
-CMD
-Failed to clear the downlink directory
-None
-
-UPLK_NOT_CLEARED
-0x0010
-CMD
-Failed to clear the uplink directory
-None
-
-IMMED_NOT_CLEARED
-0x0011
-CMD
-Failed to clear the immediate directory
-None
-
 MODE_SWITCH
 0x0100
 MOD
@@ -141,20 +99,20 @@ None
 DWLK_CLEARED
 0x0204
 CMD
-Successfully cleared the downlink directory
-None
+Cleared the downlink directory with return: %d
+int16
 
 UPLK_CLEARED
 0x0205
 CMD
-Successfully cleared the uplink directory
-None
+Cleared the uplink directory with return: %d
+int16
 
 IMMED_CLEARED
 0x0206
 CMD
-Successfully cleared the immediate directory
-None
+Cleared the immediate directory with return: %d
+int16
 
 SPI_ACS_RX
 0x0401
@@ -202,4 +160,28 @@ SPI_PLD_TX
 0x0408
 ACP
 SPI packet sent to PLD. Opcode: %u
+uint8
+
+SPI_ACS_TX_FAIL
+0x0409
+ACP
+SPI packet failure to ACS. Opcode: %u
+uint8
+
+SPI_COM_TX_FAIL
+0x040a
+ACP
+SPI packet failure to COM. Opcode: %u
+uint8
+
+SPI_EPS_TX_FAIL
+0x040b
+ACP
+SPI packet failure to EPS. Opcode: %u
+uint8
+
+SPI_PLD_TX_FAIL
+0x040c
+ACP
+SPI packet failure to PLD. Opcode: %u
 uint8

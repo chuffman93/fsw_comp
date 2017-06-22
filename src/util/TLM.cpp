@@ -43,73 +43,6 @@ void TLM_MAIN_EXIT(void) {
   fmgServer->Log(DESTINATION_ERR, buf, size);
 }
 
-void TLM_SPI_ACS_TX_FAIL(uint8 arg0) {
-  size_t size = 7;
-  uint8_t * buf = (uint8_t *) malloc(size);
-  Serialize ser(buf, size);
-  ser.serialize_int32(getTimeInSec());
-  ser.serialize_uint16(0x0004);
-  ser.serialize_uint8(arg0);
-  fmgServer->Log(DESTINATION_ERR, buf, size);
-}
-
-void TLM_SPI_COM_TX_FAIL(uint8 arg0) {
-  size_t size = 7;
-  uint8_t * buf = (uint8_t *) malloc(size);
-  Serialize ser(buf, size);
-  ser.serialize_int32(getTimeInSec());
-  ser.serialize_uint16(0x0005);
-  ser.serialize_uint8(arg0);
-  fmgServer->Log(DESTINATION_ERR, buf, size);
-}
-
-void TLM_SPI_EPS_TX_FAIL(uint8 arg0) {
-  size_t size = 7;
-  uint8_t * buf = (uint8_t *) malloc(size);
-  Serialize ser(buf, size);
-  ser.serialize_int32(getTimeInSec());
-  ser.serialize_uint16(0x0006);
-  ser.serialize_uint8(arg0);
-  fmgServer->Log(DESTINATION_ERR, buf, size);
-}
-
-void TLM_SPI_PLD_TX_FAIL(uint8 arg0) {
-  size_t size = 7;
-  uint8_t * buf = (uint8_t *) malloc(size);
-  Serialize ser(buf, size);
-  ser.serialize_int32(getTimeInSec());
-  ser.serialize_uint16(0x0007);
-  ser.serialize_uint8(arg0);
-  fmgServer->Log(DESTINATION_ERR, buf, size);
-}
-
-void TLM_DWLK_NOT_CLEARED(void) {
-  size_t size = 6;
-  uint8_t * buf = (uint8_t *) malloc(size);
-  Serialize ser(buf, size);
-  ser.serialize_int32(getTimeInSec());
-  ser.serialize_uint16(0x0009);
-  fmgServer->Log(DESTINATION_CMD, buf, size);
-}
-
-void TLM_UPLK_NOT_CLEARED(void) {
-  size_t size = 6;
-  uint8_t * buf = (uint8_t *) malloc(size);
-  Serialize ser(buf, size);
-  ser.serialize_int32(getTimeInSec());
-  ser.serialize_uint16(0x0010);
-  fmgServer->Log(DESTINATION_CMD, buf, size);
-}
-
-void TLM_IMMED_NOT_CLEARED(void) {
-  size_t size = 6;
-  uint8_t * buf = (uint8_t *) malloc(size);
-  Serialize ser(buf, size);
-  ser.serialize_int32(getTimeInSec());
-  ser.serialize_uint16(0x0011);
-  fmgServer->Log(DESTINATION_CMD, buf, size);
-}
-
 void TLM_MODE_SWITCH(uint8 arg0) {
   size_t size = 7;
   uint8_t * buf = (uint8_t *) malloc(size);
@@ -157,30 +90,33 @@ void TLM_TX_SILENCE_EXITED(void) {
   fmgServer->Log(DESTINATION_CMD, buf, size);
 }
 
-void TLM_DWLK_CLEARED(void) {
-  size_t size = 6;
+void TLM_DWLK_CLEARED(int16 arg0) {
+  size_t size = 8;
   uint8_t * buf = (uint8_t *) malloc(size);
   Serialize ser(buf, size);
   ser.serialize_int32(getTimeInSec());
   ser.serialize_uint16(0x0204);
+  ser.serialize_int16(arg0);
   fmgServer->Log(DESTINATION_CMD, buf, size);
 }
 
-void TLM_UPLK_CLEARED(void) {
-  size_t size = 6;
+void TLM_UPLK_CLEARED(int16 arg0) {
+  size_t size = 8;
   uint8_t * buf = (uint8_t *) malloc(size);
   Serialize ser(buf, size);
   ser.serialize_int32(getTimeInSec());
   ser.serialize_uint16(0x0205);
+  ser.serialize_int16(arg0);
   fmgServer->Log(DESTINATION_CMD, buf, size);
 }
 
-void TLM_IMMED_CLEARED(void) {
-  size_t size = 6;
+void TLM_IMMED_CLEARED(int16 arg0) {
+  size_t size = 8;
   uint8_t * buf = (uint8_t *) malloc(size);
   Serialize ser(buf, size);
   ser.serialize_int32(getTimeInSec());
   ser.serialize_uint16(0x0206);
+  ser.serialize_int16(arg0);
   fmgServer->Log(DESTINATION_CMD, buf, size);
 }
 
@@ -260,6 +196,46 @@ void TLM_SPI_PLD_TX(uint8 arg0) {
   Serialize ser(buf, size);
   ser.serialize_int32(getTimeInSec());
   ser.serialize_uint16(0x0408);
+  ser.serialize_uint8(arg0);
+  fmgServer->Log(DESTINATION_ACP, buf, size);
+}
+
+void TLM_SPI_ACS_TX_FAIL(uint8 arg0) {
+  size_t size = 7;
+  uint8_t * buf = (uint8_t *) malloc(size);
+  Serialize ser(buf, size);
+  ser.serialize_int32(getTimeInSec());
+  ser.serialize_uint16(0x0409);
+  ser.serialize_uint8(arg0);
+  fmgServer->Log(DESTINATION_ACP, buf, size);
+}
+
+void TLM_SPI_COM_TX_FAIL(uint8 arg0) {
+  size_t size = 7;
+  uint8_t * buf = (uint8_t *) malloc(size);
+  Serialize ser(buf, size);
+  ser.serialize_int32(getTimeInSec());
+  ser.serialize_uint16(0x040a);
+  ser.serialize_uint8(arg0);
+  fmgServer->Log(DESTINATION_ACP, buf, size);
+}
+
+void TLM_SPI_EPS_TX_FAIL(uint8 arg0) {
+  size_t size = 7;
+  uint8_t * buf = (uint8_t *) malloc(size);
+  Serialize ser(buf, size);
+  ser.serialize_int32(getTimeInSec());
+  ser.serialize_uint16(0x040b);
+  ser.serialize_uint8(arg0);
+  fmgServer->Log(DESTINATION_ACP, buf, size);
+}
+
+void TLM_SPI_PLD_TX_FAIL(uint8 arg0) {
+  size_t size = 7;
+  uint8_t * buf = (uint8_t *) malloc(size);
+  Serialize ser(buf, size);
+  ser.serialize_int32(getTimeInSec());
+  ser.serialize_uint16(0x040c);
   ser.serialize_uint8(arg0);
   fmgServer->Log(DESTINATION_ACP, buf, size);
 }
