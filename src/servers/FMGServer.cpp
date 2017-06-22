@@ -39,8 +39,10 @@ void FileManager::CloseFile() {
 	// Close the file
 	if (file_open) {
 		fclose(file);
+		file_open = false;
+	} else {
+		return;
 	}
-	file_open = false;
 
 	FMGServer * fmgServer = static_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
 	if (fmgServer->checkMoveFromCur() && strcmp("",file_name.c_str()) != 0) { // ensure that the filename exists
@@ -53,6 +55,7 @@ void FileManager::MoveFile() {
 	string new_file_name = file_name;
 	new_file_name.erase(file_path.length(), 4);
 	rename(file_name.c_str(), new_file_name.c_str());
+	printf("Move: %s -> %s\n", file_name.c_str(), new_file_name.c_str());
 	file_name = new_file_name;
 }
 
@@ -71,6 +74,7 @@ void FileManager::GetFileName() {
 	char fileName[100];
 	sprintf(fileName, "%s/CUR/%s_%u_%d", file_path.c_str(), TLM_type.c_str(), FMGServer::bootCount, time);
 	file_name = fileName;
+	printf("%s\n", fileName);
 }
 
 void FileManager::OpenNewFile() {

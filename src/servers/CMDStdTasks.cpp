@@ -841,14 +841,14 @@ string getDownlinkFile(int fileNum) {
 	return fn;
 }
 
-void executeFSWCommand(int command) {
+void executeFSWCommand (int command) {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	COMServer * comServer = static_cast<COMServer *> (Factory::GetInstance(COM_SERVER_SINGLETON));
 	SCHServer * schServer = static_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
 	CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
 	int ret = 0;
-	switch(command){
+	switch (command) {
 	case FSW_CMD_REQUEST_RESET:
 		logger->Log(LOGGER_LEVEL_INFO, "Uplink reset requested");
 		TLM_RESET_COMMANDED();
@@ -895,7 +895,7 @@ int checkForSOT(void) {
 
 		// open the files to downlink file
 		FILE * fp = fopen(SOT_PATH, "r");
-		if (fp == NULL){
+		if (fp == NULL) {
 			logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: error opening SOT");
 			remove(SOT_PATH);
 			return 0;
@@ -903,7 +903,7 @@ int checkForSOT(void) {
 
 		// check the password
 		read = getline(&line, &len, fp);
-		if(strcmp(line, UPLK_PASSWORD_SKIP) == 0) {
+		if (strcmp(line, UPLK_PASSWORD_SKIP) == 0) {
 			fclose(fp);
 			return 1;
 		} else if(strcmp(line, UPLK_PASSWORD_SEND) == 0) {
