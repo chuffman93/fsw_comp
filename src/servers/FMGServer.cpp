@@ -55,7 +55,6 @@ void FileManager::MoveFile() {
 	string new_file_name = file_name;
 	new_file_name.erase(file_path.length(), 4);
 	rename(file_name.c_str(), new_file_name.c_str());
-	printf("Move: %s -> %s\n", file_name.c_str(), new_file_name.c_str());
 	file_name = new_file_name;
 }
 
@@ -63,8 +62,11 @@ void FileManager::OpenFile() {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	file = fopen(file_name.c_str(), "a");
-	if (file == NULL)
+	if (file == NULL) {
 		logger->Log(LOGGER_LEVEL_WARN, "Error opening file");
+		file_open = false;
+		return;
+	}
 	file_open = true;
 	bytes_written = 0;
 }
@@ -74,7 +76,6 @@ void FileManager::GetFileName() {
 	char fileName[100];
 	sprintf(fileName, "%s/CUR/%s_%u_%d", file_path.c_str(), TLM_type.c_str(), FMGServer::bootCount, time);
 	file_name = fileName;
-	printf("%s\n", fileName);
 }
 
 void FileManager::OpenNewFile() {
@@ -98,6 +99,10 @@ bool FileManager::Log(uint8 * buf, std::size_t buf_size){
 		if (!file_open) {
 			logger->Log(LOGGER_LEVEL_DEBUG, "File not open");
 			OpenNewFile();
+			if (!file_open) {
+				printf("file not open");
+				return false;
+			}
 		}
 
 		if (bytes_written + buf_size + 1 < MAX_FILE_SIZE) {
@@ -122,7 +127,6 @@ FMGServer::FMGServer(string nameIn, LocationIDType idIn) :
 					Singleton(),
 					ACPLogger(ACP_FILE_PATH, "ACP"),
 					CMDLogger(CMD_FILE_PATH, "CMD"),
-					DGNLogger(DGN_FILE_PATH, "DGN"),
 					ERRLogger(ERR_FILE_PATH, "ERR"),
 					FSSLogger(FSS_FILE_PATH, "FSS"),
 					GENLogger(GEN_FILE_PATH, "GEN"),
@@ -158,7 +162,6 @@ FMGServer & FMGServer::operator=(const FMGServer & source) {
 
 void FMGServer::CloseAndMoveAllFiles() {
 	CMDLogger.CloseFile();
-	DGNLogger.CloseFile();
 	ERRLogger.CloseFile();
 	FSSLogger.CloseFile();
 	GENLogger.CloseFile();
@@ -212,11 +215,6 @@ void FMGServer::CallLog() {
 	case DESTINATION_CMD:
 		if ( !CMDLogger.Log(buf, size) ) {
 			logger->Log(LOGGER_LEVEL_WARN, "Error writing to Command File");
-		}
-		break;
-	case DESTINATION_DGN:
-		if ( !DGNLogger.Log(buf, size) ) {
-			logger->Log(LOGGER_LEVEL_WARN, "Error writing to Diagnostic File");
 		}
 		break;
 	case DESTINATION_ERR:

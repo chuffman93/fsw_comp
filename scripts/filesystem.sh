@@ -13,6 +13,7 @@ export SD3="/SD_3" # Science Data Storage partition
 
 # All directories to go on /SD_2
 export TLM_DIRECTORIES="
+ACP
 CMD
 ERR
 FSS

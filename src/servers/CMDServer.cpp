@@ -43,8 +43,8 @@ CMDServer::CMDServer(string nameIn, LocationIDType idIn) :
 		SubsystemServer(nameIn, idIn), Singleton(), numFilesDWN(0), currFileNum(0), uftp_pid(-1), downlinkInProgress(false) {
 	startTime = getTimeInSec();
 	CMDConfiguration.resetPeriod = 3*60*60; // 3 hrs FIXME: change for flight
-	CMDConfiguration.fileChunkSize = 204800; // 200 kB
-	CMDConfiguration.maxDownlinkSize = 15728640;
+	CMDConfiguration.fileChunkSize = 102400; // 100 kB
+	CMDConfiguration.maxDownlinkSize = 15728640; // 15 MB
 	CMDConfiguration.beaconPeriod = 15;
 	CMDConfiguration.increasedBeaconPeriod = 8;
 	beaconValid = false;
@@ -100,7 +100,7 @@ void CMDServer::loopIdle(void){
 	}
 
 	// Check for ground login
-	if(checkForSOT() != 0){
+	if (checkForSOT() != 0) {
 		logger->Log(LOGGER_LEVEL_WARN, "CMDServer: surprise COM! Preparing to enter COM Mode");
 		SCHServer * schServer = static_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
 		schServer->RequestCOMMode();
@@ -490,7 +490,7 @@ void CMDServer::DownlinkFile(string fileName) {
 
 	int pid = fork();
 	if (pid == 0) {
-		char * argv[] = {UFTP_PATH, "-Y", "aes256-gcm", "-h", "sha256", "-I", "ax0", "-H", "1.1.1.2", "-x", "1", (char *) fileName.c_str(), NULL};
+		char * argv[] = {UFTP_PATH, "-Y", "aes256-gcm", "-h", "sha256", "-I", "ax0", "-H", "1.1.1.2", "-x", "1", "-m", "10", (char *) fileName.c_str(), NULL};
 		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: downlinking file");
 		execve(UFTP_PATH, argv, {NULL});
 		exit(0);

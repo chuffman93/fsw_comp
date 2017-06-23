@@ -16,7 +16,7 @@
 #include "core/Dispatcher.h"
 #include "core/ModeManager.h"
 
-#define RAD_CHUNK_SIZE		500000 // 500 kB
+#define RAD_CHUNK_SIZE		102400 // 100 kB
 
 namespace AllStar{
 namespace Servers{

@@ -94,7 +94,6 @@ public:
 private:
 	FileManager ACPLogger;
 	FileManager CMDLogger;
-	FileManager DGNLogger;
 	FileManager ERRLogger;
 	FileManager FSSLogger;
 	FileManager GENLogger;
