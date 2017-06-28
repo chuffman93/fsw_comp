@@ -25,7 +25,13 @@ CDHStatus
 	float cpu5   // 5  minute loads (% of CPU)
 	float cpu15  // 15 minute loads (% of CPU)
 	float memory // % of memory
+
+SWPStatus
+	int32 time
 	float hotswaps[32]
+
+THMStatus
+	int32 time
 	float tempSensors[64]
 
 ACSStatus

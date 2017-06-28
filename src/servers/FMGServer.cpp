@@ -125,14 +125,15 @@ void LogFSS(void){
 FMGServer::FMGServer(string nameIn, LocationIDType idIn) :
 					SubsystemServer(nameIn, idIn, 10, 1000),
 					Singleton(),
-					ACPLogger(ACP_FILE_PATH, "ACP"),
 					CMDLogger(CMD_FILE_PATH, "CMD"),
 					ERRLogger(ERR_FILE_PATH, "ERR"),
-					FSSLogger(FSS_FILE_PATH, "FSS"),
 					GENLogger(GEN_FILE_PATH, "GEN"),
+					GPSLogger(GPS_FILE_PATH, "GPS"),
 					MODLogger(MOD_FILE_PATH, "MOD"),
-					SSSLogger(SSS_FILE_PATH, "SSS"),
+					PWRLogger(PWR_FILE_PATH, "PWR"),
+					SPILogger(SPI_FILE_PATH, "SPI"),
 					SWPLogger(SWP_FILE_PATH, "SWP"),
+					THMLogger(THM_FILE_PATH, "THM"),
 					ACS_HSTLogger(ACS_HST_PATH, "ACS"),
 					CDH_HSTLogger(CDH_HST_PATH, "CDH"),
 					COM_HSTLogger(COM_HST_PATH, "COM"),
@@ -163,11 +164,13 @@ FMGServer & FMGServer::operator=(const FMGServer & source) {
 void FMGServer::CloseAndMoveAllFiles() {
 	CMDLogger.CloseFile();
 	ERRLogger.CloseFile();
-	FSSLogger.CloseFile();
 	GENLogger.CloseFile();
+	GPSLogger.CloseFile();
 	MODLogger.CloseFile();
-	SSSLogger.CloseFile();
+	PWRLogger.CloseFile();
+	SPILogger.CloseFile();
 	SWPLogger.CloseFile();
+	THMLogger.CloseFile();
 	ACS_HSTLogger.CloseFile();
 	CDH_HSTLogger.CloseFile();
 	COM_HSTLogger.CloseFile();
@@ -194,7 +197,7 @@ void FMGServer::CallLog() {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FilePacket packet;
 
-	if (this->TakeLock(MAX_BLOCK_TIME) && !FileQueue.empty()) {
+	if (this->TakeLock(MAX_BLOCK_TIME)) {
 		packet = FileQueue.front();
 		FileQueue.pop();
 		this->GiveLock();
@@ -207,53 +210,58 @@ void FMGServer::CallLog() {
     size_t size = packet.size;
 
 	switch (packet.dest) {
-	case DESTINATION_ACP:
-		if ( !ACPLogger.Log(buf, size) ) {
-			logger->Log(LOGGER_LEVEL_WARN, "Error writing to ACP File");
-		}
-		break;
 	case DESTINATION_CMD:
-		if ( !CMDLogger.Log(buf, size) ) {
+		if (!CMDLogger.Log(buf, size)) {
 			logger->Log(LOGGER_LEVEL_WARN, "Error writing to Command File");
 		}
 		break;
 	case DESTINATION_ERR:
-		if ( !ERRLogger.Log(buf, size) ) {
+		if (!ERRLogger.Log(buf, size)) {
 			logger->Log(LOGGER_LEVEL_WARN, "Error writing to Error File");
 		}
 		break;
-	case DESTINATION_FSS:
-		if ( !FSSLogger.Log(buf, size) ) {
-			logger->Log(LOGGER_LEVEL_WARN, "Error writing to File System File");
-		}
-		break;
 	case DESTINATION_GEN:
-		if ( !GENLogger.Log(buf, size) ) {
+		if (!GENLogger.Log(buf, size)) {
 			logger->Log(LOGGER_LEVEL_WARN, "Error writing to General File");
 		}
 		break;
+	case DESTINATION_GPS:
+		if (!GPSLogger.Log(buf, size)) {
+			logger->Log(LOGGER_LEVEL_WARN, "Error writing to GPS File");
+		}
+		break;
 	case DESTINATION_MOD:
-		if( !MODLogger.Log(buf, size) ) {
+		if (!MODLogger.Log(buf, size)) {
 			logger->Log(LOGGER_LEVEL_WARN, "Error writing to Mode File");
 		}
 		break;
-	case DESTINATION_SSS:
-		if ( !SSSLogger.Log(buf, size) ) {
-			logger->Log(LOGGER_LEVEL_WARN, "Error writing to Science System File");
+	case DESTINATION_PWR:
+		if (!PWRLogger.Log(buf, size)) {
+			logger->Log(LOGGER_LEVEL_WARN, "Error writing to Power File");
+		}
+		break;
+	case DESTINATION_SPI:
+		if (!SPILogger.Log(buf, size)) {
+			logger->Log(LOGGER_LEVEL_WARN, "Error writing to SPI File");
 		}
 		break;
 	case DESTINATION_SWP:
-		if ( !SWPLogger.Log(buf, size) ) {
+		if (!SWPLogger.Log(buf, size)) {
 			logger->Log(LOGGER_LEVEL_WARN, "Error writing to HotSwap File");
 		}
 		break;
+	case DESTINATION_THM:
+		if (!THMLogger.Log(buf, size)) {
+			logger->Log(LOGGER_LEVEL_WARN, "Error writing to Thermal File");
+		}
+		break;
 	case DESTINATION_ACS_HST:
-		if ( !ACS_HSTLogger.Log(buf, size) ) {
+		if (!ACS_HSTLogger.Log(buf, size)) {
 			logger->Log(LOGGER_LEVEL_WARN, "Error writing to ACS HST File");
 		}
 		break;
 	case DESTINATION_CDH_HST:
-		if ( !CDH_HSTLogger.Log(buf, size) ) {
+		if (!CDH_HSTLogger.Log(buf, size)) {
 			logger->Log(LOGGER_LEVEL_WARN, "Error writing to CDH HST File");
 		}
 		break;
@@ -324,7 +332,6 @@ void FMGServer::loopComPrep(void) {
 
 void FMGServer::loopCom(void) {
 	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-
 
 	if (!FileQueue.empty()){
 		CallLog();

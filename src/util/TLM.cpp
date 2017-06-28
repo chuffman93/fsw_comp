@@ -127,7 +127,7 @@ void TLM_SPI_ACS_RX(uint8 arg0) {
   ser.serialize_int32(getTimeInSec());
   ser.serialize_uint16(0x0401);
   ser.serialize_uint8(arg0);
-  fmgServer->Log(DESTINATION_ACP, buf, size);
+  fmgServer->Log(DESTINATION_SPI, buf, size);
 }
 
 void TLM_SPI_COM_RX(uint8 arg0) {
@@ -137,7 +137,7 @@ void TLM_SPI_COM_RX(uint8 arg0) {
   ser.serialize_int32(getTimeInSec());
   ser.serialize_uint16(0x0402);
   ser.serialize_uint8(arg0);
-  fmgServer->Log(DESTINATION_ACP, buf, size);
+  fmgServer->Log(DESTINATION_SPI, buf, size);
 }
 
 void TLM_SPI_EPS_RX(uint8 arg0) {
@@ -147,7 +147,7 @@ void TLM_SPI_EPS_RX(uint8 arg0) {
   ser.serialize_int32(getTimeInSec());
   ser.serialize_uint16(0x0403);
   ser.serialize_uint8(arg0);
-  fmgServer->Log(DESTINATION_ACP, buf, size);
+  fmgServer->Log(DESTINATION_SPI, buf, size);
 }
 
 void TLM_SPI_PLD_RX(uint8 arg0) {
@@ -157,7 +157,7 @@ void TLM_SPI_PLD_RX(uint8 arg0) {
   ser.serialize_int32(getTimeInSec());
   ser.serialize_uint16(0x0404);
   ser.serialize_uint8(arg0);
-  fmgServer->Log(DESTINATION_ACP, buf, size);
+  fmgServer->Log(DESTINATION_SPI, buf, size);
 }
 
 void TLM_SPI_ACS_TX(uint8 arg0) {
@@ -167,7 +167,7 @@ void TLM_SPI_ACS_TX(uint8 arg0) {
   ser.serialize_int32(getTimeInSec());
   ser.serialize_uint16(0x0405);
   ser.serialize_uint8(arg0);
-  fmgServer->Log(DESTINATION_ACP, buf, size);
+  fmgServer->Log(DESTINATION_SPI, buf, size);
 }
 
 void TLM_SPI_COM_TX(uint8 arg0) {
@@ -177,7 +177,7 @@ void TLM_SPI_COM_TX(uint8 arg0) {
   ser.serialize_int32(getTimeInSec());
   ser.serialize_uint16(0x0406);
   ser.serialize_uint8(arg0);
-  fmgServer->Log(DESTINATION_ACP, buf, size);
+  fmgServer->Log(DESTINATION_SPI, buf, size);
 }
 
 void TLM_SPI_EPS_TX(uint8 arg0) {
@@ -187,7 +187,7 @@ void TLM_SPI_EPS_TX(uint8 arg0) {
   ser.serialize_int32(getTimeInSec());
   ser.serialize_uint16(0x0407);
   ser.serialize_uint8(arg0);
-  fmgServer->Log(DESTINATION_ACP, buf, size);
+  fmgServer->Log(DESTINATION_SPI, buf, size);
 }
 
 void TLM_SPI_PLD_TX(uint8 arg0) {
@@ -197,7 +197,7 @@ void TLM_SPI_PLD_TX(uint8 arg0) {
   ser.serialize_int32(getTimeInSec());
   ser.serialize_uint16(0x0408);
   ser.serialize_uint8(arg0);
-  fmgServer->Log(DESTINATION_ACP, buf, size);
+  fmgServer->Log(DESTINATION_SPI, buf, size);
 }
 
 void TLM_SPI_ACS_TX_FAIL(uint8 arg0) {
@@ -207,7 +207,7 @@ void TLM_SPI_ACS_TX_FAIL(uint8 arg0) {
   ser.serialize_int32(getTimeInSec());
   ser.serialize_uint16(0x0409);
   ser.serialize_uint8(arg0);
-  fmgServer->Log(DESTINATION_ACP, buf, size);
+  fmgServer->Log(DESTINATION_ERR, buf, size);
 }
 
 void TLM_SPI_COM_TX_FAIL(uint8 arg0) {
@@ -217,7 +217,7 @@ void TLM_SPI_COM_TX_FAIL(uint8 arg0) {
   ser.serialize_int32(getTimeInSec());
   ser.serialize_uint16(0x040a);
   ser.serialize_uint8(arg0);
-  fmgServer->Log(DESTINATION_ACP, buf, size);
+  fmgServer->Log(DESTINATION_ERR, buf, size);
 }
 
 void TLM_SPI_EPS_TX_FAIL(uint8 arg0) {
@@ -227,7 +227,7 @@ void TLM_SPI_EPS_TX_FAIL(uint8 arg0) {
   ser.serialize_int32(getTimeInSec());
   ser.serialize_uint16(0x040b);
   ser.serialize_uint8(arg0);
-  fmgServer->Log(DESTINATION_ACP, buf, size);
+  fmgServer->Log(DESTINATION_ERR, buf, size);
 }
 
 void TLM_SPI_PLD_TX_FAIL(uint8 arg0) {
@@ -237,6 +237,6 @@ void TLM_SPI_PLD_TX_FAIL(uint8 arg0) {
   ser.serialize_int32(getTimeInSec());
   ser.serialize_uint16(0x040c);
   ser.serialize_uint8(arg0);
-  fmgServer->Log(DESTINATION_ACP, buf, size);
+  fmgServer->Log(DESTINATION_ERR, buf, size);
 }
 

@@ -71,12 +71,9 @@ void uftpSetup(void) {
 	system(KISSATTACH_PATH " /dev/ttyS2 radio 1.1.1.1");
 	system("ifconfig ax0 multicast up");
 
-	// send over uftp: /home/root/binaries/uftp -I ax0 file_name -H 1.1.1.2
-	// the "-H 1.1.1.2" is an option that makes it so only that IP address can receive the multicast
-
 	// ------------------------UFTP Daemon---------------------------------
 	// http://uftp-multicast.sourceforge.net/client_usage.txt
-	system(UFTPD_PATH " -I ax0 -E -D " UPLINK_DIRECTORY);
+	system(UFTPD_PATH " -I ax0 -E -t -D " UPLINK_DIRECTORY);
 }
 
 bool openIEF(FILE ** fp, char ** line, size_t * len) {

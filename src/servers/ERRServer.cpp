@@ -39,12 +39,12 @@ void ERRServer::SubsystemLoop() {
 		lastWakeTime = getTimeInMillis();
 
 		if (!ErrorQueue.empty()) {
-			if (this->TakeLock(MAX_BLOCK_TIME) && !ErrorQueue.empty()) {
+			if (this->TakeLock(MAX_BLOCK_TIME)) {
 				error = ErrorQueue.front();
 				ErrorQueue.pop();
+				this->GiveLock();
 
 				SortError(error);
-				this->GiveLock();
 			} else {
 				logger->Log(LOGGER_LEVEL_WARN, "ERRServer: SubsystemLoop() error taking lock");
 			}

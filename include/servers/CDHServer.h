@@ -48,6 +48,8 @@ public:
 
 	static CDHConfig CDHConfiguration;
 	CDHStatus CDHState;
+	THMStatus THMState;
+	SWPStatus SWPState;
 
 	PowerMonitor_Data CDH_powermonitors[4];
 

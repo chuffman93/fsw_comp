@@ -58,18 +58,18 @@ namespace Servers{
 #define KISSATTACH_PATH			BINARIES_DIRECTORY	"/kissattach"
 #define KISSPARMS_PATH			BINARIES_DIRECTORY	"/kissparms"
 
-#define ACP_FILE_PATH			"/SD_2/ACP"
-#define CMD_FILE_PATH			"/SD_2/CMD"
-#define DGN_FILE_PATH			"/SD_2/DGN"
-#define ERR_FILE_PATH			"/SD_2/ERR"
-#define GEN_FILE_PATH			"/SD_2/GEN"
-#define FSS_FILE_PATH			"/SD_2/FSS"
-#define MOD_FILE_PATH			"/SD_2/MOD"
-#define SSS_FILE_PATH			"/SD_2/SSS"
-#define SWP_FILE_PATH			"/SD_2/SWP"
-#define RAD_FILE_PATH			"/SD_3/RAD"
+#define CMD_FILE_PATH			"/SD_2/CMD" // Commands (ACKs and NAKs)
+#define ERR_FILE_PATH			"/SD_2/ERR" // Errors
+#define GEN_FILE_PATH			"/SD_2/GEN" // General
+#define GPS_FILE_PATH			"/SD_2/GPS" // GPS data
+#define MOD_FILE_PATH			"/SD_2/MOD" // Mode switches
+#define PWR_FILE_PATH			"/SD_2/PWR" // Subsystem power changes
+#define SPI_FILE_PATH			"/SD_2/SPI" // SPI (successes only---failures are in ERR)
+#define SWP_FILE_PATH			"/SD_2/SWP" // Hot swaps (power monitors?)
+#define THM_FILE_PATH			"/SD_2/THM" // Thermal (ie. temp sensor data)
+#define RAD_FILE_PATH			"/SD_3/RAD" // Science data
 
-#define HST_FILE_PATH			"/SD_2/HST"
+#define HST_FILE_PATH			"/SD_2/HST" // Health and status
 #define ACS_HST_PATH			HST_FILE_PATH	"/ACS"
 #define CDH_HST_PATH			HST_FILE_PATH	"/CDH"
 #define COM_HST_PATH			HST_FILE_PATH	"/COM"

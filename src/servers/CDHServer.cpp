@@ -31,8 +31,8 @@ using namespace std;
 #define HS_EN	1
 #define PM_EN	0
 
-namespace AllStar{
-namespace Servers{
+namespace AllStar {
+namespace Servers {
 
 CDHConfig CDHServer::CDHConfiguration(0);
 
@@ -88,8 +88,7 @@ void CDHServer::loopInit() {
 	currentState = ST_MONITOR;
 }
 
-void CDHServer::loopMonitor(){
-	int64 currTime = getTimeInMillis();
+void CDHServer::loopMonitor() {
 	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 
 	readHealth();
@@ -105,9 +104,9 @@ void CDHServer::loopMonitor(){
 	}
 }
 
-void CDHServer::loopReset(){
+void CDHServer::loopReset() {
 	// nothing to do
-	for(uint8 i = 0; i < 60; i++){
+	for (uint8 i = 0; i < 60; i++) {
 		usleep(1000000);
 	}
 
@@ -115,7 +114,7 @@ void CDHServer::loopReset(){
 }
 
 // ----------------------------------------- CDH Methods -----------------------------------------
-void CDHServer::readHealth(){
+void CDHServer::readHealth() {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	// Start sensors for reading next round
@@ -126,13 +125,13 @@ void CDHServer::readHealth(){
 #endif //PM_EN
 
 #if TEMP_EN
-	if(healthCount == 8){
+	if (healthCount == 8) {
 		CDHTempStart();
 	}
 #endif //TEMP_EN
 
 	// Get all CDH information
-	if(healthCount == 9){
+	if (healthCount == 9) {
 		logger->Log(LOGGER_LEVEL_DEBUG, "CDHServer: Gathering information");
 		CDHState.time  = getTimeInSec();
 
@@ -141,11 +140,13 @@ void CDHServer::readHealth(){
 #endif
 
 #if TEMP_EN
-		CDHTempRead(CDHState.tempSensors); // Read Temp sensors
+		CDHTempRead(THMState.tempSensors); // Read Temp sensors
+		THMState.time = getTimeInSec();
 #endif //TEMP_EN
 
 #if HS_EN
-		devMngr->getHSStatus(CDHState.hotswaps); // Read Hot swaps
+		devMngr->getHSStatus(SWPState.hotswaps); // Read Hot swaps
+		SWPState.time = getTimeInSec();
 #endif //HS_EN
 
 #if PM_EN
@@ -159,30 +160,40 @@ void CDHServer::readHealth(){
 
 			FMGServer * fmgServer = static_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
 			uint8 * buffer = new uint8[CDHStatus::size];
-			CDHState.update(buffer, CDHStatus::size, 0, 0);
+			CDHState.update(buffer, CDHStatus::size);
 			CDHState.serialize();
 			fmgServer->Log(DESTINATION_CDH_HST, buffer, CDHStatus::size);
+
+			buffer = new uint8[THMStatus::size];
+			THMState.update(buffer, THMStatus::size);
+			THMState.serialize();
+			fmgServer->Log(DESTINATION_THM, buffer, THMStatus::size);
+
+			buffer = new uint8[SWPStatus::size];
+			SWPState.update(buffer, SWPStatus::size);
+			SWPState.serialize();
+			fmgServer->Log(DESTINATION_SWP, buffer, SWPStatus::size);
 		}
 	}
 
 	healthCount = (healthCount == 9) ? 0 : healthCount + 1;
 }
 
-void CDHServer::subPowerOn(HardwareLocationIDType subsystem){
+void CDHServer::subPowerOn(HardwareLocationIDType subsystem) {
 	toggleSubPower(subsystem, true);
 	subsystemPowerStates[subsystem] = true;
 }
 
-void CDHServer::subPowerOff(HardwareLocationIDType subsystem){
+void CDHServer::subPowerOff(HardwareLocationIDType subsystem) {
 	toggleSubPower(subsystem, false);
 	subsystemPowerStates[subsystem] = false;
 }
 
-void CDHServer::resetAssert(HardwareLocationIDType subsystem){
+void CDHServer::resetAssert(HardwareLocationIDType subsystem) {
 	toggleResetLine(subsystem, false);
 }
 
-void CDHServer::resetDeassert(HardwareLocationIDType subsystem){
+void CDHServer::resetDeassert(HardwareLocationIDType subsystem) {
 	toggleResetLine(subsystem, true);
 }
 

@@ -45,15 +45,35 @@ public:
 
 class CDHStatus : public Serialize {
 public:
-  const static int size = 404;
+  const static int size = 20;
   CDHStatus();
-  CDHStatus(int32 time, float cpu1, float cpu5, float cpu15, float memory, float hotswaps[32], float tempSensors[64]);
+  CDHStatus(int32 time, float cpu1, float cpu5, float cpu15, float memory);
   int32 time; // log the time the stats were taken
   float cpu1; // 1  minute loads (% of CPU)
   float cpu5; // 5  minute loads (% of CPU)
   float cpu15; // 15 minute loads (% of CPU)
   float memory; // % of memory
+  void serialize(void);
+  void deserialize(void);
+};
+
+class SWPStatus : public Serialize {
+public:
+  const static int size = 132;
+  SWPStatus();
+  SWPStatus(int32 time, float hotswaps[32]);
+  int32 time; 
   float hotswaps[32]; 
+  void serialize(void);
+  void deserialize(void);
+};
+
+class THMStatus : public Serialize {
+public:
+  const static int size = 260;
+  THMStatus();
+  THMStatus(int32 time, float tempSensors[64]);
+  int32 time; 
   float tempSensors[64]; 
   void serialize(void);
   void deserialize(void);

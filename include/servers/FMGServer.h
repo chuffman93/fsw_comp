@@ -92,14 +92,15 @@ public:
 	static uint16 bootCount;
 
 private:
-	FileManager ACPLogger;
 	FileManager CMDLogger;
 	FileManager ERRLogger;
-	FileManager FSSLogger;
 	FileManager GENLogger;
+	FileManager GPSLogger;
 	FileManager MODLogger;
-	FileManager SSSLogger;
+	FileManager PWRLogger;
+	FileManager SPILogger;
 	FileManager SWPLogger;
+	FileManager THMLogger;
 	FileManager ACS_HSTLogger;
 	FileManager CDH_HSTLogger;
 	FileManager COM_HSTLogger;
