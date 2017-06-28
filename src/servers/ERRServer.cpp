@@ -8,6 +8,7 @@
 #include "servers/CDHServer.h"
 #include "core/StdTypes.h"
 #include "util/Logger.h"
+#include "util/TLM.h"
 
 namespace AllStar {
 namespace Servers {
@@ -33,6 +34,8 @@ void ERRServer::SubsystemLoop() {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	ErrorOpcodeType error;
 	int64 lastWakeTime;
+
+	TLM_ERR_SERVER_STARTED();
 
 	while (1) {
 		wdmAlive();

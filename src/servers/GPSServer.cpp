@@ -18,6 +18,7 @@
 #include "core/ModeManager.h"
 #include "core/StdTypes.h"
 #include "util/Logger.h"
+#include "util/TLM.h"
 #include <math.h>
 #include <stdio.h>
 #include <termios.h>
@@ -74,6 +75,7 @@ void GPSServer::SubsystemLoop(void) {
 	CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 
 	logger->Log(LOGGER_LEVEL_INFO, "GPSServer: entered subsystem loop");
+	TLM_GPS_SERVER_STARTED();
 	gpsResponsive = false;
 
 	cdhServer->subPowerOn(HARDWARE_LOCATION_GPS);

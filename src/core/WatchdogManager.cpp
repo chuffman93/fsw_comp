@@ -15,6 +15,7 @@
 #include "servers/SubsystemServer.h"
 #include "servers/FMGServer.h"
 #include "util/Logger.h"
+#include "util/TLM.h"
 #include <string>
 using namespace std;
 using namespace AllStar::Servers;
@@ -78,6 +79,7 @@ void WatchdogManager::WatchdogManagerTask() {
 			case WDM_UNKNOWN:
 				(*thread)->stop();
 				logger->Log(LOGGER_LEVEL_ERROR, "\x1b[31m" "Restarting inactive task" "\x1b[0m");
+				TLM_RESTART_THREAD((*thread)->server->id);
 				(*thread)->start();
 				break;
 			case WDM_ASLEEP:

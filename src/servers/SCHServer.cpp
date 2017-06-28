@@ -160,6 +160,8 @@ void SCHServer::SubsystemLoop(void) {
 	GPSServer * gpsServer = static_cast<GPSServer *>(Factory::GetInstance(GPS_SERVER_SINGLETON));
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
+	TLM_SCH_SERVER_STARTED();
+
 	modeManager->SetMode(MODE_BUS_PRIORITY);
 
 	currentSchedule = std::list<SCHItem>();
@@ -278,6 +280,7 @@ void SCHServer::LoadDefaultSchedule(void) {
 	LoadDefaultScheduleConfigurations((char *) SCH_CONFIG);
 	currentSchedule = defaultSchedule;
 	logger->Log(LOGGER_LEVEL_INFO, "Default Schedule Loaded");
+	TLM_LOAD_DEFAULT_SCHEDULE();
 	if (access(SCHEDULE_FILE, F_OK) != -1) {
 		remove(SCHEDULE_FILE);
 	}
@@ -316,6 +319,7 @@ int SCHServer::LoadNextSchedule(void) {
 	// make sure we get a valid file pointer
 	if (fp == NULL) {
 		logger->Log(LOGGER_LEVEL_ERROR, "SCHServer: unable to open new schedule, loading default...");
+		TLM_SCHEDULE_BAD_OPEN();
 		LoadDefaultSchedule();
 		return false;
 	}
@@ -326,6 +330,7 @@ int SCHServer::LoadNextSchedule(void) {
 	fseek(fp,0,SEEK_SET);
 
 	if (file_size == 0 || (file_size % SCHItem::size) != 0) {
+		TLM_SCHEDULE_BAD_SIZE();
 		logger->Log(LOGGER_LEVEL_ERROR, "SCHServer: Invalid schedule file size, loading default...");
 		LoadDefaultSchedule();
 		fclose(fp);
@@ -343,6 +348,7 @@ int SCHServer::LoadNextSchedule(void) {
 			if ((ScheduleArray[i].enter_mode < 0 || ScheduleArray[i].enter_mode > 1) ||
 					(ScheduleArray[i].mode < 0 || ScheduleArray[i].mode > MODE_NUM_MODES)) {
 				// error in file
+				TLM_SCHEDULE_BAD_ITEM();
 				logger->Log(LOGGER_LEVEL_ERROR, "SCHServer: schedule item out of range, loading default...");
 				LoadDefaultSchedule();
 				fclose(fp);
@@ -353,6 +359,7 @@ int SCHServer::LoadNextSchedule(void) {
 		// push the new items to the default schedule
 		UpdateSchedule(bytes_read / SCHItem::size);
 
+		TLM_LOAD_NEW_SCHEDULE();
 		logger->Log(LOGGER_LEVEL_INFO, "SCHServer: successfully loaded new schedule");
 		if (access(SCHEDULE_FILE, F_OK) != -1) {
 			remove(SCHEDULE_FILE);
@@ -361,6 +368,7 @@ int SCHServer::LoadNextSchedule(void) {
 		return true;
 	} else {
 		logger->Log(LOGGER_LEVEL_ERROR, "SCHServer: error reading new schedule");
+		TLM_SCHEDULE_BAD_READ();
 		LoadDefaultSchedule();
 		fclose(fp);
 		return false;

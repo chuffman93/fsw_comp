@@ -19,6 +19,7 @@
 #include "core/StdTypes.h"
 #include "core/ModeManager.h"
 #include "util/Logger.h"
+#include "util/TLM.h"
 #include "servers/CDHServer.h"
 
 using namespace std;
@@ -53,6 +54,7 @@ bool PLDServer::IsFullyInitialized(void) {
 void PLDServer::loopInit() {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "PLDServer: initializing");
+	TLM_PLD_SERVER_STARTED();
 
 	PLDDataNumber = PLDReadDataNumber();
 

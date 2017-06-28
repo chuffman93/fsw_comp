@@ -66,6 +66,12 @@ ERR
 FSW exiting from main! Watchdog exited.
 None
 
+RESTART_THREAD
+0x0004
+ERR
+Watchdog restarting thread: %u
+uint8
+
 MODE_SWITCH
 0x0100
 MOD
@@ -113,6 +119,42 @@ IMMED_CLEARED
 CMD
 Cleared the immediate directory with return: %d
 int16
+
+LOAD_NEW_SCHEDULE
+0x0207
+CMD
+Loading new schedule
+None
+
+LOAD_DEFAULT_SCHEDULE
+0x0208
+CMD
+Loading default schedule
+None
+
+SCHEDULE_BAD_SIZE
+0x0209
+CMD
+Invalid Schedule Size
+None
+
+SCHEDULE_BAD_ITEM
+0x020a
+CMD
+Schedule item out of range
+None
+
+SCHEDULE_BAD_READ
+0x020b
+CMD
+Error reading new schedule
+None
+
+SCHEDULE_BAD_OPEN
+0x020c
+CMD
+Unable to open new schedule
+None
 
 SPI_ACS_RX
 0x0401
@@ -185,3 +227,63 @@ SPI_PLD_TX_FAIL
 ERR
 SPI packet failure to PLD. Opcode: %u
 uint8
+
+ACS_SERVER_STARTED
+0x0500
+GEN
+ACS server started
+None
+
+CDH_SERVER_STARTED
+0x0501
+GEN
+CDH server started
+None
+
+CMD_SERVER_STARTED
+0x0502
+GEN
+CMD server started
+None
+
+COM_SERVER_STARTED
+0x0503
+GEN
+COM server started
+None
+
+EPS_SERVER_STARTED
+0x0504
+GEN
+EPS server started
+None
+
+ERR_SERVER_STARTED
+0x0505
+GEN
+ERR server started
+None
+
+FMG_SERVER_STARTED
+0x0506
+GEN
+FMG server started
+None
+
+GPS_SERVER_STARTED
+0x0507
+GEN
+GPS server started
+None
+
+PLD_SERVER_STARTED
+0x0508
+GEN
+PLD server started
+None
+
+SCH_SERVER_STARTED
+0x0509
+GEN
+SCH server started
+None

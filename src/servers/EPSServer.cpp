@@ -20,6 +20,7 @@
 #include "servers/Structs.h"
 #include "servers/FileSystem.h"
 #include "util/Logger.h"
+#include "util/TLM.h"
 
 using namespace std;
 using namespace AllStar::Core;
@@ -53,6 +54,8 @@ bool EPSServer::IsFullyInitialized(void){
 void EPSServer::loopInit() {
 	ERRServer * errServer = static_cast<ERRServer *> (Factory::GetInstance(ERR_SERVER_SINGLETON));
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	TLM_EPS_SERVER_STARTED();
 
 	if(EPSTestAlive()){
 		if(!EPSSelfCheck()){

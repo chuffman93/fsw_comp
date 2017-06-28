@@ -24,7 +24,7 @@ typedef uint64_t uint64;
 typedef int64_t int64;
 
 
-typedef uint16 LocationIDType; // see HardwareLocationIDEnum + ServerLocationIDEnum
+typedef uint8 LocationIDType; // see HardwareLocationIDEnum + ServerLocationIDEnum
 #define LOCATION_ID_INVALID 0  // used with LocationIDType
 
 typedef enum HardwareLocationIDEnum {

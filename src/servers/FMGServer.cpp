@@ -12,6 +12,7 @@
 #include "core/StdTypes.h"
 #include "core/WatchdogManager.h"
 #include "util/Logger.h"
+#include "util/TLM.h"
 #include <iostream>
 #include <fstream>
 #include <queue>
@@ -300,6 +301,7 @@ void FMGServer::PrepVerboseHST(void){
 
 // --------- State Machine -----------------------------------------------------------------------------------------
 void FMGServer::loopInit(void) {
+	TLM_FMG_SERVER_STARTED();
 	system(CLEAR_CUR_DIRECTORIES_SCRIPT);
 	bootConfig();
 	bootCount = loadBootCount();

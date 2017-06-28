@@ -18,6 +18,7 @@
 #include "core/WatchdogManager.h"
 #include "core/ModeManager.h"
 #include "util/Logger.h"
+#include "util/TLM.h"
 #include "util/StorageManager.h"
 #include <iostream>
 #include <sys/sysinfo.h>
@@ -71,6 +72,7 @@ void CDHServer::loopInit() {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	logger->Log(LOGGER_LEVEL_INFO, "CDHServer: Initializing");
+	TLM_CDH_SERVER_STARTED();
 
 #if HS_EN
 	bool initHS = devMngr->initializeHS();

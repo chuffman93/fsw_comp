@@ -20,6 +20,7 @@
 #include "core/StdTypes.h"
 #include "core/Dispatcher.h"
 #include "util/Logger.h"
+#include "util/TLM.h"
 
 using namespace std;
 using namespace AllStar::Core;
@@ -54,6 +55,8 @@ void ACSServer::loopInit() {
 	ERRServer * errServer = static_cast<ERRServer *> (Factory::GetInstance(ERR_SERVER_SINGLETON));
 	CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	TLM_ACS_SERVER_STARTED();
 
 	ACSState.mode = ACS_MODE_UNKNOWN;
 

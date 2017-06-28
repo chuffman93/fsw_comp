@@ -22,6 +22,7 @@
 #include "core/StdTypes.h"
 #include "core/WatchdogManager.h"
 #include "util/Logger.h"
+#include "util/TLM.h"
 #include "HAL/SPI_Server.h"
 #include "POSIX.h"
 #include <iostream>
@@ -71,6 +72,7 @@ CMDServer & CMDServer::operator=(const CMDServer & source){
 void CMDServer::loopInit(void){
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "CMDServer: Initializing");
+	TLM_CMD_SERVER_STARTED();
 
 	// setup for uftp
 	uftpSetup();
