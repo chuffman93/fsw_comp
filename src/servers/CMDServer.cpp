@@ -326,6 +326,7 @@ void CMDServer::loopPostPass() {
 void CMDServer::loopReset(){
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_INFO, "Daily reset encountered");
+	TLM_DAILY_RESET();
 
 	wdmAsleep();
 	for(uint8 i = 0; i < 30; i++){

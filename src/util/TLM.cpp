@@ -82,7 +82,7 @@ void TLM_RESET_COMMANDED(void) {
   fmgServer->Log(DESTINATION_CMD, buf, size);
 }
 
-void TLM_TX_SILENCE_ENTERED(void) {
+void TLM_DAILY_RESET(void) {
   size_t size = 6;
   uint8_t * buf = (uint8_t *) malloc(size);
   Serialize ser(buf, size);
@@ -91,7 +91,7 @@ void TLM_TX_SILENCE_ENTERED(void) {
   fmgServer->Log(DESTINATION_CMD, buf, size);
 }
 
-void TLM_TX_SILENCE_EXITED(void) {
+void TLM_TX_SILENCE_ENTERED(void) {
   size_t size = 6;
   uint8_t * buf = (uint8_t *) malloc(size);
   Serialize ser(buf, size);
@@ -100,17 +100,16 @@ void TLM_TX_SILENCE_EXITED(void) {
   fmgServer->Log(DESTINATION_CMD, buf, size);
 }
 
-void TLM_DWLK_CLEARED(int16 arg0) {
-  size_t size = 8;
+void TLM_TX_SILENCE_EXITED(void) {
+  size_t size = 6;
   uint8_t * buf = (uint8_t *) malloc(size);
   Serialize ser(buf, size);
   ser.serialize_int32(getTimeInSec());
   ser.serialize_uint16(0x0204);
-  ser.serialize_int16(arg0);
   fmgServer->Log(DESTINATION_CMD, buf, size);
 }
 
-void TLM_UPLK_CLEARED(int16 arg0) {
+void TLM_DWLK_CLEARED(int16 arg0) {
   size_t size = 8;
   uint8_t * buf = (uint8_t *) malloc(size);
   Serialize ser(buf, size);
@@ -120,7 +119,7 @@ void TLM_UPLK_CLEARED(int16 arg0) {
   fmgServer->Log(DESTINATION_CMD, buf, size);
 }
 
-void TLM_IMMED_CLEARED(int16 arg0) {
+void TLM_UPLK_CLEARED(int16 arg0) {
   size_t size = 8;
   uint8_t * buf = (uint8_t *) malloc(size);
   Serialize ser(buf, size);
@@ -130,16 +129,17 @@ void TLM_IMMED_CLEARED(int16 arg0) {
   fmgServer->Log(DESTINATION_CMD, buf, size);
 }
 
-void TLM_LOAD_NEW_SCHEDULE(void) {
-  size_t size = 6;
+void TLM_IMMED_CLEARED(int16 arg0) {
+  size_t size = 8;
   uint8_t * buf = (uint8_t *) malloc(size);
   Serialize ser(buf, size);
   ser.serialize_int32(getTimeInSec());
   ser.serialize_uint16(0x0207);
+  ser.serialize_int16(arg0);
   fmgServer->Log(DESTINATION_CMD, buf, size);
 }
 
-void TLM_LOAD_DEFAULT_SCHEDULE(void) {
+void TLM_LOAD_NEW_SCHEDULE(void) {
   size_t size = 6;
   uint8_t * buf = (uint8_t *) malloc(size);
   Serialize ser(buf, size);
@@ -148,7 +148,7 @@ void TLM_LOAD_DEFAULT_SCHEDULE(void) {
   fmgServer->Log(DESTINATION_CMD, buf, size);
 }
 
-void TLM_SCHEDULE_BAD_SIZE(void) {
+void TLM_LOAD_DEFAULT_SCHEDULE(void) {
   size_t size = 6;
   uint8_t * buf = (uint8_t *) malloc(size);
   Serialize ser(buf, size);
@@ -157,7 +157,7 @@ void TLM_SCHEDULE_BAD_SIZE(void) {
   fmgServer->Log(DESTINATION_CMD, buf, size);
 }
 
-void TLM_SCHEDULE_BAD_ITEM(void) {
+void TLM_SCHEDULE_BAD_SIZE(void) {
   size_t size = 6;
   uint8_t * buf = (uint8_t *) malloc(size);
   Serialize ser(buf, size);
@@ -166,7 +166,7 @@ void TLM_SCHEDULE_BAD_ITEM(void) {
   fmgServer->Log(DESTINATION_CMD, buf, size);
 }
 
-void TLM_SCHEDULE_BAD_READ(void) {
+void TLM_SCHEDULE_BAD_ITEM(void) {
   size_t size = 6;
   uint8_t * buf = (uint8_t *) malloc(size);
   Serialize ser(buf, size);
@@ -175,12 +175,21 @@ void TLM_SCHEDULE_BAD_READ(void) {
   fmgServer->Log(DESTINATION_CMD, buf, size);
 }
 
-void TLM_SCHEDULE_BAD_OPEN(void) {
+void TLM_SCHEDULE_BAD_READ(void) {
   size_t size = 6;
   uint8_t * buf = (uint8_t *) malloc(size);
   Serialize ser(buf, size);
   ser.serialize_int32(getTimeInSec());
   ser.serialize_uint16(0x020c);
+  fmgServer->Log(DESTINATION_CMD, buf, size);
+}
+
+void TLM_SCHEDULE_BAD_OPEN(void) {
+  size_t size = 6;
+  uint8_t * buf = (uint8_t *) malloc(size);
+  Serialize ser(buf, size);
+  ser.serialize_int32(getTimeInSec());
+  ser.serialize_uint16(0x020d);
   fmgServer->Log(DESTINATION_CMD, buf, size);
 }
 

@@ -90,68 +90,74 @@ CMD
 Entering commanded reset
 None
 
-TX_SILENCE_ENTERED
+DAILY_RESET
 0x0202
+CMD
+Daily reset encountered
+None
+
+TX_SILENCE_ENTERED
+0x0203
 CMD
 Successfully entered transmitter silence mode
 None
 
 TX_SILENCE_EXITED
-0x0203
+0x0204
 CMD
 Successfully exited transmitter silence mode
 None
 
 DWLK_CLEARED
-0x0204
+0x0205
 CMD
 Cleared the downlink directory with return: %d
 int16
 
 UPLK_CLEARED
-0x0205
+0x0206
 CMD
 Cleared the uplink directory with return: %d
 int16
 
 IMMED_CLEARED
-0x0206
+0x0207
 CMD
 Cleared the immediate directory with return: %d
 int16
 
 LOAD_NEW_SCHEDULE
-0x0207
+0x0208
 CMD
 Loading new schedule
 None
 
 LOAD_DEFAULT_SCHEDULE
-0x0208
+0x0209
 CMD
 Loading default schedule
 None
 
 SCHEDULE_BAD_SIZE
-0x0209
+0x020a
 CMD
 Invalid Schedule Size
 None
 
 SCHEDULE_BAD_ITEM
-0x020a
+0x020b
 CMD
 Schedule item out of range
 None
 
 SCHEDULE_BAD_READ
-0x020b
+0x020c
 CMD
 Error reading new schedule
 None
 
 SCHEDULE_BAD_OPEN
-0x020c
+0x020d
 CMD
 Unable to open new schedule
 None

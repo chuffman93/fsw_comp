@@ -28,6 +28,9 @@ class TLM_AutoCoder():
     # Skip to the proper place in the file
     self.skip_to_begin_tlm()
 
+    # List of ID's in use
+    self.id_list = []
+
 
   def __enter__(self):
     return self
@@ -79,6 +82,11 @@ class TLM_AutoCoder():
     self.fmt_str = self.f.readline().strip()
     self.param_types = self.f.readline().strip()
     self.f.readline()
+
+    if self.ID in self.id_list:
+      print "ID already in use! (%s)" % (self.ID)
+    else:
+      self.id_list.append(self.ID)
 
   def eof(self):
     return True if not self.param_types else False

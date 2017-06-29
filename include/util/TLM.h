@@ -20,6 +20,7 @@ void TLM_RESTART_THREAD(uint8 arg0);
 void TLM_MODE_SWITCH(uint8 arg0);
 void TLM_SYS_CALL(int16 arg0);
 void TLM_RESET_COMMANDED(void);
+void TLM_DAILY_RESET(void);
 void TLM_TX_SILENCE_ENTERED(void);
 void TLM_TX_SILENCE_EXITED(void);
 void TLM_DWLK_CLEARED(int16 arg0);
