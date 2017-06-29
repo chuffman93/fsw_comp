@@ -227,7 +227,8 @@ void CMDServer::loopImmediateExecution() {
 		return;
 	}
 
-	while (parseIEFLine(IEFfp, &IEFline, &IEFlen)) {
+	uint8 lineNum = 1;
+	while (parseIEFLine(IEFfp, &IEFline, &IEFlen, lineNum++)) {
 		wdmAlive();
 		if (downlinkInProgress) {
 			return;

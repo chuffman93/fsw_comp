@@ -21,21 +21,21 @@ namespace Servers{
 
 void uftpSetup(void);
 bool openIEF(FILE ** fp, char ** line, size_t * len);
-bool parseIEFLine(FILE * fp, char ** line, size_t * len);
+bool parseIEFLine(FILE * fp, char ** line, size_t * len, uint8 lineNum);
 void parseDRF(void);
 void parseDLT(void);
 void parsePPE(void);
 void processUplinkFiles(void);
 string trimNewline(string buf);
-void prepRADDownlink(char * line);
-void prepDataDownlink(char * line);
+void prepRADDownlink(char * line, uint8 lineNum);
+void prepDataDownlink(char * line, uint8 lineNum);
 const long getFileSize(const char * filePath, const char * regex, const int maxFiles);
-const int packageFiles(const char * destination, const char * filePath, const char * regex, const int maxFiles);
-int deleteOldest(char * filePath, int numFiles);
-int deleteRegex(char * filePath, char * regex);
+const int packageFiles(const char * destination, const char * filePath, const char * regex, const int maxFiles, uint8 lineNum);
+int deleteOldest(char * filePath, int numFiles, uint8 lineNum);
+int deleteRegex(char * filePath, char * regex, uint8 lineNum);
 int getNumFiles(char * dir);
 string getDownlinkFile(int fileNum);
-void executeFSWCommand(int command);
+void executeFSWCommand(int command, uint8 lineNum);
 int checkForSOT(void);
 
 } // End of namespace Servers

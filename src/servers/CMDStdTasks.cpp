@@ -65,7 +65,7 @@ void uftpSetup(void) {
 		logger->Log(LOGGER_LEVEL_ERROR, "GPSServer: Problem setting port attributes!");
 	}
 
-
+	// FIXME: Handle these errors
 
 	// ---------------------------KISS------------------------------------
 	system(KISSATTACH_PATH " /dev/ttyS2 radio 1.1.1.1");
@@ -89,6 +89,7 @@ bool openIEF(FILE ** fp, char ** line, size_t * len) {
 	*fp = fopen(IEF_PATH, "r");
 	if (fp == NULL) {
 		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: error opening IEF");
+		TLM_IEF_BAD_OPEN();
 		remove(IEF_PATH);
 		return false;
 	}
@@ -97,6 +98,7 @@ bool openIEF(FILE ** fp, char ** line, size_t * len) {
 	bytesRead = getline(line, len, *fp);
 	if (strcmp(*line,UPLK_PASSWORD) != 0) {
 		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: invalid IEF password");
+		TLM_IEF_BAD_PASSWORD();
 		fclose(*fp);
 		remove(IEF_PATH);
 		return false;
@@ -106,7 +108,7 @@ bool openIEF(FILE ** fp, char ** line, size_t * len) {
 }
 
 // returns false if EOF is encountered
-bool parseIEFLine(FILE * fp, char ** line, size_t * len) {
+bool parseIEFLine(FILE * fp, char ** line, size_t * len, uint8 lineNum) {
 	CMDServer * cmdServer = static_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	size_t bytesRead;
@@ -127,6 +129,7 @@ bool parseIEFLine(FILE * fp, char ** line, size_t * len) {
 	type = strtok(*line,",");
 	if (type == NULL) {
 		logger->Log(LOGGER_LEVEL_WARN, "Incomplete IEF line at type");
+		TLM_IEF_INCOMPLETE_TYPE(lineNum);
 		return true;
 	}
 
@@ -135,6 +138,7 @@ bool parseIEFLine(FILE * fp, char ** line, size_t * len) {
 		command = strtok(NULL,",");
 		if (command == NULL) {
 			logger->Log(LOGGER_LEVEL_WARN, "Incomplete IEF line at command");
+			TLM_IEF_INCOMPLETE_CMD(lineNum);
 			return true;
 		}
 
@@ -155,17 +159,19 @@ bool parseIEFLine(FILE * fp, char ** line, size_t * len) {
 		command = strtok(NULL,",");
 		if (command == NULL) {
 			logger->Log(LOGGER_LEVEL_WARN, "Incomplete IEF line at command");
+			TLM_IEF_INCOMPLETE_CMD(lineNum);
 			return true;
 		}
 
 		int cmd = atoi(command);
 		if (cmd <= 0 || cmd >= FSW_CMD_MAX) {
 			logger->Log(LOGGER_LEVEL_WARN, "Invalid IEF command number");
+			TLM_IEF_INVALID_CNUMBER(lineNum);
 			return true;
 		}
 
 		// call a function to find and execute the command
-		executeFSWCommand(cmd);
+		executeFSWCommand(cmd, lineNum);
 		return true;
 
 	// Downlink
@@ -174,29 +180,34 @@ bool parseIEFLine(FILE * fp, char ** line, size_t * len) {
 		arch = strtok(NULL,",");
 		if (arch == NULL) {
 			logger->Log(LOGGER_LEVEL_WARN, "Incomplete IEF line at archive");
+			TLM_IEF_INCOMPLETE_ARCHIVE(lineNum);
 			return true;
 		}
 
 		dir = strtok(NULL,",");
 		if (dir == NULL) {
 			logger->Log(LOGGER_LEVEL_WARN, "Incomplete IEF line at directory");
+			TLM_IEF_INCOMPLETE_DIRECTORY(lineNum);
 			return true;
 		}
 
 		num = strtok(NULL,",");
 		if (num == NULL) {
 			logger->Log(LOGGER_LEVEL_WARN, "Incomplete IEF line at number");
+			TLM_IEF_INCOMPLETE_NUMBER(lineNum);
 			return true;
 		}
 		numFiles = atoi(num);
 		if (numFiles < 1) {
 			logger->Log(LOGGER_LEVEL_WARN, "Invalid IEF line at number");
+			TLM_IEF_INVALID_NUMBER(lineNum);
 			return true;
 		}
 
 		regex = strtok(NULL,",");
 		if (regex == NULL) {
 			logger->Log(LOGGER_LEVEL_WARN, "Incomplete IEF line at regex");
+			TLM_IEF_INCOMPLETE_REGEX(lineNum);
 			return true;
 		}
 
@@ -212,12 +223,13 @@ bool parseIEFLine(FILE * fp, char ** line, size_t * len) {
 		string archive = string(IMMED_DIRECTORY) + "/" + string(arch);
 
 		// ---- Call the function to gather and create a tarball from the files
-		packageFiles((char *) archive.c_str(), dir, regex, numFiles); // TODO: error check this?
+		packageFiles((char *) archive.c_str(), dir, regex, numFiles, lineNum); // TODO: error check this?
 
 		cmdServer->DownlinkFile(archive);
 		return true;
 	} else {
 		logger->Log(LOGGER_LEVEL_WARN, "IEF: unknown command type");
+		TLM_IEF_UNKNOWN_COMMAND(lineNum);
 		return true;
 	}
 }
@@ -239,6 +251,7 @@ void parseDRF(void) {
 	fp = fopen(DRF_PATH, "r");
 	if (fp == NULL){
 		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: error opening DRF");
+		TLM_DRF_BAD_OPEN();
 		remove(DRF_PATH);
 		return;
 	}
@@ -247,21 +260,23 @@ void parseDRF(void) {
 	bytesRead = getline(&line, &len, fp);
 	if(strcmp(line,UPLK_PASSWORD) != 0){
 		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: invalid DRF password");
+		TLM_DRF_BAD_PASSWORD();
 		fclose(fp);
 		remove(DRF_PATH);
 		return;
 	}
 
 	// parse the file line by line
+	uint8 lineNum = 0;
 	char * token;
 	char parseArray[200];
 	while ((bytesRead = getline(&line, &len, fp)) != -1) {
 		strcpy(parseArray, line);
 		token = strtok(line,",");
 		if (strcmp(token, "RAD") == 0) {
-			prepRADDownlink(parseArray);
+			prepRADDownlink(parseArray, lineNum++);
 		} else {
-			prepDataDownlink(parseArray);
+			prepDataDownlink(parseArray, lineNum++);
 		}
 	}
 
@@ -270,7 +285,7 @@ void parseDRF(void) {
 	logger->Log(LOGGER_LEVEL_INFO, "Finished DRF");
 }
 
-void prepRADDownlink(char * line) {
+void prepRADDownlink(char * line, uint8 lineNum) {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	char * rad;
 	char * passNumStr;
@@ -282,24 +297,28 @@ void prepRADDownlink(char * line) {
 	rad = strtok(line, ",");
 	if (rad == NULL || strcmp(rad, "RAD") != 0) {
 		logger->Log(LOGGER_LEVEL_WARN, "DRF: error at RAD");
+		TLM_DRF_INCOMPLETE_RAD(lineNum);
 		return;
 	}
 
 	passNumStr = strtok(NULL, ",");
 	if (passNumStr == NULL) {
 		logger->Log(LOGGER_LEVEL_WARN, "DRF: incomplete at pass num");
+		TLM_DRF_INCOMPLETE_PASSNUM(lineNum);
 		return;
 	}
 
 	startStr = strtok(NULL, ",");
 	if (startStr == NULL) {
 		logger->Log(LOGGER_LEVEL_WARN, "DRF: incomplete at start num");
+		TLM_DRF_INCOMPLETE_STARTNUM(lineNum);
 		return;
 	}
 
 	endStr = strtok(NULL, ",");
 	if (endStr == NULL) {
 		logger->Log(LOGGER_LEVEL_WARN, "DRF: incomplete at end num");
+		TLM_DRF_INCOMPLETE_ENDNUM(lineNum);
 		return;
 	}
 
@@ -311,18 +330,21 @@ void prepRADDownlink(char * line) {
 	passNum = atoi(passNumStr);
 	if(passNum < 1){
 		logger->Log(LOGGER_LEVEL_WARN, "Invalid DRF line at pass num");
+		TLM_DRF_INVALID_PASSNUM(lineNum);
 		return; // skip to the next line
 	}
 
 	startChunk = atoi(startStr);
 	if(startChunk < 0){
 		logger->Log(LOGGER_LEVEL_WARN, "Invalid DRF line at start chunk");
+		TLM_DRF_INVALID_STARTNUM(lineNum);
 		return; // skip to the next line
 	}
 
 	endChunk = atoi(endStr);
 	if(endChunk < 0){
 		logger->Log(LOGGER_LEVEL_WARN, "Invalid DRF line at end chunk");
+		TLM_DRF_INVALID_ENDNUM(lineNum);
 		return; // skip to the next line
 	}
 
@@ -334,7 +356,7 @@ void prepRADDownlink(char * line) {
 	}
 }
 
-void prepDataDownlink(char * line) {
+void prepDataDownlink(char * line, uint8 lineNum) {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	char * arch;
 	char * dir;
@@ -346,29 +368,34 @@ void prepDataDownlink(char * line) {
 	arch = strtok(line,",");
 	if(arch == NULL){
 		logger->Log(LOGGER_LEVEL_WARN, "Incomplete DRF line at archive");
+		TLM_DRF_INCOMPLETE_ARCHIVE(lineNum);
 		return; // skip to the next line
 	}
 
 	dir = strtok(NULL,",");
 	if(dir == NULL){
 		logger->Log(LOGGER_LEVEL_WARN, "Incomplete DRF line at directory");
+		TLM_DRF_INCOMPLETE_DIRECTORY(lineNum);
 		return; // skip to the next line
 	}
 
 	num = strtok(NULL,",");
 	if(num == NULL){
 		logger->Log(LOGGER_LEVEL_WARN, "Incomplete DRF line at number");
+		TLM_DRF_INCOMPLETE_NUMBER(lineNum);
 		return; // skip to the next line
 	}
 	numFiles = atoi(num);
 	if(numFiles < 1){
 		logger->Log(LOGGER_LEVEL_WARN, "Invalid DRF line at number");
+		TLM_DRF_INVALID_NUMBER(lineNum);
 		return; // skip to the next line
 	}
 
 	regex = strtok(NULL,",");
 	if(regex == NULL){
 		logger->Log(LOGGER_LEVEL_WARN, "Incomplete DRF line at regex");
+		TLM_DRF_INCOMPLETE_REGEX(lineNum);
 		return; // skip to the next line
 	}
 
@@ -384,7 +411,7 @@ void prepDataDownlink(char * line) {
 	string archive = string(DOWNLINK_DIRECTORY) + "/" + string(arch);
 
 	// ---- Call the function to gather and create a tarball from the files
-	packageFiles((char *) archive.c_str(), dir, regex, numFiles); // TODO: error check this?
+	packageFiles((char *) archive.c_str(), dir, regex, numFiles, lineNum); // TODO: error check this?
 
 	// ---- Split the tarball into chunks
 	CMDServer * cmdServer = static_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
@@ -393,12 +420,14 @@ void prepDataDownlink(char * line) {
 	string split_cmd = "split -b " + string(chunkSize) + " -d -a 3 " + archive + " " + archive + ".";
 	if(system(split_cmd.c_str()) == -1){
 		logger->Log(LOGGER_LEVEL_ERROR, "Failed to split DRF archive into chunks");
+		TLM_DRF_FAILED_SPLIT(lineNum);
 	}
 
 	// ---- Delete the full archive
 	string del_cmd = "rm " + archive;
 	if(system(del_cmd.c_str()) == -1){
 		logger->Log(LOGGER_LEVEL_ERROR, "Failed to delete DRF archive");
+		TLM_DRF_FAILED_DELETE(lineNum);
 	}
 }
 
@@ -419,6 +448,7 @@ void parseDLT(void) {
 	fp = fopen(DLT_PATH, "r");
 	if (fp == NULL){
 		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: error opening DLT");
+		TLM_DLT_BAD_OPEN();
 		remove(DLT_PATH);
 		return;
 	}
@@ -427,38 +457,46 @@ void parseDLT(void) {
 	bytesRead = getline(&line, &len, fp);
 	if(strcmp(line,UPLK_PASSWORD) != 0){
 		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: invalid DLT password");
+		TLM_DLT_BAD_PASSWORD();
 		fclose(fp);
 		remove(DLT_PATH);
 		return;
 	}
 
 	// parse the file line by line
+	uint8 lineNum = 0;
 	char * dir;
 	char * num;
 	int numFiles;
 	char * regex;
 	while ((bytesRead = getline(&line, &len, fp)) != -1) {
+		lineNum++;
+
 		// ---- Parse line
 		dir = strtok(line,",");
 		if(dir == NULL){
 			logger->Log(LOGGER_LEVEL_WARN, "Incomplete DLT line at dir");
+			TLM_DLT_INCOMPLETE_DIRECTORY(lineNum);
 			continue; // skip to the next line
 		}
 
 		num = strtok(NULL,",");
 		if(num == NULL){
 			logger->Log(LOGGER_LEVEL_WARN, "Incomplete DLT line at number");
+			TLM_DLT_INCOMPLETE_NUMBER(lineNum);
 			continue; // skip to the next line
 		}
 		numFiles = atoi(num);
 		if(numFiles < -1 || numFiles == 0){
 			logger->Log(LOGGER_LEVEL_WARN, "Invalid DLT line at number");
+			TLM_DLT_INVALID_NUMBER(lineNum);
 			continue;
 		}
 
 		regex = strtok(NULL,",");
 		if(regex == NULL){
 			logger->Log(LOGGER_LEVEL_WARN, "Incomplete DLT line at regex");
+			TLM_DLT_INCOMPLETE_REGEX(lineNum);
 			continue; // skip to the next line
 		}
 
@@ -468,11 +506,12 @@ void parseDLT(void) {
 
 		// ---- find deletion scheme and delete
 		if(strcmp(regex,"X") == 0 && numFiles != -1){
-			deleteOldest(dir,numFiles);
+			deleteOldest(dir, numFiles, lineNum);
 		}else if(!(strcmp(regex,"X") == 0) && numFiles == -1){
-			deleteRegex(dir,regex);
+			deleteRegex(dir,regex, lineNum);
 		}else{
 			logger->Log(LOGGER_LEVEL_WARN, "DLT: Invalid deletion command");
+			TLM_DLT_INVALID_COMMAND(lineNum);
 		}
 	}
 
@@ -499,6 +538,7 @@ void parsePPE(void) {
 	fp = fopen(PPE_PATH, "r");
 	if (fp == NULL){
 		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: error opening PPE");
+		TLM_PPE_BAD_OPEN();
 		remove(PPE_PATH);
 		return;
 	}
@@ -507,19 +547,24 @@ void parsePPE(void) {
 	bytesRead = getline(&line, &len, fp);
 	if(strcmp(line,UPLK_PASSWORD) != 0){
 		logger->Log(LOGGER_LEVEL_ERROR, "CMDStdTasks: invalid PPE password");
+		TLM_PPE_BAD_PASSWORD();
 		fclose(fp);
 		remove(PPE_PATH);
 		return;
 	}
 
 	// parse the file line by line
+	uint8 lineNum = 0;
 	char * type;
 	char * command;
 	while ((bytesRead = getline(&line, &len, fp)) != -1) {
+		lineNum++;
+
 		// ---- Parse line
 		type = strtok(line,",");
 		if(type == NULL){
 			logger->Log(LOGGER_LEVEL_WARN, "Incomplete PPE line at type");
+			TLM_PPE_INCOMPLETE_TYPE(lineNum);
 			continue; // skip to the next line
 		}
 
@@ -528,6 +573,7 @@ void parsePPE(void) {
 			command = strtok(NULL,",");
 			if(command == NULL){
 				logger->Log(LOGGER_LEVEL_WARN, "Incomplete PPE line at command");
+				TLM_PPE_INCOMPLETE_COMMAND(lineNum);
 				continue; // skip to the next line
 			}
 
@@ -544,17 +590,19 @@ void parsePPE(void) {
 			command = strtok(NULL,",");
 			if(command == NULL){
 				logger->Log(LOGGER_LEVEL_WARN, "Incomplete PPE line at command");
+				TLM_PPE_INCOMPLETE_COMMAND(lineNum);
 				continue; // skip to the next line
 			}
 
 			int cmd = atoi(command);
 			if(cmd == 0 || cmd < 0 || cmd >= FSW_CMD_MAX){
 				logger->Log(LOGGER_LEVEL_WARN, "Invalid PPE command number");
+				TLM_PPE_INVALID_NUMBER(lineNum);
 				continue; // skip to the next line
 			}
 
 			// call a function to find and execute the command
-			executeFSWCommand(cmd);
+			executeFSWCommand(cmd, lineNum);
 		}else{
 			logger->Log(LOGGER_LEVEL_WARN, "PPE: unknown command type");
 		}
@@ -693,7 +741,7 @@ const long getFileSize(const char * filePath, const char * regex, const int maxF
 	return size;
 }
 
-const int packageFiles(const char * destination, const char * filePath, const char * regex, const int maxFiles) {
+const int packageFiles(const char * destination, const char * filePath, const char * regex, const int maxFiles, uint8 lineNum) {
 	// This function will tar up `maxFiles` number of files in `filePath` matching the regular expression `regex` into a tarball named `destination`.
     Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FILE * fd;
@@ -704,10 +752,12 @@ const int packageFiles(const char * destination, const char * filePath, const ch
 
 	if (size < 0) {
 		logger->Log(LOGGER_LEVEL_ERROR, "PackageFiles: Error detected, aborting packaging");
+		TLM_DRF_FILESIZE_ERROR(lineNum);
 		return -1;
 	}
 	else if (size > cmdServer->CMDConfiguration.maxDownlinkSize){
 		logger->Log(LOGGER_LEVEL_ERROR, "PackageFiles: Total file size is too great to package");
+		TLM_DRF_FILESIZE_ERROR(lineNum);
 		return -2;
 	}
 
@@ -718,6 +768,7 @@ const int packageFiles(const char * destination, const char * filePath, const ch
 	// Execute a shell script and pipe the results back to the file descriptor fd
 	if(!(fd = popen(sh_cmd, "r"))){
 	    logger->Log(LOGGER_LEVEL_ERROR, "PackageFiles: Error packaging files");
+	    TLM_DRF_PACKAGE_ERROR(lineNum);
 	    return -3;
 	}
 
@@ -728,7 +779,7 @@ const int packageFiles(const char * destination, const char * filePath, const ch
 	return 0;
 }
 
-int deleteOldest(char * filePath, int numFiles) {
+int deleteOldest(char * filePath, int numFiles, uint8 lineNum) {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FILE * fd;
 
@@ -739,6 +790,7 @@ int deleteOldest(char * filePath, int numFiles) {
 	// Execute a shell script and pipe the results back to the file descriptor fd
 	if(!(fd = popen(sh_cmd, "r"))){
 		logger->Log(LOGGER_LEVEL_ERROR, "DeleteOldest: Error removing files");
+		TLM_DLT_REMOVE_ERROR(lineNum);
 		return -1;
 	}
 
@@ -749,7 +801,7 @@ int deleteOldest(char * filePath, int numFiles) {
 	return 0;
 }
 
-int deleteRegex(char * filePath, char * regex) {
+int deleteRegex(char * filePath, char * regex, uint8 lineNum) {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	FILE * fd;
 
@@ -760,6 +812,7 @@ int deleteRegex(char * filePath, char * regex) {
 	// Execute a shell script and pipe the results back to the file descriptor fd
 	if(!(fd = popen(sh_cmd, "r"))){
 		logger->Log(LOGGER_LEVEL_ERROR, "DeleteRegex: Error removing files");
+		TLM_DLT_REMOVE_ERROR(lineNum);
 		return -1;
 	}
 
@@ -816,6 +869,7 @@ string getDownlinkFile(int fileNum) {
 	// Execute a shell script and pipe the results back to the file descriptor fd
 	if(!(fd = popen(sh_cmd, "r"))){
 		logger->Log(LOGGER_LEVEL_ERROR, "GetDownlinkFile: Error getting file name");
+		TLM_DRF_FILENAME_ERROR();
 		return "";
 	}
 
@@ -824,6 +878,7 @@ string getDownlinkFile(int fileNum) {
 	while(fgets(fileName, 128, fd)!=NULL){
 		if (loop_count > 0) {
 			logger->Log(LOGGER_LEVEL_ERROR, "GetDownlinkFile: sh command produced too many results");
+			TLM_DRF_FILENAME_ERROR();
 			return "";
 		}
 		loop_count++;
@@ -838,7 +893,7 @@ string getDownlinkFile(int fileNum) {
 	return fn;
 }
 
-void executeFSWCommand (int command) {
+void executeFSWCommand(int command, uint8 lineNum) {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	COMServer * comServer = static_cast<COMServer *> (Factory::GetInstance(COM_SERVER_SINGLETON));
 	SCHServer * schServer = static_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
@@ -879,6 +934,7 @@ void executeFSWCommand (int command) {
 		break;
 	default:
 		logger->Log(LOGGER_LEVEL_ERROR, "Unknown FSW command (bit flip probable)");
+		TLM_UNKNOWN_FSW_COMMAND(lineNum);
 		break;
 	}
 }

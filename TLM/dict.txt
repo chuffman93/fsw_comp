@@ -40,6 +40,7 @@ Ideas:
 
 FORMAT:
 
+# Comment(s) (optional)
 Hex Code
 Type
 Location:Number
@@ -48,6 +49,7 @@ Parameter Types
 
 
 ##### BEGIN TELEMETRY #####
+# -------------------------- ERR --------------------------
 STARTUP_ERROR
 0x0001
 ERR
@@ -72,12 +74,38 @@ ERR
 Watchdog restarting thread: %u
 uint8
 
+SPI_ACS_TX_FAIL
+0x0005
+ERR
+SPI packet failure to ACS. Opcode: %u
+uint8
+
+SPI_COM_TX_FAIL
+0x0006
+ERR
+SPI packet failure to COM. Opcode: %u
+uint8
+
+SPI_EPS_TX_FAIL
+0x0007
+ERR
+SPI packet failure to EPS. Opcode: %u
+uint8
+
+SPI_PLD_TX_FAIL
+0x0008
+ERR
+SPI packet failure to PLD. Opcode: %u
+uint8
+
+# -------------------------- MOD --------------------------
 MODE_SWITCH
 0x0100
 MOD
 Switched mode to mode number %d
 uint8
 
+# -------------------------- CMD --------------------------
 SYS_CALL
 0x0200
 CMD
@@ -126,6 +154,12 @@ CMD
 Cleared the immediate directory with return: %d
 int16
 
+UNKNOWN_FSW_COMMAND
+0x02ff
+CMD
+Unknown FSW command for IEF/PPE (bit flip probable)
+uint8
+
 LOAD_NEW_SCHEDULE
 0x0208
 CMD
@@ -162,6 +196,269 @@ CMD
 Unable to open new schedule
 None
 
+# -- IEF -----------
+IEF_BAD_OPEN
+0x020e
+CMD
+Unable to open IEF
+None
+
+IEF_BAD_PASSWORD
+0x020f
+CMD
+Bad IEF password
+None
+
+IEF_INCOMPLETE_TYPE
+0x0210
+CMD
+IEF incomplete at type, line: %u
+uint8
+
+IEF_INCOMPLETE_CMD
+0x0211
+CMD
+IEF incomplete at command, line: %u
+uint8
+
+IEF_INCOMPLETE_ARCHIVE
+0x0212
+CMD
+IEF incomplete at archive, line: %u
+uint8
+
+IEF_INCOMPLETE_DIRECTORY
+0x0213
+CMD
+IEF incomplete at directory, line: %u
+uint8
+
+IEF_INCOMPLETE_NUMBER
+0x0214
+CMD
+IEF incomplete at number, line: %u
+uint8
+
+IEF_INCOMPLETE_REGEX
+0x0215
+CMD
+IEF incomplete at regex, line: %u
+uint8
+
+IEF_INVALID_CNUMBER
+0x0216
+CMD
+IEF invalid command number, line %u
+uint8
+
+IEF_INVALID_NUMBER
+0x0217
+CMD
+IEF invalid number, line %u
+uint8
+
+IEF_UNKNOWN_COMMAND
+0x0218
+CMD
+IEF unknown command, line %u
+uint8
+
+# -- DRF -----------
+DRF_BAD_OPEN
+0x0220
+CMD
+Error opening DRF
+None
+
+DRF_BAD_PASSWORD
+0x0221
+CMD
+Invalid DRF password
+None
+
+DRF_INCOMPLETE_RAD
+0x0222
+CMD
+DRF incomplete at RAD, line: %u
+uint8
+
+DRF_INCOMPLETE_PASSNUM
+0x0223
+CMD
+DRF incomplete at pass number, line: %u
+uint8
+
+DRF_INCOMPLETE_STARTNUM
+0x0224
+CMD
+DRF incomplete at start number, line: %u
+uint8
+
+DRF_INCOMPLETE_ENDNUM
+0x0225
+CMD
+DRF incomplete at end number, line: %u
+uint8
+
+DRF_INVALID_PASSNUM
+0x0226
+CMD
+DRF invalid at pass number, line %u
+uint8
+
+DRF_INVALID_STARTNUM
+0x0227
+CMD
+DRF invalid at start number, line %u
+uint8
+
+DRF_INVALID_ENDNUM
+0x0228
+CMD
+DRF invalid at end number, line %u
+uint8
+
+DRF_INCOMPLETE_ARCHIVE
+0x0229
+CMD
+DRF incomplete at archive, line %u
+uint8
+
+DRF_INCOMPLETE_DIRECTORY
+0x022a
+CMD
+DRF incomplete at directory, line %u
+uint8
+
+DRF_INCOMPLETE_NUMBER
+0x022b
+CMD
+DRF incomplete at number, line %u
+uint8
+
+DRF_INCOMPLETE_REGEX
+0x022c
+CMD
+DRF incomplete at regex, line %u
+uint8
+
+DRF_INVALID_NUMBER
+0x022d
+CMD
+DRF invalid at number, line %u
+uint8
+
+DRF_FAILED_SPLIT
+0x022e
+CMD
+Failed to split DRF archive, line %u
+uint8
+
+DRF_FAILED_DELETE
+0x022f
+CMD
+Failed to delete the full DRF archive
+uint8
+
+DRF_FILESIZE_ERROR
+0x0230
+CMD
+Error finding file size for DRF or IEF, line: %u
+uint8
+
+DRF_PACKAGE_ERROR
+0x0231
+CMD
+Error packaging files for DRF or IEF, line: %u
+uint8
+
+DRF_FILENAME_ERROR
+0x0232
+CMD
+Error getting filename for downlink
+None
+
+# -- DLT -----------
+DLT_BAD_OPEN
+0x0240
+CMD
+Error opening DLT
+None
+
+DLT_BAD_PASSWORD
+0x0241
+CMD
+Invalid DLT password
+None
+
+DLT_INCOMPLETE_DIRECTORY
+0x0242
+CMD
+DLT incomplete at directory, line: %u
+uint8
+
+DLT_INCOMPLETE_NUMBER
+0x0243
+CMD
+DLT incomplete at number, line: %u
+uint8
+
+DLT_INCOMPLETE_REGEX
+0x0244
+CMD
+DLT incomplete at regex, line: %u
+uint8
+
+DLT_INVALID_NUMBER
+0x0245
+CMD
+DLT invalid at number, line: %u
+uint8
+
+DLT_INVALID_COMMAND
+0x0246
+CMD
+DLT invalid deletion command, line %u
+uint8
+
+DLT_REMOVE_ERROR
+0x0247
+CMD
+DLT error removing files, line %u
+uint8
+
+# -- DLT -----------
+PPE_BAD_OPEN
+0x0250
+CMD
+Error opening PPE
+None
+
+PPE_BAD_PASSWORD
+0x0251
+CMD
+Invalid PPE password
+None
+
+PPE_INCOMPLETE_TYPE
+0x0252
+CMD
+PPE incomplete at type, line %u
+uint8
+
+PPE_INCOMPLETE_COMMAND
+0x0253
+CMD
+PPE incomplete at command number, line %u
+uint8
+
+PPE_INVALID_NUMBER
+0x0254
+CMD
+PPE invalid command number, line %u
+uint8
+
+# -------------------------- SPI --------------------------
 SPI_ACS_RX
 0x0401
 SPI
@@ -210,30 +507,7 @@ SPI
 SPI packet sent to PLD. Opcode: %u
 uint8
 
-SPI_ACS_TX_FAIL
-0x0409
-ERR
-SPI packet failure to ACS. Opcode: %u
-uint8
-
-SPI_COM_TX_FAIL
-0x040a
-ERR
-SPI packet failure to COM. Opcode: %u
-uint8
-
-SPI_EPS_TX_FAIL
-0x040b
-ERR
-SPI packet failure to EPS. Opcode: %u
-uint8
-
-SPI_PLD_TX_FAIL
-0x040c
-ERR
-SPI packet failure to PLD. Opcode: %u
-uint8
-
+# -------------------------- GEN --------------------------
 ACS_SERVER_STARTED
 0x0500
 GEN

@@ -76,7 +76,10 @@ class TLM_AutoCoder():
     print
 
   def parse_data(self):
-    self.name = self.f.readline().strip()
+    temp = self.f.readline().strip()
+    while temp[:1] == '#':
+      temp = self.f.readline().strip()
+    self.name = temp
     self.ID = self.f.readline().strip()
     self.dest = self.f.readline().strip()
     self.fmt_str = self.f.readline().strip()
