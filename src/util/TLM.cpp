@@ -179,6 +179,16 @@ void TLM_IMMED_CLEARED(int16 arg0) {
   fmgServer->Log(DESTINATION_CMD, buf, size);
 }
 
+void TLM_UFTP_RETURN_STATUS(int32 arg0) {
+  size_t size = 10;
+  uint8_t * buf = (uint8_t *) malloc(size);
+  Serialize ser(buf, size);
+  ser.serialize_int32(getTimeInSec());
+  ser.serialize_uint16(0x02fe);
+  ser.serialize_int32(arg0);
+  fmgServer->Log(DESTINATION_CMD, buf, size);
+}
+
 void TLM_UNKNOWN_FSW_COMMAND(uint8 arg0) {
   size_t size = 7;
   uint8_t * buf = (uint8_t *) malloc(size);

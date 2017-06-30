@@ -30,6 +30,7 @@ void TLM_TX_SILENCE_EXITED(void);
 void TLM_DWLK_CLEARED(int16 arg0);
 void TLM_UPLK_CLEARED(int16 arg0);
 void TLM_IMMED_CLEARED(int16 arg0);
+void TLM_UFTP_RETURN_STATUS(int32 arg0);
 void TLM_UNKNOWN_FSW_COMMAND(uint8 arg0);
 void TLM_LOAD_NEW_SCHEDULE(void);
 void TLM_LOAD_DEFAULT_SCHEDULE(void);

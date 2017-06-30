@@ -154,6 +154,12 @@ CMD
 Cleared the immediate directory with return: %d
 int16
 
+UFTP_RETURN_STATUS
+0x02fe
+CMD
+UFTP downlink return status: %d
+int32
+
 UNKNOWN_FSW_COMMAND
 0x02ff
 CMD

@@ -221,6 +221,7 @@ void CMDServer::loopImmediateExecution() {
 	} else if (downlinkInProgress) {
 		int status;
 		if (waitpid(uftp_pid, &status, WNOHANG) != 0) {
+			TLM_UFTP_RETURN_STATUS(status);
 			downlinkInProgress = false;
 			uftp_pid = -1;
 		}
@@ -276,6 +277,7 @@ void CMDServer::loopDownlink() {
 	if (downlinkInProgress) {
 		int status;
 		if (waitpid(uftp_pid, &status, WNOHANG) != 0) {
+			TLM_UFTP_RETURN_STATUS(status);
 			downlinkInProgress = false;
 			uftp_pid = -1;
 		} else {
@@ -494,7 +496,7 @@ void CMDServer::DownlinkFile(string fileName) {
 
 	int pid = fork();
 	if (pid == 0) {
-		char * argv[] = {UFTP_PATH, "-Y", "aes256-gcm", "-h", "sha256", "-I", "ax0", "-H", "1.1.1.2", "-x", "1", "-m", "10", (char *) fileName.c_str(), NULL};
+		char * argv[] = {UFTP_PATH, "-Y", "aes256-gcm", "-h", "sha256", "-I", "ax0", "-H", "1.1.1.2", "-s", "50", "-x", "1", "-m", "10", (char *) fileName.c_str(), NULL};
 		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: downlinking file");
 		execve(UFTP_PATH, argv, {NULL});
 		exit(0);
