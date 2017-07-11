@@ -1,4 +1,4 @@
-#include "AllStarOrbitProp.h"
+#include "util/propagator/AllStarOrbitProp.h"
 /*
 * Function: propagatePositionVelocity
 * Purpose: Provides estimate of vehicle position and velocity by propagating
@@ -48,10 +48,10 @@ void propagatePositionVelocity(float gpsPos[3], float gpsVel[3], float TOW, floa
 		}
 
 		// General, common sense checks
-		if (norm(rGps) < REQ_EARTH) {
+		if (norm_as(rGps) < REQ_EARTH) {
 			return;
 		}
-		if (norm(vGps) < MIN_ORBITAL_VELOCITY) {
+		if (norm_as(vGps) < MIN_ORBITAL_VELOCITY) {
 			return;
 		}
 

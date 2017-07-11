@@ -7,13 +7,13 @@
 *
 */
 
-#include "orbitalMotionAllStar.h"
+#include "util/propagator/OrbitalMotionAllStar.h"
 
 #include <math.h>
 #include <stdio.h>
 
-#include "astroConstants.h"
-#include "vector3DAllStar.h"
+#include "util/propagator/astroConstants.h"
+#include "util/propagator/vector3DAllStar.h"
 
 /*
 *   f = E2f(Ecc, e)
@@ -123,7 +123,7 @@ float f2H(float f, float e)
 	float H;
 
 	if (e > 1) {
-		H = 2 * arc_tanh(sqrt((e - 1) / (e + 1)) * tan(f / 2));
+		H = 2 * arc_tanh_as(sqrt((e - 1) / (e + 1)) * tan(f / 2));
 	}
 	else {
 		H = NAN;
@@ -334,12 +334,12 @@ void elem2rv(float mu, classicElements *elements, float *rVec, float *vVec)
 		ir[1] = cos(AN) * cos(AP) - sin(AN) * sin(AP) * cos(i);
 		ir[2] = sin(AN) * cos(AP) + cos(AN) * sin(AP) * cos(i);
 		ir[3] = sin(AP) * sin(i);
-		mult(r, ir, rVec);
+		mult_as(r, ir, rVec);
 		if (sin(Ecc) > 0) {
-			mult(-v, ir, vVec);
+			mult_as(-v, ir, vVec);
 		}
 		else {
-			mult(v, ir, vVec);
+			mult_as(v, ir, vVec);
 		}
 	}
 	else {
@@ -425,21 +425,21 @@ void rv2elem(float mu, float *rVec, float *vVec, classicElements *elements)
 	eps = 0.000000000001;
 
 	/* compute orbit radius */
-	r = norm(rVec);
-	mult(1. / r, rVec, ir);
+	r = norm_as(rVec);
+	mult_as(1. / r, rVec, ir);
 
 	/* compute the angular momentum vector */
-	cross(rVec, vVec, hVec);
-	h = norm(hVec);
+	cross_as(rVec, vVec, hVec);
+	h = norm_as(hVec);
 
 	/* compute the eccentricity vector */
-	cross(vVec, hVec, cVec);
-	mult(-mu / r, rVec, dum);
-	add(cVec, dum, cVec);
-	elements->e = norm(cVec) / mu;
+	cross_as(vVec, hVec, cVec);
+	mult_as(-mu / r, rVec, dum);
+	add_as(cVec, dum, cVec);
+	elements->e = norm_as(cVec) / mu;
 
 	/* compute semi-major axis */
-	ai = 2. / r - dot(vVec, vVec) / mu;
+	ai = 2. / r - dot_as(vVec, vVec) / mu;
 	if (fabs(ai) > eps) {
 		/* elliptic or hyperbolic case */
 		elements->a = 1 / ai;
@@ -453,34 +453,34 @@ void rv2elem(float mu, float *rVec, float *vVec, classicElements *elements)
 	}
 
 	if (h < eps) {   /* rectilinear motion case */
-		equal(ir, ie);
+		equal_as(ir, ie);
 		/* ip and ih are arbitrary */
-		set3(0, 0, 1, dum);
-		set3(0, 1, 0, dum2);
-		cross(ie, dum, ih);
-		cross(ie, dum2, ip);
-		if (norm(ih) > norm(ip)) {
-			mult(1 / norm(ih), ih, ih);
+		set3_as(0, 0, 1, dum);
+		set3_as(0, 1, 0, dum2);
+		cross_as(ie, dum, ih);
+		cross_as(ie, dum2, ip);
+		if (norm_as(ih) > norm_as(ip)) {
+			mult_as(1 / norm_as(ih), ih, ih);
 		}
 		else {
-			mult(1 / norm(ip), ip, ih);
+			mult_as(1 / norm_as(ip), ip, ih);
 		}
-		cross(ih, ie, ip);
+		cross_as(ih, ie, ip);
 
 	}
 	else {
 		/* compute perifocal frame unit direction vectors */
-		mult(1. / h, hVec, ih);
+		mult_as(1. / h, hVec, ih);
 		if (fabs(elements->e) > eps) {
 			/* non-circular case */
-			mult(1. / mu / elements->e, cVec, ie);
+			mult_as(1. / mu / elements->e, cVec, ie);
 		}
 		else {
 			/* circular orbit case.  Here ie, ip are arbitrary, as long as they
 			are perpenticular to the ih vector.  */
-			equal(ir, ie);
+			equal_as(ir, ie);
 		}
-		cross(ih, ie, ip);
+		cross_as(ih, ie, ip);
 	}
 
 	/* compute the 3-1-3 orbit plane orientation angles */
@@ -491,21 +491,21 @@ void rv2elem(float mu, float *rVec, float *vVec, classicElements *elements)
 	if (h < eps) {                       /* rectilinear motion case */
 		if (ai > 0) {                    /* elliptic case */
 			Ecc = acos(1 - r * ai);
-			if (dot(rVec, vVec) > 0)
+			if (dot_as(rVec, vVec) > 0)
 				Ecc = 2 * M_PI - Ecc;
 			elements->anom = Ecc;       /* for this mode the eccentric anomaly is returned */
 		}
 		else {                        /* hyperbolic case */
-			H = arc_cosh(r * ai + 1);
-			if (dot(rVec, vVec) < 0)
+			H = arc_cosh_as(r * ai + 1);
+			if (dot_as(rVec, vVec) < 0)
 				H = 2 * M_PI - H;
 			elements->anom = H;         /* for this mode the hyperbolic anomaly is returned */
 		}
 	}
 	else {
 		/* compute true anomaly */
-		cross(ie, ir, dum);
-		elements->anom = atan2(dot(dum, ih), dot(ie, ir));
+		cross_as(ie, ir, dum);
+		elements->anom = atan2(dot_as(dum, ih), dot_as(ie, ir));
 	}
 
 	return;
@@ -642,15 +642,15 @@ void atmosphericDrag(float Cd, float A, float m, float *rvec, float *vvec, float
 	float density;
 
 	/* find the altitude and velocity */
-	r = norm(rvec);
-	v = norm(vvec);
+	r = norm_as(rvec);
+	v = norm_as(vvec);
 	alt = r - REQ_EARTH;
 
 	/* Checking if user supplied a orbital position is inside the earth */
 	if (alt <= 0.) {
 		printf("ERROR: atmosphericDrag() received rvec = [%g %g %g] \n", rvec[1], rvec[2], rvec[3]);
 		printf("The value of rvec should produce a positive altitude for the Earth.\n");
-		set3(NAN, NAN, NAN, advec);
+		set3_as(NAN, NAN, NAN, advec);
 		return;
 	}
 
@@ -661,7 +661,7 @@ void atmosphericDrag(float Cd, float A, float m, float *rvec, float *vvec, float
 	ad = ((-0.5) * density * (Cd * A / m) * (pow(v * 1000., 2))) / 1000.;
 
 	/* computing the vector for drag acceleration */
-	mult(ad / v, vvec, advec);
+	mult_as(ad / v, vvec, advec);
 
 	return;
 }
@@ -696,40 +696,40 @@ void jPerturb(float *rvec, int num, float *ajtot)
 	x = rvec[1];
 	y = rvec[2];
 	z = rvec[3];
-	r = norm(rvec);
+	r = norm_as(rvec);
 
 	/* Error Checking */
 	if ((num < 2) || (num > 6)) {
 		printf("ERROR: jPerturb() received num = %d \n", num);
 		printf("The value of num should be 2 <= num <= 6. \n");
-		set3(NAN, NAN, NAN, ajtot);
+		set3_as(NAN, NAN, NAN, ajtot);
 		return;
 	}
 
 	/* Calculating the total acceleration based on user input */
 	if (num >= 2) {
-		set3((1 - 5 * pow(z / r, 2))*(x / r), (1 - 5 * pow(z / r, 2))*(y / r), (3 - 5 * pow(z / r, 2))*(z / r), ajtot);
-		mult(-3. / 2.*J2_EARTH*(mu / pow(r, 2))*pow(req / r, 2), ajtot, ajtot);
+		set3_as((1 - 5 * pow(z / r, 2))*(x / r), (1 - 5 * pow(z / r, 2))*(y / r), (3 - 5 * pow(z / r, 2))*(z / r), ajtot);
+		mult_as(-3. / 2.*J2_EARTH*(mu / pow(r, 2))*pow(req / r, 2), ajtot, ajtot);
 	}
 	if (num >= 3) {
-		set3(5 * (7 * pow(z / r, 3) - 3 * (z / r))*(x / r), 5 * (7 * pow(z / r, 3) - 3 * (z / r))*(y / r), -3 * (10 * pow(z / r, 2) - (35. / 3.)*pow(z / r, 4) - 1), temp);
-		mult(1. / 2.*J3_EARTH*(mu / pow(r, 2))*pow(req / r, 3), temp, temp2);
-		add(ajtot, temp2, ajtot);
+		set3_as(5 * (7 * pow(z / r, 3) - 3 * (z / r))*(x / r), 5 * (7 * pow(z / r, 3) - 3 * (z / r))*(y / r), -3 * (10 * pow(z / r, 2) - (35. / 3.)*pow(z / r, 4) - 1), temp);
+		mult_as(1. / 2.*J3_EARTH*(mu / pow(r, 2))*pow(req / r, 3), temp, temp2);
+		add_as(ajtot, temp2, ajtot);
 	}
 	if (num >= 4) {
-		set3((3 - 42 * pow(z / r, 2) + 63 * pow(z / r, 4))*(x / r), (3 - 42 * pow(z / r, 2) + 63 * pow(z / r, 4))*(y / r), (15 - 70 * pow(z / r, 2) + 63 * pow(z / r, 4))*(z / r), temp);
-		mult(5. / 8.*J4_EARTH*(mu / pow(r, 2))*pow(req / r, 4), temp, temp2);
-		add(ajtot, temp2, ajtot);
+		set3_as((3 - 42 * pow(z / r, 2) + 63 * pow(z / r, 4))*(x / r), (3 - 42 * pow(z / r, 2) + 63 * pow(z / r, 4))*(y / r), (15 - 70 * pow(z / r, 2) + 63 * pow(z / r, 4))*(z / r), temp);
+		mult_as(5. / 8.*J4_EARTH*(mu / pow(r, 2))*pow(req / r, 4), temp, temp2);
+		add_as(ajtot, temp2, ajtot);
 	}
 	if (num >= 5) {
-		set3(3 * (35 * (z / r) - 210 * pow(z / r, 3) + 231 * pow(z / r, 5))*(x / r), 3 * (35 * (z / r) - 210 * pow(z / r, 3) + 231 * pow(z / r, 5))*(y / r), -(15 - 315 * pow(z / r, 2) + 945 * pow(z / r, 4) - 693 * pow(z / r, 6)), temp);
-		mult(1. / 8.*J5_EARTH*(mu / pow(r, 2))*pow(req / r, 5), temp, temp2);
-		add(ajtot, temp2, ajtot);
+		set3_as(3 * (35 * (z / r) - 210 * pow(z / r, 3) + 231 * pow(z / r, 5))*(x / r), 3 * (35 * (z / r) - 210 * pow(z / r, 3) + 231 * pow(z / r, 5))*(y / r), -(15 - 315 * pow(z / r, 2) + 945 * pow(z / r, 4) - 693 * pow(z / r, 6)), temp);
+		mult_as(1. / 8.*J5_EARTH*(mu / pow(r, 2))*pow(req / r, 5), temp, temp2);
+		add_as(ajtot, temp2, ajtot);
 	}
 	if (num >= 6) {
-		set3((35 - 945 * pow(z / r, 2) + 3465 * pow(z / r, 4) - 3003 * pow(z / r, 6))*(x / r), (35 - 945 * pow(z / r, 2) + 3465 * pow(z / r, 4) - 3003 * pow(z / r, 6))*(y / r), -(3003 * pow(z / r, 6) - 4851 * pow(z / r, 4) + 2205 * pow(z / r, 2) - 245)*(z / r), temp);
-		mult(-1. / 16.*J6_EARTH*(mu / pow(r, 2))*pow(req / r, 6), temp, temp2);
-		add(ajtot, temp2, ajtot);
+		set3_as((35 - 945 * pow(z / r, 2) + 3465 * pow(z / r, 4) - 3003 * pow(z / r, 6))*(x / r), (35 - 945 * pow(z / r, 2) + 3465 * pow(z / r, 4) - 3003 * pow(z / r, 6))*(y / r), -(3003 * pow(z / r, 6) - 4851 * pow(z / r, 4) + 2205 * pow(z / r, 2) - 245)*(z / r), temp);
+		mult_as(-1. / 16.*J6_EARTH*(mu / pow(r, 2))*pow(req / r, 6), temp, temp2);
+		add_as(ajtot, temp2, ajtot);
 	}
 
 	return;
@@ -774,10 +774,10 @@ void solarRad(float A, float m, float *sunvec, float *arvec)
 	Cr = 1.3;
 
 	/* Magnitude of position vector */
-	sundist = norm(sunvec); /* AU */
+	sundist = norm_as(sunvec); /* AU */
 
 							/* Computing the acceleration vector */
-	mult((-Cr * A * flux) / (m * c * pow(sundist, 3)) / 1000., sunvec, arvec);
+	mult_as((-Cr * A * flux) / (m * c * pow(sundist, 3)) / 1000., sunvec, arvec);
 
 	return;
 }

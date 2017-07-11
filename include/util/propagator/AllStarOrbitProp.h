@@ -7,12 +7,11 @@
 #include "stdlib.h"
 
 #include "astroConstants.h"
-//#include "orbitalMotionAllStar.h"
+#include "OrbitalMotionAllStar.h"
 #include "vector3DAllStar.h"
 //#include "CDH/BufferPool.h"
 
 #include "math.h"
-#include "orbitalMotionAllStar.h"
 
 void propagatePositionVelocity(float gpsPos[3], float gpsVel[3], float TOW, float *last_TOW, float *sysTime, int *new_eph, classicElements *new_NORAD_eph, float satPos[3], float satVel[3]);
 int isEqual(float lastVal[4], float currentVal[4]);

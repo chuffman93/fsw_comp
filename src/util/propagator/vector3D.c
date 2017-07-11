@@ -7,8 +7,8 @@
  *  Provides a library for doing 3D matrix algebra.
  */
 
-#include "vector3D.h"
-#include "globals.h"
+#include "util/propagator/vector3D.h"
+//#include "globals.h"
 
 void diag(double v[3], double m[3][3])
 {

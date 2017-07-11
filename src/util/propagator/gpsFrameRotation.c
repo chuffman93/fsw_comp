@@ -12,7 +12,7 @@
  *
  */
 
-#include "gpsFrameRotation.h"
+#include "util/propagator/gpsFrameRotation.h"
 const float OMEGA_EARTH = 7.29211585530066e-5;
 
 /*
