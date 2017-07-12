@@ -22,14 +22,14 @@
 void propagatePositionVelocity(float gpsPos[3], float gpsVel[3], float TOW,
 		float *last_TOW, float *sysTime, int *new_eph,
 		classicElements *new_NORAD_eph, float satPos[3], float satVel[3]) {
-	volatile classicElements oe;
-	volatile int i;
-	volatile float M0;			//[rad], initial mean anomaly
-	volatile float n;			//[rad/s], initial mean motion
-	volatile float r[4];		//[km], most up-to-date position
-	volatile float v[4];		//[km/s], most up-to-date velocity
-	volatile float rGps[4];	//[km], GPS position
-	volatile float vGps[4];	//[km/s], GPS velocity
+	classicElements oe;
+	int i;
+	float M0;			//[rad], initial mean anomaly
+	float n;			//[rad/s], initial mean motion
+	float r[4];		//[km], most up-to-date position
+	float v[4];		//[km/s], most up-to-date velocity
+	float rGps[4];	//[km], GPS position
+	float vGps[4];	//[km/s], GPS velocity
 
 	/* The GPS unit outputs the accuracy of the measurement. CDH rejects the GPS solution if the accuracy is too low.
 	 ADCS only receives good GPS solutions from CDH and it stores the TOW. If TOW is the same as the last one used, ADCS did not received

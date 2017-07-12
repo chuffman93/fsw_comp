@@ -23,6 +23,12 @@
 namespace AllStar{
 namespace Servers{
 
+typedef enum GPSRead {
+	GPS_NO_DATA,
+	GPS_LOCK,
+	GPS_NO_LOCK
+} GPSReadType;
+
 struct GPS_BESTXYZ{
 	char header[100], message[250], crc[10], MessageID[10], Port[5], TimeStatus[15], pSolStatus[15], pSolType[15], vSolStatus[15],
 	vSolType[15], stnID[10];
@@ -74,7 +80,7 @@ private:
 
 	int CreatePort(void);
 
-	bool ReadData(char * buffer, int fd);
+	GPSReadType ReadData(char * buffer, int fd);
 
 	// GPS Port configurations
 	struct termios port;

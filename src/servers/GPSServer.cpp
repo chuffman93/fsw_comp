@@ -85,8 +85,11 @@ void GPSServer::SubsystemLoop(void) {
 
 	cdhServer->subPowerOn(HARDWARE_LOCATION_GPS);
 
-	bool check;
-	uint32 downCount = 0;
+	GPSReadType readStatus;
+	int64 currTime = 0;
+	int64 lastWakeTime = 0;
+	int64 lastUpdate = 0;
+	int64 lastData = getTimeInMillis(); // data from the GPS (valid or not)
 	char buffer[350];
 	int fd;
 
@@ -96,32 +99,47 @@ void GPSServer::SubsystemLoop(void) {
 
 	while (1) {
 		wdmAlive();
-		int64 LastWakeTime = getTimeInMillis();
+		lastWakeTime = getTimeInMillis();
 
 		// if the GPS has been powered off due to a fault, restart it.
 		if (!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_GPS]) {
 			cdhServer->subPowerOn(HARDWARE_LOCATION_GPS);
-			usleep(2000000); // give it time to restart
-			downCount = 0;
+			wdmAsleep();
+			usleep(5000000); // give it time to restart
+			wdmAlive();
+			lastData = getTimeInMillis();
 		}
 
-		check = ReadData(buffer, fd);
+		readStatus = ReadData(buffer, fd);
 
-		// if we haven't been reading data, set a flag
-		if (check) {
-			downCount = 0;
-		} else {
-			downCount++;
-			if(downCount > 5000){ // TODO: formalize this value (currently ~10 min)
-				logger->Log(LOGGER_LEVEL_ERROR, "GPSServer: no data, resetting GPS!");
+		currTime = getTimeInMillis();
+		switch (readStatus) {
+		case GPS_NO_DATA:
+			if (currTime > lastData + 10000) { // if it's been 10 seconds since the last GPS data, reboot
 				cdhServer->subPowerOff(HARDWARE_LOCATION_GPS);
-				usleep(1000000);
-				cdhServer->subPowerOn(HARDWARE_LOCATION_GPS);
+				wdmAsleep();
 				usleep(2000000);
-				downCount = 0;
+				wdmAlive();
 			}
+			break;
+		case GPS_NO_LOCK:
+			lastData = currTime;
+			if (currTime > lastUpdate + 2000) { // update with the propagator if it's been 2 seconds
+				lastUpdate = currTime;
+				// TODO: update and propagate
+			}
+			break;
+		case GPS_LOCK:
+			lastData = currTime;
+			lastUpdate = currTime;
+			// TODO: update
+			break;
+		default:
+			logger->Log(LOGGER_LEVEL_WARN, "GPS invalid read status (bit flip)");
+			break;
 		}
-		waitUntil(LastWakeTime, 100);
+
+		waitUntil(lastWakeTime, 100);
 	}
 }
 
@@ -183,7 +201,7 @@ uint32 GPSServer::GetRoundSeconds(void) {
 	return GPSDataHolder->round_seconds;
 }
 
-bool GPSServer::ReadData(char * buffer, int fd) {
+GPSReadType GPSServer::ReadData(char * buffer, int fd) {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	char c, c1;
@@ -198,6 +216,7 @@ bool GPSServer::ReadData(char * buffer, int fd) {
 		if (c != 35 && c != 36) { // '#' or '$'
 			logger->Log(LOGGER_LEVEL_SUPER_DEBUG, "GPSServer: Data doesn't start with '#' or '$'");
 			while(read(fd,&c,1) == 1); // if wrong char, clear the buffer (ensures that we stay up-to-date and aligned with the data stream)
+			return GPS_NO_LOCK;
 		} else {
 			c1 = c;
 
@@ -209,7 +228,7 @@ bool GPSServer::ReadData(char * buffer, int fd) {
 				if (c == '*' && c1 == '#') {
 					if (counter > 339) {
 						logger->Log(LOGGER_LEVEL_WARN, "GPSServer: BESTXYZ too long!");
-						return false;
+						return GPS_NO_LOCK;
 					}
 					for (uint8 i = 0; i < 10; i++) {
 						readSuccess &= (read(fd,&c,1) == 1);
@@ -219,7 +238,7 @@ bool GPSServer::ReadData(char * buffer, int fd) {
 						break;
 					} else {
 						logger->Log(LOGGER_LEVEL_WARN, "GPSServer: error reading CRC from serial");
-						return false;
+						return GPS_NO_LOCK;
 					}
 				}
 
@@ -227,7 +246,7 @@ bool GPSServer::ReadData(char * buffer, int fd) {
 				if (c == '*' && c1 == '$') {
 					if (counter > 345) {
 						logger->Log(LOGGER_LEVEL_WARN, "GPSServer: GPRMC too long!");
-						return false;
+						return GPS_NO_LOCK;
 					}
 					for (uint8 i = 0; i < 4; i++) {
 						readSuccess &= (read(fd,&c,1) == 1);
@@ -237,14 +256,14 @@ bool GPSServer::ReadData(char * buffer, int fd) {
 						break;
 					} else {
 						logger->Log(LOGGER_LEVEL_WARN, "GPSServer: error reading checksum from serial");
-						return false;
+						return GPS_NO_LOCK;
 					}
 				}
 
 				// Ensure that the buffer doesn't overflow
 				if(counter == 350){
 					logger->Log(LOGGER_LEVEL_WARN, "GPSServer: Data too long!");
-					return false;
+					return GPS_NO_LOCK;
 				}
 			}
 
@@ -253,23 +272,22 @@ bool GPSServer::ReadData(char * buffer, int fd) {
 			if (c1 == '#') {
 				if (!BESTXYZProcess(buffer, counter)) {
 					logger->Log(LOGGER_LEVEL_DEBUG, "GPSServer: Bad BESTXYZ");
-					return false;
+					return GPS_NO_LOCK;
 				}
 			} else if (c1 == '$') {
 				if (!GPRMCProcess(buffer, counter)) {
 					logger->Log(LOGGER_LEVEL_DEBUG, "GPSServer: Bad GPRMC");
-					return false;
+					return GPS_NO_LOCK;
 				}
 			} else {
 				logger->Log(LOGGER_LEVEL_WARN, "GPSServer: error with first character!");
-				return false;
+				return GPS_NO_LOCK;
 			}
-			return true;
+			return GPS_LOCK;
 		}
 	} else {
-		return false;
+		return GPS_NO_DATA;
 	}
-	return false;
 }
 
 GPS_BESTXYZ * GPSServer::GetGPSDataPtr(void) {
