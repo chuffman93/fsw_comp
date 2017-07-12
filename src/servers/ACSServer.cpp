@@ -81,7 +81,7 @@ void ACSServer::loopInit() {
 			return;
 		}
 
-		logger->Log(LOGGER_LEVEL_INFO, "ACS passed self check");
+		logger->Info("ACS passed self check");
 
 		bootConfig();
 
@@ -231,20 +231,20 @@ bool ACSServer::CheckHealthStatus() {
 	ACPPacket * HSRet = DispatchPacket(HSQuery);
 
 	if (HSRet == NULL) {
-		logger->Log(LOGGER_LEVEL_ERROR, "ACSServer: NULL HSRet");
+		logger->Error("ACSServer: NULL HSRet");
 		return false;
 	}
 
 	if (HSRet->getLength() != ACSState.size) {
-		logger->Log(LOGGER_LEVEL_WARN, "ACSServer: CheckHealthStatus(): incorrect message length! %u", HSRet->getLength());
+		logger->Warning("ACSServer: CheckHealthStatus(): incorrect message length! %u", HSRet->getLength());
 		return false;
 	} else {
-		logger->Log(LOGGER_LEVEL_INFO, "ACSServer: CheckHealthStatus(): packet dispatched, HSRet acquired");
+		logger->Info("ACSServer: CheckHealthStatus(): packet dispatched, HSRet acquired");
 
 		// Parse buffer
 		uint8 * msgPtr = HSRet->getMessageBuff();
 		if (msgPtr==NULL) {
-			logger->Log(LOGGER_LEVEL_ERROR, "ACSServer: CheckHealthStatus(): NULL msgPtr");
+			logger->Error("ACSServer: CheckHealthStatus(): NULL msgPtr");
 			return false;
 		}
 
@@ -280,7 +280,7 @@ void ACSServer::bootConfig() {
 
 	// make sure we get a valid file pointer
 	if (fp == NULL) {
-		logger->Log(LOGGER_LEVEL_ERROR, "ACSServer: NULL ACS config file pointer, cannot boot");
+		logger->Error("ACSServer: NULL ACS config file pointer, cannot boot");
 		return;
 	}
 
@@ -288,11 +288,11 @@ void ACSServer::bootConfig() {
 	if (fread(buffer, sizeof(uint8), ACSConfiguration.size, fp) == ACSConfiguration.size) {
 		ACSConfiguration.update(buffer, ACSConfiguration.size, 0, 0);
 		ACSConfiguration.deserialize();
-		logger->Log(LOGGER_LEVEL_INFO, "ACSServer: successfully booted ACS configs");
+		logger->Info("ACSServer: successfully booted ACS configs");
 		fclose(fp);
 		return;
 	} else {
-		logger->Log(LOGGER_LEVEL_ERROR, "ACSServer: error reading ACS config file, cannot boot");
+		logger->Error("ACSServer: error reading ACS config file, cannot boot");
 		fclose(fp);
 		return;
 	}
@@ -306,7 +306,7 @@ bool ACSServer::updateConfig() {
 
 	// make sure we get a valid file pointer
 	if (fp == NULL) {
-		logger->Log(LOGGER_LEVEL_ERROR, "ACSServer: NULL ACS config file pointer, cannot update");
+		logger->Error("ACSServer: NULL ACS config file pointer, cannot update");
 		return false;
 	}
 
@@ -314,11 +314,11 @@ bool ACSServer::updateConfig() {
 	if (fread(buffer, sizeof(uint8), ACSConfiguration.size, fp) == ACSConfiguration.size) {
 		ACSConfiguration.update(buffer, ACSConfiguration.size, 0, 0);
 		ACSConfiguration.deserialize();
-		logger->Log(LOGGER_LEVEL_INFO, "ACSServer: successfully updated ACS configs");
+		logger->Info("ACSServer: successfully updated ACS configs");
 		fclose(fp);
 		return true;
 	} else {
-		logger->Log(LOGGER_LEVEL_ERROR, "ACSServer: error reading ACS config file, cannot update");
+		logger->Error("ACSServer: error reading ACS config file, cannot update");
 		fclose(fp);
 		return false;
 	}

@@ -47,15 +47,15 @@ bool PLDToggleLED(bool state){
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret == NULL){
-		logger->Log(LOGGER_LEVEL_WARN, "PLDStdTasks: NULL LED Toggle return");
+		logger->Warning("PLDStdTasks: NULL LED Toggle return");
 		return false;
 	}
 
 	if(ret->isSuccess()){
-		logger->Log(LOGGER_LEVEL_DEBUG, "PLD LED Toggle successful");
+		logger->Debug("PLD LED Toggle successful");
 		return true;
 	}else{
-		logger->Log(LOGGER_LEVEL_WARN, "PLD LED Toggle failed");
+		logger->Warning("PLD LED Toggle failed");
 		return false;
 	}
 }
@@ -70,15 +70,15 @@ bool PLDBlinkRate(uint16 rate){
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret == NULL){
-		logger->Log(LOGGER_LEVEL_WARN, "PLDStdTasks: NULL blink rate return");
+		logger->Warning("PLDStdTasks: NULL blink rate return");
 		return false;
 	}
 
 	if(ret->isSuccess()){
-		logger->Log(LOGGER_LEVEL_DEBUG, "PLD LED set rate successful");
+		logger->Debug("PLD LED set rate successful");
 		return true;
 	}else{
-		logger->Log(LOGGER_LEVEL_WARN, "PLD LED set rate failed");
+		logger->Warning("PLD LED set rate failed");
 		return false;
 	}
 }
@@ -90,24 +90,24 @@ int PLDLEDData(){
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret == NULL){
-		logger->Log(LOGGER_LEVEL_WARN, "PLDStdTasks: NULL LED Data return");
+		logger->Warning("PLDStdTasks: NULL LED Data return");
 		return false;
 	}
 
 	if(ret->getLength() != 3){
-		logger->Log(LOGGER_LEVEL_WARN, "PLDStdTasks: Incorrect LED data return length");
+		logger->Warning("PLDStdTasks: Incorrect LED data return length");
 		return false;
 	}else{
 		if(ret->getMessageBuff() == NULL){
-			logger->Log(LOGGER_LEVEL_WARN, "PLDStdTasks: NULL LED Data message buffer");
+			logger->Warning("PLDStdTasks: NULL LED Data message buffer");
 			return false;
 		}
 
 		uint8 * msgPtr = ret->getMessageBuff();
 		uint8 powerStatus = GetUInt8(msgPtr++);
 		uint16 result = GetUInt16(msgPtr);
-		logger->Log(LOGGER_LEVEL_DEBUG, "PLD LED power state: %u", powerStatus);
-		logger->Log(LOGGER_LEVEL_DEBUG, "PLD LED blink rate:  %u", result);
+		logger->Debug("PLD LED power state: %u", powerStatus);
+		logger->Debug("PLD LED blink rate:  %u", result);
 		return (powerStatus + result);
 	}
 }

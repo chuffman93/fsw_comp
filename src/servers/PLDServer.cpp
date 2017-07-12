@@ -53,7 +53,7 @@ bool PLDServer::IsFullyInitialized(void) {
 // ------------------------------------ State Machine ------------------------------------------------------------
 void PLDServer::loopInit() {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log(LOGGER_LEVEL_INFO, "PLDServer: initializing");
+	logger->Info("PLDServer: initializing");
 	TLM_PLD_SERVER_STARTED();
 
 	PLDDataNumber = PLDReadDataNumber();
@@ -118,7 +118,7 @@ void PLDServer::loopStartup() {
 			return;
 		}
 
-		logger->Log(LOGGER_LEVEL_INFO, "PLD passed self check");
+		logger->Info("PLD passed self check");
 	} else {
 		errServer->SendError(ERR_PLD_NOTALIVE);
 		wdmAsleep();
@@ -216,7 +216,7 @@ void PLDServer::loopScience() {
 //	ACPPacket * data = DispatchPacket(dataRequest);
 
 //	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-//	logger->Log(LOGGER_LEVEL_INFO, "PLDServer: received data %d", data->getLength());
+//	logger->Info("PLDServer: received data %d", data->getLength());
 }
 
 void PLDServer::loopReset() {
@@ -240,22 +240,22 @@ bool PLDServer::CheckHealthStatus() {
 		ACPPacket * HSRet = DispatchPacket(HSQuery);
 
 		if (HSRet == NULL) {
-			logger->Log(LOGGER_LEVEL_ERROR, "PLDServer: NULL HSRet");
+			logger->Error("PLDServer: NULL HSRet");
 			return false;
 		}
 
 		if (HSRet->getLength() != PLDStatus::size) {
-			logger->Log(LOGGER_LEVEL_WARN, "PLDServer: CheckHealthStatus(): incorrect message length!");
+			logger->Warning("PLDServer: CheckHealthStatus(): incorrect message length!");
 
 			//TODO: return error?
 			return false;
 		} else {
-			logger->Log(LOGGER_LEVEL_INFO, "PLDServer: CheckHealthStatus(): packet dispatched, HSRet acquired");
+			logger->Info("PLDServer: CheckHealthStatus(): packet dispatched, HSRet acquired");
 
 			// Parse buffer
 			uint8 * msgPtr = HSRet->getMessageBuff();
 			if (msgPtr==NULL) {
-				logger->Log(LOGGER_LEVEL_ERROR, "PLDServer: CheckHealthStatus(): NULL msgPtr");
+				logger->Error("PLDServer: CheckHealthStatus(): NULL msgPtr");
 				return false;
 			}
 
@@ -263,13 +263,13 @@ bool PLDServer::CheckHealthStatus() {
 			PLDState.update(msgPtr, PLDState.size, 0, 0);
 			PLDState.deserialize();
 
-			logger->Log(LOGGER_LEVEL_DEBUG, "PLD H&S: Power fault:     %u", PLDState.powerFault);
-			logger->Log(LOGGER_LEVEL_DEBUG, "PLD H&S: Motor speed:     %u", PLDState.motorSpeed);
+			logger->Debug("PLD H&S: Power fault:     %u", PLDState.powerFault);
+			logger->Debug("PLD H&S: Motor speed:     %u", PLDState.motorSpeed);
 			for(uint8 i = 0; i < 10; i++){
-				logger->Log(LOGGER_LEVEL_DEBUG, "PLD H&S: Thermistor %d:     %u", i, PLDState.thermistors[i]);
+				logger->Debug("PLD H&S: Thermistor %d:     %u", i, PLDState.thermistors[i]);
 			}
-			logger->Log(LOGGER_LEVEL_DEBUG, "PLD H&S: ACS Working:     %u", PLDState.adcDataWorking);
-			logger->Log(LOGGER_LEVEL_DEBUG, "PLD H&S: Control:         %u", PLDState.control);
+			logger->Debug("PLD H&S: ACS Working:     %u", PLDState.adcDataWorking);
+			logger->Debug("PLD H&S: Control:         %u", PLDState.control);
 
 			int32 currTime = getTimeInSec();
 			if (currTime >= (lastHSTLog + 60)) {
@@ -301,7 +301,7 @@ void PLDServer::bootConfig() {
 
 	// make sure we get a valid file pointer
 	if (fp == NULL) {
-		logger->Log(LOGGER_LEVEL_ERROR, "PLDServer: NULL PLD config file pointer, cannot boot");
+		logger->Error("PLDServer: NULL PLD config file pointer, cannot boot");
 		return;
 	}
 
@@ -309,11 +309,11 @@ void PLDServer::bootConfig() {
 	if (fread(buffer, sizeof(uint8), PLDConfiguration.size, fp) == PLDConfiguration.size) {
 		PLDConfiguration.update(buffer, PLDConfiguration.size, 0, 0);
 		PLDConfiguration.deserialize();
-		logger->Log(LOGGER_LEVEL_INFO, "PLDServer: successfully booted PLD configs");
+		logger->Info("PLDServer: successfully booted PLD configs");
 		fclose(fp);
 		return;
 	} else {
-		logger->Log(LOGGER_LEVEL_ERROR, "PLDServer: error reading PLD config file, cannot boot");
+		logger->Error("PLDServer: error reading PLD config file, cannot boot");
 		fclose(fp);
 		return;
 	}
@@ -327,7 +327,7 @@ bool PLDServer::updateConfig() {
 
 	// make sure we get a valid file pointer
 	if (fp == NULL) {
-		logger->Log(LOGGER_LEVEL_ERROR, "PLDServer: NULL PLD config file pointer, cannot update");
+		logger->Error("PLDServer: NULL PLD config file pointer, cannot update");
 		return false;
 	}
 
@@ -335,11 +335,11 @@ bool PLDServer::updateConfig() {
 	if (fread(buffer, sizeof(uint8), PLDConfiguration.size, fp) == PLDConfiguration.size) {
 		PLDConfiguration.update(buffer, PLDConfiguration.size, 0, 0);
 		PLDConfiguration.deserialize();
-		logger->Log(LOGGER_LEVEL_INFO, "PLDServer: successfully updated PLD configs");
+		logger->Info("PLDServer: successfully updated PLD configs");
 		fclose(fp);
 		return true;
 	} else {
-		logger->Log(LOGGER_LEVEL_ERROR, "PLDServer: error reading PLD config file, cannot update");
+		logger->Error("PLDServer: error reading PLD config file, cannot update");
 		fclose(fp);
 		return false;
 	}

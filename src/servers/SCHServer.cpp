@@ -70,7 +70,7 @@ bool SCHServer::LoadDefaultScheduleConfigurations(char * filename) {
 
 	// make sure we get a valid file pointer
 	if (fp == NULL) {
-		logger->Log(LOGGER_LEVEL_ERROR, "SCHServer: NULL default schedule file pointer, cannot boot");
+		logger->Error("SCHServer: NULL default schedule file pointer, cannot boot");
 		SetDefaultBusSchedule();
 		return false;
 	}
@@ -81,7 +81,7 @@ bool SCHServer::LoadDefaultScheduleConfigurations(char * filename) {
 	fseek(fp,0,SEEK_SET);
 
 	if (file_size == 0 || (file_size % SCHItem::size) != 0) {
-		logger->Log(LOGGER_LEVEL_ERROR, "SCHServer: Invalid default schedule file size");
+		logger->Error("SCHServer: Invalid default schedule file size");
 		SetDefaultBusSchedule();
 		fclose(fp);
 		return false;
@@ -100,7 +100,7 @@ bool SCHServer::LoadDefaultScheduleConfigurations(char * filename) {
 			if ((DefaultArray[i].enter_mode < 0 || DefaultArray[i].enter_mode > 1) ||
 					(DefaultArray[i].mode < 0 || DefaultArray[i].mode > MODE_NUM_MODES)) {
 				// error in file
-				logger->Log(LOGGER_LEVEL_ERROR, "SCHServer: default schedule item out of range");
+				logger->Error("SCHServer: default schedule item out of range");
 				SetDefaultBusSchedule();
 				fclose(fp);
 				return false;
@@ -110,11 +110,11 @@ bool SCHServer::LoadDefaultScheduleConfigurations(char * filename) {
 		// push the new items to the default schedule
 		UpdateDefaultSchedule(bytes_read / SCHItem::size);
 
-		logger->Log(LOGGER_LEVEL_INFO, "SCHServer: successfully loaded default schedule");
+		logger->Info("SCHServer: successfully loaded default schedule");
 		fclose(fp);
 		return true;
 	} else {
-		logger->Log(LOGGER_LEVEL_ERROR, "SCHServer: error reading default schedule");
+		logger->Error("SCHServer: error reading default schedule");
 		SetDefaultBusSchedule();
 		fclose(fp);
 		return false;
@@ -134,7 +134,7 @@ void SCHServer::UpdateDefaultSchedule(int numItems) {
 		}
 	}
 
-	logger->Log(LOGGER_LEVEL_ERROR, "SCHServer: unable to update default schedule");
+	logger->Error("SCHServer: unable to update default schedule");
 	// TODO: handle this
 }
 
@@ -151,7 +151,7 @@ void SCHServer::SetDefaultBusSchedule(void) {
 		}
 	}
 
-	logger->Log(LOGGER_LEVEL_ERROR, "SCHServer: unable to set default bus due to lock!");
+	logger->Error("SCHServer: unable to set default bus due to lock!");
 	// TODO: handle this
 }
 
@@ -188,7 +188,7 @@ void SCHServer::SubsystemLoop(void) {
 		}
 
 		if (currentSchedule.empty()) {
-			logger->Log(LOGGER_LEVEL_INFO, "Fetching next schedule");
+			logger->Info("Fetching next schedule");
 			LoadNextSchedule();
 		}
 
@@ -206,7 +206,7 @@ void SCHServer::SubsystemLoop(void) {
 		if (endCOM) {
 			endCOM = false;
 			if (modeManager->GetMode() == MODE_COM) {
-				logger->Log(LOGGER_LEVEL_INFO, "SCHServer: COM pass over");
+				logger->Info("SCHServer: COM pass over");
 				modeManager->SetMode(MODE_BUS_PRIORITY);
 				lastBusEnter = getTimeInSec();
 				currentSchedule.pop_front();
@@ -227,7 +227,7 @@ void SCHServer::SubsystemLoop(void) {
 
 		if (itemEntered) {
 			if (currentEvent.duration < getTimeInSec() - modeEnterTime) {
-				logger->Log(LOGGER_LEVEL_INFO, "Schedule event duration exceeded, entering Bus Priority Mode");
+				logger->Info("Schedule event duration exceeded, entering Bus Priority Mode");
 				modeManager->SetMode(MODE_BUS_PRIORITY);
 				lastBusEnter = getTimeInSec();
 				currentSchedule.pop_front();
@@ -236,7 +236,7 @@ void SCHServer::SubsystemLoop(void) {
 		} else {
 			bool inRange = gpsServer->DistanceTo(currentEvent.latitude, currentEvent.longitude) < currentEvent.radius;
 			if (inRange) {
-				logger->Log(LOGGER_LEVEL_INFO, "In range of schedule event, setting mode");
+				logger->Info("In range of schedule event, setting mode");
 				SystemModeEnum currentMode = modeManager->GetMode();
 
 				if (currentMode == MODE_BUS_PRIORITY && (lastBusEnter + 10 < getTimeInSec())) { // make sure we've been in bus priority mode for >10 seconds
@@ -249,7 +249,7 @@ void SCHServer::SubsystemLoop(void) {
 				}
 			} else if (currentEvent.timeout < getTimeInSec()) {
 				if (currentEvent.enter_mode) {
-					logger->Log(LOGGER_LEVEL_INFO, "Schedule event timeout exceeded, entering mode");
+					logger->Info("Schedule event timeout exceeded, entering mode");
 					SystemModeEnum currentMode = modeManager->GetMode();
 
 					if (currentMode == MODE_BUS_PRIORITY && (lastBusEnter + 10 < getTimeInSec())) { // make sure we've been in bus priority mode for >10 seconds
@@ -261,7 +261,7 @@ void SCHServer::SubsystemLoop(void) {
 						lastBusEnter = getTimeInSec();
 					}
 				} else {
-					logger->Log(LOGGER_LEVEL_INFO, "Schedule event timeout exceeded, skipping mode");
+					logger->Info("Schedule event timeout exceeded, skipping mode");
 					modeManager->SetMode(MODE_BUS_PRIORITY);
 					lastBusEnter = getTimeInSec();
 					currentSchedule.pop_front();
@@ -279,7 +279,7 @@ void SCHServer::LoadDefaultSchedule(void) {
 
 	LoadDefaultScheduleConfigurations((char *) SCH_CONFIG);
 	currentSchedule = defaultSchedule;
-	logger->Log(LOGGER_LEVEL_INFO, "Default Schedule Loaded");
+	logger->Info("Default Schedule Loaded");
 	TLM_LOAD_DEFAULT_SCHEDULE();
 	if (access(SCHEDULE_FILE, F_OK) != -1) {
 		remove(SCHEDULE_FILE);
@@ -299,7 +299,7 @@ void SCHServer::UpdateSchedule(int numItems) {
 		}
 	}
 
-	logger->Log(LOGGER_LEVEL_ERROR, "SCHServer: unable to update schedule");
+	logger->Error("SCHServer: unable to update schedule");
 	// TODO: handle this
 }
 
@@ -308,7 +308,7 @@ int SCHServer::LoadNextSchedule(void) {
 
 	currentSchedule.clear();
 	if (access(SCHEDULE_FILE, F_OK) == -1) {
-		logger->Log(LOGGER_LEVEL_WARN, "LoadNextSchedule: No new schedule, loading default...");
+		logger->Warning("LoadNextSchedule: No new schedule, loading default...");
 		LoadDefaultSchedule();
 		return -1;
 	}
@@ -318,7 +318,7 @@ int SCHServer::LoadNextSchedule(void) {
 
 	// make sure we get a valid file pointer
 	if (fp == NULL) {
-		logger->Log(LOGGER_LEVEL_ERROR, "SCHServer: unable to open new schedule, loading default...");
+		logger->Error("SCHServer: unable to open new schedule, loading default...");
 		TLM_SCHEDULE_BAD_OPEN();
 		LoadDefaultSchedule();
 		return false;
@@ -331,7 +331,7 @@ int SCHServer::LoadNextSchedule(void) {
 
 	if (file_size == 0 || (file_size % SCHItem::size) != 0) {
 		TLM_SCHEDULE_BAD_SIZE();
-		logger->Log(LOGGER_LEVEL_ERROR, "SCHServer: Invalid schedule file size, loading default...");
+		logger->Error("SCHServer: Invalid schedule file size, loading default...");
 		LoadDefaultSchedule();
 		fclose(fp);
 		return false;
@@ -349,7 +349,7 @@ int SCHServer::LoadNextSchedule(void) {
 					(ScheduleArray[i].mode < 0 || ScheduleArray[i].mode > MODE_NUM_MODES)) {
 				// error in file
 				TLM_SCHEDULE_BAD_ITEM();
-				logger->Log(LOGGER_LEVEL_ERROR, "SCHServer: schedule item out of range, loading default...");
+				logger->Error("SCHServer: schedule item out of range, loading default...");
 				LoadDefaultSchedule();
 				fclose(fp);
 				return false;
@@ -360,14 +360,14 @@ int SCHServer::LoadNextSchedule(void) {
 		UpdateSchedule(bytes_read / SCHItem::size);
 
 		TLM_LOAD_NEW_SCHEDULE();
-		logger->Log(LOGGER_LEVEL_INFO, "SCHServer: successfully loaded new schedule");
+		logger->Info("SCHServer: successfully loaded new schedule");
 		if (access(SCHEDULE_FILE, F_OK) != -1) {
 			remove(SCHEDULE_FILE);
 		}
 		fclose(fp);
 		return true;
 	} else {
-		logger->Log(LOGGER_LEVEL_ERROR, "SCHServer: error reading new schedule");
+		logger->Error("SCHServer: error reading new schedule");
 		TLM_SCHEDULE_BAD_READ();
 		LoadDefaultSchedule();
 		fclose(fp);

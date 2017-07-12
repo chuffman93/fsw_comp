@@ -64,7 +64,7 @@ void FileManager::OpenFile() {
 
 	file = fopen(file_name.c_str(), "a");
 	if (file == NULL) {
-		logger->Log(LOGGER_LEVEL_WARN, "Error opening file");
+		logger->Warning("Error opening file");
 		file_open = false;
 		return;
 	}
@@ -94,11 +94,11 @@ bool FileManager::Log(uint8 * buf, std::size_t buf_size){
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	if (buf_size >= MAX_FILE_SIZE) {
-		logger->Log(LOGGER_LEVEL_WARN, "Telemetry larger than file size");
+		logger->Warning("Telemetry larger than file size");
 	} else {
 		// Check if file is open
 		if (!file_open) {
-			logger->Log(LOGGER_LEVEL_DEBUG, "File not open");
+			logger->Debug("File not open");
 			OpenNewFile();
 			if (!file_open) {
 				printf("file not open");
@@ -190,7 +190,7 @@ void FMGServer::Log(FILServerDestinationEnum dest, uint8 * buf, size_t size) {
 		FileQueue.push(packet);
 		this->GiveLock();
 	} else {
-		logger->Log(LOGGER_LEVEL_WARN, "FMGServer: Log() unable to take lock");
+		logger->Warning("FMGServer: Log() unable to take lock");
 	}
 }
 
@@ -203,7 +203,7 @@ void FMGServer::CallLog() {
 		FileQueue.pop();
 		this->GiveLock();
 	} else {
-		logger->Log(LOGGER_LEVEL_WARN, "FMGServer: CallLog() unable to take lock");
+		logger->Warning("FMGServer: CallLog() unable to take lock");
 		return;
 	}
 
@@ -213,76 +213,76 @@ void FMGServer::CallLog() {
 	switch (packet.dest) {
 	case DESTINATION_CMD:
 		if (!CMDLogger.Log(buf, size)) {
-			logger->Log(LOGGER_LEVEL_WARN, "Error writing to Command File");
+			logger->Warning("Error writing to Command File");
 		}
 		break;
 	case DESTINATION_ERR:
 		if (!ERRLogger.Log(buf, size)) {
-			logger->Log(LOGGER_LEVEL_WARN, "Error writing to Error File");
+			logger->Warning("Error writing to Error File");
 		}
 		break;
 	case DESTINATION_GEN:
 		if (!GENLogger.Log(buf, size)) {
-			logger->Log(LOGGER_LEVEL_WARN, "Error writing to General File");
+			logger->Warning("Error writing to General File");
 		}
 		break;
 	case DESTINATION_GPS:
 		if (!GPSLogger.Log(buf, size)) {
-			logger->Log(LOGGER_LEVEL_WARN, "Error writing to GPS File");
+			logger->Warning("Error writing to GPS File");
 		}
 		break;
 	case DESTINATION_MOD:
 		if (!MODLogger.Log(buf, size)) {
-			logger->Log(LOGGER_LEVEL_WARN, "Error writing to Mode File");
+			logger->Warning("Error writing to Mode File");
 		}
 		break;
 	case DESTINATION_PWR:
 		if (!PWRLogger.Log(buf, size)) {
-			logger->Log(LOGGER_LEVEL_WARN, "Error writing to Power File");
+			logger->Warning("Error writing to Power File");
 		}
 		break;
 	case DESTINATION_SPI:
 		if (!SPILogger.Log(buf, size)) {
-			logger->Log(LOGGER_LEVEL_WARN, "Error writing to SPI File");
+			logger->Warning("Error writing to SPI File");
 		}
 		break;
 	case DESTINATION_SWP:
 		if (!SWPLogger.Log(buf, size)) {
-			logger->Log(LOGGER_LEVEL_WARN, "Error writing to HotSwap File");
+			logger->Warning("Error writing to HotSwap File");
 		}
 		break;
 	case DESTINATION_THM:
 		if (!THMLogger.Log(buf, size)) {
-			logger->Log(LOGGER_LEVEL_WARN, "Error writing to Thermal File");
+			logger->Warning("Error writing to Thermal File");
 		}
 		break;
 	case DESTINATION_ACS_HST:
 		if (!ACS_HSTLogger.Log(buf, size)) {
-			logger->Log(LOGGER_LEVEL_WARN, "Error writing to ACS HST File");
+			logger->Warning("Error writing to ACS HST File");
 		}
 		break;
 	case DESTINATION_CDH_HST:
 		if (!CDH_HSTLogger.Log(buf, size)) {
-			logger->Log(LOGGER_LEVEL_WARN, "Error writing to CDH HST File");
+			logger->Warning("Error writing to CDH HST File");
 		}
 		break;
 	case DESTINATION_COM_HST:
 		if ( !COM_HSTLogger.Log(buf, size) ) {
-			logger->Log(LOGGER_LEVEL_WARN, "Error writing to COM HST File");
+			logger->Warning("Error writing to COM HST File");
 		}
 		break;
 	case DESTINATION_EPS_HST:
 		if ( !EPS_HSTLogger.Log(buf, size) ) {
-			logger->Log(LOGGER_LEVEL_WARN, "Error writing to EPS HST File");
+			logger->Warning("Error writing to EPS HST File");
 		}
 		break;
 	case DESTINATION_PLD_HST:
 		if ( !PLD_HSTLogger.Log(buf, size) ) {
-			logger->Log(LOGGER_LEVEL_WARN, "Error writing to PLD HST File");
+			logger->Warning("Error writing to PLD HST File");
 		}
 		break;
 	default:
-		logger->Log(LOGGER_LEVEL_WARN, "FMGServer: Unknown destination!");
+		logger->Warning("FMGServer: Unknown destination!");
 		break;
 	}
 
@@ -371,7 +371,7 @@ uint16 FMGServer::loadBootCount() {
 		FILE * fp = fopen(EPOCH_FILE, "r");
 
 		if (fp == NULL) {
-			logger->Log(LOGGER_LEVEL_ERROR, "FMGServer: bad fp for epoch file");
+			logger->Error("FMGServer: bad fp for epoch file");
 			return 0;
 		}
 
@@ -380,13 +380,13 @@ uint16 FMGServer::loadBootCount() {
 		ssize_t bytesRead = getline(&line, &len, fp);
 
 		if (bytesRead < 1 || bytesRead > 5) {
-			logger->Log(LOGGER_LEVEL_ERROR, "FMGServer: problem reading epoch file");
+			logger->Error("FMGServer: problem reading epoch file");
 			return 0;
 		}
 
 		return (uint16) strtoul(line, NULL, 10);
 	} else {
-		logger->Log(LOGGER_LEVEL_ERROR, "FMGServer: unable to open epoch file");
+		logger->Error("FMGServer: unable to open epoch file");
 	}
 	return 0;
 }
@@ -399,7 +399,7 @@ void FMGServer::bootConfig() {
 
 	// make sure we get a valid file pointer
 	if (fp == NULL) {
-		logger->Log(LOGGER_LEVEL_ERROR, "FMGServer: NULL FMG config file pointer, cannot boot");
+		logger->Error("FMGServer: NULL FMG config file pointer, cannot boot");
 		return;
 	}
 
@@ -407,11 +407,11 @@ void FMGServer::bootConfig() {
 	if (fread(buffer, sizeof(uint8), FMGConfiguration.size, fp) == FMGConfiguration.size) {
 		FMGConfiguration.update(buffer, FMGConfiguration.size, 0, 0);
 		FMGConfiguration.deserialize();
-		logger->Log(LOGGER_LEVEL_INFO, "FMGServer: successfully booted FMG configs");
+		logger->Info("FMGServer: successfully booted FMG configs");
 		fclose(fp);
 		return;
 	} else {
-		logger->Log(LOGGER_LEVEL_ERROR, "FMGServer: error reading FMG config file, cannot boot");
+		logger->Error("FMGServer: error reading FMG config file, cannot boot");
 		fclose(fp);
 		return;
 	}
@@ -425,7 +425,7 @@ bool FMGServer::updateConfig() {
 
 	// make sure we get a valid file pointer
 	if (fp == NULL) {
-		logger->Log(LOGGER_LEVEL_ERROR, "FMGServer: NULL FMG config file pointer, cannot update");
+		logger->Error("FMGServer: NULL FMG config file pointer, cannot update");
 		return false;
 	}
 
@@ -433,11 +433,11 @@ bool FMGServer::updateConfig() {
 	if (fread(buffer, sizeof(uint8), FMGConfiguration.size, fp) == FMGConfiguration.size) {
 		FMGConfiguration.update(buffer, FMGConfiguration.size, 0, 0);
 		FMGConfiguration.deserialize();
-		logger->Log(LOGGER_LEVEL_INFO, "FMGServer: successfully updated FMG configs");
+		logger->Info("FMGServer: successfully updated FMG configs");
 		fclose(fp);
 		return true;
 	} else {
-		logger->Log(LOGGER_LEVEL_ERROR, "FMGServer: error reading FMG config file, cannot update");
+		logger->Error("FMGServer: error reading FMG config file, cannot update");
 		fclose(fp);
 		return false;
 	}

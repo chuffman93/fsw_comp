@@ -71,13 +71,13 @@ bool CDHServer::IsFullyInitialized(void) {
 void CDHServer::loopInit() {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-	logger->Log(LOGGER_LEVEL_INFO, "CDHServer: Initializing");
+	logger->Info("CDHServer: Initializing");
 	TLM_CDH_SERVER_STARTED();
 
 #if HS_EN
 	bool initHS = devMngr->initializeHS();
 	if (!initHS) {
-		logger->Log(LOGGER_LEVEL_ERROR, "CDHServer: Error initializing hot swaps!");
+		logger->Error("CDHServer: Error initializing hot swaps!");
 	}
 #endif
 
@@ -134,7 +134,7 @@ void CDHServer::readHealth() {
 
 	// Get all CDH information
 	if (healthCount == 9) {
-		logger->Log(LOGGER_LEVEL_DEBUG, "CDHServer: Gathering information");
+		logger->Debug("CDHServer: Gathering information");
 		CDHState.time  = getTimeInSec();
 
 #if SYS_EN
@@ -157,7 +157,7 @@ void CDHServer::readHealth() {
 
 		int32 currTime = getTimeInSec();
 		if (currTime >= (lastHSTLog + 60)) {
-			logger->Log(LOGGER_LEVEL_INFO, "CDHServer: logging health and status");
+			logger->Info("CDHServer: logging health and status");
 			lastHSTLog = currTime;
 
 			FMGServer * fmgServer = static_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
@@ -207,7 +207,7 @@ void CDHServer::bootConfig() {
 
 	// make sure we get a valid file pointer
 	if (fp == NULL) {
-		logger->Log(LOGGER_LEVEL_ERROR, "CDHServer: NULL CDH config file pointer, cannot boot");
+		logger->Error("CDHServer: NULL CDH config file pointer, cannot boot");
 		return;
 	}
 
@@ -215,11 +215,11 @@ void CDHServer::bootConfig() {
 	if (fread(buffer, sizeof(uint8), CDHConfiguration.size, fp) == CDHConfiguration.size) {
 		CDHConfiguration.update(buffer, CDHConfiguration.size, 0, 0);
 		CDHConfiguration.deserialize();
-		logger->Log(LOGGER_LEVEL_INFO, "CDHServer: successfully booted CDH configs");
+		logger->Info("CDHServer: successfully booted CDH configs");
 		fclose(fp);
 		return;
 	} else {
-		logger->Log(LOGGER_LEVEL_ERROR, "CDHServer: error reading CDH config file, cannot boot");
+		logger->Error("CDHServer: error reading CDH config file, cannot boot");
 		fclose(fp);
 		return;
 	}
@@ -233,7 +233,7 @@ bool CDHServer::updateConfig() {
 
 	// make sure we get a valid file pointer
 	if (fp == NULL) {
-		logger->Log(LOGGER_LEVEL_ERROR, "CDHServer: NULL CDH config file pointer, cannot update");
+		logger->Error("CDHServer: NULL CDH config file pointer, cannot update");
 		return false;
 	}
 
@@ -241,11 +241,11 @@ bool CDHServer::updateConfig() {
 	if (fread(buffer, sizeof(uint8), CDHConfiguration.size, fp) == CDHConfiguration.size) {
 		CDHConfiguration.update(buffer, CDHConfiguration.size, 0, 0);
 		CDHConfiguration.deserialize();
-		logger->Log(LOGGER_LEVEL_INFO, "CDHServer: successfully updated CDH configs");
+		logger->Info("CDHServer: successfully updated CDH configs");
 		fclose(fp);
 		return true;
 	} else {
-		logger->Log(LOGGER_LEVEL_ERROR, "CDHServer: error reading CDH config file, cannot update");
+		logger->Error("CDHServer: error reading CDH config file, cannot update");
 		fclose(fp);
 		return false;
 	}

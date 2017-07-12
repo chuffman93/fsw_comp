@@ -49,7 +49,7 @@ void ERRServer::SubsystemLoop() {
 
 				SortError(error);
 			} else {
-				logger->Log(LOGGER_LEVEL_WARN, "ERRServer: SubsystemLoop() error taking lock");
+				logger->Warning("ERRServer: SubsystemLoop() error taking lock");
 			}
 		}
 
@@ -66,7 +66,7 @@ void ERRServer::SendError(ErrorOpcodeType error) {
 		ErrorQueue.push(error);
 		this->GiveLock();
 	} else {
-		logger->Log(LOGGER_LEVEL_WARN, "ERRServer: SendError() unable to take lock");
+		logger->Warning("ERRServer: SendError() unable to take lock");
 	}
 }
 
@@ -95,9 +95,9 @@ void ERRServer::SortError(ErrorOpcodeType error) {
 	} else if (error >= ERR_GEN_MIN && error < ERR_GEN_MAX) {
 		GENError(error);
 	} else if (error >= ERR_MAX) {
-		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: error out of range!");
+		logger->Error("ERRServer: error out of range!");
 	} else {
-		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: unknown error %d", error);
+		logger->Error("ERRServer: unknown error %d", error);
 	}
 }
 
@@ -109,23 +109,23 @@ void ERRServer::ACSError(ErrorOpcodeType error) {
 
 	// ACS does not respond to aliveness check
 	case ERR_ACS_NOTALIVE:
-		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: ACS is not alive");
+		logger->Error("ERRServer: ACS is not alive");
 		if (++ACSNotAliveCount >= 10) {
 			CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 			cdhServer->subPowerOff(HARDWARE_LOCATION_ACS);
-			logger->Log(LOGGER_LEVEL_FATAL, "ERRServer: powering ACS off!");
+			logger->Fatal("ERRServer: powering ACS off!");
 			ACSNotAliveCount = 0;
 		}
 		break;
 
 	// ACS does not pass self check
 	case ERR_ACS_SELFCHECK:
-		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: ACS failed self check");
+		logger->Error("ERRServer: ACS failed self check");
 		break;
 
 	// This should never happen
 	default:
-		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: unknown ACS error");
+		logger->Error("ERRServer: unknown ACS error");
 	}
 }
 
@@ -135,7 +135,7 @@ void ERRServer::CDHError(ErrorOpcodeType error) {
 
 	switch (error) {
 	default:
-		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: unknown CDH error");
+		logger->Error("ERRServer: unknown CDH error");
 	}
 }
 
@@ -145,7 +145,7 @@ void ERRServer::CMDError(ErrorOpcodeType error) {
 
 	switch (error) {
 	default:
-		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: unknown CMD error");
+		logger->Error("ERRServer: unknown CMD error");
 	}
 }
 
@@ -157,23 +157,23 @@ void ERRServer::COMError(ErrorOpcodeType error) {
 
 	// COM does not respond to an aliveness check
 	case ERR_COM_NOTALIVE:
-		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: COM is not alive");
+		logger->Error("ERRServer: COM is not alive");
 		if (++COMNotAliveCount >= 10) {
 			CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 			cdhServer->subPowerOff(HARDWARE_LOCATION_COM);
-			logger->Log(LOGGER_LEVEL_FATAL, "ERRServer: powering COM off!");
+			logger->Fatal("ERRServer: powering COM off!");
 			COMNotAliveCount = 0;
 		}
 		break;
 
 	// COM does not pass its self check
 	case ERR_COM_SELFCHECK:
-		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: com failed self check");
+		logger->Error("ERRServer: com failed self check");
 		break;
 
 	// This should never happen
 	default:
-		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: unknown COM error");
+		logger->Error("ERRServer: unknown COM error");
 	}
 }
 
@@ -183,14 +183,14 @@ void ERRServer::EPSError(ErrorOpcodeType error) {
 
 	switch (error) {
 	case ERR_EPS_NOTALIVE:
-		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: eps not alive");
+		logger->Error("ERRServer: eps not alive");
 		// FIXME: need to add EPS reset
 		break;
 	case ERR_EPS_SELFCHECK:
-		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: eps failed self check");
+		logger->Error("ERRServer: eps failed self check");
 		break;
 	default:
-		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: unknown EPS error");
+		logger->Error("ERRServer: unknown EPS error");
 	}
 }
 
@@ -200,7 +200,7 @@ void ERRServer::FMGError(ErrorOpcodeType error) {
 
 	switch (error) {
 	default:
-		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: unknown FMG error");
+		logger->Error("ERRServer: unknown FMG error");
 	}
 }
 
@@ -210,7 +210,7 @@ void ERRServer::GPSError(ErrorOpcodeType error) {
 
 	switch (error) {
 	default:
-		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: unknown GPS error");
+		logger->Error("ERRServer: unknown GPS error");
 	}
 }
 
@@ -222,23 +222,23 @@ void ERRServer::PLDError(ErrorOpcodeType error) {
 
 	// PLD does not respond to an aliveness check
 	case ERR_PLD_NOTALIVE:
-		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: PLD is not alive");
+		logger->Error("ERRServer: PLD is not alive");
 		if (++PLDNotAliveCount >= 10) {
 			CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
 			cdhServer->subPowerOff(HARDWARE_LOCATION_PLD);
-			logger->Log(LOGGER_LEVEL_FATAL, "ERRServer: powering PLD off!");
+			logger->Fatal("ERRServer: powering PLD off!");
 			PLDNotAliveCount = 0;
 		}
 		break;
 
 	// PLD does not pass its self check
 	case ERR_PLD_SELFCHECK:
-		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: PLD failed self check");
+		logger->Error("ERRServer: PLD failed self check");
 		break;
 
 	// This should never happen
 	default:
-		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: unknown PLD error");
+		logger->Error("ERRServer: unknown PLD error");
 	}
 }
 
@@ -248,7 +248,7 @@ void ERRServer::SCHError(ErrorOpcodeType error) {
 
 	switch (error) {
 	default:
-		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: unknown SCH error");
+		logger->Error("ERRServer: unknown SCH error");
 	}
 }
 
@@ -258,7 +258,7 @@ void ERRServer::GENError(ErrorOpcodeType error) {
 
 	switch (error) {
 	default:
-		logger->Log(LOGGER_LEVEL_ERROR, "ERRServer: unknown GEN error");
+		logger->Error("ERRServer: unknown GEN error");
 	}
 }
 

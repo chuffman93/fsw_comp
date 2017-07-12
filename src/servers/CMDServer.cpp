@@ -71,7 +71,7 @@ CMDServer & CMDServer::operator=(const CMDServer & source){
 // --------- State Machine -----------------------------------------------------------------------------------------
 void CMDServer::loopInit(void){
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log(LOGGER_LEVEL_INFO, "CMDServer: Initializing");
+	logger->Info("CMDServer: Initializing");
 	TLM_CMD_SERVER_STARTED();
 
 	// setup for uftp
@@ -103,7 +103,7 @@ void CMDServer::loopIdle(void){
 
 	// Check for ground login
 	if (checkForSOT() != 0) {
-		logger->Log(LOGGER_LEVEL_WARN, "CMDServer: surprise COM! Preparing to enter COM Mode");
+		logger->Warning("CMDServer: surprise COM! Preparing to enter COM Mode");
 		SCHServer * schServer = static_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
 		schServer->RequestCOMMode();
 		wdmAsleep();
@@ -133,13 +133,13 @@ void CMDServer::loopPassPrep(){
 
 	// see if the fmgServer has prepped Verbose H&S
 	if(fmgServer->isComReady()){
-		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: finished COM pass prep");
+		logger->Info("CMDServer: finished COM pass prep");
 		currentState = ST_LOGIN;
 	}
 
 	// make sure that the COM pass hasn't concluded
 	if(modeManager->GetMode() != MODE_COM){
-		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: FMGServer never prepped for COM, COM pass over");
+		logger->Error("CMDServer: FMGServer never prepped for COM, COM pass over");
 		hsDelays = CMDConfiguration.beaconPeriod; // reset beacon period
 		currentState = ST_IDLE;
 	}
@@ -152,18 +152,18 @@ void CMDServer::loopLogin(){
 	// block until the start of transmission file has been uplinked
 	int SOTresult = checkForSOT();
 	if(SOTresult == 1){
-		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: ground login successful, skipping VH&S");
+		logger->Info("CMDServer: ground login successful, skipping VH&S");
 		hsDelays = CMDConfiguration.beaconPeriod; // set the beacon to normal rate
 		currentState = ST_UPLINK;
 	} else if(SOTresult == 2){
-		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: ground login successful, sending VH&S");
+		logger->Info("CMDServer: ground login successful, sending VH&S");
 		hsDelays = CMDConfiguration.beaconPeriod; // set the beacon to normal rate
 		currentState = ST_VERBOSE_HS;
 	}
 
 	// make sure that the COM pass hasn't concluded
 	if(modeManager->GetMode() != MODE_COM){
-		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: no login, COM pass over");
+		logger->Info("CMDServer: no login, COM pass over");
 		hsDelays = CMDConfiguration.beaconPeriod; // set the beacon to normal rate
 		currentState = ST_POST_PASS;
 	}
@@ -173,7 +173,7 @@ void CMDServer::loopVerboseHS(){
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	// downlink the Verbose H&S file
-	logger->Log(LOGGER_LEVEL_INFO, "CMDServer: Verbose H&S unimplemented");
+	logger->Info("CMDServer: Verbose H&S unimplemented");
 	currentState = ST_UPLINK;
 }
 
@@ -185,7 +185,7 @@ void CMDServer::loopUplink(){
 	if(access(EOT_PATH,F_OK) == 0) {
 		// if EOT, check for IEF
 		if(access(IEF_PATH,F_OK) == 0) {
-			logger->Log(LOGGER_LEVEL_INFO, "CMDServer: uplink concluded, beginning immediate execution");
+			logger->Info("CMDServer: uplink concluded, beginning immediate execution");
 			IEFline = NULL;
 			IEFlen = 0;
 			if (openIEF(&IEFfp, &IEFline, &IEFlen)) {
@@ -194,14 +194,14 @@ void CMDServer::loopUplink(){
 				// TODO: send IEF NAK
 			}
 		} else {
-			logger->Log(LOGGER_LEVEL_INFO, "CMDServer: uplink concluded, starting planned downlink");
+			logger->Info("CMDServer: uplink concluded, starting planned downlink");
 			currentState = ST_DOWNLINK_PREP;
 		}
 	}
 
 	// make sure that the COM pass hasn't concluded
 	if(modeManager->GetMode() != MODE_COM){
-		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: uplink not finished, COM pass over");
+		logger->Error("CMDServer: uplink not finished, COM pass over");
 		currentState = ST_POST_PASS;
 	}
 }
@@ -211,7 +211,7 @@ void CMDServer::loopImmediateExecution() {
 
 	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	if(modeManager->GetMode() != MODE_COM){
-		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: immediate execution timeout, COM pass over");
+		logger->Error("CMDServer: immediate execution timeout, COM pass over");
 		if (downlinkInProgress) {
 			downlinkInProgress = false;
 			kill(uftp_pid, SIGINT);
@@ -236,7 +236,7 @@ void CMDServer::loopImmediateExecution() {
 		}
 	}
 
-	logger->Log(LOGGER_LEVEL_INFO, "Finished immediate execution, resuming uplink");
+	logger->Info("Finished immediate execution, resuming uplink");
 
 	fclose(IEFfp);
 
@@ -255,7 +255,7 @@ void CMDServer::loopDownlinkPrep(){
 	numFilesDWN = getNumFiles((char *) DOWNLINK_DIRECTORY);
 	currFileNum = 1;
 
-	logger->Log(LOGGER_LEVEL_INFO,"CMDServer: %d files to downlink", numFilesDWN);
+	logger->Info("CMDServer: %d files to downlink", numFilesDWN);
 	currentState = ST_DOWNLINK;
 }
 
@@ -265,7 +265,7 @@ void CMDServer::loopDownlink() {
 	string filename;
 
 	if (modeManager->GetMode() != MODE_COM) {
-		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: downlink timed out, COM pass over");
+		logger->Error("CMDServer: downlink timed out, COM pass over");
 		numFilesDWN = 0;
 		currFileNum = 1;
 		kill(uftp_pid, SIGINT);
@@ -289,7 +289,7 @@ void CMDServer::loopDownlink() {
 		filename = getDownlinkFile(currFileNum++);
 		DownlinkFile(filename);
 	} else {
-		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: downlink finished");
+		logger->Info("CMDServer: downlink finished");
 		numFilesDWN = 0;
 		currFileNum = 1;
 		currentState = ST_POST_PASS;
@@ -328,7 +328,7 @@ void CMDServer::loopPostPass() {
 
 void CMDServer::loopReset(){
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log(LOGGER_LEVEL_INFO, "Daily reset encountered");
+	logger->Info("Daily reset encountered");
 	TLM_DAILY_RESET();
 
 	wdmAsleep();
@@ -337,7 +337,7 @@ void CMDServer::loopReset(){
 	}
 	wdmAlive();
 
-	logger->Log(LOGGER_LEVEL_ERROR, "Daily reset failed, performing reboot");
+	logger->Error("Daily reset failed, performing reboot");
 	system("reboot");
 	currentState = ST_IDLE;
 }
@@ -356,7 +356,7 @@ bool CMDServer::CheckHealthStatus(void) {
 
 void CMDServer::UpdateBeacon() {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log(LOGGER_LEVEL_INFO, "Creating Beacon");
+	logger->Info("Creating Beacon");
 
 	BeaconStruct tempBeacon;
 
@@ -404,7 +404,7 @@ void CMDServer::UpdateBeacon() {
 		this->GiveLock();
 		beaconValid = true;
 	} else {
-		logger->Log(LOGGER_LEVEL_WARN, "CMDServer: unable to take lock to update beacon");
+		logger->Warning("CMDServer: unable to take lock to update beacon");
 	}
 
 	// log beacons to a file for testing purposes
@@ -429,7 +429,7 @@ void CMDServer::serializeBeacon(uint8 * buffer) {
 		this->GiveLock();
 		beaconValid = false;
 	} else {
-		logger->Log(LOGGER_LEVEL_WARN, "CMDServer: unable to take lock to serialize beacon");
+		logger->Warning("CMDServer: unable to take lock to serialize beacon");
 	}
 }
 
@@ -441,7 +441,7 @@ void CMDServer::bootConfig() {
 
 	// make sure we get a valid file pointer
 	if (fp == NULL) {
-		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: NULL CMD config file pointer, cannot boot");
+		logger->Error("CMDServer: NULL CMD config file pointer, cannot boot");
 		return;
 	}
 
@@ -449,11 +449,11 @@ void CMDServer::bootConfig() {
 	if (fread(buffer, sizeof(uint8), CMDConfiguration.size, fp) == CMDConfiguration.size) {
 		CMDConfiguration.update(buffer, CMDConfiguration.size, 0, 0);
 		CMDConfiguration.deserialize();
-		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: successfully booted CMD configs");
+		logger->Info("CMDServer: successfully booted CMD configs");
 		fclose(fp);
 		return;
 	} else {
-		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: error reading CMD config file, cannot boot");
+		logger->Error("CMDServer: error reading CMD config file, cannot boot");
 		fclose(fp);
 		return;
 	}
@@ -467,7 +467,7 @@ bool CMDServer::updateConfig() {
 
 	// make sure we get a valid file pointer
 	if (fp == NULL) {
-		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: NULL CMD config file pointer, cannot update");
+		logger->Error("CMDServer: NULL CMD config file pointer, cannot update");
 		return false;
 	}
 
@@ -475,11 +475,11 @@ bool CMDServer::updateConfig() {
 	if (fread(buffer, sizeof(uint8), CMDConfiguration.size, fp) == CMDConfiguration.size) {
 		CMDConfiguration.update(buffer, CMDConfiguration.size, 0, 0);
 		CMDConfiguration.deserialize();
-		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: successfully updated CMD configs");
+		logger->Info("CMDServer: successfully updated CMD configs");
 		fclose(fp);
 		return true;
 	} else {
-		logger->Log(LOGGER_LEVEL_ERROR, "CMDServer: error reading CMD config file, cannot update");
+		logger->Error("CMDServer: error reading CMD config file, cannot update");
 		fclose(fp);
 		return false;
 	}
@@ -490,14 +490,14 @@ void CMDServer::DownlinkFile(string fileName) {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	if(access(fileName.c_str(), F_OK) != 0) {
-		logger->Log(LOGGER_LEVEL_ERROR, "downlinkFile: file doesn't exist!");
+		logger->Error("downlinkFile: file doesn't exist!");
 		return;
 	}
 
 	int pid = fork();
 	if (pid == 0) {
 		char * argv[] = {UFTP_PATH, "-Y", "aes256-gcm", "-h", "sha256", "-I", "ax0", "-H", "1.1.1.2", "-s", "50", "-x", "1", "-m", "10", (char *) fileName.c_str(), NULL};
-		logger->Log(LOGGER_LEVEL_INFO, "CMDServer: downlinking file");
+		logger->Info("CMDServer: downlinking file");
 		execve(UFTP_PATH, argv, {NULL});
 		exit(0);
 	}

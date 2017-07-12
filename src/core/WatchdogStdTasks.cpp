@@ -27,7 +27,7 @@ void * runServer(void * args){
 	server->wdmAlive();
 	server->startupWait = 0; // TODO: find better way to ensure restarted threads start immediately?
 
-	logger->Log(LOGGER_LEVEL_INFO, "Kicking off the %s Server", server->name.c_str());
+	logger->Info("Kicking off the %s Server", server->name.c_str());
 	server->SubsystemLoop();
 
 	pthread_exit(NULL);

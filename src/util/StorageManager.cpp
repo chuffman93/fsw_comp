@@ -16,7 +16,7 @@ StorageManager::StorageManager(float threshold_in){
 	GPSServer * gpsServer = static_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-	logger->Log(LOGGER_LEVEL_INFO, "StorageManager started using GPS time as threshold");
+	logger->Info("StorageManager started using GPS time as threshold");
 
 	storage_threshold = threshold_in;
 	oldest_week = gpsServer->GetWeek();
@@ -27,15 +27,15 @@ StorageManager::StorageManager(float threshold_in){
 StorageManager::StorageManager(int week_start, float seconds_start, float threshold_in){
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-	logger->Log(LOGGER_LEVEL_INFO, "StorageManager started using input threshold");
+	logger->Info("StorageManager started using input threshold");
 
 	storage_threshold = threshold_in;
 	oldest_week = week_start;
 	oldest_seconds = seconds_start;
 	errorMode = false;
 
-	logger->Log(LOGGER_LEVEL_INFO, "StorageManager week: %d", oldest_week);
-	logger->Log(LOGGER_LEVEL_INFO, "StorageManager secs: %f", oldest_seconds);
+	logger->Info("StorageManager week: %d", oldest_week);
+	logger->Info("StorageManager secs: %f", oldest_seconds);
 }
 
 int StorageManager::CheckAndClean(void){
@@ -43,16 +43,16 @@ int StorageManager::CheckAndClean(void){
 
 	if(!errorMode){
 		if(!CheckStorage()){
-			logger->Log(LOGGER_LEVEL_WARN, "StorageManager: storage threshold reached!");
+			logger->Warning("StorageManager: storage threshold reached!");
 			uint8 count = 0;
 			while(count++ < 10){
 				CleanFiles();
 				if(CheckStorage()){
-					logger->Log(LOGGER_LEVEL_INFO, "StorageManager: successfully cleaned storage");
+					logger->Info("StorageManager: successfully cleaned storage");
 					return 1;
 				}
 			}
-			logger->Log(LOGGER_LEVEL_FATAL, "StorageManager: cannot clean fs, entering error mode!");
+			logger->Fatal("StorageManager: cannot clean fs, entering error mode!");
 			errorMode = true;
 			return -1; // entering error mode
 		}
@@ -67,7 +67,7 @@ bool StorageManager::CheckStorage(){
 
 	if(statvfs((char *) "/media/sd1/filehandler/", &svfs) != 0){
 		// TODO: handle this
-		logger->Log(LOGGER_LEVEL_ERROR, "StorageManager: error reading svfs");
+		logger->Error("StorageManager: error reading svfs");
 		return true;
 	}
 

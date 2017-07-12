@@ -75,7 +75,7 @@ void COMServer::loopInit(){
 			return;
 		}
 
-		logger->Log(LOGGER_LEVEL_INFO, "COM passed self check");
+		logger->Info("COM passed self check");
 
 		bootConfig();
 
@@ -126,10 +126,10 @@ void COMServer::loopEnterTXSilence(){
 			}
 		}
 		if(i != 20){
-			logger->Log(LOGGER_LEVEL_FATAL, "COM can't enter TX silence, serious problem");
+			logger->Fatal("COM can't enter TX silence, serious problem");
 		}
 	}
-	logger->Log(LOGGER_LEVEL_INFO, "COM entering TX silence");
+	logger->Info("COM entering TX silence");
 	currentState = ST_TX_SILENCE;
 }
 
@@ -157,7 +157,7 @@ void COMServer::bootConfig() {
 
 	// make sure we get a valid file pointer
 	if (fp == NULL) {
-		logger->Log(LOGGER_LEVEL_ERROR, "COMServer: NULL COM config file pointer, cannot boot");
+		logger->Error("COMServer: NULL COM config file pointer, cannot boot");
 		return;
 	}
 
@@ -165,11 +165,11 @@ void COMServer::bootConfig() {
 	if (fread(buffer, sizeof(uint8), COMConfiguration.size, fp) == COMConfiguration.size) {
 		COMConfiguration.update(buffer, COMConfiguration.size, 0, 0);
 		COMConfiguration.deserialize();
-		logger->Log(LOGGER_LEVEL_INFO, "COMServer: successfully booted COM configs");
+		logger->Info("COMServer: successfully booted COM configs");
 		fclose(fp);
 		return;
 	} else {
-		logger->Log(LOGGER_LEVEL_ERROR, "COMServer: error reading COM config file, cannot boot");
+		logger->Error("COMServer: error reading COM config file, cannot boot");
 		fclose(fp);
 		return;
 	}
@@ -183,7 +183,7 @@ bool COMServer::updateConfig() {
 
 	// make sure we get a valid file pointer
 	if (fp == NULL) {
-		logger->Log(LOGGER_LEVEL_ERROR, "COMServer: NULL COM config file pointer, cannot update");
+		logger->Error("COMServer: NULL COM config file pointer, cannot update");
 		return false;
 	}
 
@@ -191,11 +191,11 @@ bool COMServer::updateConfig() {
 	if (fread(buffer, sizeof(uint8), COMConfiguration.size, fp) == COMConfiguration.size) {
 		COMConfiguration.update(buffer, COMConfiguration.size, 0, 0);
 		COMConfiguration.deserialize();
-		logger->Log(LOGGER_LEVEL_INFO, "COMServer: successfully updated COM configs");
+		logger->Info("COMServer: successfully updated COM configs");
 		fclose(fp);
 		return true;
 	} else {
-		logger->Log(LOGGER_LEVEL_ERROR, "COMServer: error reading COM config file, cannot update");
+		logger->Error("COMServer: error reading COM config file, cannot update");
 		fclose(fp);
 		return false;
 	}

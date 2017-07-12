@@ -21,13 +21,13 @@ namespace Servers{
 
 ACPPacket * DispatchPacket(ACPPacket * query) {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log(LOGGER_LEVEL_DEBUG, "DispatchStdTasks: DispatchPacket() Called with ACPPacket");
+	logger->Debug("DispatchStdTasks: DispatchPacket() Called with ACPPacket");
 
 	//check inputs
 	LocationIDType source = query->getSource();
 	LocationIDType destination = query->getDestination();
 	if (source < HARDWARE_LOCATION_MIN || source >= SERVER_LOCATION_MAX || destination < HARDWARE_LOCATION_MIN || destination >= SERVER_LOCATION_MAX) {
-		logger->Log(LOGGER_LEVEL_ERROR, "DispatcherStdTasks: DispatchPacket(): invalid src/dest!");
+		logger->Error("DispatcherStdTasks: DispatchPacket(): invalid src/dest!");
 		ACPPacket * ret = new ACPPacket(PACKET_FORMAT_FAIL, INVALID_PACKET);
 		delete query;
 		return ret;
@@ -38,7 +38,7 @@ ACPPacket * DispatchPacket(ACPPacket * query) {
 
 	// Dispatch packet, if it fails return DISPATCH_FAILED
 	if(!dispatcher->Dispatch(*query)) {
-		logger->Log(LOGGER_LEVEL_WARN, "DispatchStdTasks: Failed to dispatch packet\n");
+		logger->Warning("DispatchStdTasks: Failed to dispatch packet\n");
 		ACPPacket * ret = new ACPPacket(DISPATCH_FAILED, FAILED_DISPATCH);
 		delete query;
 		return ret;
@@ -48,15 +48,15 @@ ACPPacket * DispatchPacket(ACPPacket * query) {
 	ACPPacket * response;
 
 	//Wait for return message, if it fails return status response from dispatcher
-	logger->Log(LOGGER_LEVEL_DEBUG, "DispatchStdTasks: Waiting for return message\n");
+	logger->Debug("DispatchStdTasks: Waiting for return message\n");
 	if (DISPATCHER_STATUS_OK != (stat = WaitForDispatchResponse(*query, &response))) {
-		logger->Log(LOGGER_LEVEL_WARN, "DispatchStdTasks: Did not receive response\n");
+		logger->Warning("DispatchStdTasks: Did not receive response\n");
 		ACPPacket * ret = new ACPPacket(DISPATCHER_STATUS_ERR, NO_RESPONSE);
 		delete query;
 		return ret;
 	}
 
-	logger->Log(LOGGER_LEVEL_DEBUG, "DispatchStdTasks: Received return message\n");
+	logger->Debug("DispatchStdTasks: Received return message\n");
 
 	assert(response != NULL);
 	return response;
@@ -68,11 +68,11 @@ DispatcherStatusEnum WaitForDispatchResponse(const ACPPacket & packet, ACPPacket
 	size_t i;
 	ACPPacket * retPacket;
 
-	logger->Log(LOGGER_LEVEL_DEBUG, "    Dispatcher: WaitForDispatchResponse() called");
-	logger->Log(LOGGER_LEVEL_DEBUG, "    Dispatcher: Checking queue for matching packet");
+	logger->Debug("    Dispatcher: WaitForDispatchResponse() called");
+	logger->Debug("    Dispatcher: Checking queue for matching packet");
 	for (i = 0; i < DISPATCHER_MAX_RESPONSE_TRIES; ++i) {
 		if (dispatcher->CheckQueueForMatchingPacket(packet, retPacket, dispatcher->CHECK_MATCHING_RESPONSE)) {
-			logger->Log(LOGGER_LEVEL_DEBUG, "    Dispatcher: WaitForDispatchResponse(): Matching ACPPacket found.");
+			logger->Debug("    Dispatcher: WaitForDispatchResponse(): Matching ACPPacket found.");
 
 			*retPacketin = retPacket;
 			return DISPATCHER_STATUS_OK;
@@ -81,17 +81,17 @@ DispatcherStatusEnum WaitForDispatchResponse(const ACPPacket & packet, ACPPacket
 	}
 
 	// At this point, see if the command we sent has been received at least.
-	logger->Log(LOGGER_LEVEL_DEBUG, "   Dispatch:  No response, see if the packet we sent has been received.");
+	logger->Debug("   Dispatch:  No response, see if the packet we sent has been received.");
 	//debug_led_set_led(6, LED_ON);
 
 	if (dispatcher->CheckQueueForMatchingPacket(packet, retPacket, dispatcher->CHECK_SAME)) {
-		logger->Log(LOGGER_LEVEL_ERROR, "   Dispatch: Command not received, removed from queue");
+		logger->Error("   Dispatch: Command not received, removed from queue");
 		return DISPATCHER_STATUS_MSG_NOT_RCVD;
 	}
 
 	// The command was received, but no response has been placed in
 	// the queue, so return that the operation failed.
-	logger->Log(LOGGER_LEVEL_ERROR, "   Dispatch: Command received, but no response sent");
+	logger->Error("   Dispatch: Command received, but no response sent");
 	return DISPATCHER_STATUS_MSG_RCVD_NO_RESP_SENT;
 }
 

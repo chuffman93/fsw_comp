@@ -69,7 +69,7 @@ bool Dispatcher::CheckQueueForMatchingPacket(const ACPPacket & packetIn, ACPPack
 			this->GiveLock();
 			return false;
 		} else {
-			logger->Log(LOGGER_LEVEL_SUPER_DEBUG, "Dispatcher: CheckQueueForMatchingPacket(): There is at least one packet");
+			logger->SuperDebug("Dispatcher: CheckQueueForMatchingPacket(): There is at least one packet");
 			if (packetOut == NULL) {
 				this->GiveLock();
 				return false;
@@ -80,9 +80,9 @@ bool Dispatcher::CheckQueueForMatchingPacket(const ACPPacket & packetIn, ACPPack
 				return true;
 			} else {
 				// Check the number of packets waiting in the queue.
-				logger->Log(LOGGER_LEVEL_SUPER_DEBUG, "Dispatcher: CheckQueueForMatchingPacket(): checking more packets");
+				logger->SuperDebug("Dispatcher: CheckQueueForMatchingPacket(): checking more packets");
 				numPackets = mq_size(queueHandleRX, queueAttrRX);
-				logger->Log(LOGGER_LEVEL_SUPER_DEBUG, "Dispatcher: CheckQueueForMatchingPacket(): there are %u more packets", (uint32) numPackets);
+				logger->SuperDebug("Dispatcher: CheckQueueForMatchingPacket(): there are %u more packets", (uint32) numPackets);
 
 				// get each packet and check it against packetIn.
 				for (i = 0; i < numPackets; ++i){
@@ -119,19 +119,19 @@ bool Dispatcher::CheckQueueForMatchingPacket(const ACPPacket & packetIn, ACPPack
 			}
 		}
 	} else {
-		logger->Log(LOGGER_LEVEL_ERROR, "Dispatcher: CheckQueueForMatchingPacket(): Sem Failed - ");
+		logger->Error("Dispatcher: CheckQueueForMatchingPacket(): Sem Failed - ");
 		return false;
 	}
 }
 
 bool Dispatcher::IsPacketMatchingResponse(const ACPPacket & packetIn, const ACPPacket & packetOut) const {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log(LOGGER_LEVEL_SUPER_DEBUG, "IsPacketMatchingResponse result: %d", ((packetOut.isFromHardware())
+	logger->SuperDebug("IsPacketMatchingResponse result: %d", ((packetOut.isFromHardware())
 			&& (packetOut.getPacketID( ) == packetIn.getPacketID( ))));
 
-	logger->Log(LOGGER_LEVEL_SUPER_DEBUG, "IsPacketMatchingResponse response result: %d", packetOut.isFromHardware());
-	logger->Log(LOGGER_LEVEL_SUPER_DEBUG, "IsPacketMatchingResponse source/dest: %d", packetOut.getSource() == packetIn.getDestination());
-	logger->Log(LOGGER_LEVEL_SUPER_DEBUG, "IsPacketMatchingResponse number: %d", packetOut.getPacketID( ) == packetIn.getPacketID( ));
+	logger->SuperDebug("IsPacketMatchingResponse response result: %d", packetOut.isFromHardware());
+	logger->SuperDebug("IsPacketMatchingResponse source/dest: %d", packetOut.getSource() == packetIn.getDestination());
+	logger->SuperDebug("IsPacketMatchingResponse number: %d", packetOut.getPacketID( ) == packetIn.getPacketID( ));
 
 	// Return true if *packetOut is a response to *packetIn.
 	return ((packetOut.isFromHardware())
@@ -149,11 +149,11 @@ bool Dispatcher::IsPacketSame(const ACPPacket & packetIn, const ACPPacket & pack
 
 bool Dispatcher::Dispatch(ACPPacket & packet) {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log(LOGGER_LEVEL_DEBUG, "Dispatcher: Dispatch, packet number: %d", packet.getPacketID());
+	logger->Debug("Dispatcher: Dispatch, packet number: %d", packet.getPacketID());
 
 	// check bounds
 	if (packet.getDestination() < HARDWARE_LOCATION_MIN || packet.getDestination() >= HARDWARE_LOCATION_MAX) {
-		logger->Log(LOGGER_LEVEL_ERROR, "Dispatcher: invalid dispatch location");
+		logger->Error("Dispatcher: invalid dispatch location");
 		return false;
 	}
 
@@ -162,10 +162,10 @@ bool Dispatcher::Dispatch(ACPPacket & packet) {
 	uint8_t * packetBuffer;
 
 	packetLength = packet.GetFlattenSize();
-	logger->Log(LOGGER_LEVEL_DEBUG, "DispatchtoHardware(): dispatch packet size %d", (uint32) packetLength);
+	logger->Debug("DispatchtoHardware(): dispatch packet size %d", (uint32) packetLength);
 
 	if (packetLength >= MAX_PACKET_SIZE) {
-		logger->Log(LOGGER_LEVEL_ERROR, "DispatchtoHardware(): packet too large!");
+		logger->Error("DispatchtoHardware(): packet too large!");
 		return -1;
 	}
 
@@ -185,13 +185,13 @@ bool Dispatcher::Dispatch(ACPPacket & packet) {
 		packet.setSync(SYNC_VALUE | 0x03);
 		break;
 	default:
-		logger->Log(LOGGER_LEVEL_WARN, "DispatchToHardware: bad destination!");
+		logger->Warning("DispatchToHardware: bad destination!");
 		return false;
 	}
 
 	//check if whole packet was copied
 	if (packet.Flatten(packetBuffer,packetLength) != packetLength) {
-		logger->Log(LOGGER_LEVEL_WARN, "DispatchToHardware(): flatten failed");
+		logger->Warning("DispatchToHardware(): flatten failed");
 		return false;
 	}
 
@@ -204,16 +204,16 @@ bool Dispatcher::Dispatch(ACPPacket & packet) {
 		numPackets = mq_size(spi_server->queueHandleTX, spi_server->queueAttrTX);
 
 		if (numPackets < DISPATCHER_QUEUE_LENGTH) { // same length as all queues
-			logger->Log(LOGGER_LEVEL_DEBUG, "Dispatcher: Placing message on SPI queue");
+			logger->Debug("Dispatcher: Placing message on SPI queue");
 			sendSuccess = mq_timed_send(spi_server->queueNameSPITX, &txPacket, MAX_BLOCK_TIME, 0);
 			this->GiveLock();
 		} else {
-			logger->Log(LOGGER_LEVEL_FATAL, "Dispatcher: SPI TX Queue full!");
+			logger->Fatal("Dispatcher: SPI TX Queue full!");
 			this->GiveLock();
 			return false;
 		}
 	} else {
-		logger->Log(LOGGER_LEVEL_WARN, "DispatchToHardware: Semaphore failed!");
+		logger->Warning("DispatchToHardware: Semaphore failed!");
 		return false;
 	}
 
@@ -235,16 +235,16 @@ void Dispatcher::CleanRXQueue() {
 		} else {
 			for (size_t i = 0; i < numPackets; i++) {
 				if (mq_timed_receive(queueNameRX, &iterator, 0, DISPATCHER_MAX_DELAY) == false) {
-					logger->Log(LOGGER_LEVEL_WARN, "Dispatcher::CleanRXQueue(): error getting packet");
+					logger->Warning("Dispatcher::CleanRXQueue(): error getting packet");
 				} else {
 					if (iterator->getTimestamp() < thresholdTime) {
 						// packet is too old, delete?
-						logger->Log(LOGGER_LEVEL_WARN, "Dispatcher::CleanRXQueue(): deleting old packet from queue");
+						logger->Warning("Dispatcher::CleanRXQueue(): deleting old packet from queue");
 						delete iterator;
 					} else {
 						// packet OK, so place it back on the queue
 						if(mq_timed_send(queueNameRX, &iterator, 1, 0) == false){
-							logger->Log(LOGGER_LEVEL_WARN, "Dispatcher::CleanRXQueue(): Failed to replace message on the RX queue");
+							logger->Warning("Dispatcher::CleanRXQueue(): Failed to replace message on the RX queue");
 						}
 					}
 				}
@@ -252,7 +252,7 @@ void Dispatcher::CleanRXQueue() {
 			this->GiveLock();
 		}
 	} else {
-		logger->Log(LOGGER_LEVEL_WARN, "Dispatcher: Can't take lock");
+		logger->Warning("Dispatcher: Can't take lock");
 	}
 }
 

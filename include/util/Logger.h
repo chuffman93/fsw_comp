@@ -26,9 +26,16 @@ class Logger : public AllStar::Core::Singleton{
 		const static bool printToFile;
 		const static bool printToStdOut;
 
-		void Log(LoggerLevelType level_in, char const * fmt, ...);
+		void SuperDebug(const char * fmt, ...);
+		void Debug(const char * fmt, ...);
+		void Info(const char * fmt, ...);
+		void Warning(const char * fmt, ...);
+		void Error(const char * fmt, ...);
+		void Fatal(const char * fmt, ...);
+
 		void PrintInfo(LoggerLevelType level_in);
 	private:
+		void Log(LoggerLevelType level_in, char const * fmt, va_list args);
 		bool IsFullyInitialized(void);
 		Logger(void);
 		~Logger(void);
