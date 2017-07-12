@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 #include <string>
 #include <stdlib.h>
+#include <fstream>
 
 using namespace std;
 using namespace AllStar::Core;
@@ -80,7 +81,7 @@ TEST(TestCMDStdTasks, testGetFileSize){
 
 TEST(TestCMDStdTasks, testPackageFiles){
 	create_test_file_system();
-	packageFiles(TARBALL, TEST_DIR, "", 5);
+	packageFiles(TARBALL, TEST_DIR, "", 5, 1);
 
 	ASSERT_NE(access(TARBALL, F_OK), -1);
 

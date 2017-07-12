@@ -25,6 +25,11 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+extern "C" {
+	#include "util/propagator/AllStarOrbitProp.h"
+	#include "util/propagator/gpsFrameRotation.h"
+}
+
 using namespace std;
 using namespace AllStar::Core;
 using namespace AllStar::HAL;

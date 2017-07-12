@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include "core/Factory.h"
 #include "core/StdTypes.h"
+#include "core/WatchdogManager.h"
 #include "HAL/SPI_Server.h"
 #include "util/Logger.h"
 #include "servers/ACSServer.h"
@@ -49,10 +50,11 @@ void prepGPSData(void){
 //}
 
 void startSPIServer(){
+	WatchdogManager * wdm = static_cast<WatchdogManager *> (Factory::GetInstance(WATCHDOG_MANAGER_SINGLETON));
 	SPI_HALServer * spiServer = static_cast<SPI_HALServer *> (Factory::GetInstance(SPI_HALSERVER_SINGLETON));
 	bool threadsCreated = true;
 
-	threadsCreated &= WatchdogManager::StartServer(spiServer, 0,	true);	 //SPI
+	threadsCreated &= wdm->StartServer(spiServer, 0,	true);	 //SPI
 }
 
 bool ACSHealthStatus(){
@@ -276,16 +278,6 @@ TEST(testCET, testCOMError){
 		usleep(100000);
 	}
 
-	for(uint16 i = TEST_ALIVE_CMD + 1; i < DIAGNOSTIC_1_CMD; i++){
-		testCMD = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, i);
-		testRet = DispatchPacket(testCMD);
-		EXPECT_EQ(testRet->getErrorStatus(), 0xAA);
-		if(!(testRet->getErrorStatus() == 0xAA)){
-			printf("Opcode: %d\n", i);
-		}
-		usleep(100000);
-	}
-
 	for(uint16 i = SUBSYSTEM_RESET_CMD + 1; i < COM_OPCODE_MIN; i++){
 		testCMD = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, i);
 		testRet = DispatchPacket(testCMD);
@@ -355,16 +347,6 @@ TEST(testCET, testPLDError){
 	ACPPacket * testRet;
 
 	for(uint16 i = LED_RATE_DATA + 1; i < TEST_ALIVE_CMD; i++){
-		testCMD = new ACPPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, i);
-		testRet = DispatchPacket(testCMD);
-		EXPECT_EQ(testRet->getErrorStatus(), 0xAA);
-		if(!(testRet->getErrorStatus() == 0xAA)){
-			printf("Opcode: %d\n", i);
-		}
-		usleep(100000);
-	}
-
-	for(uint16 i = TEST_ALIVE_CMD + 1; i < DIAGNOSTIC_1_CMD; i++){
 		testCMD = new ACPPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, i);
 		testRet = DispatchPacket(testCMD);
 		EXPECT_EQ(testRet->getErrorStatus(), 0xAA);
