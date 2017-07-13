@@ -154,6 +154,35 @@ public:
   void deserialize(void);
 };
 
+class GPSCoordinates : public Serialize {
+public:
+  const static int size = 16;
+  GPSCoordinates();
+  GPSCoordinates(double latitude, double longitude);
+  double latitude; 
+  double longitude; 
+  void serialize(void);
+  void deserialize(void);
+};
+
+class GPSPositionTime : public Serialize {
+public:
+  const static int size = 55;
+  GPSPositionTime();
+  GPSPositionTime(uint16 GPSWeek, float GPSSec, double posX, double posY, double posZ, double velX, double velY, double velZ, uint8 numTracked);
+  uint16 GPSWeek; 
+  float GPSSec; 
+  double posX; 
+  double posY; 
+  double posZ; 
+  double velX; 
+  double velY; 
+  double velZ; 
+  uint8 numTracked; 
+  void serialize(void);
+  void deserialize(void);
+};
+
 class ACSConfig : public Serialize {
 public:
   const static int size = 4;

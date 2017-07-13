@@ -88,6 +88,21 @@ EPSStatus
 	uint16 convCurrentW
 	uint16 convThreshW
 
+GPSCoordinates
+	double latitude
+	double longitude
+	
+GPSPositionTime
+	uint16 GPSWeek
+	float GPSSec
+	double posX
+	double posY
+	double posZ
+	double velX
+	double velY
+	double velZ
+	uint8 numTracked
+
 ACSConfig
 	int32 testConfig
 

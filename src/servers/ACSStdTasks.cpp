@@ -153,18 +153,19 @@ bool ACSTestDriver(uint8 driverID, float rwTorque, float trTorque) {
 // Command/Data
 bool ACSSendGPS() {
 	GPSServer * gpsServer = static_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
+	GPSPositionTime * gpsData = gpsServer->GetGPSDataPtr();
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Log(LOGGER_LEVEL_DEBUG, "ACSStdTasks: ACSSendGPS(): Entered");
 
 	uint8 * buffer = (uint8 *) malloc(6*sizeof(double)+sizeof(float)+sizeof(int));
-	AddDouble(buffer, gpsServer->GetGPSDataPtr()->posX);
-	AddDouble(buffer + 8, gpsServer->GetGPSDataPtr()->posY);
-	AddDouble(buffer + 16, gpsServer->GetGPSDataPtr()->posZ);
-	AddDouble(buffer + 24, gpsServer->GetGPSDataPtr()->velX);
-	AddDouble(buffer + 32, gpsServer->GetGPSDataPtr()->velY);
-	AddDouble(buffer + 40, gpsServer->GetGPSDataPtr()->velZ);
-	AddUInt32(buffer + 48, gpsServer->GetGPSDataPtr()->GPSWeek);
-	AddFloat(buffer + 52, gpsServer->GetGPSDataPtr()->GPSSec);
+	AddDouble(buffer, gpsData->posX);
+	AddDouble(buffer + 8, gpsData->posY);
+	AddDouble(buffer + 16, gpsData->posZ);
+	AddDouble(buffer + 24, gpsData->velX);
+	AddDouble(buffer + 32, gpsData->velY);
+	AddDouble(buffer + 40, gpsData->velZ);
+	AddUInt32(buffer + 48, gpsData->GPSWeek);
+	AddFloat(buffer + 52, gpsData->GPSSec);
 
 	ACPPacket * send = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_GPS_CMD, 6*sizeof(double)+sizeof(float)+sizeof(int), buffer);
 	ACPPacket * ret = DispatchPacket(send);

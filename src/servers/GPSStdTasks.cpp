@@ -33,7 +33,6 @@ namespace Servers{
 bool BESTXYZProcess(char * buffer, const size_t size) {
 	GPSServer * gpsServer = static_cast<GPSServer *>(Factory::GetInstance(GPS_SERVER_SINGLETON));
 	Logger * logger = static_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
-	GPS_BESTXYZ * gpsData = gpsServer->GetGPSDataPtr();
 	char * token;
 	char * buffPtr = buffer;
 	bool solSuccess = true;
@@ -78,7 +77,7 @@ bool BESTXYZProcess(char * buffer, const size_t size) {
 	token = strtok(NULL, ","); // (UNUSED) sequence num
 	token = strtok(NULL, ","); // (UNUSED) idle time
 	token = strtok(NULL, ","); // (UNUSED) time status
-	int tempWeek  = strtoul(strtok(NULL, ","), NULL, 10);
+	uint16 tempWeek = (uint16) strtoul(strtok(NULL, ","), NULL, 10);
 	float tempSec = strtof(strtok(NULL, ","), NULL);
 	token = strtok(NULL, ","); // (UNUSED) receiver status
 	token = strtok(NULL, ","); // (UNUSED) port
@@ -136,7 +135,7 @@ bool BESTXYZProcess(char * buffer, const size_t size) {
 	token = strtok(NULL, ","); // (UNUSED) signals used
 
 	if (!solSuccess) {
-		logger->Log(LOGGER_LEVEL_DEBUG, "GPSStdTasks: Invalid BESTXYZ, numTracked: %d", gpsData->numTracked);
+		logger->Log(LOGGER_LEVEL_DEBUG, "GPSStdTasks: Invalid BESTXYZ, numTracked: %d", gpsServer->GPSDataHolder->numTracked);
 		return false;
 	}
 

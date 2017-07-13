@@ -38,24 +38,11 @@ namespace AllStar {
 namespace Servers {
 
 const char * GPSServer::portname = (char *) "/dev/ttyS1";
+GPSPositionTime * GPSServer::GPSDataHolder = new GPSPositionTime(103, 1500.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 2);
+GPSCoordinates * GPSServer::GPSCoordsHolder = new GPSCoordinates(1000.0, 1000.1);
 
 GPSServer::GPSServer(string nameIn, LocationIDType idIn) :
-		SubsystemServer(nameIn, idIn), Singleton() {
-	GPSDataHolder = new GPS_BESTXYZ();
-	GPSCoordsHolder = new GPS_GPRMC();
-
-	GPSDataHolder->GPSSec = 7.0;
-	GPSDataHolder->GPSWeek = 8;
-	GPSDataHolder->posX = 1.0;
-	GPSDataHolder->posY = 2.0;
-	GPSDataHolder->posZ = 3.0;
-	GPSDataHolder->velX = 4.0;
-	GPSDataHolder->velY = 5.0;
-	GPSDataHolder->velZ = 6.0;
-
-	GPSCoordsHolder->latitude = 1000.0;
-	GPSCoordsHolder->longitude = 1000.0;
-}
+		SubsystemServer(nameIn, idIn), Singleton() { }
 
 GPSServer::~GPSServer() { }
 
@@ -277,7 +264,7 @@ GPSReadType GPSServer::ReadData(char * buffer, int fd) {
 	}
 }
 
-GPS_BESTXYZ * GPSServer::GetGPSDataPtr(void) {
+GPSPositionTime * GPSServer::GetGPSDataPtr(void) {
 	if (true == this->TakeLock(MAX_BLOCK_TIME)) {
 		this->GiveLock();
 		return GPSDataHolder;
@@ -285,7 +272,7 @@ GPS_BESTXYZ * GPSServer::GetGPSDataPtr(void) {
 	return NULL;
 }
 
-GPS_GPRMC * GPSServer::GetGPSCoordsPtr(void) {
+GPSCoordinates * GPSServer::GetGPSCoordsPtr(void) {
 	if (true == this->TakeLock(MAX_BLOCK_TIME)) {
 		this->GiveLock();
 		return GPSCoordsHolder;

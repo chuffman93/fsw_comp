@@ -16,6 +16,7 @@
 #include "core/Dispatcher.h"
 #include "servers/GPSStdTasks.h"
 #include "servers/SubsystemServer.h"
+#include "servers/Structs.h"
 
 #include <termios.h>
 #include <unistd.h>
@@ -29,18 +30,6 @@ typedef enum GPSRead {
 	GPS_NO_LOCK
 } GPSReadType;
 
-struct GPS_BESTXYZ {
-	int GPSWeek;
-	float GPSSec;
-	double posX, posY, posZ, velX, velY, velZ;
-	uint8 numTracked;
-};
-
-struct GPS_GPRMC {
-	double latitude;
-	double longitude;
-};
-
 class GPSServer : public SubsystemServer, public AllStar::Core::Singleton {
 	friend class AllStar::Core::Factory;
 
@@ -49,15 +38,15 @@ public:
 
 	bool RegisterHandlers(void);
 
-	GPS_BESTXYZ * GetGPSDataPtr(void);
-	GPS_GPRMC * GetGPSCoordsPtr(void);
+	GPSPositionTime * GetGPSDataPtr(void);
+	GPSCoordinates * GetGPSCoordsPtr(void);
 
 	const static char * portname;
 
 	double DistanceTo(double latitude1, double longitude1);
 
-	GPS_BESTXYZ * GPSDataHolder;
-	GPS_GPRMC * GPSCoordsHolder;
+	static GPSPositionTime * GPSDataHolder;
+	static GPSCoordinates * GPSCoordsHolder;
 
 private:
 	bool IsFullyInitialized(void);
