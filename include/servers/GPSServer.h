@@ -20,8 +20,8 @@
 #include <termios.h>
 #include <unistd.h>
 
-namespace AllStar{
-namespace Servers{
+namespace AllStar {
+namespace Servers {
 
 typedef enum GPSRead {
 	GPS_NO_DATA,
@@ -29,26 +29,19 @@ typedef enum GPSRead {
 	GPS_NO_LOCK
 } GPSReadType;
 
-struct GPS_BESTXYZ{
-	char header[100], message[250], crc[10], MessageID[10], Port[5], TimeStatus[15], pSolStatus[15], pSolType[15], vSolStatus[15],
-	vSolType[15], stnID[10];
-	int SequenceNum;
-	int GPSWeek, numTracked, numSolution;
-	float GPSSec, IdleTime, GPSTime;
+struct GPS_BESTXYZ {
+	int GPSWeek;
+	float GPSSec;
 	double posX, posY, posZ, velX, velY, velZ;
-	float stdDevPX, stdDevPY, stdDevPZ, stdDevVX, stdDevVY, stdDevVZ;
-	float posECIX, posECIY, posECIZ, velECIX, velECIY, velECIZ;
-	float latency,diffAge,solAge;
-	uint32 round_seconds;
+	uint8 numTracked;
 };
 
-struct GPS_GPRMC{
-	char utc[9];
+struct GPS_GPRMC {
 	double latitude;
 	double longitude;
 };
 
-class GPSServer : public SubsystemServer, public AllStar::Core::Singleton{
+class GPSServer : public SubsystemServer, public AllStar::Core::Singleton {
 	friend class AllStar::Core::Factory;
 
 public:
@@ -63,11 +56,6 @@ public:
 
 	double DistanceTo(double latitude1, double longitude1);
 
-	int GetWeek(void);
-	float GetSeconds(void);
-	uint32 GetRoundSeconds(void);
-
-	bool gpsResponsive;
 	GPS_BESTXYZ * GPSDataHolder;
 	GPS_GPRMC * GPSCoordsHolder;
 

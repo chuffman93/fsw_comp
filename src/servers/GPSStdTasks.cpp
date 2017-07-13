@@ -30,12 +30,6 @@ namespace Servers{
  * echo "SAVECONFIG" > /dev/ttyS1/
  */
 
-
-ACPPacket * GPSReset(){
-	//TODO: Figure out how to reset the GPS chip
-	return NULL;
-}
-
 bool BESTXYZProcess(char * buffer, const size_t size) {
 	GPSServer * gpsServer = static_cast<GPSServer *>(Factory::GetInstance(GPS_SERVER_SINGLETON));
 	Logger * logger = static_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
@@ -79,54 +73,61 @@ bool BESTXYZProcess(char * buffer, const size_t size) {
 		logger->Log(LOGGER_LEVEL_WARN, "GPSStdTasks: Wrong message, expecting BESTXYZA");
 		return false;
 	}
+
 	token = strtok(NULL, ","); // (UNUSED) port
 	token = strtok(NULL, ","); // (UNUSED) sequence num
 	token = strtok(NULL, ","); // (UNUSED) idle time
 	token = strtok(NULL, ","); // (UNUSED) time status
-	gpsData->GPSWeek = strtoul(strtok(NULL, ","), NULL, 10);
-	gpsData->GPSSec = strtof(strtok(NULL, ","), NULL);
+	int tempWeek  = strtoul(strtok(NULL, ","), NULL, 10);
+	float tempSec = strtof(strtok(NULL, ","), NULL);
 	token = strtok(NULL, ","); // (UNUSED) receiver status
 	token = strtok(NULL, ","); // (UNUSED) port
 	token = strtok(NULL, ","); // (UNUSED) reserved for vendor
 	token = strtok(NULL, ","); // (UNUSED) software build
 
 	// parse the position log part of the message
+	double tempPX = 0;
+	double tempPY = 0;
+	double tempPZ = 0;
 	if (strcmp("SOL_COMPUTED", strtok(log, ",")) != 0) {
 		logger->Log(LOGGER_LEVEL_DEBUG, "GPSStdTasks: No position solution computed!");
 		solSuccess = false;
 	} else {
 		logger->Log(LOGGER_LEVEL_DEBUG, "GPSStdTasks: Valid position solution computed!");
 		token = strtok(NULL, ","); // (UNUSED) position type
-		gpsData->posX = strtod(strtok(NULL, ","), NULL);
-		gpsData->posY = strtod(strtok(NULL, ","), NULL);
-		gpsData->posZ = strtod(strtok(NULL, ","), NULL);
-		gpsData->stdDevPX = strtod(strtok(NULL, ","), NULL);
-		gpsData->stdDevPY = strtod(strtok(NULL, ","), NULL);
-		gpsData->stdDevPZ = strtod(strtok(NULL, ","), NULL);
+		tempPX = strtod(strtok(NULL, ","), NULL);
+		tempPY = strtod(strtok(NULL, ","), NULL);
+		tempPZ = strtod(strtok(NULL, ","), NULL);
+		token = strtok(NULL, ","); // (UNUSED) std dev x
+		token = strtok(NULL, ","); // (UNUSED) std dev y
+		token = strtok(NULL, ","); // (UNUSED) std dev z
 	}
 
 	// parse the velocity log part of the message
+	double tempVX = 0;
+	double tempVY = 0;
+	double tempVZ = 0;
 	if (strcmp("SOL_COMPUTED", strtok(NULL, ",")) != 0) {
 		logger->Log(LOGGER_LEVEL_DEBUG, "GPSStdTasks: No velocity solution computed!");
 		solSuccess = false;
 	} else {
 		logger->Log(LOGGER_LEVEL_DEBUG, "GPSStdTasks: Valid velocity solution computed!");
 		token = strtok(NULL, ","); // (UNUSED) velocity type
-		gpsData->velX = strtod(strtok(NULL, ","), NULL);
-		gpsData->velY = strtod(strtok(NULL, ","), NULL);
-		gpsData->velZ = strtod(strtok(NULL, ","), NULL);
-		gpsData->stdDevVX = strtod(strtok(NULL, ","), NULL);
-		gpsData->stdDevVY = strtod(strtok(NULL, ","), NULL);
-		gpsData->stdDevVZ = strtod(strtok(NULL, ","), NULL);
+		tempVX = strtod(strtok(NULL, ","), NULL);
+		tempVY = strtod(strtok(NULL, ","), NULL);
+		tempVZ = strtod(strtok(NULL, ","), NULL);
+		token = strtok(NULL, ","); // (UNUSED) std dev x
+		token = strtok(NULL, ","); // (UNUSED) std dev y
+		token = strtok(NULL, ","); // (UNUSED) std dev z
 	}
 
 	// parse the rest of the log
 	token = strtok(NULL, ","); // (UNUSED) base station
-	gpsData->latency = strtof(strtok(NULL, ","), NULL);
-	gpsData->diffAge = strtof(strtok(NULL, ","), NULL);
-	gpsData->solAge = strtof(strtok(NULL, ","), NULL);
-	gpsData->numTracked = (uint8) atoi(strtok(NULL, ","));
-	gpsData->numSolution = (uint8) atoi(strtok(NULL, ","));
+	token = strtok(NULL, ","); // (UNUSED) latency
+	token = strtok(NULL, ","); // (UNUSED) diff age
+	token = strtok(NULL, ","); // (UNUSED) sol age
+	uint8 tempTracked = (uint8) atoi(strtok(NULL, ","));
+	token = strtok(NULL, ","); // (UNUSED) num used in solution
 	token = strtok(NULL, ","); // (UNUSED) GPS + GLONASS L1
 	token = strtok(NULL, ","); // (UNUSED) GPS + GLONASS L1/L2
 	token = strtok(NULL, ","); // (UNUSED) reserved for vendor
@@ -134,14 +135,22 @@ bool BESTXYZProcess(char * buffer, const size_t size) {
 	token = strtok(NULL, ","); // (UNUSED) reserved for vendor
 	token = strtok(NULL, ","); // (UNUSED) signals used
 
-	gpsData->round_seconds = (uint16) lroundf(gpsData->GPSSec);
-
 	if (!solSuccess) {
 		logger->Log(LOGGER_LEVEL_DEBUG, "GPSStdTasks: Invalid BESTXYZ, numTracked: %d", gpsData->numTracked);
 		return false;
 	}
 
 	logger->Log(LOGGER_LEVEL_DEBUG, "GPSStdTasks: Good BESTXYZ data");
+	gpsServer->GPSDataHolder->GPSWeek = tempWeek;
+	gpsServer->GPSDataHolder->GPSSec = tempSec;
+	gpsServer->GPSDataHolder->posX = tempPX;
+	gpsServer->GPSDataHolder->posY = tempPY;
+	gpsServer->GPSDataHolder->posZ = tempPZ;
+	gpsServer->GPSDataHolder->velX = tempVX;
+	gpsServer->GPSDataHolder->velY = tempVY;
+	gpsServer->GPSDataHolder->velZ = tempVZ;
+	gpsServer->GPSDataHolder->numTracked = tempTracked;
+
 	return true;
 }
 
@@ -180,7 +189,7 @@ bool GPRMCProcess(char * buffer, const size_t size) {
 
 	// parse the message
 	token = strtok(message, ","); // GPRMC
-	token = strtok(NULL, ","); // UTC
+	token = strtok(NULL, ","); // (UNUSED) UTC
 	token = strtok(NULL, ","); // status
 	if (*token != 'A') {
 		logger->Log(LOGGER_LEVEL_DEBUG, "GPSStdTasks: invalid data from GPRMC");
@@ -211,12 +220,12 @@ bool GPRMCProcess(char * buffer, const size_t size) {
 		gpsServer->GPSCoordsHolder->longitude = -1.0 * doubleHolder;
 	}
 
-	token = strtok(NULL, ","); // speed (knots)
-	token = strtok(NULL, ","); // track true
-	token = strtok(NULL, ","); // date
-	token = strtok(NULL, ","); // magnetic variation
-	token = strtok(NULL, ","); // magnetic variation direction
-	token = strtok(NULL, ","); // mode indicator AND checksum
+	token = strtok(NULL, ","); // (UNUSED) speed (knots)
+	token = strtok(NULL, ","); // (UNUSED) track true
+	token = strtok(NULL, ","); // (UNUSED) date
+	token = strtok(NULL, ","); // (UNUSED) magnetic variation
+	token = strtok(NULL, ","); // (UNUSED) magnetic variation direction
+	token = strtok(NULL, ","); // (UNUSED) mode indicator AND checksum
 
 	logger->Log(LOGGER_LEVEL_INFO, "GPSStdTasks: Successfully processed GPRMC data");
 	return true;
@@ -237,7 +246,7 @@ double nmea_to_deg(char *nmea) {
 }
 
 // modified slightly from page 32 of http://www.novatel.com/assets/Documents/Manuals/om-20000094.pdf
-uint32 CRCValue_GPS(int i){
+uint32 CRCValue_GPS(int i) {
 	int j;
 	uint32 ulCRC;
 
@@ -253,7 +262,7 @@ uint32 CRCValue_GPS(int i){
 }
 
 // modified slightly from page 32 of http://www.novatel.com/assets/Documents/Manuals/om-20000094.pdf
-uint32 CalculateCRC_GPS(char * buffer){
+uint32 CalculateCRC_GPS(char * buffer) {
 	uint32 temp1;
 	uint32 temp2;
 	uint32 CRC = 0;
@@ -267,7 +276,7 @@ uint32 CalculateCRC_GPS(char * buffer){
 	return CRC;
 }
 
-uint8 CalculateNMEAChecksum(char * buffer){
+uint8 CalculateNMEAChecksum(char * buffer) {
 	uint32 len = strlen(buffer);
 	uint8 checksum = 0;
 
@@ -277,5 +286,6 @@ uint8 CalculateNMEAChecksum(char * buffer){
 
 	return checksum;
 }
+
 }
 }

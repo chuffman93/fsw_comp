@@ -11,14 +11,9 @@
 
 using namespace AllStar::Core;
 
-namespace AllStar{
-namespace Servers{
+namespace AllStar {
+namespace Servers {
 
-ACPPacket * GPSHealthStatus();
-ACPPacket * GPSTime();
-ACPPacket * GPSPostion();
-bool GPSConversion();
-ACPPacket * GPSReset();
 bool BESTXYZProcess(char * buffer,const size_t size);
 bool GPRMCProcess(char * buffer, const size_t size);
 double nmea_to_deg(char *nmea);

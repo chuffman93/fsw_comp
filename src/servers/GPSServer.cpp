@@ -34,17 +34,16 @@ using namespace std;
 using namespace AllStar::Core;
 using namespace AllStar::HAL;
 
-namespace AllStar{
-namespace Servers{
+namespace AllStar {
+namespace Servers {
 
 const char * GPSServer::portname = (char *) "/dev/ttyS1";
 
 GPSServer::GPSServer(string nameIn, LocationIDType idIn) :
-		SubsystemServer(nameIn, idIn), Singleton(), gpsResponsive(false) {
+		SubsystemServer(nameIn, idIn), Singleton() {
 	GPSDataHolder = new GPS_BESTXYZ();
 	GPSCoordsHolder = new GPS_GPRMC();
 
-	GPSDataHolder->round_seconds = 30;
 	GPSDataHolder->GPSSec = 7.0;
 	GPSDataHolder->GPSWeek = 8;
 	GPSDataHolder->posX = 1.0;
@@ -58,8 +57,7 @@ GPSServer::GPSServer(string nameIn, LocationIDType idIn) :
 	GPSCoordsHolder->longitude = 1000.0;
 }
 
-GPSServer::~GPSServer(){
-}
+GPSServer::~GPSServer() { }
 
 GPSServer & GPSServer::operator=(const GPSServer & source) {
 	if (this == &source){
@@ -81,7 +79,6 @@ void GPSServer::SubsystemLoop(void) {
 
 	logger->Log(LOGGER_LEVEL_INFO, "GPSServer: entered subsystem loop");
 	TLM_GPS_SERVER_STARTED();
-	gpsResponsive = false;
 
 	cdhServer->subPowerOn(HARDWARE_LOCATION_GPS);
 
@@ -189,18 +186,6 @@ double GPSServer::DistanceTo(double latitude1, double longitude1) {
 	return c*R;
 }
 
-int GPSServer::GetWeek(void) {
-	return GPSDataHolder->GPSWeek;
-}
-
-float GPSServer::GetSeconds(void) {
-	return GPSDataHolder->GPSSec;
-}
-
-uint32 GPSServer::GetRoundSeconds(void) {
-	return GPSDataHolder->round_seconds;
-}
-
 GPSReadType GPSServer::ReadData(char * buffer, int fd) {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
@@ -224,16 +209,18 @@ GPSReadType GPSServer::ReadData(char * buffer, int fd) {
 			while(read(fd,&c,1) == 1){
 				buffer[counter++] = c;
 
-				// if BESTXYZ, read crc and return
+				// if BESTXYZ, read crc and break
 				if (c == '*' && c1 == '#') {
 					if (counter > 339) {
 						logger->Log(LOGGER_LEVEL_WARN, "GPSServer: BESTXYZ too long!");
 						return GPS_NO_LOCK;
 					}
+
 					for (uint8 i = 0; i < 10; i++) {
 						readSuccess &= (read(fd,&c,1) == 1);
 						buffer[counter++] = c;
 					}
+
 					if (readSuccess) {
 						break;
 					} else {
@@ -242,7 +229,7 @@ GPSReadType GPSServer::ReadData(char * buffer, int fd) {
 					}
 				}
 
-				// if GPRMC, read checksum and return
+				// if GPRMC, read checksum and break
 				if (c == '*' && c1 == '$') {
 					if (counter > 345) {
 						logger->Log(LOGGER_LEVEL_WARN, "GPSServer: GPRMC too long!");
