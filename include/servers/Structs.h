@@ -183,6 +183,22 @@ public:
   void deserialize(void);
 };
 
+class GPSInertial : public Serialize {
+public:
+  const static int size = 56;
+  GPSInertial();
+  GPSInertial(double posX, double posY, double posZ, double velX, double velY, double velZ, int64 sysTime);
+  double posX; 
+  double posY; 
+  double posZ; 
+  double velX; 
+  double velY; 
+  double velZ; 
+  int64 sysTime; 
+  void serialize(void);
+  void deserialize(void);
+};
+
 class ACSConfig : public Serialize {
 public:
   const static int size = 4;

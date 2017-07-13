@@ -28,6 +28,7 @@
 extern "C" {
 	#include "util/propagator/AllStarOrbitProp.h"
 	#include "util/propagator/gpsFrameRotation.h"
+	#include "util/propagator/OrbitalMotionAllStar.h"
 }
 
 using namespace std;
@@ -38,11 +39,13 @@ namespace AllStar {
 namespace Servers {
 
 const char * GPSServer::portname = (char *) "/dev/ttyS1";
+GPSLockType GPSServer::lastLock = {{0.0, 0.0, 0.0, 0.0, 0.0, 0.0}, -1.0};
+GPSInertial GPSServer::GPSInertialCoords(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1);
 GPSPositionTime * GPSServer::GPSDataHolder = new GPSPositionTime(103, 1500.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 2);
 GPSCoordinates * GPSServer::GPSCoordsHolder = new GPSCoordinates(1000.0, 1000.1);
 
 GPSServer::GPSServer(string nameIn, LocationIDType idIn) :
-		SubsystemServer(nameIn, idIn), Singleton() { }
+		SubsystemServer(nameIn, idIn), Singleton(), propagating(false) { }
 
 GPSServer::~GPSServer() { }
 
@@ -107,16 +110,25 @@ void GPSServer::SubsystemLoop(void) {
 			}
 			break;
 		case GPS_NO_LOCK:
+			if (!propagating) {
+				propagating = true;
+				ECItoOE();
+			}
+
 			lastData = currTime;
 			if (currTime > lastUpdate + 2000) { // update with the propagator if it's been 2 seconds
 				lastUpdate = currTime;
-				// TODO: update and propagate
+				UpdateAndPropagate();
 			}
 			break;
 		case GPS_LOCK:
+			if (propagating) {
+				propagating = false;
+			}
+
 			lastData = currTime;
 			lastUpdate = currTime;
-			// TODO: update
+			ECEFtoECI();
 			break;
 		default:
 			logger->Log(LOGGER_LEVEL_WARN, "GPS invalid read status (bit flip)");
@@ -278,6 +290,65 @@ GPSCoordinates * GPSServer::GetGPSCoordsPtr(void) {
 		return GPSCoordsHolder;
 	}
 	return NULL;
+}
+
+void GPSServer::UpdateAndPropagate() {
+	float eciPos[3];
+	float eciVel[3];
+	int64 currTime = getTimeInMillis();
+	float currTimef = currTime/1000.0;
+
+	propagatePositionVelocity(lastLock.elements, currTimef, eciPos, eciVel);
+
+	GPSInertialCoords.posX = eciPos[0];
+	GPSInertialCoords.posY = eciPos[1];
+	GPSInertialCoords.posZ = eciPos[2];
+	GPSInertialCoords.velX = eciVel[0];
+	GPSInertialCoords.velY = eciVel[1];
+	GPSInertialCoords.velZ = eciVel[2];
+	GPSInertialCoords.sysTime = currTime;
+}
+
+void GPSServer::ECItoOE() {
+	float r[4];
+	float v[4];
+	r[1] = GPSInertialCoords.posX;
+	r[2] = GPSInertialCoords.posY;
+	r[3] = GPSInertialCoords.posZ;
+	v[1] = GPSInertialCoords.velX;
+	v[2] = GPSInertialCoords.velY;
+	v[3] = GPSInertialCoords.velZ;
+
+	lastLock.sysTime = GPSInertialCoords.sysTime / 1000.0;
+
+	rv2elem(MU_EARTH, r, v, &(lastLock.elements));// Get the orbital elements using the last position and velocity
+}
+
+void GPSServer::ECEFtoECI() {
+	// arrays for the rotation
+	float posECEF[3];
+	float velECEF[3];
+	float posECI[3];
+	float velECI[3];
+	float gpsTime[2];
+
+	posECEF[0] = GPSDataHolder->posX;
+	posECEF[1] = GPSDataHolder->posY;
+	posECEF[2] = GPSDataHolder->posZ;
+	velECEF[0] = GPSDataHolder->velX;
+	velECEF[1] = GPSDataHolder->velY;
+	velECEF[2] = GPSDataHolder->velZ;
+	gpsTime[0] = GPSDataHolder->GPSWeek;
+	gpsTime[1] = GPSDataHolder->GPSSec;
+
+	wgs2gcrf(posECEF, velECEF, gpsTime, posECI, velECI);
+
+	GPSInertialCoords.posX = posECI[0];
+	GPSInertialCoords.posY = posECI[1];
+	GPSInertialCoords.posZ = posECI[2];
+	GPSInertialCoords.velX = velECI[0];
+	GPSInertialCoords.velY = velECI[1];
+	GPSInertialCoords.velZ = velECI[2];
 }
 
 }

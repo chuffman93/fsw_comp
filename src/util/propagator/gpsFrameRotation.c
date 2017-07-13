@@ -35,7 +35,7 @@ void wgs2gcrf(float_t *xEcef, float_t *vEcef, float_t *gpsTime, float_t *xEci, f
     float_t    jd_gps[2];
     float_t    jd_tt[2];
     float_t    jd_utc[2];
-    float_t    IE[4][4];
+    float_t    IE[3][3];
 
     /* Convert GPS time of week to Julian Date */
     gpstow2jd(gpsTime[0], gpsTime[1], rollFlag, jd_gps);
@@ -52,9 +52,9 @@ void wgs2gcrf(float_t *xEcef, float_t *vEcef, float_t *gpsTime, float_t *xEci, f
 
     /* Error checking: jd_utc should not be 0 */
     if(jd_utc[0] == 0 && jd_utc[1] == 0) {
+        xEci[0] = 0;
         xEci[1] = 0;
         xEci[2] = 0;
-        xEci[3] = 0;
         return;
     }
 
@@ -329,17 +329,17 @@ void jdtt2jdutc( float_t *jd_tt, float_t *jd_utc, int *tai_utc )
 void ecef2eci_IAU2006CIOinterp(float_t *jd_tt, float_t *jd_utc, 
                                float_t *r0, float_t *r, 
                                float_t *v0, float_t *v, 
-                               float_t IE[4][4])
+                               float_t IE[3][3])
 {
-    float_t		R[4][4];
-    float_t		BPN[4][4];
+    float_t		R[3][3];
+    float_t		BPN[3][3];
     float_t		X;
     float_t		Y;
     float_t		s;
     float_t		ERA;
-    float_t		v_E[4];
-    float_t		wXr[4];
-    float_t		omegaEI[4];
+    float_t		v_E[3];
+    float_t		wXr[3];
+    float_t		omegaEI[3];
 
     /* Construct Earth rotation angle matrix, R (TIRS to CIRS) */
     /* e.g. r_cirs = R * r_tirs */
@@ -408,18 +408,18 @@ void ecef2eci_IAU2006CIOinterp(float_t *jd_tt, float_t *jd_utc,
 void eci2ecef_IAU2006CIOinterp(float_t *jd_tt, float_t *jd_utc, 
                                float_t *r0, float_t *r, 
                                float_t *v0, float_t *v, 
-                               float_t EI[4][4])
+                               float_t EI[3][3])
 {
-    float_t R[4][4];
-    float_t BPN[4][4];
-    float_t IE[4][4];
+    float_t R[3][3];
+    float_t BPN[3][3];
+    float_t IE[3][3];
     float_t X;
     float_t Y;
     float_t s;
     float_t ERA;
-    float_t v_E[4];
-    float_t wXr[4];
-    float_t omegaEI[4];
+    float_t v_E[3];
+    float_t wXr[3];
+    float_t omegaEI[3];
     
     /* Construct Earth rotation angle matrix, R (TIRS to CIRS) */
     /* e.g. r_cirs = R * r_tirs */
@@ -473,7 +473,7 @@ void eci2ecef_IAU2006CIOinterp(float_t *jd_tt, float_t *jd_utc,
  *  rERA        = ERA rotation matrix
  *  ERA         = Earth Rotation Angle (0 <= ERA <= 2*pi)
  */
-void computeERAmat(float_t *jd_ut1, float_t rERA[4][4], float_t *ERA)
+void computeERAmat(float_t *jd_ut1, float_t rERA[3][3], float_t *ERA)
 {
     float_t		F;
     float_t		era;
@@ -711,11 +711,11 @@ void interpLagrange( float_t xx, int p, int row0, float_t *yy)
  *  BPN     = Bias-Precession-Nutation matrix, e.g. r_gcrs = BPN * r_cirs
  *   
  */
-void computeBPNmatrix( float_t X, float_t Y, float_t s, float_t BPN[4][4])
+void computeBPNmatrix( float_t X, float_t Y, float_t s, float_t BPN[3][3])
 {
     float_t    aa;
-    float_t    fXY[4][4];
-    float_t    fs[4][4];
+    float_t    fXY[3][3];
+    float_t    fs[3][3];
 
     aa = 1/(1 + sqrt(1 - X*X - Y*Y) );
 
@@ -748,7 +748,7 @@ void computeBPNmatrix( float_t X, float_t Y, float_t s, float_t BPN[4][4])
  *  vJ2000  = velocity in J2000 reference frame
  *  B       = Frame Bias matrix, e.g. r_gcrf = B * r_j2000
  */
-void gcrf2j2000(float_t *xEci, float_t *vEci, 
+void gcrf2j2000(float_t *xEci, float_t *vEci,
                 float_t *xJ2000, float_t *vJ2000, float_t B[4][4])
 {
     /* 

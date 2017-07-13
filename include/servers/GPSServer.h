@@ -18,6 +18,12 @@
 #include "servers/SubsystemServer.h"
 #include "servers/Structs.h"
 
+extern "C" {
+	#include "util/propagator/AllStarOrbitProp.h"
+	#include "util/propagator/gpsFrameRotation.h"
+	#include "util/propagator/OrbitalMotionAllStar.h"
+}
+
 #include <termios.h>
 #include <unistd.h>
 
@@ -29,6 +35,11 @@ typedef enum GPSRead {
 	GPS_LOCK,
 	GPS_NO_LOCK
 } GPSReadType;
+
+struct GPSLockType {
+	classicElements elements;
+	float sysTime;
+};
 
 class GPSServer : public SubsystemServer, public AllStar::Core::Singleton {
 	friend class AllStar::Core::Factory;
@@ -47,6 +58,7 @@ public:
 
 	static GPSPositionTime * GPSDataHolder;
 	static GPSCoordinates * GPSCoordsHolder;
+	static GPSInertial GPSInertialCoords;
 
 private:
 	bool IsFullyInitialized(void);
@@ -59,8 +71,15 @@ private:
 
 	GPSReadType ReadData(char * buffer, int fd);
 
+	void UpdateAndPropagate();
+	void ECItoOE();
+	void ECEFtoECI();
+
 	// GPS Port configurations
 	struct termios port;
+
+	static GPSLockType lastLock;
+	bool propagating;
 
 	BEGIN_STATE_MAP
 	END_STATE_MAP

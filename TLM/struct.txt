@@ -103,6 +103,15 @@ GPSPositionTime
 	double velZ
 	uint8 numTracked
 
+GPSInertial
+	double posX
+	double posY
+	double posZ
+	double velX
+	double velY
+	double velZ
+	int64 sysTime
+
 ACSConfig
 	int32 testConfig
 

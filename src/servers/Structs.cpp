@@ -390,6 +390,38 @@ void GPSPositionTime::deserialize(void) {
   this->numTracked = this->deserialize_uint8();
 }
 
+GPSInertial::GPSInertial() { }
+
+GPSInertial::GPSInertial(double posX, double posY, double posZ, double velX, double velY, double velZ, int64 sysTime) {
+  this->posX = posX;
+  this->posY = posY;
+  this->posZ = posZ;
+  this->velX = velX;
+  this->velY = velY;
+  this->velZ = velZ;
+  this->sysTime = sysTime;
+}
+
+void GPSInertial::serialize(void) {
+  this->serialize_double(this->posX);
+  this->serialize_double(this->posY);
+  this->serialize_double(this->posZ);
+  this->serialize_double(this->velX);
+  this->serialize_double(this->velY);
+  this->serialize_double(this->velZ);
+  this->serialize_int64(this->sysTime);
+}
+
+void GPSInertial::deserialize(void) {
+  this->posX = this->deserialize_double();
+  this->posY = this->deserialize_double();
+  this->posZ = this->deserialize_double();
+  this->velX = this->deserialize_double();
+  this->velY = this->deserialize_double();
+  this->velZ = this->deserialize_double();
+  this->sysTime = this->deserialize_int64();
+}
+
 ACSConfig::ACSConfig() { }
 
 ACSConfig::ACSConfig(int32 testConfig) {
