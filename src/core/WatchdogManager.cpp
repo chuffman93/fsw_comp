@@ -78,7 +78,7 @@ void WatchdogManager::WatchdogManagerTask() {
 			switch ((*thread)->server->getWDMState()) {
 			case WDM_UNKNOWN:
 				(*thread)->stop();
-				logger->Log(LOGGER_LEVEL_ERROR, "\x1b[31m" "Restarting inactive task" "\x1b[0m");
+				logger->Error("\x1b[31m" "Restarting inactive task" "\x1b[0m");
 				TLM_RESTART_THREAD((*thread)->server->id);
 				(*thread)->start();
 				break;
@@ -89,7 +89,7 @@ void WatchdogManager::WatchdogManagerTask() {
 				(*thread)->server->wdmUnknown();
 				break;
 			default:
-				logger->Log(LOGGER_LEVEL_ERROR, "WatchdogManager: unknown server state for %s!", (*thread)->serverName.c_str());
+				logger->Error("WatchdogManager: unknown server state for %s!", (*thread)->serverName.c_str());
 				break;
 			}
 		}

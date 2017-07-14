@@ -38,7 +38,7 @@ size_t mqCreate(mqd_t * queueHandle, struct mq_attr * queueAttr, char * mqName)
 
 	if(-1 == ((*queueHandle)= mq_open(mqName, O_RDWR | O_NONBLOCK | O_CREAT, mode, queueAttr)))
 	{
-		logger->Log(LOGGER_LEVEL_WARN, "mqCreate: mq_open failed with ERRORNO = %s", strerror(errno));
+		logger->Warning("mqCreate: mq_open failed with ERRORNO = %s", strerror(errno));
 		return liFAILURE;
 	}
 	return liSUCCESS;
@@ -60,7 +60,7 @@ bool mq_timed_send(char * queueName, ACPPacket ** inPacket, size_t sec, uint64_t
 
 	if(-1 == mq_timedsend(queueHandle, (char *) inPacket, sizeof(*inPacket), MSG_PRIO, &ts))
 	{
-		logger->Log(LOGGER_LEVEL_WARN, "POSIX: mq_timed_Send failed with ERRORNO = %s", strerror(errno));
+		logger->Warning("POSIX: mq_timed_Send failed with ERRORNO = %s", strerror(errno));
 		mq_close(queueHandle);
 		return false;
 	}
@@ -82,7 +82,7 @@ bool mq_timed_receive(char * queueName, ACPPacket ** packetOut, size_t sec, uint
 
 	if((msg_len = mq_timedreceive(queueHandle,(char *) packetOut, (queueAttr.mq_msgsize), MSG_PRIO, &ts)) < 0)
 	{
-		//logger->Log(LOGGER_LEVEL_WARN, "POSIX: mq_timed_recieve failed with ERRORNO = %s\n", strerror(errno));
+		//logger->Warning("POSIX: mq_timed_recieve failed with ERRORNO = %s\n", strerror(errno));
 		mq_close(queueHandle);
 		return false;
 	}
@@ -110,7 +110,7 @@ bool xSemaphoreTake(sem_t *sem, size_t sec, uint64_t nSec)
 	semWaitDelay(&ts, sec, nSec);
 	if(liSUCCESS != sem_timedwait(sem, &ts))
 	{
-		logger->Log(LOGGER_LEVEL_WARN, "xSemaphoreTake: Failed with ERRORNO = %s", strerror(errno));
+		logger->Warning("xSemaphoreTake: Failed with ERRORNO = %s", strerror(errno));
 		return false;
 	}
 	return true;

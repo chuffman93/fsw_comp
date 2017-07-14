@@ -20,7 +20,7 @@ using namespace std;
 
 int main(int argc, char * argv[]) {
 	Logger * logger = (Logger *) Factory::GetInstance(LOGGER_SINGLETON);
-	logger->Log(LOGGER_LEVEL_FATAL, "Entered Flight Software");
+	logger->Fatal("Entered Flight Software");
 
 	mq_unlink("/queueHandleSPITX");
 	mq_unlink("/queueHandleRX");
@@ -28,7 +28,7 @@ int main(int argc, char * argv[]) {
 	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	modeManager->SetMode(MODE_BUS_PRIORITY);
 
-	logger->Log(LOGGER_LEVEL_FATAL, "Flight software initialization complete! Starting servers!");
+	logger->Fatal("Flight software initialization complete! Starting servers!");
 
 	// ----------------------------- Grab Server Instances ---------------------------------------------------------
 	bool threadsCreated = true;
@@ -59,18 +59,18 @@ int main(int argc, char * argv[]) {
 	threadsCreated &= watchdogManager->StartServer(spiServer, 0,	true);	 //SPI
 
 	if (!threadsCreated) {
-		logger->Log(LOGGER_LEVEL_FATAL, "Not all threads were created on startup!");
+		logger->Fatal("Not all threads were created on startup!");
 		TLM_STARTUP_ERROR();
 		sleep(5); // attempt to let the FMGServer log the error before rebooting
 		system("reboot");
 	} else {
-		logger->Log(LOGGER_LEVEL_INFO, "All servers created!");
+		logger->Info("All servers created!");
 		TLM_SERVERS_CREATED();
 	}
 
 	watchdogManager->WatchdogManagerTask();
 
-	logger->Log(LOGGER_LEVEL_FATAL, "Flight Software exiting from main! Watchdog exited!");
+	logger->Fatal("Flight Software exiting from main! Watchdog exited!");
 	TLM_MAIN_EXIT();
 	sleep(5); // attempt to let the FMGServer log the error before rebooting
 	system("reboot");

@@ -41,15 +41,15 @@ bool EPSToggleLED(bool state){
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret == NULL){
-		logger->Log(LOGGER_LEVEL_WARN, "EPSStdTasks: NULL LED Toggle return");
+		logger->Warning("EPSStdTasks: NULL LED Toggle return");
 		return false;
 	}
 
 	if(ret->isSuccess()){
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS LED Toggle successful");
+		logger->Debug("EPS LED Toggle successful");
 		return true;
 	}else{
-		logger->Log(LOGGER_LEVEL_WARN, "EPS LED Toggle failed");
+		logger->Warning("EPS LED Toggle failed");
 		return false;
 	}
 }
@@ -64,15 +64,15 @@ bool EPSBlinkRate(uint16 rate){
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret == NULL){
-		logger->Log(LOGGER_LEVEL_WARN, "EPSStdTasks: NULL blink rate return");
+		logger->Warning("EPSStdTasks: NULL blink rate return");
 		return false;
 	}
 
 	if(ret->isSuccess()){
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS LED set rate successful");
+		logger->Debug("EPS LED set rate successful");
 		return true;
 	}else{
-		logger->Log(LOGGER_LEVEL_WARN, "EPS LED set rate failed");
+		logger->Warning("EPS LED set rate failed");
 		return false;
 	}
 }
@@ -84,24 +84,24 @@ int EPSLEDData(){
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret == NULL){
-		logger->Log(LOGGER_LEVEL_WARN, "EPSStdTasks: NULL LED Data return");
+		logger->Warning("EPSStdTasks: NULL LED Data return");
 		return false;
 	}
 
 	if(ret->getLength() != 3){
-		logger->Log(LOGGER_LEVEL_WARN, "EPSStdTasks: Incorrect LED data return length");
+		logger->Warning("EPSStdTasks: Incorrect LED data return length");
 		return false;
 	}else{
 		if(ret->getMessageBuff() == NULL){
-			logger->Log(LOGGER_LEVEL_WARN, "EPSStdTasks: NULL LED Data message buffer");
+			logger->Warning("EPSStdTasks: NULL LED Data message buffer");
 			return false;
 		}
 
 		uint8 * msgPtr = ret->getMessageBuff();
 		uint8 powerStatus = GetUInt8(msgPtr++);
 		uint16 result = GetUInt16(msgPtr);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS LED power state: %u", powerStatus);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS LED blink rate:  %u", result);
+		logger->Debug("EPS LED power state: %u", powerStatus);
+		logger->Debug("EPS LED blink rate:  %u", result);
 		return (powerStatus + result);
 	}
 }
@@ -114,10 +114,10 @@ bool EPSTestAlive(){
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret->isSuccess()){
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS is alive");
+		logger->Debug("EPS is alive");
 		return true;
 	}else{
-		logger->Log(LOGGER_LEVEL_FATAL, "EPS is not alive");
+		logger->Fatal("EPS is not alive");
 		return false;
 	}
 }
@@ -126,14 +126,14 @@ bool EPSTestAlive(){
 void EPSPowerCycle()
 {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log(LOGGER_LEVEL_FATAL, "Sending EPS power cycle!");
+	logger->Fatal("Sending EPS power cycle!");
 	ACPPacket * query = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, SUBSYSTEM_RESET_CMD);
 	ACPPacket * response = DispatchPacket(query);
 
 	usleep(5000000);
 
 	// if we are here then the power cycle likely didn't happen
-	logger->Log(LOGGER_LEVEL_FATAL, "Power didn't cycle!");
+	logger->Fatal("Power didn't cycle!");
 	// TODO: add more handling here!
 }
 

@@ -38,15 +38,15 @@ bool COMToggleLED(bool state){
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret == NULL){
-		logger->Log(LOGGER_LEVEL_WARN, "COMStdTasks: NULL LED Toggle return");
+		logger->Warning("COMStdTasks: NULL LED Toggle return");
 		return false;
 	}
 
 	if(ret->isSuccess()){
-		logger->Log(LOGGER_LEVEL_DEBUG, "COM LED Toggle successful");
+		logger->Debug("COM LED Toggle successful");
 		return true;
 	}else{
-		logger->Log(LOGGER_LEVEL_WARN, "COM LED Toggle failed");
+		logger->Warning("COM LED Toggle failed");
 		return false;
 	}
 }
@@ -61,15 +61,15 @@ bool COMBlinkRate(uint16 rate){
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret == NULL){
-		logger->Log(LOGGER_LEVEL_WARN, "COMStdTasks: NULL blink rate return");
+		logger->Warning("COMStdTasks: NULL blink rate return");
 		return false;
 	}
 
 	if(ret->isSuccess()){
-		logger->Log(LOGGER_LEVEL_DEBUG, "COM LED set rate successful");
+		logger->Debug("COM LED set rate successful");
 		return true;
 	}else{
-		logger->Log(LOGGER_LEVEL_WARN, "COM LED set rate failed");
+		logger->Warning("COM LED set rate failed");
 		return false;
 	}
 }
@@ -81,24 +81,24 @@ int COMLEDData(){
 	ACPPacket * ret = DispatchPacket(query);
 
 	if(ret == NULL){
-		logger->Log(LOGGER_LEVEL_WARN, "COMStdTasks: NULL LED Data return");
+		logger->Warning("COMStdTasks: NULL LED Data return");
 		return false;
 	}
 
 	if(ret->getLength() != 3){
-		logger->Log(LOGGER_LEVEL_WARN, "COMStdTasks: Incorrect LED data return length");
+		logger->Warning("COMStdTasks: Incorrect LED data return length");
 		return false;
 	}else{
 		if(ret->getMessageBuff() == NULL){
-			logger->Log(LOGGER_LEVEL_WARN, "COMStdTasks: NULL LED Data message buffer");
+			logger->Warning("COMStdTasks: NULL LED Data message buffer");
 			return false;
 		}
 
 		uint8 * msgPtr = ret->getMessageBuff();
 		uint8 powerStatus = GetUInt8(msgPtr++);
 		uint16 result = GetUInt16(msgPtr);
-		logger->Log(LOGGER_LEVEL_DEBUG, "COM LED power state: %u", powerStatus);
-		logger->Log(LOGGER_LEVEL_DEBUG, "COM LED blink rate:  %u", result);
+		logger->Debug("COM LED power state: %u", powerStatus);
+		logger->Debug("COM LED blink rate:  %u", result);
 		return (powerStatus + result);
 	}
 }
@@ -126,13 +126,13 @@ bool COMTestAlive(){
 // COM Specific
 bool COMSimplex(){
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log(LOGGER_LEVEL_INFO, "COM: commanding COM into simplex");
+	logger->Info("COM: commanding COM into simplex");
 
 	ACPPacket * command = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, COM_SIMPLEX);
 	ACPPacket * response = DispatchPacket(command);
 
 	if(!response->isSuccess()){
-		logger->Log(LOGGER_LEVEL_WARN, "COM: Error entering Simplex");
+		logger->Warning("COM: Error entering Simplex");
 	}
 
 	return(response->isSuccess());
@@ -140,13 +140,13 @@ bool COMSimplex(){
 
 bool COMHalfDuplex(){
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log(LOGGER_LEVEL_INFO, "COM: commanding COM into half duplex");
+	logger->Info("COM: commanding COM into half duplex");
 
 	ACPPacket * command = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, COM_HALF_DUPLEX);
 	ACPPacket * response = DispatchPacket(command);
 
 	if(!response->isSuccess()){
-		logger->Log(LOGGER_LEVEL_WARN, "COM: Error entering Half Duplex");
+		logger->Warning("COM: Error entering Half Duplex");
 	}
 
 	return(response->isSuccess());
@@ -154,13 +154,13 @@ bool COMHalfDuplex(){
 
 bool COMFullDuplex(){
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log(LOGGER_LEVEL_INFO, "COM: commanding COM into full duplex");
+	logger->Info("COM: commanding COM into full duplex");
 
 	ACPPacket * command = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, COM_FULL_DUPLEX);
 	ACPPacket * response = DispatchPacket(command);
 
 	if(!response->isSuccess()){
-		logger->Log(LOGGER_LEVEL_WARN, "COM: Error entering full duplex");
+		logger->Warning("COM: Error entering full duplex");
 	}
 
 	return(response->isSuccess());
@@ -169,7 +169,7 @@ bool COMFullDuplex(){
 bool COMSendBeacon(){
 	CMDServer * cmdServer = static_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log(LOGGER_LEVEL_INFO, "COM: sending beacon");
+	logger->Info("COM: sending beacon");
 
 	uint8 * buffer = new uint8[BeaconStruct::size];
 	cmdServer->serializeBeacon(buffer);

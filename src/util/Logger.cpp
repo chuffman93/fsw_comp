@@ -29,17 +29,55 @@ Logger::Logger(void) {
 
 Logger::~Logger(void) { }
 
-// TODO: The logging class should have the ability to output to the screen, a file, or both
-void Logger::Log(LoggerLevelType level_in, char const * fmt, ...) {
+void Logger::SuperDebug(const char * fmt, ...) {
+	va_list args;
+	va_start(args, fmt);
+	Log(LOGGER_LEVEL_SUPER_DEBUG, fmt, args);
+	va_end(args);
+}
+
+void Logger::Debug(const char * fmt, ...) {
+	va_list args;
+	va_start(args, fmt);
+	Log(LOGGER_LEVEL_DEBUG, fmt, args);
+	va_end(args);
+}
+
+void Logger::Info(const char * fmt, ...) {
+	va_list args;
+	va_start(args, fmt);
+	Log(LOGGER_LEVEL_INFO, fmt, args);
+	va_end(args);
+}
+
+void Logger::Warning(const char * fmt, ...) {
+	va_list args;
+	va_start(args, fmt);
+	Log(LOGGER_LEVEL_WARN, fmt, args);
+	va_end(args);
+}
+
+void Logger::Error(const char * fmt, ...) {
+	va_list args;
+	va_start(args, fmt);
+	Log(LOGGER_LEVEL_ERROR, fmt, args);
+	va_end(args);
+}
+
+void Logger::Fatal(const char * fmt, ...) {
+	va_list args;
+	va_start(args, fmt);
+	Log(LOGGER_LEVEL_FATAL, fmt, args);
+	va_end(args);
+}
+
+void Logger::Log(LoggerLevelType level_in, char const * fmt, va_list args) {
 
 	if (level_in >= threshold) {
 		PrintInfo(level_in);
 
 		char buff[500];
-		va_list args;
-		va_start(args, fmt);
 		vsprintf(buff, fmt, args);
-		va_end(args);
 
 		// Display the message
 		if (printToStdOut) {

@@ -64,17 +64,17 @@ bool ACSHealthStatus(){
 	ACPPacket * HSRet = DispatchPacket(HSQuery);
 
 	if(HSRet == NULL){
-		logger->Log(LOGGER_LEVEL_ERROR, "ACSServer: NULL HSRet");
+		logger->Error("ACSServer: NULL HSRet");
 		return false;
 	}
 
 	if(HSRet->getLength() != 7*sizeof(uint32)){
-		logger->Log(LOGGER_LEVEL_WARN, "ACSServer: CheckHealthStatus(): incorrect message length! %u", HSRet->getLength());
+		logger->Warning("ACSServer: CheckHealthStatus(): incorrect message length! %u", HSRet->getLength());
 
 		//TODO: return error?
 		return false;
 	}else{
-		logger->Log(LOGGER_LEVEL_INFO, "ACSServer: CheckHealthStatus(): packet dispatched, HSRet acquired");
+		logger->Info("ACSServer: CheckHealthStatus(): packet dispatched, HSRet acquired");
 		// Parse buffer
 		uint8 * msgPtr = HSRet->getMessageBuff();
 		if(msgPtr==NULL){
@@ -88,13 +88,13 @@ bool ACSHealthStatus(){
 			msgPtr += 2;
 		}
 
-		logger->Log(LOGGER_LEVEL_INFO, "ACS H&S: MRP X:       %lx", outputArray[0]);
-		logger->Log(LOGGER_LEVEL_INFO, "ACS H&S: MRP Y:       %lx", outputArray[1]);
-		logger->Log(LOGGER_LEVEL_INFO, "ACS H&S: MRP Z:       %lx", outputArray[2]);
-		logger->Log(LOGGER_LEVEL_INFO, "ACS H&S: ST Status:   %lx", outputArray[3]);
-		logger->Log(LOGGER_LEVEL_INFO, "ACS H&S: RW Speed X:  %u", outputArray[4]);
-		logger->Log(LOGGER_LEVEL_INFO, "ACS H&S: RW Speed Y:  %u", outputArray[5]);
-		logger->Log(LOGGER_LEVEL_INFO, "ACS H&S: RW Speed Z:  %u", outputArray[6]);
+		logger->Info("ACS H&S: MRP X:       %lx", outputArray[0]);
+		logger->Info("ACS H&S: MRP Y:       %lx", outputArray[1]);
+		logger->Info("ACS H&S: MRP Z:       %lx", outputArray[2]);
+		logger->Info("ACS H&S: ST Status:   %lx", outputArray[3]);
+		logger->Info("ACS H&S: RW Speed X:  %u", outputArray[4]);
+		logger->Info("ACS H&S: RW Speed Y:  %u", outputArray[5]);
+		logger->Info("ACS H&S: RW Speed Z:  %u", outputArray[6]);
 		return true;
 	}
 }
@@ -113,15 +113,15 @@ TEST(testCET, testACS){
 	usleep(1000000);
 
 	// ----- Run the self check for ACS (LED On, LED Rate, LED data)
-	logger->Log(LOGGER_LEVEL_INFO, "Checking if ACS is alive");
+	logger->Info("Checking if ACS is alive");
 	bool testAlive = ACSTestAlive();
 	if(testAlive){
-		logger->Log(LOGGER_LEVEL_INFO, "ACS is alive");
+		logger->Info("ACS is alive");
 	}
-	logger->Log(LOGGER_LEVEL_INFO, "Sending three opcode self check");
+	logger->Info("Sending three opcode self check");
 	bool selfCheck = ACSSelfCheck();
 	if(selfCheck){
-		logger->Log(LOGGER_LEVEL_INFO, "ACS passed self check");
+		logger->Info("ACS passed self check");
 	}
 	ASSERT_TRUE(testAlive && selfCheck);
 	usleep(1000000);
@@ -155,7 +155,7 @@ TEST(testCET, testACS){
 	// ----- Test GPS sending
 	bool gpsDataTest = true;
 	prepGPSData();
-	logger->Log(LOGGER_LEVEL_INFO, "Sending test GPS data to ACS");
+	logger->Info("Sending test GPS data to ACS");
 	gpsDataTest &= ACSSendGPS();
 	ASSERT_TRUE(gpsDataTest);
 }
@@ -224,15 +224,15 @@ TEST(testCET, testCOM){
 //	usleep(1000000);
 //
 //	// ----- Run the self check for COM (LED On, LED Rate, LED data)
-//	logger->Log(LOGGER_LEVEL_INFO, "Checking if COM is alive");
+//	logger->Info("Checking if COM is alive");
 //	bool testAlive = COMTestAlive();
 //	if(testAlive){
-//		logger->Log(LOGGER_LEVEL_INFO, "COM is alive");
+//		logger->Info("COM is alive");
 //	}
-//	logger->Log(LOGGER_LEVEL_INFO, "Sending three opcode self check");
+//	logger->Info("Sending three opcode self check");
 //	bool selfCheck = COMSelfCheck();
 //	if(selfCheck){
-//		logger->Log(LOGGER_LEVEL_INFO, "COM passed self check");
+//		logger->Info("COM passed self check");
 //	}
 //	ASSERT_TRUE(testAlive && selfCheck);
 //	usleep(1000000);
@@ -311,15 +311,15 @@ TEST(testCET, testPLD){
 	usleep(3000000);
 
 	// ----- Run the self check for PLD (LED On, LED Rate, LED data)
-	logger->Log(LOGGER_LEVEL_INFO, "Checking if PLD is alive");
+	logger->Info("Checking if PLD is alive");
 	bool testAlive = PLDTestAlive();
 	if(testAlive){
-		logger->Log(LOGGER_LEVEL_INFO, "PLD is alive");
+		logger->Info("PLD is alive");
 	}
-	logger->Log(LOGGER_LEVEL_INFO, "Sending three opcode self check");
+	logger->Info("Sending three opcode self check");
 	bool selfCheck = PLDSelfCheck();
 	if(selfCheck){
-		logger->Log(LOGGER_LEVEL_INFO, "PLD passed self check");
+		logger->Info("PLD passed self check");
 	}
 	ASSERT_TRUE(testAlive && selfCheck);
 	usleep(1000000);
@@ -403,15 +403,15 @@ TEST(testCET, testEPS){
 	usleep(1000000);
 
 	// ----- Run the self check for EPS (LED On, LED Rate, LED data)
-	logger->Log(LOGGER_LEVEL_INFO, "Checking if EPS is alive");
+	logger->Info("Checking if EPS is alive");
 	bool testAlive = EPSTestAlive();
 	if(testAlive){
-		logger->Log(LOGGER_LEVEL_INFO, "EPS is alive");
+		logger->Info("EPS is alive");
 	}
-	logger->Log(LOGGER_LEVEL_INFO, "Sending three opcode self check");
+	logger->Info("Sending three opcode self check");
 	bool selfCheck = EPSSelfCheck();
 	if(selfCheck){
-		logger->Log(LOGGER_LEVEL_INFO, "EPS passed self check");
+		logger->Info("EPS passed self check");
 	}
 	ASSERT_TRUE(testAlive && selfCheck);
 	usleep(1000000);

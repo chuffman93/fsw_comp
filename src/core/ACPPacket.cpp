@@ -83,7 +83,7 @@ ACPPacket::ACPPacket(const ACPPacket & packetSource){
 // --- Construct from a buffer --------------------------------------------------------------------------------------
 ACPPacket::ACPPacket(uint8 * buffer, std::size_t size_in){
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log(LOGGER_LEVEL_DEBUG, "Creating ACPPacket from buffer of size %d", (int) size_in);
+	logger->Debug("Creating ACPPacket from buffer of size %d", (int) size_in);
 
 	std::size_t size = size_in;
 
@@ -96,7 +96,7 @@ ACPPacket::ACPPacket(uint8 * buffer, std::size_t size_in){
 		messageBuff = NULL;
 		errorStatus = INVALID_PACKET;
 		success = false;
-		logger->Log(LOGGER_LEVEL_WARN, "ACPPacket: Null or incomplete packet");
+		logger->Warning("ACPPacket: Null or incomplete packet");
 		return;
 	}
 
@@ -109,13 +109,13 @@ ACPPacket::ACPPacket(uint8 * buffer, std::size_t size_in){
 
 	// Get the source
 	sync = buffer[0];
-	logger->Log(LOGGER_LEVEL_DEBUG, "ACPPacket sync: %u", (uint32) sync);
+	logger->Debug("ACPPacket sync: %u", (uint32) sync);
 	buffer += 1;
 	size -= 1;
 
 	// Check that the top six bits match the sync code
 	if((sync & 0xFC) != SYNC_VALUE){
-		logger->Log(LOGGER_LEVEL_ERROR, "ACPPacket: wrong sync! Packet invalid.");
+		logger->Error("ACPPacket: wrong sync! Packet invalid.");
 		messageBuff = NULL;
 		errorStatus = INVALID_PACKET;
 		success = false;
@@ -139,24 +139,24 @@ ACPPacket::ACPPacket(uint8 * buffer, std::size_t size_in){
 	}
 
 	packetID = (uint16)(((uint16)(buffer[0]) << 8) | buffer[1]);
-	logger->Log(LOGGER_LEVEL_DEBUG, "ACPPacket ID: %u", (uint32) packetID);
+	logger->Debug("ACPPacket ID: %u", (uint32) packetID);
 	buffer += 2;
 	size -= 2;
 
 	opcode = buffer[0];
-	logger->Log(LOGGER_LEVEL_DEBUG, "ACPPacket opcode: %u", (uint32) opcode);
+	logger->Debug("ACPPacket opcode: %u", (uint32) opcode);
 	buffer += 1;
 	size -= 1;
 
 	length = ((uint16) buffer[0] << 8) | (uint16)buffer[1];
-	logger->Log(LOGGER_LEVEL_DEBUG, "ACPPacket message length: %u", (uint32) length - 1);
+	logger->Debug("ACPPacket message length: %u", (uint32) length - 1);
 	buffer += 2;
 	size -= 2;
 
 	// Make sure that the length we're expecting is correct
 	size -= 2; // take CRC into account
 	if(size != length){
-		logger->Log(LOGGER_LEVEL_ERROR, "ACPPacket: length difference error! Packet invalid.");
+		logger->Error("ACPPacket: length difference error! Packet invalid.");
 		messageBuff = NULL;
 		errorStatus = NO_ERROR_BYTE;
 		success = false;
@@ -170,7 +170,7 @@ ACPPacket::ACPPacket(uint8 * buffer, std::size_t size_in){
 		return;
 	}else{
 		errorStatus = buffer[0];
-		logger->Log(LOGGER_LEVEL_DEBUG, "ACPPacket: error status: %u", (uint32) errorStatus);
+		logger->Debug("ACPPacket: error status: %u", (uint32) errorStatus);
 		success = (errorStatus == 0 || errorStatus == 0xAB); // 0xAB = unimplemented (ignore for development, TODO: RBF)
 		buffer += 1;
 		size -=1;
@@ -183,13 +183,13 @@ ACPPacket::ACPPacket(uint8 * buffer, std::size_t size_in){
 
 	// Check that the allocation worked correctly.
 	if (NULL == messageBuff){
-		logger->Log(LOGGER_LEVEL_ERROR, "ACPPacket: NULL message pointer after memcpy");
+		logger->Error("ACPPacket: NULL message pointer after memcpy");
 		return;
 	}
 
 	// Get the length
 	CRC = ((uint16) buffer[0] << 8) | (uint16) buffer[1];
-	logger->Log(LOGGER_LEVEL_DEBUG, "ACPPacket CRC: %#04x", (uint32) CRC);
+	logger->Debug("ACPPacket CRC: %#04x", (uint32) CRC);
 
 	length--; // remove error byte from length
 	timestamp = getTimeInMillis();

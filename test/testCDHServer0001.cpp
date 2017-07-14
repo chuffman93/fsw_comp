@@ -37,7 +37,7 @@ using namespace AllStar::Servers;
 //	ModeManager * modeManager = static_cast<ModeManager *>(Factory::GetInstance(MODE_MANAGER_SINGLETON));
 //	Logger * logger = static_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
 //
-//	logger->Log(LOGGER_LEVEL_INFO, "taskRunCDH");
+//	logger->Info("taskRunCDH");
 //
 //	modeManager->Attach(*cdhServer);
 //
@@ -46,12 +46,12 @@ using namespace AllStar::Servers;
 //		usleep(1000000);
 //	}
 //
-//	logger->Log(LOGGER_LEVEL_INFO, "Kicking off the CDH server");
+//	logger->Info("Kicking off the CDH server");
 //
 //	bool handlers = cdhServer->RegisterHandlers();
 //	if(!handlers)
 //	{
-//		logger->Log(LOGGER_LEVEL_FATAL, "Error starting CDH Handlers!");
+//		logger->Fatal("Error starting CDH Handlers!");
 //	}
 //	static_cast<SubsystemServer*>(cdhServer)->SubsystemLoop();
 //	pthread_exit(NULL);

@@ -33,7 +33,7 @@ public:
 
     void stop() {
     	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-    	logger->Log(LOGGER_LEVEL_WARN, "Stopping thread for %s Server!", serverName.c_str());
+    	logger->Warning("Stopping thread for %s Server!", serverName.c_str());
     	pthread_cancel(tid);
     	isRunning = false;
     }
@@ -41,13 +41,13 @@ public:
     void start() {
     	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-    	logger->Log(LOGGER_LEVEL_INFO, "Starting thread for %s Server!", serverName.c_str());
+    	logger->Info("Starting thread for %s Server!", serverName.c_str());
     	if (pthread_create(&tid, NULL, &runServer, (void *) server) == 0) {
-			logger->Log(LOGGER_LEVEL_INFO, "Thread created with tid: %u", tid);
+			logger->Info("Thread created with tid: %u", tid);
     		isRunning = true;
 		} else {
 			isRunning = false;
-			logger->Log(LOGGER_LEVEL_FATAL, "Error creating thread for %s server!", serverName.c_str());
+			logger->Fatal("Error creating thread for %s server!", serverName.c_str());
 		}
     }
 };

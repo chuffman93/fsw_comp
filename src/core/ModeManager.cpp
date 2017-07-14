@@ -42,14 +42,14 @@ SystemModeEnum ModeManager::GetMode(void){
 
 bool ModeManager::SetMode(SystemModeEnum newMode){
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-	logger->Log(LOGGER_LEVEL_DEBUG, "SetMode called");
+	logger->Debug("SetMode called");
 
-	logger->Log(LOGGER_LEVEL_DEBUG, "----SetMode: Before take lock");
+	logger->Debug("----SetMode: Before take lock");
 	if (true == this->TakeLock(MAX_BLOCK_TIME)){
-		logger->Log(LOGGER_LEVEL_DEBUG, "----SetMode: Current Mode is not NULL");
+		logger->Debug("----SetMode: Current Mode is not NULL");
 
 		if (newMode < MODE_FIRST_MODE && newMode >= MODE_NUM_MODES){
-			logger->Log(LOGGER_LEVEL_ERROR, "----SetMode: Invalid mode");
+			logger->Error("----SetMode: Invalid mode");
 			this->GiveLock();
 			return false;
 		}
@@ -69,29 +69,29 @@ bool ModeManager::SetMode(SystemModeEnum newMode){
 
 		switch(newMode){
 		case MODE_STARTUP:
-			logger->Log(LOGGER_LEVEL_INFO, "Setting mode to " "\x1b[32m" "MODE_STARTUP" "\x1b[0m");
+			logger->Info("Setting mode to " "\x1b[32m" "MODE_STARTUP" "\x1b[0m");
 			break;
 		case MODE_BUS_PRIORITY:
-			logger->Log(LOGGER_LEVEL_INFO, "Setting mode to " "\x1b[32m" "MODE_BUS_PRIORITY" "\x1b[0m");
+			logger->Info("Setting mode to " "\x1b[32m" "MODE_BUS_PRIORITY" "\x1b[0m");
 			break;
 		case MODE_PLD_PRIORITY:
-			logger->Log(LOGGER_LEVEL_INFO, "Setting mode to " "\x1b[32m" "MODE_PLD_PRIORITY" "\x1b[0m");
+			logger->Info("Setting mode to " "\x1b[32m" "MODE_PLD_PRIORITY" "\x1b[0m");
 			break;
 		case MODE_COM:
-			logger->Log(LOGGER_LEVEL_INFO, "Setting mode to " "\x1b[32m" "MODE_COM" "\x1b[0m");
+			logger->Info("Setting mode to " "\x1b[32m" "MODE_COM" "\x1b[0m");
 			break;
 		case MODE_RESET:
-			logger->Log(LOGGER_LEVEL_INFO, "Setting mode to " "\x1b[32m" "MODE_RESET" "\x1b[0m");
+			logger->Info("Setting mode to " "\x1b[32m" "MODE_RESET" "\x1b[0m");
 			break;
 		default:
-			logger->Log(LOGGER_LEVEL_WARN, "Unknown mode selected!");
+			logger->Warning("Unknown mode selected!");
 			break;
 		}
 
 		this->mode = newMode;
 
 		this->GiveLock();
-		logger->Log(LOGGER_LEVEL_DEBUG, "------------SetMode: success");
+		logger->Debug("------------SetMode: success");
 		return true;
 	}else{
 		return false;

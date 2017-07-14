@@ -59,16 +59,16 @@ void EPSServer::loopInit() {
 
 	if(EPSTestAlive()){
 		if(!EPSSelfCheck()){
-			logger->Log(LOGGER_LEVEL_FATAL, "EPS failed self check!");
+			logger->Fatal("EPS failed self check!");
 			errServer->SendError(ERR_EPS_SELFCHECK);
 		}
-		logger->Log(LOGGER_LEVEL_INFO, "EPS passed self check");
+		logger->Info("EPS passed self check");
 
 		bootConfig();
 
 		currentState = ST_MONITOR;
 	}else{
-		logger->Log(LOGGER_LEVEL_FATAL, "EPS non-responsive in init loop");
+		logger->Fatal("EPS non-responsive in init loop");
 		errServer->SendError(ERR_EPS_NOTALIVE);
 		wdmAsleep();
 		usleep(3000000);
@@ -92,7 +92,7 @@ void EPSServer::loopReset(){
 	FMGServer * fmgServer = static_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-	logger->Log(LOGGER_LEVEL_INFO, "EPS ready for reset");
+	logger->Info("EPS ready for reset");
 
 	for(uint8 i = 0; i < 60; i++){
 		if(fmgServer->isResetReady()){
@@ -112,22 +112,22 @@ bool EPSServer::CheckHealthStatus(){
 	ACPPacket * HSRet = DispatchPacket(HSQuery);
 
 	if(HSRet == NULL){
-		logger->Log(LOGGER_LEVEL_ERROR, "EPSServer: NULL HSRet");
+		logger->Error("EPSServer: NULL HSRet");
 		return false;
 	}
 
 	if(HSRet->getLength() != EPSStatus::size) {
-		logger->Log(LOGGER_LEVEL_WARN, "EPSServer: CheckHealthStatus(): incorrect message length!");
+		logger->Warning("EPSServer: CheckHealthStatus(): incorrect message length!");
 
 		//TODO: return error?
 		return false;
 	}else{
-		logger->Log(LOGGER_LEVEL_INFO, "EPSServer: CheckHealthStatus(): packet dispatched, HSRet acquired");
+		logger->Info("EPSServer: CheckHealthStatus(): packet dispatched, HSRet acquired");
 
 		// Parse buffer
 		uint8 * msgPtr = HSRet->getMessageBuff();
 		if(msgPtr==NULL){
-			logger->Log(LOGGER_LEVEL_ERROR, "EPSServer: CheckHealthStatus(): NULL msgPtr");
+			logger->Error("EPSServer: CheckHealthStatus(): NULL msgPtr");
 			return false;
 		}
 
@@ -135,24 +135,24 @@ bool EPSServer::CheckHealthStatus(){
 		EPSState.update(msgPtr, EPSStatus::size);
 		EPSState.deserialize();
 
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: 3v3 Current:     %u", EPSState.current3v3);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: 3v3 Voltage:     %u", EPSState.voltage3v3);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Vbat Current:    %u", EPSState.currentVbat);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Vbat Voltage:    %u", EPSState.voltageVbat);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: 12v Current:     %u", EPSState.current12v);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: 12v Voltage:     %u", EPSState.voltage12v);
-		logger->Log(LOGGER_LEVEL_INFO,  "EPS H&S: Rem cap:         %u", EPSState.remainingCapacity);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Batt curr:       %u", EPSState.battCurrent);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Batt volt:       %u", EPSState.battVoltage);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Batt status:     %u", EPSState.battStatus);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Frang curr:      %u", EPSState.frangCurrent);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Frang volt:      %u", EPSState.frangVoltage);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Conv curr x:     %u", EPSState.convCurrentX);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Conv thresh x:   %u", EPSState.convThreshX);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Conv curr y:     %u", EPSState.convCurrentY);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Conv thresh y:   %u", EPSState.convThreshY);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Conv curr w:     %u", EPSState.convCurrentW);
-		logger->Log(LOGGER_LEVEL_DEBUG, "EPS H&S: Conv thresh w:   %u", EPSState.convThreshW);
+		logger->Debug("EPS H&S: 3v3 Current:     %u", EPSState.current3v3);
+		logger->Debug("EPS H&S: 3v3 Voltage:     %u", EPSState.voltage3v3);
+		logger->Debug("EPS H&S: Vbat Current:    %u", EPSState.currentVbat);
+		logger->Debug("EPS H&S: Vbat Voltage:    %u", EPSState.voltageVbat);
+		logger->Debug("EPS H&S: 12v Current:     %u", EPSState.current12v);
+		logger->Debug("EPS H&S: 12v Voltage:     %u", EPSState.voltage12v);
+		logger->Info( "EPS H&S: Rem cap:         %u", EPSState.remainingCapacity);
+		logger->Debug("EPS H&S: Batt curr:       %u", EPSState.battCurrent);
+		logger->Debug("EPS H&S: Batt volt:       %u", EPSState.battVoltage);
+		logger->Debug("EPS H&S: Batt status:     %u", EPSState.battStatus);
+		logger->Debug("EPS H&S: Frang curr:      %u", EPSState.frangCurrent);
+		logger->Debug("EPS H&S: Frang volt:      %u", EPSState.frangVoltage);
+		logger->Debug("EPS H&S: Conv curr x:     %u", EPSState.convCurrentX);
+		logger->Debug("EPS H&S: Conv thresh x:   %u", EPSState.convThreshX);
+		logger->Debug("EPS H&S: Conv curr y:     %u", EPSState.convCurrentY);
+		logger->Debug("EPS H&S: Conv thresh y:   %u", EPSState.convThreshY);
+		logger->Debug("EPS H&S: Conv curr w:     %u", EPSState.convCurrentW);
+		logger->Debug("EPS H&S: Conv thresh w:   %u", EPSState.convThreshW);
 
 		int32 currTime = getTimeInSec();
 		if (currTime >= (lastHSTLog + 60)) {
@@ -182,7 +182,7 @@ void EPSServer::bootConfig() {
 
 	// make sure we get a valid file pointer
 	if (fp == NULL) {
-		logger->Log(LOGGER_LEVEL_ERROR, "EPSServer: NULL EPS config file pointer, cannot boot");
+		logger->Error("EPSServer: NULL EPS config file pointer, cannot boot");
 		return;
 	}
 
@@ -190,11 +190,11 @@ void EPSServer::bootConfig() {
 	if (fread(buffer, sizeof(uint8), EPSConfiguration.size, fp) == EPSConfiguration.size) {
 		EPSConfiguration.update(buffer, EPSConfiguration.size, 0, 0);
 		EPSConfiguration.deserialize();
-		logger->Log(LOGGER_LEVEL_INFO, "EPSServer: successfully booted EPS configs");
+		logger->Info("EPSServer: successfully booted EPS configs");
 		fclose(fp);
 		return;
 	} else {
-		logger->Log(LOGGER_LEVEL_ERROR, "EPSServer: error reading EPS config file, cannot boot");
+		logger->Error("EPSServer: error reading EPS config file, cannot boot");
 		fclose(fp);
 		return;
 	}
@@ -208,7 +208,7 @@ bool EPSServer::updateConfig() {
 
 	// make sure we get a valid file pointer
 	if (fp == NULL) {
-		logger->Log(LOGGER_LEVEL_ERROR, "EPSServer: NULL EPS config file pointer, cannot update");
+		logger->Error("EPSServer: NULL EPS config file pointer, cannot update");
 		return false;
 	}
 
@@ -216,11 +216,11 @@ bool EPSServer::updateConfig() {
 	if (fread(buffer, sizeof(uint8), EPSConfiguration.size, fp) == EPSConfiguration.size) {
 		EPSConfiguration.update(buffer, EPSConfiguration.size, 0, 0);
 		EPSConfiguration.deserialize();
-		logger->Log(LOGGER_LEVEL_INFO, "EPSServer: successfully updated EPS configs");
+		logger->Info("EPSServer: successfully updated EPS configs");
 		fclose(fp);
 		return true;
 	} else {
-		logger->Log(LOGGER_LEVEL_ERROR, "EPSServer: error reading EPS config file, cannot update");
+		logger->Error("EPSServer: error reading EPS config file, cannot update");
 		fclose(fp);
 		return false;
 	}
