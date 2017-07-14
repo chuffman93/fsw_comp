@@ -79,7 +79,8 @@ private:
 	struct termios port;
 
 	static GPSLockType lastLock;
-	bool propagating;
+	bool propagating; // flag for whether or not the GPS server is propagating
+	bool noOE; // flag if we haven't gotten a lock or orbital elements from the ground
 
 	BEGIN_STATE_MAP
 	END_STATE_MAP

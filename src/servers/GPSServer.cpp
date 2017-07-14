@@ -45,7 +45,7 @@ GPSPositionTime * GPSServer::GPSDataHolder = new GPSPositionTime(103, 1500.0, 1.
 GPSCoordinates * GPSServer::GPSCoordsHolder = new GPSCoordinates(1000.0, 1000.1);
 
 GPSServer::GPSServer(string nameIn, LocationIDType idIn) :
-		SubsystemServer(nameIn, idIn), Singleton(), propagating(false) { }
+		SubsystemServer(nameIn, idIn), Singleton(), propagating(false), noOE(true) { }
 
 GPSServer::~GPSServer() { }
 
@@ -73,7 +73,7 @@ void GPSServer::SubsystemLoop(void) {
 	cdhServer->subPowerOn(HARDWARE_LOCATION_GPS);
 
 	GPSReadType readStatus;
-	int64 currTime = 0;
+	int64 readTime = 0;
 	int64 lastWakeTime = 0;
 	int64 lastUpdate = 0;
 	int64 lastData = getTimeInMillis(); // data from the GPS (valid or not)
@@ -99,10 +99,10 @@ void GPSServer::SubsystemLoop(void) {
 
 		readStatus = ReadData(buffer, fd);
 
-		currTime = getTimeInMillis();
+		readTime = getTimeInMillis();
 		switch (readStatus) {
 		case GPS_NO_DATA:
-			if (currTime > lastData + 10000) { // if it's been 10 seconds since the last GPS data, reboot
+			if (readTime > lastData + 30000) { // if it's been 30 seconds since the last GPS data, reboot
 				cdhServer->subPowerOff(HARDWARE_LOCATION_GPS);
 				wdmAsleep();
 				usleep(2000000);
@@ -110,24 +110,31 @@ void GPSServer::SubsystemLoop(void) {
 			}
 			break;
 		case GPS_NO_LOCK:
+			lastData = readTime;
+
+			if (noOE) {
+				break; // we can't propagate yet
+			}
+
 			if (!propagating) {
 				propagating = true;
 				ECItoOE();
 			}
 
-			lastData = currTime;
-			if (currTime > lastUpdate + 2000) { // update with the propagator if it's been 2 seconds
-				lastUpdate = currTime;
+			if (readTime > lastUpdate + 2000) { // update with the propagator if it's been 2 seconds
+				lastUpdate = readTime;
 				UpdateAndPropagate();
 			}
 			break;
 		case GPS_LOCK:
+			noOE = false;
 			if (propagating) {
 				propagating = false;
 			}
 
-			lastData = currTime;
-			lastUpdate = currTime;
+			lastData = readTime;
+			lastUpdate = readTime;
+			GPSInertialCoords.sysTime = readTime;
 			ECEFtoECI();
 			break;
 		default:
@@ -142,7 +149,6 @@ void GPSServer::SubsystemLoop(void) {
 // TODO: error handling
 int GPSServer::CreatePort(void) {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-
 
 	int portfd = open(portname, O_RDWR | O_NOCTTY | O_NDELAY);
 	if (portfd == -1) {
@@ -296,9 +302,9 @@ void GPSServer::UpdateAndPropagate() {
 	float eciPos[3];
 	float eciVel[3];
 	int64 currTime = getTimeInMillis();
-	float currTimef = currTime/1000.0;
+	float propTime = currTime/1000.0 - lastLock.sysTime;
 
-	propagatePositionVelocity(lastLock.elements, currTimef, eciPos, eciVel);
+	propagatePositionVelocity(lastLock.elements, propTime, eciPos, eciVel);
 
 	GPSInertialCoords.posX = eciPos[0];
 	GPSInertialCoords.posY = eciPos[1];
