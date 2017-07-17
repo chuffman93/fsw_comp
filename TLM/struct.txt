@@ -93,15 +93,14 @@ GPSCoordinates
 	double longitude
 	
 GPSPositionTime
-	uint16 GPSWeek
-	float GPSSec
 	double posX
 	double posY
 	double posZ
 	double velX
 	double velY
 	double velZ
-	uint8 numTracked
+	uint16 GPSWeek
+	float GPSSec
 
 GPSInertial
 	double posX

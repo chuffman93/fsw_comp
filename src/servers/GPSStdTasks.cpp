@@ -135,7 +135,7 @@ bool BESTXYZProcess(char * buffer, const size_t size) {
 	token = strtok(NULL, ","); // (UNUSED) signals used
 
 	if (!solSuccess) {
-		logger->Debug("GPSStdTasks: Invalid BESTXYZ, numTracked: %d", gpsServer->GPSDataHolder->numTracked);
+		logger->Debug("GPSStdTasks: Invalid BESTXYZ, numTracked: %d", gpsServer->numTracked);
 		return false;
 	}
 
@@ -148,7 +148,7 @@ bool BESTXYZProcess(char * buffer, const size_t size) {
 	gpsServer->GPSDataHolder->velX = tempVX;
 	gpsServer->GPSDataHolder->velY = tempVY;
 	gpsServer->GPSDataHolder->velZ = tempVZ;
-	gpsServer->GPSDataHolder->numTracked = tempTracked;
+	gpsServer->numTracked = tempTracked;
 
 	return true;
 }

@@ -354,40 +354,37 @@ void GPSCoordinates::deserialize(void) {
 
 GPSPositionTime::GPSPositionTime() { }
 
-GPSPositionTime::GPSPositionTime(uint16 GPSWeek, float GPSSec, double posX, double posY, double posZ, double velX, double velY, double velZ, uint8 numTracked) {
-  this->GPSWeek = GPSWeek;
-  this->GPSSec = GPSSec;
+GPSPositionTime::GPSPositionTime(double posX, double posY, double posZ, double velX, double velY, double velZ, uint16 GPSWeek, float GPSSec) {
   this->posX = posX;
   this->posY = posY;
   this->posZ = posZ;
   this->velX = velX;
   this->velY = velY;
   this->velZ = velZ;
-  this->numTracked = numTracked;
+  this->GPSWeek = GPSWeek;
+  this->GPSSec = GPSSec;
 }
 
 void GPSPositionTime::serialize(void) {
-  this->serialize_uint16(this->GPSWeek);
-  this->serialize_float(this->GPSSec);
   this->serialize_double(this->posX);
   this->serialize_double(this->posY);
   this->serialize_double(this->posZ);
   this->serialize_double(this->velX);
   this->serialize_double(this->velY);
   this->serialize_double(this->velZ);
-  this->serialize_uint8(this->numTracked);
+  this->serialize_uint16(this->GPSWeek);
+  this->serialize_float(this->GPSSec);
 }
 
 void GPSPositionTime::deserialize(void) {
-  this->GPSWeek = this->deserialize_uint16();
-  this->GPSSec = this->deserialize_float();
   this->posX = this->deserialize_double();
   this->posY = this->deserialize_double();
   this->posZ = this->deserialize_double();
   this->velX = this->deserialize_double();
   this->velY = this->deserialize_double();
   this->velZ = this->deserialize_double();
-  this->numTracked = this->deserialize_uint8();
+  this->GPSWeek = this->deserialize_uint16();
+  this->GPSSec = this->deserialize_float();
 }
 
 GPSInertial::GPSInertial() { }

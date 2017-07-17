@@ -167,18 +167,17 @@ public:
 
 class GPSPositionTime : public Serialize {
 public:
-  const static int size = 55;
+  const static int size = 54;
   GPSPositionTime();
-  GPSPositionTime(uint16 GPSWeek, float GPSSec, double posX, double posY, double posZ, double velX, double velY, double velZ, uint8 numTracked);
-  uint16 GPSWeek; 
-  float GPSSec; 
+  GPSPositionTime(double posX, double posY, double posZ, double velX, double velY, double velZ, uint16 GPSWeek, float GPSSec);
   double posX; 
   double posY; 
   double posZ; 
   double velX; 
   double velY; 
   double velZ; 
-  uint8 numTracked; 
+  uint16 GPSWeek; 
+  float GPSSec; 
   void serialize(void);
   void deserialize(void);
 };

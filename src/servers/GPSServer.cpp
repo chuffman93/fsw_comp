@@ -41,7 +41,7 @@ namespace Servers {
 const char * GPSServer::portname = (char *) "/dev/ttyS1";
 GPSLockType GPSServer::lastLock = {{0.0, 0.0, 0.0, 0.0, 0.0, 0.0}, -1.0};
 GPSInertial GPSServer::GPSInertialCoords(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1);
-GPSPositionTime * GPSServer::GPSDataHolder = new GPSPositionTime(103, 1500.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 2);
+GPSPositionTime * GPSServer::GPSDataHolder = new GPSPositionTime(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 103, 1500.0);
 GPSCoordinates * GPSServer::GPSCoordsHolder = new GPSCoordinates(1000.0, 1000.1);
 
 GPSServer::GPSServer(string nameIn, LocationIDType idIn) :

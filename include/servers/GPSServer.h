@@ -56,6 +56,7 @@ public:
 
 	double DistanceTo(double latitude1, double longitude1);
 
+	uint8 numTracked;
 	static GPSPositionTime * GPSDataHolder;
 	static GPSCoordinates * GPSCoordsHolder;
 	static GPSInertial GPSInertialCoords;
