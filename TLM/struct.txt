@@ -88,10 +88,6 @@ EPSStatus
 	uint16 convCurrentW
 	uint16 convThreshW
 
-GPSCoordinates
-	double latitude
-	double longitude
-	
 GPSPositionTime
 	double posX
 	double posY
@@ -139,8 +135,7 @@ PLDConfig
 	int32 chunkSize
 
 SCHItem
-	double latitude
-	double longitude
+	double ecefPos[3]
 	double radius
 	uint8 enter_mode
 	int32 timeout

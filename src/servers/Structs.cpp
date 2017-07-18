@@ -335,23 +335,6 @@ void EPSStatus::deserialize(void) {
   this->convThreshW = this->deserialize_uint16();
 }
 
-GPSCoordinates::GPSCoordinates() { }
-
-GPSCoordinates::GPSCoordinates(double latitude, double longitude) {
-  this->latitude = latitude;
-  this->longitude = longitude;
-}
-
-void GPSCoordinates::serialize(void) {
-  this->serialize_double(this->latitude);
-  this->serialize_double(this->longitude);
-}
-
-void GPSCoordinates::deserialize(void) {
-  this->latitude = this->deserialize_double();
-  this->longitude = this->deserialize_double();
-}
-
 GPSPositionTime::GPSPositionTime() { }
 
 GPSPositionTime::GPSPositionTime(double posX, double posY, double posZ, double velX, double velY, double velZ, uint16 GPSWeek, float GPSSec) {
@@ -537,9 +520,10 @@ void PLDConfig::deserialize(void) {
 
 SCHItem::SCHItem() { }
 
-SCHItem::SCHItem(double latitude, double longitude, double radius, uint8 enter_mode, int32 timeout, uint8 mode, int32 duration) {
-  this->latitude = latitude;
-  this->longitude = longitude;
+SCHItem::SCHItem(double ecefPos[3], double radius, uint8 enter_mode, int32 timeout, uint8 mode, int32 duration) {
+  for (int iter = 0; iter < 3; iter++) {
+    this->ecefPos[iter] = ecefPos[iter];
+  }
   this->radius = radius;
   this->enter_mode = enter_mode;
   this->timeout = timeout;
@@ -548,8 +532,9 @@ SCHItem::SCHItem(double latitude, double longitude, double radius, uint8 enter_m
 }
 
 void SCHItem::serialize(void) {
-  this->serialize_double(this->latitude);
-  this->serialize_double(this->longitude);
+  for (int iter = 0; iter < 3; iter++) {
+    this->serialize_double(this->ecefPos[iter]);
+  }
   this->serialize_double(this->radius);
   this->serialize_uint8(this->enter_mode);
   this->serialize_int32(this->timeout);
@@ -558,8 +543,9 @@ void SCHItem::serialize(void) {
 }
 
 void SCHItem::deserialize(void) {
-  this->latitude = this->deserialize_double();
-  this->longitude = this->deserialize_double();
+  for (int iter = 0; iter < 3; iter++) {
+    this->ecefPos[iter] = this->deserialize_double();
+  }
   this->radius = this->deserialize_double();
   this->enter_mode = this->deserialize_uint8();
   this->timeout = this->deserialize_int32();

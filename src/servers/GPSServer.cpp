@@ -42,7 +42,6 @@ const char * GPSServer::portname = (char *) "/dev/ttyS1";
 GPSLockType GPSServer::lastLock = {{0.0, 0.0, 0.0, 0.0, 0.0, 0.0}, -1.0};
 GPSInertial GPSServer::GPSInertialCoords(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1);
 GPSPositionTime * GPSServer::GPSDataHolder = new GPSPositionTime(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 103, 1500.0);
-GPSCoordinates * GPSServer::GPSCoordsHolder = new GPSCoordinates(1000.0, 1000.1);
 
 GPSServer::GPSServer(string nameIn, LocationIDType idIn) :
 		SubsystemServer(nameIn, idIn), Singleton(), propagating(false), noOE(true) { }
@@ -81,6 +80,7 @@ void GPSServer::SubsystemLoop(void) {
 	int fd;
 
 	fd = CreatePort();
+	ConfigureGPS(fd);
 
 	logger->Info("GPSServer: created port");
 
@@ -172,29 +172,36 @@ int GPSServer::CreatePort(void) {
 	return portfd;
 }
 
-double GPSServer::DistanceTo(double latitude1, double longitude1) {
-	double R = 6371000.0; //Radius of earth in meters
-	double latitude2 = this->GPSCoordsHolder->latitude;
-	double longitude2 = this->GPSCoordsHolder->longitude;
+// TODO: add GPS unlock commands from QB50
+void GPSServer::ConfigureGPS(int fd) {
+	char bestxyz[50] = "log bestxyz ontime 1\n"; // log BESTXYZ every second
+	char saveconfig[50] = "SAVECONFIG\n"; // save the configurations
+	write(fd, bestxyz, 21);
+	write(fd, saveconfig, 11);
+}
 
-	//to radians
-	latitude1 = latitude1*M_PI/180.0;
-	longitude1 = longitude1*M_PI/180.0;
-	latitude2 = latitude2*M_PI/180.0;
-	longitude2 = longitude2*M_PI/180.0;
+// determine the distance of the satellite to a target in ECEF coordinates
+double GPSServer::DistanceTo(double target[3]) {
+	double current[3];
+	double difference[3];
+	current[0] = GPSDataHolder->posX;
+	current[1] = GPSDataHolder->posY;
+	current[2] = GPSDataHolder->posZ;
 
-	double dlat = latitude2 - latitude1;
-	double dlong = longitude2 - longitude1;
+	// subtract the position vectors to find the distance vector
+	for (uint8 i = 0; i < 3; i++) {
+		difference[i] = current[i] - target[i];
+	}
 
-	double a = sin(dlat/2) * sin(dlat/2) + cos(latitude1)*cos(latitude2)*sin(dlong/2)*sin(dlong/2);
-	double c = 2*atan2(sqrt(a), sqrt(1-a));
-	return c*R;
+	// r = sqrt(x^2 + y^2 + z^2)
+	double distance = sqrt(pow(difference[0],2) + pow(difference[1],2) + pow(difference[2],2));
+	return distance;
 }
 
 GPSReadType GPSServer::ReadData(char * buffer, int fd) {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-	char c, c1;
+	char c;
 	uint16 counter = 0;
 	bool readSuccess = true;
 
@@ -203,19 +210,17 @@ GPSReadType GPSServer::ReadData(char * buffer, int fd) {
 	// Check that there's data
 	if (read(fd,&c,1) == 1) {
 		// Check the first character
-		if (c != 35 && c != 36) { // '#' or '$'
-			logger->SuperDebug("GPSServer: Data doesn't start with '#' or '$'");
+		if (c != '#') {
+			logger->SuperDebug("GPSServer: Data doesn't start with '#'");
 			while(read(fd,&c,1) == 1); // if wrong char, clear the buffer (ensures that we stay up-to-date and aligned with the data stream)
 			return GPS_NO_LOCK;
 		} else {
-			c1 = c;
-
 			// read while there's more data, and ensure we don't overflow the buffer
 			while(read(fd,&c,1) == 1){
 				buffer[counter++] = c;
 
-				// if BESTXYZ, read crc and break
-				if (c == '*' && c1 == '#') {
+				// if we've reached the CRC
+				if (c == '*') {
 					if (counter > 339) {
 						logger->Warning("GPSServer: BESTXYZ too long!");
 						return GPS_NO_LOCK;
@@ -234,24 +239,6 @@ GPSReadType GPSServer::ReadData(char * buffer, int fd) {
 					}
 				}
 
-				// if GPRMC, read checksum and break
-				if (c == '*' && c1 == '$') {
-					if (counter > 345) {
-						logger->Warning("GPSServer: GPRMC too long!");
-						return GPS_NO_LOCK;
-					}
-					for (uint8 i = 0; i < 4; i++) {
-						readSuccess &= (read(fd,&c,1) == 1);
-						buffer[counter++] = c;
-					}
-					if (readSuccess) {
-						break;
-					} else {
-						logger->Warning("GPSServer: error reading checksum from serial");
-						return GPS_NO_LOCK;
-					}
-				}
-
 				// Ensure that the buffer doesn't overflow
 				if(counter == 350){
 					logger->Warning("GPSServer: Data too long!");
@@ -261,18 +248,8 @@ GPSReadType GPSServer::ReadData(char * buffer, int fd) {
 
 			logger->Debug("GPSServer: Read data from GPS, now processing...");
 
-			if (c1 == '#') {
-				if (!BESTXYZProcess(buffer, counter)) {
-					logger->Debug("GPSServer: Bad BESTXYZ");
-					return GPS_NO_LOCK;
-				}
-			} else if (c1 == '$') {
-				if (!GPRMCProcess(buffer, counter)) {
-					logger->Debug("GPSServer: Bad GPRMC");
-					return GPS_NO_LOCK;
-				}
-			} else {
-				logger->Warning("GPSServer: error with first character!");
+			if (!BESTXYZProcess(buffer, counter)) {
+				logger->Debug("GPSServer: Bad BESTXYZ");
 				return GPS_NO_LOCK;
 			}
 			return GPS_LOCK;
@@ -286,14 +263,6 @@ GPSPositionTime * GPSServer::GetGPSDataPtr(void) {
 	if (true == this->TakeLock(MAX_BLOCK_TIME)) {
 		this->GiveLock();
 		return GPSDataHolder;
-	}
-	return NULL;
-}
-
-GPSCoordinates * GPSServer::GetGPSCoordsPtr(void) {
-	if (true == this->TakeLock(MAX_BLOCK_TIME)) {
-		this->GiveLock();
-		return GPSCoordsHolder;
 	}
 	return NULL;
 }

@@ -50,15 +50,13 @@ public:
 	bool RegisterHandlers(void);
 
 	GPSPositionTime * GetGPSDataPtr(void);
-	GPSCoordinates * GetGPSCoordsPtr(void);
 
 	const static char * portname;
 
-	double DistanceTo(double latitude1, double longitude1);
+	double DistanceTo(double target[3]);
 
 	uint8 numTracked;
 	static GPSPositionTime * GPSDataHolder;
-	static GPSCoordinates * GPSCoordsHolder;
 	static GPSInertial GPSInertialCoords;
 
 private:
@@ -69,6 +67,7 @@ private:
 	GPSServer & operator=(const GPSServer & source);
 
 	int CreatePort(void);
+	void ConfigureGPS(int fd);
 
 	GPSReadType ReadData(char * buffer, int fd);
 

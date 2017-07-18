@@ -153,97 +153,6 @@ bool BESTXYZProcess(char * buffer, const size_t size) {
 	return true;
 }
 
-bool GPRMCProcess(char * buffer, const size_t size) {
-	GPSServer * gpsServer = static_cast<GPSServer *>(Factory::GetInstance(GPS_SERVER_SINGLETON));
-	Logger * logger = static_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
-	double doubleHolder;
-	char * token;
-	char * buffPtr = buffer;
-
-	logger->Debug("GPSStdTasks: Processing GPRMC");
-
-	bool containsDelimiter = false;
-	while ((buffPtr - buffer != 350) && (*buffPtr != '\0')) {
-		if (*buffPtr++ == '*') {
-			containsDelimiter = true;
-			break;
-		}
-	}
-
-	if (!containsDelimiter) {
-		logger->Warning("GPSStdTasks: GPRMC doesn't contain '*'");
-		return false;
-	}
-
-	// split into message and checksum
-	char * message = strtok(buffer, "*");
-	char * checkStr = strtok(NULL, "*");
-	long check = strtol(checkStr, NULL, 16);
-
-	// validate checksum
-	if (check != CalculateNMEAChecksum(message)) {
-		logger->Warning("GPSStdTasks: invalid checksum!");
-		return false;
-	}
-
-	// parse the message
-	token = strtok(message, ","); // GPRMC
-	token = strtok(NULL, ","); // (UNUSED) UTC
-	token = strtok(NULL, ","); // status
-	if (*token != 'A') {
-		logger->Debug("GPSStdTasks: invalid data from GPRMC");
-		return false;
-	}
-
-	// latitude
-	token = strtok(NULL, ",");
-	doubleHolder = nmea_to_deg(token);
-
-	// latitude direction
-	token = strtok(NULL, ",");
-	if (*token == 'N') {
-		gpsServer->GPSCoordsHolder->latitude = doubleHolder;
-	} else {
-		gpsServer->GPSCoordsHolder->latitude = -1.0 * doubleHolder;
-	}
-
-	// longitude
-	token = strtok(NULL, ",");
-	doubleHolder = nmea_to_deg(token);
-
-	// longitude direction
-	token = strtok(NULL, ",");
-	if (*token == 'E') {
-		gpsServer->GPSCoordsHolder->longitude = doubleHolder;
-	} else {
-		gpsServer->GPSCoordsHolder->longitude = -1.0 * doubleHolder;
-	}
-
-	token = strtok(NULL, ","); // (UNUSED) speed (knots)
-	token = strtok(NULL, ","); // (UNUSED) track true
-	token = strtok(NULL, ","); // (UNUSED) date
-	token = strtok(NULL, ","); // (UNUSED) magnetic variation
-	token = strtok(NULL, ","); // (UNUSED) magnetic variation direction
-	token = strtok(NULL, ","); // (UNUSED) mode indicator AND checksum
-
-	logger->Info("GPSStdTasks: Successfully processed GPRMC data");
-	return true;
-}
-
-double nmea_to_deg(char *nmea) {
-	int deg;
-	double result, raw;
-
-	raw = strtod(nmea, &nmea);
-
-	deg = raw/100;
-	result = (raw/100 - deg)*100 ;
-	result /= 60;
-	result += deg;
-
-	return result;
-}
-
 // modified slightly from page 32 of http://www.novatel.com/assets/Documents/Manuals/om-20000094.pdf
 uint32 CRCValue_GPS(int i) {
 	int j;
@@ -273,17 +182,6 @@ uint32 CalculateCRC_GPS(char * buffer) {
 	}
 
 	return CRC;
-}
-
-uint8 CalculateNMEAChecksum(char * buffer) {
-	uint32 len = strlen(buffer);
-	uint8 checksum = 0;
-
-	for (uint8 it = 0; it < len; it++) {
-		checksum ^= (uint8) *(buffer+it);
-	}
-
-	return checksum;
 }
 
 }

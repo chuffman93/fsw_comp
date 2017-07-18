@@ -154,17 +154,6 @@ public:
   void deserialize(void);
 };
 
-class GPSCoordinates : public Serialize {
-public:
-  const static int size = 16;
-  GPSCoordinates();
-  GPSCoordinates(double latitude, double longitude);
-  double latitude; 
-  double longitude; 
-  void serialize(void);
-  void deserialize(void);
-};
-
 class GPSPositionTime : public Serialize {
 public:
   const static int size = 54;
@@ -276,11 +265,10 @@ public:
 
 class SCHItem : public Serialize {
 public:
-  const static int size = 34;
+  const static int size = 42;
   SCHItem();
-  SCHItem(double latitude, double longitude, double radius, uint8 enter_mode, int32 timeout, uint8 mode, int32 duration);
-  double latitude; 
-  double longitude; 
+  SCHItem(double ecefPos[3], double radius, uint8 enter_mode, int32 timeout, uint8 mode, int32 duration);
+  double ecefPos[3]; 
   double radius; 
   uint8 enter_mode; 
   int32 timeout; 
