@@ -119,6 +119,7 @@ CMDConfig
 	int32 maxDownlinkSize
 	int32 beaconPeriod
 	int32 increasedBeaconPeriod
+	uint16 expectedRebootDuration
 
 COMConfig
 	int32 testConfig

@@ -81,6 +81,7 @@ private:
 	static GPSLockType lastLock;
 	bool propagating; // flag for whether or not the GPS server is propagating
 	bool noOE; // flag if we haven't gotten a lock or orbital elements from the ground
+	bool timeKnown; // flag for if we know the time
 
 	BEGIN_STATE_MAP
 	END_STATE_MAP

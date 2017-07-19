@@ -432,12 +432,13 @@ void CDHConfig::deserialize(void) {
 
 CMDConfig::CMDConfig() { }
 
-CMDConfig::CMDConfig(int32 resetPeriod, int32 fileChunkSize, int32 maxDownlinkSize, int32 beaconPeriod, int32 increasedBeaconPeriod) {
+CMDConfig::CMDConfig(int32 resetPeriod, int32 fileChunkSize, int32 maxDownlinkSize, int32 beaconPeriod, int32 increasedBeaconPeriod, uint16 expectedRebootDuration) {
   this->resetPeriod = resetPeriod;
   this->fileChunkSize = fileChunkSize;
   this->maxDownlinkSize = maxDownlinkSize;
   this->beaconPeriod = beaconPeriod;
   this->increasedBeaconPeriod = increasedBeaconPeriod;
+  this->expectedRebootDuration = expectedRebootDuration;
 }
 
 void CMDConfig::serialize(void) {
@@ -446,6 +447,7 @@ void CMDConfig::serialize(void) {
   this->serialize_int32(this->maxDownlinkSize);
   this->serialize_int32(this->beaconPeriod);
   this->serialize_int32(this->increasedBeaconPeriod);
+  this->serialize_uint16(this->expectedRebootDuration);
 }
 
 void CMDConfig::deserialize(void) {
@@ -454,6 +456,7 @@ void CMDConfig::deserialize(void) {
   this->maxDownlinkSize = this->deserialize_int32();
   this->beaconPeriod = this->deserialize_int32();
   this->increasedBeaconPeriod = this->deserialize_int32();
+  this->expectedRebootDuration = this->deserialize_uint16();
 }
 
 COMConfig::COMConfig() { }

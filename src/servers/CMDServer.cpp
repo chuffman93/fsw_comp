@@ -38,7 +38,7 @@ using namespace AllStar::Core;
 namespace AllStar{
 namespace Servers{
 
-CMDConfig CMDServer::CMDConfiguration(360,1000,1000,10,10);
+CMDConfig CMDServer::CMDConfiguration(360,1000,1000,10,10,10);
 
 CMDServer::CMDServer(string nameIn, LocationIDType idIn) :
 		SubsystemServer(nameIn, idIn), Singleton(), numFilesDWN(0), currFileNum(0), uftp_pid(-1), downlinkInProgress(false) {
@@ -330,6 +330,9 @@ void CMDServer::loopReset(){
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Info("Daily reset encountered");
 	TLM_DAILY_RESET();
+	char cmd[100];
+	sprintf(cmd, "echo %u > " REBOOT_TIME_FILE, getTimeInSec() + CMDConfiguration.expectedRebootDuration);
+	system(cmd);
 
 	wdmAsleep();
 	for(uint8 i = 0; i < 30; i++){
@@ -338,6 +341,8 @@ void CMDServer::loopReset(){
 	wdmAlive();
 
 	logger->Error("Daily reset failed, performing reboot");
+	sprintf(cmd, "echo %u > " REBOOT_TIME_FILE, getTimeInSec() + 5);
+	system(cmd);
 	system("reboot");
 	currentState = ST_IDLE;
 }

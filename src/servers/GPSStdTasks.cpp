@@ -16,13 +16,15 @@
 #include <string.h>
 #include <math.h>
 
-#define CRC32_POLYNOMIAL 0xEDB88320L
+#define CRC32_POLYNOMIAL	0xEDB88320L
+#define UTC_OFFSET			315964800
+#define UTC_LEAP_SECONDS	18
 
 using namespace std;
 using namespace AllStar::Core;
 
-namespace AllStar{
-namespace Servers{
+namespace AllStar {
+namespace Servers {
 
 /* ------------- To configure GPS -------------
  * echo "log bestxyz ontime 1" > /dev/ttyS1/
@@ -36,6 +38,7 @@ bool BESTXYZProcess(char * buffer, const size_t size) {
 	char * token;
 	char * buffPtr = buffer;
 	bool solSuccess = true;
+	bool updateTime = false;
 
 	logger->Debug("GPSStdTasks: Processing BESTXYZ");
 
@@ -76,7 +79,9 @@ bool BESTXYZProcess(char * buffer, const size_t size) {
 	token = strtok(NULL, ","); // (UNUSED) port
 	token = strtok(NULL, ","); // (UNUSED) sequence num
 	token = strtok(NULL, ","); // (UNUSED) idle time
-	token = strtok(NULL, ","); // (UNUSED) time status
+	if (strcmp("UNKNOWN", strtok(NULL, ",")) != 0) { // time status is ok
+		updateTime = true;
+	}
 	uint16 tempWeek = (uint16) strtoul(strtok(NULL, ","), NULL, 10);
 	float tempSec = strtof(strtok(NULL, ","), NULL);
 	token = strtok(NULL, ","); // (UNUSED) receiver status
@@ -134,6 +139,10 @@ bool BESTXYZProcess(char * buffer, const size_t size) {
 	token = strtok(NULL, ","); // (UNUSED) reserved for vendor
 	token = strtok(NULL, ","); // (UNUSED) signals used
 
+	if (updateTime) {
+		UpdateTime(tempWeek, tempSec);
+	}
+
 	if (!solSuccess) {
 		logger->Debug("GPSStdTasks: Invalid BESTXYZ, numTracked: %d", gpsServer->numTracked);
 		return false;
@@ -182,6 +191,20 @@ uint32 CalculateCRC_GPS(char * buffer) {
 	}
 
 	return CRC;
+}
+
+// update the time if it's off by >2s
+void UpdateTime(uint16 GPSWeek, float GPSSec) {
+	uint32 secondsFromEpoch = UTC_OFFSET + UTC_LEAP_SECONDS;
+	secondsFromEpoch += GPSWeek * 7 * 24 * 60 * 60;
+	secondsFromEpoch += (uint32) roundf(GPSSec);
+
+	// if we're off by at least two seconds, update the time
+	if (abs(getTimeInSec() - secondsFromEpoch) > 2) {
+		char cmd[100];
+		sprintf(cmd, "date -s \"@%u\"", secondsFromEpoch);
+		system(cmd);
+	}
 }
 
 }

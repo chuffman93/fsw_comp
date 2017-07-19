@@ -44,7 +44,7 @@ GPSInertial GPSServer::GPSInertialCoords(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1);
 GPSPositionTime * GPSServer::GPSDataHolder = new GPSPositionTime(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 103, 1500.0);
 
 GPSServer::GPSServer(string nameIn, LocationIDType idIn) :
-		SubsystemServer(nameIn, idIn), Singleton(), propagating(false), noOE(true) { }
+		SubsystemServer(nameIn, idIn), Singleton(), propagating(false), noOE(true), timeKnown(false), numTracked(0) { }
 
 GPSServer::~GPSServer() { }
 
@@ -70,6 +70,13 @@ void GPSServer::SubsystemLoop(void) {
 	TLM_GPS_SERVER_STARTED();
 
 	cdhServer->subPowerOn(HARDWARE_LOCATION_GPS);
+
+	// if the system clock time is high enough, assume we updated the time on reboot
+	if (getTimeInSec() > 1500000000) {
+		timeKnown = false;
+	} else {
+		timeKnown = true;
+	}
 
 	GPSReadType readStatus;
 	int64 readTime = 0;
@@ -112,7 +119,7 @@ void GPSServer::SubsystemLoop(void) {
 		case GPS_NO_LOCK:
 			lastData = readTime;
 
-			if (noOE) {
+			if (noOE || !timeKnown) {
 				break; // we can't propagate yet
 			}
 

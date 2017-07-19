@@ -209,14 +209,15 @@ public:
 
 class CMDConfig : public Serialize {
 public:
-  const static int size = 20;
+  const static int size = 22;
   CMDConfig();
-  CMDConfig(int32 resetPeriod, int32 fileChunkSize, int32 maxDownlinkSize, int32 beaconPeriod, int32 increasedBeaconPeriod);
+  CMDConfig(int32 resetPeriod, int32 fileChunkSize, int32 maxDownlinkSize, int32 beaconPeriod, int32 increasedBeaconPeriod, uint16 expectedRebootDuration);
   int32 resetPeriod; // seconds
   int32 fileChunkSize; 
   int32 maxDownlinkSize; 
   int32 beaconPeriod; 
   int32 increasedBeaconPeriod; 
+  uint16 expectedRebootDuration; 
   void serialize(void);
   void deserialize(void);
 };

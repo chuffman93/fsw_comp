@@ -17,6 +17,7 @@ namespace Servers {
 bool BESTXYZProcess(char * buffer,const size_t size);
 uint32 CRCValue_GPS(int i);
 uint32 CalculateCRC_GPS(char * buffer);
+void UpdateTime(uint16 GPSWeek, float GPSSec);
 
 }
 }
