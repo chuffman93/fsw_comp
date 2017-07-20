@@ -510,6 +510,38 @@ void FMGConfig::deserialize(void) {
   this->testConfig = this->deserialize_int32();
 }
 
+GPSConfig::GPSConfig() { }
+
+GPSConfig::GPSConfig(float a, float e, float i, float Omega, float omega, float anom, float epochSeconds) {
+  this->a = a;
+  this->e = e;
+  this->i = i;
+  this->Omega = Omega;
+  this->omega = omega;
+  this->anom = anom;
+  this->epochSeconds = epochSeconds;
+}
+
+void GPSConfig::serialize(void) {
+  this->serialize_float(this->a);
+  this->serialize_float(this->e);
+  this->serialize_float(this->i);
+  this->serialize_float(this->Omega);
+  this->serialize_float(this->omega);
+  this->serialize_float(this->anom);
+  this->serialize_float(this->epochSeconds);
+}
+
+void GPSConfig::deserialize(void) {
+  this->a = this->deserialize_float();
+  this->e = this->deserialize_float();
+  this->i = this->deserialize_float();
+  this->Omega = this->deserialize_float();
+  this->omega = this->deserialize_float();
+  this->anom = this->deserialize_float();
+  this->epochSeconds = this->deserialize_float();
+}
+
 PLDConfig::PLDConfig() { }
 
 PLDConfig::PLDConfig(int32 chunkSize) {

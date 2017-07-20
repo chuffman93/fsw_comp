@@ -255,6 +255,22 @@ public:
   void deserialize(void);
 };
 
+class GPSConfig : public Serialize {
+public:
+  const static int size = 28;
+  GPSConfig();
+  GPSConfig(float a, float e, float i, float Omega, float omega, float anom, float epochSeconds);
+  float a; // Semi-major axis
+  float e; // Eccentricity
+  float i; // Inclination
+  float Omega; // Right ascension of the ascending node
+  float omega; // Argument of perigee
+  float anom; // True anomoly
+  float epochSeconds; // [rad]
+  void serialize(void);
+  void deserialize(void);
+};
+
 class PLDConfig : public Serialize {
 public:
   const static int size = 4;

@@ -133,6 +133,15 @@ EPSConfig
 FMGConfig
 	int32 testConfig
 
+GPSConfig
+	float a // Semi-major axis
+	float e // Eccentricity
+	float i // Inclination
+	float Omega // Right ascension of the ascending node
+	float omega // Argument of perigee
+	float anom // True anomoly
+	float epochSeconds // [rad]
+
 PLDConfig
 	int32 chunkSize
 

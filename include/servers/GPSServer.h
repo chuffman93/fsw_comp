@@ -57,6 +57,9 @@ public:
 
 	bool GetECIData(uint8 buffer[GPSInertial::size]);
 
+	bool updateConfig(void);
+	void bootConfig(void);
+
 	uint8 numTracked;
 	static GPSPositionTime * GPSDataHolder;
 	static GPSInertial GPSInertialCoords;
@@ -76,10 +79,11 @@ private:
 	void UpdateAndPropagate();
 	void ECItoOE();
 	void ECEFtoECI();
-
+	void UpdateOEfromConfig();
 	// GPS Port configurations
 	struct termios port;
 
+	GPSConfig GPSConfiguration;
 	static GPSLockType lastLock;
 	int64 inertialTime;
 	bool propagating; // flag for whether or not the GPS server is propagating

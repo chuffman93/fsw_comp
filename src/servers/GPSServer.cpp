@@ -13,6 +13,7 @@
 #include "servers/GPSStdTasks.h"
 #include "servers/DispatchStdTasks.h"
 #include "servers/CDHServer.h"
+#include "servers/FileSystem.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
 #include "core/ModeManager.h"
@@ -78,6 +79,8 @@ void GPSServer::SubsystemLoop(void) {
 		timeKnown = true;
 	}
 
+	bootConfig();
+
 	GPSReadType readStatus;
 	int64 readTime = 0;
 	int64 lastWakeTime = 0;
@@ -109,7 +112,7 @@ void GPSServer::SubsystemLoop(void) {
 		readTime = getTimeInMillis();
 		switch (readStatus) {
 		case GPS_NO_DATA:
-			if (readTime > lastData + 30000) { // if it's been 30 seconds since the last GPS data, reboot
+			if (readTime > lastData + 30000) { // if it's been 30 seconds since the last GPS data (valid or not), reboot
 				cdhServer->subPowerOff(HARDWARE_LOCATION_GPS);
 				wdmAsleep();
 				usleep(2000000);
@@ -308,9 +311,14 @@ void GPSServer::ECItoOE() {
 	v[2] = GPSInertialCoords.velY;
 	v[3] = GPSInertialCoords.velZ;
 
-	lastLock.sysTime = inertialTime / 1000.0;
-
-	rv2elem(MU_EARTH, r, v, &(lastLock.elements));// Get the orbital elements using the last position and velocity
+	if (this->TakeLock(MAX_BLOCK_TIME)) {
+		lastLock.sysTime = inertialTime / 1000.0;
+		rv2elem(MU_EARTH, r, v, &(lastLock.elements));// Get the orbital elements using the last position and velocity
+		this->GiveLock();
+	} else {
+		Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+		logger->Warning("GPSServer::ECItoOE unable to take lock");
+	}
 }
 
 void GPSServer::ECEFtoECI() {
@@ -358,6 +366,77 @@ bool GPSServer::GetECIData(uint8 buffer[GPSInertial::size]) {
 		Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 		logger->Warning("GPSServer::GetECIData unable to take lock");
 		return false;
+	}
+}
+
+void GPSServer::bootConfig(void) {
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	FILE * fp = fopen(GPS_CONFIG, "r");
+	uint8 buffer[GPSConfiguration.size];
+
+	// make sure we get a valid file pointer
+	if (fp == NULL) {
+		logger->Error("GPSServer: NULL GPS config file pointer, cannot boot");
+		return;
+	}
+
+	// read and update the configs
+	if (fread(buffer, sizeof(uint8), GPSConfiguration.size, fp) == GPSConfiguration.size) {
+		GPSConfiguration.update(buffer, GPSConfiguration.size, 0, 0);
+		GPSConfiguration.deserialize();
+		logger->Info("GPSServer: successfully booted GPS configs");
+		fclose(fp);
+		UpdateOEfromConfig();
+		return;
+	} else {
+		logger->Error("GPSServer: error reading GPS config file, cannot boot");
+		fclose(fp);
+		return;
+	}
+}
+
+bool GPSServer::updateConfig(void) {
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	FILE * fp = fopen(GPS_CFG_UP, "r");
+	uint8 buffer[GPSConfiguration.size];
+
+	// make sure we get a valid file pointer
+	if (fp == NULL) {
+		logger->Error("GPSServer: NULL GPS config file pointer, cannot update");
+		return false;
+	}
+
+	// read and update the configs
+	if (fread(buffer, sizeof(uint8), GPSConfiguration.size, fp) == GPSConfiguration.size) {
+		GPSConfiguration.update(buffer, GPSConfiguration.size, 0, 0);
+		GPSConfiguration.deserialize();
+		logger->Info("GPSServer: successfully updated GPS configs");
+		fclose(fp);
+		UpdateOEfromConfig();
+		return true;
+	} else {
+		logger->Error("GPSServer: error reading GPS config file, cannot update");
+		fclose(fp);
+		return false;
+	}
+}
+
+void GPSServer::UpdateOEfromConfig() {
+	if (this->TakeLock(MAX_BLOCK_TIME)) {
+		lastLock.elements.a = GPSConfiguration.a;
+		lastLock.elements.e = GPSConfiguration.e;
+		lastLock.elements.i = GPSConfiguration.i;
+		lastLock.elements.omega = GPSConfiguration.omega;
+		lastLock.elements.Omega = GPSConfiguration.Omega;
+		lastLock.elements.anom = GPSConfiguration.anom;
+		lastLock.sysTime = GPSConfiguration.epochSeconds;
+		this->GiveLock();
+		noOE = false;
+	} else {
+		Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+		logger->Warning("GPSServer::UpdateOEfromConfig unable to take lock");
 	}
 }
 
