@@ -18,6 +18,8 @@ bool BESTXYZProcess(char * buffer,const size_t size);
 uint32 CRCValue_GPS(int i);
 uint32 CalculateCRC_GPS(char * buffer);
 void UpdateTime(uint16 GPSWeek, float GPSSec);
+void ConvertToEpochTime(uint16 GPSWeek, float GPSSec, uint32 * secondsFromEpoch);
+void ConvertToGPSTime(uint32 currTimeSec, uint16 * GPSWeek, float * GPSSec);
 
 }
 }

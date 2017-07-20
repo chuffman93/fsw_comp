@@ -55,6 +55,8 @@ public:
 
 	double DistanceTo(double target[3]);
 
+	bool GetECIData(uint8 buffer[GPSInertial::size]);
+
 	uint8 numTracked;
 	static GPSPositionTime * GPSDataHolder;
 	static GPSInertial GPSInertialCoords;
@@ -79,6 +81,7 @@ private:
 	struct termios port;
 
 	static GPSLockType lastLock;
+	int64 inertialTime;
 	bool propagating; // flag for whether or not the GPS server is propagating
 	bool noOE; // flag if we haven't gotten a lock or orbital elements from the ground
 	bool timeKnown; // flag for if we know the time

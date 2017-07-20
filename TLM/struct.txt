@@ -105,7 +105,8 @@ GPSInertial
 	double velX
 	double velY
 	double velZ
-	int64 sysTime
+	uint16 GPSWeek
+	float GPSSec
 
 ACSConfig
 	int32 testConfig

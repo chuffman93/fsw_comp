@@ -151,13 +151,13 @@ bool ACSTestDriver(uint8 driverID, float rwTorque, float trTorque) {
 // Command/Data
 bool ACSSendGPS() {
 	GPSServer * gpsServer = static_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
-	GPSPositionTime * gpsData = gpsServer->GetGPSDataPtr();
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Debug("ACSStdTasks: ACSSendGPS(): Entered");
 
-	uint8 * buffer = new uint8[GPSPositionTime::size];
-	gpsData->update(buffer, GPSPositionTime::size);
-	gpsData->serialize();
+	uint8 * buffer = new uint8[GPSInertial::size];
+	if (!gpsServer->GetECIData(buffer)) {
+		return false;
+	}
 
 	ACPPacket * send = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_GPS_CMD, GPSPositionTime::size, buffer);
 	ACPPacket * ret = DispatchPacket(send);

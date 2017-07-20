@@ -173,16 +173,17 @@ public:
 
 class GPSInertial : public Serialize {
 public:
-  const static int size = 56;
+  const static int size = 54;
   GPSInertial();
-  GPSInertial(double posX, double posY, double posZ, double velX, double velY, double velZ, int64 sysTime);
+  GPSInertial(double posX, double posY, double posZ, double velX, double velY, double velZ, uint16 GPSWeek, float GPSSec);
   double posX; 
   double posY; 
   double posZ; 
   double velX; 
   double velY; 
   double velZ; 
-  int64 sysTime; 
+  uint16 GPSWeek; 
+  float GPSSec; 
   void serialize(void);
   void deserialize(void);
 };

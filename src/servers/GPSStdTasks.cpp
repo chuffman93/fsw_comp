@@ -18,7 +18,7 @@
 
 #define CRC32_POLYNOMIAL	0xEDB88320L
 #define UTC_OFFSET			315964800
-#define UTC_LEAP_SECONDS	18
+#define SECONDS_PER_WEEK	604800
 
 using namespace std;
 using namespace AllStar::Core;
@@ -195,9 +195,8 @@ uint32 CalculateCRC_GPS(char * buffer) {
 
 // update the time if it's off by >2s
 void UpdateTime(uint16 GPSWeek, float GPSSec) {
-	uint32 secondsFromEpoch = UTC_OFFSET + UTC_LEAP_SECONDS;
-	secondsFromEpoch += GPSWeek * 7 * 24 * 60 * 60;
-	secondsFromEpoch += (uint32) roundf(GPSSec);
+	uint32 secondsFromEpoch;
+	ConvertToEpochTime(GPSWeek, GPSSec, &secondsFromEpoch);
 
 	// if we're off by at least two seconds, update the time
 	if (abs(getTimeInSec() - secondsFromEpoch) > 2) {
@@ -205,6 +204,19 @@ void UpdateTime(uint16 GPSWeek, float GPSSec) {
 		sprintf(cmd, "date -s \"@%u\"", secondsFromEpoch);
 		system(cmd);
 	}
+}
+
+void ConvertToEpochTime(uint16 GPSWeek, float GPSSec, uint32 * secondsFromEpoch) {
+	uint32 seconds = UTC_OFFSET;
+	seconds += GPSWeek * SECONDS_PER_WEEK;
+	seconds += (uint32) roundf(GPSSec);
+	*secondsFromEpoch = seconds;
+}
+
+void ConvertToGPSTime(uint32 currTimeSec, uint16 * GPSWeek, float * GPSSec) {
+	uint32 seconds = currTimeSec - UTC_OFFSET;
+	*GPSWeek = seconds / SECONDS_PER_WEEK;
+	*GPSSec = seconds % SECONDS_PER_WEEK;
 }
 
 }
