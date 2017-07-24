@@ -573,3 +573,112 @@ SCH_SERVER_STARTED
 GEN
 SCH server started
 None
+
+# -------------------------- PWR --------------------------
+PWR_ACS_ON
+0x0600
+PWR
+ACS turned on
+None
+
+PWR_COM_ON
+0x0601
+PWR
+COM turned on
+None
+
+PWR_GPS_ON
+0x0602
+PWR
+GPS turned on
+None
+
+PWR_PLD_ON
+0x0603
+PWR
+PLD turned on
+None
+
+PWR_ACS_OFF
+0x0604
+PWR
+ACS turned off
+None
+
+PWR_COM_OFF
+0x0605
+PWR
+COM turned off
+None
+
+PWR_GPS_OFF
+0x0606
+PWR
+GPS turned off
+None
+
+PWR_PLD_OFF
+0x0607
+PWR
+PLD turned off
+None
+
+RST_ACS_LO
+0x0608
+PWR
+ACS reset line low
+None
+
+RST_COM_LO
+0x0609
+PWR
+COM reset line low
+None
+
+RST_EPS_LO
+0x060a
+PWR
+EPS reset line low
+None
+
+RST_PLD_LO
+0x060b
+PWR
+PLD reset line low
+None
+
+RST_ACS_HI
+0x060c
+PWR
+ACS reset line high
+None
+
+RST_COM_HI
+0x060d
+PWR
+COM reset line high
+None
+
+RST_EPS_HI
+0x060e
+PWR
+EPS reset line high
+None
+
+RST_PLD_HI
+0x060f
+PWR
+PLD reset line high
+None
+
+PWR_INVALID
+0x0610
+PWR
+Invalid subsystem for power toggle
+None
+
+RST_INVALID
+0x0611
+PWR
+Invalid subsystem for reset line toggle
+None

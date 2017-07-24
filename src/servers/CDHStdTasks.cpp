@@ -249,30 +249,53 @@ void toggleSubPower(HardwareLocationIDType subsystem, bool state) {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	string cmd = "echo ";
 
-	if(state){
-		cmd.append("1 > \"/sys/class/gpio/pioB");
-	}else{
-		cmd.append("0 > \"/sys/class/gpio/pioB");
-	}
-
 	switch(subsystem){
 	case HARDWARE_LOCATION_COM:
-		logger->Info("CDHStdTasks: Toggling power on COM");
-		cmd.append("15/value\"");
+		if (state) {
+			TLM_PWR_COM_ON();
+			logger->Info("CDHStdTasks: Turning COM on");
+			cmd.append("1 > \"/sys/class/gpio/pioB15/value\"");
+		} else {
+			TLM_PWR_COM_OFF();
+			logger->Info("CDHStdTasks: Turning COM off");
+			cmd.append("0 > \"/sys/class/gpio/pioB15/value\"");
+		}
 		break;
 	case HARDWARE_LOCATION_ACS:
-		logger->Info("CDHStdTasks: Toggling power on ACS");
-		cmd.append("25/value\"");
+		if (state) {
+			TLM_PWR_ACS_ON();
+			logger->Info("CDHStdTasks: Turning ACS on");
+			cmd.append("1 > \"/sys/class/gpio/pioB25/value\"");
+		} else {
+			TLM_PWR_ACS_OFF();
+			logger->Info("CDHStdTasks: Turning ACS off");
+			cmd.append("0 > \"/sys/class/gpio/pioB25/value\"");
+		}
 		break;
 	case HARDWARE_LOCATION_PLD:
-		logger->Info("CDHStdTasks: Toggling power on PLD");
-		cmd.append("17/value\"");
+		if (state) {
+			TLM_PWR_PLD_ON();
+			logger->Info("CDHStdTasks: Turning PLD on");
+			cmd.append("1 > \"/sys/class/gpio/pioB17/value\"");
+		} else {
+			TLM_PWR_PLD_OFF();
+			logger->Info("CDHStdTasks: Turning PLD off");
+			cmd.append("0 > \"/sys/class/gpio/pioB17/value\"");
+		}
 		break;
 	case HARDWARE_LOCATION_GPS:
-		logger->Info("CDHStdTasks: Toggling power on GPS");
-		cmd.append("27/value\"");
+		if (state) {
+			TLM_PWR_GPS_ON();
+			logger->Info("CDHStdTasks: Turning GPS on");
+			cmd.append("1 > \"/sys/class/gpio/pioB27/value\"");
+		} else {
+			TLM_PWR_GPS_OFF();
+			logger->Info("CDHStdTasks: Turning GPS off");
+			cmd.append("0 > \"/sys/class/gpio/pioB27/value\"");
+		}
 		break;
 	default:
+		TLM_PWR_INVALID();
 		logger->Warning("CDHStdTasks: Invalid subsystem for power toggle");
 		break;
 	}
@@ -292,22 +315,51 @@ void toggleResetLine(HardwareLocationIDType subsystem, bool state) {
 
 	switch (subsystem) {
 	case HARDWARE_LOCATION_EPS:
-		logger->Info("CDHStdTasks: Resetting EPS");
-		cmd.append("E10/value\"");
+		if (state) {
+			TLM_RST_EPS_HI();
+			logger->Info("CDHStdTasks: EPS reset line high");
+			cmd.append("1 > \"/sys/class/gpio/pioE10/value\"");
+		} else {
+			TLM_RST_EPS_LO();
+			logger->Info("CDHStdTasks: EPS reset line low");
+			cmd.append("0 > \"/sys/class/gpio/pioE10/value\"");
+		}
 		break;
 	case HARDWARE_LOCATION_COM:
-		logger->Info("CDHStdTasks: Resetting COM");
-		cmd.append("A11/value\"");
+		if (state) {
+			TLM_RST_COM_HI();
+			logger->Info("CDHStdTasks: COM reset line high");
+			cmd.append("1 > \"/sys/class/gpio/pioA11/value\"");
+		} else {
+			TLM_RST_COM_LO();
+			logger->Info("CDHStdTasks: COM reset line low");
+			cmd.append("0 > \"/sys/class/gpio/pioA11/value\"");
+		}
 		break;
 	case HARDWARE_LOCATION_ACS:
-		logger->Info("CDHStdTasks: Resetting ACS");
-		cmd.append("A12/value\"");
+		if (state) {
+			TLM_RST_ACS_HI();
+			logger->Info("CDHStdTasks: ACS reset line high");
+			cmd.append("1 > \"/sys/class/gpio/pioA12/value\"");
+		} else {
+			TLM_RST_ACS_LO();
+			logger->Info("CDHStdTasks: ACS reset line low");
+			cmd.append("0 > \"/sys/class/gpio/pioA12/value\"");
+		}
 		break;
 	case HARDWARE_LOCATION_PLD:
-		logger->Info("CDHStdTasks: Resetting PLD");
-		cmd.append("E11/value\"");
+		if (state) {
+			TLM_RST_PLD_HI();
+			logger->Info("CDHStdTasks: PLD reset line high");
+			cmd.append("1 > \"/sys/class/gpio/pioE11/value\"");
+		} else {
+			TLM_RST_PLD_LO();
+			logger->Info("CDHStdTasks: PLD reset line low");
+			cmd.append("0 > \"/sys/class/gpio/pioE11/value\"");
+		}
 		break;
 	default:
+		TLM_RST_INVALID();
 		logger->Warning("CDHStdTasks: Invalid subsystem for reset");
 		return;
 	}
