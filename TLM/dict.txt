@@ -98,6 +98,12 @@ ERR
 SPI packet failure to PLD. Opcode: %u
 uint8
 
+GPS_CONFIG_FAIL
+0x0009
+ERR
+Error configuring GPS over serial
+None
+
 # -------------------------- MOD --------------------------
 MODE_SWITCH
 0x0100

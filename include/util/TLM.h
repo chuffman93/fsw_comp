@@ -21,6 +21,7 @@ void TLM_SPI_ACS_TX_FAIL(uint8 arg0);
 void TLM_SPI_COM_TX_FAIL(uint8 arg0);
 void TLM_SPI_EPS_TX_FAIL(uint8 arg0);
 void TLM_SPI_PLD_TX_FAIL(uint8 arg0);
+void TLM_GPS_CONFIG_FAIL(void);
 void TLM_MODE_SWITCH(uint8 arg0);
 void TLM_SYS_CALL(int16 arg0);
 void TLM_RESET_COMMANDED(void);

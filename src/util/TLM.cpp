@@ -93,6 +93,15 @@ void TLM_SPI_PLD_TX_FAIL(uint8 arg0) {
   fmgServer->Log(DESTINATION_ERR, buf, size);
 }
 
+void TLM_GPS_CONFIG_FAIL(void) {
+  size_t size = 6;
+  uint8_t * buf = (uint8_t *) malloc(size);
+  Serialize ser(buf, size);
+  ser.serialize_int32(getTimeInSec());
+  ser.serialize_uint16(0x0009);
+  fmgServer->Log(DESTINATION_ERR, buf, size);
+}
+
 void TLM_MODE_SWITCH(uint8 arg0) {
   size_t size = 7;
   uint8_t * buf = (uint8_t *) malloc(size);

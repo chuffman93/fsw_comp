@@ -45,7 +45,8 @@ GPSInertial GPSServer::GPSInertialCoords(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0);
 GPSPositionTime * GPSServer::GPSDataHolder = new GPSPositionTime(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 103, 1500.0);
 
 GPSServer::GPSServer(string nameIn, LocationIDType idIn) :
-		SubsystemServer(nameIn, idIn), Singleton(), propagating(false), noOE(true), timeKnown(false), numTracked(0) { }
+		SubsystemServer(nameIn, idIn), Singleton(), propagating(false), noOE(true), timeKnown(false),
+		numTracked(0), inertialTime(0), GPSFileDescriptor(0) { }
 
 GPSServer::~GPSServer() { }
 
@@ -71,6 +72,9 @@ void GPSServer::SubsystemLoop(void) {
 	TLM_GPS_SERVER_STARTED();
 
 	cdhServer->subPowerOn(HARDWARE_LOCATION_GPS);
+	wdmAsleep();
+	sleep(7);
+	wdmAlive();
 
 	// if the system clock time is high enough, assume we updated the time on reboot
 	if (getTimeInSec() > 1500000000) {
@@ -85,12 +89,12 @@ void GPSServer::SubsystemLoop(void) {
 	int64 readTime = 0;
 	int64 lastWakeTime = 0;
 	int64 lastUpdate = 0;
+	int64 lastLock = getTimeInMillis();
 	int64 lastData = getTimeInMillis(); // data from the GPS (valid or not)
 	char buffer[350];
-	int fd;
 
-	fd = CreatePort();
-	ConfigureGPS(fd);
+	GPSFileDescriptor = CreatePort();
+	ConfigureGPS();
 
 	logger->Info("GPSServer: created port");
 
@@ -107,20 +111,27 @@ void GPSServer::SubsystemLoop(void) {
 			lastData = getTimeInMillis();
 		}
 
-		readStatus = ReadData(buffer, fd);
+		readStatus = ReadData(buffer, GPSFileDescriptor);
 
 		readTime = getTimeInMillis();
 		switch (readStatus) {
 		case GPS_NO_DATA:
 			if (readTime > lastData + 30000) { // if it's been 30 seconds since the last GPS data (valid or not), reboot
-				cdhServer->subPowerOff(HARDWARE_LOCATION_GPS);
-				wdmAsleep();
-				usleep(2000000);
-				wdmAlive();
+				logger->Warning("GPSServer: no data, rebooting");
+				RestartGPS();
+				lastData = readTime;
+				lastLock = readTime;
 			}
 			break;
 		case GPS_NO_LOCK:
 			lastData = readTime;
+
+			if (readTime > lastLock + 5*60*1000) { // if it's been 15 minutes since our last lock, reboot
+				logger->Warning("GPSServer: no lock, rebooting");
+				RestartGPS();
+				lastData = readTime;
+				lastLock = readTime;
+			}
 
 			if (noOE || !timeKnown) {
 				break; // we can't propagate yet
@@ -142,6 +153,7 @@ void GPSServer::SubsystemLoop(void) {
 				propagating = false;
 			}
 
+			lastLock = readTime;
 			lastData = readTime;
 			lastUpdate = readTime;
 			inertialTime = readTime;
@@ -182,12 +194,42 @@ int GPSServer::CreatePort(void) {
 	return portfd;
 }
 
+void GPSServer::RestartGPS(void) {
+	CDHServer * cdhServer = static_cast<CDHServer *> (Factory::GetInstance(CDH_SERVER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	// turn the GPS off and wait 2 seconds
+	cdhServer->subPowerOff(HARDWARE_LOCATION_GPS);
+	wdmAsleep();
+	sleep(2);
+	wdmAlive();
+
+	// turn the GPS back on and wait 5 seconds
+	cdhServer->subPowerOn(HARDWARE_LOCATION_GPS);
+	wdmAsleep();
+	sleep(7);
+	wdmAlive();
+
+	// configure the GPS to log what we want over serial
+	ConfigureGPS();
+}
+
 // TODO: add GPS unlock commands from QB50
-void GPSServer::ConfigureGPS(int fd) {
-	char bestxyz[50] = "log bestxyz ontime 1\n"; // log BESTXYZ every second
+bool GPSServer::ConfigureGPS(void) {
+	char unlog[50] = "UNLOGALL true\n"; // turn off all current logs
+	char bestxyz[50] = "log bestxyza ontime 1\n"; // log BESTXYZ every second
 	char saveconfig[50] = "SAVECONFIG\n"; // save the configurations
-	write(fd, bestxyz, 21);
-	write(fd, saveconfig, 11);
+	bool success = true;
+	success &= (write(GPSFileDescriptor, unlog, 14) == 14);
+	usleep(1000);
+	success &= (write(GPSFileDescriptor, bestxyz, 22) == 22);
+	usleep(1000);
+	success &= (write(GPSFileDescriptor, saveconfig, 11) == 11);
+	usleep(1000);
+	if (!success) {
+		TLM_GPS_CONFIG_FAIL();
+	}
+	return success;
 }
 
 // determine the distance of the satellite to a target in ECEF coordinates

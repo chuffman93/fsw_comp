@@ -72,7 +72,10 @@ private:
 	GPSServer & operator=(const GPSServer & source);
 
 	int CreatePort(void);
-	void ConfigureGPS(int fd);
+	void RestartGPS(void);
+	bool ConfigureGPS();
+
+	int GPSFileDescriptor;
 
 	GPSReadType ReadData(char * buffer, int fd);
 
