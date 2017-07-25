@@ -365,11 +365,11 @@ void GPSServer::ECItoOE() {
 
 void GPSServer::ECEFtoECI() {
 	// arrays for the rotation
-	float posECEF[3];
-	float velECEF[3];
-	float posECI[3];
-	float velECI[3];
-	float gpsTime[2];
+	double posECEF[3];
+	double velECEF[3];
+	double posECI[3];
+	double velECI[3];
+	double gpsTime[2];
 
 	posECEF[0] = GPSDataHolder->posX;
 	posECEF[1] = GPSDataHolder->posY;

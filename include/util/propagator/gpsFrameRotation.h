@@ -26,41 +26,41 @@
 #include "leapSecond.h"
 //#include "RigidBodyKinematics.h"
 
-//const float OMEGA_EARTH = 7.29211585530066e-5; //rad/s Rotation Rate of Earth
+//const double OMEGA_EARTH = 7.29211585530066e-5; //rad/s Rotation Rate of Earth
 
 typedef struct {
-    float    *array;
+    double    *array;
     int         used;
     int         size;
 } fpArray;
 
 typedef struct {
-    float    **array;
+    double    **array;
     int         used;
     int         sizeX;
     int         sizeY;
 } fpDoubleArray;
 
-void wgs2gcrf(float_t *xEcef, float_t *vEcef, float_t *gpsTime, float_t *xEci, float_t *vEci);
-void gcrf2wgs(float_t *xEci, float_t *vEci, float_t *gpsTime, float_t *xEcef, float_t *vEcef);
-void gpstow2jd( int32_t wn, float tow, int rollflag, float_t *jd_gps );
-void format_JD( float_t *jd_orig, float_t *jd );
-void jdtt2jdutc( float_t *jd_tt, float_t *jd_utc, int *tai_utc );
-void ecef2eci_IAU2006CIOinterp( float_t *jd_tt, float_t *jd_utc, float_t *r0, float_t *r, float_t *v0, float_t *v, float_t IE[3][3] );
-void eci2ecef_IAU2006CIOinterp(float_t *jd_tt, float_t *jd_utc, float_t *r0, float_t *r, float_t *v0, float_t *v, float_t EI[3][3]);
-void computeERAmat( float_t *jd_ut1, float_t rERA[3][3], float_t *ERA );
-void getXYs_simple( float_t mjd_tt, float_t *X, float_t *Y, float_t *s );
-void interpLagrange( float_t xx, int p, int row0, float_t *yy);
-void computeBPNmatrix( float_t X, float_t Y, float_t s, float_t BPN[3][3]);
+void wgs2gcrf(double *xEcef, double *vEcef, double *gpsTime, double *xEci, double *vEci);
+void gcrf2wgs(double *xEci, double *vEci, double *gpsTime, double *xEcef, double *vEcef);
+void gpstow2jd( int32_t wn, double tow, int rollflag, double *jd_gps );
+void format_JD( double *jd_orig, double *jd );
+void jdtt2jdutc( double *jd_tt, double *jd_utc, int *tai_utc );
+void ecef2eci_IAU2006CIOinterp( double *jd_tt, double *jd_utc, double *r0, double *r, double *v0, double *v, double IE[3][3] );
+void eci2ecef_IAU2006CIOinterp(double *jd_tt, double *jd_utc, double *r0, double *r, double *v0, double *v, double EI[3][3]);
+void computeERAmat( double *jd_ut1, double rERA[3][3], double *ERA );
+void getXYs_simple( double mjd_tt, double *X, double *Y, double *s );
+void interpLagrange( double xx, int p, int row0, double *yy);
+void computeBPNmatrix( double X, double Y, double s, double BPN[3][3]);
 
-void gcrf2j2000(float_t *xEci, float_t *vEci, float_t *xJ2000, float_t *vJ2000, float_t B[4][4]);
-void j20002gcrf(float_t *xJ2000, float_t *vJ2000, float_t *xEci, float_t *vEci, float_t B[4][4]);
+void gcrf2j2000(double *xEci, double *vEci, double *xJ2000, double *vJ2000, double B[4][4]);
+void j20002gcrf(double *xJ2000, double *vJ2000, double *xEci, double *vEci, double B[4][4]);
 
 void initArray(fpArray *a, int initialSize);
-void insertArray(fpArray *a, float_t element);
+void insertArray(fpArray *a, double element);
 void freeArray(fpArray *a);
 void initDoubleArray(fpDoubleArray *a, int initialDim1, int initialDim2);
-void Mult1xN_NxM( fpArray *a, fpDoubleArray *b, float_t *c );
+void Mult1xN_NxM( fpArray *a, fpDoubleArray *b, double *c );
 void freeDoubleArray(fpDoubleArray *a, int dim1);
 
 

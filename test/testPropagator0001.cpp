@@ -15,6 +15,12 @@ using namespace std;
 using namespace AllStar::Core;
 using namespace AllStar::Servers;
 
+double ecefPos[3] = {5197.70461, 4504.72374, 11.860507};
+double ecefVel[3] = {0.318377, -0.387397, 7.612595};
+double eciPos[3] = {6878.14, 0, 0};
+double eciVel[3] = {0, 0, 7.612607};
+double gpsTime[2] = {1979, 486000};
+
 TEST(TestPropagator, testTimeUpdate) {
 	uint32 secondsFromEpoch;
 	ConvertToEpochTime(1957, 441600, &secondsFromEpoch);
@@ -28,4 +34,20 @@ TEST(TestPropagator, testTimeConvert) {
 
 	ASSERT_EQ(1957, GPSWeek);
 	ASSERT_EQ(441600, GPSSec);
+}
+
+TEST(TestPropagator, testECEFtoECI) {
+	double eciResultPos[3];
+	double eciResultVel[3];
+	wgs2gcrf(ecefPos, ecefVel, gpsTime, eciResultPos, eciResultVel);
+
+	printf("%f, %f, %f\n%f, %f, %f\n", eciResultPos[0], eciResultPos[1], eciResultPos[2], eciResultVel[0], eciResultVel[1], eciResultVel[2]);
+}
+
+TEST(TestPropagator, testECItoECEF) {
+	double ecefResultPos[3];
+	double ecefResultVel[3];
+	gcrf2wgs(eciPos, eciVel, gpsTime, ecefResultPos, ecefResultVel);
+
+	printf("%f, %f, %f\n%f, %f, %f\n", ecefResultPos[0], ecefResultPos[1], ecefResultPos[2], ecefResultVel[0], ecefResultVel[1], ecefResultVel[2]);
 }

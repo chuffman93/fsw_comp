@@ -13,7 +13,7 @@
  */
 
 #include "util/propagator/gpsFrameRotation.h"
-const float OMEGA_EARTH = 7.29211585530066e-5;
+const double OMEGA_EARTH = 7.29211585530066e-5;
 
 /*
  * Function: wgs2gcrf
@@ -28,14 +28,14 @@ const float OMEGA_EARTH = 7.29211585530066e-5;
  *  xEci        = Position vector, km, in GCRF (ECI)
  *  vEci        = Velocity vector, km/s, in GCRF (ECI)
  */
-void wgs2gcrf(float_t *xEcef, float_t *vEcef, float_t *gpsTime, float_t *xEci, float_t *vEci)
+void wgs2gcrf(double *xEcef, double *vEcef, double *gpsTime, double *xEci, double *vEci)
 {
     int         rollFlag = 1;
     int         tai_utc;
-    float_t    jd_gps[2];
-    float_t    jd_tt[2];
-    float_t    jd_utc[2];
-    float_t    IE[3][3];
+    double    jd_gps[2];
+    double    jd_tt[2];
+    double    jd_utc[2];
+    double    IE[3][3];
 
     /* Convert GPS time of week to Julian Date */
     gpstow2jd(gpsTime[0], gpsTime[1], rollFlag, jd_gps);
@@ -78,13 +78,13 @@ void wgs2gcrf(float_t *xEcef, float_t *vEcef, float_t *gpsTime, float_t *xEci, f
  *  xEcef       = Position vector, km, in GPS (ITRF, ECEF)
  *  vEcef       = Velocity vector, km/s, in GPS (ITRF, ECEF)
  */
-void gcrf2wgs(float_t *xEci, float_t *vEci, float_t *gpsTime, float_t *xEcef, float_t *vEcef){
+void gcrf2wgs(double *xEci, double *vEci, double *gpsTime, double *xEcef, double *vEcef){
     int         rollFlag;
     int         tai_utc;
-    float_t    jd_gps[2];
-    float_t    jd_tt[2];
-    float_t    jd_utc[2];
-    float_t    IE[4][4];
+    double    jd_gps[2];
+    double    jd_tt[2];
+    double    jd_utc[2];
+    double    IE[3][3];
 
     rollFlag = 1;
     
@@ -131,10 +131,10 @@ void gcrf2wgs(float_t *xEci, float_t *vEci, float_t *gpsTime, float_t *xEcef, fl
  * Outputs:
  *  jd_gps[2]   = 2-part julian date [day; dayfraction]
  */
-void gpstow2jd(int32_t wn, float tow, int rollflag, float_t *jd_gps)
+void gpstow2jd(int32_t wn, double tow, int rollflag, double * jd_gps)
 {
-	int32_t jd_gps_epoch;
-	int32_t jd_gps_temp[2];
+	double jd_gps_epoch;
+	double jd_gps_temp[2];
 	/* Set both GPS week number origins */
 	/* 06jan80 = 2444244.5, Julian Day = January 6, 1980 */
 	/* 22aug99 = 2451412.5, Julian Day = August 22, 1999 */
@@ -156,6 +156,7 @@ void gpstow2jd(int32_t wn, float tow, int rollflag, float_t *jd_gps)
 	jd_gps_temp[0] = wn*7.0 + jd_gps_epoch;
 	jd_gps_temp[1] = tow/86400.0;
 	/* Enforce correct [day dayfraction] formatting */
+
 	format_JD(jd_gps_temp, jd_gps);
 }
 
@@ -175,11 +176,11 @@ void gpstow2jd(int32_t wn, float tow, int rollflag, float_t *jd_gps)
  * Outputs:
  *  jd          = 2-part Julian Date [day; dayfraction]
  */
-void format_JD(float_t *jd_orig, float_t *jd)
+void format_JD(double *jd_orig, double *jd)
 {
-    float_t jd1;
-    float_t extra2;
-    float_t add_days;
+	double jd1;
+	double extra2;
+	double add_days;
 
     jd[0] = jd_orig[0];
     jd[1] = jd_orig[1];
@@ -215,11 +216,11 @@ void format_JD(float_t *jd_orig, float_t *jd)
  *  jd_utc[2]  = 2-part Julian Date (UTC) [day; dayfraction]
  *  tai_utc    = Number of leap seconds used to convert TAI to UTC
  */
-void jdtt2jdutc( float_t *jd_tt, float_t *jd_utc, int *tai_utc )
+void jdtt2jdutc( double *jd_tt, double *jd_utc, int *tai_utc )
 {
-    float_t		jd_tai[2];
-    float_t		mjd_tai;
-    float_t		mjd_utc;
+	double		jd_tai[2];
+	double		mjd_tai;
+	double		mjd_utc;
     int			sizeLeap;
     int         row;
     int         i;
@@ -266,14 +267,14 @@ void jdtt2jdutc( float_t *jd_tt, float_t *jd_utc, int *tai_utc )
     jd_utc[0] = jd_tai[0];
     jd_utc[1] = jd_tai[1];
 
-    jd_utc[1] = (float_t)-leap/86400.0 + jd_tai[1];
+    jd_utc[1] = (double)-leap/86400.0 + jd_tai[1];
     mjd_utc = jd_utc[1] + ( jd_utc[0] - 2400000.5 );
 
     /*Check if current UTC guess crossed a leap second boundary */
     if( mjd_utc < leapsecond[row + 3] ){
         /* Boundary was crossed. Leap second count is one less */
         leap = leap - 1;
-        jd_utc[1] = (float_t)-leap/86400 + jd_tai[1];
+        jd_utc[1] = (double)-leap/86400 + jd_tai[1];
 
         format_JD( jd_utc,  jd_utc);
 
@@ -286,7 +287,7 @@ void jdtt2jdutc( float_t *jd_tt, float_t *jd_utc, int *tai_utc )
         second is introduced.  This will allow for correct interpolation of
         EOPs (specifically dUT1) when using this UTC Julian date. */
 
-        if((jd_utc[1] >= (float_t)0.0) && (jd_utc[1] < (float_t)1/86400)) {
+        if((jd_utc[1] >= (double)0.0) && (jd_utc[1] < (double)1/86400)) {
             jd_utc[1] = (86400.0 + jd_utc[1]*86400.0)/86401.0;
         }
     }
@@ -326,20 +327,20 @@ void jdtt2jdutc( float_t *jd_tt, float_t *jd_utc, int *tai_utc )
  *  v           = velocity vector in GCRF (ECI)
  *  IE          = rotation matrix used to convert position from ecef to eci
  */
-void ecef2eci_IAU2006CIOinterp(float_t *jd_tt, float_t *jd_utc, 
-                               float_t *r0, float_t *r, 
-                               float_t *v0, float_t *v, 
-                               float_t IE[3][3])
+void ecef2eci_IAU2006CIOinterp(double *jd_tt, double *jd_utc,
+							double *r0, double *r,
+							double *v0, double *v,
+							double IE[3][3])
 {
-    float_t		R[3][3];
-    float_t		BPN[3][3];
-    float_t		X;
-    float_t		Y;
-    float_t		s;
-    float_t		ERA;
-    float_t		v_E[3];
-    float_t		wXr[3];
-    float_t		omegaEI[3];
+	double		R[3][3];
+	double		BPN[3][3];
+	double		X;
+	double		Y;
+	double		s;
+	double		ERA;
+    double		v_E[3];
+    double		wXr[3];
+    double		omegaEI[3];
 
     /* Construct Earth rotation angle matrix, R (TIRS to CIRS) */
     /* e.g. r_cirs = R * r_tirs */
@@ -405,21 +406,21 @@ void ecef2eci_IAU2006CIOinterp(float_t *jd_tt, float_t *jd_utc,
  *  v           = velocity vector in ITRF (ECEF)
  *  IE          = rotation matrix used to convert position from ecef to eci
  */
-void eci2ecef_IAU2006CIOinterp(float_t *jd_tt, float_t *jd_utc, 
-                               float_t *r0, float_t *r, 
-                               float_t *v0, float_t *v, 
-                               float_t EI[3][3])
+void eci2ecef_IAU2006CIOinterp(double *jd_tt, double *jd_utc,
+                               double *r0, double *r,
+                               double *v0, double *v,
+                               double EI[3][3])
 {
-    float_t R[3][3];
-    float_t BPN[3][3];
-    float_t IE[3][3];
-    float_t X;
-    float_t Y;
-    float_t s;
-    float_t ERA;
-    float_t v_E[3];
-    float_t wXr[3];
-    float_t omegaEI[3];
+    double R[3][3];
+    double BPN[3][3];
+    double IE[3][3];
+    double X;
+    double Y;
+    double s;
+    double ERA;
+    double v_E[3];
+    double wXr[3];
+    double omegaEI[3];
     
     /* Construct Earth rotation angle matrix, R (TIRS to CIRS) */
     /* e.g. r_cirs = R * r_tirs */
@@ -473,24 +474,23 @@ void eci2ecef_IAU2006CIOinterp(float_t *jd_tt, float_t *jd_utc,
  *  rERA        = ERA rotation matrix
  *  ERA         = Earth Rotation Angle (0 <= ERA <= 2*pi)
  */
-void computeERAmat(float_t *jd_ut1, float_t rERA[3][3], float_t *ERA)
+void computeERAmat(double *jd_ut1, double rERA[3][3], double *ERA)
 {
-    float_t		F;
-    float_t		era;
-    float_t		ce;
-    float_t		se;
-    float_t		twoPi = 2 * M_PI;
+	double		F;
+	double		era;
+	double		ce;
+	double		se;
+	double		twoPi = 2 * M_PI;
 
     /* Compute ERA */
     /* F = (jd_ut1[0] % 1) + (jd_ut1[1] % 1); */
     F = (jd_ut1[0] - floor(jd_ut1[0])) + (jd_ut1[1] - floor(jd_ut1[1]));
 
-    era = (float_t)(twoPi * (F + 0.7790572732640 + 0.00273781191135448 * 
+    era = (double)(twoPi * (F + 0.7790572732640 + 0.00273781191135448 *
         (jd_ut1[1] + (jd_ut1[0] - 2451545))));
 
     /* era = era % twoPi; */
-	/* TODO: fmodf MAY NOT EXIST. INCLUDE MATH.H ? */
-    era = fmodf(era, twoPi);
+    era = fmod(era, twoPi);
 
     if( era < 0 ) {
         era = era + twoPi;
@@ -529,10 +529,10 @@ void computeERAmat(float_t *jd_ut1, float_t rERA[3][3], float_t *ERA)
  *  s       = CIO Locator (radians)
  *   
  */
-void getXYs_simple(float_t mjd_tt, float_t *X, float_t *Y, float_t *s)
+void getXYs_simple(double mjd_tt, double *X, double *Y, double *s)
 {
-    float_t		sec2rad;
-    float_t		tempans[3];
+    double		sec2rad;
+    double		tempans[3];
     int         seed;
     int         numCols;
     int         numElements;
@@ -554,9 +554,9 @@ void getXYs_simple(float_t mjd_tt, float_t *X, float_t *Y, float_t *s)
         /*Interpolate using 11th-order Lagrange */
         interpLagrange(mjd_tt, 7, seed, tempans);
 
-        *X = (float_t)(tempans[0] * sec2rad);
-        *Y = (float_t)(tempans[1] * sec2rad);
-        *s = (float_t)(tempans[2] * sec2rad);
+        *X = (double)(tempans[0] * sec2rad);
+        *Y = (double)(tempans[1] * sec2rad);
+        *s = (double)(tempans[2] * sec2rad);
     } else {
         /*Date is outside of XYs table. This should not happen */
         *X = 0;
@@ -581,7 +581,7 @@ void getXYs_simple(float_t mjd_tt, float_t *X, float_t *Y, float_t *s)
  * Outputs:
  *  yy      = interpolated Y value(s)
  */
-void interpLagrange( float_t xx, int p, int row0, float_t *yy)
+void interpLagrange( double xx, int p, int row0, double *yy)
 {
     int             N;
     int             numElements;
@@ -590,11 +590,11 @@ void interpLagrange( float_t xx, int p, int row0, float_t *yy)
     int             iEnd;
     int             i;
     int             j;
-    float_t			No2;
+    double			No2;
     int             nn;
     int             numRows;
-    float_t			xrow0;
-    float_t			pjValue;
+    double			xrow0;
+    double			pjValue;
     fpArray         X;
     fpArray         Pj;
     fpDoubleArray   Y;
@@ -711,11 +711,11 @@ void interpLagrange( float_t xx, int p, int row0, float_t *yy)
  *  BPN     = Bias-Precession-Nutation matrix, e.g. r_gcrs = BPN * r_cirs
  *   
  */
-void computeBPNmatrix( float_t X, float_t Y, float_t s, float_t BPN[3][3])
+void computeBPNmatrix( double X, double Y, double s, double BPN[3][3])
 {
-    float_t    aa;
-    float_t    fXY[3][3];
-    float_t    fs[3][3];
+    double    aa;
+    double    fXY[3][3];
+    double    fs[3][3];
 
     aa = 1/(1 + sqrt(1 - X*X - Y*Y) );
 
@@ -748,21 +748,21 @@ void computeBPNmatrix( float_t X, float_t Y, float_t s, float_t BPN[3][3])
  *  vJ2000  = velocity in J2000 reference frame
  *  B       = Frame Bias matrix, e.g. r_gcrf = B * r_j2000
  */
-void gcrf2j2000(float_t *xEci, float_t *vEci,
-                float_t *xJ2000, float_t *vJ2000, float_t B[4][4])
+void gcrf2j2000(double *xEci, double *vEci,
+                double *xJ2000, double *vJ2000, double B[4][4])
 {
     /* 
     // Computations for matrix. Since matrix is constant it is simply inputted: 
-    float_t    arcsec2rad;
-    float_t    delta_a0;
-    float_t    delta_psiB;
-    float_t    epsilon0;
-    float_t    eta0;
-    float_t    zeta0;
-    float_t    r3[4][4];
-    float_t    r2[4][4];
-    float_t    r1[4][4];
-    float_t    temp[4][4];
+    double    arcsec2rad;
+    double    delta_a0;
+    double    delta_psiB;
+    double    epsilon0;
+    double    eta0;
+    double    zeta0;
+    double    r3[4][4];
+    double    r2[4][4];
+    double    r1[4][4];
+    double    temp[4][4];
 
     arcsec2rad = 4.8481368e-6; //[arcsec]->[rad]
 
@@ -810,22 +810,22 @@ void gcrf2j2000(float_t *xEci, float_t *vEci,
  *  vEci    = velocity in GCRF reference frame
  *  B       = Frame Bias matrix, e.g. r_gcrf = B * r_j2000
  */
-void j20002gcrf(float_t *xJ2000, float_t *vJ2000, 
-                float_t *xEci, float_t *vEci, float_t B[4][4])
+void j20002gcrf(double *xJ2000, double *vJ2000,
+                double *xEci, double *vEci, double B[4][4])
 {
-    float_t    B_trans[4][4];
+    double    B_trans[4][4];
     /* 
     // Computations for matrix. Since matrix is constant it is simply inputted: 
-    float_t    arcsec2rad;
-    float_t    delta_a0;
-    float_t    delta_psiB;
-    float_t    epsilon0;
-    float_t    eta0;
-    float_t    zeta0;
-    float_t    r3[4][4];
-    float_t    r2[4][4];
-    float_t    r1[4][4];
-    float_t    temp[4][4];
+    double    arcsec2rad;
+    double    delta_a0;
+    double    delta_psiB;
+    double    epsilon0;
+    double    eta0;
+    double    zeta0;
+    double    r3[4][4];
+    double    r2[4][4];
+    double    r1[4][4];
+    double    temp[4][4];
 
     arcsec2rad = 4.8481368e-6; //[arcsec]->[rad]
 
@@ -860,15 +860,15 @@ void j20002gcrf(float_t *xJ2000, float_t *vJ2000,
 }
 
 void initArray(fpArray *a, int initialSize) {
-  a->array = (float_t *)malloc(initialSize * sizeof(float_t));
+  a->array = (double *)malloc(initialSize * sizeof(double));
   a->used = 0;
   a->size = initialSize;
 }
 
-void insertArray(fpArray *a, float_t element) {
+void insertArray(fpArray *a, double element) {
   if (a->used == a->size) {
     a->size *= 2;
-    a->array = (float_t *)realloc(a->array, a->size * sizeof(float_t));
+    a->array = (double *)realloc(a->array, a->size * sizeof(double));
   }
   a->array[a->used++] = element;
 }
@@ -882,16 +882,16 @@ void freeArray(fpArray *a) {
 void initDoubleArray(fpDoubleArray *a, int initialDim1, int initialDim2) {
     int i;
 
-    a->array = (float_t**)malloc(initialDim1 * sizeof(float_t*));
+    a->array = (double**)malloc(initialDim1 * sizeof(double*));
     for (i = 0; i < initialDim1; i++) {
-        a->array[i] = (float_t *)malloc(initialDim2 * sizeof(float_t));
+        a->array[i] = (double *)malloc(initialDim2 * sizeof(double));
     }
     a->used = 0;
     a->sizeX = initialDim1;
     a->sizeY = initialDim2;
 }
 
-void Mult1xN_NxM( fpArray *a, fpDoubleArray *b, float_t *c ) {
+void Mult1xN_NxM( fpArray *a, fpDoubleArray *b, double *c ) {
     int i;
     int j;
     int N;
