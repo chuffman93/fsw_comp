@@ -368,14 +368,15 @@ void CMDServer::UpdateBeacon() {
 	tempBeacon.satTime = getTimeInSec();
 
 	GPSServer * gpsServer = static_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
-	tempBeacon.GPSWeek = gpsServer->GPSDataHolder->GPSWeek;
-	tempBeacon.GPSSec = gpsServer->GPSDataHolder->GPSSec;
-	tempBeacon.xPosition = gpsServer->GPSDataHolder->posX;
-	tempBeacon.yPosition = gpsServer->GPSDataHolder->posY;
-	tempBeacon.zPosition = gpsServer->GPSDataHolder->posZ;
-	tempBeacon.xVelocity = gpsServer->GPSDataHolder->velX;
-	tempBeacon.yVelocity = gpsServer->GPSDataHolder->velY;
-	tempBeacon.zVelocity = gpsServer->GPSDataHolder->velZ;
+	GPSPositionTime * gpsData = gpsServer->GetGPSDataPtr();
+	tempBeacon.GPSWeek = gpsData->GPSWeek;
+	tempBeacon.GPSSec = gpsData->GPSSec;
+	tempBeacon.xPosition = gpsData->posX;
+	tempBeacon.yPosition = gpsData->posY;
+	tempBeacon.zPosition = gpsData->posZ;
+	tempBeacon.xVelocity = gpsData->velX;
+	tempBeacon.yVelocity = gpsData->velY;
+	tempBeacon.zVelocity = gpsData->velZ;
 
 	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	tempBeacon.systemMode = modeManager->GetMode();

@@ -35,6 +35,7 @@ namespace Servers {
 bool BESTXYZProcess(char * buffer, const size_t size) {
 	GPSServer * gpsServer = static_cast<GPSServer *>(Factory::GetInstance(GPS_SERVER_SINGLETON));
 	Logger * logger = static_cast<Logger *>(Factory::GetInstance(LOGGER_SINGLETON));
+	GPSPositionTime tempData(0,0,0,0,0,0,0,0);
 	char * token;
 	char * buffPtr = buffer;
 	bool solSuccess = true;
@@ -82,44 +83,38 @@ bool BESTXYZProcess(char * buffer, const size_t size) {
 	if (strcmp("UNKNOWN", strtok(NULL, ",")) != 0) { // time status is ok
 		updateTime = true;
 	}
-	uint16 tempWeek = (uint16) strtoul(strtok(NULL, ","), NULL, 10);
-	float tempSec = strtof(strtok(NULL, ","), NULL);
+	tempData.GPSWeek = (uint16) strtoul(strtok(NULL, ","), NULL, 10);
+	tempData.GPSSec = strtof(strtok(NULL, ","), NULL);
 	token = strtok(NULL, ","); // (UNUSED) receiver status
 	token = strtok(NULL, ","); // (UNUSED) port
 	token = strtok(NULL, ","); // (UNUSED) reserved for vendor
 	token = strtok(NULL, ","); // (UNUSED) software build
 
 	// parse the position log part of the message
-	double tempPX = 0;
-	double tempPY = 0;
-	double tempPZ = 0;
 	if (strcmp("SOL_COMPUTED", strtok(log, ",")) != 0) {
 		logger->Debug("GPSStdTasks: No position solution computed!");
 		solSuccess = false;
 	} else {
 		logger->Debug("GPSStdTasks: Valid position solution computed!");
 		token = strtok(NULL, ","); // (UNUSED) position type
-		tempPX = strtod(strtok(NULL, ","), NULL);
-		tempPY = strtod(strtok(NULL, ","), NULL);
-		tempPZ = strtod(strtok(NULL, ","), NULL);
+		tempData.posX = strtod(strtok(NULL, ","), NULL);
+		tempData.posY = strtod(strtok(NULL, ","), NULL);
+		tempData.posZ = strtod(strtok(NULL, ","), NULL);
 		token = strtok(NULL, ","); // (UNUSED) std dev x
 		token = strtok(NULL, ","); // (UNUSED) std dev y
 		token = strtok(NULL, ","); // (UNUSED) std dev z
 	}
 
 	// parse the velocity log part of the message
-	double tempVX = 0;
-	double tempVY = 0;
-	double tempVZ = 0;
 	if (strcmp("SOL_COMPUTED", strtok(NULL, ",")) != 0) {
 		logger->Debug("GPSStdTasks: No velocity solution computed!");
 		solSuccess = false;
 	} else {
 		logger->Debug("GPSStdTasks: Valid velocity solution computed!");
 		token = strtok(NULL, ","); // (UNUSED) velocity type
-		tempVX = strtod(strtok(NULL, ","), NULL);
-		tempVY = strtod(strtok(NULL, ","), NULL);
-		tempVZ = strtod(strtok(NULL, ","), NULL);
+		tempData.velX = strtod(strtok(NULL, ","), NULL);
+		tempData.velY = strtod(strtok(NULL, ","), NULL);
+		tempData.velZ = strtod(strtok(NULL, ","), NULL);
 		token = strtok(NULL, ","); // (UNUSED) std dev x
 		token = strtok(NULL, ","); // (UNUSED) std dev y
 		token = strtok(NULL, ","); // (UNUSED) std dev z
@@ -140,7 +135,7 @@ bool BESTXYZProcess(char * buffer, const size_t size) {
 	token = strtok(NULL, ","); // (UNUSED) signals used
 
 	if (updateTime) {
-		UpdateTime(tempWeek, tempSec);
+		UpdateTime(tempData.GPSWeek, tempData.GPSSec);
 	}
 
 	if (!solSuccess) {
@@ -149,14 +144,7 @@ bool BESTXYZProcess(char * buffer, const size_t size) {
 	}
 
 	logger->Debug("GPSStdTasks: Good BESTXYZ data");
-	gpsServer->GPSDataHolder->GPSWeek = tempWeek;
-	gpsServer->GPSDataHolder->GPSSec = tempSec;
-	gpsServer->GPSDataHolder->posX = tempPX;
-	gpsServer->GPSDataHolder->posY = tempPY;
-	gpsServer->GPSDataHolder->posZ = tempPZ;
-	gpsServer->GPSDataHolder->velX = tempVX;
-	gpsServer->GPSDataHolder->velY = tempVY;
-	gpsServer->GPSDataHolder->velZ = tempVZ;
+	gpsServer->UpdateECEFData(&tempData);
 	gpsServer->numTracked = tempTracked;
 
 	return true;

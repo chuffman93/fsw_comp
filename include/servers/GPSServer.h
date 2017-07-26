@@ -57,12 +57,12 @@ public:
 
 	bool GetECIData(uint8 buffer[GPSInertial::size]);
 
+	void UpdateECEFData(GPSPositionTime * data);
+
 	bool updateConfig(void);
 	void bootConfig(void);
 
 	uint8 numTracked;
-	static GPSPositionTime * GPSDataHolder;
-	static GPSInertial GPSInertialCoords;
 
 private:
 	bool IsFullyInitialized(void);
@@ -75,12 +75,16 @@ private:
 	void RestartGPS(void);
 	bool ConfigureGPS();
 
+	static GPSPositionTime * GPSDataHolder;
+	static GPSInertial * GPSInertialCoords;
+
 	int GPSFileDescriptor;
 
 	GPSReadType ReadData(char * buffer, int fd);
 
 	void UpdateAndPropagate();
 	void ECItoOE();
+	void ECItoECEF();
 	void ECEFtoECI();
 	void UpdateOEfromConfig();
 	// GPS Port configurations

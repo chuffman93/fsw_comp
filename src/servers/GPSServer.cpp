@@ -41,7 +41,7 @@ namespace Servers {
 
 const char * GPSServer::portname = (char *) "/dev/ttyS1";
 GPSLockType GPSServer::lastLock = {{0.0, 0.0, 0.0, 0.0, 0.0, 0.0}, -1.0};
-GPSInertial GPSServer::GPSInertialCoords(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0);
+GPSInertial * GPSServer::GPSInertialCoords = new GPSInertial(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0);
 GPSPositionTime * GPSServer::GPSDataHolder = new GPSPositionTime(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 103, 1500.0);
 
 GPSServer::GPSServer(string nameIn, LocationIDType idIn) :
@@ -145,6 +145,7 @@ void GPSServer::SubsystemLoop(void) {
 			if (readTime > lastUpdate + 2000) { // update with the propagator if it's been 2 seconds
 				lastUpdate = readTime;
 				UpdateAndPropagate();
+				ECItoECEF();
 			}
 			break;
 		case GPS_LOCK:
@@ -236,9 +237,14 @@ bool GPSServer::ConfigureGPS(void) {
 double GPSServer::DistanceTo(double target[3]) {
 	double current[3];
 	double difference[3];
-	current[0] = GPSDataHolder->posX;
-	current[1] = GPSDataHolder->posY;
-	current[2] = GPSDataHolder->posZ;
+	if (this->TakeLock(MAX_BLOCK_TIME)) {
+		current[0] = GPSDataHolder->posX;
+		current[1] = GPSDataHolder->posY;
+		current[2] = GPSDataHolder->posZ;
+		this->GiveLock();
+	} else {
+		return 10000.0; // arbitrarily large
+	}
 
 	// subtract the position vectors to find the distance vector
 	for (uint8 i = 0; i < 3; i++) {
@@ -312,11 +318,7 @@ GPSReadType GPSServer::ReadData(char * buffer, int fd) {
 }
 
 GPSPositionTime * GPSServer::GetGPSDataPtr(void) {
-	if (true == this->TakeLock(MAX_BLOCK_TIME)) {
-		this->GiveLock();
-		return GPSDataHolder;
-	}
-	return NULL;
+	return GPSDataHolder;
 }
 
 void GPSServer::UpdateAndPropagate() {
@@ -328,13 +330,13 @@ void GPSServer::UpdateAndPropagate() {
 	propagatePositionVelocity(lastLock.elements, propTime, eciPos, eciVel);
 
 	if (this->TakeLock(MAX_BLOCK_TIME)) {
-		GPSInertialCoords.posX = eciPos[0];
-		GPSInertialCoords.posY = eciPos[1];
-		GPSInertialCoords.posZ = eciPos[2];
-		GPSInertialCoords.velX = eciVel[0];
-		GPSInertialCoords.velY = eciVel[1];
-		GPSInertialCoords.velZ = eciVel[2];
-		ConvertToGPSTime(currTime/1000, &(GPSInertialCoords.GPSWeek), &(GPSInertialCoords.GPSSec));
+		GPSInertialCoords->posX = eciPos[0];
+		GPSInertialCoords->posY = eciPos[1];
+		GPSInertialCoords->posZ = eciPos[2];
+		GPSInertialCoords->velX = eciVel[0];
+		GPSInertialCoords->velY = eciVel[1];
+		GPSInertialCoords->velZ = eciVel[2];
+		ConvertToGPSTime(currTime/1000, &(GPSInertialCoords->GPSWeek), &(GPSInertialCoords->GPSSec));
 		inertialTime = currTime;
 		this->GiveLock();
 	} else {
@@ -346,12 +348,12 @@ void GPSServer::UpdateAndPropagate() {
 void GPSServer::ECItoOE() {
 	float r[4];
 	float v[4];
-	r[1] = GPSInertialCoords.posX;
-	r[2] = GPSInertialCoords.posY;
-	r[3] = GPSInertialCoords.posZ;
-	v[1] = GPSInertialCoords.velX;
-	v[2] = GPSInertialCoords.velY;
-	v[3] = GPSInertialCoords.velZ;
+	r[1] = GPSInertialCoords->posX;
+	r[2] = GPSInertialCoords->posY;
+	r[3] = GPSInertialCoords->posZ;
+	v[1] = GPSInertialCoords->velX;
+	v[2] = GPSInertialCoords->velY;
+	v[3] = GPSInertialCoords->velZ;
 
 	if (this->TakeLock(MAX_BLOCK_TIME)) {
 		lastLock.sysTime = inertialTime / 1000.0;
@@ -360,6 +362,41 @@ void GPSServer::ECItoOE() {
 	} else {
 		Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 		logger->Warning("GPSServer::ECItoOE unable to take lock");
+	}
+}
+
+void GPSServer::ECItoECEF() {
+	// arrays for the rotation
+	double posECI[3];
+	double velECI[3];
+	double posECEF[3];
+	double velECEF[3];
+	double gpsTime[2];
+
+	posECI[0] = GPSInertialCoords->posX;
+	posECI[1] = GPSInertialCoords->posY;
+	posECI[2] = GPSInertialCoords->posZ;
+	velECI[0] = GPSInertialCoords->velX;
+	velECI[1] = GPSInertialCoords->velY;
+	velECI[2] = GPSInertialCoords->velZ;
+	gpsTime[0] = GPSInertialCoords->GPSWeek;
+	gpsTime[1] = GPSInertialCoords->GPSSec;
+
+	gcrf2wgs(posECI, velECI, gpsTime, posECEF, velECEF);
+
+	if (this->TakeLock(MAX_BLOCK_TIME)) {
+		GPSDataHolder->posX = posECEF[0];
+		GPSDataHolder->posY = posECEF[1];
+		GPSDataHolder->posZ = posECEF[2];
+		GPSDataHolder->velX = velECEF[0];
+		GPSDataHolder->velY = velECEF[1];
+		GPSDataHolder->velZ = velECEF[2];
+		GPSDataHolder->GPSWeek = GPSInertialCoords->GPSWeek;
+		GPSDataHolder->GPSSec = GPSInertialCoords->GPSSec;
+		this->GiveLock();
+	} else {
+		Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+		logger->Warning("GPSServer::ECItoECEF unable to take lock");
 	}
 }
 
@@ -383,14 +420,14 @@ void GPSServer::ECEFtoECI() {
 	wgs2gcrf(posECEF, velECEF, gpsTime, posECI, velECI);
 
 	if (this->TakeLock(MAX_BLOCK_TIME)) {
-		GPSInertialCoords.posX = posECI[0];
-		GPSInertialCoords.posY = posECI[1];
-		GPSInertialCoords.posZ = posECI[2];
-		GPSInertialCoords.velX = velECI[0];
-		GPSInertialCoords.velY = velECI[1];
-		GPSInertialCoords.velZ = velECI[2];
-		GPSInertialCoords.GPSWeek = GPSDataHolder->GPSWeek;
-		GPSInertialCoords.GPSSec = GPSDataHolder->GPSSec;
+		GPSInertialCoords->posX = posECI[0];
+		GPSInertialCoords->posY = posECI[1];
+		GPSInertialCoords->posZ = posECI[2];
+		GPSInertialCoords->velX = velECI[0];
+		GPSInertialCoords->velY = velECI[1];
+		GPSInertialCoords->velZ = velECI[2];
+		GPSInertialCoords->GPSWeek = GPSDataHolder->GPSWeek;
+		GPSInertialCoords->GPSSec = GPSDataHolder->GPSSec;
 		this->GiveLock();
 	} else {
 		Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
@@ -398,10 +435,27 @@ void GPSServer::ECEFtoECI() {
 	}
 }
 
+void GPSServer::UpdateECEFData(GPSPositionTime * data) {
+	if (this->TakeLock(MAX_BLOCK_TIME)) {
+		GPSDataHolder->posX = data->posX;
+		GPSDataHolder->posY = data->posY;
+		GPSDataHolder->posZ = data->posZ;
+		GPSDataHolder->velX = data->velX;
+		GPSDataHolder->velY = data->velY;
+		GPSDataHolder->velZ = data->velZ;
+		GPSDataHolder->GPSWeek = data->GPSWeek;
+		GPSDataHolder->GPSSec = data->GPSSec;
+		this->GiveLock();
+	} else {
+		Logger * logger = dynamic_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+		logger->Warning("GPSServer::UpdateECEFData unable to take lock");
+	}
+}
+
 bool GPSServer::GetECIData(uint8 buffer[GPSInertial::size]) {
 	if (this->TakeLock(MAX_BLOCK_TIME)) {
-		GPSInertialCoords.update(buffer, GPSInertial::size);
-		GPSInertialCoords.serialize();
+		GPSInertialCoords->update(buffer, GPSInertial::size);
+		GPSInertialCoords->serialize();
 		this->GiveLock();
 		return true;
 	} else {
