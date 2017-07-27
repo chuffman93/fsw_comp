@@ -138,6 +138,7 @@ void GPSServer::SubsystemLoop(void) {
 			}
 
 			if (!propagating) {
+				logger->Info("GPSServer: no lock, starting propagation");
 				propagating = true;
 				ECItoOE();
 			}
@@ -151,6 +152,7 @@ void GPSServer::SubsystemLoop(void) {
 		case GPS_LOCK:
 			noOE = false;
 			if (propagating) {
+				logger->Info("GPSServer: lock, ending propagation");
 				propagating = false;
 			}
 
@@ -253,6 +255,7 @@ double GPSServer::DistanceTo(double target[3]) {
 
 	// r = sqrt(x^2 + y^2 + z^2)
 	double distance = sqrt(pow(difference[0],2) + pow(difference[1],2) + pow(difference[2],2));
+	printf("distance: %f\n", distance);
 	return distance;
 }
 
@@ -267,51 +270,51 @@ GPSReadType GPSServer::ReadData(char * buffer, int fd) {
 
 	// Check that there's data
 	if (read(fd,&c,1) == 1) {
-		// Check the first character
+		while (c != '#' && read(fd, &c, 1) == 1);
+
 		if (c != '#') {
-			logger->SuperDebug("GPSServer: Data doesn't start with '#'");
-			while(read(fd,&c,1) == 1); // if wrong char, clear the buffer (ensures that we stay up-to-date and aligned with the data stream)
-			return GPS_NO_LOCK;
-		} else {
-			// read while there's more data, and ensure we don't overflow the buffer
-			while(read(fd,&c,1) == 1){
-				buffer[counter++] = c;
+			logger->Debug("GPSServer: character is not '#'");
+			return GPS_NO_DATA;
+		}
 
-				// if we've reached the CRC
-				if (c == '*') {
-					if (counter > 339) {
-						logger->Warning("GPSServer: BESTXYZ too long!");
-						return GPS_NO_LOCK;
-					}
+		while (read(fd,&c,1) == 1) {
+			buffer[counter++] = c;
 
-					for (uint8 i = 0; i < 10; i++) {
-						readSuccess &= (read(fd,&c,1) == 1);
-						buffer[counter++] = c;
-					}
-
-					if (readSuccess) {
-						break;
-					} else {
-						logger->Warning("GPSServer: error reading CRC from serial");
-						return GPS_NO_LOCK;
-					}
+			// if we've reached the CRC
+			if (c == '*') {
+				if (counter > 339) {
+					logger->Warning("GPSServer: BESTXYZ too long!");
+					return GPS_NO_LOCK;
 				}
 
-				// Ensure that the buffer doesn't overflow
-				if(counter == 350){
-					logger->Warning("GPSServer: Data too long!");
+				for (uint8 i = 0; i < 10; i++) {
+					readSuccess &= (read(fd,&c,1) == 1);
+					buffer[counter++] = c;
+				}
+
+				if (readSuccess) {
+					break;
+				} else {
+					logger->Warning("GPSServer: error reading CRC from serial");
 					return GPS_NO_LOCK;
 				}
 			}
 
-			logger->Debug("GPSServer: Read data from GPS, now processing...");
-
-			if (!BESTXYZProcess(buffer, counter)) {
-				logger->Debug("GPSServer: Bad BESTXYZ");
+			// Ensure that the buffer doesn't overflow
+			if(counter == 350){
+				logger->Warning("GPSServer: Data too long!");
 				return GPS_NO_LOCK;
 			}
-			return GPS_LOCK;
 		}
+
+		logger->Debug("GPSServer: Read data from GPS, now processing...");
+
+		if (!BESTXYZProcess(buffer, counter)) {
+			logger->Debug("GPSServer: Bad BESTXYZ");
+			return GPS_NO_LOCK;
+		}
+		return GPS_LOCK;
+//		}
 	} else {
 		return GPS_NO_DATA;
 	}

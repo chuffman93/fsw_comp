@@ -83,7 +83,7 @@ void CMDServer::loopInit(void){
 	currentState = ST_IDLE;
 }
 
-void CMDServer::loopIdle(void){
+void CMDServer::loopIdle(void) {
 	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	Dispatcher * dispatcher = static_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
@@ -114,7 +114,11 @@ void CMDServer::loopIdle(void){
 	}
 
 	// Monitor daily reset
-	if(getTimeInSec() > (startTime + CMDConfiguration.resetPeriod) && (modeManager->GetMode() == MODE_BUS_PRIORITY)){
+	int64 currTime = getTimeInSec();
+	if (currTime > startTime + 400000) {
+		// an arbitrarily large amount of time has passed, assume the time was updated from GPS and reset the start time
+		startTime = currTime;
+	} else if (currTime > (startTime + CMDConfiguration.resetPeriod) && (modeManager->GetMode() == MODE_BUS_PRIORITY)) { // time to reboot
 		SCHServer * schServer = static_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
 		schServer->RequestReset();
 		currentState = ST_RESET;

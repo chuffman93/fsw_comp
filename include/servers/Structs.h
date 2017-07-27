@@ -285,11 +285,11 @@ class SCHItem : public Serialize {
 public:
   const static int size = 42;
   SCHItem();
-  SCHItem(double ecefPos[3], double radius, uint8 enter_mode, int32 timeout, uint8 mode, int32 duration);
+  SCHItem(double ecefPos[3], double radius, uint8 enter_mode, uint32 timeout, uint8 mode, int32 duration);
   double ecefPos[3]; 
   double radius; 
   uint8 enter_mode; 
-  int32 timeout; 
+  uint32 timeout; 
   uint8 mode; 
   int32 duration; 
   void serialize(void);

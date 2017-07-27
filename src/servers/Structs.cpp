@@ -558,7 +558,7 @@ void PLDConfig::deserialize(void) {
 
 SCHItem::SCHItem() { }
 
-SCHItem::SCHItem(double ecefPos[3], double radius, uint8 enter_mode, int32 timeout, uint8 mode, int32 duration) {
+SCHItem::SCHItem(double ecefPos[3], double radius, uint8 enter_mode, uint32 timeout, uint8 mode, int32 duration) {
   for (int iter = 0; iter < 3; iter++) {
     this->ecefPos[iter] = ecefPos[iter];
   }
@@ -575,7 +575,7 @@ void SCHItem::serialize(void) {
   }
   this->serialize_double(this->radius);
   this->serialize_uint8(this->enter_mode);
-  this->serialize_int32(this->timeout);
+  this->serialize_uint32(this->timeout);
   this->serialize_uint8(this->mode);
   this->serialize_int32(this->duration);
 }
@@ -586,7 +586,7 @@ void SCHItem::deserialize(void) {
   }
   this->radius = this->deserialize_double();
   this->enter_mode = this->deserialize_uint8();
-  this->timeout = this->deserialize_int32();
+  this->timeout = this->deserialize_uint32();
   this->mode = this->deserialize_uint8();
   this->duration = this->deserialize_int32();
 }

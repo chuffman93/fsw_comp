@@ -242,7 +242,7 @@ void SCHServer::SubsystemLoop(void) {
 				logger->Info("In range of schedule event, setting mode");
 				SystemModeEnum currentMode = modeManager->GetMode();
 
-				if (currentMode == MODE_BUS_PRIORITY && (lastBusEnter + 10 < getTimeInSec())) { // make sure we've been in bus priority mode for >10 seconds
+				if (currentMode == MODE_BUS_PRIORITY && ((lastBusEnter + 10) < getTimeInSec())) { // make sure we've been in bus priority mode for >10 seconds
 					modeManager->SetMode((SystemModeEnum) currentEvent.mode);
 					itemEntered = true;
 					modeEnterTime = getTimeInSec();
@@ -255,7 +255,7 @@ void SCHServer::SubsystemLoop(void) {
 					logger->Info("Schedule event timeout exceeded, entering mode");
 					SystemModeEnum currentMode = modeManager->GetMode();
 
-					if (currentMode == MODE_BUS_PRIORITY && (lastBusEnter + 10 < getTimeInSec())) { // make sure we've been in bus priority mode for >10 seconds
+					if (currentMode == MODE_BUS_PRIORITY && ((lastBusEnter + 10) < getTimeInSec())) { // make sure we've been in bus priority mode for >10 seconds
 						modeManager->SetMode((SystemModeEnum) currentEvent.mode);
 						itemEntered = true;
 						modeEnterTime = getTimeInSec();
