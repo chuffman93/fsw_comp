@@ -98,6 +98,12 @@ ERR
 SPI packet failure to PLD. Opcode: %u
 uint8
 
+GPS_CONFIG_FAIL
+0x0009
+ERR
+Error configuring GPS over serial
+None
+
 # -------------------------- MOD --------------------------
 MODE_SWITCH
 0x0100
@@ -572,6 +578,18 @@ SCH_SERVER_STARTED
 0x0509
 GEN
 SCH server started
+None
+
+BEGIN_PROPAGATION
+0x050a
+GEN
+Starting GPS propagation
+None
+
+END_PROPAGATION
+0x050b
+GEN
+Lock acquired, ending GPS propagation
 None
 
 # -------------------------- PWR --------------------------

@@ -38,7 +38,7 @@ using namespace AllStar::Core;
 namespace AllStar{
 namespace Servers{
 
-CMDConfig CMDServer::CMDConfiguration(360,1000,1000,10,10);
+CMDConfig CMDServer::CMDConfiguration(360,1000,1000,10,10,10);
 
 CMDServer::CMDServer(string nameIn, LocationIDType idIn) :
 		SubsystemServer(nameIn, idIn), Singleton(), numFilesDWN(0), currFileNum(0), uftp_pid(-1), downlinkInProgress(false) {
@@ -83,7 +83,7 @@ void CMDServer::loopInit(void){
 	currentState = ST_IDLE;
 }
 
-void CMDServer::loopIdle(void){
+void CMDServer::loopIdle(void) {
 	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	Dispatcher * dispatcher = static_cast<Dispatcher *> (Factory::GetInstance(DISPATCHER_SINGLETON));
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
@@ -114,7 +114,11 @@ void CMDServer::loopIdle(void){
 	}
 
 	// Monitor daily reset
-	if(getTimeInSec() > (startTime + CMDConfiguration.resetPeriod) && (modeManager->GetMode() == MODE_BUS_PRIORITY)){
+	int64 currTime = getTimeInSec();
+	if (currTime > startTime + 400000) {
+		// an arbitrarily large amount of time has passed, assume the time was updated from GPS and reset the start time
+		startTime = currTime;
+	} else if (currTime > (startTime + CMDConfiguration.resetPeriod) && (modeManager->GetMode() == MODE_BUS_PRIORITY)) { // time to reboot
 		SCHServer * schServer = static_cast<SCHServer *> (Factory::GetInstance(SCH_SERVER_SINGLETON));
 		schServer->RequestReset();
 		currentState = ST_RESET;
@@ -330,6 +334,9 @@ void CMDServer::loopReset(){
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Info("Daily reset encountered");
 	TLM_DAILY_RESET();
+	char cmd[100];
+	sprintf(cmd, "echo %u > " REBOOT_TIME_FILE, getTimeInSec() + CMDConfiguration.expectedRebootDuration);
+	system(cmd);
 
 	wdmAsleep();
 	for(uint8 i = 0; i < 30; i++){
@@ -338,6 +345,8 @@ void CMDServer::loopReset(){
 	wdmAlive();
 
 	logger->Error("Daily reset failed, performing reboot");
+	sprintf(cmd, "echo %u > " REBOOT_TIME_FILE, getTimeInSec() + 5);
+	system(cmd);
 	system("reboot");
 	currentState = ST_IDLE;
 }
@@ -363,14 +372,15 @@ void CMDServer::UpdateBeacon() {
 	tempBeacon.satTime = getTimeInSec();
 
 	GPSServer * gpsServer = static_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
-	tempBeacon.GPSWeek = gpsServer->GPSDataHolder->GPSWeek;
-	tempBeacon.GPSSec = gpsServer->GPSDataHolder->GPSSec;
-	tempBeacon.xPosition = gpsServer->GPSDataHolder->posX;
-	tempBeacon.yPosition = gpsServer->GPSDataHolder->posY;
-	tempBeacon.zPosition = gpsServer->GPSDataHolder->posZ;
-	tempBeacon.xVelocity = gpsServer->GPSDataHolder->velX;
-	tempBeacon.yVelocity = gpsServer->GPSDataHolder->velY;
-	tempBeacon.zVelocity = gpsServer->GPSDataHolder->velZ;
+	GPSPositionTime * gpsData = gpsServer->GetGPSDataPtr();
+	tempBeacon.GPSWeek = gpsData->GPSWeek;
+	tempBeacon.GPSSec = gpsData->GPSSec;
+	tempBeacon.xPosition = gpsData->posX;
+	tempBeacon.yPosition = gpsData->posY;
+	tempBeacon.zPosition = gpsData->posZ;
+	tempBeacon.xVelocity = gpsData->velX;
+	tempBeacon.yVelocity = gpsData->velY;
+	tempBeacon.zVelocity = gpsData->velZ;
 
 	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	tempBeacon.systemMode = modeManager->GetMode();

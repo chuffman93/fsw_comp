@@ -111,8 +111,6 @@ void ACSPrepReset() {
 
 // Diagnostic
 bool ACSTestAlive() {
-	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
-
 	ACPPacket * query = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, TEST_ALIVE_CMD);
 	ACPPacket * ret = DispatchPacket(query);
 
@@ -156,17 +154,12 @@ bool ACSSendGPS() {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Debug("ACSStdTasks: ACSSendGPS(): Entered");
 
-	uint8 * buffer = (uint8 *) malloc(6*sizeof(double)+sizeof(float)+sizeof(int));
-	AddDouble(buffer, gpsServer->GetGPSDataPtr()->posX);
-	AddDouble(buffer + 8, gpsServer->GetGPSDataPtr()->posY);
-	AddDouble(buffer + 16, gpsServer->GetGPSDataPtr()->posZ);
-	AddDouble(buffer + 24, gpsServer->GetGPSDataPtr()->velX);
-	AddDouble(buffer + 32, gpsServer->GetGPSDataPtr()->velY);
-	AddDouble(buffer + 40, gpsServer->GetGPSDataPtr()->velZ);
-	AddUInt32(buffer + 48, gpsServer->GetGPSDataPtr()->GPSWeek);
-	AddFloat(buffer + 52, gpsServer->GetGPSDataPtr()->GPSSec);
+	uint8 * buffer = new uint8[GPSInertial::size];
+	if (!gpsServer->GetECIData(buffer)) {
+		return false;
+	}
 
-	ACPPacket * send = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_GPS_CMD, 6*sizeof(double)+sizeof(float)+sizeof(int), buffer);
+	ACPPacket * send = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_GPS_CMD, GPSPositionTime::size, buffer);
 	ACPPacket * ret = DispatchPacket(send);
 
 	return (ret->isSuccess());

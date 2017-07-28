@@ -154,6 +154,40 @@ public:
   void deserialize(void);
 };
 
+class GPSPositionTime : public Serialize {
+public:
+  const static int size = 54;
+  GPSPositionTime();
+  GPSPositionTime(double posX, double posY, double posZ, double velX, double velY, double velZ, uint16 GPSWeek, float GPSSec);
+  double posX; 
+  double posY; 
+  double posZ; 
+  double velX; 
+  double velY; 
+  double velZ; 
+  uint16 GPSWeek; 
+  float GPSSec; 
+  void serialize(void);
+  void deserialize(void);
+};
+
+class GPSInertial : public Serialize {
+public:
+  const static int size = 54;
+  GPSInertial();
+  GPSInertial(double posX, double posY, double posZ, double velX, double velY, double velZ, uint16 GPSWeek, float GPSSec);
+  double posX; 
+  double posY; 
+  double posZ; 
+  double velX; 
+  double velY; 
+  double velZ; 
+  uint16 GPSWeek; 
+  float GPSSec; 
+  void serialize(void);
+  void deserialize(void);
+};
+
 class ACSConfig : public Serialize {
 public:
   const static int size = 4;
@@ -176,14 +210,15 @@ public:
 
 class CMDConfig : public Serialize {
 public:
-  const static int size = 20;
+  const static int size = 22;
   CMDConfig();
-  CMDConfig(int32 resetPeriod, int32 fileChunkSize, int32 maxDownlinkSize, int32 beaconPeriod, int32 increasedBeaconPeriod);
+  CMDConfig(int32 resetPeriod, int32 fileChunkSize, int32 maxDownlinkSize, int32 beaconPeriod, int32 increasedBeaconPeriod, uint16 expectedRebootDuration);
   int32 resetPeriod; // seconds
   int32 fileChunkSize; 
   int32 maxDownlinkSize; 
   int32 beaconPeriod; 
   int32 increasedBeaconPeriod; 
+  uint16 expectedRebootDuration; 
   void serialize(void);
   void deserialize(void);
 };
@@ -220,6 +255,22 @@ public:
   void deserialize(void);
 };
 
+class GPSConfig : public Serialize {
+public:
+  const static int size = 28;
+  GPSConfig();
+  GPSConfig(float a, float e, float i, float Omega, float omega, float anom, float epochSeconds);
+  float a; // Semi-major axis
+  float e; // Eccentricity
+  float i; // Inclination
+  float Omega; // Right ascension of the ascending node
+  float omega; // Argument of perigee
+  float anom; // True anomoly
+  float epochSeconds; // [rad]
+  void serialize(void);
+  void deserialize(void);
+};
+
 class PLDConfig : public Serialize {
 public:
   const static int size = 4;
@@ -232,14 +283,13 @@ public:
 
 class SCHItem : public Serialize {
 public:
-  const static int size = 34;
+  const static int size = 42;
   SCHItem();
-  SCHItem(double latitude, double longitude, double radius, uint8 enter_mode, int32 timeout, uint8 mode, int32 duration);
-  double latitude; 
-  double longitude; 
+  SCHItem(double ecefPos[3], double radius, uint8 enter_mode, uint32 timeout, uint8 mode, int32 duration);
+  double ecefPos[3]; 
   double radius; 
   uint8 enter_mode; 
-  int32 timeout; 
+  uint32 timeout; 
   uint8 mode; 
   int32 duration; 
   void serialize(void);

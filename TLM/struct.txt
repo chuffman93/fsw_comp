@@ -88,6 +88,26 @@ EPSStatus
 	uint16 convCurrentW
 	uint16 convThreshW
 
+GPSPositionTime
+	double posX
+	double posY
+	double posZ
+	double velX
+	double velY
+	double velZ
+	uint16 GPSWeek
+	float GPSSec
+
+GPSInertial
+	double posX
+	double posY
+	double posZ
+	double velX
+	double velY
+	double velZ
+	uint16 GPSWeek
+	float GPSSec
+
 ACSConfig
 	int32 testConfig
 
@@ -100,6 +120,7 @@ CMDConfig
 	int32 maxDownlinkSize
 	int32 beaconPeriod
 	int32 increasedBeaconPeriod
+	uint16 expectedRebootDuration
 
 COMConfig
 	int32 testConfig
@@ -112,14 +133,22 @@ EPSConfig
 FMGConfig
 	int32 testConfig
 
+GPSConfig
+	float a // Semi-major axis
+	float e // Eccentricity
+	float i // Inclination
+	float Omega // Right ascension of the ascending node
+	float omega // Argument of perigee
+	float anom // True anomoly
+	float epochSeconds // [rad]
+
 PLDConfig
 	int32 chunkSize
 
 SCHItem
-	double latitude
-	double longitude
+	double ecefPos[3]
 	double radius
 	uint8 enter_mode
-	int32 timeout
+	uint32 timeout
 	uint8 mode
 	int32 duration

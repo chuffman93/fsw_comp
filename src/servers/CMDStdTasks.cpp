@@ -18,6 +18,7 @@
 #include "servers/CDHServer.h"
 #include "servers/EPSServer.h"
 #include "servers/ACSServer.h"
+#include "servers/GPSServer.h"
 #include "servers/PLDServer.h"
 #include "servers/DispatchStdTasks.h"
 #include "servers/FileSystem.h"
@@ -685,9 +686,12 @@ void processUplinkFiles(void) {
 
 	// Update GPS config
 	if (access(GPS_CFG_UP, F_OK) != -1) {
-		remove(GPS_CFG_UP);
-		//gpsServer->updateConfig();
-		logger->Error("CMDStdTasks: GPS config not implemented");
+		GPSServer * gpsServer = static_cast<GPSServer *> (Factory::GetInstance(GPS_SERVER_SINGLETON));
+		if(gpsServer->updateConfig()) {
+			rename(GPS_CFG_UP, GPS_CONFIG);
+		} else {
+			remove(GPS_CFG_UP);
+		}
 	}
 
 	// Update PLD config

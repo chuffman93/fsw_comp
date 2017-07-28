@@ -11,20 +11,15 @@
 
 using namespace AllStar::Core;
 
-namespace AllStar{
-namespace Servers{
+namespace AllStar {
+namespace Servers {
 
-ACPPacket * GPSHealthStatus();
-ACPPacket * GPSTime();
-ACPPacket * GPSPostion();
-bool GPSConversion();
-ACPPacket * GPSReset();
 bool BESTXYZProcess(char * buffer,const size_t size);
-bool GPRMCProcess(char * buffer, const size_t size);
-double nmea_to_deg(char *nmea);
 uint32 CRCValue_GPS(int i);
 uint32 CalculateCRC_GPS(char * buffer);
-uint8 CalculateNMEAChecksum(char * buffer);
+void UpdateTime(uint16 GPSWeek, float GPSSec);
+void ConvertToEpochTime(uint16 GPSWeek, float GPSSec, uint32 * secondsFromEpoch);
+void ConvertToGPSTime(uint32 currTimeSec, uint16 * GPSWeek, float * GPSSec);
 
 }
 }

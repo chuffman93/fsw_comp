@@ -36,12 +36,6 @@ bool ModeManager::IsFullyInitialized(void){
 	return true;
 }
 
-#ifdef TEST
-void ModeManager::Destroy(void){
-	//SystemMode::Destroy();
-}
-#endif
-
 SystemModeEnum ModeManager::GetMode(void){
 	return mode;
 }

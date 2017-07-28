@@ -49,6 +49,7 @@ namespace Servers{
 #define SCH_CONFIG	 			CONFIG_DIRECTORY	"/SCHConfig"
 #define EPOCH_FILE				CONFIG_DIRECTORY	"/PolarCube_Epoch"
 #define RAD_NUM_FILE			CONFIG_DIRECTORY	"/RAD_Number"
+#define REBOOT_TIME_FILE		CONFIG_DIRECTORY	"/Reboot_Time"
 
 #define SCH_UP					UPLINK_DIRECTORY	"/SCH"
 #define SCHEDULE_FILE 			"/home/root/SCH"

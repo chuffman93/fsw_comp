@@ -335,6 +335,76 @@ void EPSStatus::deserialize(void) {
   this->convThreshW = this->deserialize_uint16();
 }
 
+GPSPositionTime::GPSPositionTime() { }
+
+GPSPositionTime::GPSPositionTime(double posX, double posY, double posZ, double velX, double velY, double velZ, uint16 GPSWeek, float GPSSec) {
+  this->posX = posX;
+  this->posY = posY;
+  this->posZ = posZ;
+  this->velX = velX;
+  this->velY = velY;
+  this->velZ = velZ;
+  this->GPSWeek = GPSWeek;
+  this->GPSSec = GPSSec;
+}
+
+void GPSPositionTime::serialize(void) {
+  this->serialize_double(this->posX);
+  this->serialize_double(this->posY);
+  this->serialize_double(this->posZ);
+  this->serialize_double(this->velX);
+  this->serialize_double(this->velY);
+  this->serialize_double(this->velZ);
+  this->serialize_uint16(this->GPSWeek);
+  this->serialize_float(this->GPSSec);
+}
+
+void GPSPositionTime::deserialize(void) {
+  this->posX = this->deserialize_double();
+  this->posY = this->deserialize_double();
+  this->posZ = this->deserialize_double();
+  this->velX = this->deserialize_double();
+  this->velY = this->deserialize_double();
+  this->velZ = this->deserialize_double();
+  this->GPSWeek = this->deserialize_uint16();
+  this->GPSSec = this->deserialize_float();
+}
+
+GPSInertial::GPSInertial() { }
+
+GPSInertial::GPSInertial(double posX, double posY, double posZ, double velX, double velY, double velZ, uint16 GPSWeek, float GPSSec) {
+  this->posX = posX;
+  this->posY = posY;
+  this->posZ = posZ;
+  this->velX = velX;
+  this->velY = velY;
+  this->velZ = velZ;
+  this->GPSWeek = GPSWeek;
+  this->GPSSec = GPSSec;
+}
+
+void GPSInertial::serialize(void) {
+  this->serialize_double(this->posX);
+  this->serialize_double(this->posY);
+  this->serialize_double(this->posZ);
+  this->serialize_double(this->velX);
+  this->serialize_double(this->velY);
+  this->serialize_double(this->velZ);
+  this->serialize_uint16(this->GPSWeek);
+  this->serialize_float(this->GPSSec);
+}
+
+void GPSInertial::deserialize(void) {
+  this->posX = this->deserialize_double();
+  this->posY = this->deserialize_double();
+  this->posZ = this->deserialize_double();
+  this->velX = this->deserialize_double();
+  this->velY = this->deserialize_double();
+  this->velZ = this->deserialize_double();
+  this->GPSWeek = this->deserialize_uint16();
+  this->GPSSec = this->deserialize_float();
+}
+
 ACSConfig::ACSConfig() { }
 
 ACSConfig::ACSConfig(int32 testConfig) {
@@ -365,12 +435,13 @@ void CDHConfig::deserialize(void) {
 
 CMDConfig::CMDConfig() { }
 
-CMDConfig::CMDConfig(int32 resetPeriod, int32 fileChunkSize, int32 maxDownlinkSize, int32 beaconPeriod, int32 increasedBeaconPeriod) {
+CMDConfig::CMDConfig(int32 resetPeriod, int32 fileChunkSize, int32 maxDownlinkSize, int32 beaconPeriod, int32 increasedBeaconPeriod, uint16 expectedRebootDuration) {
   this->resetPeriod = resetPeriod;
   this->fileChunkSize = fileChunkSize;
   this->maxDownlinkSize = maxDownlinkSize;
   this->beaconPeriod = beaconPeriod;
   this->increasedBeaconPeriod = increasedBeaconPeriod;
+  this->expectedRebootDuration = expectedRebootDuration;
 }
 
 void CMDConfig::serialize(void) {
@@ -379,6 +450,7 @@ void CMDConfig::serialize(void) {
   this->serialize_int32(this->maxDownlinkSize);
   this->serialize_int32(this->beaconPeriod);
   this->serialize_int32(this->increasedBeaconPeriod);
+  this->serialize_uint16(this->expectedRebootDuration);
 }
 
 void CMDConfig::deserialize(void) {
@@ -387,6 +459,7 @@ void CMDConfig::deserialize(void) {
   this->maxDownlinkSize = this->deserialize_int32();
   this->beaconPeriod = this->deserialize_int32();
   this->increasedBeaconPeriod = this->deserialize_int32();
+  this->expectedRebootDuration = this->deserialize_uint16();
 }
 
 COMConfig::COMConfig() { }
@@ -437,6 +510,38 @@ void FMGConfig::deserialize(void) {
   this->testConfig = this->deserialize_int32();
 }
 
+GPSConfig::GPSConfig() { }
+
+GPSConfig::GPSConfig(float a, float e, float i, float Omega, float omega, float anom, float epochSeconds) {
+  this->a = a;
+  this->e = e;
+  this->i = i;
+  this->Omega = Omega;
+  this->omega = omega;
+  this->anom = anom;
+  this->epochSeconds = epochSeconds;
+}
+
+void GPSConfig::serialize(void) {
+  this->serialize_float(this->a);
+  this->serialize_float(this->e);
+  this->serialize_float(this->i);
+  this->serialize_float(this->Omega);
+  this->serialize_float(this->omega);
+  this->serialize_float(this->anom);
+  this->serialize_float(this->epochSeconds);
+}
+
+void GPSConfig::deserialize(void) {
+  this->a = this->deserialize_float();
+  this->e = this->deserialize_float();
+  this->i = this->deserialize_float();
+  this->Omega = this->deserialize_float();
+  this->omega = this->deserialize_float();
+  this->anom = this->deserialize_float();
+  this->epochSeconds = this->deserialize_float();
+}
+
 PLDConfig::PLDConfig() { }
 
 PLDConfig::PLDConfig(int32 chunkSize) {
@@ -453,9 +558,10 @@ void PLDConfig::deserialize(void) {
 
 SCHItem::SCHItem() { }
 
-SCHItem::SCHItem(double latitude, double longitude, double radius, uint8 enter_mode, int32 timeout, uint8 mode, int32 duration) {
-  this->latitude = latitude;
-  this->longitude = longitude;
+SCHItem::SCHItem(double ecefPos[3], double radius, uint8 enter_mode, uint32 timeout, uint8 mode, int32 duration) {
+  for (int iter = 0; iter < 3; iter++) {
+    this->ecefPos[iter] = ecefPos[iter];
+  }
   this->radius = radius;
   this->enter_mode = enter_mode;
   this->timeout = timeout;
@@ -464,21 +570,23 @@ SCHItem::SCHItem(double latitude, double longitude, double radius, uint8 enter_m
 }
 
 void SCHItem::serialize(void) {
-  this->serialize_double(this->latitude);
-  this->serialize_double(this->longitude);
+  for (int iter = 0; iter < 3; iter++) {
+    this->serialize_double(this->ecefPos[iter]);
+  }
   this->serialize_double(this->radius);
   this->serialize_uint8(this->enter_mode);
-  this->serialize_int32(this->timeout);
+  this->serialize_uint32(this->timeout);
   this->serialize_uint8(this->mode);
   this->serialize_int32(this->duration);
 }
 
 void SCHItem::deserialize(void) {
-  this->latitude = this->deserialize_double();
-  this->longitude = this->deserialize_double();
+  for (int iter = 0; iter < 3; iter++) {
+    this->ecefPos[iter] = this->deserialize_double();
+  }
   this->radius = this->deserialize_double();
   this->enter_mode = this->deserialize_uint8();
-  this->timeout = this->deserialize_int32();
+  this->timeout = this->deserialize_uint32();
   this->mode = this->deserialize_uint8();
   this->duration = this->deserialize_int32();
 }
