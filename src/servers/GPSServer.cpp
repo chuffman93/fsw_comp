@@ -122,6 +122,22 @@ void GPSServer::SubsystemLoop(void) {
 				lastData = readTime;
 				lastLock = readTime;
 			}
+
+			if (readTime > lastUpdate + 2000) { // update with the propagator if it's been 2 seconds
+				if (noOE || !timeKnown) {
+					break; // we can't propagate yet
+				}
+
+				if (!propagating) {
+					logger->Info("GPSServer: no data, starting propagation");
+					propagating = true;
+					ECItoOE();
+				}
+
+				lastUpdate = readTime;
+				UpdateAndPropagate();
+				ECItoECEF();
+			}
 			break;
 		case GPS_NO_LOCK:
 			lastData = readTime;
@@ -133,17 +149,17 @@ void GPSServer::SubsystemLoop(void) {
 				lastLock = readTime;
 			}
 
-			if (noOE || !timeKnown) {
-				break; // we can't propagate yet
-			}
-
-			if (!propagating) {
-				logger->Info("GPSServer: no lock, starting propagation");
-				propagating = true;
-				ECItoOE();
-			}
-
 			if (readTime > lastUpdate + 2000) { // update with the propagator if it's been 2 seconds
+				if (noOE || !timeKnown) {
+					break; // we can't propagate yet
+				}
+
+				if (!propagating) {
+					logger->Info("GPSServer: no lock, starting propagation");
+					propagating = true;
+					ECItoOE();
+				}
+
 				lastUpdate = readTime;
 				UpdateAndPropagate();
 				ECItoECEF();
@@ -255,7 +271,6 @@ double GPSServer::DistanceTo(double target[3]) {
 
 	// r = sqrt(x^2 + y^2 + z^2)
 	double distance = sqrt(pow(difference[0],2) + pow(difference[1],2) + pow(difference[2],2));
-	printf("distance: %f\n", distance);
 	return distance;
 }
 
