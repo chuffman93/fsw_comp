@@ -853,3 +853,21 @@ void TLM_SCH_SERVER_STARTED(void) {
   fmgServer->Log(DESTINATION_GEN, buf, size);
 }
 
+void TLM_BEGIN_PROPAGATION(void) {
+  size_t size = 6;
+  uint8_t * buf = (uint8_t *) malloc(size);
+  Serialize ser(buf, size);
+  ser.serialize_int32(getTimeInSec());
+  ser.serialize_uint16(0x050a);
+  fmgServer->Log(DESTINATION_GEN, buf, size);
+}
+
+void TLM_END_PROPAGATION(void) {
+  size_t size = 6;
+  uint8_t * buf = (uint8_t *) malloc(size);
+  Serialize ser(buf, size);
+  ser.serialize_int32(getTimeInSec());
+  ser.serialize_uint16(0x050b);
+  fmgServer->Log(DESTINATION_GEN, buf, size);
+}
+

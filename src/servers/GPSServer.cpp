@@ -130,6 +130,7 @@ void GPSServer::SubsystemLoop(void) {
 
 				if (!propagating) {
 					logger->Info("GPSServer: no data, starting propagation");
+					TLM_BEGIN_PROPAGATION();
 					propagating = true;
 					ECItoOE();
 				}
@@ -156,6 +157,7 @@ void GPSServer::SubsystemLoop(void) {
 
 				if (!propagating) {
 					logger->Info("GPSServer: no lock, starting propagation");
+					TLM_BEGIN_PROPAGATION();
 					propagating = true;
 					ECItoOE();
 				}
@@ -169,6 +171,7 @@ void GPSServer::SubsystemLoop(void) {
 			noOE = false;
 			if (propagating) {
 				logger->Info("GPSServer: lock, ending propagation");
+				TLM_END_PROPAGATION();
 				propagating = false;
 			}
 

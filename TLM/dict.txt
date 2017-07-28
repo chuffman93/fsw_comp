@@ -579,3 +579,15 @@ SCH_SERVER_STARTED
 GEN
 SCH server started
 None
+
+BEGIN_PROPAGATION
+0x050a
+GEN
+Starting GPS propagation
+None
+
+END_PROPAGATION
+0x050b
+GEN
+Lock acquired, ending GPS propagation
+None
