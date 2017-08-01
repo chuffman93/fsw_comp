@@ -41,11 +41,11 @@ namespace Servers {
 
 const char * GPSServer::portname = (char *) "/dev/ttyS1";
 GPSLockType GPSServer::lastLock = {{0.0, 0.0, 0.0, 0.0, 0.0, 0.0}, -1.0};
-GPSInertial * GPSServer::GPSInertialCoords = new GPSInertial(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0);
-GPSPositionTime * GPSServer::GPSDataHolder = new GPSPositionTime(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 103, 1500.0);
+GPSInertial * GPSServer::GPSInertialCoords = new GPSInertial(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0);
+GPSPositionTime * GPSServer::GPSDataHolder = new GPSPositionTime(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0);
 
 GPSServer::GPSServer(string nameIn, LocationIDType idIn) :
-		SubsystemServer(nameIn, idIn), Singleton(), propagating(false), noOE(true), timeKnown(false),
+		SubsystemServer(nameIn, idIn), Singleton(), propagating(true), noOE(true), timeKnown(false),
 		numTracked(0), inertialTime(0), GPSFileDescriptor(0) { }
 
 GPSServer::~GPSServer() { }
@@ -358,6 +358,7 @@ void GPSServer::UpdateAndPropagate() {
 		GPSInertialCoords->velY = eciVel[1];
 		GPSInertialCoords->velZ = eciVel[2];
 		ConvertToGPSTime(currTime/1000, &(GPSInertialCoords->GPSWeek), &(GPSInertialCoords->GPSSec));
+		GPSInertialCoords->isAccurate = 1;
 		inertialTime = currTime;
 		this->GiveLock();
 	} else {
@@ -449,6 +450,7 @@ void GPSServer::ECEFtoECI() {
 		GPSInertialCoords->velZ = velECI[2];
 		GPSInertialCoords->GPSWeek = GPSDataHolder->GPSWeek;
 		GPSInertialCoords->GPSSec = GPSDataHolder->GPSSec;
+		GPSInertialCoords->isAccurate = 1;
 		this->GiveLock();
 	} else {
 		Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));

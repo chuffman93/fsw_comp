@@ -40,7 +40,6 @@ public:
 
 	void bootConfig(); // read in configs on bootup
 	bool updateConfig(); // update configs after COM pass
-	bool isDetumbled();
 
 	static ACSConfig ACSConfiguration;
 

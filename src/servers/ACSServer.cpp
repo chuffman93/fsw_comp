@@ -85,6 +85,7 @@ void ACSServer::loopInit() {
 
 		bootConfig();
 
+		ACSDetumble();
 		currentState = ST_DETUMBLE;
 	} else {
 		errServer->SendError(ERR_ACS_NOTALIVE);
@@ -99,12 +100,8 @@ void ACSServer::loopDetumble() {
 	if (!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS])
 		currentState = ST_INIT;
 
-	if (ACSState.mode != ACS_MODE_DETUMBLE) {
-		if (ACSDetumble())
-			ACSState.mode = ACS_MODE_DETUMBLE;
-	} else if (isDetumbled()) {
+	if (ACSState.mode != ACS_DETUMBLE)
 		currentState = ST_SUN_SOAK;
-	}
 }
 
 void ACSServer::loopSunSoak() {
@@ -211,6 +208,10 @@ void ACSServer::loopCOMStop() {
 
 void ACSServer::loopReset() {
 	ACSPrepReset();
+
+	// TODO:
+	// - Command to detumble
+	// - Save MRP once detumbled
 
 	for (uint8 i = 0; i < 60; i++) {
 		usleep(1000000);
@@ -322,11 +323,6 @@ bool ACSServer::updateConfig() {
 		fclose(fp);
 		return false;
 	}
-}
-
-bool ACSServer::isDetumbled() {
-	// TODO: determine if detumbled
-	return true;
 }
 
 } // End Namespace servers

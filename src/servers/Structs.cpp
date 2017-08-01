@@ -372,7 +372,7 @@ void GPSPositionTime::deserialize(void) {
 
 GPSInertial::GPSInertial() { }
 
-GPSInertial::GPSInertial(double posX, double posY, double posZ, double velX, double velY, double velZ, uint16 GPSWeek, float GPSSec) {
+GPSInertial::GPSInertial(double posX, double posY, double posZ, double velX, double velY, double velZ, uint16 GPSWeek, float GPSSec, uint8 isAccurate) {
   this->posX = posX;
   this->posY = posY;
   this->posZ = posZ;
@@ -381,6 +381,7 @@ GPSInertial::GPSInertial(double posX, double posY, double posZ, double velX, dou
   this->velZ = velZ;
   this->GPSWeek = GPSWeek;
   this->GPSSec = GPSSec;
+  this->isAccurate = isAccurate;
 }
 
 void GPSInertial::serialize(void) {
@@ -392,6 +393,7 @@ void GPSInertial::serialize(void) {
   this->serialize_double(this->velZ);
   this->serialize_uint16(this->GPSWeek);
   this->serialize_float(this->GPSSec);
+  this->serialize_uint8(this->isAccurate);
 }
 
 void GPSInertial::deserialize(void) {
@@ -403,6 +405,7 @@ void GPSInertial::deserialize(void) {
   this->velZ = this->deserialize_double();
   this->GPSWeek = this->deserialize_uint16();
   this->GPSSec = this->deserialize_float();
+  this->isAccurate = this->deserialize_uint8();
 }
 
 ACSConfig::ACSConfig() { }

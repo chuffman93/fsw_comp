@@ -215,6 +215,21 @@ bool ACSDetumble() {
 	return (response->isSuccess());
 }
 
+bool ACSMRP(float x, float y, float z) {
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	logger->Info("ACS: sending MRP");
+
+	uint8 * buffer = new uint8[3*sizeof(float)];
+	AddFloat(buffer, x);
+	AddFloat(buffer+sizeof(float), y);
+	AddFloat(buffer+2*sizeof(float), z);
+
+	ACPPacket * command = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_MRP, 3*sizeof(float), buffer);
+	ACPPacket * response = DispatchPacket(command);
+
+	return (response->isSuccess());
+}
+
 // Non-opcode tasks
 bool ACSSelfCheck(){
 	if(!ACSToggleLED(true))
