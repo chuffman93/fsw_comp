@@ -189,6 +189,18 @@ public:
   void deserialize(void);
 };
 
+class ACSmrp : public Serialize {
+public:
+  const static int size = 12;
+  ACSmrp();
+  ACSmrp(float mrpX, float mrpY, float mrpZ);
+  float mrpX; 
+  float mrpY; 
+  float mrpZ; 
+  void serialize(void);
+  void deserialize(void);
+};
+
 class ACSConfig : public Serialize {
 public:
   const static int size = 4;

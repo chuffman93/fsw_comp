@@ -408,6 +408,26 @@ void GPSInertial::deserialize(void) {
   this->isAccurate = this->deserialize_uint8();
 }
 
+ACSmrp::ACSmrp() { }
+
+ACSmrp::ACSmrp(float mrpX, float mrpY, float mrpZ) {
+  this->mrpX = mrpX;
+  this->mrpY = mrpY;
+  this->mrpZ = mrpZ;
+}
+
+void ACSmrp::serialize(void) {
+  this->serialize_float(this->mrpX);
+  this->serialize_float(this->mrpY);
+  this->serialize_float(this->mrpZ);
+}
+
+void ACSmrp::deserialize(void) {
+  this->mrpX = this->deserialize_float();
+  this->mrpY = this->deserialize_float();
+  this->mrpZ = this->deserialize_float();
+}
+
 ACSConfig::ACSConfig() { }
 
 ACSConfig::ACSConfig(int32 testConfig) {
