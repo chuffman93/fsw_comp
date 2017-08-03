@@ -86,6 +86,8 @@ private:
 	void ECItoOE();
 	void ECItoECEF();
 	void ECEFtoECI();
+	void WriteLockToFile();
+	void bootLastLock();
 	void UpdateOEfromConfig();
 	// GPS Port configurations
 	struct termios port;

@@ -13,13 +13,13 @@ namespace Servers{
 
 #define HOME_DIRECTORY			"/home/root"
 
-#define DOWNLINK_DIRECTORY		HOME_DIRECTORY	"/.downlink"
-#define UPLINK_DIRECTORY		HOME_DIRECTORY	"/.uplink"
-#define IMMED_DIRECTORY			HOME_DIRECTORY	"/.immed"
-#define CONFIG_DIRECTORY		HOME_DIRECTORY	"/.config"
-#define VERBOSE_HST_DIRECTORY	HOME_DIRECTORY	"/.vhs"
-#define RAD_DATA_DIRECTORY		HOME_DIRECTORY	"/.rad"
-#define BINARIES_DIRECTORY		HOME_DIRECTORY	"/binaries"
+#define DOWNLINK_DIRECTORY		HOME_DIRECTORY		"/.downlink"
+#define UPLINK_DIRECTORY		HOME_DIRECTORY		"/.uplink"
+#define IMMED_DIRECTORY			HOME_DIRECTORY		"/.immed"
+#define CONFIG_DIRECTORY		HOME_DIRECTORY		"/.config"
+#define VERBOSE_HST_DIRECTORY	HOME_DIRECTORY		"/.vhs"
+#define RAD_DATA_DIRECTORY		HOME_DIRECTORY		"/.rad"
+#define BINARIES_DIRECTORY		HOME_DIRECTORY		"/binaries"
 
 #define SOT_PATH				UPLINK_DIRECTORY	"/SOT.txt"
 #define DRF_PATH				UPLINK_DIRECTORY	"/DRF.txt"
@@ -47,9 +47,11 @@ namespace Servers{
 #define GPS_CONFIG				CONFIG_DIRECTORY	"/GPSConfig"
 #define PLD_CONFIG				CONFIG_DIRECTORY	"/PLDConfig"
 #define SCH_CONFIG	 			CONFIG_DIRECTORY	"/SCHConfig"
-#define EPOCH_FILE				CONFIG_DIRECTORY	"/PolarCube_Epoch"
-#define RAD_NUM_FILE			CONFIG_DIRECTORY	"/RAD_Number"
-#define REBOOT_TIME_FILE		CONFIG_DIRECTORY	"/Reboot_Time"
+
+#define EPOCH_FILE				CONFIG_DIRECTORY	"/PolarCube_Epoch"	// reboot number
+#define RAD_NUM_FILE			CONFIG_DIRECTORY	"/RAD_Number"		// science collection number
+#define REBOOT_TIME_FILE		CONFIG_DIRECTORY	"/Reboot_Time"		// stores an estimate for the time after a reboot
+#define GPS_LOCK_FILE			CONFIG_DIRECTORY	"/LastGPSLock"		// for storing the last lock in ECI
 
 #define SCH_UP					UPLINK_DIRECTORY	"/SCH"
 #define SCHEDULE_FILE 			"/home/root/SCH"
@@ -71,11 +73,11 @@ namespace Servers{
 #define RAD_FILE_PATH			"/SD_3/RAD" // Science data
 
 #define HST_FILE_PATH			"/SD_2/HST" // Health and status
-#define ACS_HST_PATH			HST_FILE_PATH	"/ACS"
-#define CDH_HST_PATH			HST_FILE_PATH	"/CDH"
-#define COM_HST_PATH			HST_FILE_PATH	"/COM"
-#define EPS_HST_PATH			HST_FILE_PATH	"/EPS"
-#define PLD_HST_PATH			HST_FILE_PATH	"/PLD"
+#define ACS_HST_PATH			HST_FILE_PATH		"/ACS"
+#define CDH_HST_PATH			HST_FILE_PATH		"/CDH"
+#define COM_HST_PATH			HST_FILE_PATH		"/COM"
+#define EPS_HST_PATH			HST_FILE_PATH		"/EPS"
+#define PLD_HST_PATH			HST_FILE_PATH		"/PLD"
 
 #define UPLK_PASSWORD			"P0!@rCube\n"
 #define UPLK_PASSWORD_SKIP		"P0!@rCube_1\n"

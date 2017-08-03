@@ -42,7 +42,7 @@ namespace Servers {
 const char * GPSServer::portname = (char *) "/dev/ttyS1";
 GPSLockType GPSServer::lastLock = {{0.0, 0.0, 0.0, 0.0, 0.0, 0.0}, -1.0};
 GPSInertial * GPSServer::GPSInertialCoords = new GPSInertial(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0);
-GPSPositionTime * GPSServer::GPSDataHolder = new GPSPositionTime(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 103, 1500.0);
+GPSPositionTime * GPSServer::GPSDataHolder = new GPSPositionTime(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0);
 
 GPSServer::GPSServer(string nameIn, LocationIDType idIn) :
 		SubsystemServer(nameIn, idIn), Singleton(), propagating(false), noOE(true), timeKnown(false),
@@ -84,6 +84,7 @@ void GPSServer::SubsystemLoop(void) {
 	}
 
 	bootConfig();
+	bootLastLock();
 
 	GPSReadType readStatus;
 	int64 readTime = 0;
@@ -180,6 +181,7 @@ void GPSServer::SubsystemLoop(void) {
 			lastUpdate = readTime;
 			inertialTime = readTime;
 			ECEFtoECI();
+			WriteLockToFile();
 			break;
 		default:
 			logger->Warning("GPS invalid read status (bit flip)");
@@ -484,6 +486,56 @@ bool GPSServer::GetECIData(uint8 buffer[GPSInertial::size]) {
 		logger->Warning("GPSServer::GetECIData unable to take lock");
 		return false;
 	}
+}
+
+void GPSServer::WriteLockToFile(void) {
+	uint8 buffer[GPSInertial::size];
+	if (GetECIData(buffer)) {
+		FILE * fp = fopen(GPS_LOCK_FILE, "w");
+
+		if (fp != NULL) {
+			fwrite(buffer, sizeof(uint8), GPSInertial::size, fp);
+			fclose(fp);
+		}
+	}
+}
+
+void GPSServer::bootLastLock(void) {
+	if (access(GPS_LOCK_FILE, F_OK) != 0) {
+		return;
+	}
+
+	uint8 buffer[GPSInertial::size];
+	FILE * fp = fopen(GPS_LOCK_FILE, "r");
+
+	if (fp == NULL) {
+		return;
+	}
+
+	if (fread(buffer, sizeof(uint8), GPSInertial::size, fp) == GPSInertial::size) {
+		GPSInertial tempStruct;
+		tempStruct.update(buffer, GPSInertial::size);
+		tempStruct.deserialize();
+
+		uint32 secondsFromEpoch = 0;
+		ConvertToEpochTime(tempStruct.GPSWeek, tempStruct.GPSSec, &secondsFromEpoch);
+
+		if ((float) secondsFromEpoch > lastLock.sysTime) { // ie. if the last lock is newer than the config
+			GPSInertialCoords->GPSSec = tempStruct.GPSSec;
+			GPSInertialCoords->GPSWeek = tempStruct.GPSWeek;
+			GPSInertialCoords->posX = tempStruct.posX;
+			GPSInertialCoords->posY = tempStruct.posY;
+			GPSInertialCoords->posZ = tempStruct.posZ;
+			GPSInertialCoords->velX = tempStruct.velX;
+			GPSInertialCoords->velY = tempStruct.velY;
+			GPSInertialCoords->velZ = tempStruct.velZ;
+			ECItoOE();
+			noOE = false;
+		}
+	} else {
+		remove(GPS_LOCK_FILE);
+	}
+	fclose(fp);
 }
 
 void GPSServer::bootConfig(void) {
