@@ -152,6 +152,7 @@ enum ACSCommandEnum {
 	ACS_DETUMBLE,
 	ACS_GPS_CMD,
 	ACS_CONFIG,
+	ACS_MRP,
 	ACS_OPCODE_MAX
 };
 

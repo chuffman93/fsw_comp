@@ -339,7 +339,7 @@ void CMDServer::loopReset(){
 	system(cmd);
 
 	wdmAsleep();
-	for(uint8 i = 0; i < 30; i++){
+	for(uint8 i = 0; i < 60; i++){
 		usleep(1000000);
 	}
 	wdmAlive();

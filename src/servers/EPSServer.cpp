@@ -94,7 +94,9 @@ void EPSServer::loopReset(){
 
 	logger->Info("EPS ready for reset");
 
-	for(uint8 i = 0; i < 60; i++){
+	sleep(30);
+
+	for(uint8 i = 0; i < 30; i++){
 		if(fmgServer->isResetReady()){
 			EPSPowerCycle();
 		}

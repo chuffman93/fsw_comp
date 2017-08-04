@@ -107,6 +107,12 @@ GPSInertial
 	double velZ
 	uint16 GPSWeek
 	float GPSSec
+	uint8 isAccurate
+
+ACSmrp
+	float mrpX
+	float mrpY
+	float mrpZ
 
 ACSConfig
 	int32 testConfig

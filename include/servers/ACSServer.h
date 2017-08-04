@@ -38,9 +38,11 @@ public:
 	bool RegisterHandlers();
 	bool CheckHealthStatus();
 
+	void WriteMRPToFile();
+	void BootMRPFromFile();
+
 	void bootConfig(); // read in configs on bootup
 	bool updateConfig(); // update configs after COM pass
-	bool isDetumbled();
 
 	static ACSConfig ACSConfiguration;
 

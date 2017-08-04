@@ -14,6 +14,7 @@
 #include "servers/ERRServer.h"
 #include "servers/FileSystem.h"
 #include "servers/FMGServer.h"
+#include "servers/Structs.h"
 #include "core/Singleton.h"
 #include "core/Factory.h"
 #include "core/WatchdogManager.h"
@@ -84,7 +85,9 @@ void ACSServer::loopInit() {
 		logger->Info("ACS passed self check");
 
 		bootConfig();
+		BootMRPFromFile();
 
+		ACSDetumble();
 		currentState = ST_DETUMBLE;
 	} else {
 		errServer->SendError(ERR_ACS_NOTALIVE);
@@ -99,12 +102,8 @@ void ACSServer::loopDetumble() {
 	if (!cdhServer->subsystemPowerStates[HARDWARE_LOCATION_ACS])
 		currentState = ST_INIT;
 
-	if (ACSState.mode != ACS_MODE_DETUMBLE) {
-		if (ACSDetumble())
-			ACSState.mode = ACS_MODE_DETUMBLE;
-	} else if (isDetumbled()) {
+	if (ACSState.mode != ACS_DETUMBLE)
 		currentState = ST_SUN_SOAK;
-	}
 }
 
 void ACSServer::loopSunSoak() {
@@ -210,11 +209,15 @@ void ACSServer::loopCOMStop() {
 }
 
 void ACSServer::loopReset() {
-	ACSPrepReset();
+	ACSDetumble();
 
-	for (uint8 i = 0; i < 60; i++) {
-		usleep(1000000);
-	}
+	sleep(20);
+
+	CheckHealthStatus();
+
+	WriteMRPToFile();
+
+	sleep(40);
 
 	currentState = ST_SUN_SOAK;
 }
@@ -324,9 +327,37 @@ bool ACSServer::updateConfig() {
 	}
 }
 
-bool ACSServer::isDetumbled() {
-	// TODO: determine if detumbled
-	return true;
+void ACSServer::WriteMRPToFile() {
+	ACSmrp temp;
+	temp.mrpX = ACSState.curr_mrp_x;
+	temp.mrpY = ACSState.curr_mrp_y;
+	temp.mrpZ = ACSState.curr_mrp_z;
+
+	uint8 buffer[ACSmrp::size];
+	temp.update(buffer, ACSmrp::size);
+	temp.serialize();
+
+	FILE * fp = fopen(LAST_MRP_FILE, "w");
+
+	if (fp != NULL) {
+		fwrite(buffer, sizeof(uint8), ACSmrp::size, fp);
+		fclose(fp);
+	}
+}
+
+void ACSServer::BootMRPFromFile() {
+	uint8 buffer[ACSmrp::size];
+	FILE * fp = fopen(LAST_MRP_FILE, "r");
+
+	if (fp != NULL) {
+		if (fread(buffer, sizeof(uint8), ACSmrp::size, fp) == ACSmrp::size) {
+			ACSmrp temp;
+			temp.update(buffer, ACSmrp::size);
+			temp.deserialize();
+			ACSMRP(temp.mrpX, temp.mrpY, temp.mrpZ);
+		}
+		fclose(fp);
+	}
 }
 
 } // End Namespace servers

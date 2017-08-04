@@ -52,6 +52,7 @@ namespace Servers{
 #define RAD_NUM_FILE			CONFIG_DIRECTORY	"/RAD_Number"		// science collection number
 #define REBOOT_TIME_FILE		CONFIG_DIRECTORY	"/Reboot_Time"		// stores an estimate for the time after a reboot
 #define GPS_LOCK_FILE			CONFIG_DIRECTORY	"/LastGPSLock"		// for storing the last lock in ECI
+#define LAST_MRP_FILE			CONFIG_DIRECTORY	"/Last_MRP"			// for storing the last ACS MRP on a reboot
 
 #define SCH_UP					UPLINK_DIRECTORY	"/SCH"
 #define SCHEDULE_FILE 			"/home/root/SCH"
