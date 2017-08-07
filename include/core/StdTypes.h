@@ -199,7 +199,6 @@ enum ErrorCodeEnum {
 
 enum SystemModeEnum {
 	MODE_FIRST_MODE = 0,
-	MODE_STARTUP,
 	MODE_BUS_PRIORITY,
 	MODE_PLD_PRIORITY,
 	MODE_COM,

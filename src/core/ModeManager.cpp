@@ -19,7 +19,7 @@ namespace Core {
 bool ModeManager::validTransition[MODE_NUM_MODES][MODE_NUM_MODES] = {{false}};
 
 ModeManager::ModeManager(void)
-: Singleton(), mode(MODE_STARTUP) {
+: Singleton(), mode(MODE_BUS_PRIORITY) {
 	//For the time being, only allow transitions to and from bus priority
 	for (int i = MODE_FIRST_MODE; i< MODE_NUM_MODES; i++)
 		for (int j = MODE_FIRST_MODE; j< MODE_NUM_MODES; j++)
@@ -68,9 +68,6 @@ bool ModeManager::SetMode(SystemModeEnum newMode){
 		}
 
 		switch(newMode){
-		case MODE_STARTUP:
-			logger->Info("Setting mode to " "\x1b[32m" "MODE_STARTUP" "\x1b[0m");
-			break;
 		case MODE_BUS_PRIORITY:
 			logger->Info("Setting mode to " "\x1b[32m" "MODE_BUS_PRIORITY" "\x1b[0m");
 			break;

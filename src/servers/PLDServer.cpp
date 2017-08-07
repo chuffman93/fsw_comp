@@ -61,13 +61,6 @@ void PLDServer::loopInit() {
 	bootConfig();
 
 	// TODO: synchronize clock with GPS
-
-	//No need to do anything
-	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
-	if(modeManager->GetMode() != MODE_STARTUP){
-		//Wait until we are not in startup mode, then transition to IDLE
-		currentState = ST_IDLE;
-	}
 }
 
 void PLDServer::loopIdle() {
