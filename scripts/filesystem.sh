@@ -46,5 +46,4 @@ export HR_DIRECTORIES="
 .immed
 .vhs
 .uplink
-.rad
 "

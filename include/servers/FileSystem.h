@@ -18,7 +18,6 @@ namespace Servers{
 #define IMMED_DIRECTORY			HOME_DIRECTORY		"/.immed"
 #define CONFIG_DIRECTORY		HOME_DIRECTORY		"/.config"
 #define VERBOSE_HST_DIRECTORY	HOME_DIRECTORY		"/.vhs"
-#define RAD_DATA_DIRECTORY		HOME_DIRECTORY		"/.rad"
 #define BINARIES_DIRECTORY		HOME_DIRECTORY		"/binaries"
 
 #define SOT_PATH				UPLINK_DIRECTORY	"/SOT.txt"
