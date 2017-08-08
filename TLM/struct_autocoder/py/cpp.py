@@ -18,8 +18,17 @@ class CPP_Autocoder(STRUCT_Autocoder):
     print
 
   def print_constructor(self):
-    # Basic constructor, does nothing
-    print "%s::%s() { }" % (self.name, self.name)
+    # Basic constructor, initializes all to zero
+    print "%s::%s() { " % (self.name, self.name)
+    for field in range(len(self.types)):
+      split_arg = re.split("\[|\]", self.args[field])
+      if ( len(split_arg) > 1 ):
+        print "  for (int iter = 0; iter < %s; iter++) {" % (split_arg[1])
+        print "    this->%s[iter] = 0;" % (split_arg[0])
+        print "  }"
+      else:
+        print "  this->%s = 0;" % (self.args[field])
+    print "}"
     print
 
     # Constructor to initialize each value of the struct

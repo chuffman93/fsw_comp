@@ -12,7 +12,27 @@
 namespace AllStar{
 namespace Servers{
 
-BeaconStruct::BeaconStruct() { }
+BeaconStruct::BeaconStruct() { 
+  this->satTime = 0;
+  this->GPSWeek = 0;
+  this->GPSSec = 0;
+  this->xPosition = 0;
+  this->yPosition = 0;
+  this->zPosition = 0;
+  this->xVelocity = 0;
+  this->yVelocity = 0;
+  this->zVelocity = 0;
+  this->systemMode = 0;
+  this->subpowerStates = 0;
+  this->epochNumber = 0;
+  this->radNumber = 0;
+  this->spiSent = 0;
+  this->spiDropped = 0;
+  this->batteryCap = 0;
+  this->acsMode = 0;
+  this->memory = 0;
+  this->cpu15 = 0;
+}
 
 BeaconStruct::BeaconStruct(int32 satTime, int32 GPSWeek, float GPSSec, double xPosition, double yPosition, double zPosition, double xVelocity, double yVelocity, double zVelocity, uint8 systemMode, uint8 subpowerStates, int16 epochNumber, uint16 radNumber, uint32 spiSent, uint32 spiDropped, uint16 batteryCap, int8 acsMode, float memory, float cpu15) {
   this->satTime = satTime;
@@ -80,7 +100,13 @@ void BeaconStruct::deserialize(void) {
   this->cpu15 = this->deserialize_float();
 }
 
-CDHStatus::CDHStatus() { }
+CDHStatus::CDHStatus() { 
+  this->time = 0;
+  this->cpu1 = 0;
+  this->cpu5 = 0;
+  this->cpu15 = 0;
+  this->memory = 0;
+}
 
 CDHStatus::CDHStatus(int32 time, float cpu1, float cpu5, float cpu15, float memory) {
   this->time = time;
@@ -106,7 +132,12 @@ void CDHStatus::deserialize(void) {
   this->memory = this->deserialize_float();
 }
 
-SWPStatus::SWPStatus() { }
+SWPStatus::SWPStatus() { 
+  this->time = 0;
+  for (int iter = 0; iter < 32; iter++) {
+    this->hotswaps[iter] = 0;
+  }
+}
 
 SWPStatus::SWPStatus(int32 time, float hotswaps[32]) {
   this->time = time;
@@ -129,7 +160,12 @@ void SWPStatus::deserialize(void) {
   }
 }
 
-THMStatus::THMStatus() { }
+THMStatus::THMStatus() { 
+  this->time = 0;
+  for (int iter = 0; iter < 64; iter++) {
+    this->tempSensors[iter] = 0;
+  }
+}
 
 THMStatus::THMStatus(int32 time, float tempSensors[64]) {
   this->time = time;
@@ -152,7 +188,33 @@ void THMStatus::deserialize(void) {
   }
 }
 
-ACSStatus::ACSStatus() { }
+ACSStatus::ACSStatus() { 
+  this->mag_x = 0;
+  this->mag_y = 0;
+  this->mag_z = 0;
+  this->curr_mrp_x = 0;
+  this->curr_mrp_y = 0;
+  this->curr_mrp_z = 0;
+  this->targ_mrp_x = 0;
+  this->targ_mrp_y = 0;
+  this->targ_mrp_z = 0;
+  this->rwspeed_x = 0;
+  this->rwspeed_y = 0;
+  this->rwspeed_z = 0;
+  this->angrate_x = 0;
+  this->angrate_y = 0;
+  this->angrate_z = 0;
+  this->gyro_x = 0;
+  this->gyro_y = 0;
+  this->gyro_z = 0;
+  this->rw_pwm_x = 0;
+  this->rw_pwm_y = 0;
+  this->rw_pwm_z = 0;
+  this->tr_x = 0;
+  this->tr_y = 0;
+  this->tr_z = 0;
+  this->mode = 0;
+}
 
 ACSStatus::ACSStatus(float mag_x, float mag_y, float mag_z, float curr_mrp_x, float curr_mrp_y, float curr_mrp_z, float targ_mrp_x, float targ_mrp_y, float targ_mrp_z, float rwspeed_x, float rwspeed_y, float rwspeed_z, float angrate_x, float angrate_y, float angrate_z, float gyro_x, float gyro_y, float gyro_z, float rw_pwm_x, float rw_pwm_y, float rw_pwm_z, float tr_x, float tr_y, float tr_z, int8 mode) {
   this->mag_x = mag_x;
@@ -238,7 +300,15 @@ void ACSStatus::deserialize(void) {
   this->mode = this->deserialize_int8();
 }
 
-PLDStatus::PLDStatus() { }
+PLDStatus::PLDStatus() { 
+  this->powerFault = 0;
+  this->motorSpeed = 0;
+  for (int iter = 0; iter < 10; iter++) {
+    this->thermistors[iter] = 0;
+  }
+  this->adcDataWorking = 0;
+  this->control = 0;
+}
 
 PLDStatus::PLDStatus(uint8 powerFault, uint16 motorSpeed, uint8 thermistors[10], uint8 adcDataWorking, uint16 control) {
   this->powerFault = powerFault;
@@ -270,7 +340,26 @@ void PLDStatus::deserialize(void) {
   this->control = this->deserialize_uint16();
 }
 
-EPSStatus::EPSStatus() { }
+EPSStatus::EPSStatus() { 
+  this->current3v3 = 0;
+  this->voltage3v3 = 0;
+  this->currentVbat = 0;
+  this->voltageVbat = 0;
+  this->current12v = 0;
+  this->voltage12v = 0;
+  this->remainingCapacity = 0;
+  this->battCurrent = 0;
+  this->battVoltage = 0;
+  this->battStatus = 0;
+  this->frangCurrent = 0;
+  this->frangVoltage = 0;
+  this->convCurrentX = 0;
+  this->convThreshX = 0;
+  this->convCurrentY = 0;
+  this->convThreshY = 0;
+  this->convCurrentW = 0;
+  this->convThreshW = 0;
+}
 
 EPSStatus::EPSStatus(uint16 current3v3, uint16 voltage3v3, uint16 currentVbat, uint16 voltageVbat, uint16 current12v, uint16 voltage12v, uint16 remainingCapacity, uint16 battCurrent, uint16 battVoltage, uint16 battStatus, uint16 frangCurrent, uint16 frangVoltage, uint16 convCurrentX, uint16 convThreshX, uint16 convCurrentY, uint16 convThreshY, uint16 convCurrentW, uint16 convThreshW) {
   this->current3v3 = current3v3;
@@ -335,7 +424,16 @@ void EPSStatus::deserialize(void) {
   this->convThreshW = this->deserialize_uint16();
 }
 
-GPSPositionTime::GPSPositionTime() { }
+GPSPositionTime::GPSPositionTime() { 
+  this->posX = 0;
+  this->posY = 0;
+  this->posZ = 0;
+  this->velX = 0;
+  this->velY = 0;
+  this->velZ = 0;
+  this->GPSWeek = 0;
+  this->GPSSec = 0;
+}
 
 GPSPositionTime::GPSPositionTime(double posX, double posY, double posZ, double velX, double velY, double velZ, uint16 GPSWeek, float GPSSec) {
   this->posX = posX;
@@ -370,7 +468,17 @@ void GPSPositionTime::deserialize(void) {
   this->GPSSec = this->deserialize_float();
 }
 
-GPSInertial::GPSInertial() { }
+GPSInertial::GPSInertial() { 
+  this->posX = 0;
+  this->posY = 0;
+  this->posZ = 0;
+  this->velX = 0;
+  this->velY = 0;
+  this->velZ = 0;
+  this->GPSWeek = 0;
+  this->GPSSec = 0;
+  this->isAccurate = 0;
+}
 
 GPSInertial::GPSInertial(double posX, double posY, double posZ, double velX, double velY, double velZ, uint16 GPSWeek, float GPSSec, uint8 isAccurate) {
   this->posX = posX;
@@ -408,7 +516,11 @@ void GPSInertial::deserialize(void) {
   this->isAccurate = this->deserialize_uint8();
 }
 
-ACSmrp::ACSmrp() { }
+ACSmrp::ACSmrp() { 
+  this->mrpX = 0;
+  this->mrpY = 0;
+  this->mrpZ = 0;
+}
 
 ACSmrp::ACSmrp(float mrpX, float mrpY, float mrpZ) {
   this->mrpX = mrpX;
@@ -428,7 +540,9 @@ void ACSmrp::deserialize(void) {
   this->mrpZ = this->deserialize_float();
 }
 
-ACSConfig::ACSConfig() { }
+ACSConfig::ACSConfig() { 
+  this->testConfig = 0;
+}
 
 ACSConfig::ACSConfig(int32 testConfig) {
   this->testConfig = testConfig;
@@ -442,7 +556,9 @@ void ACSConfig::deserialize(void) {
   this->testConfig = this->deserialize_int32();
 }
 
-CDHConfig::CDHConfig() { }
+CDHConfig::CDHConfig() { 
+  this->testConfig = 0;
+}
 
 CDHConfig::CDHConfig(int32 testConfig) {
   this->testConfig = testConfig;
@@ -456,7 +572,14 @@ void CDHConfig::deserialize(void) {
   this->testConfig = this->deserialize_int32();
 }
 
-CMDConfig::CMDConfig() { }
+CMDConfig::CMDConfig() { 
+  this->resetPeriod = 0;
+  this->fileChunkSize = 0;
+  this->maxDownlinkSize = 0;
+  this->beaconPeriod = 0;
+  this->increasedBeaconPeriod = 0;
+  this->expectedRebootDuration = 0;
+}
 
 CMDConfig::CMDConfig(int32 resetPeriod, int32 fileChunkSize, int32 maxDownlinkSize, int32 beaconPeriod, int32 increasedBeaconPeriod, uint16 expectedRebootDuration) {
   this->resetPeriod = resetPeriod;
@@ -485,7 +608,9 @@ void CMDConfig::deserialize(void) {
   this->expectedRebootDuration = this->deserialize_uint16();
 }
 
-COMConfig::COMConfig() { }
+COMConfig::COMConfig() { 
+  this->testConfig = 0;
+}
 
 COMConfig::COMConfig(int32 testConfig) {
   this->testConfig = testConfig;
@@ -499,7 +624,11 @@ void COMConfig::deserialize(void) {
   this->testConfig = this->deserialize_int32();
 }
 
-EPSConfig::EPSConfig() { }
+EPSConfig::EPSConfig() { 
+  this->minCOMCharge = 0;
+  this->minPLDCharge = 0;
+  this->minDSTCharge = 0;
+}
 
 EPSConfig::EPSConfig(uint16 minCOMCharge, uint16 minPLDCharge, uint16 minDSTCharge) {
   this->minCOMCharge = minCOMCharge;
@@ -519,7 +648,9 @@ void EPSConfig::deserialize(void) {
   this->minDSTCharge = this->deserialize_uint16();
 }
 
-FMGConfig::FMGConfig() { }
+FMGConfig::FMGConfig() { 
+  this->testConfig = 0;
+}
 
 FMGConfig::FMGConfig(int32 testConfig) {
   this->testConfig = testConfig;
@@ -533,7 +664,15 @@ void FMGConfig::deserialize(void) {
   this->testConfig = this->deserialize_int32();
 }
 
-GPSConfig::GPSConfig() { }
+GPSConfig::GPSConfig() { 
+  this->a = 0;
+  this->e = 0;
+  this->i = 0;
+  this->Omega = 0;
+  this->omega = 0;
+  this->anom = 0;
+  this->epochSeconds = 0;
+}
 
 GPSConfig::GPSConfig(float a, float e, float i, float Omega, float omega, float anom, float epochSeconds) {
   this->a = a;
@@ -565,7 +704,9 @@ void GPSConfig::deserialize(void) {
   this->epochSeconds = this->deserialize_float();
 }
 
-PLDConfig::PLDConfig() { }
+PLDConfig::PLDConfig() { 
+  this->chunkSize = 0;
+}
 
 PLDConfig::PLDConfig(int32 chunkSize) {
   this->chunkSize = chunkSize;
@@ -579,7 +720,16 @@ void PLDConfig::deserialize(void) {
   this->chunkSize = this->deserialize_int32();
 }
 
-SCHItem::SCHItem() { }
+SCHItem::SCHItem() { 
+  for (int iter = 0; iter < 3; iter++) {
+    this->ecefPos[iter] = 0;
+  }
+  this->radius = 0;
+  this->enter_mode = 0;
+  this->timeout = 0;
+  this->mode = 0;
+  this->duration = 0;
+}
 
 SCHItem::SCHItem(double ecefPos[3], double radius, uint8 enter_mode, uint32 timeout, uint8 mode, int32 duration) {
   for (int iter = 0; iter < 3; iter++) {
