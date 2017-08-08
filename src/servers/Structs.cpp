@@ -189,115 +189,179 @@ void THMStatus::deserialize(void) {
 }
 
 ACSStatus::ACSStatus() { 
-  this->mag_x = 0;
-  this->mag_y = 0;
-  this->mag_z = 0;
-  this->curr_mrp_x = 0;
-  this->curr_mrp_y = 0;
-  this->curr_mrp_z = 0;
-  this->targ_mrp_x = 0;
-  this->targ_mrp_y = 0;
-  this->targ_mrp_z = 0;
-  this->rwspeed_x = 0;
-  this->rwspeed_y = 0;
-  this->rwspeed_z = 0;
-  this->angrate_x = 0;
-  this->angrate_y = 0;
-  this->angrate_z = 0;
-  this->gyro_x = 0;
-  this->gyro_y = 0;
-  this->gyro_z = 0;
-  this->rw_pwm_x = 0;
-  this->rw_pwm_y = 0;
-  this->rw_pwm_z = 0;
-  this->tr_x = 0;
-  this->tr_y = 0;
-  this->tr_z = 0;
   this->mode = 0;
+  for (int iter = 0; iter < 3; iter++) {
+    this->st_mrp[iter] = 0;
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->curr_mrp[iter] = 0;
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->ref_mrp[iter] = 0;
+  }
+  this->time_since_lock = 0;
+  for (int iter = 0; iter < 3; iter++) {
+    this->gyro0[iter] = 0;
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->gryo1[iter] = 0;
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->ang_rate[iter] = 0;
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->mag0[iter] = 0;
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->mag1[iter] = 0;
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->rw_torque[iter] = 0;
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->rw_pwm[iter] = 0;
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->rw_speed[iter] = 0;
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->tr_torque[iter] = 0;
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->tr_pwm[iter] = 0;
+  }
 }
 
-ACSStatus::ACSStatus(float mag_x, float mag_y, float mag_z, float curr_mrp_x, float curr_mrp_y, float curr_mrp_z, float targ_mrp_x, float targ_mrp_y, float targ_mrp_z, float rwspeed_x, float rwspeed_y, float rwspeed_z, float angrate_x, float angrate_y, float angrate_z, float gyro_x, float gyro_y, float gyro_z, float rw_pwm_x, float rw_pwm_y, float rw_pwm_z, float tr_x, float tr_y, float tr_z, int8 mode) {
-  this->mag_x = mag_x;
-  this->mag_y = mag_y;
-  this->mag_z = mag_z;
-  this->curr_mrp_x = curr_mrp_x;
-  this->curr_mrp_y = curr_mrp_y;
-  this->curr_mrp_z = curr_mrp_z;
-  this->targ_mrp_x = targ_mrp_x;
-  this->targ_mrp_y = targ_mrp_y;
-  this->targ_mrp_z = targ_mrp_z;
-  this->rwspeed_x = rwspeed_x;
-  this->rwspeed_y = rwspeed_y;
-  this->rwspeed_z = rwspeed_z;
-  this->angrate_x = angrate_x;
-  this->angrate_y = angrate_y;
-  this->angrate_z = angrate_z;
-  this->gyro_x = gyro_x;
-  this->gyro_y = gyro_y;
-  this->gyro_z = gyro_z;
-  this->rw_pwm_x = rw_pwm_x;
-  this->rw_pwm_y = rw_pwm_y;
-  this->rw_pwm_z = rw_pwm_z;
-  this->tr_x = tr_x;
-  this->tr_y = tr_y;
-  this->tr_z = tr_z;
+ACSStatus::ACSStatus(uint8 mode, float st_mrp[3], float curr_mrp[3], float ref_mrp[3], float time_since_lock, float gyro0[3], float gryo1[3], float ang_rate[3], float mag0[3], float mag1[3], float rw_torque[3], float rw_pwm[3], float rw_speed[3], float tr_torque[3], float tr_pwm[3]) {
   this->mode = mode;
+  for (int iter = 0; iter < 3; iter++) {
+    this->st_mrp[iter] = st_mrp[iter];
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->curr_mrp[iter] = curr_mrp[iter];
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->ref_mrp[iter] = ref_mrp[iter];
+  }
+  this->time_since_lock = time_since_lock;
+  for (int iter = 0; iter < 3; iter++) {
+    this->gyro0[iter] = gyro0[iter];
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->gryo1[iter] = gryo1[iter];
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->ang_rate[iter] = ang_rate[iter];
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->mag0[iter] = mag0[iter];
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->mag1[iter] = mag1[iter];
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->rw_torque[iter] = rw_torque[iter];
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->rw_pwm[iter] = rw_pwm[iter];
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->rw_speed[iter] = rw_speed[iter];
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->tr_torque[iter] = tr_torque[iter];
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->tr_pwm[iter] = tr_pwm[iter];
+  }
 }
 
 void ACSStatus::serialize(void) {
-  this->serialize_float(this->mag_x);
-  this->serialize_float(this->mag_y);
-  this->serialize_float(this->mag_z);
-  this->serialize_float(this->curr_mrp_x);
-  this->serialize_float(this->curr_mrp_y);
-  this->serialize_float(this->curr_mrp_z);
-  this->serialize_float(this->targ_mrp_x);
-  this->serialize_float(this->targ_mrp_y);
-  this->serialize_float(this->targ_mrp_z);
-  this->serialize_float(this->rwspeed_x);
-  this->serialize_float(this->rwspeed_y);
-  this->serialize_float(this->rwspeed_z);
-  this->serialize_float(this->angrate_x);
-  this->serialize_float(this->angrate_y);
-  this->serialize_float(this->angrate_z);
-  this->serialize_float(this->gyro_x);
-  this->serialize_float(this->gyro_y);
-  this->serialize_float(this->gyro_z);
-  this->serialize_float(this->rw_pwm_x);
-  this->serialize_float(this->rw_pwm_y);
-  this->serialize_float(this->rw_pwm_z);
-  this->serialize_float(this->tr_x);
-  this->serialize_float(this->tr_y);
-  this->serialize_float(this->tr_z);
-  this->serialize_int8(this->mode);
+  this->serialize_uint8(this->mode);
+  for (int iter = 0; iter < 3; iter++) {
+    this->serialize_float(this->st_mrp[iter]);
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->serialize_float(this->curr_mrp[iter]);
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->serialize_float(this->ref_mrp[iter]);
+  }
+  this->serialize_float(this->time_since_lock);
+  for (int iter = 0; iter < 3; iter++) {
+    this->serialize_float(this->gyro0[iter]);
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->serialize_float(this->gryo1[iter]);
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->serialize_float(this->ang_rate[iter]);
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->serialize_float(this->mag0[iter]);
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->serialize_float(this->mag1[iter]);
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->serialize_float(this->rw_torque[iter]);
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->serialize_float(this->rw_pwm[iter]);
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->serialize_float(this->rw_speed[iter]);
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->serialize_float(this->tr_torque[iter]);
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->serialize_float(this->tr_pwm[iter]);
+  }
 }
 
 void ACSStatus::deserialize(void) {
-  this->mag_x = this->deserialize_float();
-  this->mag_y = this->deserialize_float();
-  this->mag_z = this->deserialize_float();
-  this->curr_mrp_x = this->deserialize_float();
-  this->curr_mrp_y = this->deserialize_float();
-  this->curr_mrp_z = this->deserialize_float();
-  this->targ_mrp_x = this->deserialize_float();
-  this->targ_mrp_y = this->deserialize_float();
-  this->targ_mrp_z = this->deserialize_float();
-  this->rwspeed_x = this->deserialize_float();
-  this->rwspeed_y = this->deserialize_float();
-  this->rwspeed_z = this->deserialize_float();
-  this->angrate_x = this->deserialize_float();
-  this->angrate_y = this->deserialize_float();
-  this->angrate_z = this->deserialize_float();
-  this->gyro_x = this->deserialize_float();
-  this->gyro_y = this->deserialize_float();
-  this->gyro_z = this->deserialize_float();
-  this->rw_pwm_x = this->deserialize_float();
-  this->rw_pwm_y = this->deserialize_float();
-  this->rw_pwm_z = this->deserialize_float();
-  this->tr_x = this->deserialize_float();
-  this->tr_y = this->deserialize_float();
-  this->tr_z = this->deserialize_float();
-  this->mode = this->deserialize_int8();
+  this->mode = this->deserialize_uint8();
+  for (int iter = 0; iter < 3; iter++) {
+    this->st_mrp[iter] = this->deserialize_float();
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->curr_mrp[iter] = this->deserialize_float();
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->ref_mrp[iter] = this->deserialize_float();
+  }
+  this->time_since_lock = this->deserialize_float();
+  for (int iter = 0; iter < 3; iter++) {
+    this->gyro0[iter] = this->deserialize_float();
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->gryo1[iter] = this->deserialize_float();
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->ang_rate[iter] = this->deserialize_float();
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->mag0[iter] = this->deserialize_float();
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->mag1[iter] = this->deserialize_float();
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->rw_torque[iter] = this->deserialize_float();
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->rw_pwm[iter] = this->deserialize_float();
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->rw_speed[iter] = this->deserialize_float();
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->tr_torque[iter] = this->deserialize_float();
+  }
+  for (int iter = 0; iter < 3; iter++) {
+    this->tr_pwm[iter] = this->deserialize_float();
+  }
 }
 
 PLDStatus::PLDStatus() { 

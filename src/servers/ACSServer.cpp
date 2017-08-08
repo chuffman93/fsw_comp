@@ -29,7 +29,7 @@ using namespace AllStar::Core;
 namespace AllStar{
 namespace Servers{
 
-ACSStatus ACSServer::ACSState(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+ACSStatus ACSServer::ACSState;
 ACSConfig ACSServer::ACSConfiguration(0);
 
 // -------------------------------------- Necessary Methods --------------------------------------
@@ -260,15 +260,15 @@ bool ACSServer::CheckHealthStatus() {
 			lastHSTLog = currTime;
 
 			// add the current spacecraft time to the log buffer
-			uint8 * buffer = new uint8[ACSStatus::size + sizeof(int32)];
+			uint8 * buffer = new uint8[ACSState.size + sizeof(int32)];
 			AddUInt32(buffer, currTime);
 
 			// add the ACS H&S to the buffer
-			ACSState.update(buffer, ACSStatus::size, 4, 0);
+			ACSState.update(buffer, ACSState.size, 4, 0);
 			ACSState.serialize();
 
 			FMGServer * fmgServer = static_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
-			fmgServer->Log(DESTINATION_ACS_HST, buffer, ACSStatus::size + sizeof(int32));
+			fmgServer->Log(DESTINATION_ACS_HST, buffer, ACSState.size + sizeof(int32));
 		}
 
 		return true;
@@ -329,9 +329,9 @@ bool ACSServer::updateConfig() {
 
 void ACSServer::WriteMRPToFile() {
 	ACSmrp temp;
-	temp.mrpX = ACSState.curr_mrp_x;
-	temp.mrpY = ACSState.curr_mrp_y;
-	temp.mrpZ = ACSState.curr_mrp_z;
+	temp.mrpX = ACSState.curr_mrp[0];
+	temp.mrpY = ACSState.curr_mrp[1];
+	temp.mrpZ = ACSState.curr_mrp[2];
 
 	uint8 buffer[ACSmrp::size];
 	temp.update(buffer, ACSmrp::size);
