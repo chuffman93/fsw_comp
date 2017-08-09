@@ -60,6 +60,7 @@ void PLDServer::loopInit() {
 
 	bootConfig();
 
+	currentState = ST_IDLE;
 	// TODO: synchronize clock with GPS
 }
 
