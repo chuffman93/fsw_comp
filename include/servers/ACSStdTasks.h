@@ -36,6 +36,7 @@ bool ACSPointNadir();
 bool ACSPointGND();
 bool ACSPointDest();
 bool ACSDetumble();
+bool ACSSetConfig();
 bool ACSMRP(float x, float y, float z);
 
 // Non-opcode tasks

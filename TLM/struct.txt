@@ -104,9 +104,6 @@ ACSmrp
 	float mrpY
 	float mrpZ
 
-ACSConfig
-	int32 testConfig
-
 CDHConfig
 	int32 testConfig
 

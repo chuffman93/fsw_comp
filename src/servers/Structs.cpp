@@ -604,22 +604,6 @@ void ACSmrp::deserialize(void) {
   this->mrpZ = this->deserialize_float();
 }
 
-ACSConfig::ACSConfig() { 
-  this->testConfig = 0;
-}
-
-ACSConfig::ACSConfig(int32 testConfig) {
-  this->testConfig = testConfig;
-}
-
-void ACSConfig::serialize(void) {
-  this->serialize_int32(this->testConfig);
-}
-
-void ACSConfig::deserialize(void) {
-  this->testConfig = this->deserialize_int32();
-}
-
 CDHConfig::CDHConfig() { 
   this->testConfig = 0;
 }

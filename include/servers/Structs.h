@@ -191,16 +191,6 @@ public:
   void deserialize(void);
 };
 
-class ACSConfig : public Serialize {
-public:
-  const static int size = 4;
-  ACSConfig();
-  ACSConfig(int32 testConfig);
-  int32 testConfig; 
-  void serialize(void);
-  void deserialize(void);
-};
-
 class CDHConfig : public Serialize {
 public:
   const static int size = 4;

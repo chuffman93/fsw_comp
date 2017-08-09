@@ -30,11 +30,10 @@ namespace AllStar{
 namespace Servers{
 
 ACSStatus ACSServer::ACSState;
-ACSConfig ACSServer::ACSConfiguration(0);
 
 // -------------------------------------- Necessary Methods --------------------------------------
 ACSServer::ACSServer(string nameIn, LocationIDType idIn) :
-		SubsystemServer(nameIn, idIn, ACS_SLEEP_TIME, ACS_HS_DELAYS), Singleton(), testsRun(false) { }
+		SubsystemServer(nameIn, idIn, ACS_SLEEP_TIME, ACS_HS_DELAYS), Singleton(), testsRun(false), ACSConfigValid(false), lastHSTLog(0) { }
 
 ACSServer::~ACSServer() { }
 
@@ -279,7 +278,6 @@ void ACSServer::bootConfig() {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	FILE * fp = fopen(ACS_CONFIG, "r");
-	uint8 buffer[ACSConfiguration.size];
 
 	// make sure we get a valid file pointer
 	if (fp == NULL) {
@@ -287,17 +285,23 @@ void ACSServer::bootConfig() {
 		return;
 	}
 
+	ACSConfigValid = false;
+
 	// read and update the configs
-	if (fread(buffer, sizeof(uint8), ACSConfiguration.size, fp) == ACSConfiguration.size) {
-		ACSConfiguration.update(buffer, ACSConfiguration.size, 0, 0);
-		ACSConfiguration.deserialize();
-		logger->Info("ACSServer: successfully booted ACS configs");
+	if (fread(ACSConfig, sizeof(uint8), ACS_CONFIG_SIZE, fp) == ACS_CONFIG_SIZE) {
+		ACSConfigValid = true;
+		if (ACSSetConfig()) {
+			logger->Info("ACSServer: successfully booted ACS configs");
+			// TODO: create TLM here
+		} else {
+			logger->Warning("ACSServer: error sending config to ACS");
+			// TODO: create TLM here
+		}
 		fclose(fp);
-		return;
 	} else {
+		ACSConfigValid = false;
 		logger->Error("ACSServer: error reading ACS config file, cannot boot");
 		fclose(fp);
-		return;
 	}
 }
 
@@ -305,7 +309,6 @@ bool ACSServer::updateConfig() {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	FILE * fp = fopen(ACS_CFG_UP, "r");
-	uint8 buffer[ACSConfiguration.size];
 
 	// make sure we get a valid file pointer
 	if (fp == NULL) {
@@ -313,14 +316,22 @@ bool ACSServer::updateConfig() {
 		return false;
 	}
 
+	ACSConfigValid = false;
+
 	// read and update the configs
-	if (fread(buffer, sizeof(uint8), ACSConfiguration.size, fp) == ACSConfiguration.size) {
-		ACSConfiguration.update(buffer, ACSConfiguration.size, 0, 0);
-		ACSConfiguration.deserialize();
-		logger->Info("ACSServer: successfully updated ACS configs");
+	if (fread(ACSConfig, sizeof(uint8), ACS_CONFIG_SIZE, fp) == ACS_CONFIG_SIZE) {
+		ACSConfigValid = true;
+		if (ACSSetConfig()) {
+			logger->Info("ACSServer: successfully updated ACS configs");
+			// TODO: create TLM here
+		} else {
+			logger->Info("ACSServer: error sending config to ACS");
+			// TODO: create TLM here
+		}
 		fclose(fp);
 		return true;
 	} else {
+		ACSConfigValid = false;
 		logger->Error("ACSServer: error reading ACS config file, cannot update");
 		fclose(fp);
 		return false;

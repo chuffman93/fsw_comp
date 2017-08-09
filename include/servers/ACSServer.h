@@ -22,6 +22,7 @@ namespace Servers {
 
 #define ACS_SLEEP_TIME	5000
 #define ACS_HS_DELAYS	3
+#define ACS_CONFIG_SIZE	803		// this needs to be updated whenever the config is updated
 
 typedef enum ACSModes {
 	ACS_MODE_DETUMBLE = 0,
@@ -44,9 +45,9 @@ public:
 	void bootConfig(); // read in configs on bootup
 	bool updateConfig(); // update configs after COM pass
 
-	static ACSConfig ACSConfiguration;
-
 	static ACSStatus ACSState;
+	uint8 ACSConfig[ACS_CONFIG_SIZE];
+	bool ACSConfigValid;
 
 private:
 	bool IsFullyInitialized(void);
