@@ -29,12 +29,11 @@ using namespace AllStar::Core;
 namespace AllStar{
 namespace Servers{
 
-ACSStatus ACSServer::ACSState(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
-ACSConfig ACSServer::ACSConfiguration(0);
+ACSStatus ACSServer::ACSState;
 
 // -------------------------------------- Necessary Methods --------------------------------------
 ACSServer::ACSServer(string nameIn, LocationIDType idIn) :
-		SubsystemServer(nameIn, idIn, ACS_SLEEP_TIME, ACS_HS_DELAYS), Singleton(), testsRun(false) { }
+		SubsystemServer(nameIn, idIn, ACS_SLEEP_TIME, ACS_HS_DELAYS), Singleton(), testsRun(false), ACSConfigValid(false), lastHSTLog(0) { }
 
 ACSServer::~ACSServer() { }
 
@@ -260,15 +259,15 @@ bool ACSServer::CheckHealthStatus() {
 			lastHSTLog = currTime;
 
 			// add the current spacecraft time to the log buffer
-			uint8 * buffer = new uint8[ACSStatus::size + sizeof(int32)];
+			uint8 * buffer = new uint8[ACSState.size + sizeof(int32)];
 			AddUInt32(buffer, currTime);
 
 			// add the ACS H&S to the buffer
-			ACSState.update(buffer, ACSStatus::size, 4, 0);
+			ACSState.update(buffer, ACSState.size, 4, 0);
 			ACSState.serialize();
 
 			FMGServer * fmgServer = static_cast<FMGServer *> (Factory::GetInstance(FMG_SERVER_SINGLETON));
-			fmgServer->Log(DESTINATION_ACS_HST, buffer, ACSStatus::size + sizeof(int32));
+			fmgServer->Log(DESTINATION_ACS_HST, buffer, ACSState.size + sizeof(int32));
 		}
 
 		return true;
@@ -279,7 +278,6 @@ void ACSServer::bootConfig() {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	FILE * fp = fopen(ACS_CONFIG, "r");
-	uint8 buffer[ACSConfiguration.size];
 
 	// make sure we get a valid file pointer
 	if (fp == NULL) {
@@ -287,17 +285,23 @@ void ACSServer::bootConfig() {
 		return;
 	}
 
+	ACSConfigValid = false;
+
 	// read and update the configs
-	if (fread(buffer, sizeof(uint8), ACSConfiguration.size, fp) == ACSConfiguration.size) {
-		ACSConfiguration.update(buffer, ACSConfiguration.size, 0, 0);
-		ACSConfiguration.deserialize();
-		logger->Info("ACSServer: successfully booted ACS configs");
+	if (fread(ACSConfig, sizeof(uint8), ACS_CONFIG_SIZE, fp) == ACS_CONFIG_SIZE) {
+		ACSConfigValid = true;
+		if (ACSSetConfig()) {
+			logger->Info("ACSServer: successfully booted ACS configs");
+			// TODO: create TLM here
+		} else {
+			logger->Warning("ACSServer: error sending config to ACS");
+			// TODO: create TLM here
+		}
 		fclose(fp);
-		return;
 	} else {
+		ACSConfigValid = false;
 		logger->Error("ACSServer: error reading ACS config file, cannot boot");
 		fclose(fp);
-		return;
 	}
 }
 
@@ -305,7 +309,6 @@ bool ACSServer::updateConfig() {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
 	FILE * fp = fopen(ACS_CFG_UP, "r");
-	uint8 buffer[ACSConfiguration.size];
 
 	// make sure we get a valid file pointer
 	if (fp == NULL) {
@@ -313,14 +316,22 @@ bool ACSServer::updateConfig() {
 		return false;
 	}
 
+	ACSConfigValid = false;
+
 	// read and update the configs
-	if (fread(buffer, sizeof(uint8), ACSConfiguration.size, fp) == ACSConfiguration.size) {
-		ACSConfiguration.update(buffer, ACSConfiguration.size, 0, 0);
-		ACSConfiguration.deserialize();
-		logger->Info("ACSServer: successfully updated ACS configs");
+	if (fread(ACSConfig, sizeof(uint8), ACS_CONFIG_SIZE, fp) == ACS_CONFIG_SIZE) {
+		ACSConfigValid = true;
+		if (ACSSetConfig()) {
+			logger->Info("ACSServer: successfully updated ACS configs");
+			// TODO: create TLM here
+		} else {
+			logger->Info("ACSServer: error sending config to ACS");
+			// TODO: create TLM here
+		}
 		fclose(fp);
 		return true;
 	} else {
+		ACSConfigValid = false;
 		logger->Error("ACSServer: error reading ACS config file, cannot update");
 		fclose(fp);
 		return false;
@@ -329,9 +340,9 @@ bool ACSServer::updateConfig() {
 
 void ACSServer::WriteMRPToFile() {
 	ACSmrp temp;
-	temp.mrpX = ACSState.curr_mrp_x;
-	temp.mrpY = ACSState.curr_mrp_y;
-	temp.mrpZ = ACSState.curr_mrp_z;
+	temp.mrpX = ACSState.curr_mrp[0];
+	temp.mrpY = ACSState.curr_mrp[1];
+	temp.mrpZ = ACSState.curr_mrp[2];
 
 	uint8 buffer[ACSmrp::size];
 	temp.update(buffer, ACSmrp::size);

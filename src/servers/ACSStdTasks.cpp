@@ -215,6 +215,22 @@ bool ACSDetumble() {
 	return (response->isSuccess());
 }
 
+bool ACSSetConfig() {
+	ACSServer * acsServer = static_cast<ACSServer *> (Factory::GetInstance(ACS_SERVER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+
+	logger->Info("ACS: updating subsystem config");
+
+	// add the config from the ACSServer to a dynamically allocated array for dispatch
+	uint8 * buffer = new uint8[ACS_CONFIG_SIZE];
+	memcpy(buffer, acsServer->ACSConfig, ACS_CONFIG_SIZE);
+
+	ACPPacket * command = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, ACS_CONFIG, ACS_CONFIG_SIZE, buffer);
+	ACPPacket * response = DispatchPacket(command);
+
+	return (response->isSuccess());
+}
+
 bool ACSMRP(float x, float y, float z) {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 	logger->Info("ACS: sending MRP");

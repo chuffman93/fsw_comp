@@ -638,9 +638,12 @@ void processUplinkFiles(void) {
 
 	// Update ACS config
 	if (access(ACS_CFG_UP, F_OK) != -1) {
-		remove(ACS_CFG_UP);
-		//acsServer->updateConfig();
-		logger->Error("CMDStdTasks: ACS config not implemented");
+		ACSServer * acsServer = static_cast<ACSServer *> (Factory::GetInstance(ACS_SERVER_SINGLETON));
+		if(acsServer->updateConfig()) {
+			rename(ACS_CFG_UP, ACS_CONFIG);
+		} else {
+			remove(ACS_CFG_UP);
+		}
 	}
 
 	// Update CDH config

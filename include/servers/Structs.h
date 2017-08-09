@@ -81,34 +81,24 @@ public:
 
 class ACSStatus : public Serialize {
 public:
-  const static int size = 97;
+  const static int size = 161;
   ACSStatus();
-  ACSStatus(float mag_x, float mag_y, float mag_z, float curr_mrp_x, float curr_mrp_y, float curr_mrp_z, float targ_mrp_x, float targ_mrp_y, float targ_mrp_z, float rwspeed_x, float rwspeed_y, float rwspeed_z, float angrate_x, float angrate_y, float angrate_z, float gyro_x, float gyro_y, float gyro_z, float rw_pwm_x, float rw_pwm_y, float rw_pwm_z, float tr_x, float tr_y, float tr_z, int8 mode);
-  float mag_x; 
-  float mag_y; 
-  float mag_z; 
-  float curr_mrp_x; 
-  float curr_mrp_y; 
-  float curr_mrp_z; 
-  float targ_mrp_x; 
-  float targ_mrp_y; 
-  float targ_mrp_z; 
-  float rwspeed_x; 
-  float rwspeed_y; 
-  float rwspeed_z; 
-  float angrate_x; 
-  float angrate_y; 
-  float angrate_z; 
-  float gyro_x; 
-  float gyro_y; 
-  float gyro_z; 
-  float rw_pwm_x; 
-  float rw_pwm_y; 
-  float rw_pwm_z; 
-  float tr_x; 
-  float tr_y; 
-  float tr_z; 
-  int8 mode; 
+  ACSStatus(uint8 mode, float st_mrp[3], float curr_mrp[3], float ref_mrp[3], float time_since_lock, float gyro0[3], float gryo1[3], float ang_rate[3], float mag0[3], float mag1[3], float rw_torque[3], float rw_pwm[3], float rw_speed[3], float tr_torque[3], float tr_pwm[3]);
+  uint8 mode; 
+  float st_mrp[3]; 
+  float curr_mrp[3]; 
+  float ref_mrp[3]; 
+  float time_since_lock; 
+  float gyro0[3]; 
+  float gryo1[3]; 
+  float ang_rate[3]; 
+  float mag0[3]; 
+  float mag1[3]; 
+  float rw_torque[3]; 
+  float rw_pwm[3]; 
+  float rw_speed[3]; 
+  float tr_torque[3]; 
+  float tr_pwm[3]; 
   void serialize(void);
   void deserialize(void);
 };
@@ -197,16 +187,6 @@ public:
   float mrpX; 
   float mrpY; 
   float mrpZ; 
-  void serialize(void);
-  void deserialize(void);
-};
-
-class ACSConfig : public Serialize {
-public:
-  const static int size = 4;
-  ACSConfig();
-  ACSConfig(int32 testConfig);
-  int32 testConfig; 
   void serialize(void);
   void deserialize(void);
 };
