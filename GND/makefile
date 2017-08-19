@@ -7,6 +7,7 @@ SERIALIZE_PATH=../src/util/$(SERIALIZE)
 CREATE=create_bit_stream
 DECODE=decode_bit_stream
 EPS=HST_EPS_deserialize
+ACS = HST_ACS_deserialize
 
 SRCS=$(SERIALIZE_PATH).cpp $(CREATE).cpp $(DECODE).cpp
 
@@ -17,6 +18,9 @@ $(CREATE): $(CREATE).cpp $(SERIALIZE).o
 	
 $(EPS): $(EPS).cpp $(SERIALIZE).o
 	$(CC) $(CFLAGS) $(INCLUDES) -o $(EPS) $(EPS).cpp $(SERIALIZE).o
+	
+$(ACS): $(ACS).cpp $(SERIALIZE).o
+	$(CC) $(CFLAGS) $(INCLUDES) -o $(ACS) $(ACS).cpp $(SERIALIZE).o
 
 $(DECODE): $(DECODE).cpp $(SERIALIZE).o
 	$(CC) $(CFLAGS) $(INCLUDES) -o $(DECODE) $(DECODE).cpp $(SERIALIZE).o
