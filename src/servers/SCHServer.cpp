@@ -154,7 +154,7 @@ void SCHServer::SetDefaultBusSchedule(void) {
 
 	logger->Error("SCHServer: unable to set default bus due to lock!");
 	// TODO: handle this
-}
+	}
 
 void SCHServer::SubsystemLoop(void) {
 	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
@@ -318,6 +318,8 @@ int SCHServer::LoadNextSchedule(void) {
 
 	FILE * fp = fopen(SCHEDULE_FILE, "rb");
 	uint8 buffer[SCHItem::size * SCHEDULE_MAX_SIZE];
+
+	cout << fp << endl;
 
 	// make sure we get a valid file pointer
 	if (fp == NULL) {

@@ -802,7 +802,7 @@ void SCHItem::serialize(void) {
 }
 
 void SCHItem::deserialize(void) {
-  for (int iter = 0; iter < 3; iter++) {
+  for (int iter = 0; iter < 2; iter++) {
     this->ecefPos[iter] = this->deserialize_double();
   }
   this->radius = this->deserialize_double();
