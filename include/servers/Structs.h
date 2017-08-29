@@ -276,10 +276,10 @@ public:
 
 class SCHItem : public Serialize {
 public:
-  const static int size = 42;
+  const static int size = 34; //changed from 42
   SCHItem();
-  SCHItem(double ecefPos[3], double radius, uint8 enter_mode, uint32 timeout, uint8 mode, int32 duration);
-  double ecefPos[3]; 
+  SCHItem(double ecefPos[2], double radius, uint8 enter_mode, uint32 timeout, uint8 mode, int32 duration);
+  double ecefPos[2];
   double radius; 
   uint8 enter_mode; 
   uint32 timeout; 
