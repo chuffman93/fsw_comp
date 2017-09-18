@@ -138,10 +138,11 @@ void PLDServer::loopStartup() {
 	if (pid == 0) {
 		char * argv[] = {"/usr/bin/tftp", "-g", "-r", dataFile, "10.14.134.207", NULL};
 		if (execve("/usr/bin/tftp", argv, {NULL}) == -1) {
-			// TODO: handle this
+			// TODO: handle thiscd
 		}
 		exit(0);
 	}
+
 
 	//PLD is on and in science mode. Goto science loop
 	tftp_pid = pid;
@@ -169,9 +170,55 @@ void PLDServer::loopShutdown() {
 		kill(tftp_pid, SIGINT);
 		tftp_pid = -1;
 
-		// compress and move the data
+		//set up archivename and command strings
 		char archiveName[100];
 		char command[300];
+		//create archive name string for path to dataFile
+		sprintf(archiveName, RAD_FILE_PATH "/%s", dataFile);
+		// get how many files it was split into by dividing the dataFile size by the number of bytes per chunk
+		ifstream in(archiveName, ifstream::ate | ifstream::binary);
+		int f_bytes = in.tellg();
+		int n_splits = f_bytes/PLDConfiguration.chunkSize;
+		in.close();
+		// split the file within the location using the same name (tags on 000,001,002,ect.)
+		sprintf(command,"split -b %d -d -a 3 %s %s", PLDConfiguration.chunkSize,archiveName,archiveName);
+		wdmAsleep();
+		// runs the split command in the system
+		system(command);
+		wdmAlive();
+
+		// for loop through the number of splits created
+		for(int i = 0; 1 <= n_splits; i++){
+			int i2 = 0; // middle 0 if i < 10
+			string num = ""; // string to assign the numbers too, to reference each split file
+			if(i >= 10){
+				num = to_string(i); // if i >=10 only need i to creat the "000" tag on the file
+			}
+			else{
+				num = to_string(i2) + to_string(i); // other wise need i2 and i
+			}
+			// gets archive name we wish to create a .tar.gz compressed file for each chunk
+			sprintf(archiveName, RAD_FILE_PATH "/%s0%s.tar.gz",dataFile,num.c_str());
+			// sets up command to compress the file we have into the path we created in the archiveName
+			sprintf(command,"tar -czf %s " RAD_FILE_PATH "/%s0%s", archiveName,dataFile,num.c_str());
+			wdmAsleep();
+			// runs the command on the system
+			system(command);
+			wdmAlive();
+			// create a different archiveName referencing just the individual chunks
+			sprintf(archiveName, RAD_FILE_PATH "/%s0%s",dataFile,num.c_str());
+			// removes the chunks to save some space
+			remove(archiveName);
+		}
+		// removes the dataFile to save space
+		remove(dataFile);
+
+
+
+
+		/*
+		OLD WAY DONE BY COMPRESSING FIRST THEN CHUNKING
+
 		sprintf(archiveName, RAD_FILE_PATH "/%s.tar.gz", dataFile);
 		sprintf(command, "tar -czf %s %s", archiveName, dataFile);
 		wdmAsleep();
@@ -179,18 +226,24 @@ void PLDServer::loopShutdown() {
 		wdmAlive();
 		remove(dataFile);
 
+
 		// split the data
 		sprintf(command, "split -b %d -d -a 3 %s %s.", PLDConfiguration.chunkSize, archiveName, archiveName);
 		wdmAsleep();
 		system(command);
 		wdmAlive();
 		remove(archiveName);
+		*/
 	}
 
 	//PLD is off. Goto idle loop
 	sleepTime = 1000;
 	currentState = ST_IDLE;
 }
+
+
+
+// Used for file
 
 void PLDServer::loopScience() {
 	// Make sure PLD hasn't been turned off due to a fault, if it has, go back into startup
