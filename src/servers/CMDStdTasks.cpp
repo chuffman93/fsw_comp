@@ -68,13 +68,15 @@ void uftpSetup(void) {
 
 	// FIXME: Handle these errors
 
-	// ---------------------------KISS------------------------------------
-	system(KISSATTACH_PATH " /dev/ttyS2 radio 1.1.1.1");
-	system("ifconfig ax0 multicast up");
+	//  Switch to SLIP from KISS
+	// ---------------------------KISS & SLIP------------------------------------
+	// system(KISSATTACH_PATH " /dev/ttyS2 radio 1.1.1.1");
+	system("slattach -L -m -s 115200 -p slip /dev/ttyS2 &");
+	system("ifconfig sl0 1.1.1.1 pointopoint 1.1.1.2 multicast up");
 
 	// ------------------------UFTP Daemon---------------------------------
 	// http://uftp-multicast.sourceforge.net/client_usage.txt
-	system(UFTPD_PATH " -I ax0 -E -t -D " UPLINK_DIRECTORY);
+	system(UFTPD_PATH " -I sl0 -E -t -D " UPLINK_DIRECTORY);
 }
 
 bool openIEF(FILE ** fp, char ** line, size_t * len) {
