@@ -173,6 +173,7 @@ void PLDServer::loopShutdown() {
 		//set up archivename and command strings
 		char archiveName[100];
 		char command[300];
+		/*
 		//create archive name string for path to dataFile
 		sprintf(archiveName, RAD_FILE_PATH "/%s", dataFile);
 		// get how many files it was split into by dividing the dataFile size by the number of bytes per chunk
@@ -219,6 +220,7 @@ void PLDServer::loopShutdown() {
 		/*
 		OLD WAY DONE BY COMPRESSING FIRST THEN CHUNKING
 
+*/
 		sprintf(archiveName, RAD_FILE_PATH "/%s.tar.gz", dataFile);
 		sprintf(command, "tar -czf %s %s", archiveName, dataFile);
 		wdmAsleep();
@@ -233,7 +235,6 @@ void PLDServer::loopShutdown() {
 		system(command);
 		wdmAlive();
 		remove(archiveName);
-		*/
 	}
 
 	//PLD is off. Goto idle loop

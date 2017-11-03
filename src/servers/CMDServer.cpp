@@ -506,7 +506,7 @@ void CMDServer::DownlinkFile(string fileName) {
 
 	int pid = fork();
 	if (pid == 0) {
-		char * argv[] = {UFTP_PATH, "-Y", "aes256-gcm", "-h", "sha256", "-I", "ax0", "-H", "1.1.1.2", "-s", "50", "-x", "1", "-m", "10", (char *) fileName.c_str(), NULL};
+		char * argv[] = {UFTP_PATH, "-Y", "aes256-gcm", "-h", "sha256", "-I", "sl0", "-H", "1.1.1.2", "-s", "50", "-x", "1", "-m", "10", (char *) fileName.c_str(), NULL};
 		logger->Info("CMDServer: downlinking file");
 		execve(UFTP_PATH, argv, {NULL});
 		exit(0);
