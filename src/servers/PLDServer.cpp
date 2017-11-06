@@ -21,6 +21,15 @@
 #include "util/Logger.h"
 #include "util/TLM.h"
 #include "servers/CDHServer.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <string.h>
+#include <sstream>
+#include <zlib.h>
+#include <limits.h>
 
 using namespace std;
 using namespace AllStar::Core;
@@ -173,7 +182,7 @@ void PLDServer::loopShutdown() {
 		//set up archivename and command strings
 		char archiveName[100];
 		char command[300];
-		/*
+
 		//create archive name string for path to dataFile
 		sprintf(archiveName, RAD_FILE_PATH "/%s", dataFile);
 		// get how many files it was split into by dividing the dataFile size by the number of bytes per chunk
@@ -191,23 +200,25 @@ void PLDServer::loopShutdown() {
 		// for loop through the number of splits created
 		for(int i = 0; 1 <= n_splits; i++){
 			int i2 = 0; // middle 0 if i < 10
-			string num = ""; // string to assign the numbers too, to reference each split file
+			char* num = ""; // string to assign the numbers too, to reference each split file
 			if(i >= 10){
-				num = to_string(i); // if i >=10 only need i to creat the "000" tag on the file
+				//num = to_string(i); // if i >=10 only need i to creat the "000" tag on the file
+				sprintf(num,"%d",i);
 			}
 			else{
-				num = to_string(i2) + to_string(i); // other wise need i2 and i
+				//num = to_string(i2) + to_string(i); // other wise need i2 and i
+				sprintf(num,"%d%d",i2,i);
 			}
 			// gets archive name we wish to create a .tar.gz compressed file for each chunk
-			sprintf(archiveName, RAD_FILE_PATH "/%s0%s.tar.gz",dataFile,num.c_str());
+			sprintf(archiveName, RAD_FILE_PATH "/%s0%s.tar.gz",dataFile,num);
 			// sets up command to compress the file we have into the path we created in the archiveName
-			sprintf(command,"tar -czf %s " RAD_FILE_PATH "/%s0%s", archiveName,dataFile,num.c_str());
+			sprintf(command,"tar -czf %s " RAD_FILE_PATH "/%s0%s", archiveName,dataFile,num);
 			wdmAsleep();
 			// runs the command on the system
 			system(command);
 			wdmAlive();
 			// create a different archiveName referencing just the individual chunks
-			sprintf(archiveName, RAD_FILE_PATH "/%s0%s",dataFile,num.c_str());
+			sprintf(archiveName, RAD_FILE_PATH "/%s0%s",dataFile,num);
 			// removes the chunks to save some space
 			remove(archiveName);
 		}
@@ -220,7 +231,7 @@ void PLDServer::loopShutdown() {
 		/*
 		OLD WAY DONE BY COMPRESSING FIRST THEN CHUNKING
 
-*/
+
 		sprintf(archiveName, RAD_FILE_PATH "/%s.tar.gz", dataFile);
 		sprintf(command, "tar -czf %s %s", archiveName, dataFile);
 		wdmAsleep();
@@ -235,6 +246,7 @@ void PLDServer::loopShutdown() {
 		system(command);
 		wdmAlive();
 		remove(archiveName);
+		*/
 	}
 
 	//PLD is off. Goto idle loop

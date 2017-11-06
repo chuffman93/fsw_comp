@@ -74,6 +74,8 @@ void uftpSetup(void) {
 	system("slattach -L -m -s 115200 -p slip /dev/ttyS2 &");
 	system("ifconfig sl0 1.1.1.1 pointopoint 1.1.1.2 multicast up");
 
+
+
 	// ------------------------UFTP Daemon---------------------------------
 	// http://uftp-multicast.sourceforge.net/client_usage.txt
 	system(UFTPD_PATH " -I sl0 -E -t -D " UPLINK_DIRECTORY);

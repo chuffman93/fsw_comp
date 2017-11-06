@@ -96,8 +96,9 @@ bool SCHServer::LoadDefaultScheduleConfigurations(char * filename) {
 		for (uint8 i = 0; i < bytes_read / SCHItem::size; i++) {
 			DefaultArray[i].update(buffer, bytes_read, SCHItem::size*i, SCHItem::size*i);
 			DefaultArray[i].deserialize();
+			cout << (DefaultArray[i].deserialize()) << endl;
 			DefaultArray[i].timeout += getTimeInSec();
-			if ((DefaultArray[i].enter_mode < 0 || DefaultArray[i].enter_mode > 1) ||
+			if ((DefaultArray[i].enter_mode < 0 || DefaultArray[i].enter_mode > MODE_NUM_MODES) ||
 					(DefaultArray[i].mode < 0 || DefaultArray[i].mode > MODE_NUM_MODES)) {
 				// error in file
 				logger->Error("SCHServer: default schedule item out of range");
