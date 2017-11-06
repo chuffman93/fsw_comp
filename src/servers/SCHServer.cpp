@@ -96,7 +96,6 @@ bool SCHServer::LoadDefaultScheduleConfigurations(char * filename) {
 		for (uint8 i = 0; i < bytes_read / SCHItem::size; i++) {
 			DefaultArray[i].update(buffer, bytes_read, SCHItem::size*i, SCHItem::size*i);
 			DefaultArray[i].deserialize();
-			cout << (DefaultArray[i].deserialize()) << endl;
 			DefaultArray[i].timeout += getTimeInSec();
 			if ((DefaultArray[i].enter_mode < 0 || DefaultArray[i].enter_mode > MODE_NUM_MODES) ||
 					(DefaultArray[i].mode < 0 || DefaultArray[i].mode > MODE_NUM_MODES)) {
@@ -338,6 +337,7 @@ int SCHServer::LoadNextSchedule(void) {
 	if (file_size == 0 || (file_size % SCHItem::size) != 0) {
 		TLM_SCHEDULE_BAD_SIZE();
 		logger->Error("SCHServer: Invalid schedule file size, loading default...");
+		cout << "The file size and size are: " << file_size << "  " << SCHItem::size << endl << endl;
 		LoadDefaultSchedule();
 		fclose(fp);
 		return false;
