@@ -71,7 +71,7 @@ void uftpSetup(void) {
 	//  Switch to SLIP from KISS
 	// ---------------------------KISS & SLIP------------------------------------
 	// system(KISSATTACH_PATH " /dev/ttyS2 radio 1.1.1.1");
-	int a = system("$(ps aux | grep '[s]l0' | awk '{print $2}')");
+	int a = system("$(ps aux | grep '[s]l0' | awk '{print $2}') 2>/dev/null");
 	if(a != 0){
 		logger->Warning("CMDStdTasks: UFTP bind found and killed");
 		system("kill $(ps aux | grep '[s]l0' | awk '{print $2}')"); // kill uftp process if still initialized to avoid attempt at re-bind
