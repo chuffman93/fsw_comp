@@ -25,6 +25,7 @@ bool parseIEFLine(FILE * fp, char ** line, size_t * len, uint8 lineNum);
 void parseDRF(void);
 void parseDLT(void);
 void parsePPE(void);
+void parseDFL(void);
 void processUplinkFiles(void);
 string trimNewline(string buf);
 void prepRADDownlink(char * line, uint8 lineNum);
@@ -37,6 +38,7 @@ int getNumFiles(char * dir);
 string getDownlinkFile(int fileNum);
 void executeFSWCommand(int command, uint8 lineNum);
 int checkForSOT(void);
+void getFilesList(string dir);
 
 } // End of namespace Servers
 } // End of namespace AllStar

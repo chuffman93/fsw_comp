@@ -19,7 +19,9 @@
 #include <sys/select.h>
 #include <sys/ioctl.h>
 #include <linux/spi/spidev.h>
-
+#include <sstream>
+#include <iostream>
+#include <fstream>
 #include "HAL/SPI_Server.h"
 #include "core/ACPPacket.h"
 #include "core/Dispatcher.h"
@@ -31,8 +33,9 @@
 
 using namespace AllStar;
 using namespace Core;
+using namespace std;
 
-static int timeout = 200;
+static int timeout = 3000;
 
 char * SPI_HALServer::queueNameSPITX = (char *) "/queueHandleSPITX";
 
@@ -82,9 +85,8 @@ void SPI_HALServer::SubsystemLoop(void) {
 						logger->Debug("SPI_HAL Server: Successfully dispatched packet");
 						logTXSuccess(dest, txPacket->getOpcode());
 					} else {
-						logger->Warning("SPI_HAL Server: " "\x1b[33m" "Packet dispatch failed!" "\x1b[0m" " Subsystem: ", txPacket->getDestination());
+						logger->Warning("SPI_HAL Server: " "\x1b[33m" "Packet dispatch failed!" "\x1b[0m" " Subsystem: %d", txPacket->getDestination());
 						logTXFailure(dest, txPacket->getOpcode());
-
 						// increment dropped packets counter for that subsystem
 						packetsDroppedTX++;
 					}
@@ -145,9 +147,9 @@ bool SPI_HALServer::SPIDispatch(AllStar::Core::ACPPacket & packet) {
 	struct pollfd fds;
 	int destination = 0;
 	packetLength = packet.GetFlattenSize();
-	logger->Debug("SPI_Server: SPIDispatch(): Dispatching packet of size %d", (uint32) packetLength);
-	logger->Debug("SPI_Server: SPIDispatch(): Opcode %u", (uint32) packet.getOpcode());
-	logger->Debug("SPI_Server: SPIDispatch(): Dispatch to %d", packet.getDestination());
+	logger->Warning("SPI_Server: SPIDispatch(): Dispatching packet of size %d", (uint32) packetLength);
+	logger->Warning("SPI_Server: SPIDispatch(): Opcode %u", (uint32) packet.getOpcode());
+	logger->Warning("SPI_Server: SPIDispatch(): Dispatch to %d", packet.getDestination());
 
 	if (packetLength >= MAX_PACKET_SIZE) {
 		logger->Error("SPI_Server: SPIDispatch(): Packet too large!");
@@ -164,14 +166,14 @@ bool SPI_HALServer::SPIDispatch(AllStar::Core::ACPPacket & packet) {
 	}
 
 	destination = packet.getDestination();
-	logger->Debug("SPI_Server: SPIDispatch(): destination = %d", destination);
+	logger->Warning("SPI_Server: SPIDispatch(): destination = %d", destination);
 	get_int_fds(destination, &fds);
+
 	slave_fd = get_slave_fd(destination);
-
-	logger->Debug("SPI_Server: SPIDispatch(): Writing packet to SPI");
+	logger->Warning("SPI_Server: SPIDispatch(): Writing packet to SPI");
+	cout << "PacketLength: " << packetLength << endl;
 	bytes_copied = this->spi_write(slave_fd, &fds, packetBuffer, packetLength);
-	logger->Debug("SPI_Server: SPIDispatch(): Waiting on return message");
-
+	logger->Warning("SPI_Server: SPIDispatch(): Waiting on return message");
 	return (bytes_copied == packetLength);
 }
 
@@ -182,7 +184,6 @@ int SPI_HALServer::spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, in
 	int ret;
 	uint8_t clearBuf;
 	read(fds->fd, &clearBuf, 1);
-
 	while (buf_pt != len) {
 		logger->SuperDebug("Writing byte %d", buf_pt);
 		logger->Debug("Byte value: ----------------------- 0x%x", *(buf + buf_pt));
@@ -200,6 +201,8 @@ int SPI_HALServer::spi_write(int slave_fd, struct pollfd * fds, uint8_t* buf, in
 		logger->SuperDebug("Waiting for interrupt after byte send");
 		logger->SuperDebug("spi_write: Polling");
 		int retval = poll(fds, 1, timeout);
+		cout << "fds struct variables:  " << fds->fd << " " << fds->events << " " << fds->revents << endl;
+
 		if (!(fds->revents & POLLPRI) || retval == 0) {
 			logger->Error("Poll timeout!");
 			return -1;
@@ -282,7 +285,7 @@ int SPI_HALServer::spi_read(int slave_fd, struct pollfd * fds, uint8 **rx_bufp) 
 		//Read in remaining bytes
 		for (i = 0; i < packet_len - 6; i++) {
 			//Wait for interrupt before sending next byte
-			logger->SuperDebug("spi_read: Waiting for interrupt");
+			logger->Warning("spi_read: Waiting for interrupt");
 			retval = poll(fds, 1, timeout);
 			if (!(fds->revents & POLLPRI) || retval == 0) {
 				logger->Error("Poll timeout!");
@@ -328,6 +331,8 @@ int SPI_HALServer::get_int_fds(int subsystem, struct pollfd * poll_fds) {
 			return -1;
 	}
 	poll_fds->fd = int_fds[index];
+
+
 	poll_fds->events = POLLPRI;
 	return 0;
 }

@@ -141,7 +141,7 @@ void SCHServer::UpdateDefaultSchedule(int numItems) {
 void SCHServer::SetDefaultBusSchedule(void) {
 	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
 
-	double targetPosition[3] = {0, 0, 0};
+	double targetPosition[2] = {0, 0};
 	SCHItem defaultItem(targetPosition, -1, 1, 1, MODE_BUS_PRIORITY, 300);
 	for (uint8 i = 0; i < 5; i++) {
 		if (this->TakeLock(MAX_BLOCK_TIME)) {
@@ -200,7 +200,7 @@ void SCHServer::SubsystemLoop(void) {
 				itemEntered = false;
 				currentSchedule.pop_front();
 			}
-			double targetPosition[3] = {0, 0, 0};
+			double targetPosition[2] = {0, 0};
 			SCHItem newCOM(targetPosition, -1, 1, 1, MODE_COM, DEFAULT_COM_DURATION);
 			currentSchedule.push_front(newCOM);
 		}
@@ -219,7 +219,7 @@ void SCHServer::SubsystemLoop(void) {
 		if (resetRequest) {
 			resetRequest = false;
 			modeManager->SetMode(MODE_RESET);
-			double targetPosition[3] = {0, 0, 0};
+			double targetPosition[2] = {0, 0};
 			SCHItem resetItem(targetPosition, -1, 1, getTimeInSec() + 15, MODE_RESET, 30);
 			TLM_RESET_COMMANDED();
 			itemEntered = false;

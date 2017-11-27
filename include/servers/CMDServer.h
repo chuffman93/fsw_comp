@@ -59,6 +59,8 @@ private:
 	int numFilesDWN;
 	int currFileNum;
 	int32 startTime;
+	int32 comTime;
+	bool com;
 	bool beaconValid;
 	int uftp_pid;
 	bool downlinkInProgress;

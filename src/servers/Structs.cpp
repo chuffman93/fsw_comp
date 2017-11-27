@@ -625,15 +625,17 @@ CMDConfig::CMDConfig() {
   this->fileChunkSize = 0;
   this->maxDownlinkSize = 0;
   this->beaconPeriod = 0;
+  this->comTimeout = 0;
   this->increasedBeaconPeriod = 0;
   this->expectedRebootDuration = 0;
 }
 
-CMDConfig::CMDConfig(int32 resetPeriod, int32 fileChunkSize, int32 maxDownlinkSize, int32 beaconPeriod, int32 increasedBeaconPeriod, uint16 expectedRebootDuration) {
+CMDConfig::CMDConfig(int32 resetPeriod, int32 fileChunkSize, int32 maxDownlinkSize, int32 beaconPeriod, int32 comTimeout, int32 increasedBeaconPeriod, uint16 expectedRebootDuration) {
   this->resetPeriod = resetPeriod;
   this->fileChunkSize = fileChunkSize;
   this->maxDownlinkSize = maxDownlinkSize;
   this->beaconPeriod = beaconPeriod;
+  this->comTimeout = comTimeout;
   this->increasedBeaconPeriod = increasedBeaconPeriod;
   this->expectedRebootDuration = expectedRebootDuration;
 }
@@ -643,6 +645,7 @@ void CMDConfig::serialize(void) {
   this->serialize_int32(this->fileChunkSize);
   this->serialize_int32(this->maxDownlinkSize);
   this->serialize_int32(this->beaconPeriod);
+  this->serialize_int32(this->comTimeout);
   this->serialize_int32(this->increasedBeaconPeriod);
   this->serialize_uint16(this->expectedRebootDuration);
 }
@@ -652,6 +655,7 @@ void CMDConfig::deserialize(void) {
   this->fileChunkSize = this->deserialize_int32();
   this->maxDownlinkSize = this->deserialize_int32();
   this->beaconPeriod = this->deserialize_int32();
+  this->comTimeout = this->deserialize_int32();
   this->increasedBeaconPeriod = this->deserialize_int32();
   this->expectedRebootDuration = this->deserialize_uint16();
 }
@@ -769,7 +773,7 @@ void PLDConfig::deserialize(void) {
 }
 
 SCHItem::SCHItem() { 
-  for (int iter = 0; iter < 3; iter++) {
+  for (int iter = 0; iter < 2; iter++) {
     this->ecefPos[iter] = 0;
   }
   this->radius = 0;
@@ -779,8 +783,8 @@ SCHItem::SCHItem() {
   this->duration = 0;
 }
 
-SCHItem::SCHItem(double ecefPos[3], double radius, uint8 enter_mode, uint32 timeout, uint8 mode, int32 duration) {
-  for (int iter = 0; iter < 3; iter++) {
+SCHItem::SCHItem(double ecefPos[2], double radius, uint8 enter_mode, uint32 timeout, uint8 mode, int32 duration) {
+  for (int iter = 0; iter < 2; iter++) {
     this->ecefPos[iter] = ecefPos[iter];
   }
   this->radius = radius;
@@ -791,7 +795,7 @@ SCHItem::SCHItem(double ecefPos[3], double radius, uint8 enter_mode, uint32 time
 }
 
 void SCHItem::serialize(void) {
-  for (int iter = 0; iter < 3; iter++) {
+  for (int iter = 0; iter < 2; iter++) {
     this->serialize_double(this->ecefPos[iter]);
   }
   this->serialize_double(this->radius);

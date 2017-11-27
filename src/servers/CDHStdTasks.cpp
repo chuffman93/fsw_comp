@@ -69,9 +69,9 @@ void CDHTempStart(void) {
 	}
 
 	if (allSuccess) {
-		logger->Debug("CDHStdTasks: started all temp sensors");
+		//logger->Debug("CDHStdTasks: started all temp sensors");
 	} else if (someSuccess) {
-		logger->Debug("CDHStdTasks: error starting some temp sensors");
+		//logger->Debug("CDHStdTasks: error starting some temp sensors");
 	} else {
 		logger->Error("CDHStdTasks: error starting all temp sensors");
 	}
@@ -117,7 +117,7 @@ bool StartTempSensor(int bus, int sensor) {
 
 	// start sensor
 	if (system(start.c_str()) == -1) {
-		logger->Debug("CDHStdTasks: StartTempSensor(): Error Starting Sensor!");
+		//logger->Debug("CDHStdTasks: StartTempSensor(): Error Starting Sensor!");
 		return false;
 	}
 	return true;
@@ -169,20 +169,20 @@ float ReadTempSensor(int bus, int sensor) {
 
 		// Act on validity
 		if (isGood) {
-			logger->Debug("CDHStdTasks: ReadTempSensor: Good data (%0.2f) from sensor %d on bus %d", temperature, sensor, bus);
+			//logger->Debug("CDHStdTasks: ReadTempSensor: Good data (%0.2f) from sensor %d on bus %d", temperature, sensor, bus);
 			delete c;
 			delete tempRead;
 			fclose(fp);
 			return temperature;
 		} else {
-			logger->Debug("CDHStdTasks: ReadTempSensor: Bad data from sensor %d on bus %d!", sensor, bus);
+			//logger->Debug("CDHStdTasks: ReadTempSensor: Bad data from sensor %d on bus %d!", sensor, bus);
 			delete c;
 			delete tempRead;
 			fclose(fp);
 			return -300;
 		}
 	} else {
-		logger->Debug("CDHStdTasks: ReadTempSensor: Error opening file: sensor %d on bus %d", sensor, bus);
+		//logger->Debug("CDHStdTasks: ReadTempSensor: Error opening file: sensor %d on bus %d", sensor, bus);
 		return -301;
 	}
 }
@@ -276,11 +276,11 @@ void toggleSubPower(HardwareLocationIDType subsystem, bool state) {
 		if (state) {
 			TLM_PWR_PLD_ON();
 			logger->Info("CDHStdTasks: Turning PLD on");
-			cmd.append("1 > \"/sys/class/gpio/pioB17/value\"");
+			cmd.append("1 > \"/sys/class/gpio/pioB17/value\" ");
 		} else {
 			TLM_PWR_PLD_OFF();
 			logger->Info("CDHStdTasks: Turning PLD off");
-			cmd.append("0 > \"/sys/class/gpio/pioB17/value\"");
+			cmd.append("0 > \"/sys/class/gpio/pioB17/value\" ");
 		}
 		break;
 	case HARDWARE_LOCATION_GPS:

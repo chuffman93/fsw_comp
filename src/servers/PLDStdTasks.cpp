@@ -116,7 +116,6 @@ int PLDLEDData(){
 bool PLDTestAlive(){
 	ACPPacket * query = new ACPPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, TEST_ALIVE_CMD);
 	ACPPacket * ret = DispatchPacket(query);
-
 	if(ret->isSuccess()){
 		return true;
 	}else{

@@ -50,10 +50,10 @@ int main(int argc, char * argv[]) {
 	threadsCreated &= watchdogManager->StartServer(cdhServer, 2,	true);	 //CDH
 	threadsCreated &= watchdogManager->StartServer(cmdServer, 5,	true);	 //CMD
 	threadsCreated &= watchdogManager->StartServer(comServer, 1,	false);	 //COM
-	threadsCreated &= watchdogManager->StartServer(epsServer, 1,	false);	 //EPS
+	threadsCreated &= watchdogManager->StartServer(epsServer, 1,	true);	 //EPS
 	threadsCreated &= watchdogManager->StartServer(errServer, 0,	true);	 //ERR
 	threadsCreated &= watchdogManager->StartServer(fmgServer, 0,	true);	 //FMG
-	threadsCreated &= watchdogManager->StartServer(gpsServer, 5,	true);	 //GPS
+	threadsCreated &= watchdogManager->StartServer(gpsServer, 5,	false);	 //GPS
 	threadsCreated &= watchdogManager->StartServer(pldServer, 5,	true);	 //PLD
 	threadsCreated &= watchdogManager->StartServer(schServer, 0,	true);	 //SCH
 	threadsCreated &= watchdogManager->StartServer(spiServer, 0,	true);	 //SPI

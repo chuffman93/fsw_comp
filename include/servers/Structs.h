@@ -84,19 +84,19 @@ public:
   const static int size = 161;
   ACSStatus();
   ACSStatus(uint8 mode, float st_mrp[3], float curr_mrp[3], float ref_mrp[3], float time_since_lock, float gyro0[3], float gryo1[3], float ang_rate[3], float mag0[3], float mag1[3], float rw_torque[3], float rw_pwm[3], float rw_speed[3], float tr_torque[3], float tr_pwm[3]);
-  uint8 mode;
-  float st_mrp[3];
+  uint8 mode; 
+  float st_mrp[3]; 
   float curr_mrp[3]; 
-  float ref_mrp[3];
+  float ref_mrp[3]; 
   float time_since_lock; 
   float gyro0[3]; 
-  float gryo1[3];
-  float ang_rate[3];
-  float mag0[3];
+  float gryo1[3]; 
+  float ang_rate[3]; 
+  float mag0[3]; 
   float mag1[3]; 
-  float rw_torque[3];
+  float rw_torque[3]; 
   float rw_pwm[3]; 
-  float rw_speed[3];
+  float rw_speed[3]; 
   float tr_torque[3]; 
   float tr_pwm[3]; 
   void serialize(void);
@@ -129,7 +129,7 @@ public:
   uint16 current12v; 
   uint16 voltage12v; 
   uint16 remainingCapacity; 
-  uint16 battCurrent;
+  uint16 battCurrent; 
   uint16 battVoltage; 
   uint16 battStatus; 
   uint16 frangCurrent; 
@@ -137,9 +137,9 @@ public:
   uint16 convCurrentX; 
   uint16 convThreshX; 
   uint16 convCurrentY; 
-  uint16 convThreshY;
-  uint16 convCurrentW;
-  uint16 convThreshW;
+  uint16 convThreshY; 
+  uint16 convCurrentW; 
+  uint16 convThreshW; 
   void serialize(void);
   void deserialize(void);
 };
@@ -203,13 +203,14 @@ public:
 
 class CMDConfig : public Serialize {
 public:
-  const static int size = 22;
+  const static int size = 26;
   CMDConfig();
-  CMDConfig(int32 resetPeriod, int32 fileChunkSize, int32 maxDownlinkSize, int32 beaconPeriod, int32 increasedBeaconPeriod, uint16 expectedRebootDuration);
+  CMDConfig(int32 resetPeriod, int32 fileChunkSize, int32 maxDownlinkSize, int32 beaconPeriod, int32 comTimeout, int32 increasedBeaconPeriod, uint16 expectedRebootDuration);
   int32 resetPeriod; // seconds
   int32 fileChunkSize; 
   int32 maxDownlinkSize; 
   int32 beaconPeriod; 
+  int32 comTimeout; 
   int32 increasedBeaconPeriod; 
   uint16 expectedRebootDuration; 
   void serialize(void);
@@ -276,10 +277,10 @@ public:
 
 class SCHItem : public Serialize {
 public:
-  const static int size = 34; //changed from 42
+  const static int size = 34;
   SCHItem();
   SCHItem(double ecefPos[2], double radius, uint8 enter_mode, uint32 timeout, uint8 mode, int32 duration);
-  double ecefPos[2];
+  double ecefPos[2]; 
   double radius; 
   uint8 enter_mode; 
   uint32 timeout; 

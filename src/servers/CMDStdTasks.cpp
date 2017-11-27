@@ -9,6 +9,9 @@
  *
  *  Updated: 3/21/16
  *  Alex St. Clair (I apologize for how messy this code is)
+ *
+ *  Updated: 10/14/16
+ *  Alexandra Paquin
  */
 
 #include "servers/CMDServer.h"
@@ -34,6 +37,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <dirent.h>
 
 using namespace AllStar::Core;
 using namespace std;
@@ -67,6 +71,7 @@ void uftpSetup(void) {
 	}
 
 	// FIXME: Handle these errors
+	// FIXME: Handle these errors pertaining to already bind device on reset
 
 	//  Switch to SLIP from KISS
 	// ---------------------------KISS & SLIP------------------------------------
@@ -80,7 +85,6 @@ void uftpSetup(void) {
 
 	system("slattach -L -m -s 115200 -p slip /dev/ttyS2 &");
 	system("ifconfig sl0 1.1.1.1 pointopoint 1.1.1.2 mtu 256 multicast up");
-
 
 
 	// ------------------------UFTP Daemon---------------------------------
@@ -239,10 +243,90 @@ bool parseIEFLine(FILE * fp, char ** line, size_t * len, uint8 lineNum) {
 
 		cmdServer->DownlinkFile(archive);
 		return true;
-	}else{
-		logger->Warning("IEF: unknown command type");
-		TLM_IEF_UNKNOWN_COMMAND(lineNum);
-		return true;
+	//if Subsystem command
+		}else if (strcmp(type,"SUB") == 0) {
+				char * subsystem = strtok(NULL,",");
+				if (subsystem == NULL) {
+					logger->Warning("Incomplete IEF line at command");
+					TLM_IEF_INCOMPLETE_CMD(lineNum);
+					return true;
+			 }
+			command = strtok(NULL,",");
+			if (command == NULL) {
+				logger->Warning("Incomplete IEF line at command");
+				TLM_IEF_INCOMPLETE_CMD(lineNum);
+				return true;
+			}
+			int cmd = atoi(command);
+					char * messagebuff = strtok(NULL,",");
+					uint8 * msg = NULL;
+					if (messagebuff != NULL) {
+						msg = (uint8 *)atoi(messagebuff);
+			 }
+			if (strcmp(subsystem,"ACS") == 0){
+				//if (strcmp(command,""))
+				if (cmd <= 0 || cmd >= ACS_OPCODE_MAX) {
+					logger->Warning("Invalid IEF command number");
+					TLM_IEF_INVALID_CNUMBER(lineNum);
+					return true;
+				}
+				if (msg == NULL){
+					ACPPacket * opcode = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, cmd);
+					ACPPacket * ret = DispatchPacket(opcode);
+				}else{
+					uint16 buffLength = sizeof(msg);
+					ACPPacket * opcode = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, cmd, buffLength, msg);
+					ACPPacket * ret = DispatchPacket(opcode);
+				}
+			}else if (strcmp(subsystem, "COM") == 0){
+				if (cmd <= 0 || cmd >= COM_OPCODE_MAX) {
+					logger->Warning("Invalid IEF command number");
+					TLM_IEF_INVALID_CNUMBER(lineNum);
+					return true;
+				}
+				if (msg == NULL){
+					ACPPacket * opcode = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, cmd);
+					ACPPacket * ret = DispatchPacket(opcode);
+				}else{
+					uint16 buffLength = sizeof(msg);
+					ACPPacket * opcode = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, cmd, buffLength, msg);
+					ACPPacket * ret = DispatchPacket(opcode);
+				}
+			}else if (strcmp(subsystem, "EPS") == 0){
+				if (cmd <= 0 || cmd >= EPS_CMD_MAX) {
+					logger->Warning("Invalid IEF command number");
+				TLM_IEF_INVALID_CNUMBER(lineNum);
+					return true;
+				}
+				if (msg == NULL){
+					ACPPacket * opcode = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, cmd);
+					ACPPacket * ret = DispatchPacket(opcode);
+				}else{
+					uint16 buffLength = sizeof(msg);
+					ACPPacket * opcode = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, cmd, buffLength, msg);
+					ACPPacket * ret = DispatchPacket(opcode);
+				}
+			}else if (strcmp(subsystem, "PLD") == 0){
+				if (cmd <= 0 || cmd >= PLD_CMD_MAX) {
+					logger->Warning("Invalid IEF command number");
+					TLM_IEF_INVALID_CNUMBER(lineNum);
+					return true;
+				}
+				if (msg == NULL){
+					ACPPacket * opcode = new ACPPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, cmd);
+					ACPPacket * ret = DispatchPacket(opcode);
+				}else{
+					uint16 buffLength = sizeof(msg);
+					ACPPacket * opcode = new ACPPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, cmd, buffLength, msg);
+					ACPPacket * ret = DispatchPacket(opcode);
+				}
+			}else{
+				logger->Error("CMDStdTasks: Invalid IEF subsystem");
+			}
+		}else {
+	 		logger->Warning("IEF: unknown command type");
+	 		TLM_IEF_UNKNOWN_COMMAND(lineNum);
+	 		return true;
 	}
 }
 
@@ -615,15 +699,147 @@ void parsePPE(void) {
 
 			// call a function to find and execute the command
 			executeFSWCommand(cmd, lineNum);
-			//if Subsystem command
-	}else{
+		//if Subsystem command
+		}else if (strcmp(type,"SUB") == 0) {
+				char * subsystem = strtok(NULL,",");
+				if (subsystem == NULL) {
+					logger->Warning("Incomplete PPE line at command");
+					TLM_IEF_INCOMPLETE_CMD(lineNum);
+					continue;
+				}
+				command = strtok(NULL,",");
+				if (command == NULL) {
+					logger->Warning("Incomplete PPE line at command");
+					TLM_IEF_INCOMPLETE_CMD(lineNum);
+					continue;
+				}
+				int cmd = atoi(command);
+				char * messagebuff = strtok(NULL,",");
+				uint8 * msg = NULL;
+				if (messagebuff != NULL) {
+					msg = (uint8 *)atoi(messagebuff);
+				}
+				if (strcmp(subsystem,"ACS") == 0){
+					//if (strcmp(command,""))
+					if (cmd <= 0 || cmd >= ACS_OPCODE_MAX) {
+						logger->Warning("Invalid PPE command number");
+						TLM_IEF_INVALID_CNUMBER(lineNum);
+						continue;
+					}
+					if (msg == NULL){
+						ACPPacket * opcode = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, cmd);
+						ACPPacket * ret = DispatchPacket(opcode);
+					}else{
+						uint16 buffLength = sizeof(messagebuff);
+						ACPPacket * opcode = new ACPPacket(SERVER_LOCATION_ACS, HARDWARE_LOCATION_ACS, cmd, buffLength, msg);
+						ACPPacket * ret = DispatchPacket(opcode);
+					}
+				}else if (strcmp(subsystem, "COM") == 0){
+					if (cmd <= 0 || cmd >= COM_OPCODE_MAX) {
+						logger->Warning("Invalid PPE command number");
+						TLM_IEF_INVALID_CNUMBER(lineNum);
+						continue;
+					}
+					if (msg == NULL){
+						ACPPacket * opcode = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, cmd);
+						ACPPacket * ret = DispatchPacket(opcode);
+					}else{
+						uint16 buffLength = sizeof(messagebuff);
+						ACPPacket * opcode = new ACPPacket(SERVER_LOCATION_COM, HARDWARE_LOCATION_COM, cmd, buffLength, msg);
+						ACPPacket * ret = DispatchPacket(opcode);
+					}
+				}else if (strcmp(subsystem, "EPS") == 0){
+					if (cmd <= 0 || cmd >= EPS_CMD_MAX) {
+						logger->Warning("Invalid PPE command number");
+						TLM_IEF_INVALID_CNUMBER(lineNum);
+						continue;
+					}
+					if (msg == NULL){
+						ACPPacket * opcode = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, cmd);
+						ACPPacket * ret = DispatchPacket(opcode);
+					}else{
+						uint16 buffLength = sizeof(messagebuff);
+						ACPPacket * opcode = new ACPPacket(SERVER_LOCATION_EPS, HARDWARE_LOCATION_EPS, cmd, buffLength, msg);
+						ACPPacket * ret = DispatchPacket(opcode);
+					}
+				}else if (strcmp(subsystem, "PLD") == 0){
+					if (cmd <= 0 || cmd >= PLD_CMD_MAX) {
+						logger->Warning("Invalid PPE command number");
+						TLM_IEF_INVALID_CNUMBER(lineNum);
+						continue;
+					}
+					if (msg == NULL){
+						ACPPacket * opcode = new ACPPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, cmd);
+						ACPPacket * ret = DispatchPacket(opcode);
+					}else{
+						uint16 buffLength = sizeof(messagebuff);
+						ACPPacket * opcode = new ACPPacket(SERVER_LOCATION_PLD, HARDWARE_LOCATION_PLD, cmd, buffLength, msg);
+						ACPPacket * ret = DispatchPacket(opcode);
+					}
+				}else{
+					logger->Error("CMDStdTasks: Invalid PPE subsystem");
+				}
+		}else{
 			logger->Warning("PPE: unknown command type");
 		}
-	}
 
 	fclose(fp);
 
 	logger->Info("Finished PPE");
+}
+}
+
+void parseDFL(void){	CMDServer * cmdServer = static_cast<CMDServer *> (Factory::GetInstance(CMD_SERVER_SINGLETON));
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));
+	FILE * fp;
+	char * line = NULL;
+	size_t len = 0;
+	ssize_t bytesRead;
+
+	// check if a PPE file has been uplinked
+	if(access(DFL_PATH, F_OK) != 0){
+		logger->Debug("CMDStdTasks: no DFL");
+		return;
+	}
+
+	// open the files to downlink file
+	fp = fopen(DFL_PATH, "r");
+	if (fp == NULL){
+		logger->Error("CMDStdTasks: error opening DFL");
+		//TLM_PPE_BAD_OPEN();
+		remove(DFL_PATH);
+		return;
+	}
+
+	// check password
+	bytesRead = getline(&line, &len, fp);
+	if(strcmp(line,UPLK_PASSWORD) != 0){
+		logger->Error("CMDStdTasks: invalid DFL password");
+		//TLM_PPE_BAD_PASSWORD();
+		fclose(fp);
+		remove(DFL_PATH);
+		return;
+	}
+
+	remove(DFL_DOWN);
+
+	// parse the file line by line
+	while ((bytesRead = getline(&line, &len, fp)) != -1) {
+		line = strtok(line,"\n");
+		DIR * dir = opendir(line);
+		cout << line << endl;
+		if (dir){
+			 getFilesList(line);
+		}else if (ENOENT == errno){
+			logger->Warning("DFL: unknown path to folder");
+		}else {
+			logger->Warning("DFL: unable to access path to folder");
+		}
+	}
+	fclose(fp);
+
+	logger->Info("Finished DFL preparation");
+
 }
 
 // A primary responsibility of this function is to deal with configuration updates.
@@ -989,6 +1205,34 @@ int checkForSOT(void) {
 	}
 	return false;
 }
+
+void getFilesList(string dir){
+	Logger * logger = static_cast<Logger *> (Factory::GetInstance(LOGGER_SINGLETON));	//research dirent.h for finding file names in folder
+	DIR *dp;
+	struct dirent *entry;
+	int count;
+
+	dp  = opendir(dir.c_str());
+
+	//return if unable to open
+	if((dp  = opendir(dir.c_str())) == NULL) {
+		logger->Error("CMDStdTasks: error opening DFL directory");
+		return;
+	}
+	count = 0;
+
+	FILE * dwlkDFL = fopen(DFL_DOWN, "a+");
+	fwrite(dir.c_str(), strlen(dir.c_str()), 1, dwlkDFL);
+	while((entry = readdir(dp)) != NULL){
+		fwrite(", ", strlen(", "), 1, dwlkDFL);
+		fwrite(entry->d_name, strlen(entry->d_name), 1, dwlkDFL);
+		count++;
+	}
+	closedir(dp);
+	fclose(dwlkDFL);
+
+}
+
 
 } // End of namespace Servers
 } // End of namespace AllStar

@@ -38,17 +38,20 @@ using namespace AllStar::Core;
 namespace AllStar{
 namespace Servers{
 
-CMDConfig CMDServer::CMDConfiguration(360,1000,1000,10,10,10);
+CMDConfig CMDServer::CMDConfiguration(360,1000,1000,10,10,10,900);
 
 CMDServer::CMDServer(string nameIn, LocationIDType idIn) :
 		SubsystemServer(nameIn, idIn), Singleton(), numFilesDWN(0), currFileNum(0), uftp_pid(-1), downlinkInProgress(false) {
 	startTime = getTimeInSec();
+	comTime = 0;
 	CMDConfiguration.resetPeriod = 6000; // 3 hrs FIXME: change for flight
 	CMDConfiguration.fileChunkSize = 102400; // 100 kB
 	CMDConfiguration.maxDownlinkSize = 15728640; // 15 MB
 	CMDConfiguration.beaconPeriod = 15;
 	CMDConfiguration.increasedBeaconPeriod = 8;
+	CMDConfiguration.comTimeout = 900;
 	beaconValid = false;
+	com = false;
 }
 
 CMDServer::~CMDServer(){
@@ -146,6 +149,9 @@ void CMDServer::loopPassPrep(){
 		logger->Error("CMDServer: FMGServer never prepped for COM, COM pass over");
 		hsDelays = CMDConfiguration.beaconPeriod; // reset beacon period
 		currentState = ST_IDLE;
+	}else if (com == false){
+		comTime = getTimeInSec();
+		com = true;
 	}
 }
 
@@ -170,6 +176,12 @@ void CMDServer::loopLogin(){
 		logger->Info("CMDServer: no login, COM pass over");
 		hsDelays = CMDConfiguration.beaconPeriod; // set the beacon to normal rate
 		currentState = ST_POST_PASS;
+	}else if (com == false){
+		comTime = getTimeInSec();
+		com = true;
+	}else if (comTime+CMDConfiguration.comTimeout<getTimeInSec()){
+		currentState = ST_POST_PASS;
+		logger->Info("CMDServer: com timed out, COM pass over");
 	}
 }
 
@@ -179,6 +191,10 @@ void CMDServer::loopVerboseHS(){
 	// downlink the Verbose H&S file
 	logger->Info("CMDServer: Verbose H&S unimplemented");
 	currentState = ST_UPLINK;
+	if (comTime+CMDConfiguration.comTimeout<getTimeInSec()){
+		currentState = ST_POST_PASS;
+		logger->Info("CMDServer: com timed out, COM pass over");
+		}
 }
 
 void CMDServer::loopUplink(){
@@ -207,6 +223,9 @@ void CMDServer::loopUplink(){
 	if(modeManager->GetMode() != MODE_COM){
 		logger->Error("CMDServer: uplink not finished, COM pass over");
 		currentState = ST_POST_PASS;
+	}else if (comTime+CMDConfiguration.comTimeout<getTimeInSec()){
+		currentState = ST_POST_PASS;
+		logger->Info("CMDServer: com timed out, COM pass over");
 	}
 }
 
@@ -222,7 +241,7 @@ void CMDServer::loopImmediateExecution() {
 			uftp_pid = -1;
 		}
 		currentState = ST_POST_PASS;
-	} else if (downlinkInProgress) {
+	}else if (downlinkInProgress) {
 		int status;
 		if (waitpid(uftp_pid, &status, WNOHANG) != 0) {
 			TLM_UFTP_RETURN_STATUS(status);
@@ -230,6 +249,9 @@ void CMDServer::loopImmediateExecution() {
 			uftp_pid = -1;
 		}
 		return;
+	}else if (comTime+CMDConfiguration.comTimeout<getTimeInSec()){
+		currentState = ST_POST_PASS;
+		logger->Info("CMDServer: com timed out, COM pass over");
 	}
 
 	uint8 lineNum = 1;
@@ -268,6 +290,8 @@ void CMDServer::loopDownlink() {
 	ModeManager * modeManager = static_cast<ModeManager *> (Factory::GetInstance(MODE_MANAGER_SINGLETON));
 	string filename;
 
+	parseDFL();
+
 	if (modeManager->GetMode() != MODE_COM) {
 		logger->Error("CMDServer: downlink timed out, COM pass over");
 		numFilesDWN = 0;
@@ -298,6 +322,11 @@ void CMDServer::loopDownlink() {
 		currFileNum = 1;
 		currentState = ST_POST_PASS;
 	}
+
+	if (comTime+CMDConfiguration.comTimeout<getTimeInSec()){
+		currentState = ST_POST_PASS;
+		logger->Info("CMDServer: com timed out, COM pass over");
+		}
 }
 
 void CMDServer::loopPostPass() {
@@ -327,6 +356,8 @@ void CMDServer::loopPostPass() {
 		wdmAlive();
 	}
 
+	com = false;
+	comTime = 0;
 	currentState = ST_IDLE;
 }
 

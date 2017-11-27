@@ -112,6 +112,7 @@ CMDConfig
 	int32 fileChunkSize
 	int32 maxDownlinkSize
 	int32 beaconPeriod
+	int32 comTimeout
 	int32 increasedBeaconPeriod
 	uint16 expectedRebootDuration
 
@@ -139,7 +140,7 @@ PLDConfig
 	int32 chunkSize
 
 SCHItem
-	double ecefPos[3]
+	double ecefPos[2]
 	double radius
 	uint8 enter_mode
 	uint32 timeout

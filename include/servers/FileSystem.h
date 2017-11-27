@@ -26,6 +26,7 @@ namespace Servers{
 #define PPE_PATH				UPLINK_DIRECTORY	"/PPE.txt"
 #define EOT_PATH				UPLINK_DIRECTORY	"/EOT.txt"
 #define IEF_PATH				UPLINK_DIRECTORY	"/IEF.txt"
+#define DFL_PATH				UPLINK_DIRECTORY	"/DFL.txt"
 
 #define ACS_CFG_UP				UPLINK_DIRECTORY	"/ACSConfig"
 #define CDH_CFG_UP				UPLINK_DIRECTORY	"/CDHConfig"
@@ -35,7 +36,7 @@ namespace Servers{
 #define FMG_CFG_UP				UPLINK_DIRECTORY	"/FMGConfig"
 #define GPS_CFG_UP				UPLINK_DIRECTORY	"/GPSConfig"
 #define PLD_CFG_UP				UPLINK_DIRECTORY	"/PLDConfig"
-#define SCH_CFG_UP				UPLINK_DIRECTORY	"/SCHConfig"
+#define SCH_CFG_UP				CONFIG_DIRECTORY	"/SCHConfig" //changed for default schedule
 
 #define ACS_CONFIG				CONFIG_DIRECTORY	"/ACSConfig"
 #define CDH_CONFIG				CONFIG_DIRECTORY	"/CDHConfig"
@@ -46,6 +47,8 @@ namespace Servers{
 #define GPS_CONFIG				CONFIG_DIRECTORY	"/GPSConfig"
 #define PLD_CONFIG				CONFIG_DIRECTORY	"/PLDConfig"
 #define SCH_CONFIG	 			CONFIG_DIRECTORY	"/SCHConfig"
+
+#define DFL_DOWN				DOWNLINK_DIRECTORY	"/DFL.txt"
 
 #define EPOCH_FILE				CONFIG_DIRECTORY	"/PolarCube_Epoch"	// reboot number
 #define RAD_NUM_FILE			CONFIG_DIRECTORY	"/RAD_Number"		// science collection number
