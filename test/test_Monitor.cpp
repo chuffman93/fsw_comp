@@ -7,6 +7,7 @@
 #include <iostream>
 #include "core/Monitor.h"
 #include <pthread.h>
+#include <unistd.h>
 using namespace std;
 
 class test_class: public Monitor{
