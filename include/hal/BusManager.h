@@ -15,7 +15,7 @@
  * Handles a hardware device with a bus, e.g. I2C or SPI
  * Keeps track of registered devices on bus and implements hardware calls
  */
-template <struct device> class BusManager: public HardwareManager{
+template <typename device> class BusManager: public HardwareManager{
 public:
 	BusManager();
 	virtual ~BusManager();

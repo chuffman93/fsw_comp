@@ -9,7 +9,7 @@
 #define SPIMANAGER_H_
 #include "hal/BusManager.h"
 #include <string>
-#include <cstdint>
+#include <stdint.h>
 
 /*!
  * Contains all of the information relavent to a single device on the spi bus
@@ -24,7 +24,7 @@ struct SPIDevice{
  */
 class SPIManager: public BusManager<SPIDevice>{
 public:
-	SPIManager(string spibusbase, uint8_t mode, uint32_t speed);
+	SPIManager(std::string spibusbase, uint8_t mode, uint32_t speed);
 	~SPIManager();
 
 	int attachDevice(int ss);
@@ -35,7 +35,7 @@ public:
 
 private:
 	//! Base name for the spi bus (spi devices show up as <base>.x in linux)
-	string busbase;
+	std::string busbase;
 
 	//! SPI Mode (0-3)
 	uint8_t mode;
