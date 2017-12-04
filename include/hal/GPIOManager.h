@@ -31,7 +31,7 @@ struct GPIODevice{
 	//! Whether the GPIO is muxed as an input or output
 	GPIOType type;
 	//! The name of the GPIO folder in the linux fs
-	string gpioref;
+	std::string gpioref;
 };
 
 /*!
@@ -49,7 +49,7 @@ public:
 	void set(int id, GPIOLevel);
 
 private:
-	string gpiobase;
+	std::string gpiobase;
 };
 
 
