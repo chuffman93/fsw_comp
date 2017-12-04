@@ -9,11 +9,13 @@ using namespace std;
 
 void test_ACPManager(void);
 void test_Monitor(void);
+void test_SPIManager(void);
 
 int main(){
 	cout << "Entering Unittest Framework" << endl;
 	test_ACPManager();
 	test_Monitor();
+	test_SPIManager();
 
 	cout << "Exiting Unittest Framework" << endl;
 	return 0;

@@ -9,7 +9,10 @@
 #define SPIMANAGER_H_
 #include "hal/BusManager.h"
 #include <string>
-#include <cstdint>
+#include <stdint.h>
+#include <iostream>
+
+using namespace std;
 
 /*!
  * Contains all of the information relavent to a single device on the spi bus
