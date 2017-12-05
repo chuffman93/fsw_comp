@@ -27,6 +27,7 @@ protected:
 	 * \return the id of the added device
 	 */
 	virtual int attachDevice(device dev){
+		LockGuard lock(this);
 		devices.push_back(dev);
 		return devices.size() - 1;
 	}
@@ -36,6 +37,7 @@ protected:
 	 * \return the device corrisponding to the id
 	 */
 	device& getDevice(int id) {
+		LockGuard lock(this);
 		return devices.at(id);
 	}
 
