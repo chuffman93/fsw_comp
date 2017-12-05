@@ -7,9 +7,10 @@
 
 #ifndef GPIOMANAGER_H_
 #define GPIOMANAGER_H_
+#include "hal/BusManager.h"
 #include <string>
 
-enum GPIOType:bool{
+enum GPIOType{
 	GPIO_INPUT,
 	GPIO_OUTPUT,
 };

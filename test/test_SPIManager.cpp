@@ -5,61 +5,44 @@
  *      Author: fsw
  */
 
-#include "../include/hal/SPIManager.h"
+#include "hal/SPIManager.h"
 #include <iostream>
 
 using namespace std;
 
+
+void test_SPITXRXByte(void);
+
 void test_SPIManager(void){
-	cout << "Testing SPIManager" << endl;
+	cout << "Entering Testing for SPIManager" << endl;
+	test_SPITXRXByte();
+	cout << "Exiting Testing for SPIManager" << endl;
 
 }
 
+//test send byte and receive byte functions
+void test_SPITXRXByte(void){
 
-//test constructor
-void test_SPIConstructor(void){
-	string base = 'BUS';
+	string bus = "/dev/spidev32765";
 	uint8_t mode = 0;
-	uint32_t speed = 115200;
-	SPIManager test(base, mode, speed);
-	string b = test.getBase();
-	uint8_t m = test.getMode();
-	uint32_t s = test.getSpeed();
-	if (b == base) {
+	uint32_t speed = 1000000;
+	SPIManager test(bus,mode,speed);
+
+	test.initialize();
+
+	int ss = 1;
+	int id = test.attachDevice(ss);
+
+	uint8_t byte = 0x76;
+	test.sendbyte(id,byte);
+
+	uint8_t returnByte = test.receivebyte(id);
+
+	if (returnByte == byte){
 		cout << "." << endl;
 	}else{
-		cout << "Failed to construct SPIManager busbase" << endl;
+		cout << "Failed to receive byte from Subsystem: " << ss << endl;
 	}
-	if (m == mode) {
-		cout << "." << endl;
-	}else{
-		cout << "Failed to construct SPIManager mode" << endl;
-	}
-	if (s == speed) {
-		cout << "." << endl;
-	}else{
-		cout << "Failed to construct SPIManager speed" << endl;
-	}
-}
-
-//test initialization function
-void test_SPIInit(void){
 
 }
 
-//test attach device function
-void test_SPIAttachDevice(void){
-
-}
-
-//test send byte function
-void test_SPISendByte(void){
-
-}
-
-
-//test receive byte function
-void test_SPIReceiveByte(void)
-{
-
-}
