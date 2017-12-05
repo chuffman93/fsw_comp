@@ -22,10 +22,10 @@ public:
 	InterruptManager();
 	~InterruptManager();
 
-	void initialize();
-	int attachDevice(char bank, int pin, INTEdge);
+	MOCK void initialize();
+	MOCK int attachDevice(char bank, int pin, INTEdge);
 
-	bool wait(int id, uint32_t timeout);
+	MOCK bool wait(int id, uint32_t timeout);
 };
 
 

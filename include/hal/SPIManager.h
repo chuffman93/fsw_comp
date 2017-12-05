@@ -28,11 +28,11 @@ public:
 	SPIManager(std::string spibusbase, uint8_t mode, uint32_t speed);
 	~SPIManager();
 
-	int attachDevice(int ss);
-	void initialize();
+	MOCK int attachDevice(int ss);
+	MOCK void initialize();
 
-	void sendbyte(int id, uint8_t byte);
-	uint8_t receivebyte(int id);
+	MOCK void sendbyte(int id, uint8_t byte);
+	MOCK uint8_t receivebyte(int id);
 
 private:
 	//! Base name for the spi bus (spi devices show up as <base>.x in linux)

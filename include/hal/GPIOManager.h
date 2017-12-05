@@ -44,10 +44,10 @@ public:
 	~GPIOManager();
 
 	void initialize();
-	int attachDevice(char bank, int pin, GPIOType);
+	MOCK int attachDevice(char bank, int pin, GPIOType);
 
-	GPIOLevel get(int id);
-	void set(int id, GPIOLevel);
+	MOCK GPIOLevel get(int id);
+	MOCK void set(int id, GPIOLevel);
 
 private:
 	std::string gpiobase;

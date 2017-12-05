@@ -20,10 +20,10 @@ public:
 	UARTManager(std::string filename);
 	~UARTManager();
 
-	void initialize();
+	MOCK void initialize();
 
-	std::string readbuffer();
-	void writebuffer(std::string data);
+	MOCK std::string readbuffer();
+	MOCK void writebuffer(std::string data);
 
 private:
 	//! Holds the filename corrisponding to the UART

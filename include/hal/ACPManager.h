@@ -28,9 +28,11 @@ public:
 	ACPManager(SPIManager& spiman, InterruptManager& intman);
 	~ACPManager();
 
-	void attachDevice(int spiid, int intid);
+	void initialize();
 
-	bool transaction(ACPPacket& packet, ACPPacket& ret);
+	MOCK void attachDevice(int spiid, int intid);
+
+	MOCK bool transaction(ACPPacket& packet, ACPPacket& ret);
 
 private:
 	//! Reference to the SPIManager to be used

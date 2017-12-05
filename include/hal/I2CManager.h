@@ -29,13 +29,13 @@ public:
 	I2CManager(std::string file);
 	~I2CManager();
 
-	int attachDevice(uint8_t addr);
-	void initialize();
+	MOCK int attachDevice(uint8_t addr);
+	MOCK void initialize();
 
-	uint8_t readReg(int id, uint8_t reg);
-	void writeReg(int id, uint8_t reg, uint8_t value);
-	std::vector<uint8_t> readRaw(int id, size_t len);
-	uint8_t receivebyte(int id);
+	MOCK uint8_t readReg(int id, uint8_t reg);
+	MOCK void writeReg(int id, uint8_t reg, uint8_t value);
+	MOCK std::vector<uint8_t> readRaw(int id, size_t len);
+	MOCK uint8_t receivebyte(int id);
 
 private:
 	//! File for the I2C bus
