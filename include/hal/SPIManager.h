@@ -11,6 +11,7 @@
 #include <string>
 #include <stdint.h>
 
+
 /*!
  * Contains all of the information relavent to a single device on the spi bus
  */
