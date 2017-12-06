@@ -17,8 +17,8 @@
  */
 template <typename device> class BusManager: public HardwareManager{
 public:
-	BusManager();
-	virtual ~BusManager();
+	BusManager():devices(){}
+	virtual ~BusManager(){}
 
 protected:
 	/*!

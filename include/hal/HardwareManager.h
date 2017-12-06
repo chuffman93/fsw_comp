@@ -15,8 +15,8 @@
  */
 class HardwareManager: public Monitor{
 public:
-	HardwareManager();
-	virtual ~HardwareManager();
+	HardwareManager(){}
+	virtual ~HardwareManager(){}
 	//! Initialization to be implemented by the derived class
 	virtual void initialize() = 0;
 };
