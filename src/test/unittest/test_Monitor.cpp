@@ -4,6 +4,7 @@
  *  Created on: Dec 1, 2017
  *      Author: fsw
  */
+#include "test/catch.hpp"
 #include <iostream>
 #include "core/Monitor.h"
 #include <pthread.h>
@@ -30,8 +31,7 @@ static void* test_thread(void* arg){
 	return NULL;
 }
 
-void test_Monitor(){
-	cout << "Monitor " << endl;
+TEST_CASE("Monitor properly mutexes", "[Monitor]"){
 	test_class test;
 	pthread_t thr;
 	test.flag = false;
@@ -41,13 +41,6 @@ void test_Monitor(){
 	while(!test.flag) usleep(1);
 	//Take the lock on test
 	test.Lock();
-	if(test.flag == true){
-		//Allowed to run before thread1 finished, show error
-		cout << "Failed to wait until the end of thread1 to complete!" << endl;
-	}else{
-		cout << "." << endl;
-	}
-
+	REQUIRE(test.flag == false);
 	pthread_join(thr, NULL);
 }
-

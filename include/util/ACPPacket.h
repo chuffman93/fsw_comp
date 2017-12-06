@@ -14,10 +14,10 @@
 
 //! The sync codes to be used when communicating with subsystem
 enum subsystem_sync_t{
-	EPS = 0xA0 | 0,
-	COM = 0xA0 | 1,
-	ACS = 0xA0 | 2,
-	PLD = 0xA0 | 3,
+	EPS = 0xA4 | 0,
+	COM = 0xA4 | 1,
+	ACS = 0xA4 | 2,
+	PLD = 0xA4 | 3,
 };
 
 /*!
@@ -35,13 +35,16 @@ struct ACPPacket{
 	//! Checksum
 	uint16_t crc;
 
+	ACPPacket();
 	ACPPacket(subsystem_sync_t sync, uint16_t op);
 	ACPPacket(subsystem_sync_t sync, uint16_t op, std::vector<uint8_t> message);
 
 	std::vector<uint8_t> pack();
-	static void parseBytes(std::vector<uint8_t> bytes, ACPPacket& packet);
+	bool validate();
 
 	~ACPPacket();
+private:
+	std::vector<uint8_t> packallbutcrc();
 };
 
 
