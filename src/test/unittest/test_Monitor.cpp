@@ -11,7 +11,7 @@
 #include <unistd.h>
 using namespace std;
 
-class test_class: public Monitor{
+class test_Monitor: public Monitor{
 public:
 	bool flag;
 	void wait(){
@@ -26,13 +26,13 @@ public:
 };
 
 static void* test_thread(void* arg){
-	test_class* test = reinterpret_cast<test_class*>(arg);
+	test_Monitor* test = reinterpret_cast<test_Monitor*>(arg);
 	test->wait();
 	return NULL;
 }
 
 TEST_CASE("Monitor properly mutexes", "[Monitor]"){
-	test_class test;
+	test_Monitor test;
 	pthread_t thr;
 	test.flag = false;
 

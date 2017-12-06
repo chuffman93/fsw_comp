@@ -48,6 +48,45 @@ TEST_CASE("Test that the ACPManager performs correctly", "[hal][ACPManager]"){
 	intrid = intr.attachDevice('C', 'U', INT_RISING);
 	acpid = acp.attachDevice(spiid, intrid);
 
+	SECTION("Normal packet send and receive"){
+		spi.addBytes(spiid, correct_bytes);
+		for(size_t i = 0; i < 2*correct_bytes.size() - 1; i++) intr.addpending(intrid);
+
+		ACPPacket ret;
+		REQUIRE(acp.transaction(acpid, test, ret) == true);
+		REQUIRE(spi.getBytes(spiid) == correct_bytes);
+		REQUIRE(ret.sync == 0xA4);
+		REQUIRE(ret.id == 0);
+		REQUIRE(ret.message == message);
+		REQUIRE(ret.opcode == 10);
+		REQUIRE(ret.crc == 0xE03C);
+	}
+
+	SECTION("Timeout in transmit"){
+		spi.addBytes(spiid, correct_bytes);
+		//Load up one too few interrupts
+		for(size_t i = 0; i < correct_bytes.size() - 1; i++) intr.addpending(intrid);
+		ACPPacket ret;
+		REQUIRE(acp.transaction(acpid, test, ret) == false);
+	}
+
+	SECTION("Timeout in receive"){
+		spi.addBytes(spiid, correct_bytes);
+		//Load up one too few interrupts
+		for(size_t i = 0; i < 2*correct_bytes.size() - 2; i++) intr.addpending(intrid);
+		ACPPacket ret;
+		REQUIRE(acp.transaction(acpid, test, ret) == false);
+	}
+
+	SECTION("Rejecting bad data"){
+		//Corrupt the CRC
+		correct_bytes.back() = 0;
+		spi.addBytes(spiid, correct_bytes);
+		for(size_t i = 0; i < 2*correct_bytes.size(); i++) intr.addpending(intrid);
+		ACPPacket ret;
+		REQUIRE(acp.transaction(acpid, test, ret) == false);
+	}
+
 }
 
 void test_PacketTransaction(){

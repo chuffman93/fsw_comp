@@ -23,21 +23,22 @@ public:
 protected:
 	/*!
 	 * Adds the device into the registered devices
+	 * Assumes that mutex is not locked when called
 	 * \param device the device struct to be added
 	 * \return the id of the added device
 	 */
-	virtual int attachDevice(device dev){
+	int attachDevice(device& dev){
 		LockGuard lock(this);
 		devices.push_back(dev);
 		return devices.size() - 1;
 	}
 	/*!
 	 * Grabs the device corrisponding to the id
+	 * Assumes that mutex is locked when called
 	 * \param id the id of the device to be return
 	 * \return the device corrisponding to the id
 	 */
 	device& getDevice(int id) {
-		LockGuard lock(this);
 		return devices.at(id);
 	}
 

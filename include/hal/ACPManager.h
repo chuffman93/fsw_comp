@@ -30,15 +30,21 @@ public:
 
 	void initialize();
 
-	MOCK void attachDevice(int spiid, int intid);
+	MOCK int attachDevice(int spiid, int intid);
 
-	MOCK bool transaction(ACPPacket& packet, ACPPacket& ret);
+	MOCK bool transaction(int id, ACPPacket& packet, ACPPacket& ret);
 
 private:
 	//! Reference to the SPIManager to be used
 	SPIManager& spiman;
 	//! Reference to the InterruptManager to be used
 	InterruptManager& intman;
+
+	//! Stores the current number of packets sent
+	uint16_t numbertransactions;
+
+	bool sendPacket(int id, ACPPacket& packet);
+	bool receivePacket(int id, ACPPacket& ret);
 };
 
 
