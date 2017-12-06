@@ -8,6 +8,7 @@
 #ifndef INTERRUPTMANAGER_H_
 #define INTERRUPTMANAGER_H_
 #include "hal/GPIOManager.h"
+#include <stdint.h>
 
 enum INTEdge{
 	INT_FALLING,

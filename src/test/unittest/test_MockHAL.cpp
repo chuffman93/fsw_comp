@@ -6,6 +6,7 @@
  */
 #include <iostream>
 #include "test/mockhal/MockSPIManager.h"
+#include "test/mockhal/MockInterruptManager.h"
 using namespace std;
 
 //! Creates several test devices, and ensures that the correct number of bytes gets returned from each
@@ -87,8 +88,56 @@ void test_MockSPI(){
 	cout << endl;
 }
 
+//! Creates several devices and checks to makes sure that interrupts can be added properly
+void test_MockInt(){
+	vector<int> devices;
+	MockInterruptManager intr;
+	cout << "MockInt ";
+	for(int i = 0; i < 4; i++){
+		devices.push_back(intr.attachDevice('C', 'U', INT_RISING));
+	}
+
+	//Check that wait returns false when there are no pending interrupts
+	for(vector<int>::iterator dev = devices.begin(); dev < devices.end(); dev++){
+		if(intr.wait(*dev, 0) != false){
+			cout << "Failed to return false with no pending for device" << *dev << endl;
+			return;
+		}
+		cout << ".";
+	}
+
+	//Queue 10 interrupts for each device
+	for(vector<int>::iterator dev = devices.begin(); dev < devices.end(); dev++){
+		for(int i = 0; i < 10; i++){
+			intr.addpending(*dev);
+		}
+	}
+
+	//Check that all interrupts get through properly
+	for(vector<int>::iterator dev = devices.begin(); dev < devices.end(); dev++){
+		for(int i = 0; i < 10; i++){
+			if(intr.wait(*dev, 0) != true){
+				cout << "Failed to return true with pending for device" << *dev <<endl;
+				return;
+			}
+			cout << ".";
+		}
+	}
+
+	//Check that wait returns false when there are no pending interrupts
+	for(vector<int>::iterator dev = devices.begin(); dev < devices.end(); dev++){
+		if(intr.wait(*dev, 0) != false){
+			cout << "Failed to return false with no pending for device" << *dev << endl;
+			return;
+		}
+		cout << ".";
+	}
+
+	cout << endl;
+}
 
 void test_MockHAL(){
 	cout << "MockHAL " << endl;
 	test_MockSPI();
+	test_MockInt();
 }

@@ -43,13 +43,14 @@ public:
 	GPIOManager();
 	~GPIOManager();
 
-	void initialize();
+	virtual void initialize();
 	MOCK int attachDevice(char bank, int pin, GPIOType);
 
 	MOCK GPIOLevel get(int id);
 	MOCK void set(int id, GPIOLevel);
 
 private:
+	//! Contains the path to the gpio directory
 	std::string gpiobase;
 };
 
