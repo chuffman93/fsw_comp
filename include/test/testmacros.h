@@ -20,6 +20,12 @@
 		type initializer_##name[] = {__VA_ARGS__}; \
 		vector<type> name(initializer_##name, initializer_##name + sizeof(initializer_##name)/sizeof(type));
 
+#define PROMPT(prompt_str) do{ \
+		std::cout << prompt_str << endl; \
+		std::cout.flush(); \
+		std::cin.ignore(); \
+	}while(0);
+
 
 
 #endif /* TESTMACROS_H_ */

@@ -33,7 +33,8 @@ int MockInterruptManager::attachDevice(char bank, int pin, INTEdge edge){
 //! Will return true if there is a pending interrupt, false otherwise
 bool MockInterruptManager::wait(int id, uint32_t timeout){
 	LockGuard lock(this);
-	assert(id < pending.size());
+	assert(id >= 0);
+	assert((unsigned int)id < pending.size());
 	if(pending[id] > 0){
 		pending[id]--;
 		return true;
@@ -44,7 +45,8 @@ bool MockInterruptManager::wait(int id, uint32_t timeout){
 //! Adds a pending interrupt to the specified device
 void MockInterruptManager::addpending(int id){
 	LockGuard lock(this);
-	assert(id < pending.size());
+	assert(id >= 0);
+	assert((unsigned int)id < pending.size());
 	pending[id]++;
 }
 

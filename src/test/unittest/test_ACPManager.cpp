@@ -89,12 +89,3 @@ TEST_CASE("Test that the ACPManager performs correctly", "[hal][ACPManager]"){
 
 }
 
-void test_PacketTransaction(){
-	cout << "PacketTransaction ";
-
-}
-
-void test_ACPManager(){
-	cout << "ACPManager " << endl;
-}
-

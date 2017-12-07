@@ -36,14 +36,16 @@ void MockSPIManager::initialize(){}
 //! Adds the byte to the corrisponding TX_queue
 void MockSPIManager::sendbyte(int id, uint8_t byte){
 	LockGuard lock(this);
-	assert(id < TX_queues.size());
+	assert(id >= 0);
+	assert((unsigned int)id < TX_queues.size());
 	TX_queues[id].push(byte);
 }
 
 //! Returns the top item in the corrisponding RX_queue
 uint8_t MockSPIManager::receivebyte(int id){
 	LockGuard lock(this);
-	assert(id < RX_queues.size());
+	assert(id >= 0);
+	assert((unsigned int)id < RX_queues.size());
 	if(RX_queues[id].size() == 0){
 		return 0;
 	}
@@ -55,7 +57,9 @@ uint8_t MockSPIManager::receivebyte(int id){
 //! Adds the passed data to the corrisponding TX_queue
 void MockSPIManager::addBytes(int id, vector<uint8_t> data){
 	LockGuard lock(this);
-	assert(id < RX_queues.size());
+	assert(id >= 0);
+	assert(id >= 0);
+	assert((unsigned int) id < RX_queues.size());
 	for(vector<uint8_t>::iterator i = data.begin(); i < data.end(); i++){
 		RX_queues[id].push(*i);
 	}
@@ -64,7 +68,8 @@ void MockSPIManager::addBytes(int id, vector<uint8_t> data){
 //! Returns all of the data in the corrisponding TX_queue
 vector<uint8_t> MockSPIManager::getBytes(int id){
 	LockGuard lock(this);
-	assert(id < TX_queues.size());
+	assert(id >= 0);
+	assert((unsigned int)id < TX_queues.size());
 	vector<uint8_t> data;
 	while(TX_queues[id].size() > 0){
 		data.push_back(TX_queues[id].front());

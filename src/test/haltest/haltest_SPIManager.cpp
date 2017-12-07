@@ -4,45 +4,30 @@
  *  Created on: Dec 4, 2017
  *      Author: fsw
  */
-
+#include "test/testmacros.h"
 #include "hal/SPIManager.h"
+#include <unistd.h>
+#include "test/catch.hpp"
 #include <iostream>
 
 using namespace std;
 
-
-void test_SPITXRXByte(void);
-
-void test_SPIManager(void){
-	cout << "Entering Testing for SPIManager" << endl;
-	test_SPITXRXByte();
-	cout << "Exiting Testing for SPIManager" << endl;
-
-}
-
-//test send byte and receive byte functions
-void test_SPITXRXByte(void){
-
+TEST_CASE("SPI TX/RX", "[.][hardware][spi]"){
 	string bus = "/dev/spidev32765";
 	uint8_t mode = 0;
 	uint32_t speed = 1000000;
 	SPIManager test(bus,mode,speed);
-
-	test.initialize();
-
 	int ss = 1;
 	int id = test.attachDevice(ss);
+	test.initialize();
 
+	PROMPT("Ready to send byte over SPI to cs" << ss);
 	uint8_t byte = 0x76;
 	test.sendbyte(id,byte);
 
+	PROMPT("Ready to read byte over SPI from cs" << ss);
+
 	uint8_t returnByte = test.receivebyte(id);
-
-	if (returnByte == byte){
-		cout << "." << endl;
-	}else{
-		cout << "Failed to receive byte from Subsystem: " << ss << endl;
-	}
-
+	cout << "Received " << returnByte << endl;
+	cout.flush();
 }
-
