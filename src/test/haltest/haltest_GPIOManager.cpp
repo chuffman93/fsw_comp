@@ -8,6 +8,7 @@
 #include "hal/GPIOManager.h"
 #include "test/testmacros.h"
 #include <iostream>
+#include <unistd.h>
 #include "test/catch.hpp"
 
 using namespace std;
@@ -15,7 +16,7 @@ using namespace std;
 TEST_CASE("GPIO Output", "[.][hardware][gpio]"){
 	cout << "------------------GPIO Output Test---------------------" << endl;
 	//Configure the desired GPIOs
-	GPIOManager test;
+	GPIOManager test("/sys/gpio/");
 	char bank = 'A';
 	int pin = 11;
 	GPIOType type = GPIO_INPUT;
@@ -33,8 +34,8 @@ TEST_CASE("GPIO Output", "[.][hardware][gpio]"){
 
 TEST_CASE("GPIO Input", "[.][hardware][gpio]"){
 	cout << "------------------GPIO Input Test---------------------" << endl;
-	GPIOManager test;
-	char bank = GPIO_BANK_B;
+	GPIOManager test("/sys/gpio/");
+	char bank = 'B';
 	int pin = 11;
 	GPIOType type = GPIO_OUTPUT;
 	int id = test.attachDevice(bank,pin,type);
@@ -47,11 +48,10 @@ TEST_CASE("GPIO Input", "[.][hardware][gpio]"){
 
 		if(lev == HIGH){
 			cout << "Read HIGH from " << bank << pin << endl;
-			cout.flush();
 		}else{
 			cout << "Read LOW from " << bank << pin << endl;
-			cout.flush():
 		}
+		usleep(1*1000*1000);
 	}
 
 }

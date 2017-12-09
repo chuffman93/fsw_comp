@@ -9,7 +9,8 @@
 #include <assert.h>
 
 //! Doesn't really do anything
-MockInterruptManager::MockInterruptManager(){
+MockInterruptManager::MockInterruptManager()
+:InterruptManager(""){
 
 }
 

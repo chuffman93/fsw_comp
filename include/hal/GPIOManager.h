@@ -40,7 +40,7 @@ struct GPIODevice{
  */
 class GPIOManager: public BusManager<GPIODevice>{
 public:
-	GPIOManager();
+	GPIOManager(std::string gpiobase);
 	~GPIOManager();
 
 	virtual void initialize();

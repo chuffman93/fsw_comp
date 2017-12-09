@@ -20,7 +20,7 @@ enum INTEdge{
  */
 class InterruptManager: public GPIOManager{
 public:
-	InterruptManager();
+	InterruptManager(std::string busbase);
 	~InterruptManager();
 
 	MOCK void initialize();

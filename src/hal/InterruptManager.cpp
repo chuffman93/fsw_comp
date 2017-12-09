@@ -8,7 +8,8 @@
 #include "hal/InterruptManager.h"
 
 //! Stub, not yet implemented
-InterruptManager::InterruptManager(){}
+InterruptManager::InterruptManager(std::string busbase)
+:GPIOManager(busbase){}
 
 //! Stub, not yet implemented
 InterruptManager::~InterruptManager(){}

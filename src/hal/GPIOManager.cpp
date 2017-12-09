@@ -8,7 +8,7 @@
 #include "hal/GPIOManager.h"
 
 //! Stub, not yet implemented
-GPIOManager::GPIOManager(){
+GPIOManager::GPIOManager(std::string busbase){
 
 }
 
