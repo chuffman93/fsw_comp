@@ -25,7 +25,7 @@ TEST_CASE("GPIO Output", "[.][hardware][gpio]"){
 
 	GPIOLevel level1 = HIGH;
 	test.set(id,level1);
-	PROMPT("Setting GPIO at" << bank << pin << " HIGH");
+	PROMPT("Setting GPIO at " << bank << pin << " HIGH");
 
 	GPIOLevel level2 = LOW;
 	test.set(id,level2);
