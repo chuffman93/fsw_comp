@@ -1,4 +1,4 @@
-###To build the doxygen documentation
+#To build the doxygen documentation
 From the root directory run
    `$doxywizard doxyconf`
 In the GUI Run Doxygen (the steps for this are OS/version dependant)
