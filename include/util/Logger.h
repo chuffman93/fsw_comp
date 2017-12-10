@@ -21,8 +21,13 @@ enum log_level_t{
 	LEVEL_FATAL,
 };
 
+/*
+ * Class to handle all required logging for FSW.
+ * Intended for only one instance to be made, performs mutual exclusion so that no output gets spliced together.
+ */
 class Logger: public Monitor{
 public:
+	//! By default set the global logging level to Debug
 	Logger():globalLevel(LEVEL_DEBUG) {}
 	~Logger() {}
 
@@ -33,7 +38,10 @@ public:
 private:
 	std::string levelToString(log_level_t);
 	std::string threadIdTag();
+
+	//! Default logging level for all log messages
 	log_level_t globalLevel;
+	//! Registry of thread names
 	std::map<pthread_t, std::string> threadNames;
 };
 
