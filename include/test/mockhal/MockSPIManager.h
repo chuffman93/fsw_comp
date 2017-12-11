@@ -37,6 +37,7 @@ public:
 	std::vector<uint8_t> getBytes(int id);
 
 private:
+	Lock lock;
 };
 
 

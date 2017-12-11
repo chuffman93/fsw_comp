@@ -32,6 +32,7 @@ public:
 	void addpending(int id);
 
 private:
+	Lock lock;
 };
 
 

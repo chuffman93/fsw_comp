@@ -22,14 +22,14 @@ static void* test_thread(void* arg){
 	return NULL;
 }
 
-TEST_CASE("Monitor properly mutexes", "[Monitor]"){
+TEST_CASE("Lock properly mutexes", "[lock]"){
 	Lock lock;
 	pthread_t thr;
 	flag = false;
 
 	pthread_create(&thr, NULL, test_thread, &lock);
 	//Wait until test_thread is in the wait function
-	while(flag) usleep(1);
+	while(!flag) usleep(1);
 	//Take the lock on test
 	lock.lock();
 	REQUIRE(flag == false);

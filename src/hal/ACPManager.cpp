@@ -43,7 +43,6 @@ int ACPManager::attachDevice(int spiid, int intid){
  * \return whether the transaction was successful or not
  */
 bool ACPManager::transaction(int id, ACPPacket& packet, ACPPacket& ret){
-	LockGuard lock(lock);
 	bool success = false;
 	packet.id = numbertransactions++;
 	ret.sync = packet.sync;
