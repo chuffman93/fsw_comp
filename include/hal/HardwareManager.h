@@ -13,7 +13,7 @@
  * Class that implements the ideas for the hardware manager
  * Has a pure virtual initilization method to implement hardware dependant initialization
  */
-class HardwareManager: public Monitor{
+class HardwareManager{
 public:
 	HardwareManager(){}
 	virtual ~HardwareManager(){}

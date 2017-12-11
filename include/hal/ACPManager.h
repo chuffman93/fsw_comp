@@ -45,6 +45,7 @@ private:
 
 	bool sendPacket(int id, ACPPacket& packet);
 	bool receivePacket(int id, ACPPacket& ret);
+	LockClass lock;
 };
 
 

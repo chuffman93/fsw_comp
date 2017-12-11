@@ -8,33 +8,33 @@
 #include <pthread.h>
 
 //! Initializes the mutex
-Monitor::Monitor(){
+LockClass::LockClass(){
 	pthread_mutex_init(&lockHandle, NULL);
 }
 
 //! Destroys the mutex
-Monitor::~Monitor(){
+LockClass::~LockClass(){
 	pthread_mutex_destroy(&lockHandle);
 }
 
 //! Locks the mutex
-void Monitor::Lock(){
+void LockClass::Lock(){
 	pthread_mutex_lock(&lockHandle);
 }
 
 //! Unlocks the mutex
-void Monitor::Unlock(){
+void LockClass::Unlock(){
 	pthread_mutex_unlock(&lockHandle);
 }
 
-Monitor::LockGuard::LockGuard(Monitor* mon)
-:mon(mon)
+Monitor::Monitor(LockClass* lock)
 {
-	mon->Lock();
+	this->lock = lock;
+	this->lock->Lock();
 }
 
-Monitor::LockGuard::~LockGuard(){
-	mon->Unlock();
+Monitor::~Monitor(){
+	this->lock->Unlock();
 }
 
 

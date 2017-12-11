@@ -15,6 +15,13 @@ enum GPIOType{
 	GPIO_OUTPUT,
 };
 
+enum GPIONumber{
+	GPIO1 = 0,
+	GPIO2,
+	GPIO3,
+	NUM_GPIOS
+};
+
 enum GPIOBank{
 	GPIO_BANK_A = 32*0,
 	GPIO_BANK_B = 32*1,
@@ -33,6 +40,8 @@ struct GPIODevice{
 	GPIOType type;
 	//! The name of the GPIO folder in the linux fs
 	std::string gpioref;
+
+	LockClass lock;
 };
 
 /*!
@@ -50,6 +59,8 @@ public:
 	MOCK void set(int id, GPIOLevel);
 
 private:
+
+
 	//! Contains the path to the gpio directory
 	std::string gpiobase;
 };
