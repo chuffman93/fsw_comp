@@ -9,6 +9,7 @@
 #define BUSMANAGER_H_
 
 #include "hal/HardwareManager.h"
+#include <assert.h>
 #include <vector>
 
 /*!
@@ -38,6 +39,8 @@ protected:
 	 * \return the device corrisponding to the id
 	 */
 	device& getDevice(int id) {
+		assert(id > 0);
+		assert((unsigned int) id < devices.size());
 		return devices.at(id);
 	}
 

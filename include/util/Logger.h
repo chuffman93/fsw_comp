@@ -8,7 +8,7 @@
 #ifndef LOGGER_H_
 #define LOGGER_H_
 
-#include "core/Monitor.h"
+#include "core/Lock.h"
 #include <pthread.h>
 #include <string>
 #include <map>
@@ -25,7 +25,7 @@ enum log_level_t{
  * Class to handle all required logging for FSW.
  * Intended for only one instance to be made, performs mutual exclusion so that no output gets spliced together.
  */
-class Logger: public Monitor{
+class Logger{
 public:
 	//! By default set the global logging level to Debug
 	Logger():globalLevel(LEVEL_DEBUG) {}
@@ -43,6 +43,8 @@ private:
 	log_level_t globalLevel;
 	//! Registry of thread names
 	std::map<pthread_t, std::string> threadNames;
+	//! Lock for the logger
+	Lock lock;
 };
 
 

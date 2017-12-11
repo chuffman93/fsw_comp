@@ -7,7 +7,7 @@
 #include "test/catch.hpp"
 #include <iostream>
 #include "test/mockhal/MockSPIManager.h"
-#include "test/mockhal/MockInterruptManager.h"
+#include "test/mockhal/MockGPIOManager.h"
 using namespace std;
 
 TEST_CASE("Test that MockSPIManager properly simulates the SPI Bus", "[MockHAL][MockSPIManager]"){
@@ -78,7 +78,7 @@ TEST_CASE("Test that MockSPIManager properly simulates the SPI Bus", "[MockHAL][
 
 TEST_CASE("Test that MockInterruptManager simulates interrupts properly", "[MockHAL][MockInterruptManager]"){
 	vector<int> devices;
-	MockInterruptManager intr;
+	MockGPIOManager intr;
 	for(int i = 0; i < 4; i++){
 		devices.push_back(intr.attachDevice('C', 'U', INT_RISING));
 	}

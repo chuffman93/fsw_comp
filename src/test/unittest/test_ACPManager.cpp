@@ -11,7 +11,7 @@ using namespace std;
 #include "util/ACPPacket.h"
 #include "hal/ACPManager.h"
 #include "test/mockhal/MockSPIManager.h"
-#include "test/mockhal/MockInterruptManager.h"
+#include "test/mockhal/MockGPIOManager.h"
 
 TEST_CASE("Test that ACPPacket manages packets correctly", "[core][ACPPacket]"){
 	subsystem_sync_t sync = EPS;
@@ -37,7 +37,7 @@ TEST_CASE("Test that ACPPacket manages packets correctly", "[core][ACPPacket]"){
 TEST_CASE("Test that the ACPManager performs correctly", "[hal][ACPManager]"){
 	int spiid, intrid, acpid;
 	MockSPIManager spi;
-	MockInterruptManager intr;
+	MockGPIOManager intr;
 	ACPManager acp(spi, intr);
 	VECTOROFDATA(message, uint8_t, 1,2,3)
 	ACPPacket test(EPS, 10, message);

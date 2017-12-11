@@ -16,7 +16,6 @@ class Lock{
 public:
 	Lock();
 	~Lock();
-protected:
 	void lock();
 	void unlock();
 

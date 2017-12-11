@@ -12,10 +12,17 @@
 #include <vector>
 #include <queue>
 
+struct MockSPI{
+	std::queue<uint8_t> TX_queue;
+	std::queue<uint8_t> RX_queue;
+};
+
 /*!
  * Mock class to allow us to test things that depend on SPIManager.
  */
-class MockSPIManager: public SPIManager{
+class MockSPIManager: public SPIManager, public BusManager<MockSPI>{
+using BusManager<MockSPI>::attachDevice;
+using BusManager<MockSPI>::getDevice;
 public:
 	MockSPIManager();
 	~MockSPIManager();
@@ -30,10 +37,6 @@ public:
 	std::vector<uint8_t> getBytes(int id);
 
 private:
-	//! Holds all of the queues of bytes sent to the spoofed devices
-	std::vector<std::queue<uint8_t> > TX_queues;
-	//! Holds all of the queues of bytes to be received from the spoofed devices
-	std::vector<std::queue<uint8_t> > RX_queues;
 };
 
 

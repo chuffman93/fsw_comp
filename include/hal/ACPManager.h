@@ -10,7 +10,7 @@
 
 #include "hal/BusManager.h"
 #include "hal/SPIManager.h"
-#include "hal/InterruptManager.h"
+#include "hal/GPIOManager.h"
 #include "util/ACPPacket.h"
 
 //! Contains the ids for the corrisponding spi and interrupt devices
@@ -25,7 +25,7 @@ struct ACPDevice{
  */
 class ACPManager: public BusManager<ACPDevice>{
 public:
-	ACPManager(SPIManager& spiman, InterruptManager& intman);
+	ACPManager(SPIManager& spiman, GPIOManager& intman);
 	~ACPManager();
 
 	void initialize();
@@ -38,7 +38,7 @@ private:
 	//! Reference to the SPIManager to be used
 	SPIManager& spiman;
 	//! Reference to the InterruptManager to be used
-	InterruptManager& intman;
+	GPIOManager& gpioman;
 
 	//! Stores the current number of packets sent
 	uint16_t numbertransactions;

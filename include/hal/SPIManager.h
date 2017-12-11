@@ -8,6 +8,7 @@
 #ifndef SPIMANAGER_H_
 #define SPIMANAGER_H_
 #include "hal/BusManager.h"
+#include "core/Lock.h"
 #include <string>
 #include <stdint.h>
 

@@ -23,11 +23,9 @@ MockSPIManager::~MockSPIManager(){
 
 //! Adds a new entry to TX_queues and RX_queues
 int MockSPIManager::attachDevice(int ss){
-	LockGuard lock(this);
-	TX_queues.push_back(queue<uint8_t>());
-	RX_queues.push_back(queue<uint8_t>());
-
-	return TX_queues.size() - 1;
+	LockGuard lock(lock);
+	MockSPI spidev;
+	return attachDevice(spidev);
 }
 
 //! Does nothings
@@ -35,45 +33,41 @@ void MockSPIManager::initialize(){}
 
 //! Adds the byte to the corrisponding TX_queue
 void MockSPIManager::sendbyte(int id, uint8_t byte){
-	LockGuard lock(this);
-	assert(id >= 0);
-	assert((unsigned int)id < TX_queues.size());
-	TX_queues[id].push(byte);
+	LockGuard lock(lock);
+	MockSPI& spidev = getDevice(id);
+	spidev.TX_queue.push(byte);
 }
 
 //! Returns the top item in the corrisponding RX_queue
 uint8_t MockSPIManager::receivebyte(int id){
-	LockGuard lock(this);
-	assert(id >= 0);
-	assert((unsigned int)id < RX_queues.size());
-	if(RX_queues[id].size() == 0){
+	LockGuard lock(lock);
+	MockSPI& spidev = getDevice(id);
+
+	if(spidev.RX_queue.size() == 0){
 		return 0;
 	}
-	uint8_t value = RX_queues[id].front();
-	RX_queues[id].pop();
+	uint8_t value = spidev.RX_queue.front();
+	spidev.RX_queue.pop();
 	return value;
 }
 
 //! Adds the passed data to the corrisponding TX_queue
 void MockSPIManager::addBytes(int id, vector<uint8_t> data){
-	LockGuard lock(this);
-	assert(id >= 0);
-	assert(id >= 0);
-	assert((unsigned int) id < RX_queues.size());
+	LockGuard lock(lock);
+	MockSPI& spidev = getDevice(id);
 	for(vector<uint8_t>::iterator i = data.begin(); i < data.end(); i++){
-		RX_queues[id].push(*i);
+		spidev.RX_queue.push(*i);
 	}
 }
 
 //! Returns all of the data in the corrisponding TX_queue
 vector<uint8_t> MockSPIManager::getBytes(int id){
-	LockGuard lock(this);
-	assert(id >= 0);
-	assert((unsigned int)id < TX_queues.size());
+	LockGuard lock(lock);
+	MockSPI& spidev = getDevice(id);
 	vector<uint8_t> data;
-	while(TX_queues[id].size() > 0){
-		data.push_back(TX_queues[id].front());
-		TX_queues[id].pop();
+	while(spidev.TX_queue.size() > 0){
+		data.push_back(spidev.TX_queue.front());
+		spidev.TX_queue.pop();
 	}
 	return data;
 }

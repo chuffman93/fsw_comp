@@ -7,7 +7,6 @@
 
 #ifndef HARDWAREMANAGER_H_
 #define HARDWAREMANAGER_H_
-#include "core/Monitor.h"
 
 /*!
  * Class that implements the ideas for the hardware manager

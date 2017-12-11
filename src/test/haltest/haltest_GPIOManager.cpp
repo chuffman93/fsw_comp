@@ -19,8 +19,8 @@ TEST_CASE("GPIO Output", "[.][hardware][gpio]"){
 	GPIOManager test("/sys/gpio/");
 	char bank = 'A';
 	int pin = 11;
-	GPIOType type = GPIO_INPUT;
-	int id = test.attachDevice(bank,pin,type);
+	GPIODirection direction = GPIO_INPUT;
+	int id = test.attachDevice('A', 11, GPIO_INPUT);
 	test.initialize();
 
 	GPIOLevel level1 = HIGH;
@@ -37,8 +37,8 @@ TEST_CASE("GPIO Input", "[.][hardware][gpio]"){
 	GPIOManager test("/sys/gpio/");
 	char bank = 'B';
 	int pin = 11;
-	GPIOType type = GPIO_OUTPUT;
-	int id = test.attachDevice(bank,pin,type);
+	GPIODirection direction = GPIO_OUTPUT;
+	int id = test.attachDevice(bank,pin,direction);
 	test.initialize();
 
 	PROMPT("Ready to begin GPIO Input test...");

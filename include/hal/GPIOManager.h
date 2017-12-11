@@ -8,6 +8,8 @@
 #ifndef GPIOMANAGER_H_
 #define GPIOMANAGER_H_
 #include "hal/BusManager.h"
+#include "core/Lock.h"
+#include <stdint.h>
 #include <string>
 
 enum GPIODirection{
@@ -51,11 +53,9 @@ public:
 
 	MOCK GPIOLevel get(int id);
 	MOCK void set(int id, GPIOLevel level);
-	MOCK void wait(int id, uint32_t timeout);
+	MOCK bool wait(int id, uint32_t timeout);
 
 private:
-
-
 	//! Contains the path to the gpio directory
 	std::string gpiobase;
 };

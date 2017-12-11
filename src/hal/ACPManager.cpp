@@ -12,8 +12,8 @@ using namespace std;
  * \param spiman the spimanager reference
  * \param intman the interruptmanager reference
  */
-ACPManager::ACPManager(SPIManager& spiman, InterruptManager& intman)
-:spiman(spiman), intman(intman), numbertransactions(0)
+ACPManager::ACPManager(SPIManager& spiman, GPIOManager& gpioman)
+:spiman(spiman), gpioman(gpioman), numbertransactions(0)
 {
 
 }
@@ -43,8 +43,7 @@ int ACPManager::attachDevice(int spiid, int intid){
  * \return whether the transaction was successful or not
  */
 bool ACPManager::transaction(int id, ACPPacket& packet, ACPPacket& ret){
-	Monitor monitor(&this->lock);
-
+	LockGuard lock(lock);
 	bool success = false;
 	packet.id = numbertransactions++;
 	ret.sync = packet.sync;
@@ -67,11 +66,11 @@ bool ACPManager::transaction(int id, ACPPacket& packet, ACPPacket& ret){
  */
 bool ACPManager::sendPacket(int id, ACPPacket& packet){
 	//TODO: figure out what timeout to use in here
-	ACPDevice dev = getDevice(id);
+	ACPDevice& dev = getDevice(id);
 	vector<uint8_t> data = packet.pack();
 	for(vector<uint8_t>::iterator i = data.begin(); i < data.end(); i++){
 		spiman.sendbyte(dev.spiid, *i);
-		if(!intman.wait(dev.intid, 100)){
+		if(!gpioman.wait(dev.intid, 100)){
 			return false;
 		}
 	}
@@ -86,7 +85,7 @@ bool ACPManager::sendPacket(int id, ACPPacket& packet){
 
 bool ACPManager::receivePacket(int id, ACPPacket& ret){
 	//TODO: figure out what timeout to use in here
-	ACPDevice dev = getDevice(id);
+	ACPDevice& dev = getDevice(id);
 	ret.id = 0;
 	ret.opcode = 0;
 	ret.crc = 0;
@@ -97,28 +96,28 @@ bool ACPManager::receivePacket(int id, ACPPacket& ret){
 		return false;
 	}
 	//Read header
-	if(!intman.wait(dev.intid, 100)) return false;
+	if(!gpioman.wait(dev.intid, 100)) return false;
 	ret.id |= (uint16_t)spiman.receivebyte(dev.spiid) << 8;
-	if(!intman.wait(dev.intid, 100)) return false;
+	if(!gpioman.wait(dev.intid, 100)) return false;
 	ret.id |= (uint16_t)spiman.receivebyte(dev.spiid);
-	if(!intman.wait(dev.intid, 100)) return false;
+	if(!gpioman.wait(dev.intid, 100)) return false;
 	ret.opcode |= (uint16_t)spiman.receivebyte(dev.spiid);
-	if(!intman.wait(dev.intid, 100)) return false;
+	if(!gpioman.wait(dev.intid, 100)) return false;
 	len |= (uint16_t)spiman.receivebyte(dev.spiid) << 8;
-	if(!intman.wait(dev.intid, 100)) return false;
+	if(!gpioman.wait(dev.intid, 100)) return false;
 	len |= (uint16_t)spiman.receivebyte(dev.spiid);
 
 	//Read message
 	ret.message.clear();
 	for(size_t i = 0; i < len; i++){
-		if(!intman.wait(dev.intid, 100)) return false;
+		if(!gpioman.wait(dev.intid, 100)) return false;
 		ret.message.push_back((uint16_t)spiman.receivebyte(dev.spiid));
 	}
 
 	//Read crc
-	if(!intman.wait(dev.intid, 100)) return false;
+	if(!gpioman.wait(dev.intid, 100)) return false;
 	ret.crc |= (uint16_t)spiman.receivebyte(dev.spiid) << 8;
-	if(!intman.wait(dev.intid, 100)) return false;
+	if(!gpioman.wait(dev.intid, 100)) return false;
 	ret.crc |= (uint16_t)spiman.receivebyte(dev.spiid);
 
 	//Check that the packet is valid
