@@ -40,6 +40,8 @@ public:
 private:
 	//! File for the I2C bus
 	std::string devfilename;
+	//! Mutex for the bus
+	Lock lock;
 };
 
 

@@ -28,7 +28,6 @@ protected:
 	 * \return the id of the added device
 	 */
 	int attachDevice(device& dev){
-		Monitor monitor(this->lock);
 		devices.push_back(dev);
 		return devices.size() - 1;
 	}
@@ -45,7 +44,6 @@ protected:
 private:
 	//! The vector containing all registered devices
 	std::vector<device> devices;
-	LockClass lock;
 };
 
 

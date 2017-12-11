@@ -11,19 +11,14 @@
 
 /*!
  * Simple class that offers mutex methods and manages a mutex.
- * Partial implementation of a monitor structure
  */
-class LockClass{
+class Lock{
 public:
-	LockClass();
-	~LockClass();
+	Lock();
+	~Lock();
 protected:
-	void Lock();
-	void Unlock();
-
-	/*!
-	 * Guard that offers RAII-style owning of the monitor mutex
-	 */
+	void lock();
+	void unlock();
 
 private:
 	//! The mutex for the instance
@@ -31,12 +26,16 @@ private:
 };
 
 
-class Monitor{
+/*!
+ * Guard that offers RAII-style owning of a Lock
+ */
+class LockGuard{
 public:
-	Monitor(LockClass* lock);
-	~Monitor();
+	LockGuard(Lock* lock);
+	~LockGuard();
 private:
-	LockClass* lock;
+	//! A pointer to the lock object that is being owned by the LockGuard
+	Lock* lock;
 };
 
 #endif /* MONITOR_H_ */

@@ -18,7 +18,7 @@ using namespace std;
  */
 void Logger::setLevel(log_level_t level){
 	LockGuard lock(this);
-	cout << "Setting log level to " << levelToString(level) << endl;
+	cout << "Setting global log level to " << levelToString(level) << endl;
 	globalLevel = level;
 }
 
@@ -64,7 +64,7 @@ std::string Logger::threadIdTag(){
 	if (it == threadNames.end()){
 		ss << "[TID: " << pthread_self() << "]";
 	}else{
-		ss << "[TID: " << (*it).second << "]";
+		ss << "[" << (*it).second << "]";
 	}
 	return ss.str();
 }

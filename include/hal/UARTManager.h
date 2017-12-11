@@ -30,6 +30,8 @@ private:
 	std::string filename;
 	//! Holds the file descriptor corrisponding to filename. Created in initialize
 	int fd;
+	//! Mutex for the device
+	Lock lock;
 };
 
 

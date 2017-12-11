@@ -42,6 +42,8 @@ private:
 	uint8_t mode;
 	//! Bus speed in Hz
 	uint32_t speed;
+	//! Mutex for the bus
+	Lock lock;
 };
 
 
