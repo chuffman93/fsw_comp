@@ -22,6 +22,7 @@ struct SPIDevice{
 	//! File corrisponding to the spi device
 	int fd;
 
+	//! Allows for detection of duplicate devices
 	bool operator ==(const SPIDevice& dev){return ss == dev.ss;}
 };
 

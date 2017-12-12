@@ -43,7 +43,7 @@ struct GPIODevice{
 	//! Mutex for each GPIO
 	Lock lock;
 
-	//! Overload the == operator so that only the important qualities are compared
+	//! Allows for detection of duplicate devices
 	bool operator ==(const GPIODevice& dev){ return gpionum == dev.gpionum;}
 };
 

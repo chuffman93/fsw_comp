@@ -12,7 +12,11 @@
 #include <sys/ioctl.h>
 using namespace std;
 
-//! Stub, not necessarily final implementation
+/*
+ * \param busbase the root path to the spi device
+ * \param mode the spi mode to be used (0-4)
+ * \param speed the speed the bus should run on [Hz]
+ */
 SPIManager::SPIManager(string busbase, uint8_t mode, uint32_t speed)
 :busbase(busbase), speed(speed)
 {
@@ -41,7 +45,11 @@ void SPIManager::initialize(){
 	BusManager<SPIDevice>::initializeDevices();
 }
 
-//! Stub, not yet implemented
+/*!
+ * Handles the initialization of a single SPI device
+ * Does ioctl calls to set the mode and speed
+ * \param device the device to initialize
+ */
 void SPIManager::initializeDevice(SPIDevice& device){
 	stringstream ss;
 	ss << busbase << '.' << device.ss;
@@ -54,7 +62,11 @@ void SPIManager::initializeDevice(SPIDevice& device){
 	ioctl(device.fd,SPI_IOC_RD_MAX_SPEED_HZ, &speed);
 }
 
-//! Stub, not yet implemented
+/*!
+ * Sends a single byte to the specified device
+ * \param id the id of the device to send the byte to
+ * \param byte the byte to be sent
+ */
 void SPIManager::sendbyte(int id, uint8_t byte){
 	LockGuard l(&lock);
 	SPIDevice dev = getDevice(id);
@@ -71,7 +83,11 @@ void SPIManager::sendbyte(int id, uint8_t byte){
 	ioctl(dev.fd, SPI_IOC_MESSAGE(1), &tr);
 }
 
-//! Stub, not yet implemented
+/*!
+ * Reads a single byte from the specified device
+ * \param id the id of the device to be read from
+ * \return the byte that was reads
+ */
 uint8_t SPIManager::receivebyte(int id){
 	LockGuard l(&lock);
 	SPIDevice dev = getDevice(id);

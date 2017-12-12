@@ -18,6 +18,7 @@ struct ACPDevice{
 	int spiid;
 	int intid;
 
+	//! Allows for detection of duplicate devices
 	bool operator ==(const ACPDevice& dev){return spiid==dev.spiid || intid==dev.intid;}
 };
 

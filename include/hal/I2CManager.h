@@ -19,6 +19,9 @@
 struct I2CDevice{
 	//! I2C address of the device
 	uint8_t address;
+
+	//! Allows for detection of duplicate devices
+	bool operator ==(const I2CDevice& dev){return address == dev.address;}
 };
 
 /*!
