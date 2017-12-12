@@ -9,6 +9,7 @@
 #define GPIOMANAGER_H_
 #include "hal/BusManager.h"
 #include "core/Lock.h"
+#include <poll.h>
 #include <stdint.h>
 #include <string>
 
@@ -20,7 +21,7 @@ enum GPIODirection{
 enum GPIOEdge{
 	INT_FALLING,
 	INT_RISING,
-	NONE,
+	INT_NONE,
 };
 
 enum GPIOLevel{
@@ -30,11 +31,15 @@ enum GPIOLevel{
 
 struct GPIODevice{
 	//! Whether the GPIO is muxed as an input or output
-	GPIODirection type;
+	GPIODirection direction;
 	//! If the GPIO is  edge sensitive, what edge
 	GPIOEdge edge;
+	//! The unique number that corrisponds to the gpio
+	int gpionum;
 	//! The name of the GPIO folder in the linux fs
 	std::string gpioref;
+	//! If edge triggered, contains the poll file descriptor
+	pollfd pfd;
 	//! Mutex for each GPIO
 	Lock lock;
 };
@@ -47,7 +52,7 @@ public:
 	GPIOManager(std::string gpiobase);
 	~GPIOManager();
 
-	virtual void initialize();
+	MOCK void initialize();
 	MOCK int attachDevice(char bank, int pin, GPIODirection dir);
 	MOCK int attachDevice(char bank, int pin, GPIOEdge edge);
 
@@ -56,6 +61,7 @@ public:
 	MOCK bool wait(int id, uint32_t timeout);
 
 private:
+	void initializeDevice(GPIODevice& dev);
 	//! Contains the path to the gpio directory
 	std::string gpiobase;
 };

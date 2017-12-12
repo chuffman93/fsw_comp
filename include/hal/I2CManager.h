@@ -31,6 +31,7 @@ public:
 
 	MOCK int attachDevice(uint8_t addr);
 	MOCK void initialize();
+	void initializeDevice(SPIDevice& dev);
 
 	MOCK uint8_t readReg(int id, uint8_t reg);
 	MOCK void writeReg(int id, uint8_t reg, uint8_t value);

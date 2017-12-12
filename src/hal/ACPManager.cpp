@@ -24,6 +24,11 @@ ACPManager::~ACPManager(){}
 //! Does nothing
 void ACPManager::initialize(){}
 
+//! Don't need to do anything for ACP devices
+void ACPManager::initializeDevice(ACPDevice& device){
+
+}
+
 /*! Creates a device to refer the the specified spi and interrupt ids
  * \param spiid the id of the spi device to use
  * \param intid the id of the int device to use

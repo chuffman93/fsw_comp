@@ -31,6 +31,7 @@ public:
 
 	MOCK int attachDevice(int ss);
 	MOCK void initialize();
+	void initializeDevice(SPIDevice& dev);
 
 	MOCK void sendbyte(int id, uint8_t byte);
 	MOCK uint8_t receivebyte(int id);

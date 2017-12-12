@@ -31,6 +31,11 @@ void SPIManager::initialize(){
 }
 
 //! Stub, not yet implemented
+void SPIManager::initializeDevice(SPIDevice& device){
+
+}
+
+//! Stub, not yet implemented
 void SPIManager::sendbyte(int id, uint8_t byte){
 
 }

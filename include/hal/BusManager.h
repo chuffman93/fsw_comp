@@ -44,6 +44,24 @@ protected:
 		return devices.at(id);
 	}
 
+	/*!
+	 * Helper function to go through the lists of devices and call initializeDevice on them
+	 */
+	void initializeDevices(){
+		for(typename std::vector<device>::iterator i = devices.begin(); i < devices.end(); i++){
+			initializeDevice(*i);
+		}
+	}
+
+	/*!
+	 * Virtual method to initialize a device
+	 * Should be overriden by the inheireting class if something needs
+	 * to be done here.
+	 * By default does nothing
+	 * \param dev the device to be initialized
+	 */
+	virtual void initializeDevice(device& dev){};
+
 private:
 	//! The vector containing all registered devices
 	std::vector<device> devices;

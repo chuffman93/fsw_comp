@@ -29,6 +29,7 @@ public:
 	~ACPManager();
 
 	void initialize();
+	void initializeDevice(ACPDevice& device);
 
 	MOCK int attachDevice(int spiid, int intid);
 
