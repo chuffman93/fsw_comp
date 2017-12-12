@@ -6,6 +6,7 @@
  */
 
 #include "hal/SPIManager.h"
+#include <linux/spi/spidev.h>
 using namespace std;
 
 //! Stub, not necessarily final implementation
@@ -22,12 +23,14 @@ SPIManager::~SPIManager(){
 
 //! Stub, not yet implemented
 int SPIManager::attachDevice(int ss){
-
+	SPIDevice dev;
+	dev.ss = ss;
+	return BusManager<SPIDevice>::attachDevice(dev);
 }
 
 //! Stub, not yet implemented
 void SPIManager::initialize(){
-
+	BusManager<SPIDevice>::initializeDevices();
 }
 
 //! Stub, not yet implemented

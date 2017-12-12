@@ -17,8 +17,12 @@
  * Contains all of the information relavent to a single device on the spi bus
  */
 struct SPIDevice{
-	//! File Descriptor for the spi device
+	//! The slave select number of the spi device
+	int ss;
+	//! File corrisponding to the spi device
 	int fd;
+
+	bool operator ==(const SPIDevice& dev){return ss == dev.ss;}
 };
 
 /*!

@@ -11,6 +11,7 @@
 #include "hal/HardwareManager.h"
 #include <assert.h>
 #include <vector>
+#include <algorithm>
 
 /*!
  * Handles a hardware device with a bus, e.g. I2C or SPI
@@ -29,9 +30,12 @@ protected:
 	 * \return the id of the added device
 	 */
 	int attachDevice(device& dev){
+		//Assert that the device is not already in the list of devices
+		assert(std::find(devices.begin(), devices.end(), dev) == devices.end());
 		devices.push_back(dev);
 		return devices.size() - 1;
 	}
+
 	/*!
 	 * Grabs the device corrisponding to the id
 	 * Assumes that mutex is locked when called

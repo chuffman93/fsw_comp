@@ -17,6 +17,8 @@
 struct ACPDevice{
 	int spiid;
 	int intid;
+
+	bool operator ==(const ACPDevice& dev){return spiid==dev.spiid || intid==dev.intid;}
 };
 
 /*!

@@ -15,6 +15,8 @@
 struct MockSPI{
 	std::queue<uint8_t> TX_queue;
 	std::queue<uint8_t> RX_queue;
+
+	bool operator ==(const MockSPI& ms){return false;}
 };
 
 /*!

@@ -42,6 +42,9 @@ struct GPIODevice{
 	pollfd pfd;
 	//! Mutex for each GPIO
 	Lock lock;
+
+	//! Overload the == operator so that only the important qualities are compared
+	bool operator ==(const GPIODevice& dev){ return gpionum == dev.gpionum;}
 };
 
 /*!

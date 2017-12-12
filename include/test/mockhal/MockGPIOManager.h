@@ -13,15 +13,17 @@
 struct MockGPIO{
 	int pending;
 	Lock lock;
+
+	bool operator ==(const MockGPIO& mg){return false;}
 };
 
 /*!
  * Mock class for the InterruptManager
  */
 class MockGPIOManager: public GPIOManager, public BusManager<MockGPIO>{
-using BusManager<MockGPIO>::attachDevice;
-using BusManager<MockGPIO>::getDevice;
 public:
+	using BusManager<MockGPIO>::attachDevice;
+	using BusManager<MockGPIO>::getDevice;
 	MockGPIOManager();
 	~MockGPIOManager();
 

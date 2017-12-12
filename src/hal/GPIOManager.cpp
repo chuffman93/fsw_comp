@@ -32,7 +32,6 @@ void GPIOManager::initialize(){
 
 //! Initialize the passed gpio. performs muxings and other tasks
 void GPIOManager::initializeDevice(GPIODevice& dev){
-	LockGuard l(&dev.lock);
 	std::ofstream fs;
 	struct stat st;
 	//If the gpio isn't already exported export it
@@ -166,7 +165,3 @@ void GPIOManager::set(int id, GPIOLevel level){
 	fs << val;
 	fs.close();
 }
-
-
-
-
