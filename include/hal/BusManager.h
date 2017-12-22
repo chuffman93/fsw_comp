@@ -13,6 +13,10 @@
 #include <vector>
 #include <algorithm>
 
+// Look into typedefing types; i.e. ID types
+// Maybe add strings to assets?
+
+
 /*!
  * Handles a hardware device with a bus, e.g. I2C or SPI
  * Keeps track of registered devices on bus and implements hardware calls

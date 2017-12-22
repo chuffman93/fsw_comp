@@ -42,6 +42,7 @@ void GPIOManager::initializeDevice(GPIODevice& dev){
 	}
 
 	//Set the output mode
+	// TODO: check error
 	fs.open((gpiobase + dev.gpioref + "direction").c_str());
 	fs << ((dev.direction == GPIO_INPUT) ? "in" : "output");
 	fs.close();

@@ -12,6 +12,8 @@
 #include <vector>
 #include <memory>
 
+//TODO: move into ACP Interface
+
 //! The sync codes to be used when communicating with subsystem
 enum subsystem_sync_t{
 	EPS = 0xA4 | 0,

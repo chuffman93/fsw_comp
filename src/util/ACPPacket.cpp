@@ -8,6 +8,9 @@
 #include "util/ACPPacket.h"
 #include "util/crc.h"
 
+
+//TODO: move unpacking into here
+
 //! Doesn't do anything
 ACPPacket::ACPPacket()
 :sync(0), id(0), opcode(0), crc(0)

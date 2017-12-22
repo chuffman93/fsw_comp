@@ -13,6 +13,8 @@
 #include <stdint.h>
 #include <string>
 
+//TODO Consider typedefs
+
 enum GPIODirection{
 	GPIO_INPUT,
 	GPIO_OUTPUT,

@@ -13,6 +13,8 @@
 #include "hal/GPIOManager.h"
 #include "util/ACPPacket.h"
 
+//TODO: typedef ID's
+
 //! Contains the ids for the corrisponding spi and interrupt devices
 struct ACPDevice{
 	int spiid;

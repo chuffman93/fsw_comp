@@ -12,6 +12,8 @@
 #include <sys/ioctl.h>
 using namespace std;
 
+// NOTE: Consider not remapping linux SPI enum
+
 /*
  * \param busbase the root path to the spi device
  * \param mode the spi mode to be used (0-4)
@@ -52,7 +54,7 @@ void SPIManager::initialize(){
  */
 void SPIManager::initializeDevice(SPIDevice& device){
 	stringstream ss;
-	ss << busbase << '.' << device.ss;
+	ss << busbase << '.' << device.ss; //TODO: Check fd for error
 	device.fd = open(ss.str().c_str(), O_RDONLY);
 
 	//TODO: error checking on return values?
@@ -60,6 +62,7 @@ void SPIManager::initializeDevice(SPIDevice& device){
 	ioctl(device.fd, SPI_IOC_RD_MODE, &mode);
 	ioctl(device.fd,SPI_IOC_WR_MAX_SPEED_HZ, &speed);
 	ioctl(device.fd,SPI_IOC_RD_MAX_SPEED_HZ, &speed);
+	// TODO: consider logging registration
 }
 
 /*!
@@ -79,7 +82,7 @@ void SPIManager::sendbyte(int id, uint8_t byte){
 	tr.speed_hz = speed;
 	tr.cs_change = 0;
 	tr.bits_per_word = 8;
-
+		//TODO: consider reading return to log any error
 	ioctl(dev.fd, SPI_IOC_MESSAGE(1), &tr);
 }
 

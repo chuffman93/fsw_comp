@@ -13,6 +13,9 @@
 #include <stdint.h>
 
 
+// NOTE:: consider typedefing liberally
+// NOTE: Consider increasing spi bus speed (look into max speed)
+
 /*!
  * Contains all of the information relavent to a single device on the spi bus
  */
