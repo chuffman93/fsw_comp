@@ -28,15 +28,15 @@ void Lock::unlock(){
 }
 
 //! Locks the mutex for the passed lock
-LockGuard::LockGuard(Lock* lock)
+LockGuard::LockGuard(Lock& lock)
 :lock(lock)
 {
-	lock->lock();
+	lock.lock();
 }
 
 //! Unlocks the mutex for the passed lock
 LockGuard::~LockGuard(){
-	lock->unlock();
+	lock.unlock();
 }
 
 

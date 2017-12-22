@@ -68,7 +68,7 @@ void SPIManager::initializeDevice(SPIDevice& device){
  * \param byte the byte to be sent
  */
 void SPIManager::sendbyte(int id, uint8_t byte){
-	LockGuard l(&lock);
+	LockGuard l(lock);
 	SPIDevice dev = getDevice(id);
 	uint8_t rx, tx = byte;
 	struct spi_ioc_transfer tr;
@@ -89,7 +89,7 @@ void SPIManager::sendbyte(int id, uint8_t byte){
  * \return the byte that was reads
  */
 uint8_t SPIManager::receivebyte(int id){
-	LockGuard l(&lock);
+	LockGuard l(lock);
 	SPIDevice dev = getDevice(id);
 	uint8_t rx, tx = 0;
 	struct spi_ioc_transfer tr;

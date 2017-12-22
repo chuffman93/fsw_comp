@@ -15,7 +15,7 @@ static bool flag;
 
 static void* test_thread(void* arg){
 	Lock* test = reinterpret_cast<Lock*>(arg);
-	LockGuard lock(test);
+	LockGuard lock(*test);
 	flag = true;
 	usleep(1000);
 	flag = false;

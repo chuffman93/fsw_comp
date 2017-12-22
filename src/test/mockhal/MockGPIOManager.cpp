@@ -34,7 +34,7 @@ int MockGPIOManager::attachDevice(char bank, int pin, GPIOEdge edge){
 //! Will return true if there is a pending interrupt, false otherwise
 bool MockGPIOManager::wait(int id, uint32_t timeout){
 	MockGPIO& gpio = getDevice(id);
-	LockGuard lock(&gpio.lock);
+	LockGuard lock(gpio.lock);
 	if(gpio.pending > 0){
 		gpio.pending--;
 		return true;
@@ -45,7 +45,7 @@ bool MockGPIOManager::wait(int id, uint32_t timeout){
 //! Adds a pending interrupt to the specified device
 void MockGPIOManager::addpending(int id){
 	MockGPIO& gpio = getDevice(id);
-	LockGuard lock(&gpio.lock);
+	LockGuard lock(gpio.lock);
 	gpio.pending++;
 }
 

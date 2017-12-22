@@ -17,7 +17,7 @@ using namespace std;
  * \param level the new logging level
  */
 void Logger::setLevel(log_level_t level){
-	LockGuard l(&lock);
+	LockGuard l(lock);
 	cout << "Setting global log level to " << levelToString(level) << endl;
 	globalLevel = level;
 }
@@ -27,7 +27,7 @@ void Logger::setLevel(log_level_t level){
  * \param threadname the name to add into the registry
  */
 void Logger::registerThread(std::string threadname){
-	LockGuard l(&lock);
+	LockGuard l(lock);
 	threadNames.insert ( std::pair<pthread_t,std::string>(pthread_self(), threadname) );
 }
 
@@ -75,7 +75,7 @@ std::string Logger::threadIdTag(){
  * \param message the message to be logged
  */
 void Logger::log(log_level_t level, std::string message){
-	LockGuard l(&lock);
+	LockGuard l(lock);
 	if(level >= globalLevel){
 		cout << threadIdTag() << "[" << levelToString(level) << "] " << message << endl;
 	}
