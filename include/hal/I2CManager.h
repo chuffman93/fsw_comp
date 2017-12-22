@@ -39,7 +39,6 @@ public:
 	MOCK uint8_t readReg(int id, uint8_t reg);
 	MOCK void writeReg(int id, uint8_t reg, uint8_t value);
 	MOCK std::vector<uint8_t> readRaw(int id, size_t len);
-	MOCK uint8_t receivebyte(int id);
 
 private:
 	//! File for the I2C bus

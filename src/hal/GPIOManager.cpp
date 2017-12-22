@@ -117,7 +117,7 @@ int GPIOManager::attachDevice(char bank, int pin, GPIOEdge type){
  */
 bool GPIOManager::wait(int id, uint32_t timeout){
 	GPIODevice& dev = getDevice(id);
-	LockGuard(&dev.lock);
+	LockGuard(dev.lock);
 
 	int retval = poll(&dev.pfd, 1, timeout);
 	if (!(dev.pfd.revents & POLLPRI) || retval == 0) {
@@ -138,7 +138,7 @@ bool GPIOManager::wait(int id, uint32_t timeout){
  */
 GPIOLevel GPIOManager::get(int id){
 	GPIODevice& dev = getDevice(id);
-	LockGuard(&dev.lock);
+	LockGuard(dev.lock);
 	assert(dev.direction == GPIO_INPUT);
 	assert(dev.edge == INT_NONE);
 
@@ -156,7 +156,7 @@ GPIOLevel GPIOManager::get(int id){
  */
 void GPIOManager::set(int id, GPIOLevel level){
 	GPIODevice& dev = getDevice(id);
-	LockGuard(&dev.lock);
+	LockGuard(dev.lock);
 	assert(dev.direction == GPIO_OUTPUT);
 	assert(dev.edge == INT_NONE);
 

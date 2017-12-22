@@ -30,11 +30,11 @@ private:
  */
 class LockGuard{
 public:
-	LockGuard(Lock* lock);
+	LockGuard(Lock& lock);
 	~LockGuard();
 private:
 	//! A pointer to the lock object that is being owned by the LockGuard
-	Lock* lock;
+	Lock& lock;
 };
 
 #endif /* MONITOR_H_ */

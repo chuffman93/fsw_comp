@@ -16,7 +16,7 @@ using namespace std;
 TEST_CASE("GPIO Output", "[.][hardware][gpio]"){
 	cout << "------------------GPIO Output Test---------------------" << endl;
 	//Configure the desired GPIOs
-	GPIOManager test("/sys/gpio/");
+	GPIOManager test("/sys/class/gpio/");
 	char bank = 'A';
 	int pin = 11;
 	GPIODirection direction = GPIO_INPUT;
@@ -34,7 +34,7 @@ TEST_CASE("GPIO Output", "[.][hardware][gpio]"){
 
 TEST_CASE("GPIO Input", "[.][hardware][gpio]"){
 	cout << "------------------GPIO Input Test---------------------" << endl;
-	GPIOManager test("/sys/gpio/");
+	GPIOManager test("/sys/class/gpio/");
 	char bank = 'B';
 	int pin = 11;
 	GPIODirection direction = GPIO_OUTPUT;
