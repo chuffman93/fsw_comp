@@ -10,7 +10,6 @@
 #include <fcntl.h>
 #include <sstream>
 #include <sys/ioctl.h>
-#include <iostream>
 using namespace std;
 
 /*
@@ -83,8 +82,7 @@ uint8_t SPIManager::receivebyte(int id){
 	LockGuard l(lock);
 	SPIDevice dev = getDevice(id);
 	uint8_t rx_byte = 0;
-	int num = read(dev.fd, &rx_byte, 1);
-	cout << "read " << num << " bytes" << std::endl;
+	read(dev.fd, &rx_byte, 1);
 	return rx_byte;
 }
 
