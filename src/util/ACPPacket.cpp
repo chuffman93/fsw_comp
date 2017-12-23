@@ -5,8 +5,8 @@
  *      Author: cyborg9
  */
 
-#include "util/ACPPacket.h"
 #include "util/crc.h"
+#include "util/ACPPacket.h"
 
 
 //TODO: move unpacking into here
