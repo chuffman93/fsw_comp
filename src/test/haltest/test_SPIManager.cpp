@@ -17,17 +17,16 @@ TEST_CASE("SPI TX/RX", "[.][hardware][spi]"){
 	uint8_t mode = 0;
 	uint32_t speed = 1000000;
 	SPIManager test(bus,mode,speed);
-	int ss = 1;
+	int ss = 3;
 	int id = test.attachDevice(ss);
 	test.initialize();
 
-	PROMPT("Ready to send byte over SPI to cs" << ss);
+	PROMPT("Ready to send byte over SPI to cs " << ss);
 	uint8_t byte = 0x76;
 	test.sendbyte(id,byte);
 
-	PROMPT("Ready to read byte over SPI from cs" << ss);
+	PROMPT("Ready to read byte over SPI from cs " << ss);
 
-	uint8_t returnByte = test.receivebyte(id);
+	unsigned int returnByte = test.receivebyte(id);
 	cout << "Received " << returnByte << endl;
-	cout.flush();
 }

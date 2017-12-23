@@ -17,10 +17,10 @@ TEST_CASE("GPIO Output", "[.][hardware][gpio]"){
 	cout << "------------------GPIO Output Test---------------------" << endl;
 	//Configure the desired GPIOs
 	GPIOManager test("/sys/class/gpio/");
-	char bank = 'A';
-	int pin = 11;
-	GPIODirection direction = GPIO_INPUT;
-	int id = test.attachDevice('A', 11, GPIO_INPUT);
+	char bank = 'B';
+	int pin = 25;
+	GPIODirection direction = GPIO_OUTPUT;
+	int id = test.attachDevice(bank, pin, GPIO_OUTPUT);
 	test.initialize();
 
 	GPIOLevel level1 = HIGH;
@@ -35,9 +35,9 @@ TEST_CASE("GPIO Output", "[.][hardware][gpio]"){
 TEST_CASE("GPIO Input", "[.][hardware][gpio]"){
 	cout << "------------------GPIO Input Test---------------------" << endl;
 	GPIOManager test("/sys/class/gpio/");
-	char bank = 'B';
-	int pin = 11;
-	GPIODirection direction = GPIO_OUTPUT;
+	char bank = 'E';
+	int pin = 6;
+	GPIODirection direction = GPIO_INPUT;
 	int id = test.attachDevice(bank,pin,direction);
 	test.initialize();
 
@@ -54,4 +54,22 @@ TEST_CASE("GPIO Input", "[.][hardware][gpio]"){
 		usleep(1*1000*1000);
 	}
 
+}
+
+TEST_CASE("GPIO Interrupt", "[.][hardware][interrupt]"){
+	cout << "------------------GPIO Interrupt Test---------------------" << endl;
+	GPIOManager test("/sys/class/gpio/");
+	char bank = 'E';
+	int pin = 6;
+	int id = test.attachDevice(bank,pin,INT_FALLING);
+	test.initialize();
+
+	PROMPT("Ready to begin Interrupt test on " << bank << pin);
+	for(int i = 0; i < 10; i++){
+		if(test.wait(id, 1000)){
+			cout << "Received interrupt on " << bank << pin << endl;
+		}else{
+			cout << "Timed out on " << bank << pin << endl;
+		}
+	}
 }

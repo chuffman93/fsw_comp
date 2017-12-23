@@ -10,6 +10,7 @@
 #include <fcntl.h>
 #include <sstream>
 #include <sys/ioctl.h>
+#include <iostream>
 using namespace std;
 
 /*
@@ -53,7 +54,7 @@ void SPIManager::initialize(){
 void SPIManager::initializeDevice(SPIDevice& device){
 	stringstream ss;
 	ss << busbase << '.' << device.ss;
-	device.fd = open(ss.str().c_str(), O_RDONLY);
+	device.fd = open(ss.str().c_str(), O_RDWR);
 
 	//TODO: error checking on return values?
 	ioctl(device.fd, SPI_IOC_WR_MODE, &mode);
@@ -70,17 +71,7 @@ void SPIManager::initializeDevice(SPIDevice& device){
 void SPIManager::sendbyte(int id, uint8_t byte){
 	LockGuard l(lock);
 	SPIDevice dev = getDevice(id);
-	uint8_t rx, tx = byte;
-	struct spi_ioc_transfer tr;
-	tr.tx_buf = (unsigned long)&tx;
-	tr.rx_buf = (unsigned long)&rx;
-	tr.len = 1;
-	tr.delay_usecs = 0;
-	tr.speed_hz = speed;
-	tr.cs_change = 0;
-	tr.bits_per_word = 8;
-
-	ioctl(dev.fd, SPI_IOC_MESSAGE(1), &tr);
+	write(dev.fd, &byte, 1);
 }
 
 /*!
@@ -91,17 +82,9 @@ void SPIManager::sendbyte(int id, uint8_t byte){
 uint8_t SPIManager::receivebyte(int id){
 	LockGuard l(lock);
 	SPIDevice dev = getDevice(id);
-	uint8_t rx, tx = 0;
-	struct spi_ioc_transfer tr;
-	tr.tx_buf = (unsigned long)&tx;
-	tr.rx_buf = (unsigned long)&rx;
-	tr.len = 1;
-	tr.delay_usecs = 0;
-	tr.speed_hz = speed;
-	tr.cs_change = 0;
-	tr.bits_per_word = 8;
-
-	ioctl(dev.fd, SPI_IOC_MESSAGE(1), &tr);
-	return rx;
+	uint8_t rx_byte = 0;
+	int num = read(dev.fd, &rx_byte, 1);
+	cout << "read " << num << " bytes" << std::endl;
+	return rx_byte;
 }
 

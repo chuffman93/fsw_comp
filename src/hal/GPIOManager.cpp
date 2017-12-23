@@ -35,7 +35,7 @@ void GPIOManager::initializeDevice(GPIODevice& dev){
 	std::ofstream fs;
 	struct stat st;
 	//If the gpio isn't already exported export it
-	if(stat("/tmp", &st) != 0){
+	if(stat((gpiobase + dev.gpioref).c_str(), &st) != 0){
 		fs.open((gpiobase + "export").c_str());
 		fs << dev.gpionum;
 		fs.close();
@@ -43,7 +43,7 @@ void GPIOManager::initializeDevice(GPIODevice& dev){
 
 	//Set the output mode
 	fs.open((gpiobase + dev.gpioref + "direction").c_str());
-	fs << ((dev.direction == GPIO_INPUT) ? "in" : "output");
+	fs << ((dev.direction == GPIO_INPUT) ? "in" : "out");
 	fs.close();
 
 	//Set the edge and initialize poll fd if appropriate
