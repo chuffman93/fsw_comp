@@ -16,13 +16,13 @@ public:
 	~RAD(){};
 
 	//ID for subsystem
-	static SubsystemID id  = SUBSYSTEM_ID_RAD;
+	SubsystemID id  = SUBSYSTEM_ID_RAD;
 	//Handle power on and initialization routine
-	virtual void initialize();
+	void initialize(){};
 	//Handles any mode transition needs as well as any needs for tasks to be done in a mode.
-	virtual void handleMode(mode_t transition);
+	void handleMode(FSWMode transition){};
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
-	virtual void getHealthStatus();
+	void getHealthStatus(){};
 private:
 	//Various configurations for the data collection
 	void configMotor();

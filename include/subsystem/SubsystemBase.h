@@ -10,6 +10,8 @@
 
 #include <stdint.h>
 #include "../hal/GPIOManager.h"
+#include "core/ScheduleManager.h"
+
 
 enum SubsystemID {
 	SUBSYSTEM_ID_ACS,
@@ -19,6 +21,9 @@ enum SubsystemID {
 	SUBSYSTEM_ID_GPS,
 	SUBSYSTEM_ID_RAD
 };
+
+
+
 
 //typedef GPIODevice * gpioid;
 
@@ -35,7 +40,7 @@ public:
 	//Will set up the Gpio lines and the acp devices
 	virtual void initialize() = 0;
 	//Handles any mode transition needs as well as any needs for tasks to be done in a mode. 
-	virtual void handleMode(mode_t transition) = 0;
+	virtual void handleMode(FSWMode transition) = 0;
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 	virtual void getHealthStatus() = 0;
 private:
@@ -49,5 +54,9 @@ private:
 	//Readback the commanded LED data
 	bool dataLED(bool* on, uint16_t *rate);    
 };
+
+typedef std::vector<SubsystemBase*> SubsystemVec;
+typedef std::vector<SubsystemVec> FSWSequence;
+
 
 #endif /* SUBSYSTEMBASE_H_ */

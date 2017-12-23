@@ -11,10 +11,13 @@
 #include <unistd.h>
 #include <stdio.h>
 #include "core/Watchdog.h"
+#include "core/ScheduleManager.h"
+#include "subsystem/SubsystemBase.h"
 
 struct ModeManagerStruct{
-	Sequence seq;
-	Watchdog* watchdog;
+	FSWSequence seq;
+	ScheduleManager * scheduler;
+	Watchdog * watchdog;
 };
 
 class FSWThreads

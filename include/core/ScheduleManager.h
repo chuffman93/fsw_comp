@@ -9,26 +9,39 @@
 #define INCLUDE_CORE_SCHEDULEMANAGER_H_
 
 #include <queue>
+#include <vector>
 
-enum Mode{
-	BUS_PRIORITY,
+typedef enum _FSWMode{
+	BUS_PRIORITY = 0,
 	PLD_PRIORITY,
 	COM_MODE,
-	RESET_MODE
-};
+	RESET_MODE,
+	NUM_MODES
+} FSWMode;
+
 
 struct ScheduleStruct {
-	Mode mode;
+	FSWMode mode;
 	int waitTime; //time to wait in bus priority before entering mode
 	int duration; //duration of mode
 };
 
-class ScheduleManager{
+
+
+class ScheduleManager
+{
+public:
+	ScheduleManager(){};
+	~ScheduleManager(){};
+
+	//check for mode changes
+	FSWMode checkNewMode(){return BUS_PRIORITY;}; //TODO: Implement
+
 private:
 	std::queue <ScheduleStruct> ScheduleQueue;
 
-	Mode CurrentMode;
-	int32_t modeEnterTime;
+	FSWMode CurrentMode = BUS_PRIORITY;
+	int32_t modeEnterTime = 0;
 
 	//if new schedule: adds new schedule to queue, otherwise add default schedule to queue if empty
 	void updateSchedule();
@@ -36,8 +49,6 @@ private:
 	void updateDefaultSchedule();
 	//load default schedule from file
 	void loadDefaultSchedule();
-	//check for mode changes
-	void checkNewMode();
 };
 
 #endif /* INCLUDE_CORE_SCHEDULEMANAGER_H_ */

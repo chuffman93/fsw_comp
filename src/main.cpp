@@ -9,6 +9,9 @@
 #include "util/Thread.h"
 #include "FSWThreads.h"
 #include "core/Watchdog.h"
+#include "core/ScheduleManager.h"
+#include "subsystem/subsystem.h"
+#include "test/testmacros.h"
 using namespace std;
 
 
@@ -17,12 +20,24 @@ using namespace std;
 int main() {
 	cout << "!!!Hello World!!!" << endl; // prints !!!Hello World!!!
 	Watchdog watchdog;
+	ScheduleManager scheduler;
+	ACS acs;
+	COM com;
+	FSWSequence seq;
+	VECTOROFDATA(temp, SubsystemBase *, &com,&acs);
+	seq.push_back(temp);
+
 	// Create Health and Status Thread
 	Thread healthStatusThread, fileManagerThread, watchdogThread, modeManagerThread, gpsManagerThread;
 
+	ModeManagerStruct modeStruct;
+	modeStruct.scheduler = &scheduler;
+	modeStruct.watchdog = &watchdog;
+	modeStruct.seq = seq;
+
 	fileManagerThread.CreateThread(NULL, FSWThreads::FileManagerThread, (void*)&watchdog);
 	healthStatusThread.CreateThread(NULL, FSWThreads::GetHealthStatusThread, (void*)&watchdog);
-	modeManagerThread.CreateThread(NULL, FSWThreads::ModeManagerThread, (void*)&watchdog);
+	modeManagerThread.CreateThread(NULL, FSWThreads::ModeManagerThread, (void*)&modeStruct);
 	gpsManagerThread.CreateThread(NULL, FSWThreads::GPSManagerThread, (void*)&watchdog);
 
 	watchdog.AddThread(fileManagerThread.GetID());

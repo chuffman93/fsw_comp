@@ -17,13 +17,22 @@ public:
 	~ACS(){}
 
 	//ID for subsystem
-	static SubsystemID id = SUBSYSTEM_ID_ACS;
+	//SubsystemID id = SUBSYSTEM_ID_ACS;
 	//Will set up the Gpio lines and the acp devices
-	virtual void initialize();
+	void initialize(){};
 	//Handles any mode transition needs as well as any needs for tasks to be done in a mode.
-	virtual void handleMode(mode_t transition);
+	void handleMode(FSWMode transition){
+		switch(transition){
+
+		case BUS_PRIORITY:
+			puts("ACS in bus priority");
+			break;
+
+		}
+
+	}
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
-	virtual void getHealthStatus();
+	void getHealthStatus(){};
 private:
 	//Change the current pointing target
 	void pointNadir();
