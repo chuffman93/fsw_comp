@@ -23,6 +23,8 @@
 #define TRUE	!FALSE
 #endif
 
+//TODO: Cut down this library to what we actually need
+
 /*
  * Select the CRC standard from the list that follows.
  */

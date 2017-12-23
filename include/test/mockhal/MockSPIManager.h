@@ -12,6 +12,8 @@
 #include <vector>
 #include <queue>
 
+//TODO: make mock BusManager
+
 struct MockSPI{
 	std::queue<uint8_t> TX_queue;
 	std::queue<uint8_t> RX_queue;

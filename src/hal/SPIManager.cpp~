@@ -73,7 +73,21 @@ void SPIManager::initializeDevice(SPIDevice& device){
 void SPIManager::sendbyte(int id, uint8_t byte){
 	LockGuard l(lock);
 	SPIDevice dev = getDevice(id);
+<<<<<<< HEAD
 	write(dev.fd, &byte, 1);
+=======
+	uint8_t rx, tx = byte;
+	struct spi_ioc_transfer tr;
+	tr.tx_buf = (unsigned long)&tx;
+	tr.rx_buf = (unsigned long)&rx;
+	tr.len = 1;
+	tr.delay_usecs = 0;
+	tr.speed_hz = speed;
+	tr.cs_change = 0;
+	tr.bits_per_word = 8;
+		//TODO: consider reading return to log any error
+	ioctl(dev.fd, SPI_IOC_MESSAGE(1), &tr);
+>>>>>>> refactor
 }
 
 /*!
