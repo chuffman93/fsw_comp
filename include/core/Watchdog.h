@@ -9,6 +9,38 @@
 #define INCLUDE_CORE_WATCHDOG_H_
 
 
+#include "util/Thread.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <map>
+#include "core/Lock.h"
+
+class Watchdog
+{
+	struct ThreadInfo{
+		bool ignore;
+		bool alive;
+		ThreadInfo(bool ignore) : ignore(ignore){
+			alive = false;
+		};
+	};
+
+public:
+
+
+	Watchdog(){};
+	~Watchdog(){};
+
+	void AddThread(ThreadID id, bool ignore = false);
+	void CheckThreads();
+	void KickWatchdog();
+
+private:
+	std::map<ThreadID,ThreadInfo> threadMap;
+	Lock lock;
+};
+
+
 
 
 
