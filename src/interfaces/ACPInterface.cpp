@@ -6,6 +6,7 @@
  */
 #include "interfaces/ACPInterface.h"
 #include "util/EventHandler.h"
+#include <sstream>
 #include <iostream>
 using namespace std;
 
@@ -64,9 +65,11 @@ bool ACPInterface::transaction(ACPPacket& packet, ACPPacket& ret){
  * \return whether the packet was sent successfully
  */
 bool ACPInterface::sendPacket(ACPPacket& packet){
-	//TODO: figure out what timeout to use in here
+	EventHandler::event(LEVEL_INFO, "[ACP Interface] Sending ACP Packet: " + packet.summary());
+
 	vector<uint8_t> data = packet.pack();
 	for(vector<uint8_t>::iterator i = data.begin(); i < data.end(); i++){
+		EventHandler::event(LEVEL_DEBUG, "[ACP Interface] Sending byte: ");
 		spiman.sendbyte(spiid, *i);
 		if(!gpioman.wait(intid, timeout)){
 			EventHandler::event(LEVEL_WARN, "[ACPInterface] Interrupt Timeout on receive");

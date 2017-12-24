@@ -7,6 +7,7 @@
 
 #include "util/crc.h"
 #include "util/ACPPacket.h"
+#include <sstream>
 
 
 //TODO: move unpacking into here
@@ -66,5 +67,16 @@ bool ACPPacket::validate(){
 	std::vector<uint8_t> data = packallbutcrc();
 	uint16_t checksum = crcSlow(&data[0], data.size());
 	return checksum == crc;
+}
+
+/*! Provides a high level summary string of the packet
+ * \return string containing the summary
+ */
+std::string ACPPacket::summary(){
+	std::stringstream ss;
+	ss << "{Sync: " << (unsigned int) sync;
+	ss << ", Opcode: " << (unsigned int) opcode;
+	ss << ", Length: " << message.size();
+	return ss.str();
 }
 

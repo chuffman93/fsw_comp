@@ -41,6 +41,7 @@ struct ACPPacket{
 	ACPPacket(subsystem_sync_t sync, uint16_t op);
 	ACPPacket(subsystem_sync_t sync, uint16_t op, std::vector<uint8_t> message);
 
+	std::string summary();
 	std::vector<uint8_t> pack();
 	bool validate();
 
