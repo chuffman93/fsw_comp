@@ -12,6 +12,7 @@ using namespace std;
 #include "interfaces/ACPInterface.h"
 #include "test/mockhal/MockSPIManager.h"
 #include "test/mockhal/MockGPIOManager.h"
+#include "util/EventHandler.h"
 
 TEST_CASE("Test that ACPPacket manages packets correctly", "[core][ACPPacket]"){
 	subsystem_sync_t sync = EPS;
@@ -35,6 +36,7 @@ TEST_CASE("Test that ACPPacket manages packets correctly", "[core][ACPPacket]"){
 }
 
 TEST_CASE("Test that the ACPInterface performs correctly", "[hal][ACPInterface]"){
+	EventHandler::attachLogger(new Logger());
 	int spiid, intrid, acpid;
 	MockSPIManager spi;
 	MockGPIOManager intr;
@@ -48,6 +50,7 @@ TEST_CASE("Test that the ACPInterface performs correctly", "[hal][ACPInterface]"
 
 	INFO("Create an ACPInterface")
 	ACPInterface acp(spi, intr, spiid, intrid);
+	acp.setTimeouts(0, 1, 0);
 
 	SECTION("Normal packet send and receive"){
 		spi.addBytes(spiid, correct_bytes);
@@ -88,6 +91,7 @@ TEST_CASE("Test that the ACPInterface performs correctly", "[hal][ACPInterface]"
 		REQUIRE(acp.transaction(test, ret) == false);
 	}
 
+	EventHandler::attachLogger(NULL);
 }
 
 TEST_CASE("Communicate with RAD", "[.][hardware][acp][rad]"){

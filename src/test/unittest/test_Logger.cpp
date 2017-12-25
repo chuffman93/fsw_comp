@@ -7,6 +7,7 @@
 
 #include "test/catch.hpp"
 #include "util/Logger.h"
+#include "util/EventTags.h"
 #include <iostream>
 
 using namespace std;
@@ -80,6 +81,16 @@ TEST_CASE("Logger prints thread ids", "[.][Logger]"){
 
 	logger.log(LEVEL_INFO, "Printing from thread 1");
 	pthread_join(thr, NULL);
+}
+
+TEST_CASE("EventTags Perform correctly", "[Logger][Tags]"){
+	EventTags tags1, tags2;
+	tags1 += EventTag("source", "Test");
+	tags2 += EventTag("newtag", "Test2");
+	EventTags newtags = tags1 + tags2;
+	REQUIRE(newtags["source"] == "Test");
+	REQUIRE(newtags["newtag"] == "Test2");
+
 }
 
 

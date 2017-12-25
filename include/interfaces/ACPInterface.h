@@ -48,6 +48,7 @@ private:
 
 	bool sendPacket(ACPPacket& packet);
 	bool receivePacket(ACPPacket& ret);
+	bool waitInterrupt();
 };
 
 

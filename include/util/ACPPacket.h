@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include <vector>
 #include <memory>
+#include <string>
 
 //TODO: move into ACP Interface
 

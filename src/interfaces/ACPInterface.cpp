@@ -8,6 +8,8 @@
 #include "util/EventHandler.h"
 #include <sstream>
 #include <iostream>
+#include <iomanip>
+#include <unistd.h>
 using namespace std;
 
 /*! Initializes the ACP Interface with the provided SPIManager and Interrupt Manager. Sets timeouts to a reasonable default value
@@ -47,7 +49,7 @@ bool ACPInterface::transaction(ACPPacket& packet, ACPPacket& ret){
 	packet.id = numbertransactions++;
 	ret.sync = packet.sync;
 	//TODO: Consider how to best handle timeouts and number of times to retry
-	for(int i = 0; i < tries; i++){
+	for(size_t i = 0; i < tries; i++){
 		if(sendPacket(packet)){
 			if(receivePacket(ret)){
 				success = true;
@@ -65,17 +67,11 @@ bool ACPInterface::transaction(ACPPacket& packet, ACPPacket& ret){
  * \return whether the packet was sent successfully
  */
 bool ACPInterface::sendPacket(ACPPacket& packet){
-	EventHandler::event(LEVEL_INFO, "[ACP Interface] Sending ACP Packet: " + packet.summary());
-
+	EventHandler::event(LEVEL_INFO, "[ACPInterface] Sending ACP Packet: " + packet.summary());
 	vector<uint8_t> data = packet.pack();
 	for(vector<uint8_t>::iterator i = data.begin(); i < data.end(); i++){
-		EventHandler::event(LEVEL_DEBUG, "[ACP Interface] Sending byte: ");
 		spiman.sendbyte(spiid, *i);
-		if(!gpioman.wait(intid, timeout)){
-			EventHandler::event(LEVEL_WARN, "[ACPInterface] Interrupt Timeout on receive");
-			return false;
-		}
-		EventHandler::event(LEVEL_DEBUG, "[ACPInterface] Interrupt Received");
+		if(!waitInterrupt()) return false;
 	}
 	return true;
 }
@@ -87,7 +83,6 @@ bool ACPInterface::sendPacket(ACPPacket& packet){
  */
 
 bool ACPInterface::receivePacket(ACPPacket& ret){
-	//TODO: figure out what timeout to use in here
 	ret.id = 0;
 	ret.opcode = 0;
 	ret.crc = 0;
@@ -96,37 +91,52 @@ bool ACPInterface::receivePacket(ACPPacket& ret){
 	uint8_t debug = 0;
 	//Wait for sync
 	if((debug = spiman.receivebyte(spiid)) != ret.sync){
-		std::cout << "Bad sync " << (unsigned int) debug << std::endl;
+		stringstream ss;
+		ss << "[ACPInterface] Received bad sync: "<< hex <<  setfill('0') << setw(2) << debug;
+		EventHandler::event(LEVEL_WARN, ss.str());
 		return false;
 	}
 	//Read header
-	if(!gpioman.wait(intid, timeout)) return false;
+	if(!waitInterrupt()) return false;
 	ret.id |= (uint16_t)spiman.receivebyte(spiid) << 8;
-	if(!gpioman.wait(intid, timeout)) return false;
+	if(!waitInterrupt()) return false;
 	ret.id |= (uint16_t)spiman.receivebyte(spiid);
-	if(!gpioman.wait(intid, timeout)) return false;
+	if(!waitInterrupt()) return false;
 	ret.opcode |= (uint16_t)spiman.receivebyte(spiid);
-	if(!gpioman.wait(intid, timeout)) return false;
+	if(!waitInterrupt()) return false;
 	len |= (uint16_t)spiman.receivebyte(spiid) << 8;
-	if(!gpioman.wait(intid, timeout)) return false;
+	if(!waitInterrupt()) return false;
 	len |= (uint16_t)spiman.receivebyte(spiid);
 
 	//Read message
 	ret.message.clear();
 	for(size_t i = 0; i < len; i++){
-		if(!gpioman.wait(intid, timeout)) return false;
+		if(!waitInterrupt()) return false;
 		ret.message.push_back((uint16_t)spiman.receivebyte(spiid));
 	}
 
 	//Read crc
-	if(!gpioman.wait(intid, timeout)) return false;
+	if(!waitInterrupt()) return false;
 	ret.crc |= (uint16_t)spiman.receivebyte(spiid) << 8;
-	if(!gpioman.wait(intid, timeout)) return false;
+	if(!waitInterrupt()) return false;
 	ret.crc |= (uint16_t)spiman.receivebyte(spiid);
 
 
 	//Check that the packet is valid
 	return ret.validate();
+}
+
+/*!
+ * Waits to receive an interrupt, handles event raising if failed.
+ * \return whether the interrupt timed out or not
+ */
+bool ACPInterface::waitInterrupt(){
+	if(!gpioman.wait(intid, timeout)){
+		EventHandler::event(LEVEL_WARN, "[ACPInterface] Interrupt Timeout");
+		return false;
+	}
+	EventHandler::event(LEVEL_DEBUG, "[ACPInterface] Interrupt Received");
+	return true;
 }
 
 

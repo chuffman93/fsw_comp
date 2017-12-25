@@ -76,7 +76,7 @@ std::string ACPPacket::summary(){
 	std::stringstream ss;
 	ss << "{Sync: " << (unsigned int) sync;
 	ss << ", Opcode: " << (unsigned int) opcode;
-	ss << ", Length: " << message.size();
+	ss << ", Length: " << message.size() << "}";
 	return ss.str();
 }
 

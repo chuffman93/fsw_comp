@@ -10,6 +10,9 @@
 #include <fcntl.h>
 #include <sstream>
 #include <sys/ioctl.h>
+#include <iomanip>
+#include <unistd.h>
+#include "util/EventHandler.h"
 using namespace std;
 
 // NOTE: Consider not remapping linux SPI enum
@@ -54,8 +57,13 @@ void SPIManager::initialize(){
  */
 void SPIManager::initializeDevice(SPIDevice& device){
 	stringstream ss;
-	ss << busbase << '.' << device.ss;
-	device.fd = open(ss.str().c_str(), O_RDWR); //TODO: Check fd for error
+	ss << "[SPIManager] Initializing device on bus \"" << busbase <<"\" with cs " << device.ss;
+	EventHandler::event(LEVEL_INFO, ss.str());
+
+	stringstream devstring;
+	devstring << busbase << '.' << device.ss;
+	device.fd = open(devstring.str().c_str(), O_RDWR); //TODO: Check fd for error
+
 
 	//TODO: error checking on return values?
 	ioctl(device.fd, SPI_IOC_WR_MODE, &mode);
@@ -73,6 +81,9 @@ void SPIManager::initializeDevice(SPIDevice& device){
 void SPIManager::sendbyte(int id, uint8_t byte){
 	LockGuard l(lock);
 	SPIDevice dev = getDevice(id);
+	stringstream ss;
+	ss << "[SPIManager][CS: " << dev.ss <<"] Sending byte: 0x" << hex <<  setfill('0') << setw(2) << (unsigned int)byte;
+	EventHandler::event(LEVEL_DEBUG, ss.str());
 	write(dev.fd, &byte, 1);
 }
 
@@ -86,6 +97,9 @@ uint8_t SPIManager::receivebyte(int id){
 	SPIDevice dev = getDevice(id);
 	uint8_t rx_byte = 0;
 	read(dev.fd, &rx_byte, 1);
+	stringstream ss;
+	ss << "[SPIManager][CS: " << dev.ss <<"] Received byte: 0x" << hex <<  setfill('0') << setw(2) << (unsigned int)rx_byte;
+	EventHandler::event(LEVEL_DEBUG, ss.str());
 	return rx_byte;
 }
 

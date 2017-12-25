@@ -77,7 +77,7 @@ std::string Logger::threadIdTag(){
 void Logger::log(log_level_t level, std::string message){
 	LockGuard l(lock);
 	if(level >= globalLevel){
-		cout << threadIdTag() << "[" << levelToString(level) << "] " << message << endl;
+		cout << threadIdTag() << "[" << levelToString(level) << "]" << message << endl;
 	}
 }
 
