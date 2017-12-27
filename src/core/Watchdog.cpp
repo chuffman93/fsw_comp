@@ -27,7 +27,7 @@ void Watchdog::CheckThreads(){
 		}
 
 		if (iter->second.alive == false){
-			printf("Thread %d is dead!\n", iter->first);
+			printf("Thread %lu is dead!\n", iter->first);
 		}
 
 		iter->second.alive = false;

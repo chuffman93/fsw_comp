@@ -16,6 +16,7 @@ void * FSWThreads::GetHealthStatusThread(void * args){
 		watchdog->KickWatchdog();
 		sleep(2);
 	}
+	return NULL;
 }
 
 void * FSWThreads::ModeManagerThread(void * args){
@@ -36,6 +37,7 @@ void * FSWThreads::ModeManagerThread(void * args){
 
 		sleep(2);
 	}
+	return NULL;
 }
 
 void * FSWThreads::GPSManagerThread(void * args){
@@ -45,6 +47,7 @@ void * FSWThreads::GPSManagerThread(void * args){
 		//watchdog->KickWatchdog();
 		sleep(2);
 	}
+	return NULL;
 }
 
 void * FSWThreads::FileManagerThread(void * args){
@@ -54,6 +57,7 @@ void * FSWThreads::FileManagerThread(void * args){
 		watchdog->KickWatchdog();
 		sleep(2);
 	}
+	return NULL;
 }
 
 
@@ -65,6 +69,7 @@ void * FSWThreads::WatchdogThread(void * args){
 		puts("Watchdog thread Pinging");
 
 	}
+	return NULL;
 }
 
 

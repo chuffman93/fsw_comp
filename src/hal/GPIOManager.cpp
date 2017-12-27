@@ -5,13 +5,14 @@
  *      Author: cyborg9
  */
 
-#include "hal/GPIOManager.h"
 #include <sstream>
 #include <fstream>
 #include <sys/stat.h>
 #include <poll.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include "hal/GPIOManager.h"
+#include "util/eventManager.h"
 
 //! Stub, not yet implemented
 GPIOManager::GPIOManager(std::string busbase)
@@ -122,8 +123,11 @@ bool GPIOManager::wait(int id, uint32_t timeout){
 	int retval = poll(&dev.pfd, 1, timeout);
 	if (!(dev.pfd.revents & POLLPRI) || retval == 0) {
 		//Timeout
+		EventHandler::event(LEVEL_WARN, "[GPIOManager] Interrupt timeout occured on pio" + dev.gpioref);
 		return false;
 	}
+
+	EventHandler::event(LEVEL_DEBUG, "[GPIOManager] Interrupt received on pio" + dev.gpioref);
 
 	//Clear any pending interrupts
 	uint8_t dummy;

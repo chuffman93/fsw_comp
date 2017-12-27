@@ -31,7 +31,7 @@ struct ScheduleStruct {
 class ScheduleManager
 {
 public:
-	ScheduleManager(){};
+	ScheduleManager():CurrentMode(BUS_PRIORITY), modeEnterTime(0){};
 	~ScheduleManager(){};
 
 	//check for mode changes
@@ -40,8 +40,8 @@ public:
 private:
 	std::queue <ScheduleStruct> ScheduleQueue;
 
-	FSWMode CurrentMode = BUS_PRIORITY;
-	int32_t modeEnterTime = 0;
+	FSWMode CurrentMode;
+	int32_t modeEnterTime;
 
 	//if new schedule: adds new schedule to queue, otherwise add default schedule to queue if empty
 	void updateSchedule();
