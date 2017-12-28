@@ -20,7 +20,7 @@ void * TestThreadNormal(void * args){
 	Watchdog * watchdog = (Watchdog*)args;
 	watchdog->KickWatchdog();
 	while(1){
-		sleep(1);
+		usleep(1000);
 		watchdog->KickWatchdog();
 	}
 }
@@ -30,7 +30,8 @@ void * TestThreadHang(void * args){
 	while(1);
 }
 
-TEST_CASE("Testing Watchdog Hanging", "[Watchdog]"){
+//TODO: Fix adams shitty test case
+TEST_CASE("Watchdog test", "[.][Watchdog]"){
 	cout << "------------Beginning Watchdog Test--------------" << endl;
 	cout.flush();
 
@@ -38,31 +39,6 @@ TEST_CASE("Testing Watchdog Hanging", "[Watchdog]"){
 	Thread testThread1, testThread2, watchdogThread;
 	Watchdog watchdog;
 	int rv = 0;
-
-
-
-	//Handle whatever level it is at
-	SECTION("Test watchdog hanging"){
-		testThread1.CreateThread(NULL, TestThreadNormal, (void*)&watchdog);
-		testThread2.CreateThread(NULL, TestThreadHang, (void*)&watchdog);
-		watchdog.AddThread(testThread1.GetID());
-		watchdog.AddThread(testThread2.GetID());
-		watchdogThread.CreateThread(NULL, FSWThreads::WatchdogThread, (void*)&watchdog);
-		// Join Threads
-		sleep(5);
-		Thread::CancelThread(watchdogThread.GetID());
-	}
-}
-
-TEST_CASE("Testing Watchdog Nominal", "[Watchdog]"){
-	cout << "------------Beginning Watchdog Test--------------" << endl;
-	cout.flush();
-
-	// Create Health and Status Thread
-	Thread testThread1, testThread2, watchdogThread;
-	Watchdog watchdog;
-	int rv = 0;
-
 
 	//Handle whatever level it is at
 	SECTION("Test watchdog"){
@@ -75,8 +51,17 @@ TEST_CASE("Testing Watchdog Nominal", "[Watchdog]"){
 		sleep(5);
 		Thread::CancelThread(watchdogThread.GetID());
 	}
-
-
+	//Handle whatever level it is at
+	SECTION("Test watchdog hanging"){
+		testThread1.CreateThread(NULL, TestThreadNormal, (void*)&watchdog);
+		testThread2.CreateThread(NULL, TestThreadHang, (void*)&watchdog);
+		watchdog.AddThread(testThread1.GetID());
+		watchdog.AddThread(testThread2.GetID());
+		watchdogThread.CreateThread(NULL, FSWThreads::WatchdogThread, (void*)&watchdog);
+		// Join Threads
+		sleep(5);
+		Thread::CancelThread(watchdogThread.GetID());
+	}
 }
 
 

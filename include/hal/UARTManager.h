@@ -8,9 +8,11 @@
 #ifndef UARTMANAGER_H_
 #define UARTMANAGER_H_
 
-#include "hal/HardwareManager.h"
 #include <string>
 #include <vector>
+#include <stdint.h>
+#include "hal/HardwareManager.h"
+#include "core/Lock.h"
 
 /*!
  * Manages a specific UART device, and provides raw read/write methods
@@ -22,14 +24,12 @@ public:
 
 	MOCK void initialize();
 
-	MOCK std::string readbuffer();
-	MOCK void writebuffer(std::string data);
+	MOCK std::vector<uint8_t> readData();
+	MOCK void writeData(std::vector<uint8_t> data);
 
 private:
 	//! Holds the filename corrisponding to the UART
 	std::string filename;
-	//! Holds the file descriptor corrisponding to filename. Created in initialize
-	int fd;
 	//! Mutex for the device
 	Lock lock;
 };

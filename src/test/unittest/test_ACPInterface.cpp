@@ -36,7 +36,7 @@ TEST_CASE("Test that ACPPacket manages packets correctly", "[core][ACPPacket]"){
 }
 
 TEST_CASE("Test that the ACPInterface performs correctly", "[hal][ACPInterface]"){
-	EventHandler::attachLogger(new Logger());
+	//TODO: Make a CatchLogger class EventHandler::attachLogger(new Logger());
 	int spiid, intrid, acpid;
 	MockSPIManager spi;
 	MockGPIOManager intr;
@@ -54,8 +54,7 @@ TEST_CASE("Test that the ACPInterface performs correctly", "[hal][ACPInterface]"
 
 	SECTION("Normal packet send and receive"){
 		spi.addBytes(spiid, correct_bytes);
-		for(size_t i = 0; i < 2*correct_bytes.size() - 1; i++) intr.addpending(intrid);
-		INFO("SHOULD NOT HAVE READ BY HERE");
+		for(size_t i = 0; i < 2*correct_bytes.size(); i++) intr.addpending(intrid);
 		ACPPacket ret;
 		REQUIRE(acp.transaction(test, ret) == true);
 		REQUIRE(spi.getBytes(spiid) == correct_bytes);
@@ -77,7 +76,7 @@ TEST_CASE("Test that the ACPInterface performs correctly", "[hal][ACPInterface]"
 	SECTION("Timeout in receive"){
 		spi.addBytes(spiid, correct_bytes);
 		//Load up one too few interrupts
-		for(size_t i = 0; i < 2*correct_bytes.size() - 2; i++) intr.addpending(intrid);
+		for(size_t i = 0; i < 2*correct_bytes.size() - 1; i++) intr.addpending(intrid);
 		ACPPacket ret;
 		REQUIRE(acp.transaction(test, ret) == false);
 	}

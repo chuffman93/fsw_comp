@@ -7,11 +7,12 @@
 
 #ifndef I2CMANAGER_H_
 #define I2CMANAGER_H_
-#include "hal/BusManager.h"
 #include <string>
 #include <stdint.h>
 #include <stdlib.h>
 #include <vector>
+#include "hal/BusManager.h"
+#include "core/Lock.h"
 
 /*!
  * Contains all of the information relavent to a single device on the i2c bus
@@ -34,11 +35,12 @@ public:
 
 	MOCK int attachDevice(uint8_t addr);
 	MOCK void initialize();
-	void initializeDevice(SPIDevice& dev);
+	void initializeDevice(I2CDevice& dev);
 
 	MOCK uint8_t readReg(int id, uint8_t reg);
 	MOCK void writeReg(int id, uint8_t reg, uint8_t value);
 	MOCK std::vector<uint8_t> readRaw(int id, size_t len);
+	MOCK void writeRaw(int id, std::vector<uint8_t> data);
 
 private:
 	//! File for the I2C bus
