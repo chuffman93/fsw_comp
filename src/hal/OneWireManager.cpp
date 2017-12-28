@@ -6,7 +6,9 @@
  */
 
 #include "hal/OneWireManager.h"
+#include "util/EventHandler.h"
 #include <fstream>
+#include <sstream>
 using namespace std;
 
 /*!
@@ -33,6 +35,7 @@ int OneWireManager::attachDevice(string devname){
 
 //! Initialize the bus
 void OneWireManager::initialize(){
+	EventHandler::event(LEVEL_INFO, "[OneWireManager] Initializing one wire bus at " + busbase);
 	BusManager<OneWireDevice>::initializeDevices();
 }
 
@@ -41,7 +44,7 @@ void OneWireManager::initialize(){
  * \param dev the device to be initialized
  */
 void OneWireManager::initializeDevice(OneWireDevice& dev){
-
+	EventHandler::event(LEVEL_INFO, "[OneWireManager] Initializing one wire device " + dev.devname + " on bus " + busbase);
 }
 
 /*!
@@ -53,6 +56,7 @@ void OneWireManager::initializeDevice(OneWireDevice& dev){
 void OneWireManager::writeToFile(int id, std::string filename, std::string data){
 	LockGuard l(lock);
 	OneWireDevice& dev = BusManager<OneWireDevice>::getDevice(id);
+	EventHandler::event(LEVEL_DEBUG, "[OneWireManager] Writing \"" + data + "\" to " + busbase + dev.devname + filename);
 	ofstream fs;
 	fs.open((busbase + dev.devname + filename).c_str());
 	fs << data;
@@ -68,11 +72,13 @@ void OneWireManager::writeToFile(int id, std::string filename, std::string data)
 std::string OneWireManager::readFromFile(int id, std::string filename){
 	LockGuard l(lock);
 	OneWireDevice& dev = BusManager<OneWireDevice>::getDevice(id);
+	EventHandler::event(LEVEL_DEBUG, "[OneWireManager] Reading from " + busbase + dev.devname + filename);
 	ifstream fs;
-	string data;
+	//The use of stringstream lets us get endlines as well... kinda hack but it works
+	stringstream data;
 	fs.open((busbase + dev.devname + filename).c_str());
-	fs >> data;
+	data << fs.rdbuf();
 	fs.close();
-	return data;
+	return data.str();
 }
 

@@ -27,9 +27,13 @@ public:
 	MOCK std::vector<uint8_t> readData();
 	MOCK void writeData(std::vector<uint8_t> data);
 
+	void closefd();
+
 private:
 	//! Holds the filename corrisponding to the UART
 	std::string filename;
+	//! Holds the file descriptor for the UART
+	int fd;
 	//! Mutex for the device
 	Lock lock;
 };

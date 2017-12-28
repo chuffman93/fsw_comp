@@ -10,6 +10,7 @@
 #include "util/EventHandler.h"
 #include <fcntl.h>
 #include <unistd.h>
+#include <sstream>
 
 
 /*!
@@ -17,36 +18,37 @@
  * \param filename the filepath to the uart device in the linux filesystem
  */
 UARTManager::UARTManager(std::string filename)
-:filename(filename)
+:filename(filename), fd(-1)
 {}
 
-UARTManager::~UARTManager(){}
+UARTManager::~UARTManager(){
+	closefd();
+}
 
 //! Initializes the uart device
 void UARTManager::initialize(){
 	LockGuard l(lock);
 	EventHandler::event(LEVEL_INFO, "[UART Manager] Initializing UART on " + filename);
 	struct termios port;
-	int portfd = open(filename.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
+	fd = open(filename.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
 
-	if(portfd == -1){
+	if(fd == -1){
 		EventHandler::event(LEVEL_ERROR, "[UART Manager] File " + filename + "Not found");
 	}
 
-	if(tcgetattr(portfd, &port) < 0) {
+	if(tcgetattr(fd, &port) < 0) {
 		EventHandler::event(LEVEL_ERROR, "[UART Manager] Problem getting port attributes for " + filename);
 	}
 	port.c_iflag &= ~IXON;
+	port.c_lflag = 0;
 
 	if(cfsetispeed(&port, B115200) < 0 || cfsetospeed(&port, B115200) < 0){
 		EventHandler::event(LEVEL_ERROR, "[UART Manager] Problem setting baud rate for " + filename);
 	}
 
-	if(tcsetattr(portfd, TCSANOW, &port) < 0){
+	if(tcsetattr(fd, TCSANOW, &port) < 0){
 		EventHandler::event(LEVEL_ERROR, "[UART Manager] Problem setting port attributes for " + filename);
 	}
-
-	close(portfd);
 }
 
 /*!
@@ -56,12 +58,14 @@ void UARTManager::initialize(){
 std::vector<uint8_t> UARTManager::readData(){
 	LockGuard l(lock);
 	uint8_t rxbyte;
-	int fd = open(filename.c_str(), O_RDONLY);
 	std::vector<uint8_t> data;
 	while(read(fd,&rxbyte,1) == 1){
+		std::stringstream ss;
+		ss << ("[UARTManager] Received byte ");
+		ss << rxbyte;
+		EventHandler::event(LEVEL_DEBUG, ss.str());
 		data.push_back(rxbyte);
 	}
-	close(fd);
 	return data;
 }
 
@@ -71,10 +75,12 @@ std::vector<uint8_t> UARTManager::readData(){
  */
 void UARTManager::writeData(std::vector<uint8_t> data){
 	LockGuard l(lock);
-	int fd = open(filename.c_str(), O_WRONLY);
 	for(std::vector<uint8_t>::iterator i = data.begin(); i != data.end(); i++){
 		uint8_t txbyte = *i;
 		write(fd, &txbyte, 1);
 	}
+}
+
+void UARTManager::closefd(){
 	close(fd);
 }

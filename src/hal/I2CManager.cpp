@@ -5,10 +5,12 @@
  *      Author: cyborg9
  */
 
+#include <sstream>
 #include <unistd.h>
 #include <fcntl.h>
 #include <linux/i2c-dev.h>
 #include <sys/ioctl.h>
+#include <stdio.h>
 #include "hal/I2CManager.h"
 #include "util/EventHandler.h"
 
@@ -97,7 +99,11 @@ void I2CManager::writeRaw(int id, vector<uint8_t> data){
 	close(fd);
 
 	if(retval != (signed)data.size()){
-		EventHandler::event(LEVEL_WARN, "[I2CManager] Unable to write correct number of bytes to i2c device");
+		stringstream ss;
+		ss << "[I2CManager] Unable to write correct number of bytes to i2c device";
+		ss << " Wrote " << retval;
+		ss <<" not " << data.size();
+		EventHandler::event(LEVEL_WARN, ss.str());
 	}
 }
 
@@ -110,7 +116,7 @@ vector<uint8_t> I2CManager::readRaw(int id, size_t len){
 	LockGuard l(lock);
 	I2CDevice& dev = BusManager<I2CDevice>::getDevice(id);
 
-	int fd = open(devfilename.c_str(), O_WRONLY);
+	int fd = open(devfilename.c_str(), O_RDONLY);
 	if(fd < 0){
 		EventHandler::event(LEVEL_ERROR, "[I2CManager] Unable to open I2C bus " + devfilename);
 	}
@@ -122,8 +128,8 @@ vector<uint8_t> I2CManager::readRaw(int id, size_t len){
 	for(size_t i = 0; i < len; i++){
 		uint8_t byte;
 		int retval = read(fd, &byte, 1);
-
 		if(retval != 1){
+			perror("WTF");
 			EventHandler::event(LEVEL_WARN, "[I2CManager] Unable to read correct number of bytes from i2c device");
 		}
 		data.push_back(byte);
