@@ -12,7 +12,11 @@
 #include <stdint.h>
 #include <math.h>
 
-
+/*!
+ * Creates temperature interface with the provided device
+ * \param onewireman the OneWireManager to be used
+ * \param id the id of the device
+ */
 TempInterface::TempInterface(OneWireManager& onewireman, int id)
 :onewireman(onewireman), id(id)
 {
@@ -20,10 +24,15 @@ TempInterface::TempInterface(OneWireManager& onewireman, int id)
 
 TempInterface::~TempInterface(){}
 
+//! Start the temperature sampling process. At least 750ms must pass before calling getSample
 void TempInterface::beginSample(){
 	onewireman.writeToFile(id, "start", "1");
 }
 
+/*!
+ * Returns the sampled temperature from the sensor. Returns NAN on error
+ * \return the temperature in C
+ */
 float TempInterface::getSample(){
 	std::string data = onewireman.readFromFile(id, "temp");
 	std::stringstream ss(data);
