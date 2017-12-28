@@ -90,6 +90,7 @@ bool ACPInterface::receivePacket(ACPPacket& ret){
 
 	uint8_t debug = 0;
 	//Wait for sync
+	if(!waitInterrupt()) return false;
 	if((debug = spiman.receivebyte(spiid)) != ret.sync){
 		stringstream ss;
 		ss << "[ACPInterface] Received bad sync: "<< hex <<  setfill('0') << setw(2) << debug;

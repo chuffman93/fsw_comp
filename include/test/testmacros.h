@@ -8,6 +8,8 @@
 #ifndef TESTMACROS_H_
 #define TESTMACROS_H_
 
+#include <iostream>
+
 #define FAILIF(cond, failstr) do{ \
 		if(cond){ \
 			cout << failstr << endl; \
@@ -21,10 +23,11 @@
 		vector<type> name(initializer_##name, initializer_##name + sizeof(initializer_##name)/sizeof(type));
 
 #define PROMPT(prompt_str) do{ \
-		std::cout << prompt_str << endl; \
+		std::cout << prompt_str << std::endl; \
 		std::cout.flush(); \
 		std::cin.ignore(); \
 	}while(0);
+
 
 
 

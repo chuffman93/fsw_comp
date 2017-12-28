@@ -94,25 +94,3 @@ TEST_CASE("Test that the ACPInterface performs correctly", "[hal][ACPInterface]"
 	EventHandler::attachLogger(NULL);
 }
 
-TEST_CASE("Communicate with RAD", "[.][hardware][acp][rad]"){
-	int spiid, intrid, acpid;
-	SPIManager spi("/dev/spidev32765", 0, 1000000);
-	GPIOManager intr("/sys/class/gpio/");
-	ACPPacket test_send(PLD, 8), test_recv;
-
-	INFO("Register the Devices");
-	spiid = spi.attachDevice(3);
-	intrid = intr.attachDevice('A', 25, INT_FALLING);
-
-	INFO("Initialize hardware");
-	spi.initialize();
-	intr.initialize();
-
-	INFO("Create an ACPInterface")
-	ACPInterface acp(spi, intr, spiid, intrid);
-
-	PROMPT("Ready to send to PLD...");
-	REQUIRE(acp.transaction(test_send, test_recv) == true);
-	cout << "Sync: " << (unsigned int)test_recv.sync << ", Op: " << (unsigned int)test_recv.opcode << ", Length: " << test_recv.message.size() << endl;
-}
-

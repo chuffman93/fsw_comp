@@ -12,7 +12,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include "hal/GPIOManager.h"
-#include "util/eventManager.h"
+#include "util/EventHandler.h"
 
 //! Stub, not yet implemented
 GPIOManager::GPIOManager(std::string busbase)
