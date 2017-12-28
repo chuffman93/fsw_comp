@@ -6,9 +6,45 @@
  */
 #include "test/catch.hpp"
 #include <iostream>
+#include <sstream>
 #include "test/mockhal/MockSPIManager.h"
 #include "test/mockhal/MockGPIOManager.h"
+#include "test/mockhal/MockOneWireManager.h"
 using namespace std;
+
+TEST_CASE("Test that MockOneWireManager handles data strings", "[MockHAL][MockOneWireManager]"){
+	vector<int> devices;
+	MockOneWireManager onewire;
+	float temp;
+
+	for(int i = 0; i < 16; i++){
+		devices.push_back(onewire.attachDevice(""));
+	}
+
+	INFO("Check that a blank string is returned if no data is specified");
+	for(vector<int>::iterator dev = devices.begin(); dev < devices.end(); dev++){
+		CAPTURE(dev);
+		REQUIRE(onewire.readFromFile(*dev, "temp") == "");
+	}
+
+	INFO("Set each device to have a unique string");
+	temp = 15.0;
+	for(vector<int>::iterator dev = devices.begin(); dev < devices.end(); dev++){
+		stringstream ss;
+		ss << temp;
+		onewire.setData(*dev, ss.str());
+		temp += 1;
+	}
+
+	INFO("Validate the strings");
+	temp = 15.0;
+	for(vector<int>::iterator dev = devices.begin(); dev < devices.end(); dev++){
+		stringstream ss;
+		ss << temp;
+		REQUIRE(onewire.readFromFile(*dev, "temp") == ss.str());
+		temp += 1;
+	}
+}
 
 TEST_CASE("Test that MockSPIManager properly simulates the SPI Bus", "[MockHAL][MockSPIManager]"){
 	vector<int> devices;
