@@ -33,6 +33,10 @@ void Logger::setLevel(LogLevel level){
 	lock.unlock();
 }
 
+/*!
+ * Sets the mode for the logger
+ * \param mode the new logging mode
+ */
 void Logger::setMode(LogMode mode){
 	lock.lock();
 	Logger::mode = mode;
@@ -51,7 +55,7 @@ void Logger::registerThread(std::string threadname){
 /*!
  * Helper function to convert the passed level into a color coded string
  * \param level the level to be converted
- * \return the corrisponding string
+ * \return A tag for the level
  */
 LogTag Logger::levelTag(LogLevel level){
 	switch(level){
@@ -73,7 +77,7 @@ LogTag Logger::levelTag(LogLevel level){
 /*!
  * Helper function to convert the current thread id into a tag.
  * Will return the name of the thread if it is in the registry or the thread id if not
- * \return the name of the thread or the thread id
+ * \return tag containing the name of the thread or the thread id
  */
 LogTag Logger::threadTag(){
 	std::stringstream ss;
@@ -86,6 +90,11 @@ LogTag Logger::threadTag(){
 	return LogTag("Thread", ss.str());
 }
 
+/*!
+ * Helper function to create a timestamp tag
+ * Will return the time formated in hh:mm:ss.sss
+ * \return Timestamp tag
+ */
 LogTag Logger::timeTag(){
 	timespec t;
 	clock_gettime(CLOCK_REALTIME, &t);
@@ -98,7 +107,12 @@ LogTag Logger::timeTag(){
 	return LogTag("Time", ss.str());
 }
 
-
+/*!
+ * Register a new filter. When a message is logged with tags that match those supplied,
+ * the provided level will be used as the threshold instead of the global level
+ * \param tags The tags to match on for the filter
+ * \param level The new threshold for comparison
+ */
 void Logger::registerFilter(LogTags tags, LogLevel level){
 	Logger::Stream(LEVEL_FATAL, tags) << "Will now filter to level " << levelTag(level).second;
 	lock.lock();
@@ -106,6 +120,7 @@ void Logger::registerFilter(LogTags tags, LogLevel level){
 	lock.unlock();
 }
 
+//! Clears all current filters in the logger
 void Logger::clearFilters(){
 	lock.lock();
 	filters.clear();
@@ -114,7 +129,9 @@ void Logger::clearFilters(){
 
 /*!
  * Logs a passed message, if the level is above the global logging level
+ * or if there is a filter for the type of message
  * \param level the level of the message
+ * \param tags the tags to be logged along with the message
  * \param message the message to be logged
  */
 void Logger::log(LogLevel level, LogTags tags, std::string message){
@@ -150,10 +167,23 @@ void Logger::log(LogLevel level, LogTags tags, std::string message){
 	}
 }
 
+/*!
+ * Logs a passed message, if the level is above the global logging level
+ * or if there is a filter for the type of message
+ * \param level the level of the message
+ * \param message the message to be logged
+ */
 void Logger::log(LogLevel level, std::string message){
 	Logger::log(level, LogTags(), message);
 }
 
+/*!
+ * Helper function to convert LogTags into a string.
+ * Will arrange tags in a fixed order (Level, Time, Thread, Name, Instance).
+ * Will not include a tag in the string if not present
+ * \param tags The tags to be converted
+ * \return string containing the tags
+ */
 std::string Logger::tagsToString(LogTags tags){
 	stringstream ss;
 	const char* names[] = {"Level", "Time", "Thread", "Name", "Instance"};
