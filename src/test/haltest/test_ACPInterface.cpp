@@ -7,7 +7,7 @@
 #include "test/catch.hpp"
 #include "test/testmacros.h"
 
-#include "util/EventHandler.h"
+#include "util/Logger.h"
 #include "interfaces/ACPInterface.h"
 
 using namespace std;
@@ -15,7 +15,7 @@ using namespace std;
 
 TEST_CASE("Communicate with RAD", "[.][hardware][acp][rad]"){
 	INFO("Setting up Event Handler");
-	EventHandler::attachLogger(new Logger());
+	Logger::setMode(MODE_PRINT);
 
 	int spiid, intrid, acpid;
 	SPIManager spi("/dev/spidev32765", 0, 1000000);
@@ -42,6 +42,6 @@ TEST_CASE("Communicate with RAD", "[.][hardware][acp][rad]"){
 	cout << "Sync: " << (unsigned int)test_recv.sync << ", Op: " << (unsigned int)test_recv.opcode << ", Length: " << test_recv.message.size() << endl;
 
 	INFO("Tearing down event handler");
-	EventHandler::attachLogger(NULL);
+	Logger::setMode(MODE_NOTHING);
 }
 

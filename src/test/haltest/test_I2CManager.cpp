@@ -8,10 +8,10 @@
 #include "test/catch.hpp"
 #include "hal/I2CManager.h"
 #include "test/testmacros.h"
-#include "util/EventHandler.h"
+#include "util/Logger.h"
 
 TEST_CASE("I2CManager Read write register test", "[.][hardware][i2c]"){
-	EventHandler::attachLogger(new Logger());
+	Logger::setMode(MODE_PRINT);
 	I2CManager i2c("/dev/i2c-2");
 	int powermon = i2c.attachDevice(0xD0); //1.2V rail
 
@@ -27,7 +27,7 @@ TEST_CASE("I2CManager Read write register test", "[.][hardware][i2c]"){
 	uint16_t rawval = ((uint16_t) i2c.readReg(powermon, 0x1E) << 8) | (i2c.readReg(powermon, 0x1F));
 	float val = (float)(rawval>>4) * (25.0/1000.0);
 	std::cout << "Read " << rawval << " (" << val << "V) from the power monitor" << std::endl;
-	EventHandler::attachLogger(NULL);
+	Logger::setMode(MODE_NOTHING);
 }
 
 

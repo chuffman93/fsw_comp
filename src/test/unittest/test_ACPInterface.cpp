@@ -9,10 +9,10 @@
 using namespace std;
 #include "test/testmacros.h"
 #include "util/ACPPacket.h"
+#include "util/Logger.h"
 #include "interfaces/ACPInterface.h"
 #include "test/mockhal/MockSPIManager.h"
 #include "test/mockhal/MockGPIOManager.h"
-#include "util/EventHandler.h"
 
 TEST_CASE("Test that ACPPacket manages packets correctly", "[core][ACPPacket]"){
 	subsystem_sync_t sync = EPS;
@@ -36,7 +36,7 @@ TEST_CASE("Test that ACPPacket manages packets correctly", "[core][ACPPacket]"){
 }
 
 TEST_CASE("Test that the ACPInterface performs correctly", "[hal][ACPInterface]"){
-	//TODO: Make a CatchLogger class EventHandler::attachLogger(new Logger());
+	//Logger::setMode(MODE_PRINT);
 	int spiid, intrid, acpid;
 	MockSPIManager spi;
 	MockGPIOManager intr;
@@ -89,7 +89,6 @@ TEST_CASE("Test that the ACPInterface performs correctly", "[hal][ACPInterface]"
 		ACPPacket ret;
 		REQUIRE(acp.transaction(test, ret) == false);
 	}
-
-	EventHandler::attachLogger(NULL);
+	Logger::setMode(MODE_NOTHING);
 }
 

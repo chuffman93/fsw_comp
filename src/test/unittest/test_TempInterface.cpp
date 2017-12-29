@@ -8,12 +8,12 @@
 #include "interfaces/TempInterface.h"
 #include "test/catch.hpp"
 #include "test/mockhal/MockOneWireManager.h"
-#include "util/EventHandler.h"
+#include "util/Logger.h"
 #include <math.h>
 
 
 TEST_CASE("Test that TempInterface parses data correctly", "[interfaces][tempinterface]"){
-	//EventHandler::attachLogger(new Logger());
+	//Logger::setMode(MODE_PRINT);
 	MockOneWireManager onewire;
 	int id = onewire.attachDevice("");
 	TempInterface t(onewire, id);
@@ -31,5 +31,5 @@ TEST_CASE("Test that TempInterface parses data correctly", "[interfaces][tempint
 		onewire.setData(id, test);
 		REQUIRE(isnan(t.getSample()) != 0);
 	}
-	EventHandler::attachLogger(NULL);
+	Logger::setMode(MODE_NOTHING);
 }

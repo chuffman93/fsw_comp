@@ -6,7 +6,7 @@
  */
 
 #include "interfaces/TempInterface.h"
-#include "util/EventHandler.h"
+#include "util/Logger.h"
 #include <stdio.h>
 #include <sstream>
 #include <stdint.h>
@@ -20,6 +20,7 @@
 TempInterface::TempInterface(OneWireManager& onewireman, int id)
 :onewireman(onewireman), id(id)
 {
+	tags += LogTag("Name", "TempInterface");
 }
 
 TempInterface::~TempInterface(){}
@@ -39,28 +40,22 @@ float TempInterface::getSample(){
 	std::string line1, line2;
 
 	if(!std::getline(ss, line1, '\n')){
-		EventHandler::event(LEVEL_WARN, "[TempInterface] Invalid data string from sensor");
+		Logger::Stream(LEVEL_WARN, tags) << "Invalid data string: \"" << data << "\"";
 		return NAN;
 	}
 	std::getline(ss, line2, '\n');
 
 	if(line2.c_str()[27] != 'V'){
-		std::stringstream ss;
-		ss << "[TempInterface] Data from sensor not valid char: ";
-		ss << line2;
-		EventHandler::event(LEVEL_WARN,  ss.str());
+		Logger::Stream(LEVEL_WARN, tags) << "Data fails crc: \"" << line2 << "\"";
 		return NAN;
 	}
-	EventHandler::event(LEVEL_DEBUG, "[TempInterface] Read \"" + line1 + "\" from the sensor");
+	Logger::Stream(LEVEL_DEBUG, tags) << "Read \"" << line1 << "\" from the sensor";
 	int rawval;
 	if(sscanf(line1.c_str(), "t=%d", &rawval) != 1){
-		EventHandler::event(LEVEL_WARN, "[TempInterface] string parse failed");
+		Logger::Stream(LEVEL_WARN, tags) << "Failed to parse \"" << line1 << "\"";
 	}
 
-	std::stringstream ss2;
-	ss2 << "[TempInterface] Read " << rawval << "mC from sensor";
-	EventHandler::event(LEVEL_INFO, ss2.str());
-
+	Logger::Stream(LEVEL_INFO, tags) << "Read " << rawval << "mC from the sensor";
 	return (float) rawval / 1000.0;
 
 }

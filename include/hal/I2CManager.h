@@ -13,6 +13,7 @@
 #include <vector>
 #include "hal/BusManager.h"
 #include "core/Lock.h"
+#include "util/Logger.h"
 
 /*!
  * Contains all of the information relavent to a single device on the i2c bus
@@ -47,6 +48,9 @@ private:
 	std::string devfilename;
 	//! Mutex for the bus
 	Lock lock;
+
+	//! Tags for logging
+	LogTags tags;
 };
 
 

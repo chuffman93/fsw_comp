@@ -5,14 +5,13 @@
  *      Author: cyborg9
  */
 
-#include "hal/SPIManager.h"
 #include <linux/spi/spidev.h>
 #include <fcntl.h>
 #include <sstream>
 #include <sys/ioctl.h>
 #include <iomanip>
 #include <unistd.h>
-#include "util/EventHandler.h"
+#include "hal/SPIManager.h"
 using namespace std;
 
 // NOTE: Consider not remapping linux SPI enum
@@ -27,6 +26,7 @@ SPIManager::SPIManager(string busbase, uint8_t mode, uint32_t speed)
 {
 	const uint8_t modes[] = {SPI_MODE_0, SPI_MODE_1, SPI_MODE_2, SPI_MODE_3};
 	this->mode = modes[mode];
+	tags += LogTag("Name", "SPIManager");
 }
 
 //! Stub, not necessarily final implementation
@@ -47,6 +47,7 @@ int SPIManager::attachDevice(int ss){
 
 //! Initializes all devices
 void SPIManager::initialize(){
+	Logger::Stream(LEVEL_INFO, tags) << "Initializing bus on \"" << busbase << "\"";
 	BusManager<SPIDevice>::initializeDevices();
 }
 
@@ -56,9 +57,7 @@ void SPIManager::initialize(){
  * \param device the device to initialize
  */
 void SPIManager::initializeDevice(SPIDevice& device){
-	stringstream ss;
-	ss << "[SPIManager] Initializing device on bus \"" << busbase <<"\" with cs " << device.ss;
-	EventHandler::event(LEVEL_INFO, ss.str());
+	Logger::Stream(LEVEL_INFO, tags) << "Initializing device with cs " << device.ss;
 
 	stringstream devstring;
 	devstring << busbase << '.' << device.ss;
@@ -70,7 +69,6 @@ void SPIManager::initializeDevice(SPIDevice& device){
 	ioctl(device.fd, SPI_IOC_RD_MODE, &mode);
 	ioctl(device.fd,SPI_IOC_WR_MAX_SPEED_HZ, &speed);
 	ioctl(device.fd,SPI_IOC_RD_MAX_SPEED_HZ, &speed);
-	// TODO: consider logging registration
 }
 
 /*!
@@ -81,9 +79,9 @@ void SPIManager::initializeDevice(SPIDevice& device){
 void SPIManager::sendbyte(int id, uint8_t byte){
 	LockGuard l(lock);
 	SPIDevice dev = getDevice(id);
-	stringstream ss;
-	ss << "[SPIManager][CS: " << dev.ss <<"] Sending byte: 0x" << hex <<  setfill('0') << setw(2) << (unsigned int)byte;
-	EventHandler::event(LEVEL_DEBUG, ss.str());
+	Logger::Stream(LEVEL_DEBUG, tags) << "Sending byte: 0x"
+			<< hex <<  setfill('0') << setw(2) << (unsigned int)byte
+			<< " to ss " << dev.ss;
 	write(dev.fd, &byte, 1);
 }
 
@@ -97,9 +95,9 @@ uint8_t SPIManager::receivebyte(int id){
 	SPIDevice dev = getDevice(id);
 	uint8_t rx_byte = 0;
 	read(dev.fd, &rx_byte, 1);
-	stringstream ss;
-	ss << "[SPIManager][CS: " << dev.ss <<"] Received byte: 0x" << hex <<  setfill('0') << setw(2) << (unsigned int)rx_byte;
-	EventHandler::event(LEVEL_DEBUG, ss.str());
+	Logger::Stream(LEVEL_DEBUG, tags) << "Received byte: 0x"
+			<< hex <<  setfill('0') << setw(2) << (unsigned int)rx_byte
+			<< " from ss " << dev.ss;
 	return rx_byte;
 }
 

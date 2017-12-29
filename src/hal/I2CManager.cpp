@@ -11,8 +11,8 @@
 #include <linux/i2c-dev.h>
 #include <sys/ioctl.h>
 #include <stdio.h>
+#include <iomanip>
 #include "hal/I2CManager.h"
-#include "util/EventHandler.h"
 
 using namespace std;
 
@@ -22,7 +22,9 @@ using namespace std;
  */
 I2CManager::I2CManager(string file)
 :devfilename(file)
-{}
+{
+	tags += LogTag("Name", "I2CManager");
+}
 
 I2CManager::~I2CManager(){
 
@@ -41,14 +43,14 @@ int I2CManager::attachDevice(uint8_t addr){
 
 //! Initializes the I2C bus
 void I2CManager::initialize(){
-	EventHandler::event(LEVEL_INFO, "[I2CManager] Initializing bus " + devfilename);
+	Logger::Stream(LEVEL_INFO, tags) << "Initializing bus " << devfilename;
 	BusManager<I2CDevice>::initializeDevices();
 }
 
 //! Initialize an I2C Device (currently does nothing)
 void I2CManager::initializeDevice(I2CDevice& dev){
-	//TODO: add info into this shit
-	EventHandler::event(LEVEL_INFO, "[I2CManager] Initializing device");
+	Logger::Stream(LEVEL_INFO, tags) << "Initializing device with address 0x"
+			 << hex <<  setfill('0') << setw(2) << (dev.address << 1); //Display the 8-bit address
 }
 
 /*!
@@ -89,21 +91,18 @@ void I2CManager::writeRaw(int id, vector<uint8_t> data){
 
 	int fd = open(devfilename.c_str(), O_WRONLY);
 	if(fd < 0){
-		EventHandler::event(LEVEL_ERROR, "[I2CManager] Unable to open I2C bus " + devfilename);
+		Logger::Stream(LEVEL_ERROR, tags) << "Unable to open I2C bus " << devfilename;
 	}
 	if(ioctl(fd, I2C_SLAVE, dev.address) < 0){
-		EventHandler::event(LEVEL_WARN, "[I2CManager] Unable to select i2c device");
+		Logger::Stream(LEVEL_WARN, tags) << "Unable to select i2c device on address "
+				 << hex <<  setfill('0') << setw(2) << (dev.address << 1); //Display the 8-bit address
 	}
 
 	int retval = write(fd, &data[0], data.size());
 	close(fd);
 
 	if(retval != (signed)data.size()){
-		stringstream ss;
-		ss << "[I2CManager] Unable to write correct number of bytes to i2c device";
-		ss << " Wrote " << retval;
-		ss <<" not " << data.size();
-		EventHandler::event(LEVEL_WARN, ss.str());
+		Logger::Stream(LEVEL_WARN, tags) << "Write failed. Wrote " << retval << " not " << data.size();
 	}
 }
 
@@ -118,22 +117,19 @@ vector<uint8_t> I2CManager::readRaw(int id, size_t len){
 
 	int fd = open(devfilename.c_str(), O_RDONLY);
 	if(fd < 0){
-		EventHandler::event(LEVEL_ERROR, "[I2CManager] Unable to open I2C bus " + devfilename);
+		Logger::Stream(LEVEL_ERROR, tags) << "Unable to open I2C bus " << devfilename;
 	}
 	if(ioctl(fd, I2C_SLAVE, dev.address) < 0){
-		EventHandler::event(LEVEL_WARN, "[I2CManager] Unable to select i2c device");
+		Logger::Stream(LEVEL_WARN, tags) << "Unable to select i2c device on address "
+				 << hex <<  setfill('0') << setw(2) << (dev.address << 1); //Display the 8-bit address
 	}
 
-	vector<uint8_t> data;
-	for(size_t i = 0; i < len; i++){
-		uint8_t byte;
-		int retval = read(fd, &byte, 1);
-		if(retval != 1){
-			perror("WTF");
-			EventHandler::event(LEVEL_WARN, "[I2CManager] Unable to read correct number of bytes from i2c device");
-		}
-		data.push_back(byte);
+	vector<uint8_t> data(len);
+	int retval = read(fd, &data[0], len);
+	if(retval != 1){
+		Logger::Stream(LEVEL_WARN, tags) << "Read failed. read " << retval << " not " << len;
 	}
+
 	close(fd);
 	return data;
 }

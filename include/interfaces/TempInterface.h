@@ -9,6 +9,7 @@
 #define TEMPINTERFACE_H_
 
 #include "hal/OneWireManager.h"
+#include "util/Logger.h"
 
 class TempInterface{
 public:
@@ -23,6 +24,9 @@ private:
 
 	//! The id of the device on the bus
 	int id;
+
+	//! Tags to use when logging
+	LogTags tags;
 };
 
 

@@ -5,7 +5,7 @@
  *      Author: cyborg9
  */
 #include "interfaces/ACPInterface.h"
-#include "util/EventHandler.h"
+#include "util/Logger.h"
 #include <sstream>
 #include <iostream>
 #include <iomanip>
@@ -21,7 +21,7 @@ using namespace std;
 ACPInterface::ACPInterface(SPIManager& spiman, GPIOManager& gpioman, int spiid, int intid)
 :spiman(spiman), gpioman(gpioman), spiid(spiid), intid(intid), numbertransactions(0), timeout(100), tries(10), delay(1000)
 {
-
+	tags += LogTag("Name", "ACPInterface");
 }
 
 //! Does nothing
@@ -52,6 +52,7 @@ bool ACPInterface::transaction(ACPPacket& packet, ACPPacket& ret){
 	for(size_t i = 0; i < tries; i++){
 		if(sendPacket(packet)){
 			if(receivePacket(ret)){
+				Logger::Stream(LEVEL_INFO, tags) << "Received ACP Packet: " << ret;
 				success = true;
 				break;
 			}
@@ -67,7 +68,7 @@ bool ACPInterface::transaction(ACPPacket& packet, ACPPacket& ret){
  * \return whether the packet was sent successfully
  */
 bool ACPInterface::sendPacket(ACPPacket& packet){
-	EventHandler::event(LEVEL_INFO, "[ACPInterface] Sending ACP Packet: " + packet.summary());
+	Logger::Stream(LEVEL_INFO, tags) << "Sending ACP Packet: " << packet;
 	vector<uint8_t> data = packet.pack();
 	for(vector<uint8_t>::iterator i = data.begin(); i < data.end(); i++){
 		spiman.sendbyte(spiid, *i);
@@ -92,9 +93,7 @@ bool ACPInterface::receivePacket(ACPPacket& ret){
 	//Wait for sync
 	if(!waitInterrupt()) return false;
 	if((debug = spiman.receivebyte(spiid)) != ret.sync){
-		stringstream ss;
-		ss << "[ACPInterface] Received bad sync: "<< hex <<  setfill('0') << setw(2) << debug;
-		EventHandler::event(LEVEL_WARN, ss.str());
+		Logger::Stream(LEVEL_WARN, tags) << "Received bad sync: "<< hex <<  setfill('0') << setw(2) << debug;
 		return false;
 	}
 	//Read header
@@ -133,10 +132,8 @@ bool ACPInterface::receivePacket(ACPPacket& ret){
  */
 bool ACPInterface::waitInterrupt(){
 	if(!gpioman.wait(intid, timeout)){
-		EventHandler::event(LEVEL_WARN, "[ACPInterface] Interrupt Timeout");
 		return false;
 	}
-	EventHandler::event(LEVEL_DEBUG, "[ACPInterface] Interrupt Received");
 	return true;
 }
 

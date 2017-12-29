@@ -8,7 +8,7 @@
 #include "hal/OneWireManager.h"
 #include "test/catch.hpp"
 #include "test/testmacros.h"
-#include "util/EventHandler.h"
+#include "util/Logger.h"
 #include <unistd.h>
 
 using namespace std;
@@ -23,7 +23,7 @@ using namespace std;
 
 
 TEST_CASE("Test OneWireManager", "[.][hardware][onewire]"){
-	EventHandler::attachLogger(new Logger());
+	Logger::setMode(MODE_PRINT);
 	OneWireManager onewire("/sys/bus/w1/devices/w1_bus_master1/");
 	int a5monitor = onewire.attachDevice("TEMP1");
 	onewire.initialize();
@@ -33,7 +33,7 @@ TEST_CASE("Test OneWireManager", "[.][hardware][onewire]"){
 	string data = onewire.readFromFile(a5monitor, "temp");
 
 	cout << "Read the following data from A5 temp sensor" << endl << data;
-	EventHandler::attachLogger(NULL);
+	Logger::setMode(MODE_NOTHING);
 }
 
 

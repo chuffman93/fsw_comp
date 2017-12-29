@@ -13,6 +13,7 @@
 #include <stdint.h>
 #include "hal/HardwareManager.h"
 #include "core/Lock.h"
+#include "util/Logger.h"
 
 /*!
  * Manages a specific UART device, and provides raw read/write methods
@@ -36,6 +37,9 @@ private:
 	int fd;
 	//! Mutex for the device
 	Lock lock;
+
+	//! Tags for logging
+	LogTags tags;
 };
 
 

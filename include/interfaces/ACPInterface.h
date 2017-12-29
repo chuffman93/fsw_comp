@@ -11,6 +11,7 @@
 #include "hal/SPIManager.h"
 #include "hal/GPIOManager.h"
 #include "util/ACPPacket.h"
+#include "util/Logger.h"
 
 /*!
  * Manages a SPI bus and interrupt lines.
@@ -45,6 +46,9 @@ private:
 	size_t tries;
 	//! The amount of time to wait between packet transactions [ms]
 	size_t delay;
+
+	//! Tags to be used when logging
+	LogTags tags;
 
 	bool sendPacket(ACPPacket& packet);
 	bool receivePacket(ACPPacket& ret);

@@ -12,6 +12,7 @@
 #include <vector>
 #include <memory>
 #include <string>
+#include <iostream>
 
 //TODO: move into ACP Interface
 
@@ -42,9 +43,11 @@ struct ACPPacket{
 	ACPPacket(subsystem_sync_t sync, uint16_t op);
 	ACPPacket(subsystem_sync_t sync, uint16_t op, std::vector<uint8_t> message);
 
-	std::string summary();
+	std::string summary() const;
 	std::vector<uint8_t> pack();
 	bool validate();
+
+	friend std::ostream &operator<<( std::ostream &output, const ACPPacket &p );
 
 	~ACPPacket();
 private:

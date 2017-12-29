@@ -7,14 +7,15 @@
 
 #ifndef SPIMANAGER_H_
 #define SPIMANAGER_H_
-#include "hal/BusManager.h"
-#include "core/Lock.h"
 #include <string>
 #include <stdint.h>
+#include "hal/BusManager.h"
+#include "core/Lock.h"
+#include "util/Logger.h"
 
 
-// NOTE:: consider typedefing liberally
-// NOTE: Consider increasing spi bus speed (look into max speed)
+// TODO: consider typedefing liberally
+// TODO: Consider increasing spi bus speed (look into max speed)
 
 /*!
  * Contains all of the information relavent to a single device on the spi bus
@@ -54,6 +55,9 @@ private:
 	uint32_t speed;
 	//! Mutex for the bus
 	Lock lock;
+
+	//! Tags for loggin
+	LogTags tags;
 };
 
 

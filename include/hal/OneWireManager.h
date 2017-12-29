@@ -4,6 +4,7 @@
 #include <string>
 #include "hal/BusManager.h"
 #include "core/Lock.h"
+#include "util/Logger.h"
 
 /*!
  * Contains all of the information relavent to a single device on the one wire bus
@@ -37,6 +38,9 @@ private:
 	std::string busbase;
 	//! Mutex for the bus
 	Lock lock;
+
+	//! Tags for logging
+	LogTags tags;
 };
 
 #endif

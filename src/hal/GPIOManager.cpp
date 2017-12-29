@@ -12,13 +12,12 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include "hal/GPIOManager.h"
-#include "util/EventHandler.h"
 
 //! Stub, not yet implemented
 GPIOManager::GPIOManager(std::string busbase)
 :gpiobase(busbase)
 {
-
+	tags += LogTag("Name", "GPIOManager");
 }
 
 //! Stub, not yet implemented
@@ -33,6 +32,9 @@ void GPIOManager::initialize(){
 
 //! Initialize the passed gpio. performs muxings and other tasks
 void GPIOManager::initializeDevice(GPIODevice& dev){
+	Logger::Stream(LEVEL_INFO, tags) << "Initializing GPIO on " << dev.gpioref
+			<< " to be an " << ((dev.direction == GPIO_INPUT) ? "INPUT" : "OUTPUT")
+			<< ((dev.edge == INT_NONE) ? "" : " Edge triggered");
 	std::ofstream fs;
 	struct stat st;
 	//If the gpio isn't already exported export it
@@ -123,11 +125,11 @@ bool GPIOManager::wait(int id, uint32_t timeout){
 	int retval = poll(&dev.pfd, 1, timeout);
 	if (!(dev.pfd.revents & POLLPRI) || retval == 0) {
 		//Timeout
-		EventHandler::event(LEVEL_WARN, "[GPIOManager] Interrupt timeout occured on pio" + dev.gpioref);
+		Logger::Stream(LEVEL_WARN, tags) << "Interrupt timeout occured on " << dev.gpioref;
 		return false;
 	}
 
-	EventHandler::event(LEVEL_DEBUG, "[GPIOManager] Interrupt received on pio" + dev.gpioref);
+	Logger::Stream(LEVEL_DEBUG, tags) << "Interrupt received on " << dev.gpioref;
 
 	//Clear any pending interrupts
 	uint8_t dummy;
@@ -151,6 +153,8 @@ GPIOLevel GPIOManager::get(int id){
 	fs.open((gpiobase + dev.gpioref + "value").c_str());
 	fs >> val;
 	fs.close();
+
+	Logger::Stream(LEVEL_DEBUG, tags) << "Read " << ((val == 1) ? "HIGH" : "LOW")<< " from " << dev.gpioref;
 	return (val == 1) ? HIGH : LOW;
 }
 
@@ -163,6 +167,8 @@ void GPIOManager::set(int id, GPIOLevel level){
 	LockGuard(dev.lock);
 	assert(dev.direction == GPIO_OUTPUT);
 	assert(dev.edge == INT_NONE);
+
+	Logger::Stream(LEVEL_DEBUG, tags) << "Setting " << dev.gpioref << " to " << ((level == HIGH)?"HIGH":"LOW");
 
 	std::ofstream fs;
 	int val = (level == HIGH) ? 1 : 0;

@@ -38,6 +38,16 @@ ACPPacket::~ACPPacket(){
 
 }
 
+/*! Just provide the packet.summary method for output streams
+ * \param output the output stream
+ * \param ACPPacket the packet to be written
+ * \return the output stream
+ */
+std::ostream &operator<<(std::ostream &output, const ACPPacket &p ) {
+	output << p.summary();
+	return output;
+}
+
 //! Packs the ACPPacket into a vector
 std::vector<uint8_t> ACPPacket::pack(){
 	std::vector<uint8_t> data = packallbutcrc();
@@ -72,7 +82,7 @@ bool ACPPacket::validate(){
 /*! Provides a high level summary string of the packet
  * \return string containing the summary
  */
-std::string ACPPacket::summary(){
+std::string ACPPacket::summary() const{
 	std::stringstream ss;
 	ss << "{Sync: " << (unsigned int) sync;
 	ss << ", Opcode: " << (unsigned int) opcode;

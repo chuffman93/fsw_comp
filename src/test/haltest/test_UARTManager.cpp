@@ -8,13 +8,13 @@
 #include "hal/UARTManager.h"
 #include "test/catch.hpp"
 #include "test/testmacros.h"
-#include "util/EventHandler.h"
+#include "util/Logger.h"
 #include <iostream>
 
 using namespace std;
 
 TEST_CASE("Test UART Manager read", "[.][hardware][uart][read]"){
-	EventHandler::attachLogger(new Logger());
+	Logger::setMode(MODE_PRINT);
 	cout << "---------------UART read test----------------" << endl;
 	UARTManager uart("/dev/ttyS2");
 	uart.initialize();
@@ -22,7 +22,7 @@ TEST_CASE("Test UART Manager read", "[.][hardware][uart][read]"){
 	vector<uint8_t> bytesreceived = uart.readData();
 	string received(bytesreceived.begin(), bytesreceived.end());
 	cout <<"Received: " << received << endl;
-	EventHandler::attachLogger(NULL);
+	Logger::setMode(MODE_NOTHING);
 }
 
 TEST_CASE("Test UART Manager write", "[.][hardware][uart][write]"){

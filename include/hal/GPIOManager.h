@@ -7,11 +7,12 @@
 
 #ifndef GPIOMANAGER_H_
 #define GPIOMANAGER_H_
-#include "hal/BusManager.h"
-#include "core/Lock.h"
 #include <poll.h>
 #include <stdint.h>
 #include <string>
+#include "hal/BusManager.h"
+#include "core/Lock.h"
+#include "util/Logger.h"
 
 //TODO Consider typedefs
 
@@ -69,6 +70,9 @@ private:
 	void initializeDevice(GPIODevice& dev);
 	//! Contains the path to the gpio directory
 	std::string gpiobase;
+
+	//! Tags to use when logging
+	LogTags tags;
 };
 
 
