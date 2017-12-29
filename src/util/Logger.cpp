@@ -20,6 +20,31 @@ std::map<pthread_t, std::string> Logger::threadNames;
 LogMode Logger::mode = MODE_NOTHING;
 std::vector<std::pair<LogTags, LogLevel> > Logger::filters;
 
+LogTags::LogTags(){}
+
+LogTags::LogTags(LogTag tag){
+	this->insert(tag);
+}
+
+LogTags LogTags::operator+(const LogTag& tag){
+	LogTags newtags;
+	newtags.insert(this->begin(), this->end());
+	newtags.insert(tag);
+	return newtags;
+}
+
+void LogTags::operator+=(const LogTag& tag){
+	this->insert(tag);
+}
+
+LogTags LogTags::operator+(const LogTags& tags2){
+	LogTags newtags;
+	newtags.insert(this->begin(), this->end());
+	LogTags temp = tags2; //Yes I know it's stupid, but it's what eclipse wants...
+	newtags.insert(temp.begin(), temp.end());
+	return newtags;
+}
+
 /*!
  * Sets the global logging level to the passed value
  * \param level the new logging level

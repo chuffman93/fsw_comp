@@ -9,6 +9,7 @@
 #define INCLUDE_SUBSYSTEM_GPS_H_
 
 #include "SubsystemBase.h"
+#include "hal/UARTManager.h"
 
 struct GPSPositionTime{
   double posX;

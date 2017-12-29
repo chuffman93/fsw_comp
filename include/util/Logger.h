@@ -43,26 +43,11 @@ typedef std::pair<std::string, std::string> LogTag;
  */
 class LogTags: public std::map<std::string, std::string>{
 public:
-	LogTags(){}
-	LogTags(LogTag tag){
-		this->insert(tag);
-	}
-	LogTags operator+(const LogTag& tag){
-		LogTags newtags;
-		newtags.insert(this->begin(), this->end());
-		newtags.insert(tag);
-		return newtags;
-	}
-	void operator+=(const LogTag& tag){
-		this->insert(tag);
-	}
-	LogTags operator+(const LogTags& tags2){
-		LogTags newtags;
-		newtags.insert(this->begin(), this->end());
-		LogTags temp = tags2; //Yes I know it's stupid, but it's what eclipse wants...
-		newtags.insert(temp.begin(), temp.end());
-		return newtags;
-	}
+	LogTags();
+	LogTags(LogTag tag);
+	LogTags operator+(const LogTag& tag);
+	void operator+=(const LogTag& tag);
+	LogTags operator+(const LogTags& tags2);
 };
 
 /*
