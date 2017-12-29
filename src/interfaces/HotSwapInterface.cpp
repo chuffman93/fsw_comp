@@ -22,6 +22,7 @@ HotSwapInterface::HotSwapInterface(I2CManager& i2cman, int id, float senseR, std
 
 HotSwapInterface::~HotSwapInterface(){}
 
+//! Get the current data from the hotswap
 HotSwapData HotSwapInterface::getData(){
 	HotSwapData retval;
 	std::vector<uint8_t> data = i2cman.readRaw(id, 3);
