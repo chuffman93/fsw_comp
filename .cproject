@@ -32,6 +32,7 @@
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.474602234" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="MOCK=virtual"/>
+									<listOptionValue builtIn="false" value="CATCH"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1708396749" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -63,7 +64,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="interfaces|interface|test/haltest|core|src/main.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="src/util/EventHandler.cpp|interfaces|interface|test/haltest|core|src/main.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -201,6 +202,7 @@
 		<configuration configurationName="LINUX">
 			<resource resourceType="PROJECT" workspacePath="/fsw"/>
 		</configuration>
+		<configuration configurationName="HALTest"/>
 		<configuration configurationName="UnitTest">
 			<resource resourceType="PROJECT" workspacePath="/fsw"/>
 		</configuration>

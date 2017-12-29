@@ -9,17 +9,34 @@
 #include <iostream>
 #include <pthread.h>
 #include <sstream>
+#include <iomanip>
+#include <time.h>
 
 using namespace std;
+
+LogLevel Logger::globalLevel = LEVEL_DEBUG;
+Lock Logger::lock;
+std::map<pthread_t, std::string> Logger::threadNames;
+LogMode Logger::mode = MODE_NOTHING;
+std::vector<std::pair<LogTags, LogLevel> > Logger::filters;
 
 /*!
  * Sets the global logging level to the passed value
  * \param level the new logging level
  */
-void Logger::setLevel(log_level_t level){
-	LockGuard l(lock);
-	cout << "Setting global log level to " << levelToString(level) << endl;
+void Logger::setLevel(LogLevel level){
+	LogTags tags;
+	tags += LogTag("Name", "Logger");
+	Stream(LEVEL_FATAL, tags) << "Setting global log level to " << levelTag(level).second;
+	lock.lock();
 	globalLevel = level;
+	lock.unlock();
+}
+
+void Logger::setMode(LogMode mode){
+	lock.lock();
+	Logger::mode = mode;
+	lock.unlock();
 }
 
 /*!
@@ -36,20 +53,20 @@ void Logger::registerThread(std::string threadname){
  * \param level the level to be converted
  * \return the corrisponding string
  */
-std::string Logger::levelToString(log_level_t level){
+LogTag Logger::levelTag(LogLevel level){
 	switch(level){
 	case LEVEL_DEBUG:
-		return "DEBUG";
+		return LogTag("Level", "DEBUG");
 	case LEVEL_INFO:
-		return "\x1b[34m""INFO ""\x1b[0m";
+		return LogTag("Level", "\x1b[34m""INFO ""\x1b[0m");
 	case LEVEL_WARN:
-		return "\x1b[33m""WARN ""\x1b[0m";
+		return LogTag("Level", "\x1b[33m""WARN ""\x1b[0m");
 	case LEVEL_ERROR:
-		return "\x1b[31m""ERROR""\x1b[0m";
+		return LogTag("Level", "\x1b[31m""ERROR""\x1b[0m");
 	case LEVEL_FATAL:
-		return "\x1b[35m""FATAL""\x1b[0m";
+		return LogTag("Level", "\x1b[35m""FATAL""\x1b[0m");
 	default:
-		return "\x1b[35m""INVALID""\x1b[0m";
+		return LogTag("Level", "\x1b[35m""INVALID""\x1b[0m");
 	}
 }
 
@@ -58,15 +75,41 @@ std::string Logger::levelToString(log_level_t level){
  * Will return the name of the thread if it is in the registry or the thread id if not
  * \return the name of the thread or the thread id
  */
-std::string Logger::threadIdTag(){
+LogTag Logger::threadTag(){
 	std::stringstream ss;
 	std::map<pthread_t, std::string>::iterator it = threadNames.find(pthread_self());
 	if (it == threadNames.end()){
-		ss << "[TID: " << pthread_self() << "]";
+		ss << (pthread_self() % 10000);
 	}else{
-		ss << "[" << (*it).second << "]";
+		ss << (*it).second;
 	}
-	return ss.str();
+	return LogTag("Thread", ss.str());
+}
+
+LogTag Logger::timeTag(){
+	timespec t;
+	clock_gettime(CLOCK_REALTIME, &t);
+	struct tm tm = *localtime(&t.tv_sec);
+	stringstream ss;
+	ss << std::setw(2) << std::setfill('0') << std::right << tm.tm_hour << ":";
+	ss << std::setw(2) << std::setfill('0') << std::right << tm.tm_min << ":";
+	ss << std::setw(2) << std::setfill('0') << std::right << tm.tm_sec;
+	ss << "." << std::setw(3) << (t.tv_nsec/1000000	);
+	return LogTag("Time", ss.str());
+}
+
+
+void Logger::registerFilter(LogTags tags, LogLevel level){
+	Logger::Stream(LEVEL_FATAL, tags) << "Will now filter to level " << levelTag(level).second;
+	lock.lock();
+	filters.push_back(std::pair<LogTags, LogLevel>(tags, level));
+	lock.unlock();
+}
+
+void Logger::clearFilters(){
+	lock.lock();
+	filters.clear();
+	lock.unlock();
 }
 
 /*!
@@ -74,11 +117,56 @@ std::string Logger::threadIdTag(){
  * \param level the level of the message
  * \param message the message to be logged
  */
-void Logger::log(log_level_t level, std::string message){
+void Logger::log(LogLevel level, LogTags tags, std::string message){
 	LockGuard l(lock);
-	if(level >= globalLevel){
-		cout << "[" << levelToString(level) << "]" << threadIdTag() << message << endl;
+	LogLevel threshold = globalLevel;
+	//Go through all of the filters
+	for(std::vector<std::pair<LogTags, LogLevel> >::iterator i = filters.begin(); i != filters.end(); i++){
+		bool match = true;
+		//Go through all of the tags in the filter
+		for(LogTags::iterator j = i->first.begin(); j != i->first.end(); j++){
+			LogTags::iterator k = tags.find(j->first);
+			//If the tag doesn't match the passed tag it isn't a match
+			if(k == tags.end() || k->second != j->second){
+				match = false;
+			}
+		}
+		//If the passed tags match a filter, set the threshold accordingly
+		if(match){
+			threshold = i->second;
+		}
 	}
+	if(level >= threshold){
+		tags += levelTag(level);
+		tags += threadTag();
+		tags += timeTag();
+		switch(mode){
+		case MODE_NOTHING:
+			break;
+		case MODE_PRINT:
+			cout << tagsToString(tags) << " " << message << endl;
+			break;
+		}
+	}
+}
+
+void Logger::log(LogLevel level, std::string message){
+	Logger::log(level, LogTags(), message);
+}
+
+std::string Logger::tagsToString(LogTags tags){
+	stringstream ss;
+	const char* names[] = {"Level", "Time", "Thread", "Name", "Instance"};
+	int widths[] = {5, 8, 4, 0, 0};
+	for(size_t i = 0; i < sizeof(names)/sizeof(names[0]); i++){
+		if(tags.find(names[i]) != tags.end()){
+			ss << std::setw(0) << "[";
+			ss << std::left << std::setw(widths[i]) << tags[names[i]];
+			ss << std::setw(0) << "]";
+		}
+	}
+
+	return ss.str();
 }
 
 

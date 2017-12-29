@@ -7,12 +7,12 @@
 
 #ifndef EVENTHANDLER_H_
 #define EVENTHANDLER_H_
-#include "util/Logger.h"
+#include "Logger.h"
 
 class EventHandler{
 public:
-	static void event(log_level_t level, std::string message);
-	static void attachLogger(Logger* logger);
+	static void event(LogLevel level, std::string message){}
+	static void attachLogger(Logger* logger){}
 private:
 	static Logger* logger;
 };
