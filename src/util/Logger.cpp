@@ -211,8 +211,8 @@ void Logger::log(LogLevel level, std::string message){
  */
 std::string Logger::tagsToString(LogTags tags){
 	stringstream ss;
-	const char* names[] = {"Level", "Time", "Thread", "Name", "Instance"};
-	int widths[] = {5, 8, 4, 0, 0};
+	const char* names[] = {"Time", "Level", "Thread", "Name", "Instance"};
+	int widths[] = {8, 5, 4, 0, 0};
 	for(size_t i = 0; i < sizeof(names)/sizeof(names[0]); i++){
 		if(tags.find(names[i]) != tags.end()){
 			ss << std::setw(0) << "[";
