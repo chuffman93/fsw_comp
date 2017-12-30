@@ -7,7 +7,6 @@
 
 #include "test/catch.hpp"
 #include "util/Logger.h"
-#include "util/EventTags.h"
 #include <iostream>
 
 using namespace std;

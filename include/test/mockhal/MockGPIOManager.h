@@ -12,6 +12,7 @@
 
 struct MockGPIO{
 	int pending;
+	GPIOLevel state;
 	Lock lock;
 
 	bool operator ==(const MockGPIO& mg){return false;}
@@ -30,6 +31,9 @@ public:
 	void initialize();
 	int attachDevice(char bank, int pin, GPIOEdge);
 	bool wait(int id, uint32_t timeout);
+
+	GPIOLevel get(int id);
+	void set(int id, GPIOLevel level);
 
 	void addpending(int id);
 

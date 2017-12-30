@@ -9,6 +9,8 @@
 #define TESTMACROS_H_
 
 #include <iostream>
+#include <vector>
+using namespace std;
 
 #define FAILIF(cond, failstr) do{ \
 		if(cond){ \

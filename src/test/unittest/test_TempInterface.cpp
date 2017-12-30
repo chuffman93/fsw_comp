@@ -19,7 +19,7 @@ TEST_CASE("Test that TempInterface parses data correctly", "[interfaces][tempint
 	TempInterface t(onewire, id);
 
 	SECTION("Ensure that NAN is returned when no data is available"){
-		REQUIRE(isnan(t.getSample()) != 0);
+		REQUIRE(__isnan(t.getSample()) != 0);
 	}
 	SECTION("Ensure that the right temperature is returned"){
 		std::string test = "t=30100\nc0 01 4b 46 71 ff 10 10 9a VALID";
@@ -29,7 +29,7 @@ TEST_CASE("Test that TempInterface parses data correctly", "[interfaces][tempint
 	SECTION("Ensure that the valid flag is checked"){
 		std::string test = "t=30100\nc0 01 4b 46 71 ff 10 10 9a INVALID";
 		onewire.setData(id, test);
-		REQUIRE(isnan(t.getSample()) != 0);
+		REQUIRE(__isnan(t.getSample()) != 0);
 	}
 	Logger::setMode(MODE_NOTHING);
 }

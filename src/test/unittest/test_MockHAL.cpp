@@ -5,12 +5,37 @@
  *      Author: fsw
  */
 #include "test/catch.hpp"
+#include "test/testmacros.h"
 #include <iostream>
 #include <sstream>
 #include "test/mockhal/MockSPIManager.h"
 #include "test/mockhal/MockGPIOManager.h"
 #include "test/mockhal/MockOneWireManager.h"
+#include "test/mockhal/MockI2CManager.h"
 using namespace std;
+
+TEST_CASE("Test that the MockI2CManager simulates register and raw transactions", "[MockHAL][MockI2CManager]"){
+	MockI2CManager i2c;
+	int id = i2c.attachDevice(0);
+	VECTOROFDATA(testdata, uint8_t, 1,2,3);
+	INFO("Setup device");
+	i2c.writeReg(id, 10, 100);
+	i2c.setRead(id, testdata);
+	SECTION("Ensure that read of uninitialized register returns zero"){
+		REQUIRE(i2c.readReg(id, 0) == 0);
+	}
+	SECTION("Ensure that read of initialized register returns value"){
+		REQUIRE(i2c.readReg(id, 10) == 100);
+	}
+	SECTION("Ensure that raw read reads correct data"){
+		REQUIRE(i2c.readRaw(id, 3) == testdata);
+	}
+	SECTION("Ensure that rawwrite sets data correctly"){
+		VECTOROFDATA(raw, uint8_t, 0x05);
+		i2c.writeRaw(id, raw);
+		REQUIRE(i2c.getWritten(id) == raw);
+	}
+}
 
 TEST_CASE("Test that MockOneWireManager handles data strings", "[MockHAL][MockOneWireManager]"){
 	vector<int> devices;

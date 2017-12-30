@@ -15,6 +15,9 @@
 #include <map>
 #include <vector>
 
+/*
+ * Enum to contain all of the different logging levels
+ */
 enum LogLevel{
 	LEVEL_DEBUG,
 	LEVEL_INFO,
@@ -24,6 +27,9 @@ enum LogLevel{
 	LEVEL_NONE,
 };
 
+/*
+ * The different modes for the logger to be in
+ */
 enum LogMode{
 	MODE_NOTHING,
 	MODE_PRINT,
@@ -32,50 +38,57 @@ enum LogMode{
 
 typedef std::pair<std::string, std::string> LogTag;
 
+/*!
+ * Extention of map<string, string> to provide some syntactic sugar
+ */
 class LogTags: public std::map<std::string, std::string>{
 public:
-	LogTags(){}
-	LogTags(LogTag tag){
-		this->insert(tag);
-	}
-	LogTags operator+(const LogTag& tag){
-		LogTags newtags;
-		newtags.insert(this->begin(), this->end());
-		newtags.insert(tag);
-		return newtags;
-	}
-	void operator+=(const LogTag& tag){
-		this->insert(tag);
-	}
-	LogTags operator+(const LogTags& tags2){
-		LogTags newtags;
-		newtags.insert(this->begin(), this->end());
-		newtags.insert(tags2.begin(), tags2.end());
-		return newtags;
-	}
+	LogTags();
+	LogTags(LogTag tag);
+	LogTags operator+(const LogTag& tag);
+	void operator+=(const LogTag& tag);
+	LogTags operator+(const LogTags& tags2);
 };
 
 /*
  * Class to handle all required logging for FSW.
- * Intended for only one instance to be made, performs mutual exclusion so that no output gets spliced together.
+ * Static methods, performs mutual exclusion so that no output gets spliced together.
  */
 class Logger{
 public:
+	/*!
+	 * Class to allow for a stream style interface into the logger
+	 * Intended for a new instance to be created each time
+	 */
 	class Stream{
 	public:
+		/*!
+		 * Create a new stream object
+		 */
 		Stream(LogLevel level, LogTags tags):level(level), tags(tags){}
 		Stream(LogLevel level):level(level), tags(){}
+		/*!
+		 * Upon destruction of the stream object, the logger is called
+		 */
 		~Stream(){
 			Logger::log(level, tags, ss.str());
 		}
+		/*!
+		 * Provides stream style syntax
+		 * \param t the object to intake
+		 * \return the stream
+		 */
 	    template <typename T> inline Stream& operator<<(const T& t)
 	    {
 	        ss << t;
 	        return * this;
 	    }
 	private:
+	    //! Level to be used when logged
 		LogLevel level;
+		//! Tags to be used when logged
 		LogTags tags;
+		//! Stream to hold the message until logged
 		std::stringstream ss;
 	};
 	static void setLevel(LogLevel level);
