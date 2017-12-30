@@ -36,7 +36,7 @@ TEST_CASE("Test that ACPPacket manages packets correctly", "[core][ACPPacket]"){
 }
 
 TEST_CASE("Test that the ACPInterface performs correctly", "[hal][ACPInterface]"){
-	//Logger::setMode(MODE_PRINT);
+	Logger::setMode(MODE_PRINT);
 	int spiid, intrid, acpid;
 	MockSPIManager spi;
 	MockGPIOManager intr;

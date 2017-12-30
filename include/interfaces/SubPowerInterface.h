@@ -26,9 +26,9 @@ private:
 	//! Minimum time to assert reset [ms]
 	size_t resetdelay;
 	//! Minimum time to wait after deasserting reset [ms]
-	size_t startupdelay
+	size_t startupdelay;
 	//! Reference to gpio manager
-	GPIOManager& gpioman
+	GPIOManager& gpioman;
 	//! The power line gpio
 	int powerid;
 	//! The reset line gpio
