@@ -49,3 +49,15 @@ void MockGPIOManager::addpending(int id){
 	gpio.pending++;
 }
 
+GPIOLevel MockGPIOManager::get(int id){
+	MockGPIO& gpio = getDevice(id);
+	LockGuard lock(gpio.lock);
+	return gpio.state;
+}
+
+void MockGPIOManager::set(int id, GPIOLevel level){
+	MockGPIO& gpio = getDevice(id);
+	LockGuard lock(gpio.lock);
+	gpio.state = level;
+}
+
