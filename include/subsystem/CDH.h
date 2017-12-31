@@ -20,11 +20,11 @@ public:
 	//ID for subsystem
 	SubsystemID id  = SUBSYSTEM_ID_CDH;
 	//Will set up the Gpio lines and the acp devices
-	void initialize(){};
+	void initialize();
 	//Handles any mode transition needs as well as any needs for tasks to be done in a mode.
-	void handleMode(FSWMode transition){};
+	void handleMode(FSWMode transition);
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
-	void getHealthStatus(){};
+	void getHealthStatus();
 private:
 	//Various methods for data collection
 	void collectHotswap();

@@ -50,10 +50,10 @@ struct MockACPManager{
 	std::vector<uint8_t> message;
 	uint16_t crc;
 
-	MockACPManager(){};
-	MockACPManager(MockSubsystemSync syncIn, MockACPOpcode opcodeIn){};
-	MockACPManager(MockSubsystemSync syncIn, MockACPOpcode opcodeIn, uint16_t messageIn){};
-	~MockACPManager(){};
+	MockACPManager();
+	MockACPManager(MockSubsystemSync syncIn, MockACPOpcode opcodeIn);
+	MockACPManager(MockSubsystemSync syncIn, MockACPOpcode opcodeIn, uint16_t messageIn);
+	~MockACPManager();
 
 	MockACPReturnPacket transaction();
 };

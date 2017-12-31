@@ -30,7 +30,7 @@ public:
 		return BusManager<MockI2CDevice>::attachDevice(dev);
 	}
 	void initialize(){};
-	void intiailzeDevice(MockI2CDevice &dev) {};
+	void initializeDevice(MockI2CDevice &dev) {};
 	uint8_t readReg(int id, uint8_t reg){
 		MockI2CDevice& dev = BusManager<MockI2CDevice>::getDevice(id);
 		std::map<uint8_t, uint8_t>::iterator i = dev.registers.find(reg);

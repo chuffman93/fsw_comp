@@ -8,15 +8,16 @@
 #ifndef INCLUDE_SUBSYSTEM_EPS_H_
 #define INCLUDE_SUBSYSTEM_EPS_H_
 
-#include "SubsystemBase.h"
+#include "subsystem/SubsystemBase.h"
+//#include "interfaces/SubPowerInterface.h"
+#include "interfaces/ACPInterface.h"
+
 
 class EPS: public SubsystemBase{
 public:
-	EPS(){}
-	~EPS(){}
+	EPS();
+	~EPS();
 
-	//ID for subsystem
-	SubsystemID id = SUBSYSTEM_ID_EPS;
 	//Will set up the Gpio lines and the acp devices
 	void initialize(){};
 	//Handles any mode transition needs as well as any needs for tasks to be done in a mode.

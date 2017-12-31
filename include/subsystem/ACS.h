@@ -24,7 +24,6 @@ public:
 		switch(transition){
 
 		case BUS_PRIORITY:
-			puts("ACS in bus priority");
 			break;
 
 		}
