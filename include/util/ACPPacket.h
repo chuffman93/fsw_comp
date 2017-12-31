@@ -18,10 +18,18 @@
 
 //! The sync codes to be used when communicating with subsystem
 enum subsystem_sync_t{
-	EPS = 0xA4 | 0,
-	COM = 0xA4 | 1,
-	ACS = 0xA4 | 2,
-	PLD = 0xA4 | 3,
+	EPS_SYNC = 0xA4 | 0,
+	COM_SYNC = 0xA4 | 1,
+	ACS_SYNC = 0xA4 | 2,
+	PLD_SYNC = 0xA4 | 3,
+};
+
+enum SubsystemOpcode{
+	OP_TESTLED = 0,
+	OP_TESTCONFIG = 1,
+	OP_TESTDATA = 2,
+	OP_TESTALIVE = 8,
+
 };
 
 /*!

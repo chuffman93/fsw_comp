@@ -9,25 +9,29 @@
 #define INCLUDE_SUBSYSTEM_EPS_H_
 
 #include "subsystem/SubsystemBase.h"
-//#include "interfaces/SubPowerInterface.h"
+#include "interfaces/SubPowerInterface.h"
 #include "interfaces/ACPInterface.h"
 
 
 class EPS: public SubsystemBase{
 public:
-	EPS();
+	EPS(ACPInterface& acp, SubPowerInterface& subPower);
 	~EPS();
 
 	//Will set up the Gpio lines and the acp devices
-	void initialize(){};
+	void initialize();
 	//Handles any mode transition needs as well as any needs for tasks to be done in a mode.
-	void handleMode(FSWMode transition){};
+	void handleMode(FSWMode transition);
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
-	void getHealthStatus(){};
+	void getHealthStatus();
 private:
 	//Power cycle the entire satellite
 	void commandReset();
-};
 
+	uint8_t batteryState;
+	//Constructor references
+	ACPInterface& acp;
+	SubPowerInterface& subPower;
+};
 
 #endif /* INCLUDE_SUBSYSTEM_EPS_H_ */

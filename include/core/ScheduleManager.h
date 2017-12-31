@@ -8,6 +8,7 @@
 #ifndef INCLUDE_CORE_SCHEDULEMANAGER_H_
 #define INCLUDE_CORE_SCHEDULEMANAGER_H_
 
+#include <stdint.h>
 #include <queue>
 #include <vector>
 

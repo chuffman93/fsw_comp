@@ -15,7 +15,7 @@ using namespace std;
 #include "test/mockhal/MockGPIOManager.h"
 
 TEST_CASE("Test that ACPPacket manages packets correctly", "[core][ACPPacket]"){
-	subsystem_sync_t sync = EPS;
+	subsystem_sync_t sync = EPS_SYNC;
 	uint16_t id = 0;
 	uint8_t  opcode = 10;
 	VECTOROFDATA(message, uint8_t, 1,2,3)
@@ -41,7 +41,7 @@ TEST_CASE("Test that the ACPInterface performs correctly", "[hal][ACPInterface]"
 	MockSPIManager spi;
 	MockGPIOManager intr;
 	VECTOROFDATA(message, uint8_t, 1,2,3)
-	ACPPacket test(EPS, 10, message);
+	ACPPacket test(EPS_SYNC, 10, message);
 	VECTOROFDATA(correct_bytes, uint8_t, 0xA4, 0x00, 0x00, 0x0A, 0x00, 0x03, 0x01, 0x02, 0x03, 0xE0, 0x3C)
 
 	INFO("Register the Devices");

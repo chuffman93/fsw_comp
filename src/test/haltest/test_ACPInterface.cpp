@@ -20,7 +20,7 @@ TEST_CASE("Communicate with RAD", "[.][hardware][acp][rad]"){
 	int spiid, intrid, acpid;
 	SPIManager spi("/dev/spidev32765", 0, 1000000);
 	GPIOManager gpio("/sys/class/gpio/");
-	ACPPacket test_send(PLD, 8), test_recv;
+	ACPPacket test_send(PLD_SYNC, 8), test_recv;
 
 	INFO("Register the Devices");
 	int powerid = gpio.attachDevice('B', 17, GPIO_OUTPUT);

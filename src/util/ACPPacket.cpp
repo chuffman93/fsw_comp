@@ -8,6 +8,7 @@
 #include "util/crc.h"
 #include "util/ACPPacket.h"
 #include <sstream>
+#include <iostream>
 
 
 //TODO: move unpacking into here

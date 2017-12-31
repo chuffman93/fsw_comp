@@ -8,9 +8,11 @@
 #ifndef SUBSYSTEMBASE_H_
 #define SUBSYSTEMBASE_H_
 
+#include "core/ScheduleManager.h"
+
 class SubsystemBase{
 public:
-	virtual ~SubsystemBase();
+	virtual ~SubsystemBase(){};
 	
 	//Will set up the Gpio lines and the acp devices
 	virtual void initialize() = 0;
