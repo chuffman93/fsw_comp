@@ -7,6 +7,10 @@
 
 
 #include "subsystem/EPS.h"
+#include "core/FileManager.h"
+#include "core/FileInterfaces.h"
+
+#include <stdint.h>
 
 	EPS::EPS(ACPInterface& acp, SubPowerInterface& subPower)
 	: acp(acp), subPower(subPower) {}
@@ -30,10 +34,27 @@
 	void EPS::handleMode(FSWMode transition){}
 
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
-	void EPS::getHealthStatus(){}
+	void EPS::getHealthStatus(){
+		ACPPacket acpPacket(EPS_SYNC, OP_HEALTHSTATUS);
+		ACPPacket acpReturn;
+		acp.transaction(acpPacket,acpReturn);
+
+		std::string folderLocation = HEALTH_DIRECTORY EPS_PATH;
+		HealthStatusInterface health(folderLocation);
+		health.pushData(acpReturn.message);
+
+		std::vector<uint8_t> message = acpReturn.message;
+		batteryCapacity = ((uint16_t)message[12] << 8) | ((uint16_t)message[13]);
+
+	}
 
 	//Power cycle the entire satellite
 	void EPS::commandReset(){}
+
+	uint16_t EPS::getBatteryCapacity(){
+
+		return 0;
+	}
 
 
 

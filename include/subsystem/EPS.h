@@ -11,6 +11,9 @@
 #include "subsystem/SubsystemBase.h"
 #include "interfaces/SubPowerInterface.h"
 #include "interfaces/ACPInterface.h"
+#include "core/FileSystem.h"
+
+#include <stdio.h>
 
 
 class EPS: public SubsystemBase{
@@ -24,11 +27,14 @@ public:
 	void handleMode(FSWMode transition);
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 	void getHealthStatus();
+	//Get battery capacity
+	uint16_t getBatteryCapacity();
+
 private:
 	//Power cycle the entire satellite
 	void commandReset();
 
-	uint8_t batteryState;
+	uint16_t batteryCapacity;
 	//Constructor references
 	ACPInterface& acp;
 	SubPowerInterface& subPower;

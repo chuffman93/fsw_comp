@@ -29,6 +29,7 @@ enum SubsystemOpcode{
 	OP_TESTCONFIG = 1,
 	OP_TESTDATA = 2,
 	OP_TESTALIVE = 8,
+	OP_HEALTHSTATUS = 16,
 
 };
 

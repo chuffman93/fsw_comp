@@ -32,6 +32,7 @@
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.474602234" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="MOCK=virtual"/>
+									<listOptionValue builtIn="false" value="UBUNTU"/>
 									<listOptionValue builtIn="false" value="CATCH"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1708396749" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>

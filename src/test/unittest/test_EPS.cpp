@@ -7,32 +7,19 @@
 
 #include "test/catch.hpp"
 #include "subsystem/EPS.h"
-#include "interfaces/ACPInterface.h"
+#include "test/mockhal/MockACPManager.h"
+#include "core/FileSystem.h"
+#include "hal/GPIOManager.h"
 
+#include <stdio.h>
 #include <vector>
 
-SPIManager dummys("", 0, 0);
-GPIOManager dummyg("");
-
-class MockACPInterface: public ACPInterface{
-public:
-	MockACPInterface()
-	:ACPInterface(dummys, dummyg, 0 , 0)
-	{}
-	~MockACPInterface(){}
-	bool transaction(ACPPacket& packet, ACPPacket& ret){
-		sentOpcodes.push_back(packet.opcode);
-		return true;
-	}
-
-	std::vector<uint8_t> sentOpcodes;
-
-};
+GPIOManager dummy("");
 
 TEST_CASE("EPS Test Initialization Routine", "[subsystem][EPS]"){
 	//initialize/setup
 	MockACPInterface acp;
-	SubPowerInterface subPower(dummyg, 0, 0, 0, "");
+	SubPowerInterface subPower(dummy, 0, 0, 0, "");
 	EPS eps(acp,subPower);
 	//call EPS initialize
 	eps.initialize();
@@ -47,13 +34,18 @@ TEST_CASE("EPS Test Initialization Routine", "[subsystem][EPS]"){
 
 TEST_CASE("EPS Test Get Health and Status", "[subsystem][EPS]"){
 	//initialize/setup
+	MockACPInterface acp;
+	SubPowerInterface subPower(dummy, 0, 0, 0, "");
+	EPS eps(acp,subPower);
 	//call EPS initialize
+	eps.initialize();
 	//call EPS health and status
-		//validate that it sends the health and status opcode
-		//respond with dummy data
-		//validate that data is process correctly
-		//TODO: validate that correct message buffer is passed to file interface
-
+	eps.getHealthStatus();
+	//validate that it sends the health and status opcode
+	REQUIRE(acp.sentOpcodes.end() != std::find(acp.sentOpcodes.begin(), acp.sentOpcodes.end(), OP_HEALTHSTATUS));
+	//validate that data is process correctly
+	REQUIRE(eps.getBatteryCapacity() == 100);
+	//TODO: validate that correct message buffer is passed to file interface
 
 }
 
