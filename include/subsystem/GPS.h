@@ -10,6 +10,9 @@
 
 #include "SubsystemBase.h"
 #include "hal/UARTManager.h"
+#include "interfaces/SubPowerInterface.h"
+#include "interfaces/NMEAInterface.h"
+#include "util/Logger.h"
 
 struct GPSPositionTime{
   double posX;
@@ -22,44 +25,45 @@ struct GPSPositionTime{
   float GPSSec;
 };
 
-struct GPSInertial{
-  double posX;
-  double posY;
-  double posZ;
-  double velX;
-  double velY;
-  double velZ;
-  uint16_t GPSWeek;
-  float GPSSec;
-  uint8_t isAccurate;
+struct GPSLockType {
+	classicElements elements;
+	float sysTime;
+	uint16_t GPSWeek;
+	float GPSSec;
 };
 
 class GPS: public SubsystemBase{
 public:
-	GPS(UARTManager& uart):uart(uart){}
-	~GPS(){}
+	GPS(NMEAInterface& nm, SubPowerInterface& pow);
+	~GPS();
 
-	//ID for subsystem
-	SubsystemID id = SUBSYSTEM_ID_GPS;
 	//Handle power on and initialization routine
-	MOCK void initialize(){};
+	void initialize();
 	//Handles any mode transition needs as well as any needs for tasks to be done in a mode.
-	void handleMode(FSWMode transition){};
+	void handleMode(FSWMode transition);
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
-	MOCK void getHealthStatus(){};
-private:
-	//Get the current state of the GPS, with propagation. Take lock when reading from the info struct
-	void getBestXYZ();
+	void getHealthStatus();
+
+	void fetchNewGPS();
+	GPSPositionTime getBestXYZ();
+	GPSPositionTime getBestXYZI();
 	void getLatLong();
-	//Wait until we get a new string from the UART interface then write it into the GPSDataStruct. Timeout?
-	void parseString();
+
+private:
+	uint32_t CalculateCRC_GPS(char * buffer);
+	uint32_t CRCValue_GPS(int i);
+	void incrementGPSTime(uint16_t& GPSWeek, float& GPSSec, float dt);
+	uint32_t getFSWMillis();
 
 	//! The UART connected to the physical GPS
-	UARTManager& uart;
+	NMEAInterface& nm;
+	//! Power Interface for the GPS
+	SubPowerInterface& pow;
 	//! Lock for accessing anything in the GPSData structs
 	Lock lock;
-	GPSPositionTime postime;
-	GPSInertial postimei;
+	//! Tags to use for logging
+	LogTags tags;
+	GPSLockType lastLock;
 };
 
 

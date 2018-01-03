@@ -22,6 +22,8 @@ public:
 	void powerOff();
 	void powerOn();
 	void reset();
+
+	bool faultOccurred();
 private:
 	//! Minimum time to assert reset [ms]
 	size_t resetdelay;

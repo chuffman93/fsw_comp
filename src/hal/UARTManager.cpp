@@ -31,7 +31,7 @@ void UARTManager::initialize(){
 	LockGuard l(lock);
 	Logger::Stream(LEVEL_INFO, tags) << "Initializing UART on \"" << filename << "\"";
 	struct termios port;
-	fd = open(filename.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
+	fd = open(filename.c_str(), O_RDWR | O_NOCTTY);
 
 	if(fd == -1){
 		Logger::Stream(LEVEL_ERROR, tags) << "File \"" + filename + "\" not found";
@@ -53,18 +53,32 @@ void UARTManager::initialize(){
 }
 
 /*!
- * Get all pending bytes from the UART
+ * Read specified number bytes from the UART
+ * \param len The number of bytes to read
  * \return vector containing the pending bytes
  */
-std::vector<uint8_t> UARTManager::readData(){
+std::vector<uint8_t> UARTManager::readData(size_t len){
 	LockGuard l(lock);
-	uint8_t rxbyte;
-	std::vector<uint8_t> data;
-	while(read(fd,&rxbyte,1) == 1){
-		data.push_back(rxbyte);
+	std::vector<uint8_t> data(len);
+	if(read(fd, &data[0], len) != len){
+		//TODO: Error Handling
 	}
 	return data;
 }
+
+/*!
+ * Read single byte from uart
+ * \return the byte
+ */
+uint8_t UARTManager::readData(){
+	LockGuard l(lock);
+	uint8_t rxbyte;
+	if(read(fd, &rxbyte, 1) != 1){
+		//TODO: Error Handling
+	}
+	return rxbyte;
+}
+
 
 /*!
  * Send data over the UART
@@ -72,9 +86,8 @@ std::vector<uint8_t> UARTManager::readData(){
  */
 void UARTManager::writeData(std::vector<uint8_t> data){
 	LockGuard l(lock);
-	for(std::vector<uint8_t>::iterator i = data.begin(); i != data.end(); i++){
-		uint8_t txbyte = *i;
-		write(fd, &txbyte, 1);
+	if(write(fd, &data[0], data.size()) != data.size()){
+		//TODO: Error Handling
 	}
 }
 
