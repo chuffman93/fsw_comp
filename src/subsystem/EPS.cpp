@@ -12,49 +12,57 @@
 
 #include <stdint.h>
 
-	EPS::EPS(ACPInterface& acp, SubPowerInterface& subPower)
-	: acp(acp), subPower(subPower) {}
 
-	EPS::~EPS(){}
+EPS::EPS(ACPInterface& acp, SubPowerInterface& subPower)
+: acp(acp), subPower(subPower)
+{ tags += LogTag("Name", "FileManager"); }
 
-	//Will set up the Gpio lines and the acp devices
-	void EPS::initialize(){
-		ACPPacket acpPacket(EPS_SYNC, OP_TESTALIVE);
-		ACPPacket acpReturn;
-		acp.transaction(acpPacket,acpReturn);
+EPS::~EPS(){}
 
-		acpPacket.opcode = OP_TESTLED;
-		acp.transaction(acpPacket,acpReturn);
+//Will set up the Gpio lines and the acp devices
+void EPS::initialize(){
+	LockGuard l(lock);
+	ACPPacket acpPacket(EPS_SYNC, OP_TESTALIVE);
+	ACPPacket acpReturn;
+	acp.transaction(acpPacket,acpReturn);
 
-		acpPacket.opcode = OP_TESTCONFIG;
-		acp.transaction(acpPacket,acpReturn);
-	}
+	acpPacket.opcode = OP_TESTLED;
+	acp.transaction(acpPacket,acpReturn);
 
-	//Handles any mode transition needs as well as any needs for tasks to be done in a mode.
-	void EPS::handleMode(FSWMode transition){}
+	acpPacket.opcode = OP_TESTCONFIG;
+	acp.transaction(acpPacket,acpReturn);
+}
 
-	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
-	void EPS::getHealthStatus(){
-		ACPPacket acpPacket(EPS_SYNC, OP_HEALTHSTATUS);
-		ACPPacket acpReturn;
-		acp.transaction(acpPacket,acpReturn);
+//Handles any mode transition needs as well as any needs for tasks to be done in a mode.
+void EPS::handleMode(FSWMode transition){
+	LockGuard l(lock);
+}
 
-		std::string folderLocation = HEALTH_DIRECTORY EPS_PATH;
-		HealthStatusInterface health(folderLocation);
-		health.pushData(acpReturn.message);
+//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
+void EPS::getHealthStatus(){
+	LockGuard l(lock);
+	ACPPacket acpPacket(EPS_SYNC, OP_HEALTHSTATUS);
+	ACPPacket acpReturn;
+	acp.transaction(acpPacket,acpReturn);
 
-		std::vector<uint8_t> message = acpReturn.message;
-		batteryCapacity = ((uint16_t)message[12] << 8) | ((uint16_t)message[13]);
+	std::string folderLocation = HEALTH_DIRECTORY EPS_PATH;
+	HealthStatusInterface health(folderLocation);
+	health.pushData(acpReturn.message);
 
-	}
+	std::vector<uint8_t> message = acpReturn.message;
+	batteryCapacity = ((uint16_t)message[12] << 8) | ((uint16_t)message[13]);
 
-	//Power cycle the entire satellite
-	void EPS::commandReset(){}
+}
 
-	uint16_t EPS::getBatteryCapacity(){
+//Power cycle the entire satellite
+void EPS::commandReset(){
+	LockGuard l(lock);
+}
 
-		return 0;
-	}
+uint16_t EPS::getBatteryCapacity(){
+	LockGuard l(lock);
+	return batteryCapacity;
+}
 
 
 

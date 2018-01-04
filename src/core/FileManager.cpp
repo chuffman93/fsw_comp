@@ -8,6 +8,9 @@
 
 #include "core/FileManager.h"
 #include <stdio.h>
+#include <iostream>
+
+using namespace std;
 
 FileManager::FileManager(){
 	tags += LogTag("Name", "FileManager");
@@ -22,6 +25,7 @@ InterfaceOperation::InterfaceOperation(FileIOType type, std::string filePath, st
 FileInterface::~FileInterface(){}
 
 void FileManager::spinInterfaces(){
+	LockGuard l(lock);
 	for (std::vector<FileInterface*>::iterator i = InterfaceList.begin(); i != InterfaceList.end(); i++){
 		InterfaceOperation op = (*i)->getOperation();
 		switch (op.type){
@@ -46,16 +50,16 @@ void FileManager::spinInterfaces(){
 }
 
 void FileManager::registerInterface(FileInterface* interface){
+	LockGuard l(lock);
 	InterfaceList.push_back(interface);
 }
 
 void FileManager::handleFileDeletion(){
-
+	LockGuard l(lock);
 }
 
 void FileManager::readFromFile(std::string filePath, std::vector<uint8_t>& buffer){
 	FILE * fileID = fopen(filePath.c_str(), "r");
-
 	if (fileID == NULL){
 		buffer.clear();
 		return;
@@ -80,10 +84,27 @@ void FileManager::readFromFile(std::string filePath, std::vector<uint8_t>& buffe
 }
 
 void FileManager::writeToFile(std::string filePath, std::vector<uint8_t>& buffer){
+	FILE * fileID = fopen(filePath.c_str(), "w");
 
+	if (fileID == NULL){
+		buffer.clear();
+		return;
+	}
+	fwrite(&buffer, 1,buffer.size(), fileID);
+
+	fclose(fileID);
 }
 
 void FileManager::deleteFile(std::string filePath){
+	/*FILE * fileID = fopen(filePath.c_str(), "r");
+	if (fileID == NULL){
+		filePath = "incorrect";
+		std::cout << filePath << endl;
+		return;
+	}
+	fclose(fileID);*/
+	remove(filePath.c_str());
+	//TODO: error handling
 
 }
 

@@ -10,9 +10,9 @@
 #include "core/FileSystem.h"
 
 #include <stdio.h>
-
-SPIManager dummys("", 0, 0);
-GPIOManager dummyg("");
+/*
+//SPIManager dummys("", 0, 0);
+//GPIOManager dummyg("");
 
 MockACPInterface::MockACPInterface() : ACPInterface(dummys, dummyg, 0 , 0){
 
@@ -26,4 +26,4 @@ bool MockACPInterface::transaction(ACPPacket& packet, ACPPacket& ret){
 	sentOpcodes.push_back(packet.opcode);
 }
 
-
+*/

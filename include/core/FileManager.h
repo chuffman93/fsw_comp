@@ -10,6 +10,7 @@
 
 #include "FileSystem.h"
 #include "util/Logger.h"
+#include "core/Lock.h"
 
 #include <stdint.h>
 #include <vector>
@@ -48,6 +49,7 @@ private:
 	void deleteFile(std::string filePath);
 
 	LogTags tags;
+	Lock lock;
 	std::vector<FileInterface*> InterfaceList;
 };
 

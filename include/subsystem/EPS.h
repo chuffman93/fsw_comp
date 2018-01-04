@@ -12,8 +12,10 @@
 #include "interfaces/SubPowerInterface.h"
 #include "interfaces/ACPInterface.h"
 #include "core/FileSystem.h"
+#include "core/Lock.h"
 
 #include <stdio.h>
+
 
 
 class EPS: public SubsystemBase{
@@ -38,6 +40,8 @@ private:
 	//Constructor references
 	ACPInterface& acp;
 	SubPowerInterface& subPower;
+	Lock lock;
+	LogTags tags;
 };
 
 #endif /* INCLUDE_SUBSYSTEM_EPS_H_ */
