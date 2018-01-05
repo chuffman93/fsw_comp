@@ -7,21 +7,23 @@
 using namespace std;
 
 std::vector<uint8_t> dummyVec;
-const std::string & file = "dummy.txt";
+std::string file = "dummy";
+FileIOType type = FIO_READ;
+
 class MockFileInterface: public FileInterface{
 public:
 	InterfaceOperation getOperation(){
-		InterfaceOperation io(FIO_READ, file, dummyVec);
+		InterfaceOperation io(type, file, dummyVec);
 		return io;
 	}
 };
 
 TEST_CASE("FILEMANAGER: TEST READ FROM FILE", "[filemanager]"){
-	remove("dummy.txt");
+	remove("dummy");
 	FileManager fm;
 	MockFileInterface mfi;
 	fm.registerInterface(&mfi);
-	remove("dummy.txt");
+	remove("dummy");
 
 	SECTION("TEST NO FILE PATH"){
 		fm.spinInterfaces();
@@ -29,13 +31,13 @@ TEST_CASE("FILEMANAGER: TEST READ FROM FILE", "[filemanager]"){
 	}
 	SECTION("TEST EMPTY FILE"){
 		//create blank file
-		FILE * dummyFile = fopen("dummy.txt","w");
+		FILE * dummyFile = fopen("dummy","w");
 		fclose(dummyFile);
 		fm.spinInterfaces();
 		REQUIRE(dummyVec.size() == 0);
 	}
 	SECTION("TEST NONEMPTY FILE"){
-		FILE * dummyFile = fopen("dummy.txt","w");
+		FILE * dummyFile = fopen("dummy","w");
 		std::string text = "Hello World";
 		fwrite(text.c_str(),sizeof(char), text.length(), dummyFile);
 		fclose(dummyFile);
@@ -43,30 +45,42 @@ TEST_CASE("FILEMANAGER: TEST READ FROM FILE", "[filemanager]"){
 		std::string textRead(dummyVec.begin(), dummyVec.end());
 		REQUIRE(textRead == text);
 	}
-	//put data into the file
-	//read data from file and place in buffer
 }
 
 TEST_CASE("FILEMANAGER: TEST WRITE TO FILE", "[filemanager]"){
-	remove("dummy.txt");
-	FileManager fm;
-	MockFileInterface mfi;
-	fm.registerInterface(&mfi);
-	InterfaceOperation write = mfi.getOperation();
-	write.type = FIO_WRITE;
-	write.filePath = "dummy";
+	remove("dummy");
+	type = FIO_WRITE;
 	dummyVec.assign(1,12);
+	file = "dummy";
 
 	SECTION("TEST NO FILE PATH"){
-		write.data = dummyVec;
+		file = "";
+
+		FileManager fm;
+		MockFileInterface mfi;
+		fm.registerInterface(&mfi);
+
 		fm.spinInterfaces();
 		REQUIRE(dummyVec.size() == 0);
 	}
 	SECTION("TEST EMPTY MESSAGE"){
+		dummyVec.clear();
+
+		FileManager fm;
+		MockFileInterface mfi;
+		fm.registerInterface(&mfi);
+
 		fm.spinInterfaces();
 		REQUIRE(dummyVec.size() == 0);
 	}
 	SECTION("TEST NONEMPTY MESSAGE"){
+		FileManager fm;
+		MockFileInterface mfi;
+		fm.registerInterface(&mfi);
+		InterfaceOperation write = mfi.getOperation();
+		write.filePath = "dummy";
+		dummyVec.assign(1,12);
+
 		write.data = dummyVec;
 		fm.spinInterfaces();
 
@@ -79,29 +93,38 @@ TEST_CASE("FILEMANAGER: TEST WRITE TO FILE", "[filemanager]"){
 }
 
 TEST_CASE("FILEMANAGER: TEST DELETE FILE", "[filemanager]"){
-	FileManager fm;
-	MockFileInterface mfi;
-	fm.registerInterface(&mfi);
-	InterfaceOperation write = mfi.getOperation();
-	write.type = FIO_DELETE;
+	type = FIO_DELETE;
+	file = "dummy";
 
-	FILE * dummyFile = fopen(write.filePath.c_str(),"w");
+	FILE * dummyFile = fopen(file.c_str(),"w");
 	fclose(dummyFile);
 
 	SECTION("TEST NO FILE PATH"){
-		write.filePath.clear();
+		file = "";
+
+		FileManager fm;
+		MockFileInterface mfi;
+		fm.registerInterface(&mfi);
+
 		fm.spinInterfaces();
-		//REQUIRE(write.filePath == "incorrect");
 	}
 	SECTION("TEST INCORRECT FILE PATH"){
-		remove(write.filePath.c_str());
+		FileManager fm;
+		MockFileInterface mfi;
+		fm.registerInterface(&mfi);
+
+		remove(file.c_str());
 		fm.spinInterfaces();
-		//REQUIRE(write.filePath == "incorrect");
 	}
 
 	SECTION("TEST CORRECT FILE PATH"){
+		FileManager fm;
+		MockFileInterface mfi;
+		fm.registerInterface(&mfi);
+
 		fm.spinInterfaces();
-		//REQUIRE(write.filePath != "incorrect");
+		FILE * dumFile = fopen(file.c_str(),"r");
+		REQUIRE(dumFile == NULL);
 	}
 }
 

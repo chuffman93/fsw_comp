@@ -84,27 +84,23 @@ void FileManager::readFromFile(std::string filePath, std::vector<uint8_t>& buffe
 }
 
 void FileManager::writeToFile(std::string filePath, std::vector<uint8_t>& buffer){
-	FILE * fileID = fopen(filePath.c_str(), "w");
-
-	if (fileID == NULL){
+	if (filePath == ""){
 		buffer.clear();
+		std::cout << "test no file path" << endl;
 		return;
 	}
+	if (buffer.size() == 0){
+		return;
+	}
+	FILE * fileID = fopen(filePath.c_str(), "a");
 	fwrite(&buffer, 1,buffer.size(), fileID);
 
 	fclose(fileID);
 }
 
 void FileManager::deleteFile(std::string filePath){
-	/*FILE * fileID = fopen(filePath.c_str(), "r");
-	if (fileID == NULL){
-		filePath = "incorrect";
-		std::cout << filePath << endl;
-		return;
-	}
-	fclose(fileID);*/
 	remove(filePath.c_str());
-	//TODO: error handling
+	//TODO: error handling?
 
 }
 

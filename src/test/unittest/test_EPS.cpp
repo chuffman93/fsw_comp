@@ -62,7 +62,7 @@ TEST_CASE("EPS Test Get Health and Status", "[subsystem][EPS]"){
 	//validate that it sends the health and status opcode
 	REQUIRE(acp.sentOpcodes.end() != std::find(acp.sentOpcodes.begin(), acp.sentOpcodes.end(), OP_HEALTHSTATUS));
 	//validate that data is process correctly
-	//REQUIRE(eps.getBatteryCapacity() == 2);
+	REQUIRE(eps.getBatteryCapacity() == 1);
 	//TODO: validate that correct message buffer is passed to file interface
 
 }
