@@ -8,6 +8,8 @@
 #include "FSWThreads.h"
 #include "core/Watchdog.h"
 
+
+
 void * FSWThreads::GetHealthStatusThread(void * args){
 	Watchdog * watchdog = (Watchdog*)args;
 	while(1){
@@ -22,14 +24,13 @@ void * FSWThreads::GetHealthStatusThread(void * args){
 void * FSWThreads::ModeManagerThread(void * args){
 	ModeManagerStruct * modeStruct = (ModeManagerStruct*)args;
 	Watchdog * watchdog = modeStruct->watchdog;
-	FSWSequence seq = modeStruct->seq;
+	std::vector<std::vector<SubsystemBase*> > seq = modeStruct->FSWSequence;
 	ScheduleManager * scheduler = modeStruct->scheduler;
 
 	FSWMode mode;
 	while(1){
 		puts("Mode Manager thread Pinging");
 		watchdog->KickWatchdog();
-
 		mode = scheduler->checkNewMode();
 		for (unsigned int i = 0; i < seq.at(mode).size(); i++){
 			seq.at(mode).at(i)->handleMode(mode);
@@ -38,6 +39,7 @@ void * FSWThreads::ModeManagerThread(void * args){
 		sleep(2);
 	}
 	return NULL;
+
 }
 
 void * FSWThreads::GPSManagerThread(void * args){

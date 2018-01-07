@@ -13,15 +13,20 @@
 #include "core/Watchdog.h"
 #include "core/ScheduleManager.h"
 #include "subsystem/SubsystemBase.h"
+#include "subsystem/ACS.h"
+#include "subsystem/COM.h"
+#include "subsystem/EPS.h"
+#include "subsystem/RAD.h"
+
+#include <vector>
 
 struct ModeManagerStruct{
-	FSWSequence seq;
+	std::vector<std::vector<SubsystemBase*> >FSWSequence;
 	ScheduleManager * scheduler;
 	Watchdog * watchdog;
 };
 
-class FSWThreads
-{
+class FSWThreads{
 
 public:
 
@@ -30,6 +35,7 @@ public:
 	static void * GPSManagerThread(void * args);
 	static void * FileManagerThread(void * args);
 	static void * WatchdogThread(void * args);
+
 };
 
 #endif /* INCLUDE_FSWTHREADS_H_ */

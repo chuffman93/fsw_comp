@@ -21,19 +21,29 @@ int main() {
 	cout << "!!!Hello World!!!" << endl; // prints !!!Hello World!!!
 	Watchdog watchdog;
 	ScheduleManager scheduler;
+
 	ACS acs;
 	COM com;
-	FSWSequence seq;
-	VECTOROFDATA(temp, SubsystemBase *, &com,&acs);
-	seq.push_back(temp);
-
-	// Create Health and Status Thread
-	Thread healthStatusThread, fileManagerThread, watchdogThread, modeManagerThread, gpsManagerThread;
+	EPS eps;
+	RAD rad;
 
 	ModeManagerStruct modeStruct;
 	modeStruct.scheduler = &scheduler;
 	modeStruct.watchdog = &watchdog;
-	modeStruct.seq = seq;
+	modeStruct.FSWSequence[0] = {&acs};
+	modeStruct.FSWSequence[1] = {&acs};
+	modeStruct.FSWSequence[2] = {&acs,&com};
+	modeStruct.FSWSequence[3] = {&acs,&rad,&com,&eps};
+	modeStruct.FSWSequence[4] = {&acs,&rad};
+	modeStruct.FSWSequence[5] = {&rad,&acs};
+	modeStruct.FSWSequence[6] = {&acs};
+	modeStruct.FSWSequence[7] = {&com,&acs};
+
+	VECTOROFDATA(temp, SubsystemBase *, &com,&acs);
+	//seq.push_back(temp);
+
+	// Create Health and Status Thread
+	Thread healthStatusThread, fileManagerThread, watchdogThread, modeManagerThread, gpsManagerThread;
 
 	fileManagerThread.CreateThread(NULL, FSWThreads::FileManagerThread, (void*)&watchdog);
 	healthStatusThread.CreateThread(NULL, FSWThreads::GetHealthStatusThread, (void*)&watchdog);
@@ -46,9 +56,6 @@ int main() {
 	watchdog.AddThread(gpsManagerThread.GetID());
 
 	watchdogThread.CreateThread(NULL, FSWThreads::WatchdogThread, (void*)&watchdog);
-
-
-
 
 	// Join Threads
 	int rv = 0;

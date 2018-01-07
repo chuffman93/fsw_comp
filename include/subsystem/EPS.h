@@ -16,7 +16,9 @@
 
 #include <stdio.h>
 
-
+enum EPSOpcode{
+	OP_BATTERYCONFIG = 32,
+};
 
 class EPS: public SubsystemBase{
 public:

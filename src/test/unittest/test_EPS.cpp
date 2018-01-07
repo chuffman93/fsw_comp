@@ -67,4 +67,15 @@ TEST_CASE("EPS Test Get Health and Status", "[subsystem][EPS]"){
 
 }
 
+TEST_CASE("EPS Test Command Reset", "[subsystem][EPS]"){
+	//initialize/setup
+	MockACPInterface acp;
+	SubPowerInterface subPower(dummyg, 0, 0, 0, "");
+	EPS eps(acp,subPower);
+	//call EPS initialize
+	eps.initialize();
+	//validate that it sends the health and status opcode
+	REQUIRE(acp.sentOpcodes.end() != std::find(acp.sentOpcodes.begin(), acp.sentOpcodes.end(), OP_SUBSYSTEMRESET));
+
+}
 

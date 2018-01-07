@@ -8,29 +8,37 @@
 #ifndef INCLUDE_SUBSYSTEM_ACS_H_
 #define INCLUDE_SUBSYSTEM_ACS_H_
 
-#include "SubsystemBase.h"
+#include "core/FileManager.h"
+#include "core/FileInterfaces.h"
+#include "subsystem/SubsystemBase.h"
+#include "interfaces/SubPowerInterface.h"
+#include "interfaces/ACPInterface.h"
+#include "core/FileSystem.h"
+#include "core/Lock.h"
+
+#include <stdio.h>
+
+#include <stdio.h>
+
+enum ACSOpcode {
+	OP_POINTNADIR = 32,
+	OP_POINTCOM = 33,
+	OP_POINTSUN = 34,
+	OP_CONFIGGPS = 35,
+	OP_CONFIGGAINS = 36,
+};
 
 class ACS: public SubsystemBase{
 public:
-	ACS(){}
-	~ACS(){}
+	ACS(ACPInterface& acp, SubPowerInterface& subPower);
+	~ACS();
 
-	//ID for subsystem
-	//SubsystemID id = SUBSYSTEM_ID_ACS;
 	//Will set up the Gpio lines and the acp devices
-	void initialize(){};
+	void initialize();
 	//Handles any mode transition needs as well as any needs for tasks to be done in a mode.
-	void handleMode(FSWMode transition){
-		switch(transition){
-
-		case BUS_PRIORITY:
-			break;
-
-		}
-
-	}
+	void handleMode(FSWMode transition);
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
-	void getHealthStatus(){};
+	void getHealthStatus();
 private:
 	//Change the current pointing target
 	void pointNadir();
@@ -42,6 +50,10 @@ private:
 	void configureGains();
 
 	bool pointingValid = false;
+	ACPInterface& acp;
+	SubPowerInterface& subPower;
+	Lock lock;
+	LogTags tags;
 
 };
 

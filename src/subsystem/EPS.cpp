@@ -2,7 +2,7 @@
  * EPS.cpp
  *
  *  Created on: Dec 22, 2017
- *      Author: adam
+ *      Author: alex
  */
 
 
@@ -11,6 +11,8 @@
 #include "core/FileInterfaces.h"
 
 #include <stdint.h>
+#include <unistd.h>
+
 
 
 EPS::EPS(ACPInterface& acp, SubPowerInterface& subPower)
@@ -21,6 +23,8 @@ EPS::~EPS(){}
 
 //Will set up the Gpio lines and the acp devices
 void EPS::initialize(){
+	//TODO: error handling
+
 	LockGuard l(lock);
 	ACPPacket acpPacket(EPS_SYNC, OP_TESTALIVE);
 	ACPPacket acpReturn;
@@ -35,11 +39,19 @@ void EPS::initialize(){
 
 //Handles any mode transition needs as well as any needs for tasks to be done in a mode.
 void EPS::handleMode(FSWMode transition){
-	LockGuard l(lock);
+	switch (transition) {
+	case Mode_Reset:
+		commandReset();
+		break;
+	default:
+		break;
+		//TODO: error handling
+	}
 }
 
 //Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 void EPS::getHealthStatus(){
+	//TODO: error handling
 	LockGuard l(lock);
 	ACPPacket acpPacket(EPS_SYNC, OP_HEALTHSTATUS);
 	ACPPacket acpReturn;
@@ -56,7 +68,16 @@ void EPS::getHealthStatus(){
 
 //Power cycle the entire satellite
 void EPS::commandReset(){
+	//TODO: error handling
 	LockGuard l(lock);
+	ACPPacket acpPacket(EPS_SYNC, OP_SUBSYSTEMRESET);
+	ACPPacket acpReturn;
+	acp.transaction(acpPacket,acpReturn);
+
+	sleep(40);
+
+	//ModeManager modeman;
+	//modeman.switchModes(Mode_Bus);
 }
 
 uint16_t EPS::getBatteryCapacity(){

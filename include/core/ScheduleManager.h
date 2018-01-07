@@ -8,41 +8,46 @@
 #ifndef INCLUDE_CORE_SCHEDULEMANAGER_H_
 #define INCLUDE_CORE_SCHEDULEMANAGER_H_
 
+
 #include <stdint.h>
 #include <queue>
 #include <vector>
+#include "util/TimeKeeper.h"
 
-typedef enum _FSWMode{
-	BUS_PRIORITY = 0,
-	PLD_PRIORITY,
-	COM_MODE,
-	RESET_MODE,
-	NUM_MODES
-} FSWMode;
+#define REBOOT_TIME 86400
 
+typedef enum _FSWMode {
+	Mode_Bus = 1,
+	Mode_Payload = 2,
+	Mode_Com = 3,
+	Mode_Reset = 4,
+	Trans_BusToPayload = 5,
+	Trans_PayloadToBus = 6,
+	Trans_BusToCom = 7,
+	Trans_ComToBus = 8,
+}FSWMode;
 
 struct ScheduleStruct {
 	FSWMode mode;
 	int waitTime; //time to wait in bus priority before entering mode
-	int duration; //duration of mode
+	uint32_t duration; //duration of mode
 };
-
-
 
 class ScheduleManager
 {
 public:
-	ScheduleManager():CurrentMode(BUS_PRIORITY), modeEnterTime(0){};
-	~ScheduleManager(){};
+	ScheduleManager();
+	~ScheduleManager();
 
 	//check for mode changes
-	FSWMode checkNewMode(){return BUS_PRIORITY;}; //TODO: Implement
+	FSWMode checkNewMode();
 
 private:
 	std::queue <ScheduleStruct> ScheduleQueue;
 
+	ScheduleStruct currentSchedule;
+	uint32_t modeEnterTime;
 	FSWMode CurrentMode;
-	int32_t modeEnterTime;
 
 	//if new schedule: adds new schedule to queue, otherwise add default schedule to queue if empty
 	void updateSchedule();

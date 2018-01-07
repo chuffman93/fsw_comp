@@ -7,6 +7,8 @@
 
 #include "core/FileInterfaces.h"
 
+//-----------------------------HEALTH AND STATUS ----------------------------
+
 HealthStatusInterface::HealthStatusInterface(std::string filePath)
 : filePath(filePath), fileName("")
 {}
@@ -44,3 +46,27 @@ std::string HealthStatusInterface:: createFileName(){
 	//TODO: create file name with number of resets and time since boot up
 	return "TempFileName";
 }
+/*
+
+//-------------------------------CONFIG----------------------------------------
+
+ConfigInterface::ConfigInterface(std::string filePath)
+: filePath(filePath)
+{}
+
+ConfigInterface::~ConfigInterface(){}
+
+std::vector<uint8_t> ConfigInterface::pullData(){
+
+}
+
+InterfaceOperation ConfigInterface::getOperation(){
+	std::vector<uint8_t> buff;
+	InterfaceOperation ConfigOp(FIO_READ, filePath, buff);
+	return ConfigOp;
+}
+
+
+
+*/
+

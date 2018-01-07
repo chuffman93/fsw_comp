@@ -48,6 +48,7 @@ private:
 	void writeToFile(std::string filePath, std::vector<uint8_t>& buffer);
 	void deleteFile(std::string filePath);
 
+
 	LogTags tags;
 	Lock lock;
 	std::vector<FileInterface*> InterfaceList;

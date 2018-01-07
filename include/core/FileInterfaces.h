@@ -5,6 +5,9 @@
  *      Author: alpa3119
  */
 
+#ifndef INCLUDE_FILEINTERFACES_H_
+#define INCLUDE_FILEINTERFACES_H_
+
 #include <queue>
 #include "FileManager.h"
 #include "core/Lock.h"
@@ -26,3 +29,24 @@ private:
 };
 
 
+struct ConfigData {
+	std::vector<uint8_t> data;
+	std::string filePath;
+};
+
+class ConfigInterface{
+public:
+	ConfigInterface();
+	~ConfigInterface();
+	std::vector<uint8_t> requestData();
+	InterfaceOperation getOperation();
+
+private:
+	std::string filePath;
+	std::vector<uint8_t> data;
+	std::queue<ConfigData> ConfigQueue;
+	Lock lock;
+};
+
+
+#endif /* INCLUDE_FILEINTERFACES_H_ */
