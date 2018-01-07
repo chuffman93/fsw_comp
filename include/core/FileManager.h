@@ -14,6 +14,7 @@
 
 #include <stdint.h>
 #include <vector>
+#include <unistd.h>
 
 enum FileIOType {
 	FIO_WRITE,
@@ -25,11 +26,14 @@ enum FileIOType {
 
 class FileManager {
 public:
-	void readFromFile(std::string filePath, std::vector<uint8_t>& buffer);
+	FileManager();
+	~FileManager();
+
+	std::vector<uint8_t> readFromFile(std::string filePath);
 	void writeToFile(std::string filePath, std::vector<uint8_t>& buffer);
 	void deleteFile(std::string filePath);
 	bool checkExistance(std::string filePath);
-	void renameFile(std::string filePath, std::string newfilePath);
+	void moveFile(std::string filePath, std::string newfilePath);
 
 	LogTags tags;
 	Lock lock;

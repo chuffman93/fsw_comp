@@ -18,14 +18,13 @@ FileManager::FileManager(){
 
 FileManager::~FileManager(){}
 
-FileInterface::~FileInterface(){}
 
 
-void FileManager::readFromFile(std::string filePath, std::vector<uint8_t>& buffer){
+std::vector<uint8_t> FileManager::readFromFile(std::string filePath){
+	std::vector<uint8_t> buffer;
 	FILE * fileID = fopen(filePath.c_str(), "r");
 	if (fileID == NULL){
-		buffer.clear();
-		return;
+		return buffer;
 	}
 
 	//get size of file
@@ -34,7 +33,6 @@ void FileManager::readFromFile(std::string filePath, std::vector<uint8_t>& buffe
 	fseek(fileID, 0, SEEK_SET);
 
 	//resize buffer
-	buffer.clear();
 	buffer.resize(size);
 
 	//read file and place data into buffer
@@ -43,13 +41,12 @@ void FileManager::readFromFile(std::string filePath, std::vector<uint8_t>& buffe
 	//close file
 	fclose(fileID);
 
-
+	return buffer;
 }
 
 void FileManager::writeToFile(std::string filePath, std::vector<uint8_t>& buffer){
 	if (filePath == ""){
 		buffer.clear();
-		std::cout << "test no file path" << endl;
 		return;
 	}
 	if (buffer.size() == 0){
@@ -67,9 +64,14 @@ void FileManager::deleteFile(std::string filePath){
 }
 
 bool FileManager::checkExistance(std::string filePath){
-	if (access(filePath.c_str(), F_OK)){
+	if (access(filePath.c_str(), F_OK) == 0){
 		return true;
 	}
+	return false;
+}
+
+void FileManager::moveFile(std::string filePath, std::string newfilePath){
+	rename(filePath.c_str(),newfilePath.c_str());
 }
 
 

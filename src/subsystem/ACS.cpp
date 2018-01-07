@@ -71,8 +71,7 @@ void ACS::getHealthStatus(){
 	acp.transaction(acpPacket,acpReturn);
 
 	std::string folderLocation = HEALTH_DIRECTORY ACS_PATH;
-	HealthStatusInterface health(folderLocation);
-	health.pushData(acpReturn.message);
+
 
 }
 

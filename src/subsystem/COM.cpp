@@ -51,8 +51,7 @@
 		acp.transaction(acpPacket,acpReturn);
 
 		std::string folderLocation = HEALTH_DIRECTORY COM_PATH;
-		HealthStatusInterface health(folderLocation);
-		health.pushData(acpReturn.message);
+
 	}
 
 	//Configure the lithium radio

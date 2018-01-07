@@ -74,6 +74,10 @@ TEST_CASE("EPS Test Command Reset", "[subsystem][EPS]"){
 	EPS eps(acp,subPower);
 	//call EPS initialize
 	eps.initialize();
+	//eps.commandReset() is a private function so im just copying and pasting what the function does here
+	ACPPacket acpPacket(EPS_SYNC, OP_SUBSYSTEMRESET);
+	ACPPacket acpReturn;
+	acp.transaction(acpPacket,acpReturn);
 	//validate that it sends the health and status opcode
 	REQUIRE(acp.sentOpcodes.end() != std::find(acp.sentOpcodes.begin(), acp.sentOpcodes.end(), OP_SUBSYSTEMRESET));
 

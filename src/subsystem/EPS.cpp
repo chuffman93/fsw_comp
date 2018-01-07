@@ -8,7 +8,6 @@
 
 #include "subsystem/EPS.h"
 #include "core/FileManager.h"
-#include "core/FileInterfaces.h"
 
 #include <stdint.h>
 #include <unistd.h>
@@ -58,8 +57,7 @@ void EPS::getHealthStatus(){
 	acp.transaction(acpPacket,acpReturn);
 
 	std::string folderLocation = HEALTH_DIRECTORY EPS_PATH;
-	HealthStatusInterface health(folderLocation);
-	health.pushData(acpReturn.message);
+
 
 	std::vector<uint8_t> message = acpReturn.message;
 	batteryCapacity = ((uint16_t)message[12] << 8) | ((uint16_t)message[13]);

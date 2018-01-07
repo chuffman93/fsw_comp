@@ -48,8 +48,7 @@ void RAD::getHealthStatus(){
 	acp.transaction(acpPacket,acpReturn);
 
 	std::string folderLocation = HEALTH_DIRECTORY RAD_PATH;
-	HealthStatusInterface health(folderLocation);
-	health.pushData(acpReturn.message);
+
 }
 
 //Various configurations for the data collection
