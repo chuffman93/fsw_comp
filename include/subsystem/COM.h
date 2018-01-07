@@ -20,6 +20,7 @@ enum COMOpcode {
 	OP_HALFDUPLEX = 33,
 	OP_FULLDUPLEX = 34,
 	OP_BEACON = 35,
+	OP_CHANGEBAUD, //ROBERT FILL IN THIS ENUM
 };
 
 
@@ -40,7 +41,8 @@ private:
 	//Send the beacon
 	void sendBeacon();
 	//Need to figure out how the GND Communication stuff will work
-
+	void resetCOM();
+	void changeBaudRate(uint32_t baudRate);
 	ACPInterface& acp;
 	SubPowerInterface& subPower;
 	Lock lock;

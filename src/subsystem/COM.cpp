@@ -31,11 +31,8 @@
 	//Handles any mode transition needs as well as any needs for tasks to be done in a mode.
 	void COM::handleMode(FSWMode transition){
 		switch (transition){
-		case Mode_Com:
-			break;
 		case Mode_Reset:
-			break;
-		case Trans_ComToBus:
+			resetCOM();
 			break;
 		default:
 			//TODO: error handling
@@ -65,6 +62,24 @@
 	//Send the beacon
 	void COM::sendBeacon(){
 
+	}
+
+	void COM::resetCOM(){
+		LockGuard l(lock);
+		ACPPacket acpPacket(COM_SYNC, OP_SUBSYSTEMRESET);
+		ACPPacket acpReturn;
+		acp.transaction(acpPacket,acpReturn);
+	}
+
+	void COM::changeBaudRate(uint32_t baudRate){
+		LockGuard l(lock);
+
+		ByteStream bs;
+		bs << baudRate;
+
+		ACPPacket acpPacket(COM_SYNC, OP_HEALTHSTATUS, bs.vec());
+		ACPPacket acpReturn;
+		acp.transaction(acpPacket,acpReturn);
 	}
 
 	//Need to figure out how the GND Communication stuff will work

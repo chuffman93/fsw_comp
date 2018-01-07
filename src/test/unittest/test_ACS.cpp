@@ -49,9 +49,8 @@ TEST_CASE("ACS Test Command Reset", "[subsystem][ACS]"){
 	ACSMockACPInterface acp;
 	SubPowerInterface subPower(dummygpio, 0, 0, 0, "");
 	ACS acs(acp,subPower);
-	//call EPS initialize
+	//call ACS initialize
 	acs.initialize();
-	//eps.commandReset() is a private function so im just copying and pasting what the function does here
 	ACPPacket acpPacket(ACS_SYNC, OP_SUBSYSTEMRESET);
 	ACPPacket acpReturn;
 	acp.transaction(acpPacket,acpReturn);
@@ -60,12 +59,12 @@ TEST_CASE("ACS Test Command Reset", "[subsystem][ACS]"){
 
 }
 
-TEST_CASE("ACS Test Handle Mode", "[subsytem][acs"){
+TEST_CASE("ACS Test Handle Mode", "[subsystem][ACS]"){
 	//initialize/setup
 	ACSMockACPInterface acp;
 	SubPowerInterface subPower(dummygpio, 0, 0, 0, "");
 	ACS acs(acp,subPower);
-	//call EPS initialize
+	//call ACS initialize
 	acs.initialize();
 	acs.handleMode(Mode_Bus);
 	acs.handleMode(Mode_Reset);
