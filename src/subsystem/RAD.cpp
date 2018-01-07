@@ -20,6 +20,7 @@ void RAD::initialize(){
 	//read data number
 
 	//boot config
+
 }
 
 //Handles any mode transition needs as well as any needs for tasks to be done in a mode.
@@ -29,14 +30,13 @@ void RAD::handleMode(FSWMode transition){
 		//TODO: reset
 		break;
 	case Trans_BusToPayload:
-		initialize();
 		commandCollectionBegin();
 		break;
 	case Trans_PayloadToBus:
+		commandCollectionEnd();
 		break;
 	default:
 		break;
-		//TODO: error handling
 	}
 }
 
@@ -48,6 +48,9 @@ void RAD::getHealthStatus(){
 	acp.transaction(acpPacket,acpReturn);
 
 	std::string folderLocation = HEALTH_DIRECTORY RAD_PATH;
+	FileManager fm;
+	std::string healthFile = fm.createFileName(HEALTH_DIRECTORY RAD_PATH);
+	fm.writeToFile(healthFile,acpReturn.message);
 
 }
 
@@ -88,7 +91,7 @@ void RAD::commandCollectionEnd(){
 	ACPPacket acpReturn;
 	acp.transaction(acpPacket, acpReturn);
 
-	//power off rad
+	subPower.powerOff();
 
 	//Kill RAD TFTP process if still running, compress and move
 	//the data, split that data

@@ -11,6 +11,7 @@
 #include "subsystem/SubsystemBase.h"
 #include "interfaces/SubPowerInterface.h"
 #include "interfaces/ACPInterface.h"
+#include "core/FileManager.h"
 #include "core/FileSystem.h"
 #include "core/Lock.h"
 

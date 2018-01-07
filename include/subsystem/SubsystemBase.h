@@ -9,6 +9,7 @@
 #define SUBSYSTEMBASE_H_
 
 #include "core/ScheduleManager.h"
+#include "util/ByteStream.h"
 
 
 class SubsystemBase{

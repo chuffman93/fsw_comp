@@ -38,7 +38,7 @@ private:
 	//Power cycle the entire satellite
 	void commandReset();
 
-	uint16_t batteryCapacity;
+	uint16_t batteryCharge;
 	//Constructor references
 	ACPInterface& acp;
 	SubPowerInterface& subPower;

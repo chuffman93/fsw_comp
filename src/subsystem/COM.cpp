@@ -51,6 +51,9 @@
 		acp.transaction(acpPacket,acpReturn);
 
 		std::string folderLocation = HEALTH_DIRECTORY COM_PATH;
+		FileManager fm;
+		std::string healthFile = fm.createFileName(HEALTH_DIRECTORY COM_PATH);
+		fm.writeToFile(healthFile,acpReturn.message);
 
 	}
 
