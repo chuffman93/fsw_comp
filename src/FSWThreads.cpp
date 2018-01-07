@@ -51,7 +51,7 @@ void * FSWThreads::GPSManagerThread(void * args){
 	}
 	return NULL;
 }
-
+/*
 void * FSWThreads::FileManagerThread(void * args){
 	Watchdog * watchdog = (Watchdog*)args;
 	while(1){
@@ -60,7 +60,7 @@ void * FSWThreads::FileManagerThread(void * args){
 		sleep(2);
 	}
 	return NULL;
-}
+}*/
 
 
 void * FSWThreads::WatchdogThread(void * args){

@@ -23,35 +23,16 @@ enum FileIOType {
 	FIO_EMPTY,
 };
 
-struct InterfaceOperation {
-	InterfaceOperation(FileIOType type, std::string filePath, std::vector<uint8_t>& data);
-	FileIOType type;
-	std::string filePath;
-	std::vector<uint8_t>& data;
-};
-
-class FileInterface {
-public:
-	virtual InterfaceOperation getOperation() = 0;
-	virtual ~FileInterface() = 0;
-};
-
 class FileManager {
 public:
-	FileManager();
-	~FileManager();
-	void spinInterfaces();
-	void registerInterface(FileInterface* interface);
-	void handleFileDeletion();
-private:
 	void readFromFile(std::string filePath, std::vector<uint8_t>& buffer);
 	void writeToFile(std::string filePath, std::vector<uint8_t>& buffer);
 	void deleteFile(std::string filePath);
-
+	bool checkExistance(std::string filePath);
+	void renameFile(std::string filePath, std::string newfilePath);
 
 	LogTags tags;
 	Lock lock;
-	std::vector<FileInterface*> InterfaceList;
 };
 
 #endif /* INCLUDE_CORE_FILEMANAGER_H_ */

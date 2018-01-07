@@ -18,45 +18,8 @@ FileManager::FileManager(){
 
 FileManager::~FileManager(){}
 
-InterfaceOperation::InterfaceOperation(FileIOType type, std::string filePath, std::vector<uint8_t>& data)
-: type(type), filePath(filePath), data(data)
-{}
-
 FileInterface::~FileInterface(){}
 
-void FileManager::spinInterfaces(){
-	LockGuard l(lock);
-	for (std::vector<FileInterface*>::iterator i = InterfaceList.begin(); i != InterfaceList.end(); i++){
-		InterfaceOperation op = (*i)->getOperation();
-		switch (op.type){
-		case FIO_WRITE:
-			writeToFile(op.filePath, op.data);
-			break;
-		case FIO_READ:
-			readFromFile(op.filePath, op.data);
-			break;
-		case FIO_READDELETE:
-			readFromFile(op.filePath, op.data);
-			deleteFile(op.filePath);
-			break;
-		case FIO_DELETE:
-			deleteFile(op.filePath);
-			break;
-		case FIO_EMPTY:
-			break;
-		}
-	}
-
-}
-
-void FileManager::registerInterface(FileInterface* interface){
-	LockGuard l(lock);
-	InterfaceList.push_back(interface);
-}
-
-void FileManager::handleFileDeletion(){
-	LockGuard l(lock);
-}
 
 void FileManager::readFromFile(std::string filePath, std::vector<uint8_t>& buffer){
 	FILE * fileID = fopen(filePath.c_str(), "r");
@@ -100,7 +63,13 @@ void FileManager::writeToFile(std::string filePath, std::vector<uint8_t>& buffer
 
 void FileManager::deleteFile(std::string filePath){
 	remove(filePath.c_str());
-	//TODO: error handling?
 
 }
+
+bool FileManager::checkExistance(std::string filePath){
+	if (access(filePath.c_str(), F_OK)){
+		return true;
+	}
+}
+
 

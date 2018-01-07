@@ -76,8 +76,8 @@ void EPS::commandReset(){
 
 	sleep(40);
 
-	//ModeManager modeman;
-	//modeman.switchModes(Mode_Bus);
+	subPower.reset();
+
 }
 
 uint16_t EPS::getBatteryCapacity(){
