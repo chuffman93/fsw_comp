@@ -11,6 +11,7 @@
 
 #include <stdint.h>
 #include <unistd.h>
+#include <iostream>
 
 
 
@@ -56,11 +57,16 @@ void EPS::getHealthStatus(){
 	ACPPacket acpReturn;
 	acp.transaction(acpPacket,acpReturn);
 
-	std::string folderLocation = HEALTH_DIRECTORY EPS_PATH;
 
+	std::string folderLocation = HEALTH_DIRECTORY EPS_PATH;
+	FileManager fm;
+	std::string healthFile = fm.createFileName(HEALTH_DIRECTORY EPS_PATH);
+	fm.writeToFile(healthFile,acpReturn.message);
 
 	std::vector<uint8_t> message = acpReturn.message;
-	batteryCapacity = ((uint16_t)message[12] << 8) | ((uint16_t)message[13]);
+
+	ByteStream bs(message);
+	bs.seek(12) >> batteryCharge;
 
 }
 
@@ -72,7 +78,7 @@ void EPS::commandReset(){
 	ACPPacket acpReturn;
 	acp.transaction(acpPacket,acpReturn);
 
-	sleep(40);
+	sleep(5);
 
 	subPower.reset();
 
@@ -80,7 +86,7 @@ void EPS::commandReset(){
 
 uint16_t EPS::getBatteryCapacity(){
 	LockGuard l(lock);
-	return batteryCapacity;
+	return batteryCharge;
 }
 
 
