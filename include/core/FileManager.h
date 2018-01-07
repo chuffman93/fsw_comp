@@ -11,6 +11,7 @@
 #include "FileSystem.h"
 #include "util/Logger.h"
 #include "core/Lock.h"
+#include "util/TimeKeeper.h"
 
 #include <stdint.h>
 #include <vector>
@@ -34,6 +35,7 @@ public:
 	void deleteFile(std::string filePath);
 	bool checkExistance(std::string filePath);
 	void moveFile(std::string filePath, std::string newfilePath);
+	std::string createFileName(std::string basePath);
 
 	LogTags tags;
 	Lock lock;

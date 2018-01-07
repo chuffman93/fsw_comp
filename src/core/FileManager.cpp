@@ -9,6 +9,7 @@
 #include "core/FileManager.h"
 #include <stdio.h>
 #include <iostream>
+#include <sstream>
 
 using namespace std;
 
@@ -74,4 +75,18 @@ void FileManager::moveFile(std::string filePath, std::string newfilePath){
 	rename(filePath.c_str(),newfilePath.c_str());
 }
 
+std::string FileManager::createFileName(std::string basePath){
+	//std::vector<uint8_t> numReboot = readFromFile(REBOOT_FILE);
+	//std::string textRead(numReboot.begin(), numReboot.end());
+	//TODO: deserialize reboot number into string and add to file name
+
+	uint32_t currentTime = getCurrentTime();
+	stringstream ss;
+	ss << currentTime;
+	std::string time = ss.str();
+
+	std::string filePath = basePath + "_" + time;
+
+	return filePath;
+}
 

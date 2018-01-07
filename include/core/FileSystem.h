@@ -6,12 +6,13 @@
 #endif
 
 #ifdef UBUNTU
-#define HOME_DIRECTORY		"../home"
+#define HOME_DIRECTORY		"home"
 #endif
 
 #define UPLINK_DIRECTORY	HOME_DIRECTORY		"/.uplink"
 #define DOWNLINK_DIRECTORY	HOME_DIRECTORY		"/.downlink"
 #define HEALTH_DIRECTORY	HOME_DIRECTORY		"/SD_2/HST"
+#define REBOOT_FILE			HOME_DIRECTORY		"/RBT"
 
 #define NEW_SCH				UPLINK_DIRECTORY	"SCH"
 #define DEFAULT_SCH			UPLINK_DIRECTORY	"SCHConfig"

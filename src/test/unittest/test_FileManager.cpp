@@ -152,4 +152,13 @@ TEST_CASE("FILEMANAGER: TEST MOVE FILE", "[filemanager]"){
 
 }
 
+TEST_CASE("FILEMANAGER: TEST CREATE FILE NAME", "[filemanager]" ){
+	std::string dummyFile = "dummy";
+
+	FileManager fm;
+	std::string newDummy = fm.createFileName(dummyFile);
+
+
+}
+
 
