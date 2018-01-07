@@ -14,17 +14,26 @@
 #include "interfaces/ACPInterface.h"
 #include "core/FileSystem.h"
 #include "core/Lock.h"
+#include "subsystem/GPS.h"
 
 #include <stdio.h>
 
-#include <stdio.h>
 
 enum ACSOpcode {
 	OP_POINTNADIR = 32,
 	OP_POINTCOM = 33,
 	OP_POINTSUN = 34,
-	OP_CONFIGGPS = 35,
+	OP_SENDGPS = 35,
 	OP_CONFIGGAINS = 36,
+};
+
+struct SerializeGPS {
+	GPSInertial gps;
+	std::vector<uint8_t> serialize(){
+		ByteStream bs;
+		bs << gps.posX << gps.posY << gps.posZ << gps.velX << gps.velY << gps.velZ << gps.GPSWeek << gps.GPSSec << gps.isAccurate;
+		return bs.vec();
+	}
 };
 
 class ACS: public SubsystemBase{
@@ -44,9 +53,10 @@ private:
 	void pointCOM();
 	void pointSunSoak();
 	//Update the GPS information on ACS
-	void configGPS();
+	void sendGPS();
 	//Configure the gains on ACS
 	void configureGains();
+	void resetACS();
 
 	bool pointingValid = false;
 	ACPInterface& acp;

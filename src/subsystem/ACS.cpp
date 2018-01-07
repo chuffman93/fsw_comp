@@ -16,7 +16,6 @@ ACS::~ACS(){}
 //Will set up the Gpio lines and the acp devices
 void ACS::initialize(){
 	//TODO: error handling
-
 	LockGuard l(lock);
 	ACPPacket acpPacket(ACS_SYNC, OP_TESTALIVE);
 	ACPPacket acpReturn;
@@ -33,16 +32,16 @@ void ACS::initialize(){
 void ACS::handleMode(FSWMode transition){
 	switch (transition){
 	case Mode_Bus:
-		configGPS();
+		sendGPS();
 		break;
 	case Mode_Payload:
-		configGPS();
+		sendGPS();
 		break;
 	case Mode_Com:
-		configGPS();
+		sendGPS();
 		break;
 	case Mode_Reset:
-		//TODO: reset
+		resetACS();
 		break;
 	case Trans_BusToPayload:
 		pointNadir();
@@ -57,7 +56,6 @@ void ACS::handleMode(FSWMode transition){
 		pointSunSoak();
 		break;
 	default:
-		//TODO: error handling
 		break;
 
 	}
@@ -71,12 +69,15 @@ void ACS::getHealthStatus(){
 	acp.transaction(acpPacket,acpReturn);
 
 	std::string folderLocation = HEALTH_DIRECTORY ACS_PATH;
-
+	FileManager fm;
+	std::string healthFile = fm.createFileName(HEALTH_DIRECTORY ACS_PATH);
+	fm.writeToFile(healthFile,acpReturn.message);
 
 }
 
 //Change the current pointing target
 void ACS::pointNadir(){
+	//TODO: error handling
 	LockGuard l(lock);
 	ACPPacket acpPacket(ACS_SYNC, OP_POINTNADIR);
 	ACPPacket acpReturn;
@@ -84,6 +85,7 @@ void ACS::pointNadir(){
 }
 
 void ACS::pointCOM(){
+	//TODO: error handling
 	LockGuard l(lock);
 	ACPPacket acpPacket(ACS_SYNC, OP_POINTCOM);
 	ACPPacket acpReturn;
@@ -91,6 +93,7 @@ void ACS::pointCOM(){
 }
 
 void ACS::pointSunSoak(){
+	//TODO: error handling
 	LockGuard l(lock);
 	ACPPacket acpPacket(ACS_SYNC, OP_POINTSUN);
 	ACPPacket acpReturn;
@@ -99,11 +102,25 @@ void ACS::pointSunSoak(){
 
 
 //Update the GPS information on ACS
-void ACS::configGPS(){
+void ACS::sendGPS(){
+	LockGuard l(lock);
 
+	SerializeGPS serGPS;
+	std::vector<uint8_t> buffer = serGPS.serialize();
+
+	ACPPacket acpPacket(ACS_SYNC, OP_SENDGPS, buffer);
+	ACPPacket acpReturn;
+	acp.transaction(acpPacket,acpReturn);
 }
 
 //Configure the gains on ACS
 void ACS::configureGains(){
 
+}
+
+void ACS::resetACS(){
+	LockGuard l(lock);
+	ACPPacket acpPacket(ACS_SYNC, OP_SUBSYSTEMRESET);
+	ACPPacket acpReturn;
+	acp.transaction(acpPacket,acpReturn);
 }
