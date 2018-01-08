@@ -10,13 +10,18 @@
 
 
 #include <stdint.h>
+#include <string>
+#include <unistd.h>
 #include <queue>
 #include <vector>
 #include "util/TimeKeeper.h"
+#include "core/FileManager.h"
+#include "core/FileSystem.h"
+#include "util/ByteStream.h"
 
 #define REBOOT_TIME 86400
 
-typedef enum _FSWMode {
+typedef enum _FSWMode{
 	Mode_Bus = 1,
 	Mode_Payload = 2,
 	Mode_Com = 3,
@@ -29,8 +34,8 @@ typedef enum _FSWMode {
 
 struct ScheduleStruct {
 	FSWMode mode;
-	int waitTime; //time to wait in bus priority before entering mode
-	uint32_t duration; //duration of mode
+	uint32_t timeSinceEpoch;
+	uint32_t duration;
 };
 
 class ScheduleManager
@@ -41,6 +46,8 @@ public:
 
 	//check for mode changes
 	FSWMode checkNewMode();
+	//if new schedule: adds new schedule to queue, otherwise add default schedule to queue if empty
+	void loadSchedule(std::string filePath);
 
 private:
 	std::queue <ScheduleStruct> ScheduleQueue;
@@ -49,12 +56,9 @@ private:
 	uint32_t modeEnterTime;
 	FSWMode CurrentMode;
 
-	//if new schedule: adds new schedule to queue, otherwise add default schedule to queue if empty
-	void updateSchedule();
 	//updates default schedule file
 	void updateDefaultSchedule();
-	//load default schedule from file
-	void loadDefaultSchedule();
+
 };
 
 #endif /* INCLUDE_CORE_SCHEDULEMANAGER_H_ */
