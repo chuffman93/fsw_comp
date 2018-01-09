@@ -17,14 +17,6 @@
 #include <vector>
 #include <unistd.h>
 
-enum FileIOType {
-	FIO_WRITE,
-	FIO_READ,
-	FIO_READDELETE,
-	FIO_DELETE,
-	FIO_EMPTY,
-};
-
 class FileManager {
 public:
 	FileManager();
@@ -36,9 +28,11 @@ public:
 	bool checkExistance(std::string filePath);
 	void moveFile(std::string filePath, std::string newfilePath);
 	std::string createFileName(std::string basePath);
+	void updateRebootCount();
 
 	LogTags tags;
 	Lock lock;
+
 };
 
 #endif /* INCLUDE_CORE_FILEMANAGER_H_ */

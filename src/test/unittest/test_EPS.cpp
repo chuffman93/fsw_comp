@@ -77,11 +77,7 @@ TEST_CASE("EPS Test Command Reset", "[subsystem][EPS]"){
 	EPS eps(acp,subPower);
 	//call EPS initialize
 	eps.initialize();
-	//eps.commandReset() is a function that requires subPower.reset(), this will cause a seg fault for unit testing so I copied the function over
-	ACPPacket acpPacket(EPS_SYNC, OP_SUBSYSTEMRESET);
-	ACPPacket acpReturn;
-	acp.transaction(acpPacket,acpReturn);
-	//validate that it sends the health and status opcode
+	eps.handleMode(Mode_Reset);
 	REQUIRE(acp.sentOpcodes.end() != std::find(acp.sentOpcodes.begin(), acp.sentOpcodes.end(), OP_SUBSYSTEMRESET));
 
 }

@@ -78,9 +78,9 @@ void EPS::commandReset(){
 	ACPPacket acpReturn;
 	acp.transaction(acpPacket,acpReturn);
 
-	sleep(5);
+	//sleep(5);
 
-	subPower.reset();
+	//subPower.reset();
 
 }
 

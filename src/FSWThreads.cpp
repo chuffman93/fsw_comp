@@ -51,16 +51,6 @@ void * FSWThreads::GPSManagerThread(void * args){
 	}
 	return NULL;
 }
-/*
-void * FSWThreads::FileManagerThread(void * args){
-	Watchdog * watchdog = (Watchdog*)args;
-	while(1){
-		puts("File Manager thread Pinging");
-		watchdog->KickWatchdog();
-		sleep(2);
-	}
-	return NULL;
-}*/
 
 
 void * FSWThreads::WatchdogThread(void * args){

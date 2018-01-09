@@ -1,6 +1,7 @@
 
 #include "test/catch.hpp"
 #include "core/FileManager.h"
+#include "core/ScheduleManager.h"
 #include <stdio.h>
 #include <iostream>
 
@@ -156,7 +157,9 @@ TEST_CASE("FILEMANAGER: TEST CREATE FILE NAME", "[filemanager]" ){
 	std::string dummyFile = "dummy";
 
 	FileManager fm;
+	ScheduleManager sch;
 	std::string newDummy = fm.createFileName(dummyFile);
+	//cout << newDummy << endl;
 
 
 }

@@ -6,6 +6,10 @@
  */
 
 #include "core/ScheduleManager.h"
+#include <iostream>
+#include <sstream>
+#include <stdio.h>
+#include <string>
 
 ScheduleManager::ScheduleManager()
  : CurrentMode(Mode_Bus), modeEnterTime(0)
@@ -22,18 +26,13 @@ FSWMode ScheduleManager::checkNewMode(){
 		ScheduleQueue.pop();
 		currentSchedule = ScheduleQueue.front();
 		CurrentMode = Mode_Bus;
-		modeEnterTime = getCurrentTime();
-	//check if the schedule is empty and if the satellite is not in bus mode
-	}else if (ScheduleQueue.empty() && CurrentMode != Mode_Bus){
-		CurrentMode = Mode_Bus;
+	//check if it is time to switch modes
+	}else if (currentSchedule.timeSinceEpoch > time){
+		CurrentMode = currentSchedule.mode;
 		modeEnterTime = getCurrentTime();
 	//check if it is time for reboot if the schedule is empty
 	}else if (ScheduleQueue.empty() && time > REBOOT_TIME){
 		CurrentMode = Mode_Reset;
-		modeEnterTime = getCurrentTime();
-	}else if (currentSchedule.timeSinceEpoch > time){
-		CurrentMode = currentSchedule.mode;
-		modeEnterTime = getCurrentTime();
 	}
 	return CurrentMode;
 }
@@ -56,7 +55,11 @@ void ScheduleManager::loadSchedule(std::string filePath){
 	uint8_t mode;
 
 
-	//TODO: error handling: make sure that the file size is divisible by 9
+	//make sure that the file size is divisible by 9
+	if (floor(schedule.size()/9) != (schedule.size()/9)){
+		return;
+	}
+
 	for (size_t i = 0; i < (schedule.size()/9); i++){
 		bs >> mode >> sch.timeSinceEpoch >> sch.duration;
 		switch (mode){
@@ -85,9 +88,9 @@ void ScheduleManager::loadSchedule(std::string filePath){
 //updates default schedule file
 void ScheduleManager::updateDefaultSchedule(){
 	FileManager fm;
-	bool exist = fm.checkExistance(NEW_SCH);
+	bool exist = fm.checkExistance(NEW_DEFAULT_SCH);
 	if (exist){
-		fm.moveFile(NEW_SCH,DEFAULT_SCH);
+		fm.moveFile(NEW_DEFAULT_SCH,DEFAULT_SCH);
 	}
 }
 

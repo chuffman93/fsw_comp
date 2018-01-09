@@ -14,6 +14,8 @@
 #include <unistd.h>
 #include <queue>
 #include <vector>
+#include <math.h>
+
 #include "util/TimeKeeper.h"
 #include "core/FileManager.h"
 #include "core/FileSystem.h"

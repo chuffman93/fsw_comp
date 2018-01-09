@@ -22,6 +22,9 @@ int main() {
 	Watchdog watchdog;
 	ScheduleManager scheduler;
 
+	FileManager fm;
+	fm.updateRebootCount();
+
 	ACS acs;
 	COM com;
 	EPS eps;
@@ -43,14 +46,12 @@ int main() {
 	//seq.push_back(temp);
 
 	// Create Health and Status Thread
-	Thread healthStatusThread, fileManagerThread, watchdogThread, modeManagerThread, gpsManagerThread;
+	Thread healthStatusThread, watchdogThread, modeManagerThread, gpsManagerThread;
 
-	fileManagerThread.CreateThread(NULL, FSWThreads::FileManagerThread, (void*)&watchdog);
 	healthStatusThread.CreateThread(NULL, FSWThreads::GetHealthStatusThread, (void*)&watchdog);
 	modeManagerThread.CreateThread(NULL, FSWThreads::ModeManagerThread, (void*)&modeStruct);
 	gpsManagerThread.CreateThread(NULL, FSWThreads::GPSManagerThread, (void*)&watchdog);
 
-	watchdog.AddThread(fileManagerThread.GetID());
 	watchdog.AddThread(healthStatusThread.GetID());
 	watchdog.AddThread(modeManagerThread.GetID());
 	watchdog.AddThread(gpsManagerThread.GetID());
@@ -60,7 +61,6 @@ int main() {
 	// Join Threads
 	int rv = 0;
 	healthStatusThread.JoinThread((void*)&rv);
-	fileManagerThread.JoinThread((void*)&rv);
 	watchdogThread.JoinThread((void*)&rv);
 
 

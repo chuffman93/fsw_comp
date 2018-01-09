@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <sstream>
+#include <fstream>
 
 using namespace std;
 
@@ -53,7 +54,7 @@ void FileManager::writeToFile(std::string filePath, std::vector<uint8_t>& buffer
 	if (buffer.size() == 0){
 		return;
 	}
-	FILE * fileID = fopen(filePath.c_str(), "a");
+	FILE * fileID = fopen(filePath.c_str(), "w");
 	fwrite(&buffer, 1,buffer.size(), fileID);
 
 	fclose(fileID);
@@ -61,7 +62,6 @@ void FileManager::writeToFile(std::string filePath, std::vector<uint8_t>& buffer
 
 void FileManager::deleteFile(std::string filePath){
 	remove(filePath.c_str());
-
 }
 
 bool FileManager::checkExistance(std::string filePath){
@@ -76,17 +76,50 @@ void FileManager::moveFile(std::string filePath, std::string newfilePath){
 }
 
 std::string FileManager::createFileName(std::string basePath){
-	//std::vector<uint8_t> numReboot = readFromFile(REBOOT_FILE);
-	//std::string textRead(numReboot.begin(), numReboot.end());
-	//TODO: deserialize reboot number into string and add to file name
 
+	//get number of reboots
+	std::ifstream rebootFile(REBOOT_FILE);
+	int intCount;
+	rebootFile >> intCount;
+	rebootFile.close();
+	//convert boot count to string
+	stringstream strCount;
+	strCount << intCount;
+	std:: string RebootCount = strCount.str();
+
+	//get current time
 	uint32_t currentTime = getCurrentTime();
 	stringstream ss;
 	ss << currentTime;
 	std::string time = ss.str();
 
-	std::string filePath = basePath + "_" + time;
+	std::string filePath = basePath + "_" + RebootCount + "_" + time;
+
 
 	return filePath;
+
+}
+
+void FileManager::updateRebootCount(){
+	int RebootCount;
+	if (checkExistance(REBOOT_FILE)){
+
+		//read boot number from file
+		std::ifstream rebootFile(REBOOT_FILE);
+		rebootFile >> RebootCount;
+		rebootFile.close();
+
+		//write boot count +1 to file
+		std::ofstream out(REBOOT_FILE);
+		out << ++RebootCount;
+		out.close();
+	}else {
+		//this is the first time the boot count has been incremented, write initial boot count to file
+		RebootCount = 1;
+		std::ofstream out(REBOOT_FILE);
+		out << RebootCount;
+		out.close();
+	}
+
 }
 

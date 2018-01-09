@@ -44,18 +44,17 @@ TEST_CASE("ACS Test Initialization Routine", "[subsystem][ACS]"){
 	REQUIRE(acp.sentOpcodes.end() != std::find(acp.sentOpcodes.begin(), acp.sentOpcodes.end(), OP_TESTCONFIG));
 }
 
-TEST_CASE("ACS Test Command Reset", "[subsystem][ACS]"){
+TEST_CASE("ACS Test Get Health and Status", "[subsystem][COM]"){
 	//initialize/setup
 	ACSMockACPInterface acp;
 	SubPowerInterface subPower(dummygpio, 0, 0, 0, "");
 	ACS acs(acp,subPower);
-	//call ACS initialize
+	//call COM initialize
 	acs.initialize();
-	ACPPacket acpPacket(ACS_SYNC, OP_SUBSYSTEMRESET);
-	ACPPacket acpReturn;
-	acp.transaction(acpPacket,acpReturn);
+	//call COM health and status
+	acs.getHealthStatus();
 	//validate that it sends the health and status opcode
-	REQUIRE(acp.sentOpcodes.end() != std::find(acp.sentOpcodes.begin(), acp.sentOpcodes.end(), OP_SUBSYSTEMRESET));
+	REQUIRE(acp.sentOpcodes.end() != std::find(acp.sentOpcodes.begin(), acp.sentOpcodes.end(), OP_HEALTHSTATUS));
 
 }
 
