@@ -22,21 +22,13 @@ class ExternalProcess{
 public:
 	ExternalProcess();
 	~ExternalProcess();
-	void launchSlattach();
-	void launchTftp(char * argv[]);
-	void launchUftp(char * argv[]);
-	void lauchUftpd(char * argv[]);
-	int checkPID(std::string process);
-	void closeSlattach();
-	void closeTftp();
-	void closeUftp();
-	void closeUftpd();
-
+	void launchProcess(char * argv[]);
+	void launchProcess(char * argv[], char * argc[]);
+	void closeProcess();
+	int checkPID();
 private:
-	int uftp_pid;
-	int uftpd_pid;
-	int tftp_pid;
-	int slattach_pid;
+	int pid;
+
 
 
 };
