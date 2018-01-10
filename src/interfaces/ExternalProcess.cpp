@@ -22,6 +22,7 @@ void ExternalProcess::launchProcess(char * argv[]){
 	if(f == 0){
 		if(execv(argv[0],argv) == -1){
 			// TODO: Handle Error
+			usleep(100);
 		}
 		exit(0);
 	}
