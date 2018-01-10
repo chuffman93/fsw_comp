@@ -8,8 +8,12 @@
 
 
 	COM::COM(ACPInterface& acp, SubPowerInterface& subPower)
-	: acp(acp), subPower(subPower)
-	{ tags += LogTag("Name", "FileManager"); }
+	: acp(acp), subPower(subPower){
+	tags += LogTag("Name", "FileManager");
+	health.sync = COM_SYNC;
+	health.fileSize = MAX_FILE_SIZE;
+	health.basePath = HEALTH_DIRECTORY COM_PATH "/COM";
+	}
 
 	COM::~COM(){}
 
@@ -42,15 +46,22 @@
 
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 	void COM::getHealthStatus(){
+
 		LockGuard l(lock);
-		ACPPacket acpPacket(COM_SYNC, OP_HEALTHSTATUS);
+		ACPPacket acpPacket(health.sync, OP_HEALTHSTATUS);
 		ACPPacket acpReturn;
 		acp.transaction(acpPacket,acpReturn);
 
-		std::string folderLocation = HEALTH_DIRECTORY COM_PATH;
-		FileManager fm;
-		std::string healthFile = fm.createFileName(HEALTH_DIRECTORY COM_PATH);
-		fm.writeToFile(healthFile,acpReturn.message);
+		std::string healthFile;
+		size_t messageSize = acpReturn.message.size();
+		if ((health.fileSize+messageSize) < MAX_FILE_SIZE){
+			healthFile = health.currentFile;
+			health.fileSize += messageSize;
+		}else{
+			healthFile = FileManager::createFileName(health.basePath);
+			health.fileSize = messageSize;
+		}
+		FileManager::writeToFile(healthFile,acpReturn.message);
 
 	}
 

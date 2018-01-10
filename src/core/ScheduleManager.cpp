@@ -12,8 +12,10 @@
 #include <string>
 
 ScheduleManager::ScheduleManager()
- : CurrentMode(Mode_Bus), modeEnterTime(0)
- {}
+ : CurrentMode(Mode_Bus)
+ {
+	modeEnterTime = getCurrentTime();
+ }
 ScheduleManager::~ScheduleManager(){};
 
 //check for mode changes
@@ -21,15 +23,15 @@ FSWMode ScheduleManager::checkNewMode(){
 	//get current time
 	uint32_t time = getCurrentTime();
 
+	//check if it is time to switch modes
+	if (currentSchedule.timeSinceEpoch <= time && CurrentMode != currentSchedule.mode){
+		CurrentMode = currentSchedule.mode;
+		modeEnterTime = getCurrentTime();
 	//check if the mode time has exceeded its duration
-	if (((time - modeEnterTime) > currentSchedule.duration) && CurrentMode != Mode_Bus ){
+	}else if (((time - modeEnterTime) >= currentSchedule.duration) && CurrentMode != Mode_Bus ){
 		ScheduleQueue.pop();
 		currentSchedule = ScheduleQueue.front();
 		CurrentMode = Mode_Bus;
-	//check if it is time to switch modes
-	}else if (currentSchedule.timeSinceEpoch > time){
-		CurrentMode = currentSchedule.mode;
-		modeEnterTime = getCurrentTime();
 	//check if it is time for reboot if the schedule is empty
 	}else if (ScheduleQueue.empty() && time > REBOOT_TIME){
 		CurrentMode = Mode_Reset;
@@ -45,11 +47,14 @@ void ScheduleManager::loadSchedule(std::string filePath){
 	while(!ScheduleQueue.empty()){
 		ScheduleQueue.pop();
 	}
-
-	FileManager fm;
 	ScheduleStruct sch;
 
-	std::vector<uint8_t> schedule = fm.readFromFile(filePath);
+	std::vector<uint8_t> schedule = FileManager::readFromFile(filePath);
+
+	for (std::vector<uint8_t>::iterator i = schedule.begin(); i != schedule.end(); i++){
+		std::cout << (int)*i << " ";
+	}
+	std::cout << std::endl;
 
 	ByteStream bs(schedule);
 	uint8_t mode;
@@ -62,7 +67,8 @@ void ScheduleManager::loadSchedule(std::string filePath){
 
 	for (size_t i = 0; i < (schedule.size()/9); i++){
 		bs >> mode >> sch.timeSinceEpoch >> sch.duration;
-		switch (mode){
+		int md = (int)mode;
+		switch (md){
 		case 1:
 			sch.mode = Mode_Bus;
 			ScheduleQueue.push(sch);
@@ -80,6 +86,7 @@ void ScheduleManager::loadSchedule(std::string filePath){
 			ScheduleQueue.push(sch);
 			break;
 		default:
+			std::cout << md << std::endl;
 			break;
 		}
 	}
@@ -87,10 +94,9 @@ void ScheduleManager::loadSchedule(std::string filePath){
 
 //updates default schedule file
 void ScheduleManager::updateDefaultSchedule(){
-	FileManager fm;
-	bool exist = fm.checkExistance(NEW_DEFAULT_SCH);
+	bool exist = FileManager::checkExistance(NEW_DEFAULT_SCH);
 	if (exist){
-		fm.moveFile(NEW_DEFAULT_SCH,DEFAULT_SCH);
+		FileManager::moveFile(NEW_DEFAULT_SCH,DEFAULT_SCH);
 	}
 }
 

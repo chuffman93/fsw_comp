@@ -16,20 +16,30 @@
 #include <stdint.h>
 #include <vector>
 #include <unistd.h>
+#include <dirent.h>
 
 class FileManager {
 public:
 	FileManager();
 	~FileManager();
 
-	std::vector<uint8_t> readFromFile(std::string filePath);
-	void writeToFile(std::string filePath, std::vector<uint8_t>& buffer);
-	void deleteFile(std::string filePath);
-	bool checkExistance(std::string filePath);
-	void moveFile(std::string filePath, std::string newfilePath);
-	std::string createFileName(std::string basePath);
-	void updateRebootCount();
+	static std::vector<uint8_t> readFromFile(std::string filePath);
+	//for files that always need to be rewritten to (aka reboot file) or new files
+	static void writeToFile(std::string filePath, std::vector<uint8_t>& buffer);
+	//for file that need to be appended to or new files
+	static void appendToFile(std::string filePath, std::vector<uint8_t>& buffer);
 
+	static void deleteFile(std::string filePath);
+	static bool checkExistance(std::string filePath);
+	static void moveFile(std::string filePath, std::string newfilePath);
+	//appends reboot count and time since epoch to given base path
+	static std::string createFileName(std::string basePath);
+
+	//updates reboot count, this will only be called once in main.cpp
+	static void updateRebootCount();
+
+	//static FileManager fm;
+private:
 	LogTags tags;
 	Lock lock;
 

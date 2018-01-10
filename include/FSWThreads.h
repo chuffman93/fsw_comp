@@ -13,16 +13,17 @@
 #include "core/Watchdog.h"
 #include "core/ScheduleManager.h"
 #include "subsystem/SubsystemBase.h"
-#include "subsystem/ACS.h"
-#include "subsystem/COM.h"
-#include "subsystem/EPS.h"
-#include "subsystem/RAD.h"
 
 #include <vector>
 
 struct ModeManagerStruct{
 	std::vector<std::vector<SubsystemBase*> >FSWSequence;
 	ScheduleManager * scheduler;
+	Watchdog * watchdog;
+};
+
+struct SubsystemSequenceStruct{
+	std::vector<SubsystemBase*> SubsystemSequence;
 	Watchdog * watchdog;
 };
 
@@ -35,6 +36,7 @@ public:
 	static void * GPSManagerThread(void * args);
 	static void * FileManagerThread(void * args);
 	static void * WatchdogThread(void * args);
+	static void * GroundCommunicationThread(void *args);
 
 };
 
