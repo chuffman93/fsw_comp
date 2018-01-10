@@ -12,8 +12,6 @@
 using namespace std;
 
 ExternalProcess slattach;
-ExternalProcess tftp;
-
 
 TEST_CASE("Test that ExternalProcess launches the processe","[externalprocess]"){
 

@@ -16,6 +16,7 @@
 #include <fstream>
 #include <string.h>
 #include <sstream>
+#include <unistd.h>
 
 
 class ExternalProcess{

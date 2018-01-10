@@ -6,7 +6,6 @@
  */
 #include "interfaces/ExternalProcess.h"
 #include "util/Logger.h"
-#include <unistd.h>
 using namespace std;
 
 
@@ -36,11 +35,9 @@ void ExternalProcess::launchProcess(char * argv[],char * argc[]){
 	int f = fork();
 	if(f == 0){
 		execv(argv[0],argv);
-
 		exit(0);
 	}
 	this->pid = f;
-
 	f = fork();
 	// sleep to allow time for slattach to occur
 	usleep(100);
@@ -68,8 +65,6 @@ void ExternalProcess::closeProcess(){
 	else
 		return;
 }
-
-
 /*!
  * 	Simple "getter" function to get the PID of the
  * 	processes to tell whether or not it is initialized.
@@ -77,7 +72,9 @@ void ExternalProcess::closeProcess(){
 int ExternalProcess::checkPID(){
 	return pid;
 }
-
+/*!
+ * Run closeProcess in deconstructor to ensure it is killed
+ */
 ExternalProcess::~ExternalProcess(){
 	this->closeProcess();
 }
