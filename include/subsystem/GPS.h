@@ -39,8 +39,6 @@ public:
 	GPS(UARTManager& uart):uart(uart){}
 	~GPS(){}
 
-	//ID for subsystem
-	SubsystemID id = SUBSYSTEM_ID_GPS;
 	//Handle power on and initialization routine
 	MOCK void initialize(){};
 	//Handles any mode transition needs as well as any needs for tasks to be done in a mode.

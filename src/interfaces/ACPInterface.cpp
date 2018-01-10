@@ -38,6 +38,7 @@ void ACPInterface::setTimeouts(size_t timeout, size_t tries, size_t delay){
 	this->delay = delay;
 }
 
+
 /*! Handles a complete ACP Transaction
  * \param id id of the acp device
  * \param packet the packet to send

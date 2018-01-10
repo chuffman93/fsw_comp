@@ -11,19 +11,22 @@
 #include "hal/GPIOManager.h"
 
 #include <stdio.h>
+#include <iostream>
 #include <vector>
 
+using namespace std;
 SPIManager dummys("", 0, 0);
 GPIOManager dummyg("");
 
-class MockACPInterface: public ACPInterface{
+class EPSMockACPInterface: public ACPInterface{
 public:
-	MockACPInterface(): ACPInterface(dummys, dummyg, 0 , 0){}
-	~MockACPInterface(){}
+	EPSMockACPInterface(): ACPInterface(dummys, dummyg, 0 , 0){}
+	~EPSMockACPInterface(){}
 	bool transaction(ACPPacket& packet, ACPPacket& ret){
 		sentOpcodes.push_back(packet.opcode);
 		if (packet.opcode == OP_HEALTHSTATUS){
 			std::vector<uint8_t> buff;
+			buff.resize(36);
 			buff.assign(36,5);
 			buff[12] = 0;
 			buff[13] = 1;
@@ -36,7 +39,7 @@ public:
 
 TEST_CASE("EPS Test Initialization Routine", "[subsystem][EPS]"){
 	//initialize/setup
-	MockACPInterface acp;
+	EPSMockACPInterface acp;
 	SubPowerInterface subPower(dummyg, 0, 0, 0, "");
 	EPS eps(acp,subPower);
 	//call EPS initialize
@@ -52,7 +55,7 @@ TEST_CASE("EPS Test Initialization Routine", "[subsystem][EPS]"){
 
 TEST_CASE("EPS Test Get Health and Status", "[subsystem][EPS]"){
 	//initialize/setup
-	MockACPInterface acp;
+	EPSMockACPInterface acp;
 	SubPowerInterface subPower(dummyg, 0, 0, 0, "");
 	EPS eps(acp,subPower);
 	//call EPS initialize
@@ -67,4 +70,15 @@ TEST_CASE("EPS Test Get Health and Status", "[subsystem][EPS]"){
 
 }
 
+TEST_CASE("EPS Test Command Reset", "[subsystem][EPS]"){
+	//initialize/setup
+	EPSMockACPInterface acp;
+	SubPowerInterface subPower(dummyg, 0, 0, 0, "");
+	EPS eps(acp,subPower);
+	//call EPS initialize
+	eps.initialize();
+	eps.handleMode(Mode_Reset);
+	REQUIRE(acp.sentOpcodes.end() != std::find(acp.sentOpcodes.begin(), acp.sentOpcodes.end(), OP_SUBSYSTEMRESET));
+
+}
 

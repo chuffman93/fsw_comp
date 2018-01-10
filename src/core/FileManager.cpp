@@ -9,6 +9,8 @@
 #include "core/FileManager.h"
 #include <stdio.h>
 #include <iostream>
+#include <sstream>
+#include <fstream>
 
 using namespace std;
 
@@ -18,51 +20,13 @@ FileManager::FileManager(){
 
 FileManager::~FileManager(){}
 
-InterfaceOperation::InterfaceOperation(FileIOType type, std::string filePath, std::vector<uint8_t>& data)
-: type(type), filePath(filePath), data(data)
-{}
 
-FileInterface::~FileInterface(){}
 
-void FileManager::spinInterfaces(){
-	LockGuard l(lock);
-	for (std::vector<FileInterface*>::iterator i = InterfaceList.begin(); i != InterfaceList.end(); i++){
-		InterfaceOperation op = (*i)->getOperation();
-		switch (op.type){
-		case FIO_WRITE:
-			writeToFile(op.filePath, op.data);
-			break;
-		case FIO_READ:
-			readFromFile(op.filePath, op.data);
-			break;
-		case FIO_READDELETE:
-			readFromFile(op.filePath, op.data);
-			deleteFile(op.filePath);
-			break;
-		case FIO_DELETE:
-			deleteFile(op.filePath);
-			break;
-		case FIO_EMPTY:
-			break;
-		}
-	}
-
-}
-
-void FileManager::registerInterface(FileInterface* interface){
-	LockGuard l(lock);
-	InterfaceList.push_back(interface);
-}
-
-void FileManager::handleFileDeletion(){
-	LockGuard l(lock);
-}
-
-void FileManager::readFromFile(std::string filePath, std::vector<uint8_t>& buffer){
+std::vector<uint8_t> FileManager::readFromFile(std::string filePath){
+	std::vector<uint8_t> buffer;
 	FILE * fileID = fopen(filePath.c_str(), "r");
 	if (fileID == NULL){
-		buffer.clear();
-		return;
+		return buffer;
 	}
 
 	//get size of file
@@ -71,7 +35,6 @@ void FileManager::readFromFile(std::string filePath, std::vector<uint8_t>& buffe
 	fseek(fileID, 0, SEEK_SET);
 
 	//resize buffer
-	buffer.clear();
 	buffer.resize(size);
 
 	//read file and place data into buffer
@@ -80,19 +43,18 @@ void FileManager::readFromFile(std::string filePath, std::vector<uint8_t>& buffe
 	//close file
 	fclose(fileID);
 
-
+	return buffer;
 }
 
 void FileManager::writeToFile(std::string filePath, std::vector<uint8_t>& buffer){
 	if (filePath == ""){
 		buffer.clear();
-		std::cout << "test no file path" << endl;
 		return;
 	}
 	if (buffer.size() == 0){
 		return;
 	}
-	FILE * fileID = fopen(filePath.c_str(), "a");
+	FILE * fileID = fopen(filePath.c_str(), "w");
 	fwrite(&buffer, 1,buffer.size(), fileID);
 
 	fclose(fileID);
@@ -100,7 +62,64 @@ void FileManager::writeToFile(std::string filePath, std::vector<uint8_t>& buffer
 
 void FileManager::deleteFile(std::string filePath){
 	remove(filePath.c_str());
-	//TODO: error handling?
+}
+
+bool FileManager::checkExistance(std::string filePath){
+	if (access(filePath.c_str(), F_OK) == 0){
+		return true;
+	}
+	return false;
+}
+
+void FileManager::moveFile(std::string filePath, std::string newfilePath){
+	rename(filePath.c_str(),newfilePath.c_str());
+}
+
+std::string FileManager::createFileName(std::string basePath){
+
+	//get number of reboots
+	std::ifstream rebootFile(REBOOT_FILE);
+	int intCount;
+	rebootFile >> intCount;
+	rebootFile.close();
+	//convert boot count to string
+	stringstream strCount;
+	strCount << intCount;
+	std:: string RebootCount = strCount.str();
+
+	//get current time
+	uint32_t currentTime = getCurrentTime();
+	stringstream ss;
+	ss << currentTime;
+	std::string time = ss.str();
+
+	std::string filePath = basePath + "_" + RebootCount + "_" + time;
+
+
+	return filePath;
+
+}
+
+void FileManager::updateRebootCount(){
+	int RebootCount;
+	if (checkExistance(REBOOT_FILE)){
+
+		//read boot number from file
+		std::ifstream rebootFile(REBOOT_FILE);
+		rebootFile >> RebootCount;
+		rebootFile.close();
+
+		//write boot count +1 to file
+		std::ofstream out(REBOOT_FILE);
+		out << ++RebootCount;
+		out.close();
+	}else {
+		//this is the first time the boot count has been incremented, write initial boot count to file
+		RebootCount = 1;
+		std::ofstream out(REBOOT_FILE);
+		out << RebootCount;
+		out.close();
+	}
 
 }
 

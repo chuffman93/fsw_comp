@@ -9,6 +9,8 @@
 #define SUBSYSTEMBASE_H_
 
 #include "core/ScheduleManager.h"
+#include "util/ByteStream.h"
+
 
 class SubsystemBase{
 public:
@@ -22,9 +24,5 @@ public:
 	virtual void getHealthStatus() = 0;
 private:
 };
-
-typedef std::vector<SubsystemBase*> SubsystemVec;
-typedef std::vector<SubsystemVec> FSWSequence;
-
 
 #endif /* SUBSYSTEMBASE_H_ */

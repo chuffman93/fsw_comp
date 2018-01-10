@@ -8,6 +8,8 @@
 #ifndef ACPPACKET_H_
 #define ACPPACKET_H_
 
+#include "util/crc.h"
+
 #include <stdint.h>
 #include <vector>
 #include <memory>
@@ -21,7 +23,7 @@ enum subsystem_sync_t{
 	EPS_SYNC = 0xA4 | 0,
 	COM_SYNC = 0xA4 | 1,
 	ACS_SYNC = 0xA4 | 2,
-	PLD_SYNC = 0xA4 | 3,
+	RAD_SYNC = 0xA4 | 3,
 };
 
 enum SubsystemOpcode{
@@ -30,8 +32,62 @@ enum SubsystemOpcode{
 	OP_TESTDATA = 2,
 	OP_TESTALIVE = 8,
 	OP_HEALTHSTATUS = 16,
-
+	OP_SUBSYSTEMRESET = 17,
 };
+
+typedef enum ErrorOpcode {
+	ERR_MIN = 0,
+
+	// ACS Errors
+	ERR_ACS_MIN = ERR_MIN,
+	ERR_ACS_NOTALIVE = ERR_ACS_MIN,
+	ERR_ACS_SELFCHECK,
+	ERR_ACS_MAX,
+
+	// CDH Errors
+	ERR_CDH_MIN = ERR_ACS_MAX,
+	ERR_CDH_MAX,
+
+	// CMD Errors
+	ERR_CMD_MIN = ERR_CDH_MAX,
+	ERR_CMD_MAX,
+
+	// COM Errors
+	ERR_COM_MIN = ERR_CMD_MAX,
+	ERR_COM_NOTALIVE = ERR_COM_MIN,
+	ERR_COM_SELFCHECK,
+	ERR_COM_MAX,
+
+	// EPS Errors
+	ERR_EPS_MIN = ERR_COM_MAX,
+	ERR_EPS_NOTALIVE = ERR_EPS_MIN,
+	ERR_EPS_SELFCHECK,
+	ERR_EPS_MAX,
+
+	// FMG Errors
+	ERR_FMG_MIN = ERR_EPS_MAX,
+	ERR_FMG_MAX,
+
+	// GPS Errors
+	ERR_GPS_MIN = ERR_FMG_MAX,
+	ERR_GPS_MAX,
+
+	// PLD Errors
+	ERR_PLD_MIN = ERR_GPS_MAX,
+	ERR_PLD_NOTALIVE = ERR_PLD_MIN,
+	ERR_PLD_SELFCHECK,
+	ERR_PLD_MAX,
+
+	// SCH Errors
+	ERR_SCH_MIN = ERR_PLD_MAX,
+	ERR_SCH_MAX,
+
+	// General errors (from the core)
+	ERR_GEN_MIN = ERR_SCH_MAX,
+	ERR_GEN_MAX,
+
+	ERR_MAX
+} ErrorOpcodeType;
 
 /*!
  * A struct to encapsulate the atomic unit of communication with the subsystems.
