@@ -47,6 +47,8 @@ public:
 	void handleMode(FSWMode transition);
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 	void getHealthStatus();
+
+	HealthFileStruct health;
 private:
 	//Change the current pointing target
 	void pointNadir();

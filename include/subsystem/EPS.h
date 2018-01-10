@@ -1,5 +1,4 @@
-/*
- * EPS.h
+/* EPS.h
  *
  *  Created on: Dec 22, 2017
  *      Author: adam
@@ -33,6 +32,8 @@ public:
 	void getHealthStatus();
 	//Get battery capacity
 	uint16_t getBatteryCapacity();
+
+	HealthFileStruct health;
 
 private:
 	//Power cycle the entire satellite

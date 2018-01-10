@@ -36,7 +36,7 @@ struct GPSInertial{
 
 class GPS: public SubsystemBase{
 public:
-	GPS(UARTManager& uart):uart(uart){}
+	//GPS(UARTManager& uart):uart(uart){}
 	~GPS(){}
 
 	//Handle power on and initialization routine

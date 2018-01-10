@@ -8,8 +8,9 @@
 #include "subsystem/ACS.h"
 
 ACS::ACS(ACPInterface& acp, SubPowerInterface& subPower)
-: acp(acp), subPower(subPower)
-{ tags += LogTag("Name", "FileManager"); }
+: acp(acp), subPower(subPower){
+	tags += LogTag("Name", "FileManager");
+}
 
 ACS::~ACS(){}
 
@@ -63,15 +64,22 @@ void ACS::handleMode(FSWMode transition){
 
 //Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 void ACS::getHealthStatus(){
+
 	LockGuard l(lock);
-	ACPPacket acpPacket(ACS_SYNC, OP_HEALTHSTATUS);
+	ACPPacket acpPacket(health.sync, OP_HEALTHSTATUS);
 	ACPPacket acpReturn;
 	acp.transaction(acpPacket,acpReturn);
 
-	std::string folderLocation = HEALTH_DIRECTORY ACS_PATH;
-	FileManager fm;
-	std::string healthFile = fm.createFileName(HEALTH_DIRECTORY ACS_PATH);
-	fm.writeToFile(healthFile,acpReturn.message);
+	std::string healthFile;
+	size_t messageSize = acpReturn.message.size();
+	if ((health.fileSize+messageSize) < MAX_FILE_SIZE){
+		healthFile = health.currentFile;
+		health.fileSize += messageSize;
+	}else{
+		healthFile = FileManager::createFileName(health.basePath);
+		health.fileSize = messageSize;
+	}
+	FileManager::writeToFile(healthFile,acpReturn.message);
 
 }
 

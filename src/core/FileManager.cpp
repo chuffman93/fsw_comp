@@ -3,14 +3,20 @@
 
  *
  *  Created on: Dec 22, 2017
- *      Author: alex and robo and NOT adam :)
+ *      Author: alex and robo
+ *      Edited on: January 9th 2018 by Alex
  */
 
 #include "core/FileManager.h"
 #include <stdio.h>
+#include <string.h>
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 using namespace std;
 
@@ -23,27 +29,21 @@ FileManager::~FileManager(){}
 
 
 std::vector<uint8_t> FileManager::readFromFile(std::string filePath){
+
 	std::vector<uint8_t> buffer;
-	FILE * fileID = fopen(filePath.c_str(), "r");
-	if (fileID == NULL){
+
+	int fileID = open(filePath.c_str(),O_RDONLY);
+	if (fileID == -1){
 		return buffer;
 	}
-
-	//get size of file
-	fseek(fileID,0,SEEK_END);
-	size_t size = ftell(fileID);
-	fseek(fileID, 0, SEEK_SET);
-
-	//resize buffer
-	buffer.resize(size);
-
-	//read file and place data into buffer
-	fread(&buffer[0],1,size,fileID);
-
-	//close file
-	fclose(fileID);
-
+	uint8_t byte;
+	while(read(fileID, &byte, 1) == 1){
+		buffer.push_back(byte);
+	}
+	close(fileID);
 	return buffer;
+
+
 }
 
 void FileManager::writeToFile(std::string filePath, std::vector<uint8_t>& buffer){
@@ -54,10 +54,28 @@ void FileManager::writeToFile(std::string filePath, std::vector<uint8_t>& buffer
 	if (buffer.size() == 0){
 		return;
 	}
-	FILE * fileID = fopen(filePath.c_str(), "w");
-	fwrite(&buffer, 1,buffer.size(), fileID);
+	int fileID = open(filePath.c_str(),O_CREAT | O_WRONLY);
+	if (fileID == -1){
+		return;
+	}
+	write(fileID, &buffer, buffer.size());
+	close(fileID);
+}
 
-	fclose(fileID);
+void FileManager::appendToFile(std::string filePath, std::vector<uint8_t>& buffer){
+	if (filePath == ""){
+		buffer.clear();
+		return;
+	}
+	if (buffer.size() == 0){
+		return;
+	}
+	int fileID = open(filePath.c_str(),O_APPEND);
+	if (fileID == -1){
+		return;
+	}
+	write(fileID, &buffer, buffer.size());
+	close(fileID);
 }
 
 void FileManager::deleteFile(std::string filePath){
@@ -82,6 +100,7 @@ std::string FileManager::createFileName(std::string basePath){
 	int intCount;
 	rebootFile >> intCount;
 	rebootFile.close();
+
 	//convert boot count to string
 	stringstream strCount;
 	strCount << intCount;
@@ -103,7 +122,6 @@ std::string FileManager::createFileName(std::string basePath){
 void FileManager::updateRebootCount(){
 	int RebootCount;
 	if (checkExistance(REBOOT_FILE)){
-
 		//read boot number from file
 		std::ifstream rebootFile(REBOOT_FILE);
 		rebootFile >> RebootCount;
@@ -120,6 +138,7 @@ void FileManager::updateRebootCount(){
 		out << RebootCount;
 		out.close();
 	}
+
 
 }
 

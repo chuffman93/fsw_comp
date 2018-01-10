@@ -6,16 +6,21 @@
  */
 
 #include "FSWThreads.h"
-#include "core/Watchdog.h"
+#include "subsystem/COM.h"
+#include "core/ScheduleManager.h"
 
 
 
 void * FSWThreads::GetHealthStatusThread(void * args){
-	Watchdog * watchdog = (Watchdog*)args;
+	SubsystemSequenceStruct * subsystemStruct = (SubsystemSequenceStruct*)args;
+	Watchdog * watchdog = subsystemStruct->watchdog;
+	std::vector<SubsystemBase*> healthSeq = subsystemStruct->SubsystemSequence;
 	while(1){
 		puts("Health and status thread Pinging");
-
 		watchdog->KickWatchdog();
+		for (std::vector<SubsystemBase*>::iterator i = healthSeq.begin(); i != healthSeq.end(); i++){
+			(*i)->getHealthStatus();
+		}
 		sleep(2);
 	}
 	return NULL;
@@ -62,6 +67,20 @@ void * FSWThreads::WatchdogThread(void * args){
 
 	}
 	return NULL;
+}
+
+void * FSWThreads::GroundCommunicationThread(void * args){
+	Watchdog * watchdog = (Watchdog*) args;
+	while(1){
+		sleep(2);
+		watchdog->CheckThreads();
+		if (!FileManager::checkExistance(SOT_PATH)){
+		}else{
+			if (FileManager::checkExistance(IEF_PATH)){
+			}
+
+		}
+	}
 }
 
 
