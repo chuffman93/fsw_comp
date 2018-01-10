@@ -20,10 +20,7 @@ ExternalProcess::ExternalProcess(){
 void ExternalProcess::launchProcess(char * argv[]){
 	int f = fork();
 	if(f == 0){
-		if(execv(argv[0],argv) == -1){
-			// TODO: Handle Error
-			usleep(100);
-		}
+		execv(argv[0],argv);
 		exit(0);
 	}
 	this->pid = f;
