@@ -42,7 +42,7 @@ TEST_CASE("FILEMANAGER: TEST READ FROM FILE", "[filemanager]"){
 		close(fileID);
 
 		std::vector<uint8_t> dummyVec = FileManager::readFromFile(dummyFile);
-		cout << dummyVec.size() << endl;
+		// cout << dummyVec.size() << endl;
 
 
 		REQUIRE(dummyVec[0] == 14);

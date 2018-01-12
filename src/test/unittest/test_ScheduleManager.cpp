@@ -56,23 +56,26 @@ TEST_CASE("Schedule Manager: test load schedule", "[scheduler]"){
 	uint32_t duration2 = getCurrentTime() + 3;
 	uint32_t duration3 = getCurrentTime() + 4;
 	uint32_t duration4 = getCurrentTime() + 5;
+
 	SECTION("Test correct schedule file"){
 		ByteStream bs;
 		bs << mode1 << epoch1 << duration1 << mode2 << epoch2 << duration2 << mode3 << epoch3 << duration3 << mode4 << epoch4 << duration4;
-		std:vector<uint8_t> newSchedule = bs.vec();
+		std::vector<uint8_t> newSchedule = bs.vec();
 
+		std::cout << "SHOWING SCHEDULE :: ";
 		for (std::vector<uint8_t>::iterator i = newSchedule.begin(); i != newSchedule.end(); i++){
 			std::cout << (int)*i << " ";
 		}
 		std::cout << endl;
 
+
 		FileManager fm;
-		fm.writeToFile("home/dum/dummmySchedule", newSchedule);
+		fm.writeToFile("/home/dummmySchedule", newSchedule);
 		ScheduleManager sman;
-		sman.loadSchedule("home/dum/dummmySchedule");
+		sman.loadSchedule("/home/dummmySchedule");
 
 		REQUIRE(!sman.ScheduleQueue.empty());
-		//REQUIRE(sman.ScheduleQueue.front().mode == mode1);
+		REQUIRE(sman.ScheduleQueue.front().mode == mode1);
 		REQUIRE(sman.ScheduleQueue.front().timeSinceEpoch == epoch1);
 		REQUIRE(sman.ScheduleQueue.front().duration == duration1);
 		sman.ScheduleQueue.pop();

@@ -51,7 +51,8 @@ public:
 	//if new schedule: adds new schedule to queue, otherwise add default schedule to queue if empty
 	void loadSchedule(std::string filePath);
 
-PRIVATE:
+
+	// TODO: set back to private functions
 	std::queue <ScheduleStruct> ScheduleQueue;
 
 	ScheduleStruct currentSchedule;
@@ -60,6 +61,9 @@ PRIVATE:
 
 	//updates default schedule file
 	void updateDefaultSchedule();
+
+private:
+
 
 };
 

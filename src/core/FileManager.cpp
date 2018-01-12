@@ -46,7 +46,7 @@ std::vector<uint8_t> FileManager::readFromFile(std::string filePath){
 
 }
 
-void FileManager::writeToFile(std::string filePath, std::vector<uint8_t>& buffer){
+void FileManager::writeToFile(std::string filePath, std::vector<uint8_t> &buffer){
 	if (filePath == ""){
 		buffer.clear();
 		return;
@@ -54,7 +54,7 @@ void FileManager::writeToFile(std::string filePath, std::vector<uint8_t>& buffer
 	if (buffer.size() == 0){
 		return;
 	}
-	int fileID = open(filePath.c_str(),O_CREAT | O_WRONLY);
+	int fileID = open(filePath.c_str(), O_CREAT | O_WRONLY);
 	if (fileID == -1){
 		return;
 	}

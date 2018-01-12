@@ -51,6 +51,8 @@ void ScheduleManager::loadSchedule(std::string filePath){
 
 	std::vector<uint8_t> schedule = FileManager::readFromFile(filePath);
 
+	std::cout << "LOADING SCHEDULE :: ";
+
 	for (std::vector<uint8_t>::iterator i = schedule.begin(); i != schedule.end(); i++){
 		std::cout << (int)*i << " ";
 	}
@@ -67,6 +69,7 @@ void ScheduleManager::loadSchedule(std::string filePath){
 
 	for (size_t i = 0; i < (schedule.size()/9); i++){
 		bs >> mode >> sch.timeSinceEpoch >> sch.duration;
+
 		int md = (int)mode;
 		switch (md){
 		case 1:

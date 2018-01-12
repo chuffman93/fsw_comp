@@ -33,16 +33,10 @@ void ExternalProcess::launchProcess(char * argv[],char * argc[]){
 	int f = fork();
 	if(f == 0){
 		execv(argv[0],argv);
-		exit(0);
-	}
-	this->pid = f;
-	f = fork();
-	// sleep to allow time for slattach to occur
-	usleep(100);
-	if (f==0){
 		execv(argc[0],argc);
 		exit(0);
 	}
+	this->pid = f;
 }
  /*!
   * Kills the  process

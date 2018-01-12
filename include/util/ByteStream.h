@@ -8,6 +8,7 @@
 #ifndef BYTESTREAM_H_
 #define BYTESTREAM_H_
 
+#include <iostream>
 class ByteStream {
 public:
 	ByteStream(){
@@ -18,9 +19,9 @@ public:
 	}
 	~ByteStream(){}
 	//serialize
-    template <typename T> inline ByteStream& operator<<(const T& t)
+    template <typename T> inline ByteStream& operator<<(T& t)
     {
-    	size_t size = sizeof(T);
+    	size_t size = sizeof(t);
     	uint8_t * start = (uint8_t*)&t;
     	for (uint8_t * byte = start+size-1; byte>=start; byte--){
     		data.push_back(*byte);
@@ -30,7 +31,7 @@ public:
     //deserialize
     template <typename T> inline ByteStream& operator>>(T& t)
     {
-    	size_t size = sizeof(T);
+    	size_t size = sizeof(t);
     	uint8_t * start = (uint8_t*)&t;
     	for (uint8_t * byte = start+size-1; byte>=start; byte--){
     		if (index == data.end()){
