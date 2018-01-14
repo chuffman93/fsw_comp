@@ -21,17 +21,18 @@ public:
 	//serialize
     template <typename T> inline ByteStream& operator<<(T& t)
     {
-    	size_t size = sizeof(t);
+    	size_t size = sizeof(T);
     	uint8_t * start = (uint8_t*)&t;
     	for (uint8_t * byte = start+size-1; byte>=start; byte--){
     		data.push_back(*byte);
     	}
+
         return * this;
     }
     //deserialize
     template <typename T> inline ByteStream& operator>>(T& t)
     {
-    	size_t size = sizeof(t);
+    	size_t size = sizeof(T);
     	uint8_t * start = (uint8_t*)&t;
     	for (uint8_t * byte = start+size-1; byte>=start; byte--){
     		if (index == data.end()){

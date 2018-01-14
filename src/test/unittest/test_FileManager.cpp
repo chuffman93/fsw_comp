@@ -30,7 +30,6 @@ TEST_CASE("FILEMANAGER: TEST READ FROM FILE", "[filemanager]"){
 		REQUIRE(dummyVec.size() == 0);
 	}
 	SECTION("TEST NONEMPTY FILE"){
-		//TODO: fix this so it can write/read mulitple bytes of different sizes including serialization
 		uint8_t mode = 14;
 		std::vector<uint8_t> buffer;
 		buffer.clear();
@@ -42,7 +41,6 @@ TEST_CASE("FILEMANAGER: TEST READ FROM FILE", "[filemanager]"){
 		close(fileID);
 
 		std::vector<uint8_t> dummyVec = FileManager::readFromFile(dummyFile);
-		// cout << dummyVec.size() << endl;
 
 
 		REQUIRE(dummyVec[0] == 14);
@@ -59,12 +57,12 @@ TEST_CASE("FILEMANAGER: TEST WRITE TO FILE", "[filemanager]"){
 
 	SECTION("TEST NO FILE PATH"){
 		dummyFile = "";
-		FileManager::writeToFile(dummyFile.c_str(), dummyVec);
+		FileManager::writeToFile(dummyFile, dummyVec);
 	}
 	SECTION("TEST EMPTY MESSAGE"){
 		dummyVec.clear();
 
-		FileManager::writeToFile(dummyFile.c_str(), dummyVec);
+		FileManager::writeToFile(dummyFile, dummyVec);
 
 		REQUIRE(access(dummyFile.c_str(),F_OK));
 
@@ -73,7 +71,7 @@ TEST_CASE("FILEMANAGER: TEST WRITE TO FILE", "[filemanager]"){
 	}
 	SECTION("TEST NONEMPTY MESSAGE"){
 
-		FileManager::writeToFile(dummyFile.c_str(), dummyVec);
+		FileManager::writeToFile(dummyFile, dummyVec);
 
 		REQUIRE(access(dummyFile.c_str(),F_OK) == 0);
 

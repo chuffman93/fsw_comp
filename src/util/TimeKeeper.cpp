@@ -6,6 +6,7 @@
  */
 
 #include "util/TimeKeeper.h"
+#include<iostream>
 
 uint32_t getCurrentTime(){
 	timespec t;

@@ -22,13 +22,12 @@ ScheduleManager::~ScheduleManager(){};
 FSWMode ScheduleManager::checkNewMode(){
 	//get current time
 	uint32_t time = getCurrentTime();
-
 	//check if it is time to switch modes
-	if (currentSchedule.timeSinceEpoch <= time && CurrentMode != currentSchedule.mode){
+	if (!ScheduleQueue.empty() && currentSchedule.timeSinceEpoch <= time && CurrentMode != currentSchedule.mode){
 		CurrentMode = currentSchedule.mode;
 		modeEnterTime = getCurrentTime();
 	//check if the mode time has exceeded its duration
-	}else if (((time - modeEnterTime) >= currentSchedule.duration) && CurrentMode != Mode_Bus ){
+	}else if (!ScheduleQueue.empty() && ((time - modeEnterTime) >= currentSchedule.duration) && CurrentMode != Mode_Bus ){
 		ScheduleQueue.pop();
 		currentSchedule = ScheduleQueue.front();
 		CurrentMode = Mode_Bus;
@@ -50,13 +49,6 @@ void ScheduleManager::loadSchedule(std::string filePath){
 	ScheduleStruct sch;
 
 	std::vector<uint8_t> schedule = FileManager::readFromFile(filePath);
-
-	std::cout << "LOADING SCHEDULE :: ";
-
-	for (std::vector<uint8_t>::iterator i = schedule.begin(); i != schedule.end(); i++){
-		std::cout << (int)*i << " ";
-	}
-	std::cout << std::endl;
 
 	ByteStream bs(schedule);
 	uint8_t mode;

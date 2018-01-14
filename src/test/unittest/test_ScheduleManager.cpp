@@ -62,12 +62,6 @@ TEST_CASE("Schedule Manager: test load schedule", "[scheduler]"){
 		bs << mode1 << epoch1 << duration1 << mode2 << epoch2 << duration2 << mode3 << epoch3 << duration3 << mode4 << epoch4 << duration4;
 		std::vector<uint8_t> newSchedule = bs.vec();
 
-		std::cout << "SHOWING SCHEDULE :: ";
-		for (std::vector<uint8_t>::iterator i = newSchedule.begin(); i != newSchedule.end(); i++){
-			std::cout << (int)*i << " ";
-		}
-		std::cout << endl;
-
 
 		FileManager fm;
 		fm.writeToFile("/home/dummmySchedule", newSchedule);

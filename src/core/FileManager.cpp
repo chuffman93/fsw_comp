@@ -12,6 +12,7 @@
 #include <string.h>
 #include <iostream>
 #include <sstream>
+#include <iterator>
 #include <fstream>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -51,15 +52,18 @@ void FileManager::writeToFile(std::string filePath, std::vector<uint8_t> &buffer
 		buffer.clear();
 		return;
 	}
-	if (buffer.size() == 0){
+	else if (buffer.size() == 0){
 		return;
 	}
-	int fileID = open(filePath.c_str(), O_CREAT | O_WRONLY);
-	if (fileID == -1){
-		return;
+	else{
+		ofstream f(filePath.c_str(),ofstream::out | ofstream::binary);
+
+		for(std::vector<uint8_t>::const_iterator i = buffer.begin(); i != buffer.end(); ++i){
+			f << *i;
+		}
+		f.close();
 	}
-	write(fileID, &buffer, buffer.size());
-	close(fileID);
+
 }
 
 void FileManager::appendToFile(std::string filePath, std::vector<uint8_t>& buffer){
