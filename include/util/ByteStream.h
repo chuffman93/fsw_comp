@@ -8,7 +8,6 @@
 #ifndef BYTESTREAM_H_
 #define BYTESTREAM_H_
 
-#include <iostream>
 class ByteStream {
 public:
 	ByteStream(){
