@@ -123,6 +123,7 @@ std::string FileManager::createFileName(std::string basePath){
 
 }
 
+
 void FileManager::updateRebootCount(){
 	int RebootCount;
 	if (checkExistance(REBOOT_FILE)){
@@ -144,5 +145,40 @@ void FileManager::updateRebootCount(){
 	}
 
 
+}
+
+int FileManager::packageFiles(const char* dest, const char* filePath, const char* regex){
+
+	// TODO: size checks and error handling
+
+	FILE *fd;
+	char sh_cmd[256];
+	sprintf(sh_cmd, "tar -czf %s -C %s `ls -lr %s | grep ^- | awk '{print $9}' | grep \"%s\" | head -%d`", dest, filePath, filePath, regex, 10);
+	if(!(fd = popen(sh_cmd, "r"))){
+		return -3;
+	}
+
+	if(pclose(fd) == -1){
+		return -1;
+	}
+	return 0;
+}
+void FileManager::getFilesList(std::string dir){
+	DIR *dp;
+	struct dirent *entry;
+	int count;
+	dp = opendir(dir.c_str());
+	if(dp == NULL){
+		return;
+	}
+
+	count = 0;
+	FILE * dwlkDFL = fopen(DFL_PATH,"a+");
+	while((entry = readdir(dp))!= NULL){
+		fwrite(", ",strlen(", "),1,dwlkDFL);
+		fwrite(entry->d_name,strlen(entry->d_name),1,dwlkDFL);
+	}
+	closedir(dp);
+	fclose(dwlkDFL);
 }
 

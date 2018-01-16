@@ -52,7 +52,9 @@ public:
 	void loadSchedule(std::string filePath);
 
 
-	// TODO: set back to private functions
+
+
+PRIVATE:
 	std::queue <ScheduleStruct> ScheduleQueue;
 
 	ScheduleStruct currentSchedule;
@@ -61,9 +63,6 @@ public:
 
 	//updates default schedule file
 	void updateDefaultSchedule();
-
-private:
-
 
 };
 

@@ -64,14 +64,13 @@ public:
 	// void sendBeaconGPS();
 
 
-	// TODO: MOVE TO PRIVATE
+
+
+PRIVATE:
 	beaconGPS bGPS;
 	beaconSYS bSYS;
 	std::vector<uint8_t> GPS;
 	std::vector<uint8_t> SYS;
-
-private:
-
 	int32_t beaconRate;
 	int32_t increasedBeaconRate;
 

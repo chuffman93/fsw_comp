@@ -156,13 +156,37 @@ TEST_CASE("FILEMANAGER: TEST MOVE FILE", "[filemanager]"){
 
 TEST_CASE("FILEMANAGER: TEST CREATE FILE NAME", "[filemanager]" ){
 	std::string dummyFile = "dummy";
-
-	ScheduleManager sch;
 	std::string newDummy = FileManager::createFileName(dummyFile);
-	//cout << newDummy << endl;
 
+	// cout << newDummy << endl;
+	// TODO: Maybe create a REQUIRE case to pass
 
 }
+
+
+
+TEST_CASE("FILEMANAGER: DELETE WITH REGEX", "[filemanager]"){
+	std::string deleteSet = "/home/EPS_92";
+
+}
+
+TEST_CASE("FILEMANAGER: GET FILE LIST","[filemanager]"){
+	std::string dir = "/home";
+	FileManager::getFilesList(dir);
+
+	std::string newF = DFL_PATH;
+	REQUIRE(access((char*)newF.c_str(),F_OK) == 0);
+
+}
+
+TEST_CASE("FILEMANAGER: PACKAGE FILES","[filemanager]"){
+	std::string packageSet = "/home/chuffman93/Desktop/attachments/PackageTest/";
+	std::string regex = "EPS_92";
+	std::string dest = "/home/EPS_92.tar";
+	REQUIRE((FileManager::packageFiles((char*)dest.c_str(),(char*)packageSet.c_str(),(char*)regex.c_str()))==0);
+}
+
+
 
 
 

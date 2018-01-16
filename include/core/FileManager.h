@@ -13,6 +13,7 @@
 #include "core/Lock.h"
 #include "util/TimeKeeper.h"
 
+
 #include <stdint.h>
 #include <vector>
 #include <unistd.h>
@@ -37,6 +38,11 @@ public:
 
 	//updates reboot count, this will only be called once in main.cpp
 	static void updateRebootCount();
+
+	static int packageFiles(const char* dest, const char* filePath, const char* regex);
+	static void getFilesList(std::string dir);
+	static void regexDelete();
+
 
 	//static FileManager fm;
 private:

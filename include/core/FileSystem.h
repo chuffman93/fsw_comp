@@ -6,7 +6,7 @@
 #endif
 
 #ifdef UBUNTU
-#define HOME_DIRECTORY		"home"
+#define HOME_DIRECTORY		"/home"
 #endif
 
 #define UPLINK_DIRECTORY	HOME_DIRECTORY		"/.uplink"
@@ -17,6 +17,8 @@
 #define NEW_SCH				UPLINK_DIRECTORY	"/SCH"
 #define DEFAULT_SCH			UPLINK_DIRECTORY	"/DSCH"
 #define NEW_DEFAULT_SCH		UPLINK_DIRECTORY	"/NDSCH"
+
+#define DFL_PATH			HOME_DIRECTORY	"/DLF.txt"
 
 #define ACS_PATH			"/ACS"
 #define CDH_PATH			"/CDH"
