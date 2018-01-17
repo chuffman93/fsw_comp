@@ -9,7 +9,7 @@
 
 ACS::ACS(ACPInterface& acp, SubPowerInterface& subPower)
 : acp(acp), subPower(subPower){
-	tags += LogTag("Name", "FileManager");
+	tags += LogTag("Name", "ACS");
 }
 
 ACS::~ACS(){}
@@ -17,6 +17,7 @@ ACS::~ACS(){}
 //Will set up the Gpio lines and the acp devices
 void ACS::initialize(){
 	//TODO: error handling
+	Logger::Stream(LEVEL_INFO,tags) << "Initializing ACS";
 	LockGuard l(lock);
 	ACPPacket acpPacket(ACS_SYNC, OP_TESTALIVE);
 	ACPPacket acpReturn;
@@ -86,6 +87,7 @@ void ACS::getHealthStatus(){
 //Change the current pointing target
 void ACS::pointNadir(){
 	//TODO: error handling
+	Logger::Stream(LEVEL_INFO,tags) << "Command ACS to point to NADIR";
 	LockGuard l(lock);
 	ACPPacket acpPacket(ACS_SYNC, OP_POINTNADIR);
 	ACPPacket acpReturn;
@@ -94,6 +96,7 @@ void ACS::pointNadir(){
 
 void ACS::pointCOM(){
 	//TODO: error handling
+	Logger::Stream(LEVEL_INFO,tags) << "Command ACS to point to Ground";
 	LockGuard l(lock);
 	ACPPacket acpPacket(ACS_SYNC, OP_POINTCOM);
 	ACPPacket acpReturn;
@@ -102,6 +105,7 @@ void ACS::pointCOM(){
 
 void ACS::pointSunSoak(){
 	//TODO: error handling
+	Logger::Stream(LEVEL_INFO,tags) << "Command ACS to point to Sun Soak";
 	LockGuard l(lock);
 	ACPPacket acpPacket(ACS_SYNC, OP_POINTSUN);
 	ACPPacket acpReturn;
@@ -127,8 +131,10 @@ void ACS::configureGains(){
 }
 
 void ACS::resetACS(){
+	Logger::Stream(LEVEL_INFO,tags) << "Preparing ACS for Reset";
 	LockGuard l(lock);
 	ACPPacket acpPacket(ACS_SYNC, OP_SUBSYSTEMRESET);
 	ACPPacket acpReturn;
 	acp.transaction(acpPacket,acpReturn);
 }
+

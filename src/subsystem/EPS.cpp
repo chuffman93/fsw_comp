@@ -18,7 +18,7 @@
 
 EPS::EPS(ACPInterface& acp, SubPowerInterface& subPower)
 : acp(acp), subPower(subPower){
-	tags += LogTag("Name", "FileManager");
+	tags += LogTag("Name", "EPS");
 	health.sync = EPS_SYNC;
 	health.fileSize = MAX_FILE_SIZE;
 	health.basePath = HEALTH_DIRECTORY EPS_PATH "/EPS";
@@ -29,8 +29,9 @@ EPS::~EPS(){}
 //Will set up the Gpio lines and the acp devices
 void EPS::initialize(){
 	//TODO: error handling
-
 	LockGuard l(lock);
+
+	Logger::Stream(LEVEL_INFO,tags) << "Initializing EPS";
 	ACPPacket acpPacket(EPS_SYNC, OP_TESTALIVE);
 	ACPPacket acpReturn;
 	acp.transaction(acpPacket,acpReturn);
@@ -78,10 +79,13 @@ void EPS::getHealthStatus(){
 
 }
 
+
 //Power cycle the entire satellite
 void EPS::commandReset(){
 	//TODO: error handling
 	LockGuard l(lock);
+
+	Logger::Stream(LEVEL_INFO,tags) << "Reseting EPS";
 	ACPPacket acpPacket(EPS_SYNC, OP_SUBSYSTEMRESET);
 	ACPPacket acpReturn;
 	acp.transaction(acpPacket,acpReturn);

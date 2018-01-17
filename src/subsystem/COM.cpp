@@ -9,7 +9,7 @@
 
 	COM::COM(ACPInterface& acp, SubPowerInterface& subPower)
 	: acp(acp), subPower(subPower){
-	tags += LogTag("Name", "FileManager");
+	tags += LogTag("Name", "CDH");
 	health.sync = COM_SYNC;
 	health.fileSize = MAX_FILE_SIZE;
 	health.basePath = HEALTH_DIRECTORY COM_PATH "/COM";
@@ -20,6 +20,7 @@
 	//Will set up the Gpio lines and the acp devices
 	void COM::initialize(){
 		//TODO: error handling
+		Logger::Stream(LEVEL_INFO,tags) << "Initializing COM";
 
 		ACPPacket acpPacket(COM_SYNC, OP_TESTALIVE);
 		ACPPacket acpReturn;
@@ -77,6 +78,9 @@
 
 	void COM::resetCOM(){
 		LockGuard l(lock);
+
+		Logger::Stream(LEVEL_INFO,tags) << "Preparing COM for Reset";
+
 		ACPPacket acpPacket(COM_SYNC, OP_SUBSYSTEMRESET);
 		ACPPacket acpReturn;
 		acp.transaction(acpPacket,acpReturn);
@@ -84,6 +88,8 @@
 
 	void COM::changeBaudRate(uint32_t baudRate){
 		LockGuard l(lock);
+
+		Logger::Stream(LEVEL_INFO,tags) << "Changing COM Baud Rate to " << baudRate;
 
 		ByteStream bs;
 		bs << baudRate;

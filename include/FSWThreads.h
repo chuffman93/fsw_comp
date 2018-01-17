@@ -10,9 +10,11 @@
 
 #include <unistd.h>
 #include <stdio.h>
+#include <queue>
 #include "core/Watchdog.h"
 #include "core/ScheduleManager.h"
 #include "subsystem/SubsystemBase.h"
+#include "core/FileManager.h"
 
 #include <vector>
 
@@ -39,5 +41,6 @@ public:
 	static void * GroundCommunicationThread(void *args);
 
 };
+
 
 #endif /* INCLUDE_FSWTHREADS_H_ */

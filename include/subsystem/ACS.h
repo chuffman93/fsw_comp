@@ -20,11 +20,13 @@
 
 
 enum ACSOpcode {
-	OP_POINTNADIR = 32,
+	OP_ACS_MIN = 32,
+	OP_POINTNADIR = OP_ACS_MIN,
 	OP_POINTCOM = 33,
 	OP_POINTSUN = 34,
 	OP_SENDGPS = 35,
 	OP_CONFIGGAINS = 36,
+	OP_ACS_MAX = 37,
 };
 
 struct SerializeGPS {

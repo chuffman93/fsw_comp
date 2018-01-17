@@ -16,7 +16,9 @@
 #include <stdio.h>
 
 enum EPSOpcode{
-	OP_BATTERYCONFIG = 32,
+	OP_EPS_MIN = 32,
+	OP_BATTERYCONFIG = OP_EPS_MIN,
+	OP_EPS_MAX = 33,
 };
 
 class EPS: public SubsystemBase{

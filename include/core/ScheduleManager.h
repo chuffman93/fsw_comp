@@ -52,18 +52,14 @@ public:
 	void loadSchedule(std::string filePath);
 
 
-	// TODO: set back to private functions
+PRIVATE:
 	std::queue <ScheduleStruct> ScheduleQueue;
 
 	ScheduleStruct currentSchedule;
 	uint32_t modeEnterTime;
 	FSWMode CurrentMode;
 
-	//updates default schedule file
-	void updateDefaultSchedule();
-
-private:
-
+	LogTags tags;
 
 };
 

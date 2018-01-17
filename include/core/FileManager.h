@@ -12,11 +12,15 @@
 #include "util/Logger.h"
 #include "core/Lock.h"
 #include "util/TimeKeeper.h"
+#include "core/GroundCommunication.h"
 
 #include <stdint.h>
 #include <vector>
 #include <unistd.h>
 #include <dirent.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 class FileManager {
 public:
@@ -35,8 +39,14 @@ public:
 	//appends reboot count and time since epoch to given base path
 	static std::string createFileName(std::string basePath);
 
+	static void copyFile(std::string filePath, std::string newfilePath);
+
 	//updates reboot count, this will only be called once in main.cpp
 	static void updateRebootCount();
+
+	static void parseIEF();
+
+	static void parsePPE();
 
 	//static FileManager fm;
 private:

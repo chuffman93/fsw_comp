@@ -164,5 +164,27 @@ TEST_CASE("FILEMANAGER: TEST CREATE FILE NAME", "[filemanager]" ){
 
 }
 
+TEST_CASE("FILEMANAGE: TEST COPY FILE", "[filemanager]"){
+	std::string filename = "test";
+	std::string copy = "testcopy";
+	std::vector<uint8_t> buffer;
+	buffer.push_back(1);
+
+	SECTION("Test existing file"){
+		FileManager::writeToFile(filename,buffer);
+		FileManager::copyFile(filename,copy);
+		REQUIRE(FileManager::checkExistance(filename));
+		REQUIRE(FileManager::checkExistance(copy));
+		FileManager::deleteFile(filename);
+		FileManager::deleteFile(copy);
+	}
+	SECTION("Test nonexisting file"){
+		FileManager::copyFile(filename,copy);
+		REQUIRE(!FileManager::checkExistance(filename));
+		REQUIRE(!FileManager::checkExistance(copy));
+
+	}
+}
+
 
 

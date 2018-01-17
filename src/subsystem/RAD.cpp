@@ -9,7 +9,7 @@
 
 RAD::RAD(ACPInterface& acp, SubPowerInterface& subPower)
 : acp(acp), subPower(subPower){
-	tags += LogTag("Name", "FileManager");
+	tags += LogTag("Name", "RAD");
 	health.sync = RAD_SYNC;
 	health.fileSize = MAX_FILE_SIZE;
 	health.basePath = HEALTH_DIRECTORY RAD_PATH "/RAD";
@@ -64,6 +64,7 @@ void RAD::getHealthStatus(){
 	FileManager::writeToFile(healthFile,acpReturn.message);
 }
 
+
 //Various configurations for the data collection
 void RAD::configMotor(){
 
@@ -78,6 +79,8 @@ void RAD::commandCollectionBegin(){
 	//TODO: error handling
 
 	LockGuard l(lock);
+
+	Logger::Stream(LEVEL_INFO,tags) << "Beginning RAD Science Collection";
 	ACPPacket acpPacket(RAD_SYNC, OP_TESTALIVE);
 	ACPPacket acpReturn;
 	acp.transaction(acpPacket,acpReturn);
@@ -97,6 +100,8 @@ void RAD::commandCollectionEnd(){
 	//TODO: error handling
 
 	LockGuard l(lock);
+
+	Logger::Stream(LEVEL_INFO,tags) << "Ending RAD Science Collection";
 	ACPPacket acpPacket(RAD_SYNC, OP_SUBSYSTEMRESET);
 	ACPPacket acpReturn;
 	acp.transaction(acpPacket, acpReturn);
