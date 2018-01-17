@@ -23,6 +23,7 @@ using namespace std;
 
 FileManager::FileManager(){
 	tags += LogTag("Name", "FileManager");
+
 }
 
 FileManager::~FileManager(){}
@@ -30,8 +31,10 @@ FileManager::~FileManager(){}
 
 
 std::vector<uint8_t> FileManager::readFromFile(std::string filePath){
-
+	Lock lock;
+	LockGuard lock_guard(lock);
 	std::vector<uint8_t> buffer;
+
 
 	int fileID = open(filePath.c_str(),O_RDONLY);
 	if (fileID == -1){
@@ -48,6 +51,8 @@ std::vector<uint8_t> FileManager::readFromFile(std::string filePath){
 }
 
 void FileManager::writeToFile(std::string filePath, std::vector<uint8_t> &buffer){
+	Lock lock;
+	LockGuard lock_guard(lock);
 	if (filePath == ""){
 		buffer.clear();
 		return;
@@ -56,6 +61,7 @@ void FileManager::writeToFile(std::string filePath, std::vector<uint8_t> &buffer
 		return;
 	}
 	else{
+
 		ofstream f(filePath.c_str(),ofstream::out | ofstream::binary);
 
 		for(std::vector<uint8_t>::const_iterator i = buffer.begin(); i != buffer.end(); ++i){
@@ -67,6 +73,8 @@ void FileManager::writeToFile(std::string filePath, std::vector<uint8_t> &buffer
 }
 
 void FileManager::appendToFile(std::string filePath, std::vector<uint8_t>& buffer){
+	Lock lock;
+	LockGuard lock_guard(lock);
 	if (filePath == ""){
 		buffer.clear();
 		return;
@@ -74,6 +82,7 @@ void FileManager::appendToFile(std::string filePath, std::vector<uint8_t>& buffe
 	if (buffer.size() == 0){
 		return;
 	}
+
 	int fileID = open(filePath.c_str(),O_APPEND);
 	if (fileID == -1){
 		return;
@@ -125,7 +134,10 @@ std::string FileManager::createFileName(std::string basePath){
 
 
 void FileManager::updateRebootCount(){
+	Lock lock;
+	LockGuard lock_guard(lock);
 	int RebootCount;
+
 	if (checkExistance(REBOOT_FILE)){
 		//read boot number from file
 		std::ifstream rebootFile(REBOOT_FILE);
@@ -148,22 +160,32 @@ void FileManager::updateRebootCount(){
 }
 
 int FileManager::packageFiles(const char* dest, const char* filePath, const char* regex){
-
+	Lock lock;
+	LockGuard lock_guard(lock);
 	// TODO: size checks and error handling
 
 	FILE *fd;
 	char sh_cmd[256];
-	sprintf(sh_cmd, "tar -czf %s -C %s `ls -lr %s | grep ^- | awk '{print $9}' | grep \"%s\" | head -%d`", dest, filePath, filePath, regex, 10);
+	sprintf(sh_cmd, "tar -czf %s -C %s `ls -lr %s | grep ^- | awk '{print $9}' | grep \"%s\" | head -%d`", dest, filePath, filePath, regex, 50);
+
 	if(!(fd = popen(sh_cmd, "r"))){
 		return -3;
 	}
-
 	if(pclose(fd) == -1){
 		return -1;
 	}
+
+	regexDelete(filePath,regex);
 	return 0;
 }
+
+
+
 void FileManager::getFilesList(std::string dir){
+	Lock lock;
+	LockGuard lock_guard(lock);
+	// TODO: Error handling, decide on more cases
+
 	DIR *dp;
 	struct dirent *entry;
 	int count;
@@ -173,12 +195,35 @@ void FileManager::getFilesList(std::string dir){
 	}
 
 	count = 0;
+
 	FILE * dwlkDFL = fopen(DFL_PATH,"a+");
 	while((entry = readdir(dp))!= NULL){
-		fwrite(", ",strlen(", "),1,dwlkDFL);
 		fwrite(entry->d_name,strlen(entry->d_name),1,dwlkDFL);
+		fwrite(", ",strlen(", "),1,dwlkDFL);
 	}
+	fwrite("\n",strlen("\n"),1,dwlkDFL);
 	closedir(dp);
 	fclose(dwlkDFL);
 }
+
+
+int FileManager::regexDelete(const char* filePath, const char * regex){
+	Lock lock;
+	LockGuard lock_guard(lock);
+	FILE *fd;
+
+	char sh_cmd[265];
+	sprintf(sh_cmd, "rm `ls -l %s | grep ^- | awk '{print \"%s\" \"/\" $9}' | grep \"%s\"`", filePath, filePath, regex);
+
+	//TODO: Error handling
+
+	if(!(fd = popen(sh_cmd, "r"))){
+		return -3;
+	}
+	if(pclose(fd)==-1){
+		return -1;
+	}
+	return 0;
+}
+
 

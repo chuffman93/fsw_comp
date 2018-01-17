@@ -55,13 +55,8 @@ public:
 	void createBeaconSYS( int32_t satTime, uint32_t epochNumber, int32_t GPSWeek, float GPSSec, uint8_t systemMode,
 			uint16_t radNumber, uint16_t batteryCap, int8_t acsMode, float memory, float cpu15);
 	void serializeBeacon();
-
-
-	/*
-	 * TODO: Not Sure these two are needed...
-	 */
-	// void sendBeaconSYS();
-	// void sendBeaconGPS();
+	void sendBeaconSYS();
+	void sendBeaconGPS();
 
 
 
@@ -71,6 +66,8 @@ PRIVATE:
 	beaconSYS bSYS;
 	std::vector<uint8_t> GPS;
 	std::vector<uint8_t> SYS;
+
+	// TODO: Decide on how/where rates will be handled
 	int32_t beaconRate;
 	int32_t increasedBeaconRate;
 

@@ -6,6 +6,7 @@
  */
 
 #include "util/BeaconManager.h"
+#include "core/FileManager.h"
 
 BeaconManager::BeaconManager(){}
 
@@ -48,9 +49,17 @@ void BeaconManager::serializeBeacon(){
 
 	this->GPS = bsgps.vec();
 	this->SYS = bssys.vec();
+
+
 }
 
+void BeaconManager::sendBeaconSYS(){
+	FileManager::writeToFile(BCN_SYS,SYS);
+}
 
+void BeaconManager::sendBeaconGPS(){
+	FileManager::writeToFile(BCN_GPS,GPS);
+}
 
 
 

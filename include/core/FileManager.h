@@ -41,13 +41,10 @@ public:
 
 	static int packageFiles(const char* dest, const char* filePath, const char* regex);
 	static void getFilesList(std::string dir);
-	static void regexDelete();
+	static int regexDelete(const char* filePath, const char * regex);
 
-
-	//static FileManager fm;
 private:
 	LogTags tags;
-	Lock lock;
 
 };
 

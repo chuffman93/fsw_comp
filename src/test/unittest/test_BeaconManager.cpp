@@ -79,8 +79,11 @@ TEST_CASE("Send Beacon","[beacon]"){
 
 	}
 
-	SECTION("Send beacon to COM"){
-
+	SECTION("Send beacon to Directory for Com"){
+		BM.sendBeaconGPS();
+		BM.sendBeaconSYS();
+		REQUIRE(access(BCN_SYS,F_OK) == 0);
+		REQUIRE(access(BCN_GPS,F_OK) == 0);
 	}
 }
 

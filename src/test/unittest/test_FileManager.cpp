@@ -166,24 +166,58 @@ TEST_CASE("FILEMANAGER: TEST CREATE FILE NAME", "[filemanager]" ){
 
 
 TEST_CASE("FILEMANAGER: DELETE WITH REGEX", "[filemanager]"){
-	std::string deleteSet = "/home/EPS_92";
+
+	char fileName[100];
+	for(int i = 0; i < 40; i++){
+		sprintf(fileName,"/home/EPS_93_%d.txt",i);
+		std::ofstream file(fileName);
+		file << "THIS IS A TEST FILE\nUSED TO TEST REGEX DELETION\n";
+		file.close();
+	}
+	std::ofstream file("/home/EPS_92_18928.txt");
+	file << "THIS IS A TEST FILE\nUSED TO TEST REGEX DELETION\n";
+	file.close();
+
+	std::string regex = "EPS_93";
+	std::string deleteSet = "/home";
+	REQUIRE((FileManager::regexDelete((char*)deleteSet.c_str(),(char*)regex.c_str()) == 0));
+	REQUIRE((access("/home/EPS_92_18928.txt",F_OK)==0));
+	REQUIRE((access("/home/EPS_93_1.txt",F_OK)==-1));
+	REQUIRE(access("/home/EPS_93_25.txt", F_OK) == -1);
 
 }
 
 TEST_CASE("FILEMANAGER: GET FILE LIST","[filemanager]"){
 	std::string dir = "/home";
 	FileManager::getFilesList(dir);
-
 	std::string newF = DFL_PATH;
 	REQUIRE(access((char*)newF.c_str(),F_OK) == 0);
 
 }
 
 TEST_CASE("FILEMANAGER: PACKAGE FILES","[filemanager]"){
-	std::string packageSet = "/home/chuffman93/Desktop/attachments/PackageTest/";
-	std::string regex = "EPS_92";
-	std::string dest = "/home/EPS_92.tar";
+	char fileName[100];
+	for(int i = 0; i < 40; i++){
+		sprintf(fileName,"/home/EPS_93_%d.txt",i);
+		std::ofstream file(fileName);
+		file << "THIS IS A TEST FILE\nUSED TO TEST REGEX DELETION\n";
+		file.close();
+	}
+	std::ofstream file("/home/EPS_92_18928.txt");
+	file << "THIS IS A TEST FILE\nUSED TO TEST REGEX DELETION\n";
+	file.close();
+
+	std::string packageSet = "/home";
+	std::string regex = "EPS_93";
+	std::string dest = "/home/EPS.tar";
 	REQUIRE((FileManager::packageFiles((char*)dest.c_str(),(char*)packageSet.c_str(),(char*)regex.c_str()))==0);
+	REQUIRE(access("/home/EPS_93_1.txt", F_OK) == -1);
+	REQUIRE(access("/home/EPS_93_25.txt", F_OK) == -1);
+}
+
+
+TEST_CASE("FILEMANAGER: GET DOWNLINK FILE", "[filemanager]"){
+
 }
 
 
