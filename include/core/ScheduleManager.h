@@ -52,11 +52,6 @@ public:
 	void loadSchedule(std::string filePath);
 
 
-<<<<<<< HEAD
-
-
-=======
->>>>>>> alex
 PRIVATE:
 	std::queue <ScheduleStruct> ScheduleQueue;
 
@@ -64,12 +59,11 @@ PRIVATE:
 	uint32_t modeEnterTime;
 	FSWMode CurrentMode;
 
-<<<<<<< HEAD
+
 	//updates default schedule file
 	void updateDefaultSchedule();
-=======
+
 	LogTags tags;
->>>>>>> alex
 
 };
 

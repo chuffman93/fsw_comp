@@ -13,8 +13,10 @@
 #include "interfaces/ACPInterface.h"
 
 GroundCommunication::GroundCommunication(){
-	tags += LogTags("Name", "GroundCommunication");
+	tags += LogTag("Name", "GroundCommunication");
 }
+
+GroundCommunication::~GroundCommunication(){}
 
 void GroundCommunication::handleScheduling(){
 	ScheduleManager sch;

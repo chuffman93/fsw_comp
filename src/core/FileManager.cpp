@@ -21,10 +21,7 @@
 
 using namespace std;
 
-FileManager::FileManager(){
-	tags += LogTag("Name", "FileManager");
-
-}
+FileManager::FileManager(){}
 
 FileManager::~FileManager(){}
 
@@ -33,6 +30,10 @@ FileManager::~FileManager(){}
 std::vector<uint8_t> FileManager::readFromFile(std::string filePath){
 	Lock lock;
 	LockGuard lock_guard(lock);
+
+	LogTags tags;
+	tags += LogTag("Name", "FileManager");
+
 	std::vector<uint8_t> buffer;
 
 
@@ -54,6 +55,8 @@ std::vector<uint8_t> FileManager::readFromFile(std::string filePath){
 void FileManager::writeToFile(std::string filePath, std::vector<uint8_t> &buffer){
 	Lock lock;
 	LockGuard lock_guard(lock);
+	LogTags tags;
+	tags += LogTag("Name", "FileManager");
 	if (filePath == ""){
 		Logger::Stream(LEVEL_ERROR,tags) << "Unable to write to file, empty file path";
 		buffer.clear();
@@ -78,6 +81,8 @@ void FileManager::writeToFile(std::string filePath, std::vector<uint8_t> &buffer
 void FileManager::appendToFile(std::string filePath, std::vector<uint8_t>& buffer){
 	Lock lock;
 	LockGuard lock_guard(lock);
+	LogTags tags;
+	tags += LogTag("Name", "FileManager");
 	if (filePath == ""){
 		Logger::Stream(LEVEL_ERROR,tags) << "Unable to append to file, empty file path";
 		buffer.clear();
@@ -140,19 +145,20 @@ std::string FileManager::createFileName(std::string basePath){
 
 }
 
-<<<<<<< HEAD
-=======
+
 void FileManager::copyFile(std::string filePath, std::string newfilePath){
 	if (access(filePath.c_str(), F_OK) == 0){
 		std::string command = "cp " + filePath + " " + newfilePath;
 		system(command.c_str());
 	}
 }
->>>>>>> alex
+
 
 void FileManager::updateRebootCount(){
 	Lock lock;
 	LockGuard lock_guard(lock);
+	LogTags tags;
+	tags += LogTag("Name", "FileManager");
 	int RebootCount;
 
 	if (checkExistance(REBOOT_FILE)){
@@ -209,6 +215,8 @@ void FileManager::parseIEF(){
 
 void FileManager::parsePPE(){
 	GroundCommunication ground;
+	LogTags tags;
+	tags += LogTag("Name", "FileManager");
 
 	char * line;
 	size_t len;
@@ -238,10 +246,13 @@ void FileManager::parsePPE(){
 	FileManager::deleteFile(PPE_PATH);
 }
 
-<<<<<<< HEAD
+
 int FileManager::packageFiles(const char* dest, const char* filePath, const char* regex){
 	Lock lock;
 	LockGuard lock_guard(lock);
+	LogTags tags;
+	tags += LogTag("Name", "FileManager");
+
 	// TODO: size checks and error handling
 
 	FILE *fd;
@@ -264,6 +275,8 @@ int FileManager::packageFiles(const char* dest, const char* filePath, const char
 void FileManager::getFilesList(std::string dir){
 	Lock lock;
 	LockGuard lock_guard(lock);
+	LogTags tags;
+	tags += LogTag("Name", "FileManager");
 	// TODO: Error handling, decide on more cases
 
 	DIR *dp;
@@ -290,6 +303,9 @@ void FileManager::getFilesList(std::string dir){
 int FileManager::regexDelete(const char* filePath, const char * regex){
 	Lock lock;
 	LockGuard lock_guard(lock);
+
+	LogTags tags;
+	tags += LogTag("Name", "FileManager");
 	FILE *fd;
 
 	char sh_cmd[265];
@@ -305,8 +321,6 @@ int FileManager::regexDelete(const char* filePath, const char * regex){
 	}
 	return 0;
 }
-=======
 
->>>>>>> alex
 
 

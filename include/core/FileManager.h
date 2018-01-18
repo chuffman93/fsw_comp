@@ -45,20 +45,19 @@ public:
 	//updates reboot count, this will only be called once in main.cpp
 	static void updateRebootCount();
 
-<<<<<<< HEAD
+
 	static int packageFiles(const char* dest, const char* filePath, const char* regex);
 	static void getFilesList(std::string dir);
 	static int regexDelete(const char* filePath, const char * regex);
 
-=======
+
 	static void parseIEF();
 
 	static void parsePPE();
 
 	//static FileManager fm;
->>>>>>> alex
+
 private:
-	LogTags tags;
 
 };
 

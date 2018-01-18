@@ -60,7 +60,7 @@ void ScheduleManager::loadSchedule(std::string filePath){
 
 	//make sure that the file size is divisible by 9
 	if (floor(schedule.size()/9) != (schedule.size()/9)){
-		Logger::Stream::(LEVEL_ERROR,tags) << "Unable To Load Next Schedule, incorrect file size";
+		Logger::Stream(LEVEL_ERROR,tags) << "Unable To Load Next Schedule, incorrect file size";
 		return;
 	}
 
