@@ -84,13 +84,20 @@ TEST_CASE("FILEMANAGER: TEST WRITE TO FILE", "[filemanager]"){
 
 TEST_CASE("FILEMANAGER: TEST DELETE FILE", "[filemanager]"){
 	std::string dummyFile = "dummy";
+	std::string dummyFolder = "/home/DummyFolder/dummdumm.txt";
 	std::vector<uint8_t> dummyVec;
 	dummyVec.assign(1,12);
 
-	remove(dummyFile.c_str());
+	mkdir("/home/DummyFolder",S_IRWXU | S_IRWXG | S_IRWXO);
+
 
 	FILE * dummy = fopen(dummyFile.c_str(),"w");
 	fclose(dummy);
+
+
+	FILE * dummyf = fopen(dummyFolder.c_str(),"w");
+	fclose(dummyf);
+
 
 	SECTION("TEST NO FILE PATH"){
 		dummyFile = "";
@@ -99,13 +106,20 @@ TEST_CASE("FILEMANAGER: TEST DELETE FILE", "[filemanager]"){
 	SECTION("TEST INCORRECT FILE PATH"){
 		dummyFile = "dumdum";
 		remove(dummyFile.c_str());
-		FileManager::deleteFile(dummyFile);
+		REQUIRE(!(FileManager::deleteFile(dummyFile),0));
 	}
 
 	SECTION("TEST CORRECT FILE PATH"){
 		FileManager::deleteFile(dummyFile);
 		REQUIRE(access(dummyFile.c_str(), F_OK) == -1);
 
+	}
+
+	SECTION("TEST FOLDER DELETION"){
+		REQUIRE(access(dummyFolder.c_str(),F_OK) == 0);
+		FileManager::deleteFile("/home/DummyFolder");
+		sleep(2);
+		REQUIRE(access(dummyFolder.c_str(),F_OK) == -1);
 	}
 }
 

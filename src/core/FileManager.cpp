@@ -103,7 +103,19 @@ void FileManager::appendToFile(std::string filePath, std::vector<uint8_t>& buffe
 }
 
 void FileManager::deleteFile(std::string filePath){
-	remove(filePath.c_str());
+	struct stat s;
+	if (stat((char*)filePath.c_str(),&s) == 0){
+		if( s.st_mode & S_IFDIR){
+			ExternalProcess rm;
+			char * sh_cmd[] = {(char*)"/bin/rm",(char*)"-r",(char*)filePath.c_str(),NULL};
+			rm.launchProcess(sh_cmd);
+		}
+		else
+			remove((char*)filePath.c_str());
+	}
+	else
+		return;
+
 }
 
 bool FileManager::checkExistance(std::string filePath){
