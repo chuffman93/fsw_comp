@@ -8,6 +8,7 @@
 #include "FSWThreads.h"
 #include "subsystem/COM.h"
 #include "core/ScheduleManager.h"
+#include "core/GroundCommunication.h"
 
 
 
@@ -71,12 +72,18 @@ void * FSWThreads::WatchdogThread(void * args){
 
 void * FSWThreads::GroundCommunicationThread(void * args){
 	Watchdog * watchdog = (Watchdog*) args;
+	GroundCommunication ground;
 	while(1){
 		sleep(2);
 		watchdog->CheckThreads();
 		if (!FileManager::checkExistance(SOT_PATH)){
 		}else{
 			if (FileManager::checkExistance(IEF_PATH)){
+				FileManager::parseIEF();
+				ground.downlinkFiles();
+				ground.handleScheduling();
+				FileManager::parsePPE();
+				FileManager::deleteFile(SOT_PATH);
 			}
 
 		}

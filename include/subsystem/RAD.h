@@ -18,8 +18,10 @@
 #include <stdio.h>
 
 enum PLDOpcode {
-	OP_STARTSCIENCE = 32,
+	OP_PLD_CMD_MIN = 32,
+	OP_STARTSCIENCE = OP_PLD_CMD_MIN,
 	OP_DATACMD = 33,
+	OP_PLD_CMD_MAX = 34,
 
 	OP_CLOCKCONFIG = 64,
 	OP_MOTORCONFIG = 65,
@@ -39,6 +41,7 @@ public:
 	void handleMode(FSWMode transition);
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 	void getHealthStatus();
+
 	std::string currentHealthFile;
 	size_t healthFileSize;
 private:

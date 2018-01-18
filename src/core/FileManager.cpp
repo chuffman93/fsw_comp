@@ -38,6 +38,7 @@ std::vector<uint8_t> FileManager::readFromFile(std::string filePath){
 
 	int fileID = open(filePath.c_str(),O_RDONLY);
 	if (fileID == -1){
+		Logger::Stream(LEVEL_ERROR,tags) << "Unable to open file for reading: " << filePath;
 		return buffer;
 	}
 	uint8_t byte;
@@ -54,10 +55,12 @@ void FileManager::writeToFile(std::string filePath, std::vector<uint8_t> &buffer
 	Lock lock;
 	LockGuard lock_guard(lock);
 	if (filePath == ""){
+		Logger::Stream(LEVEL_ERROR,tags) << "Unable to write to file, empty file path";
 		buffer.clear();
 		return;
 	}
 	else if (buffer.size() == 0){
+		Logger::Stream(LEVEL_ERROR,tags) << "Unable to write to file, empty buffer: " << filePath;
 		return;
 	}
 	else{
@@ -76,15 +79,18 @@ void FileManager::appendToFile(std::string filePath, std::vector<uint8_t>& buffe
 	Lock lock;
 	LockGuard lock_guard(lock);
 	if (filePath == ""){
+		Logger::Stream(LEVEL_ERROR,tags) << "Unable to append to file, empty file path";
 		buffer.clear();
 		return;
 	}
 	if (buffer.size() == 0){
+		Logger::Stream(LEVEL_ERROR,tags) << "Unable to append to file, empty buffer: " << filePath;
 		return;
 	}
 
 	int fileID = open(filePath.c_str(),O_APPEND);
 	if (fileID == -1){
+		Logger::Stream(LEVEL_ERROR,tags) << "Unable to append to file, file path does not exist: " << filePath;
 		return;
 	}
 	write(fileID, &buffer, buffer.size());
@@ -103,7 +109,9 @@ bool FileManager::checkExistance(std::string filePath){
 }
 
 void FileManager::moveFile(std::string filePath, std::string newfilePath){
-	rename(filePath.c_str(),newfilePath.c_str());
+	if (access(filePath.c_str(), F_OK) == 0){
+		rename(filePath.c_str(),newfilePath.c_str());
+	}
 }
 
 std::string FileManager::createFileName(std::string basePath){
@@ -132,6 +140,15 @@ std::string FileManager::createFileName(std::string basePath){
 
 }
 
+<<<<<<< HEAD
+=======
+void FileManager::copyFile(std::string filePath, std::string newfilePath){
+	if (access(filePath.c_str(), F_OK) == 0){
+		std::string command = "cp " + filePath + " " + newfilePath;
+		system(command.c_str());
+	}
+}
+>>>>>>> alex
 
 void FileManager::updateRebootCount(){
 	Lock lock;
@@ -155,10 +172,73 @@ void FileManager::updateRebootCount(){
 		out << RebootCount;
 		out.close();
 	}
-
-
+	Logger::Stream(LEVEL_INFO,tags) << "Updated Reboot Count to " << RebootCount;
 }
 
+void FileManager::parseIEF(){
+
+	GroundCommunication ground;
+
+	char *line = NULL;
+	size_t len;
+	ssize_t bytesRead;
+
+	char * type;
+	uint8_t lineNumber;
+
+	FILE * file = fopen(IEF_PATH, "r");
+
+	while ((bytesRead = getline(&line, &len, file)) != -1){
+		lineNumber++;
+		type = strtok(line,",");
+		if (type == NULL){
+			continue;
+		}else if (strcmp(type,"CMD")){
+			ground.parseCommandRequest(line);
+		}else if (strcmp(type,"DWL")){
+			ground.parseDownlinkRequest(line);
+		}else if (strcmp(type,"DLT")){
+			ground.parseDeletionRequest(line);
+		}else if (strcmp(type, "DFL")){
+			ground.parseFileListRequest(line);
+		}
+	}
+
+	FileManager::deleteFile(IEF_PATH);
+}
+
+void FileManager::parsePPE(){
+	GroundCommunication ground;
+
+	char * line;
+	size_t len;
+	ssize_t bytesRead;
+
+	char * type;
+	uint8_t lineNumber;
+
+	FILE * file = fopen(PPE_PATH, "r");
+
+	if (file == NULL){
+		Logger::Stream(LEVEL_INFO, tags) << "No PPE File";
+		return;
+	}
+
+	while ((bytesRead = getline(&line, &len, file)) != -1){
+		lineNumber++;
+		type = strtok(line,",");
+		if (type == NULL){
+			continue;
+		}else if (strcmp(type,"CMD")){
+			ground.parseCommandRequest(line);
+		}else if (strcmp(type,"DLT")){
+			ground.parseDeletionRequest(line);
+		}
+	}
+	FileManager::deleteFile(PPE_PATH);
+}
+
+<<<<<<< HEAD
 int FileManager::packageFiles(const char* dest, const char* filePath, const char* regex){
 	Lock lock;
 	LockGuard lock_guard(lock);
@@ -225,5 +305,8 @@ int FileManager::regexDelete(const char* filePath, const char * regex){
 	}
 	return 0;
 }
+=======
+
+>>>>>>> alex
 
 
