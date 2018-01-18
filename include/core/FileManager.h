@@ -46,9 +46,9 @@ public:
 	static void updateRebootCount();
 
 
-	static int packageFiles(const char* dest, const char* filePath, const char* regex);
+	static std::vector<std::string> packageFiles(std::string filePath,std::string R);
 	static void getFilesList(std::string dir);
-	static int regexDelete(const char* filePath, const char * regex);
+	static int regexDelete(std::string filePath,std::string R);
 
 
 	static void parseIEF();

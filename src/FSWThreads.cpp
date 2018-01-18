@@ -73,10 +73,12 @@ void * FSWThreads::WatchdogThread(void * args){
 void * FSWThreads::GroundCommunicationThread(void * args){
 	Watchdog * watchdog = (Watchdog*) args;
 	GroundCommunication ground;
+	BeaconManager BCN;
 	while(1){
 		sleep(2);
 		watchdog->CheckThreads();
 		if (!FileManager::checkExistance(SOT_PATH)){
+
 		}else{
 			if (FileManager::checkExistance(IEF_PATH)){
 				FileManager::parseIEF();

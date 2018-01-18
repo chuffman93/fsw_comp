@@ -122,6 +122,12 @@ void FileManager::moveFile(std::string filePath, std::string newfilePath){
 std::string FileManager::createFileName(std::string basePath){
 
 	//get number of reboots
+	// Test again
+
+	Lock lock;
+	LockGuard lock_guard(lock);
+
+
 	std::ifstream rebootFile(REBOOT_FILE);
 	int intCount;
 	rebootFile >> intCount;
@@ -247,7 +253,12 @@ void FileManager::parsePPE(){
 }
 
 
-int FileManager::packageFiles(const char* dest, const char* filePath, const char* regex){
+vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
+	// do regex delete too!!!!
+	// R containing
+	// RB before
+	// RA after
+
 	Lock lock;
 	LockGuard lock_guard(lock);
 	LogTags tags;
@@ -257,17 +268,129 @@ int FileManager::packageFiles(const char* dest, const char* filePath, const char
 
 	FILE *fd;
 	char sh_cmd[256];
-	sprintf(sh_cmd, "tar -czf %s -C %s `ls -lr %s | grep ^- | awk '{print $9}' | grep \"%s\" | head -%d`", dest, filePath, filePath, regex, 50);
+	vector<std::string> Files;
+	// manage fullfilepath + regex manipulation
+	// if one is created .tar = filePath + regex.tar
 
-	if(!(fd = popen(sh_cmd, "r"))){
-		return -3;
-	}
-	if(pclose(fd) == -1){
-		return -1;
-	}
 
-	regexDelete(filePath,regex);
-	return 0;
+	if(R == "R"){
+		int i = dest.length()-1;
+		std::string regex = "";
+		while(dest[i]!='/'){
+			regex = dest[i]+regex;
+			i--;
+		}
+		const std::string ext(regex);
+		if(dest != ext && dest.size() > ext.size() && (dest.substr((dest.size() - ext.size())) == regex)){
+			dest = dest.substr(0,dest.size()-ext.size());
+		}
+		std::string newDest = dest + regex + ".tar";
+		regex = regex+"_";
+		sprintf(sh_cmd, "tar -czf %s -C %s `ls -lr %s | grep ^- | awk '{print $9}' | grep \"%s\" | head -%d`>/dev/null 2>&1", (char*)newDest.c_str(), (char*)dest.c_str(), (char*)dest.c_str(), (char*)regex.c_str(), 50);
+		Files.push_back(newDest);
+		if(!(fd = popen(sh_cmd, "r"))){
+			cout << " NEED LOGGER STATEMENTS FOR FAILURE TO CREATE TAR " << endl;
+		}
+		if(pclose(fd) == -1){
+			cout << " NEED LOGGER STATEMETS FOR FAILURE TO CLOSE PIPE WHEN CREATING TAR " << endl;
+		}
+
+
+	}else if(R == "RB"){
+		int i = dest.length()-1;
+		std::string regex = "";
+		std::string num = "";
+		while(dest[i]!='_'){
+			num = dest[i]+num;
+			i--;
+		}
+		int EN = atoi(num.c_str());
+		std::string end = "_"+num;
+		i = dest.length()-1;
+		while(dest[i]!='/'){
+			regex = dest[i]+regex;
+			i--;
+		}
+		std::string nRegex = regex.substr(0,regex.size() - end.size());
+		std::string pastReg[EN];
+		for(int x = 0; x < EN ; x++){
+			std::ostringstream oss;
+			oss << x;
+			pastReg[x] = nRegex+"_"+oss.str();
+		}
+		const std::string ext(regex);
+		if(dest != ext && dest.size() > ext.size() && (dest.substr((dest.size() - ext.size())) == regex)){
+			dest = dest.substr(0,dest.size()-ext.size());
+		}
+		for(int y = 0; y < EN; y++){
+			std::string newDest = dest + pastReg[y] + ".tar";
+			pastReg[y] = pastReg[y] + "_";
+			sprintf(sh_cmd, "tar -czf %s -C %s `ls -lr %s | grep ^- | awk '{print $9}' | grep \"%s\" | head -%d` >/dev/null 2>&1", (char*)newDest.c_str(), (char*)dest.c_str(), (char*)dest.c_str(), (char*)pastReg[y].c_str(), 50);
+
+			if(!(fd = popen(sh_cmd, "r"))){
+				cout << " NEED LOGGER STATEMENTS FOR FAILURE TO CREATE TAR " << endl;
+				pclose(fd);
+				break;
+			}
+			if(pclose(fd) == -1){
+				cout << " NEED LOGGER STATEMETS FOR FAILURE TO CLOSE PIPE WHEN CREATING TAR " << endl;
+				break;
+			}
+			Files.push_back(newDest);
+		}
+	}else if(R == "RA"){
+		int i = dest.length()-1;
+		std::string regex = "";
+		std::string num = "";
+		while(dest[i]!='_'){
+			num = dest[i]+num;
+			i--;
+		}
+		int EN = atoi(num.c_str());
+		std::string end = "_"+num;
+		i = dest.length()-1;
+		while(dest[i]!='/'){
+			regex = dest[i]+regex;
+			i--;
+		}
+		std::string nRegex = regex.substr(0,regex.size() - end.size());
+
+
+		std::ifstream rebootFile(REBOOT_FILE);
+		int intCount;
+		rebootFile >> intCount;
+		rebootFile.close();
+		int itr = intCount - EN;
+		std::string pastReg[itr+1];
+		for(int x = 0; x < itr+1; x++){
+			std::ostringstream oss;
+			oss << EN;
+			pastReg[x] = nRegex+"_"+oss.str();
+			EN++;
+		}
+		const std::string ext(regex);
+		if(dest != ext && dest.size() > ext.size() && (dest.substr((dest.size() - ext.size())) == regex)){
+			dest = dest.substr(0,dest.size()-ext.size());
+		}
+		for(int y = 0; y < itr+1; y++){
+			std::string newDest = dest + pastReg[y] + ".tar";
+			pastReg[y] = pastReg[y] + "_";
+			sprintf(sh_cmd, "tar -czf %s -C %s `ls -lr %s | grep ^- | awk '{print $9}' | grep \"%s\" | head -%d` >/dev/null 2>&1", (char*)newDest.c_str(), (char*)dest.c_str(), (char*)dest.c_str(), (char*)pastReg[y].c_str(), 50);
+
+			if(!(fd = popen(sh_cmd, "r"))){
+				cout << " NEED LOGGER STATEMENTS FOR FAILURE TO CREATE TAR " << endl;
+				pclose(fd);
+				break;
+			}
+			if(pclose(fd) == -1){
+				cout << " NEED LOGGER STATEMETS FOR FAILURE TO CLOSE PIPE WHEN CREATING TAR " << endl;
+				break;
+			}
+			Files.push_back(newDest);
+		}
+	}
+	// handle multiple tar balls
+	return Files;
 }
 
 
@@ -284,11 +407,12 @@ void FileManager::getFilesList(std::string dir){
 	int count;
 	dp = opendir(dir.c_str());
 	if(dp == NULL){
+		// add logger message
 		return;
 	}
 
 	count = 0;
-
+	// add full path
 	FILE * dwlkDFL = fopen(DFL_PATH,"a+");
 	while((entry = readdir(dp))!= NULL){
 		fwrite(entry->d_name,strlen(entry->d_name),1,dwlkDFL);
@@ -300,7 +424,7 @@ void FileManager::getFilesList(std::string dir){
 }
 
 
-int FileManager::regexDelete(const char* filePath, const char * regex){
+int FileManager::regexDelete(std::string dest,std::string R){
 	Lock lock;
 	LockGuard lock_guard(lock);
 
@@ -309,16 +433,124 @@ int FileManager::regexDelete(const char* filePath, const char * regex){
 	FILE *fd;
 
 	char sh_cmd[265];
-	sprintf(sh_cmd, "rm `ls -l %s | grep ^- | awk '{print \"%s\" \"/\" $9}' | grep \"%s\"`", filePath, filePath, regex);
 
+	// check folder deletion
+
+	if(R == "R"){
+			int i = dest.length()-1;
+			std::string regex = "";
+			while(dest[i]!='/'){
+				regex = dest[i]+regex;
+				i--;
+			}
+			const std::string ext(regex);
+			if(dest != ext && dest.size() > ext.size() && (dest.substr((dest.size() - ext.size())) == regex)){
+				dest = dest.substr(0,dest.size()-ext.size());
+			}
+			regex = regex + "_";
+			sprintf(sh_cmd, "rm -r `ls -l %s | grep ^- | awk '{print \"%s\" \"/\" $9}' | grep \"%s\"`", (char*)dest.c_str(), (char*)dest.c_str(), (char*)regex.c_str());
+			if(!(fd = popen(sh_cmd, "r"))){
+				cout << " NEED LOGGER STATEMENTS FOR FAILURE TO CREATE TAR " << endl;
+				return -3;
+			}
+			if(pclose(fd) == -1){
+				cout << " NEED LOGGER STATEMETS FOR FAILURE TO CLOSE PIPE WHEN CREATING TAR " << endl;
+				return -1;
+			}
+
+
+		}else if(R == "RB"){
+			int i = dest.length()-1;
+			std::string regex = "";
+			std::string num = "";
+			while(dest[i]!='_'){
+				num = dest[i]+num;
+				i--;
+			}
+			int EN = atoi(num.c_str());
+			std::string end = "_"+num;
+			i = dest.length()-1;
+			while(dest[i]!='/'){
+				regex = dest[i]+regex;
+				i--;
+			}
+			std::string nRegex = regex.substr(0,regex.size() - end.size());
+			std::string pastReg[EN];
+			for(int x = 0; x < EN ; x++){
+				std::ostringstream oss;
+				oss << x;
+				pastReg[x] = nRegex+"_"+oss.str()+"_";
+			}
+			const std::string ext(regex);
+			if(dest != ext && dest.size() > ext.size() && (dest.substr((dest.size() - ext.size())) == regex)){
+				dest = dest.substr(0,dest.size()-ext.size());
+			}
+			for(int y = 0; y < EN; y++){
+				sprintf(sh_cmd, "rm -r `ls -l %s | grep ^- | awk '{print \"%s\" \"/\" $9}' | grep \"%s\"`", (char*)dest.c_str(), (char*)dest.c_str(), (char*)pastReg[y].c_str());;
+
+				if(!(fd = popen(sh_cmd, "r"))){
+					cout << " NEED LOGGER STATEMENTS FOR FAILURE TO CREATE TAR " << endl;
+					pclose(fd);
+					return -3;
+					break;
+				}
+				if(pclose(fd) == -1){
+					cout << " NEED LOGGER STATEMETS FOR FAILURE TO CLOSE PIPE WHEN CREATING TAR " << endl;
+					return -1;
+					break;
+				}
+			}
+		}else if(R == "RA"){
+			int i = dest.length()-1;
+			std::string regex = "";
+			std::string num = "";
+			while(dest[i]!='_'){
+				num = dest[i]+num;
+				i--;
+			}
+			int EN = atoi(num.c_str());
+			std::string end = "_"+num;
+			i = dest.length()-1;
+			while(dest[i]!='/'){
+				regex = dest[i]+regex;
+				i--;
+			}
+			std::string nRegex = regex.substr(0,regex.size() - end.size());
+
+
+			std::ifstream rebootFile(REBOOT_FILE);
+			int intCount;
+			rebootFile >> intCount;
+			rebootFile.close();
+			int itr = intCount - EN;
+			std::string pastReg[itr+1];
+			for(int x = 0; x < itr+1; x++){
+				std::ostringstream oss;
+				oss << EN;
+				pastReg[x] = nRegex+"_"+oss.str()+"_";
+				EN++;
+			}
+			const std::string ext(regex);
+			if(dest != ext && dest.size() > ext.size() && (dest.substr((dest.size() - ext.size())) == regex)){
+				dest = dest.substr(0,dest.size()-ext.size());
+			}
+			for(int y = 0; y < itr+1; y++){
+				sprintf(sh_cmd, "rm -r `ls -l %s | grep ^- | awk '{print \"%s\" \"/\" $9}' | grep \"%s\"`", (char*)dest.c_str(), (char*)dest.c_str(), (char*)pastReg[y].c_str());;
+
+				if(!(fd = popen(sh_cmd, "r"))){
+					cout << " NEED LOGGER STATEMENTS FOR FAILURE TO CREATE TAR " << endl;
+					pclose(fd);
+					return -3;
+					break;
+				}
+				if(pclose(fd) == -1){
+					cout << " NEED LOGGER STATEMETS FOR FAILURE TO CLOSE PIPE WHEN CREATING TAR " << endl;
+					return -1;
+					break;
+				}
+			}
+		}
 	//TODO: Error handling
-
-	if(!(fd = popen(sh_cmd, "r"))){
-		return -3;
-	}
-	if(pclose(fd)==-1){
-		return -1;
-	}
 	return 0;
 }
 
