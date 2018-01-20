@@ -137,4 +137,19 @@ void ACS::resetACS(){
 	ACPPacket acpReturn;
 	acp.transaction(acpPacket,acpReturn);
 }
+/*
+ACPInterface& ACS::getACPRef(){
+	//return this->acp;
+}
+
+ACPPacket ACS::sendOpcode(ACSOpcode opcode, ACP& acs){
+	//Logger::Stream(LEVEL_INFO,tags) << "Preparing ACS for Reset";
+	//LockGuard l(lock);
+	//ACPPacket acpPacket(ACS_SYNC, opcode);
+	//ACPPacket acpReturn;
+	//ACPInterface& acp = getACPRef();
+	//acp.transaction(acpPacket,acpReturn);
+	//return acpReturn;
+}*/
+
 

@@ -34,17 +34,17 @@ struct GPSInertial{
   uint8_t isAccurate;
 };
 
-class GPS: public SubsystemBase{
+class GPS: public SubsystemBase {
 public:
-	//GPS(UARTManager& uart):uart(uart){}
+	GPS(UARTManager& uart):uart(uart){}
 	~GPS(){}
 
 	//Handle power on and initialization routine
-	MOCK void initialize(){};
+	MOCK void initialize();
 	//Handles any mode transition needs as well as any needs for tasks to be done in a mode.
-	void handleMode(FSWMode transition){};
+	void handleMode(FSWMode transition);
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
-	MOCK void getHealthStatus(){};
+	MOCK void getHealthStatus();
 private:
 	//Get the current state of the GPS, with propagation. Take lock when reading from the info struct
 	void getBestXYZ();

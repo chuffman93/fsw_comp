@@ -42,6 +42,22 @@ FSWMode ScheduleManager::checkNewMode(){
 	return CurrentMode;
 }
 
+void ScheduleManager::handleScheduling(){
+
+	if (FileManager::checkExistance(NEW_DEFAULT_SCH)){
+		Logger::Stream(LEVEL_INFO,tags) << "Updating Default Schedule";
+		FileManager::moveFile(NEW_DEFAULT_SCH, DEFAULT_SCH);
+	}
+
+	if (FileManager::checkExistance(NEW_SCH)){
+		Logger::Stream(LEVEL_INFO,tags) << "Loading New Schedule";
+		loadSchedule(NEW_SCH);
+	}else{
+		Logger::Stream(LEVEL_INFO,tags) << "Loading Default Schedule";
+		loadSchedule(DEFAULT_SCH);
+	}
+
+}
 
 //if new schedule: adds new schedule to queue, otherwise add default schedule to queue if empty
 void ScheduleManager::loadSchedule(std::string filePath){

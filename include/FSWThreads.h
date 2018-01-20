@@ -29,6 +29,11 @@ struct SubsystemSequenceStruct{
 	Watchdog * watchdog;
 };
 
+struct GroundCommunicationStruct{
+	std::vector<SubsystemBase*> Subsystems;
+	Watchdog * watchdog;
+};
+
 class FSWThreads{
 
 public:

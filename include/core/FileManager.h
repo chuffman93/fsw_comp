@@ -12,7 +12,6 @@
 #include "util/Logger.h"
 #include "core/Lock.h"
 #include "util/TimeKeeper.h"
-#include "core/GroundCommunication.h"
 
 
 #include <stdint.h>
@@ -50,10 +49,8 @@ public:
 	static void getFilesList(std::string dir);
 	static int regexDelete(const char* filePath, const char * regex);
 
+	static std::vector<char*> parseGroundFile(std::string filePath);
 
-	static void parseIEF();
-
-	static void parsePPE();
 
 	//static FileManager fm;
 

@@ -147,6 +147,7 @@ std::string FileManager::createFileName(std::string basePath){
 
 
 void FileManager::copyFile(std::string filePath, std::string newfilePath){
+	//TODO: dont use system call
 	if (access(filePath.c_str(), F_OK) == 0){
 		std::string command = "cp " + filePath + " " + newfilePath;
 		system(command.c_str());
@@ -181,71 +182,6 @@ void FileManager::updateRebootCount(){
 	Logger::Stream(LEVEL_INFO,tags) << "Updated Reboot Count to " << RebootCount;
 }
 
-void FileManager::parseIEF(){
-
-	GroundCommunication ground;
-
-	char *line = NULL;
-	size_t len;
-	ssize_t bytesRead;
-
-	char * type;
-	uint8_t lineNumber;
-
-	FILE * file = fopen(IEF_PATH, "r");
-
-	while ((bytesRead = getline(&line, &len, file)) != -1){
-		lineNumber++;
-		type = strtok(line,",");
-		if (type == NULL){
-			continue;
-		}else if (strcmp(type,"CMD")){
-			ground.parseCommandRequest(line);
-		}else if (strcmp(type,"DWL")){
-			ground.parseDownlinkRequest(line);
-		}else if (strcmp(type,"DLT")){
-			ground.parseDeletionRequest(line);
-		}else if (strcmp(type, "DFL")){
-			ground.parseFileListRequest(line);
-		}
-	}
-
-	FileManager::deleteFile(IEF_PATH);
-}
-
-void FileManager::parsePPE(){
-	GroundCommunication ground;
-	LogTags tags;
-	tags += LogTag("Name", "FileManager");
-
-	char * line;
-	size_t len;
-	ssize_t bytesRead;
-
-	char * type;
-	uint8_t lineNumber;
-
-	FILE * file = fopen(PPE_PATH, "r");
-
-	if (file == NULL){
-		Logger::Stream(LEVEL_INFO, tags) << "No PPE File";
-		return;
-	}
-
-	while ((bytesRead = getline(&line, &len, file)) != -1){
-		lineNumber++;
-		type = strtok(line,",");
-		if (type == NULL){
-			continue;
-		}else if (strcmp(type,"CMD")){
-			ground.parseCommandRequest(line);
-		}else if (strcmp(type,"DLT")){
-			ground.parseDeletionRequest(line);
-		}
-	}
-	FileManager::deleteFile(PPE_PATH);
-}
-
 
 int FileManager::packageFiles(const char* dest, const char* filePath, const char* regex){
 	Lock lock;
@@ -267,6 +203,7 @@ int FileManager::packageFiles(const char* dest, const char* filePath, const char
 	}
 
 	regexDelete(filePath,regex);
+
 	return 0;
 }
 
@@ -320,6 +257,26 @@ int FileManager::regexDelete(const char* filePath, const char * regex){
 		return -1;
 	}
 	return 0;
+}
+
+std::vector<char*> FileManager::parseGroundFile(std::string filePath){
+	char *line = NULL;
+	size_t len;
+	ssize_t bytesRead;
+
+	std::vector<char*> groundRequests;
+
+	FILE * file = fopen(filePath.c_str(), "r");
+
+	while ((bytesRead = getline(&line, &len, file)) != -1){
+		groundRequests.push_back(line);
+	}
+
+	fclose(file);
+	FileManager::deleteFile(IEF_PATH);
+
+	return groundRequests;
+
 }
 
 

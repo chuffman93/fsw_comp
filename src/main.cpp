@@ -12,7 +12,6 @@
 #include "core/ScheduleManager.h"
 #include "subsystem/subsystem.h"
 #include "test/testmacros.h"
-#include "subsystem/ACS.h"
 using namespace std;
 
 
@@ -33,8 +32,11 @@ int main() {
 	ACS acs(acp, subPower);
 	COM com(acp, subPower);
 	EPS eps(acp, subPower);
-	//GPS gps(acp, subPower);
 	RAD rad(acp, subPower);
+
+
+	GroundCommunicationStruct groundStruct;
+	groundStruct.Subsystems = {&acs,&com,&eps,&rad};
 
 	ModeManagerStruct modeStruct;
 	modeStruct.scheduler = &scheduler;
@@ -72,7 +74,7 @@ int main() {
 	healthStatusThread.CreateThread(NULL, FSWThreads::GetHealthStatusThread, (void*)&subsystemStruct);
 	modeManagerThread.CreateThread(NULL, FSWThreads::ModeManagerThread, (void*)&modeStruct);
 	gpsManagerThread.CreateThread(NULL, FSWThreads::GPSManagerThread, (void*)&watchdog);
-	groundCommunicationThread.CreateThread(NULL, FSWThreads::GroundCommunicationThread, (void*)&watchdog);
+	groundCommunicationThread.CreateThread(NULL, FSWThreads::GroundCommunicationThread, (void*)&groundStruct);
 
 	watchdog.AddThread(healthStatusThread.GetID());
 	watchdog.AddThread(modeManagerThread.GetID());

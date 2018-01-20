@@ -10,6 +10,7 @@
 
 #include "core/FileManager.h"
 #include "core/ScheduleManager.h"
+#include "subsystem/SubsystemBase.h"
 #include <queue>
 #include <stdlib.h>
 #include <stdio.h>
@@ -28,21 +29,36 @@ typedef enum FSWCommandTypes {
 
 class GroundCommunication{
 public:
-	GroundCommunication();
+	GroundCommunication(std::vector<SubsystemBase*> subsystems);
 	~GroundCommunication();
 	void downlinkFiles();
 	void clearDownlink();
-	void handleScheduling();
-	void parseDownlinkRequest(char *line);
-	void parseDeletionRequest(char *line);
-	void parseCommandRequest(char *line);
-	void parseFileListRequest(char *line);
+	void spinGround();
+
+	void parseIEF();
+
+	void parsePPE();
+	bool stateDownlink;
+	bool statePostPass;
+	uint32_t ComStartTime;
+	uint32_t ComTimeout;
 
 	std::queue<std::string> DownlinkQueue;
 private:
 	std::string trimNewline(std::string buffer);
 	void executeFSWCommand(int command);
+	void parseDownlinkRequest(char *line);
+	void parseDeletionRequest(char *line);
+	void parseCommandRequest(char *line);
+	void parseFileListRequest(char *line);
+	std::vector<SubsystemBase*> subsystems;
 	LogTags tags;
+
+
+	//ACS& acs;
+	//COM& com;
+	//EPS& eps;
+	//RAD& rad;
 
 };
 

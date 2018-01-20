@@ -14,6 +14,7 @@
 #include "interfaces/ACPInterface.h"
 #include "core/FileSystem.h"
 #include "core/Lock.h"
+#include "util/ByteStream.h"
 #include "subsystem/GPS.h"
 
 #include <stdio.h>
@@ -50,6 +51,8 @@ public:
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 	void getHealthStatus();
 
+	static ACPPacket sendOpcode(ACSOpcode opcode, ACS& acs);
+
 	HealthFileStruct health;
 private:
 	//Change the current pointing target
@@ -61,8 +64,9 @@ private:
 	//Configure the gains on ACS
 	void configureGains();
 	void resetACS();
+	ACPInterface& getACPRef();
 
-	bool pointingValid = false;
+	bool pointingValid;// = false;
 	ACPInterface& acp;
 	SubPowerInterface& subPower;
 	Lock lock;

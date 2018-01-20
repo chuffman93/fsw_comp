@@ -9,6 +9,7 @@
 #define INCLUDE_SUBSYSTEM_RAD_H_
 
 #include "subsystem/SubsystemBase.h"
+#include "core/ScheduleManager.h"
 #include "interfaces/SubPowerInterface.h"
 #include "interfaces/ACPInterface.h"
 #include "core/FileSystem.h"
