@@ -389,9 +389,11 @@ TEST_CASE("FILEMANAGER: Manage Regex","[filemanager]"){
 		REQUIRE(access("/home/EPS_38_1.txt",F_OK) == -1);
 	}
 
-
-
-
+	char argv[100];
+	sprintf(argv,"rm -r /home/EPS_*");
+	FILE * fd;
+	fd = popen(argv, "r");
+	pclose(fd);
 }
 
 
