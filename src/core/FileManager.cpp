@@ -21,25 +21,30 @@
 
 using namespace std;
 
+Lock FileManager::lock;
+
 FileManager::FileManager(){}
 
 FileManager::~FileManager(){}
 
 
-
+/*!
+ * Reads a file byte by byte and returning a vector of those bytes
+ * \param file path to the file that is to be read
+ */
 std::vector<uint8_t> FileManager::readFromFile(std::string filePath){
-	Lock lock;
-	LockGuard lock_guard(lock);
+
 
 	LogTags tags;
 	tags += LogTag("Name", "FileManager");
 
 	std::vector<uint8_t> buffer;
 
-
+	lock.lock();
 	int fileID = open(filePath.c_str(),O_RDONLY);
 	if (fileID == -1){
 		Logger::Stream(LEVEL_ERROR,tags) << "Unable to open file for reading: " << filePath;
+		lock.unlock();
 		return buffer;
 	}
 	uint8_t byte;
@@ -47,14 +52,19 @@ std::vector<uint8_t> FileManager::readFromFile(std::string filePath){
 		buffer.push_back(byte);
 	}
 	close(fileID);
+	lock.unlock();
 	return buffer;
 
 
 }
 
+/*!
+ * Writes to a file
+ * \param file path to the file that is to be written to
+ * \param vector of bytes that is to be written to a file
+ */
 void FileManager::writeToFile(std::string filePath, std::vector<uint8_t> &buffer){
-	Lock lock;
-	LockGuard lock_guard(lock);
+
 	LogTags tags;
 	tags += LogTag("Name", "FileManager");
 	if (filePath == ""){
@@ -67,20 +77,25 @@ void FileManager::writeToFile(std::string filePath, std::vector<uint8_t> &buffer
 		return;
 	}
 	else{
-
+		lock.lock();
 		ofstream f(filePath.c_str(),ofstream::out | ofstream::binary);
 
 		for(std::vector<uint8_t>::const_iterator i = buffer.begin(); i != buffer.end(); ++i){
 			f << *i;
 		}
 		f.close();
+		lock.unlock();
 	}
 
 }
 
+/*!
+ * Appends to a file
+ * \param file path to file that is to be added to
+ * \param vector of bytes that are to be added to a file
+ */
 void FileManager::appendToFile(std::string filePath, std::vector<uint8_t>& buffer){
-	Lock lock;
-	LockGuard lock_guard(lock);
+
 	LogTags tags;
 	tags += LogTag("Name", "FileManager");
 	if (filePath == ""){
@@ -92,18 +107,26 @@ void FileManager::appendToFile(std::string filePath, std::vector<uint8_t>& buffe
 		Logger::Stream(LEVEL_ERROR,tags) << "Unable to append to file, empty buffer: " << filePath;
 		return;
 	}
-
+	lock.lock();
 	int fileID = open(filePath.c_str(),O_APPEND);
 	if (fileID == -1){
 		Logger::Stream(LEVEL_ERROR,tags) << "Unable to append to file, file path does not exist: " << filePath;
+		lock.unlock();
 		return;
 	}
 	write(fileID, &buffer, buffer.size());
 	close(fileID);
+	lock.unlock();
 }
 
+/*!
+ * Deletes a file or directory
+ * \param path to either a file or a directory
+ */
 void FileManager::deleteFile(std::string filePath){
 	struct stat s;
+	LogTags tags;
+	tags += LogTag("Name", "FileManager");
 	if (stat((char*)filePath.c_str(),&s) == 0){
 		if( s.st_mode & S_IFDIR){
 			ExternalProcess rm;
@@ -111,13 +134,20 @@ void FileManager::deleteFile(std::string filePath){
 			rm.launchProcess(sh_cmd);
 		}
 		else
+			lock.lock();
 			remove((char*)filePath.c_str());
+			lock.unlock();
 	}
 	else
+		Logger::Stream(LEVEL_WARN,tags) << "No file or directory to be deleted.";
 		return;
 
 }
 
+/*!
+ * Checks the existance of a file
+ * \param file path to file to be checked
+ */
 bool FileManager::checkExistance(std::string filePath){
 	if (access(filePath.c_str(), F_OK) == 0){
 		return true;
@@ -125,25 +155,34 @@ bool FileManager::checkExistance(std::string filePath){
 	return false;
 }
 
+/*!
+ * Moves a file to a new path
+ * \param file path to file that is to be moved
+ * \param new file path that the file is being moved to
+ */
 void FileManager::moveFile(std::string filePath, std::string newfilePath){
 	if (access(filePath.c_str(), F_OK) == 0){
+		lock.lock();
 		rename(filePath.c_str(),newfilePath.c_str());
+		lock.unlock();
 	}
 }
 
+/*!
+ * Creates a new file name (full path) with the convention of ../nameOfFile_RebootCount_Time
+ * \param base path including the Name of the file
+ */
 std::string FileManager::createFileName(std::string basePath){
 
 	//get number of reboots
 	// Test again
 
-	Lock lock;
-	LockGuard lock_guard(lock);
-
-
+	lock.lock();
 	std::ifstream rebootFile(REBOOT_FILE);
 	int intCount;
 	rebootFile >> intCount;
 	rebootFile.close();
+	lock.unlock();
 
 	//convert boot count to string
 	stringstream strCount;
@@ -163,24 +202,31 @@ std::string FileManager::createFileName(std::string basePath){
 
 }
 
-
+/*!
+ * Copies a file into a new directory
+ * \param file path to the fle to be copied
+ * \param file path to the desired location
+ */
 void FileManager::copyFile(std::string filePath, std::string newfilePath){
 	if (access(filePath.c_str(), F_OK) == 0){
 		std::string command = "cp " + filePath + " " + newfilePath;
+		// TODO: get away from system command
 		system(command.c_str());
 	}
 }
 
-
+/*!
+ * Creates or updates the reboot count file.
+ */
 void FileManager::updateRebootCount(){
-	Lock lock;
-	LockGuard lock_guard(lock);
+
 	LogTags tags;
 	tags += LogTag("Name", "FileManager");
 	int RebootCount;
 
 	if (checkExistance(REBOOT_FILE)){
 		//read boot number from file
+		lock.lock();
 		std::ifstream rebootFile(REBOOT_FILE);
 		rebootFile >> RebootCount;
 		rebootFile.close();
@@ -189,16 +235,23 @@ void FileManager::updateRebootCount(){
 		std::ofstream out(REBOOT_FILE);
 		out << ++RebootCount;
 		out.close();
+		lock.unlock();
 	}else {
 		//this is the first time the boot count has been incremented, write initial boot count to file
 		RebootCount = 1;
+		lock.lock();
 		std::ofstream out(REBOOT_FILE);
 		out << RebootCount;
 		out.close();
+		lock.unlock();
 	}
 	Logger::Stream(LEVEL_INFO,tags) << "Updated Reboot Count to " << RebootCount;
 }
 
+
+/*!
+ * Parses the IEF files once recieved
+ */
 void FileManager::parseIEF(){
 
 	GroundCommunication ground;
@@ -210,6 +263,7 @@ void FileManager::parseIEF(){
 	char * type;
 	uint8_t lineNumber;
 
+	lock.lock();
 	FILE * file = fopen(IEF_PATH, "r");
 
 	while ((bytesRead = getline(&line, &len, file)) != -1){
@@ -227,10 +281,14 @@ void FileManager::parseIEF(){
 			ground.parseFileListRequest(line);
 		}
 	}
+	lock.unlock();
 
 	FileManager::deleteFile(IEF_PATH);
 }
 
+/*!
+ * Parses the PPE file onces recieved
+ */
 void FileManager::parsePPE(){
 	GroundCommunication ground;
 	LogTags tags;
@@ -243,10 +301,12 @@ void FileManager::parsePPE(){
 	char * type;
 	uint8_t lineNumber;
 
+	lock.lock();
 	FILE * file = fopen(PPE_PATH, "r");
 
 	if (file == NULL){
 		Logger::Stream(LEVEL_INFO, tags) << "No PPE File";
+		lock.unlock();
 		return;
 	}
 
@@ -261,18 +321,17 @@ void FileManager::parsePPE(){
 			ground.parseDeletionRequest(line);
 		}
 	}
+	lock.unlock();
 	FileManager::deleteFile(PPE_PATH);
 }
 
-
+/*!
+ * Creates a tarball with a given regex
+ * \param file path to the files to be delete (e.g. /home/EPS_92 would collect all files with EPS_92 in the front of their name)
+ * \param R indicates if it is to be: R = the regex itself, RB = before regex, and RA = after regex, which is indicated by the reboot count of the file name
+ */
 vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
-	// do regex delete too!!!!
-	// R containing
-	// RB before
-	// RA after
 
-	Lock lock;
-	LockGuard lock_guard(lock);
 	LogTags tags;
 	tags += LogTag("Name", "FileManager");
 
@@ -300,14 +359,14 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 		regex = regex+"_";
 		sprintf(sh_cmd, "tar -czf %s -C %s `ls -lr %s | grep ^- | awk '{print $9}' | grep \"%s\" | head -%d`>/dev/null 2>&1", (char*)newDest.c_str(), (char*)dest.c_str(), (char*)dest.c_str(), (char*)regex.c_str(), 50);
 		Files.push_back(newDest);
+		lock.lock();
 		if(!(fd = popen(sh_cmd, "r"))){
-			cout << " NEED LOGGER STATEMENTS FOR FAILURE TO CREATE TAR " << endl;
+			Logger::Stream(LEVEL_ERROR, tags) << "Tar creation failed.";
 		}
 		if(pclose(fd) == -1){
-			cout << " NEED LOGGER STATEMETS FOR FAILURE TO CLOSE PIPE WHEN CREATING TAR " << endl;
+			Logger::Stream(LEVEL_ERROR, tags) << "Tar pipe could not be closed.";
 		}
-
-
+		lock.unlock();
 	}else if(R == "RB"){
 		int i = dest.length()-1;
 		std::string regex = "";
@@ -334,22 +393,23 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 		if(dest != ext && dest.size() > ext.size() && (dest.substr((dest.size() - ext.size())) == regex)){
 			dest = dest.substr(0,dest.size()-ext.size());
 		}
+		lock.lock();
 		for(int y = 0; y < EN; y++){
 			std::string newDest = dest + pastReg[y] + ".tar";
 			pastReg[y] = pastReg[y] + "_";
 			sprintf(sh_cmd, "tar -czf %s -C %s `ls -lr %s | grep ^- | awk '{print $9}' | grep \"%s\" | head -%d` >/dev/null 2>&1", (char*)newDest.c_str(), (char*)dest.c_str(), (char*)dest.c_str(), (char*)pastReg[y].c_str(), 50);
-
 			if(!(fd = popen(sh_cmd, "r"))){
-				cout << " NEED LOGGER STATEMENTS FOR FAILURE TO CREATE TAR " << endl;
+				Logger::Stream(LEVEL_ERROR, tags) << "Tar creation failed.";
 				pclose(fd);
 				break;
 			}
 			if(pclose(fd) == -1){
-				cout << " NEED LOGGER STATEMETS FOR FAILURE TO CLOSE PIPE WHEN CREATING TAR " << endl;
+				Logger::Stream(LEVEL_ERROR, tags) << "Tar pipe could not be closed.";
 				break;
 			}
 			Files.push_back(newDest);
 		}
+		lock.unlock();
 	}else if(R == "RA"){
 		int i = dest.length()-1;
 		std::string regex = "";
@@ -366,12 +426,12 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 			i--;
 		}
 		std::string nRegex = regex.substr(0,regex.size() - end.size());
-
-
+		lock.lock();;
 		std::ifstream rebootFile(REBOOT_FILE);
 		int intCount;
 		rebootFile >> intCount;
 		rebootFile.close();
+		lock.unlock();
 		int itr = intCount - EN;
 		std::string pastReg[itr+1];
 		for(int x = 0; x < itr+1; x++){
@@ -384,45 +444,46 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 		if(dest != ext && dest.size() > ext.size() && (dest.substr((dest.size() - ext.size())) == regex)){
 			dest = dest.substr(0,dest.size()-ext.size());
 		}
+		lock.lock();
 		for(int y = 0; y < itr+1; y++){
 			std::string newDest = dest + pastReg[y] + ".tar";
 			pastReg[y] = pastReg[y] + "_";
 			sprintf(sh_cmd, "tar -czf %s -C %s `ls -lr %s | grep ^- | awk '{print $9}' | grep \"%s\" | head -%d` >/dev/null 2>&1", (char*)newDest.c_str(), (char*)dest.c_str(), (char*)dest.c_str(), (char*)pastReg[y].c_str(), 50);
-
 			if(!(fd = popen(sh_cmd, "r"))){
-				cout << " NEED LOGGER STATEMENTS FOR FAILURE TO CREATE TAR " << endl;
+				Logger::Stream(LEVEL_ERROR, tags) << "Tar creation failed.";
 				pclose(fd);
 				break;
 			}
 			if(pclose(fd) == -1){
-				cout << " NEED LOGGER STATEMETS FOR FAILURE TO CLOSE PIPE WHEN CREATING TAR " << endl;
+				Logger::Stream(LEVEL_ERROR, tags) << "Tar pipe could not be closed.";
 				break;
 			}
 			Files.push_back(newDest);
 		}
+		lock.unlock();
 	}
 	// handle multiple tar balls
+	Logger::Stream(LEVEL_INFO, tags) << "Files " << R << " successfully packaged with the file name " << dest;
 	return Files;
 }
 
 
 
 void FileManager::getFilesList(std::string dir){
-	Lock lock;
-	LockGuard lock_guard(lock);
+
 	LogTags tags;
 	tags += LogTag("Name", "FileManager");
 	// TODO: Error handling, decide on more cases
-
 	DIR *dp;
 	struct dirent *entry;
 	int count;
+	lock.lock();
 	dp = opendir(dir.c_str());
 	if(dp == NULL){
-		// add logger message
+		Logger::Stream(LEVEL_ERROR, tags) << "Directory could not be found.";
+		lock.unlock();
 		return;
 	}
-
 	count = 0;
 	// add full path
 	FILE * dwlkDFL = fopen(DFL_PATH,"a+");
@@ -433,12 +494,16 @@ void FileManager::getFilesList(std::string dir){
 	fwrite("\n",strlen("\n"),1,dwlkDFL);
 	closedir(dp);
 	fclose(dwlkDFL);
+	lock.unlock();
+	Logger::Stream(LEVEL_INFO, tags) << "File list successfully collected.";
 }
 
-
+/*!
+ * Deletes a group of files with a given regex
+ * \param file path to the files to be delete (e.g. /home/EPS_92 would collect all files with EPS_92 in the front of their name)
+ * \param R indicates if it is to be: R = the regex itself, RB = before regex, and RA = after regex, which is indicated by the reboot count of the file name
+ */
 int FileManager::regexDelete(std::string dest,std::string R){
-	Lock lock;
-	LockGuard lock_guard(lock);
 
 	LogTags tags;
 	tags += LogTag("Name", "FileManager");
@@ -461,16 +526,18 @@ int FileManager::regexDelete(std::string dest,std::string R){
 			}
 			regex = regex + "_";
 			sprintf(sh_cmd, "rm -r `ls -l %s | grep ^- | awk '{print \"%s\" \"/\" $9}' | grep \"%s\"`", (char*)dest.c_str(), (char*)dest.c_str(), (char*)regex.c_str());
+			lock.lock();
 			if(!(fd = popen(sh_cmd, "r"))){
-				cout << " NEED LOGGER STATEMENTS FOR FAILURE TO CREATE TAR " << endl;
+				Logger::Stream(LEVEL_ERROR, tags) << "Regex files could not be deleted.";
+				lock.unlock();
 				return -3;
 			}
 			if(pclose(fd) == -1){
-				cout << " NEED LOGGER STATEMETS FOR FAILURE TO CLOSE PIPE WHEN CREATING TAR " << endl;
+				Logger::Stream(LEVEL_ERROR, tags) << "Shell command for removing files could not be closed.";
+				lock.unlock();
 				return -1;
 			}
-
-
+			lock.unlock();
 		}else if(R == "RB"){
 			int i = dest.length()-1;
 			std::string regex = "";
@@ -497,21 +564,22 @@ int FileManager::regexDelete(std::string dest,std::string R){
 			if(dest != ext && dest.size() > ext.size() && (dest.substr((dest.size() - ext.size())) == regex)){
 				dest = dest.substr(0,dest.size()-ext.size());
 			}
+			lock.lock();
 			for(int y = 0; y < EN; y++){
 				sprintf(sh_cmd, "rm -r `ls -l %s | grep ^- | awk '{print \"%s\" \"/\" $9}' | grep \"%s\"`", (char*)dest.c_str(), (char*)dest.c_str(), (char*)pastReg[y].c_str());;
-
 				if(!(fd = popen(sh_cmd, "r"))){
-					cout << " NEED LOGGER STATEMENTS FOR FAILURE TO CREATE TAR " << endl;
+					Logger::Stream(LEVEL_ERROR, tags) << "Regex files could not be deleted.";
 					pclose(fd);
+					lock.unlock();
 					return -3;
-					break;
 				}
 				if(pclose(fd) == -1){
-					cout << " NEED LOGGER STATEMETS FOR FAILURE TO CLOSE PIPE WHEN CREATING TAR " << endl;
+					Logger::Stream(LEVEL_ERROR, tags) << "Shell command for removing files could not be closed.";
+					lock.unlock();
 					return -1;
-					break;
 				}
 			}
+			lock.unlock();
 		}else if(R == "RA"){
 			int i = dest.length()-1;
 			std::string regex = "";
@@ -528,12 +596,12 @@ int FileManager::regexDelete(std::string dest,std::string R){
 				i--;
 			}
 			std::string nRegex = regex.substr(0,regex.size() - end.size());
-
-
+			lock.lock();
 			std::ifstream rebootFile(REBOOT_FILE);
 			int intCount;
 			rebootFile >> intCount;
 			rebootFile.close();
+			lock.unlock();
 			int itr = intCount - EN;
 			std::string pastReg[itr+1];
 			for(int x = 0; x < itr+1; x++){
@@ -546,23 +614,25 @@ int FileManager::regexDelete(std::string dest,std::string R){
 			if(dest != ext && dest.size() > ext.size() && (dest.substr((dest.size() - ext.size())) == regex)){
 				dest = dest.substr(0,dest.size()-ext.size());
 			}
+			lock.lock();
 			for(int y = 0; y < itr+1; y++){
 				sprintf(sh_cmd, "rm -r `ls -l %s | grep ^- | awk '{print \"%s\" \"/\" $9}' | grep \"%s\"`", (char*)dest.c_str(), (char*)dest.c_str(), (char*)pastReg[y].c_str());;
-
 				if(!(fd = popen(sh_cmd, "r"))){
-					cout << " NEED LOGGER STATEMENTS FOR FAILURE TO CREATE TAR " << endl;
+					Logger::Stream(LEVEL_ERROR, tags) << "Regex files could not be deleted.";
 					pclose(fd);
+					lock.unlock();
 					return -3;
-					break;
 				}
 				if(pclose(fd) == -1){
-					cout << " NEED LOGGER STATEMETS FOR FAILURE TO CLOSE PIPE WHEN CREATING TAR " << endl;
+					Logger::Stream(LEVEL_ERROR, tags) << "Shell command for removing files could not be closed.";
+					lock.unlock();
 					return -1;
-					break;
 				}
 			}
+			lock.unlock();
 		}
 	//TODO: Error handling
+	Logger::Stream(LEVEL_INFO, tags) << "Files deleted " << R << " with the file path including " << dest;
 	return 0;
 }
 

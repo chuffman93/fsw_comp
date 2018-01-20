@@ -353,7 +353,6 @@ TEST_CASE("FILEMANAGER: Manage Regex","[filemanager]"){
 		REQUIRE(access("/home/EPS_3_1.txt",F_OK) == 0);
 		REQUIRE(access("/home/EPS_41_1.txt",F_OK) == 0);
 		REQUIRE(access("/home/EPS_38_1.txt",F_OK) == 0);
-
 		std::vector<std::string> Files;
 		for(int i = 5; i >= 0; i--){
 			std::ostringstream oss;

@@ -27,6 +27,10 @@
 #define BCN_GPS				HOME_DIRECTORY	"/GPS"
 #define BCN_SYS				HOME_DIRECTORY	"/SYS"
 
+#define RAD_FILE_PATH			"/SD_3/RAD" // Science data
+// TODO: Delete
+#define MOCK_RAD_PATH		HOME_DIRECTORY
+
 #define ACS_PATH			"/ACS"
 #define CDH_PATH			"/CDH"
 #define COM_PATH			"/COM"

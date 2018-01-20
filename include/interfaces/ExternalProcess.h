@@ -17,7 +17,7 @@
 #include <string.h>
 #include <sstream>
 #include <unistd.h>
-
+#include "core/Lock.h"
 
 class ExternalProcess{
 public:
@@ -29,6 +29,7 @@ public:
 	int checkPID();
 private:
 	int pid;
+	Lock lock;
 
 
 

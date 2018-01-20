@@ -16,6 +16,7 @@ ExternalProcess::ExternalProcess(){
 
 /*!
  * Used to initialize a process requiring only one line such as file transfer protocols
+ * \param array of arguments to system call
  */
 void ExternalProcess::launchProcess(char * argv[]){
 	int f = fork();
@@ -28,6 +29,8 @@ void ExternalProcess::launchProcess(char * argv[]){
 
 /*!
  * Used to initialize a process that needs to also be configured (e.g. slip)
+ * \param array of arguments to first system call
+ * \param array of arguments to second system call
  */
 void ExternalProcess::launchProcess(char * argv[],char * argc[]){
 	int f = fork();

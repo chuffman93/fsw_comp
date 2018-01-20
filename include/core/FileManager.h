@@ -59,6 +59,7 @@ public:
 	//static FileManager fm;
 
 private:
+	static Lock lock;
 
 };
 
