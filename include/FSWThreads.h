@@ -15,6 +15,7 @@
 #include "core/ScheduleManager.h"
 #include "subsystem/SubsystemBase.h"
 #include "core/FileManager.h"
+#include "util/BeaconManager.h"
 
 #include <vector>
 

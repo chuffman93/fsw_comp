@@ -14,7 +14,7 @@
 
 class CDH: public SubsystemBase{
 public:
-	CDH(){}
+	CDH(){ healthFileSize = 0;}
 	~CDH(){}
 
 	//Will set up the Gpio lines and the acp devices

@@ -35,6 +35,8 @@ public:
 	//Get battery capacity
 	uint16_t getBatteryCapacity();
 
+	ACPPacket sendOpcode(uint8_t opcode);
+
 	HealthFileStruct health;
 
 private:

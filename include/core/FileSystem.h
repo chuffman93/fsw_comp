@@ -8,7 +8,7 @@
 #endif
 
 #ifdef UBUNTU
-#define HOME_DIRECTORY		"/home"
+#define HOME_DIRECTORY		"./home"
 #endif
 
 #define UPLINK_DIRECTORY	HOME_DIRECTORY		"/.uplink"
@@ -23,9 +23,13 @@
 #define NEW_DEFAULT_SCH		UPLINK_DIRECTORY	"/NDSCH"
 
 // TODO: Change from HOME_DIRECTORY to DOWNLINK_DIRECTORY
-#define DFL_PATH			HOME_DIRECTORY	"/DLF.txt"
+#define DFL_PATH			HOME_DIRECTORY	"/DFL.txt"
 #define BCN_GPS				HOME_DIRECTORY	"/GPS"
 #define BCN_SYS				HOME_DIRECTORY	"/SYS"
+
+#define RAD_FILE_PATH			"/SD_3/RAD" // Science data
+// TODO: Delete
+#define MOCK_RAD_PATH		HOME_DIRECTORY
 
 #define ACS_PATH			"/ACS"
 #define CDH_PATH			"/CDH"
@@ -34,6 +38,12 @@
 #define GPS_PATH			"/GPS"
 #define RAD_PATH			"/RAD"
 
+/*
 #define SOT_PATH			UPLINK_DIRECTORY	"/SOT"
-#define IEF_PATH			UPLINK_DIRECTORY	"/IEF"
-#define PPE_PATH			UPLINK_DIRECTORY	"/PPE"
+#define IEF_PATH			UPLINK_DIRECTORY	"/IEF.txt"
+#define PPE_PATH			UPLINK_DIRECTORY	"/PPE.txt"
+*/
+
+#define SOT_PATH			HOME_DIRECTORY	"/SOT"
+#define IEF_PATH			HOME_DIRECTORY	"/IEF.txt"
+#define PPE_PATH			HOME_DIRECTORY	"/PPE.txt"

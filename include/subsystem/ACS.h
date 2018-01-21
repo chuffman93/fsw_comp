@@ -51,7 +51,7 @@ public:
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 	void getHealthStatus();
 
-	static ACPPacket sendOpcode(ACSOpcode opcode, ACS& acs);
+	ACPPacket sendOpcode(uint8_t opcode);
 
 	HealthFileStruct health;
 private:

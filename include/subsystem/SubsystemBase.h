@@ -33,6 +33,8 @@ public:
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 	virtual void getHealthStatus() = 0;
 
+	virtual ACPPacket sendOpcode(uint8_t opcode) = 0;
+
 	HealthFileStruct health;
 private:
 	Lock lock;

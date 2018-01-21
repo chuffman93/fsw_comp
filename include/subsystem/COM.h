@@ -38,6 +38,8 @@ public:
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 	void getHealthStatus();
 
+	ACPPacket sendOpcode(uint8_t opcode);
+
 	std::string currentHealthFile;
 	size_t healthFileSize;
 private:

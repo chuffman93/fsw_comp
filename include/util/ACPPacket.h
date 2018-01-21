@@ -27,12 +27,16 @@ enum subsystem_sync_t{
 };
 
 enum SubsystemOpcode{
-	OP_TESTLED = 0,
+	OP_MIN = 0,
+	OP_TESTLED = OP_MIN,
 	OP_TESTCONFIG = 1,
 	OP_TESTDATA = 2,
 	OP_TESTALIVE = 8,
 	OP_HEALTHSTATUS = 16,
 	OP_SUBSYSTEMRESET = 17,
+	OP_MAX = 18,
+
+
 };
 
 typedef enum ErrorOpcode {
@@ -105,8 +109,8 @@ struct ACPPacket{
 	uint16_t crc;
 
 	ACPPacket();
-	ACPPacket(subsystem_sync_t sync, uint16_t op);
-	ACPPacket(subsystem_sync_t sync, uint16_t op, std::vector<uint8_t> message);
+	ACPPacket(subsystem_sync_t sync, uint8_t op);
+	ACPPacket(subsystem_sync_t sync, uint8_t op, std::vector<uint8_t> message);
 
 	std::string summary() const;
 	std::vector<uint8_t> pack();

@@ -22,14 +22,14 @@ ACPPacket::ACPPacket()
 }
 
 //! Create a packet from the given subsystem and opcode
-ACPPacket::ACPPacket(subsystem_sync_t sync, uint16_t op)
+ACPPacket::ACPPacket(subsystem_sync_t sync, uint8_t op)
 :sync(sync), id(0), opcode(op), crc(0)
 {
 
 }
 
 //! Create a packet from the given subsystem opcode and message
-ACPPacket::ACPPacket(subsystem_sync_t sync, uint16_t op, std::vector<uint8_t> message)
+ACPPacket::ACPPacket(subsystem_sync_t sync, uint8_t op, std::vector<uint8_t> message)
 :sync(sync), id(0), opcode(op), message(message), crc(0)
 {
 

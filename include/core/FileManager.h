@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "interfaces/ExternalProcess.h"
 
 class FileManager {
 public:
@@ -45,16 +46,17 @@ public:
 	static void updateRebootCount();
 
 
-	static int packageFiles(const char* dest, const char* filePath, const char* regex);
-	static void getFilesList(std::string dir);
-	static int regexDelete(const char* filePath, const char * regex);
+	static std::vector<std::string> packageFiles(std::string filePath,std::string R);
+	static void generateFilesList(std::string dir);
+	static int regexDelete(std::string filePath,std::string R);
 
-	static std::vector<char*> parseGroundFile(std::string filePath);
+	static std::vector<std::string> parseGroundFile(std::string filePath);
 
 
 	//static FileManager fm;
 
 private:
+	static Lock lock;
 
 };
 

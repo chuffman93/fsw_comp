@@ -11,10 +11,15 @@
 #include "core/FileManager.h"
 #include "core/ScheduleManager.h"
 #include "subsystem/SubsystemBase.h"
+#include "subsystem/ACS.h"
+#include "subsystem/COM.h"
+#include "subsystem/EPS.h"
+#include "subsystem/RAD.h"
 #include <queue>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <string>
 
 typedef enum FSWCommandTypes {
 	FSW_CMD_REQUEST_RESET = 1,
@@ -44,21 +49,17 @@ public:
 	uint32_t ComTimeout;
 
 	std::queue<std::string> DownlinkQueue;
-private:
+PRIVATE:
 	std::string trimNewline(std::string buffer);
 	void executeFSWCommand(int command);
-	void parseDownlinkRequest(char *line);
-	void parseDeletionRequest(char *line);
-	void parseCommandRequest(char *line);
-	void parseFileListRequest(char *line);
+	void parseDownlinkRequest(std::string line);
+	void parseDeletionRequest(std::string line);
+	void parseCommandRequest(std::string line);
+	void parseFileListRequest(std::string line);
 	std::vector<SubsystemBase*> subsystems;
 	LogTags tags;
 
 
-	//ACS& acs;
-	//COM& com;
-	//EPS& eps;
-	//RAD& rad;
 
 };
 

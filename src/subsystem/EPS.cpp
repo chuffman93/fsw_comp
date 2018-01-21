@@ -22,6 +22,7 @@ EPS::EPS(ACPInterface& acp, SubPowerInterface& subPower)
 	health.sync = EPS_SYNC;
 	health.fileSize = MAX_FILE_SIZE;
 	health.basePath = HEALTH_DIRECTORY EPS_PATH "/EPS";
+	batteryCharge = 0;
 }
 
 EPS::~EPS(){}
@@ -77,6 +78,14 @@ void EPS::getHealthStatus(){
 	ByteStream bs(acpReturn.message);
 	bs.seek(12) >> batteryCharge;
 
+}
+
+ACPPacket EPS::sendOpcode(uint8_t opcode){
+	LockGuard l(lock);
+	ACPPacket acpPacket(EPS_SYNC, opcode);
+	ACPPacket acpReturn;
+	acp.transaction(acpPacket,acpReturn);
+	return acpReturn;
 }
 
 

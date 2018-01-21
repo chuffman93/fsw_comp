@@ -11,16 +11,15 @@
 #include "core/GroundCommunication.h"
 #include "util/TimeKeeper.h"
 
-
-
-void * FSWThreads::GetHealthStatusThread(void * args){
-	SubsystemSequenceStruct * subsystemStruct = (SubsystemSequenceStruct*)args;
+void * FSWThreads::GetHealthStatusThread(void * args) {
+	SubsystemSequenceStruct * subsystemStruct = (SubsystemSequenceStruct*) args;
 	Watchdog * watchdog = subsystemStruct->watchdog;
 	std::vector<SubsystemBase*> healthSeq = subsystemStruct->SubsystemSequence;
-	while(1){
+	while (1) {
 		puts("Health and status thread Pinging");
 		watchdog->KickWatchdog();
-		for (std::vector<SubsystemBase*>::iterator i = healthSeq.begin(); i != healthSeq.end(); i++){
+		for (std::vector<SubsystemBase*>::iterator i = healthSeq.begin();
+				i != healthSeq.end(); i++) {
 			(*i)->getHealthStatus();
 		}
 		sleep(2);
@@ -28,18 +27,18 @@ void * FSWThreads::GetHealthStatusThread(void * args){
 	return NULL;
 }
 
-void * FSWThreads::ModeManagerThread(void * args){
-	ModeManagerStruct * modeStruct = (ModeManagerStruct*)args;
+void * FSWThreads::ModeManagerThread(void * args) {
+	ModeManagerStruct * modeStruct = (ModeManagerStruct*) args;
 	Watchdog * watchdog = modeStruct->watchdog;
 	std::vector<std::vector<SubsystemBase*> > seq = modeStruct->FSWSequence;
 	ScheduleManager * scheduler = modeStruct->scheduler;
 
 	FSWMode mode;
-	while(1){
+	while (1) {
 		puts("Mode Manager thread Pinging");
 		watchdog->KickWatchdog();
 		mode = scheduler->checkNewMode();
-		for (unsigned int i = 0; i < seq.at(mode).size(); i++){
+		for (unsigned int i = 0; i < seq.at(mode).size(); i++) {
 			seq.at(mode).at(i)->handleMode(mode);
 		}
 
@@ -49,9 +48,9 @@ void * FSWThreads::ModeManagerThread(void * args){
 
 }
 
-void * FSWThreads::GPSManagerThread(void * args){
-	Watchdog * watchdog = (Watchdog*)args;
-	while(1){
+void * FSWThreads::GPSManagerThread(void * args) {
+	Watchdog * watchdog = (Watchdog*) args;
+	while (1) {
 		puts("GPS Manager thread Pinging");
 		//watchdog->KickWatchdog();
 		sleep(2);
@@ -59,10 +58,9 @@ void * FSWThreads::GPSManagerThread(void * args){
 	return NULL;
 }
 
-
-void * FSWThreads::WatchdogThread(void * args){
+void * FSWThreads::WatchdogThread(void * args) {
 	Watchdog * watchdog = (Watchdog*) args;
-	while(1){
+	while (1) {
 		sleep(4);
 		watchdog->CheckThreads();
 		puts("Watchdog thread Pinging");
@@ -71,16 +69,15 @@ void * FSWThreads::WatchdogThread(void * args){
 	return NULL;
 }
 
-void * FSWThreads::GroundCommunicationThread(void * args){
-	GroundCommunicationStruct * groundStruct = (GroundCommunicationStruct*)args;
+void * FSWThreads::GroundCommunicationThread(void * args) {
+	GroundCommunicationStruct * groundStruct = (GroundCommunicationStruct*) args;
 	Watchdog * watchdog = groundStruct->watchdog;
 	GroundCommunication ground(groundStruct->Subsystems);
-	while(1){
+	while (1) {
 		sleep(2);
 		watchdog->CheckThreads();
-
-		}
 	}
 
-
+	return NULL;
+}
 

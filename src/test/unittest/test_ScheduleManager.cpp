@@ -62,9 +62,9 @@ TEST_CASE("Schedule Manager: test load schedule", "[scheduler]"){
 		bs << mode1 << epoch1 << duration1 << mode2 << epoch2 << duration2 << mode3 << epoch3 << duration3 << mode4 << epoch4 << duration4;
 		std::vector<uint8_t> newSchedule = bs.vec();
 
-		FileManager::writeToFile("/home/dummmySchedule", newSchedule);
+		FileManager::writeToFile(HOME_DIRECTORY"/dummmySchedule", newSchedule);
 		ScheduleManager sman;
-		sman.loadSchedule("/home/dummmySchedule");
+		sman.loadSchedule(HOME_DIRECTORY"/dummmySchedule");
 
 		REQUIRE(!sman.ScheduleQueue.empty());
 		REQUIRE(sman.ScheduleQueue.front().mode == mode1);

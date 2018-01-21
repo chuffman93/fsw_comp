@@ -23,11 +23,13 @@ void * TestThreadNormal(void * args){
 		usleep(1000);
 		watchdog->KickWatchdog();
 	}
+	return NULL;
 }
 
 void * TestThreadHang(void * args){
 	Watchdog * watchdog = (Watchdog*)args;
 	while(1);
+	return NULL;
 }
 
 //TODO: Fix adams shitty test case

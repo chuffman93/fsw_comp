@@ -6,14 +6,9 @@
  */
 
 #include "core/GroundCommunication.h"
-#include "subsystem/ACS.h"
-#include "subsystem/COM.h"
-#include "subsystem/EPS.h"
-#include "subsystem/RAD.h"
-#include "interfaces/ACPInterface.h"
 
 GroundCommunication::GroundCommunication(std::vector<SubsystemBase*> subsystems)
-: subsystems(subsystems), stateDownlink(false), statePostPass(false), ComStartTime(-1), ComTimeout(720)
+: stateDownlink(false), statePostPass(false), ComStartTime(-1), ComTimeout(720), subsystems(subsystems)
 {
 	tags += LogTag("Name", "GroundCommunication");
 }
@@ -45,11 +40,8 @@ void GroundCommunication::clearDownlink(){
 
 std::string GroundCommunication::trimNewline(std::string buffer){
 	  // Remove the newline at the end of a string
-	  size_t len = buffer.size();
-	  if (len && (buffer[len-1] == '\n')) {
-	    buffer[len-1] = '\0';
-	  }
-	  return buffer;
+	buffer.erase(std::remove(buffer.begin(), buffer.end(), '\n'), buffer.end());
+	return buffer;
 }
 
 void GroundCommunication::executeFSWCommand(int command){
@@ -81,47 +73,12 @@ void GroundCommunication::executeFSWCommand(int command){
 	}
 }
 
-void GroundCommunication::parseDownlinkRequest(char *line){
-	char * type = strtok(line, ",");
-	if (type == NULL){
-		//log error
-		return;
-	}
-	char * file = strtok(line, ",");
-	if (file == NULL){
-		//log error
-		return;
-	}
+void GroundCommunication::parseDownlinkRequest(std::string line){
+	char downlinkRequest[100];
+	strcpy(downlinkRequest, line.c_str());
 
-	if (strcmp(type,"F")){
-		while (file != NULL){
+	char * dwl = strtok(downlinkRequest,",");
 
-			file = strtok(NULL,",");
-		}
-
-
-	}if (strcmp(type,"R")){
-		while (file != NULL){
-
-			file = strtok(NULL,",");
-		}
-
-	}if (strcmp(type,"RB")){
-		while (file != NULL){
-
-			file = strtok(NULL,",");
-		}
-
-	}if (strcmp(type,"RA")){
-		while (file != NULL){
-
-			file = strtok(NULL,",");
-		}
-
-	}
-}
-
-void GroundCommunication::parseDeletionRequest(char *line){
 	char * type = strtok(NULL, ",");
 	if (type == NULL){
 		//log error
@@ -133,35 +90,107 @@ void GroundCommunication::parseDeletionRequest(char *line){
 		return;
 	}
 
-	if (strcmp(type,"F")){
+	if (strcmp(type,"F") == 0){
 		while (file != NULL){
-
+			std::string path = trimNewline(std::string(file));
+			DownlinkQueue.push(path);
 			file = strtok(NULL,",");
 		}
 
 
-	}if (strcmp(type,"R")){
+	}else if (strcmp(type,"R") == 0){
 		while (file != NULL){
-
+			std::string regex = trimNewline(std::string(file));
+			std::vector<std::string> reg = FileManager::packageFiles(regex,"R");
+			std::vector<std::string>::iterator it;
+			for (it = reg.begin(); it <= reg.end(); it++){
+				DownlinkQueue.push(*it);
+			}
 			file = strtok(NULL,",");
 		}
 
-	}if (strcmp(type,"RB")){
+	}else if (strcmp(type,"RB") == 0){
 		while (file != NULL){
-
+			std::string regex = trimNewline(std::string(file));
+			std::vector<std::string> reg = FileManager::packageFiles(regex,"RB");
+			std::vector<std::string>::iterator it;
+			for (it = reg.begin(); it <= reg.end(); it++){
+				DownlinkQueue.push(*it);
+			}
 			file = strtok(NULL,",");
 		}
 
-	}if (strcmp(type,"RA")){
+	}else if (strcmp(type,"RA") == 0){
 		while (file != NULL){
+			std::string regex = trimNewline(std::string(file));
+			std::vector<std::string> reg = FileManager::packageFiles(regex,"RA");
+			std::vector<std::string>::iterator it;
+			for (it = reg.begin(); it <= reg.end(); it++){
+				DownlinkQueue.push(*it);
+			}
+			file = strtok(NULL,",");
+		}
 
+	}else {
+		//log error
+	}
+}
+
+void GroundCommunication::parseDeletionRequest(std::string line){
+	char deleteRequest[100];
+	strcpy(deleteRequest, line.c_str());
+	char * del = strtok(deleteRequest, ",");
+
+	char * type = strtok(NULL, ",");
+	if (type == NULL){
+		//log error
+		return;
+	}
+	char * file = strtok(NULL, ",");
+	if (file == NULL){
+		//log error
+		return;
+	}
+
+	if (strcmp(type,"F") == 0){
+		while (file != NULL){
+			std::string path = trimNewline(std::string(file));
+			FileManager::deleteFile(path);
+			file = strtok(NULL,",");
+		}
+
+
+	}if (strcmp(type,"R") == 0){
+		while (file != NULL){
+			std::string regex = trimNewline(std::string(file));
+			FileManager::regexDelete(regex,"R");
+			file = strtok(NULL,",");
+		}
+
+	}if (strcmp(type,"RB") == 0){
+		while (file != NULL){
+			std::string regex = trimNewline(std::string(file));
+			FileManager::regexDelete(regex,"R");
+			file = strtok(NULL,",");
+		}
+
+	}if (strcmp(type,"RA") == 0){
+		while (file != NULL){
+			std::string regex = trimNewline(std::string(file));
+			FileManager::regexDelete(regex,"R");
 			file = strtok(NULL,",");
 		}
 
 	}
 }
 
-void GroundCommunication::parseCommandRequest(char *line){
+void GroundCommunication::parseCommandRequest(std::string line){
+	//TODO: error handling for opcodes numbers in between min and max that don't exist
+	char commandRequest[100];
+	strcpy(commandRequest, line.c_str());
+
+	char * c = strtok(commandRequest,",");
+
 	char * sys = strtok(NULL,",");
 	if (sys == NULL){
 		Logger::Stream(LEVEL_ERROR,tags) << "ParseCommandRequest: No system given for command execution";
@@ -174,7 +203,7 @@ void GroundCommunication::parseCommandRequest(char *line){
 		return;
 	}
 
-	if (strcmp(sys,"SYS")){
+	if (strcmp(sys,"SYS") == 0){
 		while (command != NULL){
 			std::string cmd = trimNewline(std::string(command));
 			command = (char*) cmd.c_str();
@@ -184,10 +213,10 @@ void GroundCommunication::parseCommandRequest(char *line){
 			command = strtok(NULL,",");
 		}
 
-	}else if (strcmp(sys,"FSW")){
+	}else if (strcmp(sys,"FSW") == 0){
 		while(command != NULL){
 			std::string tempCmd = trimNewline(std::string(command));
-			int cmd = atoi((char*)tempCmd.c_str());
+			int cmd = atoi(tempCmd.c_str());
 			if (cmd <= 0 || cmd >= FSW_CMD_MAX) {
 				Logger::Stream(LEVEL_ERROR,tags) << "Unable to Execute FSW Command, command does not exist";
 			}else{
@@ -196,76 +225,68 @@ void GroundCommunication::parseCommandRequest(char *line){
 			}
 			command = strtok(NULL,",");
 		}
-	}/*else if (strcmp(sys, "ACS")){
+	}else if (strcmp(sys, "ACS") == 0){
 		while (command != NULL){
 			std::string tempCmd = trimNewline(std::string(command));
-			int cmd = atoi((char*)tempCmd.c_str());
-			if (cmd <= OP_ACS_MIN || cmd >= OP_ACS_MAX){
-				Logger::Stream(LEVEL_ERROR,tags) << "Unable to Execute ACS Command, command does not exist";
+			uint8_t cmd = (uint8_t)atoi((char*)tempCmd.c_str());
+			if ((cmd >= OP_ACS_MIN && cmd < OP_ACS_MAX) || (cmd >= OP_MIN && cmd < OP_MAX)){
+				ACPPacket ret = subsystems[0]->sendOpcode(cmd);
 			}else{
-				ACPPacket acpPacket(ACS_SYNC, (ACSOpcode)cmd);
-				ACPPacket acpReturn;
-				//ACPInterface acp;
-				//acp.transaction(acpPacket, acpReturn);
+				Logger::Stream(LEVEL_ERROR,tags) << "Unable to Execute ACS Command, command does not exist";
+
 			}
 			command = strtok(NULL,",");
 		}
 
-	}else if (strcmp(sys, "COM")){
+	}else if (strcmp(sys, "COM") == 0){
 		while (command!= NULL){
 			std::string tempCmd = trimNewline(std::string(command));
-			int cmd = atoi((char*)tempCmd.c_str());
-			if (cmd <= OP_COM_MIN || cmd >= OP_COM_MAX){
+			uint8_t cmd = (uint8_t)atoi((char*)tempCmd.c_str());
+			if ((cmd >= OP_ACS_MIN && cmd < OP_ACS_MAX) || (cmd >= OP_MIN && cmd < OP_MAX)){
+				ACPPacket ret = subsystems[1]->sendOpcode(cmd);
+			}else{
 				Logger::Stream(LEVEL_ERROR,tags) << "Unable to Execute COM Command, command does not exist";
-			}else{
-				ACPPacket acpPacket(COM_SYNC, (COMOpcode)cmd);
-				ACPPacket acpReturn;
-				//ACPInterface acp;
-				//acp.transaction(acpPacket, acpReturn);
 			}
 			command = strtok(NULL,",");
 		}
 
-	}else if (strcmp(sys, "EPS")){
+	}else if (strcmp(sys, "EPS") == 0){
 		while (command != NULL){
 			std::string tempCmd = trimNewline(std::string(command));
-			int cmd = atoi((char*)tempCmd.c_str());
-			if (cmd <= OP_EPS_MIN || cmd >= OP_EPS_MAX){
+			uint8_t cmd = (uint8_t)atoi((char*)tempCmd.c_str());
+			if ((cmd >= OP_ACS_MIN && cmd < OP_ACS_MAX) || (cmd >= OP_MIN && cmd < OP_MAX)){
+				ACPPacket ret = subsystems[2]->sendOpcode(cmd);
+			}else{
 				Logger::Stream(LEVEL_ERROR,tags) << "Unable to Execute EPS Command, command does not exist";
-			}else{
-				ACPPacket acpPacket(EPS_SYNC, (EPSOpcode)cmd);
-				ACPPacket acpReturn;
-				//ACPInterface acp;
-				//acp.transaction(acpPacket, acpReturn);
 
 			}
 			command = strtok(NULL,",");
 		}
-	}else if (strcmp(sys, "RAD")){
+	}else if (strcmp(sys, "RAD") == 0){
 		while (command != NULL){
 			std::string tempCmd = trimNewline(std::string(command));
-			int cmd = atoi((char*)tempCmd.c_str());
-			if (cmd <= OP_PLD_CMD_MIN || cmd >= OP_PLD_CMD_MAX){
-				Logger::Stream(LEVEL_ERROR,tags) << "Unable to Execute RAD Command, command does not exist";
+			uint8_t cmd = (uint8_t)atoi((char*)tempCmd.c_str());
+			if ((cmd >= OP_ACS_MIN && cmd < OP_ACS_MAX) || (cmd >= OP_MIN && cmd < OP_MAX)){
+				ACPPacket ret = subsystems[3]->sendOpcode(cmd);
 			}else{
-				ACPPacket acpPacket(RAD_SYNC, (PLDOpcode)cmd);
-				ACPPacket acpReturn;
-				//ACPInterface acp;
-				//acp.transaction(acpPacket, acpReturn);
+				Logger::Stream(LEVEL_ERROR,tags) << "Unable to Execute RAD Command, command does not exist";
 			}
 			command = strtok(NULL,",");
 		}
-	}*/
+	}
 }
 
-void GroundCommunication::parseFileListRequest(char *line){
+void GroundCommunication::parseFileListRequest(std::string line){
+	char downlinkRequest[100];
+	strcpy(downlinkRequest, line.c_str());
+	char * request = strtok(downlinkRequest,",");
 	char * dir = strtok(NULL, ",");
 	if (dir == NULL){
 		//log error
 	}
-
 	while (dir != NULL){
-
+		std::string directory = trimNewline(std::string(dir));
+		FileManager::generateFilesList(directory);
 		dir = strtok(NULL, ",");
 	}
 }
@@ -273,25 +294,25 @@ void GroundCommunication::parseFileListRequest(char *line){
 
 void GroundCommunication::parseIEF(){
 
-	std::vector<char*> requests = FileManager::parseGroundFile(IEF_PATH);
+	std::vector<std::string> requests = FileManager::parseGroundFile(IEF_PATH);
+	char line[100];
 	char * type;
-	char * line;
 
-	while (!requests.empty()){
-		line = requests.front();
+	std::vector<std::string>::iterator it;
+	for (it = requests.begin(); it != requests.end(); it++){
+		strcpy(line, (*it).c_str());
 		type = strtok(line,",");
 		if (type == NULL){
 			continue;
-		}else if (strcmp(type,"CMD")){
-			parseCommandRequest(line);
-		}else if (strcmp(type,"DWL")){
-			parseDownlinkRequest(line);
-		}else if (strcmp(type,"DLT")){
-			parseDeletionRequest(line);
-		}else if (strcmp(type, "DFL")){
-			parseFileListRequest(line);
+		}else if (strcmp(type,"CMD") == 0){
+			parseCommandRequest((*it).c_str());
+		}else if (strcmp(type,"DWL") == 0){
+			parseDownlinkRequest((*it).c_str());
+		}else if (strcmp(type,"DLT") == 0){
+			parseDeletionRequest((*it).c_str());
+		}else if (strcmp(type, "DFL") == 0){
+			parseFileListRequest((*it).c_str());
 		}
-		requests.erase(requests.begin());
 	}
 
 	FileManager::deleteFile(IEF_PATH);
@@ -299,25 +320,25 @@ void GroundCommunication::parseIEF(){
 
 
 void GroundCommunication::parsePPE(){
-	std::vector<char*> requests = FileManager::parseGroundFile(PPE_PATH);
+	std::vector<std::string> requests = FileManager::parseGroundFile(PPE_PATH);
+	char line[100];
 	char * type;
-	char * line;
 
-	while (!requests.empty()){
-		line = requests.front();
+	std::vector<std::string>::iterator it;
+	for (it = requests.begin(); it <= requests.end(); it++){
+
+		strcpy(line, (*it).c_str());
 		type = strtok(line,",");
+
 		if (type == NULL){
 			continue;
-		}else if (strcmp(type,"CMD")){
+		}else if (strcmp(type,"CMD") == 0){
 			parseCommandRequest(line);
-		}else if (strcmp(type,"DWL")){
-			parseDownlinkRequest(line);
-		}else if (strcmp(type,"DLT")){
+		}else if (strcmp(type,"DLT") == 0){
 			parseDeletionRequest(line);
-		}else if (strcmp(type, "DFL")){
-			parseFileListRequest(line);
+		}else {
+			//log error
 		}
-		requests.erase(requests.begin());
 	}
 
 	FileManager::deleteFile(PPE_PATH);

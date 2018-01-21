@@ -15,6 +15,9 @@
 #include "core/FileSystem.h"
 #include "core/FileManager.h"
 #include "core/Lock.h"
+#include "interfaces/ExternalProcess.h"
+#include <fstream>
+#include <iostream>
 
 #include <stdio.h>
 
@@ -31,6 +34,10 @@ enum PLDOpcode {
 	OP_BACKUPSTARTSCIENCE = 96,
 };
 
+struct PLDconfig{
+	int32_t chunkSize = 102400;
+};
+
 class RAD: public SubsystemBase{
 public:
 	RAD(ACPInterface& acp, SubPowerInterface& subPower);
@@ -43,9 +50,11 @@ public:
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 	void getHealthStatus();
 
+	ACPPacket sendOpcode(uint8_t opcode);
+
 	std::string currentHealthFile;
 	size_t healthFileSize;
-private:
+PRIVATE:
 	//Various configurations for the data collection
 	void configMotor();
 	void configData();
@@ -54,11 +63,14 @@ private:
 	void commandCollectionEnd();
 	//Handles the initialization of the TFTP thread
 	void TFTPLaunch();
+	char dataFile[100];
 
+	ExternalProcess tftp;
 	ACPInterface& acp;
 	SubPowerInterface& subPower;
 	Lock lock;
 	LogTags tags;
+	PLDconfig cs;
 };
 
 
