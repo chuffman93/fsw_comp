@@ -387,8 +387,6 @@ TEST_CASE("FILEMANAGER: Manage Regex","[.][filemanager]"){
 		REQUIRE(access("/home/EPS_41_1.txt",F_OK) == -1);
 		REQUIRE(access("/home/EPS_38_1.txt",F_OK) == -1);
 	}
-
-
 }
 
 

@@ -195,9 +195,7 @@ std::string FileManager::createFileName(std::string basePath){
 
 	std::string filePath = basePath + "_" + RebootCount + "_" + time;
 
-
 	return filePath;
-
 }
 
 /*!
@@ -249,7 +247,7 @@ void FileManager::updateRebootCount(){
 
 /*!
  * Creates a tarball with a given regex
- * \param file path to the files to be delete (e.g. /home/EPS_92 would collect all files with EPS_92 in the front of their name)
+ * \param file path to the files to be brought together (e.g. /home/EPS_92 would collect all files with EPS_92 in the front of their name)
  * \param R indicates if it is to be: R = the regex itself, RB = before regex, and RA = after regex, which is indicated by the reboot count of the file name
  */
 vector<std::string> FileManager::packageFiles(std::string dest, std::string R){

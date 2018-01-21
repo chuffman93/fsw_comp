@@ -18,8 +18,12 @@
 #include "interfaces/ExternalProcess.h"
 #include <fstream>
 #include <iostream>
+#include <stdio.h>
+#include <string>
 
 #include <stdio.h>
+
+#define RAD_CHUNK_SIZE		102400
 
 enum PLDOpcode {
 	OP_PLD_CMD_MIN = 32,
@@ -34,9 +38,6 @@ enum PLDOpcode {
 	OP_BACKUPSTARTSCIENCE = 96,
 };
 
-struct PLDconfig{
-	int32_t chunkSize = 102400;
-};
 
 class RAD: public SubsystemBase{
 public:
@@ -54,15 +55,18 @@ public:
 
 	std::string currentHealthFile;
 	size_t healthFileSize;
+	uint16_t RADDataNum;
 PRIVATE:
 	//Various configurations for the data collection
 	void configMotor();
 	void configData();
+
+	uint16_t updateDataNumber();
+	uint16_t readDataNumber();
+
 	//Command the beginning of data collection
 	void commandCollectionBegin();
 	void commandCollectionEnd();
-	//Handles the initialization of the TFTP thread
-	void TFTPLaunch();
 	char dataFile[100];
 
 	ExternalProcess tftp;
@@ -70,7 +74,7 @@ PRIVATE:
 	SubPowerInterface& subPower;
 	Lock lock;
 	LogTags tags;
-	PLDconfig cs;
+
 };
 
 

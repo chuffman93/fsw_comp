@@ -1,7 +1,5 @@
 
 #define MAX_FILE_SIZE		5000
-//max number of files in tarball
-#define MAX_NUM_FILES		100
 
 #ifdef CDHBUILD
 #define HOME_DIRECTORY		"/home/root"
@@ -16,6 +14,7 @@
 #define BEACON_DIRECTORY	HOME_DIRECTORY		"/.beacon"
 #define HEALTH_DIRECTORY	HOME_DIRECTORY		"/SD_2/HST"
 #define REBOOT_FILE			HOME_DIRECTORY		"/RBT.txt"
+#define RAD_NUM_FILE		HOME_DIRECTORY		"/RAD_Number"
 
 
 #define NEW_SCH				UPLINK_DIRECTORY	"/SCH"

@@ -20,15 +20,8 @@ RAD::RAD(ACPInterface& acp, SubPowerInterface& subPower)
 
 RAD::~RAD(){}
 
-//Handle power on and initialization routine
-void RAD::initialize(){
-	//TODO: error handling
+void RAD::initialize(){};
 
-	//read data number
-
-	//boot config
-
-}
 
 //Handles any mode transition needs as well as any needs for tasks to be done in a mode.
 void RAD::handleMode(FSWMode transition){
@@ -90,6 +83,7 @@ void RAD::commandCollectionBegin(){
 	//TODO: error handling
 
 	LockGuard l(lock);
+	//subPower.powerOn();
 
 	Logger::Stream(LEVEL_INFO,tags) << "Beginning RAD Science Collection";
 	ACPPacket acpPacket(RAD_SYNC, OP_TESTALIVE);
@@ -104,6 +98,13 @@ void RAD::commandCollectionBegin(){
 
 	acpPacket.opcode = OP_STARTSCIENCE;
 	acp.transaction(acpPacket, acpReturn);
+
+	sprintf(dataFile, "RAD_%u", RADDataNum);
+	RADDataNum = updateDataNumber();
+
+	// TODO: get correct IP and make sure this runs as intended
+	// char* argv[] = {(char *)"/usr/bin/tftp",(char *)"-g",(char*)"-r",dataFile,(char*)"10.14.134.207",NULL};
+	// tftp.launchProcess(argv);
 }
 
 
@@ -123,21 +124,19 @@ void RAD::commandCollectionEnd(){
 	char chunksize[10];
 	char dataPath[100];
 	char chunk[100];
-
-	// TODO:  change random to proper rad naming convention
-	sprintf(dataFile,"%s","Random");
+	// tftp.closeProcess();
 
 	//create archive name string for path to dataFile
 	sprintf(dataPath,MOCK_RAD_PATH"/%s",dataFile);
 	// get how many files it was split into by dividing the dataFile size by the number of bytes per chunk
 	std::ifstream in(dataPath, std::ifstream::ate | std::ifstream::binary);
 	int f_bytes = in.tellg();
-	int n_splits = f_bytes/cs.chunkSize;
+	int n_splits = f_bytes/RAD_CHUNK_SIZE;
 	in.close();
 
 
 	// split the file within the location using the same name (tags on 000,001,002,ect.)
-	sprintf(chunksize,"%d",cs.chunkSize);
+	sprintf(chunksize,"%d",RAD_CHUNK_SIZE);
 	char * sh_cmd[] = {(char *)"/usr/bin/split", (char*) "-b", (char*)chunksize, (char*) "-d",(char*) "-a", (char*)"3",(char*)dataPath,(char*)dataPath,NULL};
 
 	// runs the split command in the system
@@ -146,8 +145,7 @@ void RAD::commandCollectionEnd(){
 
 
 	split.launchProcess(sh_cmd);
-	sleep(1);
-	split.closeProcess();
+
 	// for loop through the number of splits created
 	for(int i = 0; i <= n_splits; i++){
 		int i2 = 0; // middle 0 if i < 10
@@ -167,10 +165,8 @@ void RAD::commandCollectionEnd(){
 		char * sh_cm[] = {(char*)"/bin/tar", (char*)"-czf",(char*)archiveName,(char*)chunk,(char*)"-P",NULL};
 		// runs the command on the system
 		tar.launchProcess(sh_cm);
-		sleep(1);
-		tar.closeProcess();
 
-		// create a different archiveName referencing just the individual chunks
+		// create a differenPLDUpdateDataNumbert archiveName referencing just the individual chunks
 		sprintf(archiveName, MOCK_RAD_PATH "/%s0%s",dataFile,num);
 		// removes the chunks to save some space
 		remove(archiveName);
@@ -178,11 +174,49 @@ void RAD::commandCollectionEnd(){
 
 	// removes the dataFile to save space
 	remove(dataPath);
-
 }
 
-//Handles the initialization of the TFTP thread -> may not need with external process manager
-void RAD::TFTPLaunch(){
+uint16_t RAD::readDataNumber(){
+	uint16_t dataNumber;
+	FILE * fp;
+	int char1, char2;
+	bool success = true;
+
+	if(access(RAD_NUM_FILE,F_OK) != -1){
+		fp = fopen(RAD_NUM_FILE,"rb");
+		if(fp != NULL){
+			success &= (char1 = fgetc(fp)) != EOF;
+			success &= (char2 = fgetc(fp)) != EOF;
+			if(success){
+				dataNumber = ((uint16_t) char1) << 8 | ((uint16_t) char2);
+			}
+			fclose(fp);
+		}
+	}
+	return dataNumber;
+}
+uint16_t RAD::updateDataNumber(){
+	uint16_t dataNumber;
+	FILE * fp;
+	uint8_t buffer[2];
+	bool success = true;
+
+	dataNumber = readDataNumber();
+	dataNumber++;
+
+	buffer[0] = (dataNumber & 0xFF00) >> 8;
+	buffer[1] = (dataNumber & 0x00FF);
+
+	fp =fopen(RAD_NUM_FILE,"wb");
+	if(fp!=NULL){
+		success &= (fputc(buffer[0], fp) != EOF);
+		success &= (fputc(buffer[1], fp) != EOF);
+		fclose(fp);
+	}
+	if (!success) {
+		remove(RAD_NUM_FILE);
+	}
+	return dataNumber;
 }
 
 

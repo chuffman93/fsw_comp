@@ -17,6 +17,8 @@
 #include <string.h>
 #include <sstream>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include "core/Lock.h"
 
 class ExternalProcess{
@@ -28,7 +30,9 @@ public:
 	void closeProcess();
 	int checkPID();
 private:
-	int pid;
+	pid_t tpid;
+	pid_t child_pid;
+	int child_status;
 	Lock lock;
 
 

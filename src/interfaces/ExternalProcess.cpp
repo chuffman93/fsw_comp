@@ -11,7 +11,7 @@ using namespace std;
 
 
 ExternalProcess::ExternalProcess(){
-	pid = -1;
+	child_pid = -1;
 }
 
 /*!
@@ -19,12 +19,18 @@ ExternalProcess::ExternalProcess(){
  * \param array of arguments to system call
  */
 void ExternalProcess::launchProcess(char * argv[]){
-	int f = fork();
-	if(f == 0){
+	child_pid = fork();
+	if(child_pid == 0){
 		execv(argv[0],argv);
+		// TODO: add log message here
 		exit(0);
+	}else{
+		do{
+			tpid = wait(&child_status);
+		}
+		while(tpid != child_pid);
 	}
-	this->pid = f;
+	child_pid = -1;
 }
 
 /*!
@@ -33,21 +39,23 @@ void ExternalProcess::launchProcess(char * argv[]){
  * \param array of arguments to second system call
  */
 void ExternalProcess::launchProcess(char * argv[],char * argc[]){
-	int f = fork();
-	if(f == 0){
-		execv(argv[0],argv);
-		execv(argc[0],argc);
-		exit(0);
-	}
-	this->pid = f;
+	child_pid = fork();
+		if(child_pid == 0){
+			execv(argv[0],argv);
+			execv(argc[0],argc);
+			// TODO: add log message here
+			exit(0);
+		}else{
+
+		}
 }
  /*!
   * Kills the  process
   */
 void ExternalProcess::closeProcess(){
-	if(pid != -1){
+	if(child_pid != -1){
 		stringstream ss;
-		ss << pid;
+		ss << child_pid;
 		string pd = ss.str();
 		char * argv[] = {(char *)"/bin/kill",(char*)"-9",(char*)pd.c_str() ,NULL};
 		int f = fork();
@@ -55,7 +63,13 @@ void ExternalProcess::closeProcess(){
 			execv(argv[0],argv);
 			exit(0);
 		}
-		this->pid = -1;
+		else{
+			do{
+				tpid = wait(&child_status);
+			}
+			while(tpid != child_pid);
+			child_pid = -1;
+		}
 	}
 	else
 		return;
@@ -65,7 +79,7 @@ void ExternalProcess::closeProcess(){
  * 	processes to tell whether or not it is initialized.
  */
 int ExternalProcess::checkPID(){
-	return pid;
+	return child_pid;
 }
 /*!
  * Run closeProcess in deconstructor to ensure it is killed

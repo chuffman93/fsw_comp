@@ -26,11 +26,11 @@ public:
 	std::vector<uint8_t> sentOpcodes;
 };
 
+RADMockACPInterface acp;
+SubPowerInterface subPower(dummyGR, 0, 0, 0, "");
+RAD rad(acp,subPower);
 
-TEST_CASE("SPLIT DATA","[PLD]"){
-	RADMockACPInterface acp;
-	SubPowerInterface subPower(dummyGR, 0, 0, 0, "");
-	RAD rad(acp,subPower);
+TEST_CASE("TEST INITIALIZATION ROUTINE","[PLD]"){
 
 	rad.commandCollectionBegin();
 	REQUIRE(acp.sentOpcodes.end() != std::find(acp.sentOpcodes.begin(), acp.sentOpcodes.end(), OP_TESTALIVE));
@@ -39,16 +39,36 @@ TEST_CASE("SPLIT DATA","[PLD]"){
 	//validate that it sends data LED opcode
 	REQUIRE(acp.sentOpcodes.end() != std::find(acp.sentOpcodes.begin(), acp.sentOpcodes.end(), OP_TESTCONFIG));
 
+}
+
+TEST_CASE("SPLIT DATA","[PLD]"){
+
+	rad.commandCollectionBegin();
 
 
 	std::vector<uint8_t> buff;
 	buff.assign(1000000,1);
-
 
 	std::ofstream in("/home/Random");
 	for(std::vector<uint8_t>::iterator i = buff.begin(); i != buff.end(); i++){
 		in << *i;
 	}
 
+	REQUIRE(access("/home/RAD_1",F_OK) == 0);
+	REQUIRE(access("/home/RAD_1009.tar.gz",F_OK) == -1);
 	rad.commandCollectionEnd();
+	REQUIRE(access("/home/RAD_1",F_OK) == -1);
+	REQUIRE(access("/home/RAD_1009.tar.gz",F_OK) == 0);
+
+	char argv[100];
+	sprintf(argv,"rm -r /home/RAD*");
+	FILE * fd;
+	fd = popen(argv, "r");
+	pclose(fd);
+	REQUIRE(access("/home/RAD_1009.tar.gz",F_OK) == -1);
 }
+
+TEST_CASE("Recieve Data","[PLD]"){
+
+}
+
