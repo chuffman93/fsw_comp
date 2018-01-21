@@ -41,7 +41,8 @@ TEST_CASE("TEST INITIALIZATION ROUTINE","[PLD]"){
 
 }
 
-TEST_CASE("SPLIT DATA","[PLD]"){
+TEST_CASE("SPLIT DATA","[.][PLD]"){
+
 
 	rad.commandCollectionBegin();
 
@@ -49,23 +50,23 @@ TEST_CASE("SPLIT DATA","[PLD]"){
 	std::vector<uint8_t> buff;
 	buff.assign(1000000,1);
 
-	std::ofstream in("/home/Random");
+	std::ofstream in(HOME_DIRECTORY "/Random");
 	for(std::vector<uint8_t>::iterator i = buff.begin(); i != buff.end(); i++){
 		in << *i;
 	}
 
-	REQUIRE(access("/home/RAD_1",F_OK) == 0);
-	REQUIRE(access("/home/RAD_1009.tar.gz",F_OK) == -1);
+	REQUIRE(access(HOME_DIRECTORY "/RAD_1",F_OK) == 0);
+	REQUIRE(access(HOME_DIRECTORY "/RAD_1009.tar.gz",F_OK) == -1);
 	rad.commandCollectionEnd();
-	REQUIRE(access("/home/RAD_1",F_OK) == -1);
-	REQUIRE(access("/home/RAD_1009.tar.gz",F_OK) == 0);
+	REQUIRE(access(HOME_DIRECTORY "/RAD_1",F_OK) == -1);
+	REQUIRE(access(HOME_DIRECTORY "/RAD_1009.tar.gz",F_OK) == 0);
 
 	char argv[100];
-	sprintf(argv,"rm -r /home/RAD*");
+	sprintf(argv,"rm -r " HOME_DIRECTORY  "/RAD*");
 	FILE * fd;
 	fd = popen(argv, "r");
 	pclose(fd);
-	REQUIRE(access("/home/RAD_1009.tar.gz",F_OK) == -1);
+	REQUIRE(access(HOME_DIRECTORY "/RAD_1009.tar.gz",F_OK) == -1);
 }
 
 TEST_CASE("Recieve Data","[PLD]"){

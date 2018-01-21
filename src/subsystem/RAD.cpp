@@ -13,6 +13,7 @@ RAD::RAD(ACPInterface& acp, SubPowerInterface& subPower)
 	health.sync = RAD_SYNC;
 	health.fileSize = MAX_FILE_SIZE;
 	health.basePath = HEALTH_DIRECTORY RAD_PATH "/RAD";
+	RADDataNum = 0;
 	healthFileSize = 0;
 }
 
