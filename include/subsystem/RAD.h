@@ -14,7 +14,7 @@
 #include "core/FileSystem.h"
 #include "core/FileManager.h"
 #include "core/Lock.h"
-#include "interfaces/ExternalProcess.h";
+#include "interfaces/ExternalProcess.h"
 #include <fstream>
 #include <iostream>
 #include <stdio.h>

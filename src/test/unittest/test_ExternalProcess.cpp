@@ -13,7 +13,7 @@ using namespace std;
 
 ExternalProcess slattach;
 
-TEST_CASE("Test that ExternalProcess launches the processe","[externalprocess]"){
+TEST_CASE("Test that ExternalProcess launches the process","[externalprocess]"){
 
 	char * argv[] = {(char *)"/sbin/slattach",(char *)"-L",(char *)"-m",(char *)"-s",(char *)"115200",(char *)"-p",(char *)"slip",(char *)"/dev/tty52", NULL};
 	char * argc[] = {(char *)"/sbin/ifconfig",(char *)"sl0",(char *)"1.1.1.2",(char *)"pointopoint",(char *)"1.1.1.1",(char *)"mtu",(char *)"256",(char *)"multicast",(char *)"up",NULL};
@@ -22,10 +22,6 @@ TEST_CASE("Test that ExternalProcess launches the processe","[externalprocess]")
 		slattach.launchProcess(argv,argc);
 		REQUIRE(slattach.checkPID() != -1);
 	}
-}
-
-
-TEST_CASE("Test that the ExternalProcess kills the process","[externalprocess]"){
 
 	SECTION("Check that SLATTACH dies"){
 		slattach.closeProcess();

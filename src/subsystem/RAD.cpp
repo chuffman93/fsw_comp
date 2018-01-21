@@ -136,8 +136,7 @@ void RAD::commandCollectionEnd(){
 
 
 	split.launchProcess(sh_cmd);
-	sleep(1);
-	split.closeProcess();
+
 	// for loop through the number of splits created
 	for(int i = 0; i <= n_splits; i++){
 		int i2 = 0; // middle 0 if i < 10
@@ -157,8 +156,6 @@ void RAD::commandCollectionEnd(){
 		char * sh_cm[] = {(char*)"/bin/tar", (char*)"-czf",(char*)archiveName,(char*)chunk,(char*)"-P",NULL};
 		// runs the command on the system
 		tar.launchProcess(sh_cm);
-		sleep(1);
-		tar.closeProcess();
 
 		// create a differenPLDUpdateDataNumbert archiveName referencing just the individual chunks
 		sprintf(archiveName, MOCK_RAD_PATH "/%s0%s",dataFile,num);
