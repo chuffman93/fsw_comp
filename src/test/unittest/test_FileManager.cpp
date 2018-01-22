@@ -159,8 +159,8 @@ TEST_CASE("FILEMANAGER: TEST MOVE FILE", "[filemanager]"){
 
 TEST_CASE("FILEMANAGER: TEST CREATE FILE NAME", "[.][filemanager]" ){
 	std::string dummyFile = HOME_DIRECTORY "dummy";
-	std::string newDummy = FileManager::createFileName(dummyFile);
 
+	std::string newDummy = FileManager::createFileName(dummyFile);
 	std::ifstream rebootFile(REBOOT_FILE);
 	int intCount;
 	rebootFile >> intCount;
@@ -219,9 +219,9 @@ TEST_CASE("FILEMANAGER: GET FILE LIST","[filemanager]"){
 	std::fstream file(DFL_PATH);
 	std::string line;
 	REQUIRE(std::getline(file,line,','));
-	REQUIRE(line == "File1");
-	REQUIRE(std::getline(file,line,','));
 	REQUIRE(line == "File2");
+	REQUIRE(std::getline(file,line,','));
+	REQUIRE(line == "File1");
 
 }
 

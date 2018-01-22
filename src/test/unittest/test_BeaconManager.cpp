@@ -66,10 +66,6 @@ TEST_CASE("Build Beacon","[beacon]"){
 
 	}
 
-}
-
-TEST_CASE("Send Beacon","[beacon]"){
-
 	SECTION("Serialize Beacon"){
 		REQUIRE(BM.GPS.size() == 0);
 		REQUIRE(BM.SYS.size() == 0);

@@ -172,7 +172,7 @@ void FileManager::moveFile(std::string filePath, std::string newfilePath){
  */
 std::string FileManager::createFileName(std::string basePath){
 
-	//get number of reboots
+	// get number of reboots
 	// Test again
 
 	lock.lock();
