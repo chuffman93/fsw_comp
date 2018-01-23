@@ -14,6 +14,13 @@
 #include "interfaces/NMEAInterface.h"
 #include "util/Logger.h"
 
+extern "C" {
+	#include "util/propagator/AllStarOrbitProp.h"
+	#include "util/propagator/gpsFrameRotation.h"
+	#include "util/propagator/OrbitalMotionAllStar.h"
+}
+
+
 struct GPSPositionTime{
   double posX;
   double posY;
