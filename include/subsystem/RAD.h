@@ -51,10 +51,9 @@ public:
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 	void getHealthStatus();
 
-	ACPPacket sendOpcode(uint8_t opcode);
+	ACPPacket sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer);
 
-	std::string currentHealthFile;
-	size_t healthFileSize;
+	HealthFileStruct health;
 	uint16_t RADDataNum;
 PRIVATE:
 	//Various configurations for the data collection

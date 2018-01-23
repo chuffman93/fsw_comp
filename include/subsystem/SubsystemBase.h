@@ -17,7 +17,6 @@
 struct HealthFileStruct {
 	std::string currentFile;
 	std::string basePath;
-	subsystem_sync_t sync;
 	size_t fileSize;
 };
 
@@ -33,7 +32,7 @@ public:
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 	virtual void getHealthStatus() = 0;
 
-	virtual ACPPacket sendOpcode(uint8_t opcode) = 0;
+	virtual ACPPacket sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer) = 0;
 
 	HealthFileStruct health;
 private:

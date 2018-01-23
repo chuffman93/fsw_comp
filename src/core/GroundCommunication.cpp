@@ -225,12 +225,14 @@ void GroundCommunication::parseCommandRequest(std::string line){
 			}
 			command = strtok(NULL,",");
 		}
+
 	}else if (strcmp(sys, "ACS") == 0){
 		while (command != NULL){
 			std::string tempCmd = trimNewline(std::string(command));
 			uint8_t cmd = (uint8_t)atoi((char*)tempCmd.c_str());
 			if ((cmd >= OP_ACS_MIN && cmd < OP_ACS_MAX) || (cmd >= OP_MIN && cmd < OP_MAX)){
-				ACPPacket ret = subsystems[0]->sendOpcode(cmd);
+				std::vector<uint8_t> buff;
+				ACPPacket ret = subsystems[0]->sendOpcode(cmd,buff);
 			}else{
 				Logger::Stream(LEVEL_ERROR,tags) << "Unable to Execute ACS Command, command does not exist";
 
@@ -243,7 +245,8 @@ void GroundCommunication::parseCommandRequest(std::string line){
 			std::string tempCmd = trimNewline(std::string(command));
 			uint8_t cmd = (uint8_t)atoi((char*)tempCmd.c_str());
 			if ((cmd >= OP_ACS_MIN && cmd < OP_ACS_MAX) || (cmd >= OP_MIN && cmd < OP_MAX)){
-				ACPPacket ret = subsystems[1]->sendOpcode(cmd);
+				std::vector<uint8_t> buff;
+				ACPPacket ret = subsystems[1]->sendOpcode(cmd,buff);
 			}else{
 				Logger::Stream(LEVEL_ERROR,tags) << "Unable to Execute COM Command, command does not exist";
 			}
@@ -255,7 +258,8 @@ void GroundCommunication::parseCommandRequest(std::string line){
 			std::string tempCmd = trimNewline(std::string(command));
 			uint8_t cmd = (uint8_t)atoi((char*)tempCmd.c_str());
 			if ((cmd >= OP_ACS_MIN && cmd < OP_ACS_MAX) || (cmd >= OP_MIN && cmd < OP_MAX)){
-				ACPPacket ret = subsystems[2]->sendOpcode(cmd);
+				std::vector<uint8_t> buff;
+				ACPPacket ret = subsystems[2]->sendOpcode(cmd,buff);
 			}else{
 				Logger::Stream(LEVEL_ERROR,tags) << "Unable to Execute EPS Command, command does not exist";
 
@@ -267,7 +271,8 @@ void GroundCommunication::parseCommandRequest(std::string line){
 			std::string tempCmd = trimNewline(std::string(command));
 			uint8_t cmd = (uint8_t)atoi((char*)tempCmd.c_str());
 			if ((cmd >= OP_ACS_MIN && cmd < OP_ACS_MAX) || (cmd >= OP_MIN && cmd < OP_MAX)){
-				ACPPacket ret = subsystems[3]->sendOpcode(cmd);
+				std::vector<uint8_t> buff;
+				ACPPacket ret = subsystems[3]->sendOpcode(cmd,buff);
 			}else{
 				Logger::Stream(LEVEL_ERROR,tags) << "Unable to Execute RAD Command, command does not exist";
 			}

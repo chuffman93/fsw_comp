@@ -35,7 +35,7 @@ public:
 	//Get battery capacity
 	uint16_t getBatteryCapacity();
 
-	ACPPacket sendOpcode(uint8_t opcode);
+	ACPPacket sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer);
 
 	HealthFileStruct health;
 

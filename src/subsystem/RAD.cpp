@@ -10,11 +10,9 @@
 RAD::RAD(ACPInterface& acp, SubPowerInterface& subPower)
 : acp(acp), subPower(subPower){
 	tags += LogTag("Name", "RAD");
-	health.sync = RAD_SYNC;
-	health.fileSize = MAX_FILE_SIZE;
+	health.fileSize = 0;
 	health.basePath = HEALTH_DIRECTORY RAD_PATH "/RAD";
 	RADDataNum = 0;
-	healthFileSize = 0;
 }
 
 
@@ -45,9 +43,8 @@ void RAD::handleMode(FSWMode transition){
 void RAD::getHealthStatus(){
 
 	LockGuard l(lock);
-	ACPPacket acpPacket(health.sync, OP_HEALTHSTATUS);
-	ACPPacket acpReturn;
-	acp.transaction(acpPacket,acpReturn);
+	std::vector<uint8_t> buff;
+	ACPPacket acpReturn = sendOpcode(OP_HEALTHSTATUS, buff);
 
 	std::string healthFile;
 	size_t messageSize = acpReturn.message.size();
@@ -61,12 +58,19 @@ void RAD::getHealthStatus(){
 	FileManager::writeToFile(healthFile,acpReturn.message);
 }
 
-ACPPacket RAD::sendOpcode(uint8_t opcode){
+ACPPacket RAD::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
 	LockGuard l(lock);
-	ACPPacket acpPacket(RAD_SYNC, opcode);
-	ACPPacket acpReturn;
-	acp.transaction(acpPacket,acpReturn);
-	return acpReturn;
+	if (buffer.empty()){
+		ACPPacket acpPacket(RAD_SYNC, opcode);
+		ACPPacket acpReturn;
+		acp.transaction(acpPacket,acpReturn);
+		return acpReturn;
+	}else {
+		ACPPacket acpPacket(RAD_SYNC, opcode, buffer);
+		ACPPacket acpReturn;
+		acp.transaction(acpPacket,acpReturn);
+		return acpReturn;
+	}
 }
 
 
@@ -87,18 +91,11 @@ void RAD::commandCollectionBegin(){
 	//subPower.powerOn();
 
 	Logger::Stream(LEVEL_INFO,tags) << "Beginning RAD Science Collection";
-	ACPPacket acpPacket(RAD_SYNC, OP_TESTALIVE);
-	ACPPacket acpReturn;
-	acp.transaction(acpPacket,acpReturn);
-
-	acpPacket.opcode = OP_TESTLED;
-	acp.transaction(acpPacket,acpReturn);
-
-	acpPacket.opcode = OP_TESTCONFIG;
-	acp.transaction(acpPacket,acpReturn);
-
-	acpPacket.opcode = OP_STARTSCIENCE;
-	acp.transaction(acpPacket, acpReturn);
+	std::vector<uint8_t> buff;
+	ACPPacket retPacket1 = sendOpcode(OP_TESTALIVE, buff);
+	ACPPacket retPacket2 = sendOpcode(OP_TESTLED, buff);
+	ACPPacket retPacket3 = sendOpcode(OP_TESTCONFIG, buff);
+	ACPPacket retPacket4 = sendOpcode(OP_STARTSCIENCE, buff);
 
 	sprintf(dataFile, "RAD_%u", RADDataNum);
 	RADDataNum = updateDataNumber();
@@ -115,9 +112,8 @@ void RAD::commandCollectionEnd(){
 	LockGuard l(lock);
 
 	Logger::Stream(LEVEL_INFO,tags) << "Ending RAD Science Collection";
-	ACPPacket acpPacket(RAD_SYNC, OP_SUBSYSTEMRESET);
-	ACPPacket acpReturn;
-	acp.transaction(acpPacket, acpReturn);
+	std::vector<uint8_t> buff;
+	ACPPacket retPacket = sendOpcode(OP_SUBSYSTEMRESET,buff);
 
 	//subPower.powerOff();
 
