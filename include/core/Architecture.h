@@ -18,13 +18,14 @@ enum Subsystem {
 };
 
 enum HalMode {
-	Software_Test,
-	Hardware_Test,
+	SOFTWARE,
+	HARDWARE,
 };
 
 class Architecture{
 public:
 	static void buildSubsystem(Subsystem subsystem);
+	static void buildECARSubsystem(Subsystem subsystem);
 	static void setHalMode(HalMode mode);
 
 private:
@@ -34,6 +35,10 @@ private:
 	static EPS* eps;
 	static GPS* gps;
 	static RAD* rad;
+
+	//HAL Layer
+	static SPIManager* spi;
+	static GPIOManager* gpio;
 	static HalMode mode;
 
 };
