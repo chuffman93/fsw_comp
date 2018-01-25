@@ -45,13 +45,15 @@ public:
 	~RAD();
 
 	//Handle power on and initialization routine
-	void initialize();
+	bool initialize();
 	//Handles any mode transition needs as well as any needs for tasks to be done in a mode.
-	void handleMode(FSWMode transition);
+	bool handleMode(FSWMode transition);
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 	void getHealthStatus();
 
 	ACPPacket sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer);
+	bool isSuccess(PLDOpcode opSent, ACPPacket retPacket);
+	bool isSuccess(SubsystemOpcode opSent, ACPPacket retPacket);
 
 	HealthFileStruct health;
 	uint16_t RADDataNum;
@@ -64,8 +66,10 @@ PRIVATE:
 	uint16_t readDataNumber();
 
 	//Command the beginning of data collection
-	void commandCollectionBegin();
-	void commandCollectionEnd();
+	bool commandCollectionBegin();
+	bool commandCollectionEnd();
+
+	bool resetRAD();
 	char dataFile[100];
 
 	ExternalProcess tftp;

@@ -76,6 +76,7 @@ void * FSWThreads::GroundCommunicationThread(void * args) {
 	while (1) {
 		sleep(2);
 		watchdog->CheckThreads();
+		ground.spinGround();
 	}
 
 	return NULL;

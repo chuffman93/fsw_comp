@@ -17,25 +17,41 @@ COM::COM(ACPInterface& acp, SubPowerInterface& subPower)
 COM::~COM(){}
 
 //Will set up the Gpio lines and the acp devices
-void COM::initialize(){
+bool COM::initialize(){
 	//TODO: error handling
 	Logger::Stream(LEVEL_INFO,tags) << "Initializing COM";
 
 	std::vector<uint8_t> buff;
+
 	ACPPacket retPacket1 = sendOpcode(OP_TESTALIVE,buff);
+	if (!isSuccess(OP_TESTALIVE,retPacket1)){
+		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Alive: COM is not alive. Opcode Received: " << retPacket1.opcode;
+		return false;
+	}
+
 	ACPPacket retPacket2 = sendOpcode(OP_TESTLED,buff);
+	if (!isSuccess(OP_TESTLED,retPacket2)){
+		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test LED: COM is not alive. Opcode Received: " << retPacket2.opcode;
+		return false;
+	}
+
 	ACPPacket retPacket3 = sendOpcode(OP_TESTCONFIG,buff);
+	if (!isSuccess(OP_TESTCONFIG,retPacket3)){
+		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Configurations: COM is not alive. Opcode Received: " << retPacket3.opcode;
+		return false;
+	}
+
+	return true;
 }
 
 //Handles any mode transition needs as well as any needs for tasks to be done in a mode.
-void COM::handleMode(FSWMode transition){
+bool COM::handleMode(FSWMode transition){
 	switch (transition){
 	case Mode_Reset:
-		resetCOM();
-		break;
+		return resetCOM();
 	default:
 		//TODO: error handling
-		break;
+		return false;
 	}
 }
 
@@ -68,12 +84,17 @@ void COM::sendBeacon(){
 
 }
 
-void COM::resetCOM(){
+bool COM::resetCOM(){
 
 	Logger::Stream(LEVEL_INFO,tags) << "Preparing COM for Reset";
 
 	std::vector<uint8_t> buff;
 	ACPPacket retPacket = sendOpcode(OP_SUBSYSTEMRESET,buff);
+	if (!isSuccess(OP_SUBSYSTEMRESET,retPacket)){
+		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Subsystem Reset: Unable to reset subsystem. Opcode Received: " << retPacket.opcode;
+		return false;
+	}
+	return true;
 }
 
 void COM::changeBaudRate(uint32_t baudRate){
@@ -90,7 +111,7 @@ void COM::changeBaudRate(uint32_t baudRate){
 //Need to figure out how the GND Communication stuff will work
 
 ACPPacket COM::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
-	LockGuard l(lock);
+	//LockGuard l(lock);
 	if (buffer.empty()){
 		ACPPacket acpPacket(COM_SYNC, opcode);
 		ACPPacket acpReturn;
@@ -102,4 +123,18 @@ ACPPacket COM::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
 		acp.transaction(acpPacket,acpReturn);
 		return acpReturn;
 	}
+}
+
+bool COM::isSuccess(COMOpcode opcode, ACPPacket retPacket){
+	if (opcode == retPacket.opcode){
+		return true;
+	}
+	return false;
+}
+
+bool COM::isSuccess(SubsystemOpcode opcode, ACPPacket retPacket){
+	if (opcode == retPacket.opcode){
+		return true;
+	}
+	return false;
 }

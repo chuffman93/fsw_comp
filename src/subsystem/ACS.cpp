@@ -18,42 +18,58 @@ ACS::ACS(ACPInterface& acp, SubPowerInterface& subPower)
 ACS::~ACS(){}
 
 //Will set up the Gpio lines and the acp devices
-void ACS::initialize(){
+bool ACS::initialize(){
 	//TODO: error handling
 	Logger::Stream(LEVEL_INFO,tags) << "Initializing ACS";
 
 	std::vector<uint8_t> buff;
 	ACPPacket retPacket1 = sendOpcode(OP_TESTALIVE,buff);
+	if (!isSuccess(OP_TESTALIVE,retPacket1)){
+		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Alive: ACS is not alive. Opcode Received: " << retPacket1.opcode;
+		return false;
+	}
+
 	ACPPacket retPacket2 = sendOpcode(OP_TESTLED,buff);
+	if (!isSuccess(OP_TESTLED,retPacket2)){
+		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test LED: ACS is not alive. Opcode Received: " << retPacket2.opcode;
+		return false;
+	}
+
 	ACPPacket retPacket3 = sendOpcode(OP_TESTCONFIG,buff);
+	if (!isSuccess(OP_TESTCONFIG,retPacket3)){
+		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Configurations: ACS is not alive. Opcode Received: " << retPacket3.opcode;
+		return false;
+	}
+
+	return true;
 }
 
 //Handles any mode transition needs as well as any needs for tasks to be done in a mode.
-void ACS::handleMode(FSWMode transition){
+bool ACS::handleMode(FSWMode transition){
 	switch (transition){
 	case Mode_Bus:
-		sendGPS();
+		return sendGPS();
 		break;
 	case Mode_Payload:
-		sendGPS();
+		return sendGPS();
 		break;
 	case Mode_Com:
-		sendGPS();
+		return sendGPS();
 		break;
 	case Mode_Reset:
-		resetACS();
+		return resetACS();
 		break;
 	case Trans_BusToPayload:
-		pointNadir();
+		return pointNadir();
 		break;
 	case Trans_PayloadToBus:
-		pointSunSoak();
+		return pointSunSoak();
 		break;
 	case Trans_BusToCom:
-		pointCOM();
+		return pointCOM();
 		break;
 	case Trans_ComToBus:
-		pointSunSoak();
+		return pointSunSoak();
 		break;
 	default:
 		break;
@@ -81,36 +97,59 @@ void ACS::getHealthStatus(){
 }
 
 //Change the current pointing target
-void ACS::pointNadir(){
+bool ACS::pointNadir(){
 	//TODO: error handling
 	Logger::Stream(LEVEL_INFO,tags) << "Command ACS to point to NADIR";
 	std::vector<uint8_t> buff;
+
 	ACPPacket retPacket = sendOpcode(OP_POINTNADIR,buff);
+	if (!isSuccess(OP_POINTNADIR,retPacket)){
+		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Point NADIR: Unable to point NADIR. Opcode Received: " << retPacket.opcode;
+		return false;
+	}
+	return true;
 }
 
-void ACS::pointCOM(){
+bool ACS::pointCOM(){
 	//TODO: error handling
 	Logger::Stream(LEVEL_INFO,tags) << "Command ACS to point to Ground";
 	std::vector<uint8_t> buff;
+
 	ACPPacket retPacket = sendOpcode(OP_POINTCOM,buff);
+	if (!isSuccess(OP_POINTCOM,retPacket)){
+		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Point COM: Unable to point COM. Opcode Received: " << retPacket.opcode;
+		return false;
+	}
+	return true;
 
 }
 
-void ACS::pointSunSoak(){
+bool ACS::pointSunSoak(){
 	//TODO: error handling
 	Logger::Stream(LEVEL_INFO,tags) << "Command ACS to point to Sun Soak";
 	std::vector<uint8_t> buff;
+
 	ACPPacket retPacket = sendOpcode(OP_POINTSUN,buff);
+	if (!isSuccess(OP_POINTSUN,retPacket)){
+		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Point SUN: Unable to point SUN. Opcode Received: " << retPacket.opcode;
+		return false;
+	}
+	return true;
 }
 
 
 //Update the GPS information on ACS
-void ACS::sendGPS(){
+bool ACS::sendGPS(){
 
 	SerializeGPS serGPS;
 	std::vector<uint8_t> buffer = serGPS.serialize();
 
 	ACPPacket retPacket = sendOpcode(OP_SENDGPS, buffer);
+	if (!isSuccess(OP_SENDGPS,retPacket)){
+		Logger::Stream(LEVEL_FATAL,tags) << "Opcode send GPS: Unable to send GPS data to ACS. Opcode Received: " << retPacket.opcode;
+		return false;
+	}
+	return true;
 }
 
 //Configure the gains on ACS
@@ -118,16 +157,22 @@ void ACS::configureGains(){
 
 }
 
-void ACS::resetACS(){
+bool ACS::resetACS(){
 	Logger::Stream(LEVEL_INFO,tags) << "Preparing ACS for Reset";
 	std::vector<uint8_t> buff;
+
 	ACPPacket retPacket = sendOpcode(OP_SUBSYSTEMRESET,buff);
+	if (!isSuccess(OP_SUBSYSTEMRESET,retPacket)){
+		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Subsystem Reset: ACS not ready for reset. Opcode Received: " << retPacket.opcode;
+		return false;
+	}
+	return true;
 
 }
 
 
 ACPPacket ACS::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
-	LockGuard l(lock);
+	//LockGuard l(lock);
 	if (buffer.empty()){
 		ACPPacket acpPacket(ACS_SYNC, opcode);
 		ACPPacket acpReturn;
@@ -139,6 +184,20 @@ ACPPacket ACS::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
 		acp.transaction(acpPacket,acpReturn);
 		return acpReturn;
 	}
+}
+
+bool ACS::isSuccess(ACSOpcode opcode, ACPPacket retPacket){
+	if (opcode == retPacket.opcode){
+		return true;
+	}
+	return false;
+}
+
+bool ACS::isSuccess(SubsystemOpcode opcode, ACPPacket retPacket){
+	if (opcode == retPacket.opcode){
+		return true;
+	}
+	return false;
 }
 
 

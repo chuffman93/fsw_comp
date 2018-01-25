@@ -27,26 +27,40 @@ EPS::EPS(ACPInterface& acp, SubPowerInterface& subPower)
 EPS::~EPS(){}
 
 //Will set up the Gpio lines and the acp devices
-void EPS::initialize(){
+bool EPS::initialize(){
 	//TODO: error handling
 
 	Logger::Stream(LEVEL_INFO,tags) << "Initializing EPS";
 
 	std::vector<uint8_t> buff;
 	ACPPacket retPacket1 = sendOpcode(OP_TESTALIVE,buff);
+	if (!isSuccess(OP_TESTALIVE,retPacket1)){
+		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Alive: EPS is not alive. Opcode Received: " << retPacket1.opcode;
+		return false;
+	}
+
 	ACPPacket retPacket2 = sendOpcode(OP_TESTLED,buff);
+	if (!isSuccess(OP_TESTLED,retPacket2)){
+		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test LED: EPS is not alive. Opcode Received: " << retPacket2.opcode;
+		return false;
+	}
+
 	ACPPacket retPacket3 = sendOpcode(OP_TESTCONFIG,buff);
+	if (!isSuccess(OP_TESTCONFIG,retPacket3)){
+		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Configurations: EPS is not alive. Opcode Received: " << retPacket3.opcode;
+		return false;
+	}
+
+	return true;
 }
 
 //Handles any mode transition needs as well as any needs for tasks to be done in a mode.
-void EPS::handleMode(FSWMode transition){
+bool EPS::handleMode(FSWMode transition){
 	switch (transition) {
 	case Mode_Reset:
-		commandReset();
-		break;
+		return commandReset();
 	default:
-		break;
-		//TODO: error handling
+		return false;
 	}
 }
 
@@ -73,7 +87,7 @@ void EPS::getHealthStatus(){
 }
 
 ACPPacket EPS::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
-	LockGuard l(lock);
+	//LockGuard l(lock);
 	if (buffer.empty()){
 		ACPPacket acpPacket(EPS_SYNC, opcode);
 		ACPPacket acpReturn;
@@ -87,14 +101,35 @@ ACPPacket EPS::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
 	}
 }
 
+bool EPS::isSuccess(EPSOpcode opcode, ACPPacket retPacket){
+	if (opcode == retPacket.opcode){
+		return true;
+	}
+	return false;
+}
+
+bool EPS::isSuccess(SubsystemOpcode opcode, ACPPacket retPacket){
+	if (opcode == retPacket.opcode){
+		return true;
+	}
+	return false;
+}
+
 
 //Power cycle the entire satellite
-void EPS::commandReset(){
+bool EPS::commandReset(){
 	//TODO: error handling
 	Logger::Stream(LEVEL_INFO,tags) << "Reseting EPS";
 	std::vector<uint8_t> buff;
-	ACPPacket acpReturn = sendOpcode(OP_HEALTHSTATUS, buff);
+	getHealthStatus();
+
+
 	ACPPacket retPacket = sendOpcode(OP_SUBSYSTEMRESET,buff);
+	if (!isSuccess(OP_SUBSYSTEMRESET,retPacket)){
+		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Subsystem Reset: unable to reset EPS Opcode Received: " << retPacket.opcode;
+		return false;
+	}
+	return true;
 
 	//sleep(5);
 

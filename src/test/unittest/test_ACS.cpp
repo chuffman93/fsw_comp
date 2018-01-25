@@ -24,6 +24,7 @@ public:
 	~ACSMockACPInterface(){}
 	bool transaction(ACPPacket& packet, ACPPacket& ret){
 		sentOpcodes.push_back(packet.opcode);
+		ret.opcode = packet.opcode;
 		return true;
 	}
 	std::vector<uint8_t> sentOpcodes;
@@ -35,7 +36,7 @@ TEST_CASE("ACS Test Initialization Routine", "[subsystem][ACS]"){
 	SubPowerInterface subPower(dummygpio, 0, 0, 0, "");
 	ACS acs(acp,subPower);
 	//call ACS initialize
-	acs.initialize();
+	REQUIRE(acs.initialize());
 	//validate that it sends test alive opcode
 	REQUIRE(acp.sentOpcodes.end() != std::find(acp.sentOpcodes.begin(), acp.sentOpcodes.end(), OP_TESTALIVE));
 	//validate that it sends LED on opcode
@@ -50,7 +51,7 @@ TEST_CASE("ACS Test Get Health and Status", "[subsystem][COM]"){
 	SubPowerInterface subPower(dummygpio, 0, 0, 0, "");
 	ACS acs(acp,subPower);
 	//call COM initialize
-	acs.initialize();
+	REQUIRE(acs.initialize());
 	//call COM health and status
 	acs.getHealthStatus();
 	//validate that it sends the health and status opcode
@@ -64,12 +65,12 @@ TEST_CASE("ACS Test Handle Mode", "[subsystem][ACS]"){
 	SubPowerInterface subPower(dummygpio, 0, 0, 0, "");
 	ACS acs(acp,subPower);
 	//call ACS initialize
-	acs.initialize();
-	acs.handleMode(Mode_Bus);
-	acs.handleMode(Mode_Reset);
-	acs.handleMode(Trans_BusToPayload);
-	acs.handleMode(Trans_PayloadToBus);
-	acs.handleMode(Trans_BusToCom);
+	REQUIRE(acs.initialize());
+	REQUIRE(acs.handleMode(Mode_Bus));
+	REQUIRE(acs.handleMode(Mode_Reset));
+	REQUIRE(acs.handleMode(Trans_BusToPayload));
+	REQUIRE(acs.handleMode(Trans_PayloadToBus));
+	REQUIRE(acs.handleMode(Trans_BusToCom));
 	REQUIRE(acp.sentOpcodes.end() != std::find(acp.sentOpcodes.begin(), acp.sentOpcodes.end(), OP_SENDGPS));
 	REQUIRE(acp.sentOpcodes.end() != std::find(acp.sentOpcodes.begin(), acp.sentOpcodes.end(), OP_POINTNADIR));
 	REQUIRE(acp.sentOpcodes.end() != std::find(acp.sentOpcodes.begin(), acp.sentOpcodes.end(), OP_POINTSUN));

@@ -24,6 +24,7 @@ public:
 	~EPSMockACPInterface(){}
 	bool transaction(ACPPacket& packet, ACPPacket& ret){
 		sentOpcodes.push_back(packet.opcode);
+		ret.opcode = packet.opcode;
 		if (packet.opcode == OP_HEALTHSTATUS){
 			std::vector<uint8_t> buff;
 			buff.resize(36);
@@ -43,7 +44,7 @@ TEST_CASE("EPS Test Initialization Routine", "[subsystem][EPS]"){
 	SubPowerInterface subPower(dummyg, 0, 0, 0, "");
 	EPS eps(acp,subPower);
 	//call EPS initialize
-	eps.initialize();
+	REQUIRE(eps.initialize());
 	//validate that it sends test alive opcode
 	REQUIRE(acp.sentOpcodes.end() != std::find(acp.sentOpcodes.begin(), acp.sentOpcodes.end(), OP_TESTALIVE));
 	//validate that it sends LED on opcode
@@ -59,7 +60,7 @@ TEST_CASE("EPS Test Get Health and Status", "[subsystem][EPS]"){
 	SubPowerInterface subPower(dummyg, 0, 0, 0, "");
 	EPS eps(acp,subPower);
 	//call EPS initialize
-	eps.initialize();
+	REQUIRE(eps.initialize());
 	//call EPS health and status
 	eps.getHealthStatus();
 	//validate that it sends the health and status opcode
@@ -76,8 +77,8 @@ TEST_CASE("EPS Test Command Reset", "[subsystem][EPS]"){
 	SubPowerInterface subPower(dummyg, 0, 0, 0, "");
 	EPS eps(acp,subPower);
 	//call EPS initialize
-	eps.initialize();
-	eps.handleMode(Mode_Reset);
+	REQUIRE(eps.initialize());
+	REQUIRE(eps.handleMode(Mode_Reset));
 	REQUIRE(acp.sentOpcodes.end() != std::find(acp.sentOpcodes.begin(), acp.sentOpcodes.end(), OP_SUBSYSTEMRESET));
 
 }
