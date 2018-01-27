@@ -11,8 +11,7 @@
 
 UARTManager dummyu("");
 GPIOManager dummyg("");
-
-std::string teststr = "BESTXYZA,COM1,0,55.0,FINESTEERING,1419,340033.000,02000040,d821,2724;SOL_COMPUTED,NARROW_INT,-1634531.5683,-3664618.0326,4942496.3270,0.0099,0.0219,0.0115,SOL_COMPUTED,NARROW_INT,0.0011,-0.0049,-0.0001,0.0199,0.0439,0.0230,\"AAAA\",0.250,1.000,0.000,12,11,11,11,0,01,0,33*e9eafeca";
+std::string teststr = "BESTXYZA,COM1,0,55.0,FINESTEERING,1957,240960.000,02000040,d821,2724;SOL_COMPUTED,NARROW_INT,4792805.471,-3190283.834,-3762966.202,0.0,0.0,0.0,SOL_COMPUTED,NARROW_INT,-3699.37,1958.58,-6372.311,0.0,0.0,0.0,\"AAAA\",0.250,1.000,0.000,12,11,11,11,0,01,0,33*e9eafeca";
 
 
 class MockNMEA: public NMEAInterface{
@@ -51,21 +50,20 @@ TEST_CASE("Test GPS fetchNewGPS", "[subsystem][gps]"){
 		gps.fetchNewGPS();
 		GPSPositionTime pt = gps.getBestXYZ();
 
-		/*
-		cout << "Read: Position = {" << pt.posX << ", " << pt.posY << ", " << pt.posZ << "}" << endl;
-		cout << "Read: Velocity = {" << pt.velX << ", " << pt.velY << ", " << pt.velZ << "}" << endl;
-		cout << "Read: Week " << pt.GPSWeek << " Second" << pt.GPSSec << endl;
-		*/
+		cout << "POS { " << pt.posX << "," << pt.posY << "," << pt.posZ << " }" << endl;
+		cout << "VEL { " << pt.velX << "," << pt.velY << "," << pt.velZ << " }" << endl;
 
-		REQUIRE(fabs(pt.posX - -1634.53) < 0.01);
-		REQUIRE(fabs(pt.posY - -3664.62) < 0.01);
-		REQUIRE(fabs(pt.posZ -   4942.5) < 0.01);
-		REQUIRE(fabs(pt.velX -  1.1e-06) < 0.01);
-		REQUIRE(fabs(pt.velY - -4.9e-06) < 0.01);
-		REQUIRE(fabs(pt.velZ -   -1e-07) < 0.01);
-		REQUIRE(pt.GPSWeek == 1419);
-		REQUIRE(pt.GPSSec  == 340033);
+
+		REQUIRE(fabs(pt.posX - 4792.805471) < 0.15);
+		REQUIRE(fabs(pt.posY - -3190.283834) < 0.15);
+		REQUIRE(fabs(pt.posZ - -3762.966202) < 0.15);
+		REQUIRE(fabs(pt.velX - -3.69937) < 0.15);
+		REQUIRE(fabs(pt.velY - 1.95858) < 0.15);
+		REQUIRE(fabs(pt.velZ - -6.372311) < 0.15);
+		REQUIRE(pt.GPSWeek == 1957);
+		REQUIRE(pt.GPSSec  == 240960);
 	}
+
 
 	SECTION("Test that it doesn't set when the string is invalid"){
 		GPSPositionTime old = gps.getBestXYZ();
@@ -74,12 +72,12 @@ TEST_CASE("Test GPS fetchNewGPS", "[subsystem][gps]"){
 
 		GPSPositionTime pt = gps.getBestXYZ();
 
-		REQUIRE(old.posX == pt.posX);
-		REQUIRE(old.posY == pt.posY);
-		REQUIRE(old.posZ == pt.posZ);
-		REQUIRE(old.velX == pt.velX);
-		REQUIRE(old.velY == pt.velY);
-		REQUIRE(old.velZ == pt.velZ);
+		REQUIRE(fabs(old.posX - pt.posX) < 0.01);
+		REQUIRE(fabs(old.posY - pt.posY) < 0.01);
+		REQUIRE(fabs(old.posZ - pt.posZ) < 0.01);
+		REQUIRE(fabs(old.velX - pt.velX) < 0.01);
+		REQUIRE(fabs(old.velY - pt.velY) < 0.01);
+		REQUIRE(fabs(old.velZ - pt.velZ) < 0.01);
 		REQUIRE(old.GPSWeek == pt.GPSWeek);
 		REQUIRE(old.GPSSec == pt.GPSSec);
 	}
@@ -103,15 +101,23 @@ TEST_CASE("Test GPS fetchNewGPS", "[subsystem][gps]"){
 	}
 	*/
 
-	SECTION("Convert to ECI","[subsytem][gps]"){
-		GPSPositionTime pt = gps.getBestXYZ();
-		std::string teststr = "BESTXYZA,COM1,0,55.0,FINESTEERING,1419,340033.000,02000040,d821,2724;SOL_COMPUTED,NARROW_INT,-1634531.5683,-3664618.0326,4942496.3270,0.0099,0.0219,0.0115,SOL_COMPUTED,NARROW_INT,0.0011,-0.0049,-0.0001,0.0199,0.0439,0.0230,\"AAAA\",0.250,1.000,0.000,12,11,11,11,0,01,0,33*e9eafeca";
-
-
-	}
 
 	SECTION("Orbital Propagater","[subsystem][gps]"){
+		nm.teststr = teststr;
+		gps.fetchNewGPS();
+		GPSPositionTime pt = gps.getBestXYZI();
 
+		cout << "POS { " << pt.posX << "," << pt.posY << "," << pt.posZ << " }" << endl;
+		cout << "VEL { " << pt.velX << "," << pt.velY << "," << pt.velZ << " }" << endl;
+
+		REQUIRE(fabs(pt.posX - -5763.85) < 0.15);
+		REQUIRE(fabs(pt.posY - 0) < 0.15);
+		REQUIRE(fabs(pt.posZ - -3753.25) < 0.15);
+		REQUIRE(fabs(pt.velX - 4.15403) < 0.15);
+		REQUIRE(fabs(pt.velY - 0) < 0.15);
+		REQUIRE(fabs(pt.velZ - -6.37933) < 0.15);
 	}
+
+
 
 }

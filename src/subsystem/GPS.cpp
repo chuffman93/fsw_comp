@@ -39,6 +39,8 @@ void GPS::getHealthStatus(){
 
 GPSPositionTime GPS::getBestXYZ(){
 	GPSPositionTime inertial = getBestXYZI();
+
+
 	// arrays for the rotation
 	double posECI[3];
 	double velECI[3];
@@ -77,6 +79,7 @@ GPSPositionTime GPS::getBestXYZI(){
 	float propTime = currTime/1000.0 - lastLock.sysTime;
 
 	propagatePositionVelocity(lastLock.elements, propTime, eciPos, eciVel);
+
 
 	GPSPositionTime pt;
 	pt.posX = eciPos[0];
@@ -206,17 +209,29 @@ void GPS::fetchNewGPS(){
 
 
 	//Convert into orbital elements for the propigator
-	float r[4] = {0};
-	float v[4] = {0};
-	r[1] = tempData.posX;
-	r[2] = tempData.posY;
-	r[3] = tempData.posZ;
-	v[1] = tempData.velX;
-	v[2] = tempData.velY;
-	v[3] = tempData.velZ;
+	double r[3] = {0};
+	double v[3] = {0};
+	double rI[3] = {0};
+	double vI[3] = {0};
+	double gpsTime[2] = {0};
+	r[0] = tempData.posX;
+	r[1] = tempData.posY;
+	r[2] = tempData.posZ;
+	v[0] = tempData.velX;
+	v[1] = tempData.velY;
+	v[2] = tempData.velZ;
+	gpsTime[0] = tempData.GPSWeek;
+	gpsTime[1] = tempData.GPSSec;
+	wgs2gcrf(r,v,gpsTime,rI,vI);
 	lock.lock();
+	float tempR[4] = {0};
+	float tempV[4] = {0};
+	for(int i = 0; i<3 ;i++){
+		tempR[i+1] = (float)rI[i];
+		tempV[i+1] = (float)vI[i];
+	}
 	lastLock.sysTime = getFSWMillis() / 1000.0; //Store current time to use for prop
-	rv2elem(MU_EARTH, r, v, &(lastLock.elements));
+	rv2elem(MU_EARTH, tempR, tempV, &(lastLock.elements));
 	lastLock.GPSWeek = tempData.GPSWeek;
 	lastLock.GPSSec = tempData.GPSSec;
 	lock.unlock();
