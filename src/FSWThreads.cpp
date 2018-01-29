@@ -11,13 +11,16 @@
 #include "core/GroundCommunication.h"
 #include "util/TimeKeeper.h"
 
+using namespace std;
+
 void * FSWThreads::GetHealthStatusThread(void * args) {
-	SubsystemSequenceStruct * subsystemStruct = (SubsystemSequenceStruct*) args;
-	Watchdog * watchdog = subsystemStruct->watchdog;
-	std::vector<SubsystemBase*> healthSeq = subsystemStruct->SubsystemSequence;
+	HSStruct * hsStruct = (HSStruct*) args;
+	Watchdog * watchdog = hsStruct->watchdog;
+	std::vector<SubsystemBase*> healthSeq = hsStruct->SubsystemSequence;
+	Logger::log(LEVEL_FATAL, "Starting Health and Status Thread");
 	while (1) {
-		puts("Health and status thread Pinging");
-		watchdog->KickWatchdog();
+
+		//watchdog->KickWatchdog();
 		for (std::vector<SubsystemBase*>::iterator i = healthSeq.begin();
 				i != healthSeq.end(); i++) {
 			(*i)->getHealthStatus();

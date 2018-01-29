@@ -18,10 +18,11 @@ using namespace std;
  * \param spiid the id of the spi device to use
  * \param intid the id of the interrupt device to use
  */
-ACPInterface::ACPInterface(SPIManager& spiman, GPIOManager& gpioman, int spiid, int intid)
+ACPInterface::ACPInterface(SPIManager& spiman, GPIOManager& gpioman, int spiid, int intid, std::string instance)
 :spiman(spiman), gpioman(gpioman), spiid(spiid), intid(intid), numbertransactions(0), timeout(100), tries(10), delay(1000)
 {
 	tags += LogTag("Name", "ACPInterface");
+	tags += LogTag("Instance", instance);
 }
 
 //! Does nothing

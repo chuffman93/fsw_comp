@@ -25,7 +25,7 @@ struct ModeManagerStruct{
 	Watchdog * watchdog;
 };
 
-struct SubsystemSequenceStruct{
+struct HSStruct{
 	std::vector<SubsystemBase*> SubsystemSequence;
 	Watchdog * watchdog;
 };
