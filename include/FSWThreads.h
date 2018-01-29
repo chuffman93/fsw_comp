@@ -35,6 +35,11 @@ struct GroundCommunicationStruct{
 	Watchdog * watchdog;
 };
 
+struct GPSStruct{
+	GPS * gps;
+	Watchdog * watchdog;
+};
+
 class FSWThreads{
 
 public:

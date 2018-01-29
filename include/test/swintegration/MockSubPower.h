@@ -20,6 +20,8 @@ public:
 	void powerOff();
 	void powerOn();
 	void reset();
+
+	bool faultOccurred();
 private:
 	//! Tags to use for logging
 	LogTags tags;

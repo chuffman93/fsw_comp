@@ -17,11 +17,13 @@ public:
 	SubPowerInterface(GPIOManager& gpioman, int powerid, int resetid, int faultid, std::string instance);
 	~SubPowerInterface();
 
-	void configDelay(size_t resetdelay, size_t startupdelay);
+	MOCK void configDelay(size_t resetdelay, size_t startupdelay);
 
-	void powerOff();
-	void powerOn();
-	void reset();
+	MOCK void powerOff();
+	MOCK void powerOn();
+	MOCK void reset();
+
+	MOCK bool faultOccurred();
 private:
 	//! Minimum time to assert reset [ms]
 	size_t resetdelay;

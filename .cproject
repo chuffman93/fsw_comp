@@ -198,7 +198,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="BeaconManager.cpp|src/threads|threads|src/test|src/test/unittest.cpp|interfaces|interface|test/haltest|core|include/interfaces" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="BeaconManager.cpp|src/threads|threads|src/test|src/test/unittest.cpp|interfaces|interface|test/haltest|core" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src/test/swintegration"/>
 					</sourceEntries>
 				</configuration>

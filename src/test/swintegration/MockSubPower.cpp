@@ -31,4 +31,7 @@ void MockSubPower::reset(){
 	Logger::log(LEVEL_INFO, tags, "Resetting");
 }
 
+bool MockSubPower::faultOccurred(){
+	return false;
+}
 

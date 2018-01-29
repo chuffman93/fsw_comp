@@ -21,7 +21,7 @@ void * FSWThreads::GetHealthStatusThread(void * args) {
 	Logger::log(LEVEL_FATAL, "Starting Health and Status Thread");
 	while (1) {
 
-		//watchdog->KickWatchdog();
+		watchdog->KickWatchdog();
 		for (std::vector<SubsystemBase*>::iterator i = healthSeq.begin();
 				i != healthSeq.end(); i++) {
 			(*i)->getHealthStatus();
@@ -53,10 +53,14 @@ void * FSWThreads::ModeManagerThread(void * args) {
 }
 
 void * FSWThreads::GPSManagerThread(void * args) {
-	Watchdog * watchdog = (Watchdog*) args;
+	GPSStruct *gpsargs = (GPSStruct*) args;
+	Watchdog * watchdog = gpsargs->watchdog;
+	GPS * gps = gpsargs->gps;
+	Logger::registerThread("GPS");
+	Logger::log(LEVEL_FATAL, "Starting GPS Thread");
 	while (1) {
-		puts("GPS Manager thread Pinging");
-		//watchdog->KickWatchdog();
+		watchdog->KickWatchdog();
+		gps->fetchNewGPS();
 		sleep(2);
 	}
 	return NULL;
@@ -64,10 +68,12 @@ void * FSWThreads::GPSManagerThread(void * args) {
 
 void * FSWThreads::WatchdogThread(void * args) {
 	Watchdog * watchdog = (Watchdog*) args;
+	Logger::registerThread("WPUP");
+	Logger::log(LEVEL_FATAL, "Starting Watchdog Thread");
 	while (1) {
 		sleep(4);
 		watchdog->CheckThreads();
-		puts("Watchdog thread Pinging");
+		Logger::Stream(LEVEL_INFO) << "Pinging from watchdog";
 
 	}
 	return NULL;

@@ -32,10 +32,13 @@ public:
 
 	static std::vector<SubsystemBase*> buildHSVector();
 	static std::vector<SubsystemBase*> buildInitVector();
+	static std::vector<HardwareManager*> buildHALInitVector();
+	static GPS* getGPS();
 
 private:
 	static void buildSPI();
 	static void buildGPIO();
+	static void buildUART();
 	static ACS* acs;
 	static CDH* cdh;
 	static COM* com;
@@ -46,6 +49,7 @@ private:
 	//HAL Layer
 	static SPIManager* spi;
 	static GPIOManager* gpio;
+	static UARTManager* uart;
 	static InterfaceMode mode;
 
 };

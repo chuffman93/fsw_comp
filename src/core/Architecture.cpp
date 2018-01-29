@@ -8,6 +8,7 @@
 #include "core/Architecture.h"
 #include "test/swintegration/MockACP.h"
 #include "test/swintegration/MockSubPower.h"
+#include "test/swintegration/MockNMEA.h"
 
 ACS* Architecture::acs = NULL;
 CDH* Architecture::cdh = NULL;
@@ -19,6 +20,7 @@ RAD* Architecture::rad = NULL;
 //HAL Layer
 SPIManager* Architecture::spi = NULL;
 GPIOManager* Architecture::gpio = NULL;
+UARTManager* Architecture::uart = NULL;
 
 InterfaceMode Architecture::mode = SOFTWARE;
 
@@ -36,6 +38,13 @@ void Architecture::buildGPIO(){
 	if(gpio == NULL){
 		//Need to build the GPIO Manager
 		gpio = new GPIOManager("/sys/class/gpio/");
+	}
+}
+
+void Architecture::buildUART(){
+	//Build UART if not already built
+	if(uart == NULL){
+		uart = new UARTManager("/dev/ttyS2");
 	}
 }
 
@@ -111,10 +120,21 @@ void Architecture::buildRAD(){
 }
 
 void Architecture::buildGPS(){
-
+	if(mode == HARDWARE){
+		buildUART();
+		NMEAInterface* nmea = new NMEAInterface(*uart);
+		//TODO: Actually figure this shit out
+		int powid = gpio->attachDevice('B', 17, GPIO_OUTPUT);
+		int resetid = gpio->attachDevice('E', 11, GPIO_OUTPUT);
+		int faultid = gpio->attachDevice('B', 14, GPIO_INPUT);
+		SubPowerInterface* sp = new SubPowerInterface(*gpio, powid, resetid, faultid, "GPS");
+		gps = new GPS(*nmea, *sp);
+	}else{
+		gps = new GPS(*(new MockNMEA()), *(new MockSubPower("GPS")));
+	}
 }
 
-void Architecture;:buildCDH(){
+void Architecture::buildCDH(){
 
 }
 
@@ -161,6 +181,19 @@ std::vector<SubsystemBase*> Architecture::buildInitVector(){
 	if(rad != NULL) ret.push_back(rad);
 
 	return ret;
+}
+
+std::vector<HardwareManager*> Architecture::buildHALInitVector(){
+	std::vector<HardwareManager*> ret;
+	if(spi != NULL) ret.push_back(spi);
+	if(gpio != NULL) ret.push_back(gpio);
+	if(uart != NULL) ret.push_back(uart);
+	return ret;
+}
+
+GPS* Architecture::getGPS(){
+	assert(gps != NULL);
+	return gps;
 }
 
 void Architecture::setInterfaceMode(InterfaceMode mode){
