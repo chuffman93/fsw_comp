@@ -14,6 +14,8 @@
 #include "subsystem/EPS.h"
 #include "subsystem/GPS.h"
 #include "subsystem/RAD.h"
+#include "core/GroundCommunication.h"
+#include "core/ScheduleManager.h"
 
 enum InterfaceMode {
 	SOFTWARE,
@@ -28,12 +30,18 @@ public:
 	static void buildRAD();
 	static void buildGPS();
 	static void buildCDH();
+	static void buildScheduleManager();
+	static void buildTime();
+	static void buildGND();
 	static void setInterfaceMode(InterfaceMode mode);
 
 	static std::vector<SubsystemBase*> buildHSVector();
 	static std::vector<SubsystemBase*> buildInitVector();
 	static std::vector<HardwareManager*> buildHALInitVector();
+	static std::map<FSWMode, std::vector<SubsystemBase*> > buildModeSequencing();
 	static GPS* getGPS();
+	static GroundCommunication* getGND();
+	static ScheduleManager* getSchedulerManager();
 
 private:
 	static void buildSPI();
@@ -45,6 +53,8 @@ private:
 	static EPS* eps;
 	static GPS* gps;
 	static RAD* rad;
+	static GroundCommunication* gnd;
+	static ScheduleManager* sch;
 
 	//HAL Layer
 	static SPIManager* spi;

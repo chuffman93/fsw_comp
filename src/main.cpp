@@ -27,11 +27,14 @@ int main() {
 
 	//---------Step1: Build FSW---------------------------
 	Architecture::setInterfaceMode(SOFTWARE);
+	Architecture::buildTime();
 	Architecture::buildEPS();
 	Architecture::buildCOM();
 	Architecture::buildACS();
 	Architecture::buildRAD();
 	Architecture::buildGPS();
+	Architecture::buildScheduleManager();
+	Architecture::buildGND();
 
 
 	//---------Step2: Initialize HAL-----------------------
@@ -54,9 +57,9 @@ int main() {
 	//---------Step5: Initialize HS Thread-----------------------
 	Thread hsThread;
 	HSStruct hsargs;
-	hsargs.SubsystemSequence = Architecture::buildHSVector();
+	hsargs.subsystemSequence = Architecture::buildHSVector();
 	hsargs.watchdog = &watchdog;
-	hsThread.CreateThread(NULL, FSWThreads::GetHealthStatusThread, (void*)&hsargs);
+	hsThread.CreateThread(NULL, FSWThreads::HealthStatusThread, (void*)&hsargs);
 	watchdog.AddThread(hsThread.GetID());
 
 	//---------Step6: Initialize GPS Thread-----------------------
@@ -64,17 +67,37 @@ int main() {
 	GPSStruct gpsargs;
 	gpsargs.gps = Architecture::getGPS();
 	gpsargs.watchdog = &watchdog;
-	gpsThread.CreateThread(NULL, FSWThreads::GPSManagerThread, (void*)&gpsargs);
+	gpsThread.CreateThread(NULL, FSWThreads::GPSThread, (void*)&gpsargs);
 	watchdog.AddThread(gpsThread.GetID());
 
+	//---------Step7: Initialize Mode Thread-----------------------
+	Thread modeThread;
+	ModeStruct modeargs;
+	modeargs.FSWSequence = Architecture::buildModeSequencing();
+	modeargs.scheduler = Architecture::getSchedulerManager();
+	modeargs.watchdog = &watchdog;
+	modeThread.CreateThread(NULL, FSWThreads::ModeThread, (void*)&modeargs);
+	watchdog.AddThread(modeThread.GetID());
 
-	//---------StepX: Start Watchdog-----------------------
+	//---------Step8: Initialize GND Thread-----------------------
+	Thread gndThread;
+	GroundStruct gndargs;
+	gndargs.watchdog = &watchdog;
+	gndargs.gnd = Architecture::getGND();
+	gndThread.CreateThread(NULL, FSWThreads::GroundThread, (void*)&gndargs);
+	watchdog.AddThread(gndThread.GetID());
+
+	//---------Step9: Start Watchdog-----------------------
 	Thread watchdogThread;
 	watchdogThread.CreateThread(NULL, FSWThreads::WatchdogThread, (void*)&watchdog);
 
-	//---------StepX: Join Threads-----------------------
+	//---------Step10: Join Threads (never reached)-----------------------
 	int rv = 0;
 	hsThread.JoinThread((void*)&rv);
+	gpsThread.JoinThread((void*)&rv);
+	modeThread.JoinThread((void*)&rv);
+	gndThread.JoinThread((void*)&rv);
+	watchdogThread.JoinThread((void*)&rv);
 	return 0;
 }
 

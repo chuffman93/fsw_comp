@@ -13,10 +13,10 @@
 
 using namespace std;
 
-void * FSWThreads::GetHealthStatusThread(void * args) {
+void * FSWThreads::HealthStatusThread(void * args) {
 	HSStruct * hsStruct = (HSStruct*) args;
 	Watchdog * watchdog = hsStruct->watchdog;
-	std::vector<SubsystemBase*> healthSeq = hsStruct->SubsystemSequence;
+	std::vector<SubsystemBase*> healthSeq = hsStruct->subsystemSequence;
 	Logger::registerThread("H&S");
 	Logger::log(LEVEL_FATAL, "Starting Health and Status Thread");
 	while (1) {
@@ -31,19 +31,26 @@ void * FSWThreads::GetHealthStatusThread(void * args) {
 	return NULL;
 }
 
-void * FSWThreads::ModeManagerThread(void * args) {
-	ModeManagerStruct * modeStruct = (ModeManagerStruct*) args;
+void * FSWThreads::ModeThread(void * args) {
+	ModeStruct * modeStruct = (ModeStruct*) args;
 	Watchdog * watchdog = modeStruct->watchdog;
-	std::vector<std::vector<SubsystemBase*> > seq = modeStruct->FSWSequence;
+	std::map<FSWMode, std::vector<SubsystemBase*> > seq = modeStruct->FSWSequence;
 	ScheduleManager * scheduler = modeStruct->scheduler;
-
 	FSWMode mode;
+
+	Logger::registerThread("Mode");
+	Logger::log(LEVEL_FATAL, "Starting Mode Thread");
 	while (1) {
-		puts("Mode Manager thread Pinging");
 		watchdog->KickWatchdog();
 		mode = scheduler->checkNewMode();
-		for (unsigned int i = 0; i < seq.at(mode).size(); i++) {
-			seq.at(mode).at(i)->handleMode(mode);
+
+		map<FSWMode, vector<SubsystemBase*> >::iterator it;
+		it = seq.find(mode);
+
+		if(it != seq.end()){
+			for(vector<SubsystemBase*>::iterator sub = it->second.begin(); sub != it->second.end(); sub++){
+				(*sub)->handleMode(mode);
+			}
 		}
 
 		sleep(2);
@@ -52,7 +59,7 @@ void * FSWThreads::ModeManagerThread(void * args) {
 
 }
 
-void * FSWThreads::GPSManagerThread(void * args) {
+void * FSWThreads::GPSThread(void * args) {
 	GPSStruct *gpsargs = (GPSStruct*) args;
 	Watchdog * watchdog = gpsargs->watchdog;
 	GPS * gps = gpsargs->gps;
@@ -79,13 +86,17 @@ void * FSWThreads::WatchdogThread(void * args) {
 	return NULL;
 }
 
-void * FSWThreads::GroundCommunicationThread(void * args) {
-	GroundCommunicationStruct * groundStruct = (GroundCommunicationStruct*) args;
+void * FSWThreads::GroundThread(void * args) {
+	GroundStruct * groundStruct = (GroundStruct*) args;
 	Watchdog * watchdog = groundStruct->watchdog;
-	GroundCommunication ground(groundStruct->Subsystems);
+	GroundCommunication * gnd = groundStruct->gnd;
+
+	Logger::registerThread("GND");
+	Logger::log(LEVEL_FATAL, "Starting Ground Communication Thread");
 	while (1) {
-		sleep(2);
-		watchdog->CheckThreads();
+		gnd->spinGround();
+		watchdog->KickWatchdog();
+		sleep(1);
 	}
 
 	return NULL;

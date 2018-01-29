@@ -17,6 +17,9 @@ EPS* Architecture::eps = NULL;
 GPS* Architecture::gps = NULL;
 RAD* Architecture::rad = NULL;
 
+GroundCommunication* Architecture::gnd = NULL;
+ScheduleManager* Architecture::sch = NULL;
+
 //HAL Layer
 SPIManager* Architecture::spi = NULL;
 GPIOManager* Architecture::gpio = NULL;
@@ -138,6 +141,64 @@ void Architecture::buildCDH(){
 
 }
 
+void Architecture::buildTime(){
+	initializeTime();
+}
+
+void Architecture::buildGND(){
+	//Yay for code reuse
+	//TODO: Rewrite Ground Comms so this isn't shit
+	gnd = new GroundCommunication(buildHSVector());
+}
+
+void Architecture::buildScheduleManager(){
+	sch = new ScheduleManager();
+}
+
+ScheduleManager* Architecture::getSchedulerManager(){
+	assert(sch != NULL);
+	return sch;
+}
+
+std::map<FSWMode, std::vector<SubsystemBase*> > Architecture::buildModeSequencing(){
+	std::map<FSWMode, std::vector<SubsystemBase*> > sequences;
+
+	std::vector<SubsystemBase*> nominal;
+	if(cdh != NULL) nominal.push_back(cdh);
+	if(gps != NULL) nominal.push_back(gps);
+	if(com != NULL) nominal.push_back(com);
+	if(acs != NULL) nominal.push_back(acs);
+	if(rad != NULL) nominal.push_back(rad);
+	if(eps != NULL) nominal.push_back(eps);
+
+	std::vector<SubsystemBase*> pld2bus;
+	if(cdh != NULL) nominal.push_back(cdh);
+	if(gps != NULL) nominal.push_back(gps);
+	if(rad != NULL) nominal.push_back(rad);
+	if(com != NULL) nominal.push_back(com);
+	if(acs != NULL) nominal.push_back(acs);
+	if(eps != NULL) nominal.push_back(eps);
+
+	sequences.insert(std::pair<FSWMode, std::vector<SubsystemBase*> >
+	(Mode_Bus, nominal));
+	sequences.insert(std::pair<FSWMode, std::vector<SubsystemBase*> >
+	(Mode_Payload, nominal));
+	sequences.insert(std::pair<FSWMode, std::vector<SubsystemBase*> >
+	(Mode_Com, nominal));
+	sequences.insert(std::pair<FSWMode, std::vector<SubsystemBase*> >
+	(Mode_Reset, nominal));
+	sequences.insert(std::pair<FSWMode, std::vector<SubsystemBase*> >
+	(Trans_BusToPayload, nominal));
+	sequences.insert(std::pair<FSWMode, std::vector<SubsystemBase*> >
+	(Trans_PayloadToBus, pld2bus));
+	sequences.insert(std::pair<FSWMode, std::vector<SubsystemBase*> >
+	(Trans_BusToCom, nominal));
+	sequences.insert(std::pair<FSWMode, std::vector<SubsystemBase*> >
+	(Trans_ComToBus, nominal));
+
+	return sequences;
+}
+
 
 //TODO: Fault lines need to be fixed
 /*			//COM Monitors
@@ -161,12 +222,12 @@ PLD_12V0_FAULT					 =IOtoInt('B', 12),
 
 std::vector<SubsystemBase*> Architecture::buildHSVector(){
 	std::vector<SubsystemBase*> ret;
-	if(acs != NULL) ret.push_back(acs);
-	if(cdh != NULL) ret.push_back(cdh);
-	if(com != NULL) ret.push_back(com);
 	if(eps != NULL) ret.push_back(eps);
-	if(gps != NULL) ret.push_back(gps);
+	if(com != NULL) ret.push_back(com);
+	if(acs != NULL) ret.push_back(acs);
 	if(rad != NULL) ret.push_back(rad);
+	if(cdh != NULL) ret.push_back(cdh);
+	if(gps != NULL) ret.push_back(gps);
 
 	return ret;
 }
@@ -194,6 +255,11 @@ std::vector<HardwareManager*> Architecture::buildHALInitVector(){
 GPS* Architecture::getGPS(){
 	assert(gps != NULL);
 	return gps;
+}
+
+GroundCommunication* Architecture::getGND(){
+	assert(gnd != NULL);
+	return gnd;
 }
 
 void Architecture::setInterfaceMode(InterfaceMode mode){
