@@ -67,17 +67,7 @@ void EPS::getHealthStatus(){
 		Logger::Stream(LEVEL_ERROR, tags) << "Failed to receive H&S!";
 	}
 
-	std::string healthFile;
-	size_t messageSize = acpReturn.message.size();
-	if ((health.fileSize+messageSize) < MAX_FILE_SIZE){
-		healthFile = health.currentFile;
-		health.fileSize += messageSize;
-	}else{
-		healthFile = FileManager::createFileName(health.basePath);
-		health.currentFile = healthFile;
-		health.fileSize = messageSize;
-	}
-	FileManager::writeToFile(healthFile,acpReturn.message);
+	health.recordBytes(acpReturn.message);
 
 	ByteStream bs(acpReturn.message);
 	bs.seek(12) >> batteryCharge;

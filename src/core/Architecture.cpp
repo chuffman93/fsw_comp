@@ -144,6 +144,18 @@ std::vector<SubsystemBase*> Architecture::buildHSVector(){
 	return ret;
 }
 
+std::vector<SubsystemBase*> Architecture::buildInitVector(){
+	std::vector<SubsystemBase*> ret;
+	if(acs != NULL) ret.push_back(acs);
+	if(cdh != NULL) ret.push_back(cdh);
+	if(com != NULL) ret.push_back(com);
+	if(eps != NULL) ret.push_back(eps);
+	if(gps != NULL) ret.push_back(gps);
+	if(rad != NULL) ret.push_back(rad);
+
+	return ret;
+}
+
 void Architecture::setInterfaceMode(InterfaceMode mode){
 	Architecture::mode = mode;
 }

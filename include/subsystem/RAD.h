@@ -69,6 +69,8 @@ PRIVATE:
 	void commandCollectionEnd();
 	char dataFile[100];
 
+	bool hsAvailable;
+
 	ExternalProcess tftp;
 	ACPInterface& acp;
 	SubPowerInterface& subPower;

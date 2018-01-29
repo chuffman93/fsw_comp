@@ -29,6 +29,7 @@ public:
 	static void setInterfaceMode(InterfaceMode mode);
 
 	static std::vector<SubsystemBase*> buildHSVector();
+	static std::vector<SubsystemBase*> buildInitVector();
 
 private:
 	static void buildSPI();

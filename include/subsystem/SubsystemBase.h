@@ -19,6 +19,8 @@ struct HealthFileStruct {
 	std::string basePath;
 	subsystem_sync_t sync;
 	size_t fileSize;
+
+	void recordBytes(std::vector<uint8_t> message);
 };
 
 class SubsystemBase{

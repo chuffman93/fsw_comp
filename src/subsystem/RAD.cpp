@@ -9,6 +9,7 @@
 
 RAD::RAD(ACPInterface& acp, SubPowerInterface& subPower)
 : acp(acp), subPower(subPower){
+	hsAvailable = false;
 	tags += LogTag("Name", "RAD");
 	health.sync = RAD_SYNC;
 	health.fileSize = MAX_FILE_SIZE;
@@ -43,22 +44,14 @@ void RAD::handleMode(FSWMode transition){
 
 //Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 void RAD::getHealthStatus(){
+	if(hsAvailable){
+		LockGuard l(lock);
+		ACPPacket acpPacket(health.sync, OP_HEALTHSTATUS);
+		ACPPacket acpReturn;
+		acp.transaction(acpPacket,acpReturn);
 
-	LockGuard l(lock);
-	ACPPacket acpPacket(health.sync, OP_HEALTHSTATUS);
-	ACPPacket acpReturn;
-	acp.transaction(acpPacket,acpReturn);
-
-	std::string healthFile;
-	size_t messageSize = acpReturn.message.size();
-	if ((health.fileSize+messageSize) < MAX_FILE_SIZE){
-		healthFile = health.currentFile;
-		health.fileSize += messageSize;
-	}else{
-		healthFile = FileManager::createFileName(health.basePath);
-		health.fileSize = messageSize;
+		health.recordBytes(acpReturn.message);
 	}
-	FileManager::writeToFile(healthFile,acpReturn.message);
 }
 
 ACPPacket RAD::sendOpcode(uint8_t opcode){
@@ -102,6 +95,7 @@ void RAD::commandCollectionBegin(){
 
 	sprintf(dataFile, "RAD_%u", RADDataNum);
 	RADDataNum = updateDataNumber();
+	hsAvailable = true;
 
 	// TODO: get correct IP and make sure this runs as intended
 	// char* argv[] = {(char *)"/usr/bin/tftp",(char *)"-g",(char*)"-r",dataFile,(char*)"10.14.134.207",NULL};
@@ -113,6 +107,7 @@ void RAD::commandCollectionEnd(){
 	//TODO: error handling
 
 	LockGuard l(lock);
+	hsAvailable = false;
 
 	Logger::Stream(LEVEL_INFO,tags) << "Ending RAD Science Collection";
 	ACPPacket acpPacket(RAD_SYNC, OP_SUBSYSTEMRESET);
