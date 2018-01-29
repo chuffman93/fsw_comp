@@ -110,6 +110,13 @@ void Architecture::buildRAD(){
 	}
 }
 
+void Architecture::buildGPS(){
+
+}
+
+void Architecture;:buildCDH(){
+
+}
 
 
 //TODO: Fault lines need to be fixed

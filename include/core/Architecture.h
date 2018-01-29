@@ -26,6 +26,8 @@ public:
 	static void buildCOM();
 	static void buildACS();
 	static void buildRAD();
+	static void buildGPS();
+	static void buildCDH();
 	static void setInterfaceMode(InterfaceMode mode);
 
 	static std::vector<SubsystemBase*> buildHSVector();
