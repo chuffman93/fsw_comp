@@ -20,6 +20,8 @@ using namespace std;
 
 
 int main() {
+	Logger::setMode(MODE_PRINT);
+	Logger::log(LEVEL_FATAL, "Entering Main");
 	Watchdog watchdog;
 
 	Architecture::setInterfaceMode(SOFTWARE);

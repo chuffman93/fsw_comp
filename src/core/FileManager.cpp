@@ -64,7 +64,7 @@ std::vector<uint8_t> FileManager::readFromFile(std::string filePath){
  * \param vector of bytes that is to be written to a file
  */
 void FileManager::writeToFile(std::string filePath, std::vector<uint8_t> &buffer){
-
+	LockGuard l(lock);
 	LogTags tags;
 	tags += LogTag("Name", "FileManager");
 	if (filePath == ""){
@@ -72,14 +72,13 @@ void FileManager::writeToFile(std::string filePath, std::vector<uint8_t> &buffer
 		return;
 	}
 	else{
-		lock.lock();
+		Logger::Stream(LEVEL_INFO, tags) << "Writing " << buffer.size() << " bytes to \"" << filePath << "\"";
 		ofstream f(filePath.c_str(),ofstream::out | ofstream::binary);
 
 		for(std::vector<uint8_t>::const_iterator i = buffer.begin(); i != buffer.end(); ++i){
 			f << *i;
 		}
 		f.close();
-		lock.unlock();
 	}
 
 }

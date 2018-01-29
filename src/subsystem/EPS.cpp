@@ -9,6 +9,7 @@
 
 #include "subsystem/EPS.h"
 #include "core/FileManager.h"
+#include "core/FileSystem.h"
 
 #include <stdint.h>
 #include <unistd.h>
@@ -62,7 +63,9 @@ void EPS::getHealthStatus(){
 	LockGuard l(lock);
 	ACPPacket acpPacket(health.sync, OP_HEALTHSTATUS);
 	ACPPacket acpReturn;
-	acp.transaction(acpPacket,acpReturn);
+	if(!acp.transaction(acpPacket,acpReturn)){
+		Logger::Stream(LEVEL_ERROR, tags) << "Failed to receive H&S!";
+	}
 
 	std::string healthFile;
 	size_t messageSize = acpReturn.message.size();
@@ -71,12 +74,15 @@ void EPS::getHealthStatus(){
 		health.fileSize += messageSize;
 	}else{
 		healthFile = FileManager::createFileName(health.basePath);
+		health.currentFile = healthFile;
 		health.fileSize = messageSize;
 	}
 	FileManager::writeToFile(healthFile,acpReturn.message);
 
 	ByteStream bs(acpReturn.message);
 	bs.seek(12) >> batteryCharge;
+
+	Logger::Stream(LEVEL_INFO, tags) << "Battery Charge: " << batteryCharge;
 
 }
 
