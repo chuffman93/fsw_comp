@@ -28,7 +28,7 @@ public:
 	//Will set up the Gpio lines and the acp devices
 	virtual bool initialize() = 0;
 	//Handles any mode transition needs as well as any needs for tasks to be done in a mode. 
-	virtual bool handleMode(FSWMode transition) = 0;
+	virtual void handleMode(FSWMode transition) = 0;
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 	virtual void getHealthStatus() = 0;
 

@@ -55,12 +55,14 @@ bool EPS::initialize(){
 }
 
 //Handles any mode transition needs as well as any needs for tasks to be done in a mode.
-bool EPS::handleMode(FSWMode transition){
+void EPS::handleMode(FSWMode transition){
+	bool success;
 	switch (transition) {
 	case Mode_Reset:
-		return commandReset();
+		success = commandReset();
+		break;
 	default:
-		return false;
+		break;
 	}
 }
 

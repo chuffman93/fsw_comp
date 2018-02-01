@@ -47,13 +47,15 @@ public:
 	//Will set up the Gpio lines and the acp devices
 	bool initialize();
 	//Handles any mode transition needs as well as any needs for tasks to be done in a mode.
-	bool handleMode(FSWMode transition);
+	void handleMode(FSWMode transition);
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 	void getHealthStatus();
 
 	ACPPacket sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer);
 	bool isSuccess(ACSOpcode opSent, ACPPacket retPacket);
 	bool isSuccess(SubsystemOpcode opSent, ACPPacket retPacket);
+
+	float getTimeSinceLock();
 
 	HealthFileStruct health;
 private:
@@ -67,8 +69,10 @@ private:
 	void configureGains();
 	bool resetACS();
 	ACPInterface& getACPRef();
+	void updateTimeSinceLock(std::vector<uint8_t> buffer);
 
 	bool pointingValid;// = false;
+	float TimeSinceLock;
 	ACPInterface& acp;
 	SubPowerInterface& subPower;
 	Lock lock;

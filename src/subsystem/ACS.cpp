@@ -11,6 +11,7 @@ ACS::ACS(ACPInterface& acp, SubPowerInterface& subPower)
 : acp(acp), subPower(subPower){
 	tags += LogTag("Name", "ACS");
 	pointingValid = false;
+	TimeSinceLock = -1;
 	health.fileSize = 0;
 	health.basePath = HEALTH_DIRECTORY RAD_PATH "/ACS";
 }
@@ -45,31 +46,32 @@ bool ACS::initialize(){
 }
 
 //Handles any mode transition needs as well as any needs for tasks to be done in a mode.
-bool ACS::handleMode(FSWMode transition){
+void ACS::handleMode(FSWMode transition){
+	bool success;
 	switch (transition){
 	case Mode_Bus:
-		return sendGPS();
+		success = sendGPS();
 		break;
 	case Mode_Payload:
-		return sendGPS();
+		success = sendGPS();
 		break;
 	case Mode_Com:
-		return sendGPS();
+		success = sendGPS();
 		break;
 	case Mode_Reset:
-		return resetACS();
+		success = resetACS();
 		break;
 	case Trans_BusToPayload:
-		return pointNadir();
+		success = pointNadir();
 		break;
 	case Trans_PayloadToBus:
-		return pointSunSoak();
+		success = pointSunSoak();
 		break;
 	case Trans_BusToCom:
-		return pointCOM();
+		success =  pointCOM();
 		break;
 	case Trans_ComToBus:
-		return pointSunSoak();
+		success =  pointSunSoak();
 		break;
 	default:
 		break;
@@ -93,6 +95,7 @@ void ACS::getHealthStatus(){
 		health.fileSize = messageSize;
 	}
 	FileManager::writeToFile(healthFile,acpReturn.message);
+	updateTimeSinceLock(acpReturn.message);
 
 }
 
@@ -198,6 +201,16 @@ bool ACS::isSuccess(SubsystemOpcode opcode, ACPPacket retPacket){
 		return true;
 	}
 	return false;
+}
+
+float ACS::getTimeSinceLock(){
+	return this->TimeSinceLock;
+}
+
+void ACS::updateTimeSinceLock(std::vector<uint8_t> buffer){
+	ByteStream bs(buffer);
+	bs.seek(35);
+	bs >> TimeSinceLock;
 }
 
 

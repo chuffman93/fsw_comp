@@ -45,13 +45,15 @@ bool COM::initialize(){
 }
 
 //Handles any mode transition needs as well as any needs for tasks to be done in a mode.
-bool COM::handleMode(FSWMode transition){
+void COM::handleMode(FSWMode transition){
+	bool success;
 	switch (transition){
 	case Mode_Reset:
-		return resetCOM();
+		success = resetCOM();
+		break;
 	default:
 		//TODO: error handling
-		return false;
+		break;
 	}
 }
 

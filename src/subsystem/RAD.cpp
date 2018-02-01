@@ -25,16 +25,20 @@ bool RAD::initialize(){
 
 
 //Handles any mode transition needs as well as any needs for tasks to be done in a mode.
-bool RAD::handleMode(FSWMode transition){
+void RAD::handleMode(FSWMode transition){
+	bool success;
 	switch (transition){
 	case Mode_Reset:
-		return resetRAD();
+		success = resetRAD();
+		break;
 	case Trans_BusToPayload:
-		return commandCollectionBegin();
+		success = commandCollectionBegin();
+		break;
 	case Trans_PayloadToBus:
-		return commandCollectionEnd();
+		success = commandCollectionEnd();
+		break;
 	default:
-		return false;
+		break;
 	}
 }
 

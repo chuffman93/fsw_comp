@@ -78,7 +78,7 @@ TEST_CASE("EPS Test Command Reset", "[subsystem][EPS]"){
 	EPS eps(acp,subPower);
 	//call EPS initialize
 	REQUIRE(eps.initialize());
-	REQUIRE(eps.handleMode(Mode_Reset));
+	eps.handleMode(Mode_Reset);
 	REQUIRE(acp.sentOpcodes.end() != std::find(acp.sentOpcodes.begin(), acp.sentOpcodes.end(), OP_SUBSYSTEMRESET));
 
 }

@@ -68,7 +68,7 @@ TEST_CASE("COM Test Command Reset", "[subsystem][COM]"){
 	COM com(acp,subPower);
 	//call COM initialize
 	REQUIRE(com.initialize());
-	REQUIRE(com.handleMode(Mode_Reset));
+	com.handleMode(Mode_Reset);
 	//validate that it sends the health and status opcode
 	REQUIRE(acp.sentOpcodes.end() != std::find(acp.sentOpcodes.begin(), acp.sentOpcodes.end(), OP_SUBSYSTEMRESET));
 
