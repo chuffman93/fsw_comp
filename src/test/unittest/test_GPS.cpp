@@ -102,10 +102,15 @@ TEST_CASE("Test GPS fetchNewGPS", "[subsystem][gps]"){
 	*/
 
 
+	// need to run propagater over a some time
 	SECTION("Orbital Propagater","[subsystem][gps]"){
 		nm.teststr = teststr;
-		gps.fetchNewGPS();
-		GPSPositionTime pt = gps.getBestXYZI();
+		GPSPositionTime pt;
+		for(int i = 0; i < 1440; i++){
+			gps.fetchNewGPS();
+			pt = gps.getBestXYZI();
+		}
+
 
 		cout << "POS { " << pt.posX << "," << pt.posY << "," << pt.posZ << " }" << endl;
 		cout << "VEL { " << pt.velX << "," << pt.velY << "," << pt.velZ << " }" << endl;
