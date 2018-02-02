@@ -13,13 +13,14 @@
 
 using namespace std;
 
+//TODO: Verify that UART read is blocking now
 TEST_CASE("Test UART Manager read", "[.][hardware][uart][read]"){
 	Logger::setMode(MODE_PRINT);
 	cout << "---------------UART read test----------------" << endl;
 	UARTManager uart("/dev/ttyS2");
 	uart.initialize();
 	PROMPT("Send a string over the UART Line, then continue...");
-	vector<uint8_t> bytesreceived = uart.readData();
+	vector<uint8_t> bytesreceived = uart.readData(10);
 	string received(bytesreceived.begin(), bytesreceived.end());
 	cout <<"Received: " << received << endl;
 	Logger::setMode(MODE_NOTHING);

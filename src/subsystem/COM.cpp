@@ -10,7 +10,7 @@
 COM::COM(ACPInterface& acp, SubPowerInterface& subPower)
 : acp(acp), subPower(subPower){
 	tags += LogTag("Name", "CDH");
-	health.fileSize = 0;
+	health.fileSize = MAX_FILE_SIZE;
 	health.basePath = HEALTH_DIRECTORY COM_PATH "/COM";
 }
 
@@ -63,17 +63,8 @@ void COM::getHealthStatus(){
 	std::vector<uint8_t> buff;
 	ACPPacket acpReturn = sendOpcode(OP_HEALTHSTATUS, buff);
 
-	std::string healthFile;
-	size_t messageSize = acpReturn.message.size();
-	if ((health.fileSize+messageSize) < MAX_FILE_SIZE){
-		healthFile = health.currentFile;
-		health.fileSize += messageSize;
-	}else{
-		healthFile = FileManager::createFileName(health.basePath);
-		health.fileSize = messageSize;
-	}
-	FileManager::writeToFile(healthFile,acpReturn.message);
 
+	health.recordBytes(acpReturn.message);
 }
 
 //Configure the lithium radio

@@ -10,10 +10,10 @@
 ACS::ACS(ACPInterface& acp, SubPowerInterface& subPower)
 : acp(acp), subPower(subPower){
 	tags += LogTag("Name", "ACS");
+	health.fileSize = MAX_FILE_SIZE;
+	health.basePath = HEALTH_DIRECTORY ACS_PATH "/ACS";
 	pointingValid = false;
 	TimeSinceLock = -1;
-	health.fileSize = 0;
-	health.basePath = HEALTH_DIRECTORY RAD_PATH "/ACS";
 }
 
 ACS::~ACS(){}
@@ -22,6 +22,8 @@ ACS::~ACS(){}
 bool ACS::initialize(){
 	//TODO: error handling
 	Logger::Stream(LEVEL_INFO,tags) << "Initializing ACS";
+	LockGuard l(lock);
+
 
 	std::vector<uint8_t> buff;
 	ACPPacket retPacket1 = sendOpcode(OP_TESTALIVE,buff);
@@ -75,7 +77,6 @@ void ACS::handleMode(FSWMode transition){
 		break;
 	default:
 		break;
-
 	}
 }
 
@@ -85,18 +86,9 @@ void ACS::getHealthStatus(){
 	std::vector<uint8_t> buff;
 	ACPPacket acpReturn = sendOpcode(OP_HEALTHSTATUS,buff);
 
-	std::string healthFile;
-	size_t messageSize = acpReturn.message.size();
-	if ((health.fileSize+messageSize) < MAX_FILE_SIZE){
-		healthFile = health.currentFile;
-		health.fileSize += messageSize;
-	}else{
-		healthFile = FileManager::createFileName(health.basePath);
-		health.fileSize = messageSize;
-	}
-	FileManager::writeToFile(healthFile,acpReturn.message);
 	updateTimeSinceLock(acpReturn.message);
 
+	health.recordBytes(acpReturn.message);
 }
 
 //Change the current pointing target

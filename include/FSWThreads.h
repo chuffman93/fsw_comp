@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <queue>
 #include "core/Watchdog.h"
+#include "core/GroundCommunication.h"
 #include "core/ScheduleManager.h"
 #include "subsystem/SubsystemBase.h"
 #include "core/FileManager.h"
@@ -19,19 +20,24 @@
 
 #include <vector>
 
-struct ModeManagerStruct{
-	std::vector<std::vector<SubsystemBase*> >FSWSequence;
+struct ModeStruct{
+	std::map<FSWMode, std::vector<SubsystemBase*> >FSWSequence;
 	ScheduleManager * scheduler;
 	Watchdog * watchdog;
 };
 
-struct SubsystemSequenceStruct{
-	std::vector<SubsystemBase*> SubsystemSequence;
+struct HSStruct{
+	std::vector<SubsystemBase*> subsystemSequence;
 	Watchdog * watchdog;
 };
 
-struct GroundCommunicationStruct{
-	std::vector<SubsystemBase*> Subsystems;
+struct GroundStruct{
+	GroundCommunication * gnd;
+	Watchdog * watchdog;
+};
+
+struct GPSStruct{
+	GPS * gps;
 	Watchdog * watchdog;
 };
 
@@ -39,12 +45,11 @@ class FSWThreads{
 
 public:
 
-	static void * GetHealthStatusThread(void * args);
-	static void * ModeManagerThread(void * args);
-	static void * GPSManagerThread(void * args);
-	static void * FileManagerThread(void * args);
+	static void * HealthStatusThread(void * args);
+	static void * ModeThread(void * args);
+	static void * GPSThread(void * args);
 	static void * WatchdogThread(void * args);
-	static void * GroundCommunicationThread(void *args);
+	static void * GroundThread(void *args);
 
 };
 

@@ -6,89 +6,98 @@
  */
 
 #include <iostream>
+#include <vector>
 #include "util/Thread.h"
 #include "FSWThreads.h"
 #include "core/Watchdog.h"
 #include "core/ScheduleManager.h"
 #include "subsystem/subsystem.h"
 #include "test/testmacros.h"
+#include "core/Architecture.h"
 using namespace std;
 
 
 
 
 int main() {
-	cout << "!!!Hello World!!!" << endl; // prints !!!Hello World!!!
+	Logger::setMode(MODE_PRINT);
+	Logger::setLevel(LEVEL_INFO);
+	Logger::registerThread("MAIN");
+	Logger::log(LEVEL_FATAL, "Entering Main");
+
+	//---------Step1: Build FSW---------------------------
+	Architecture::setInterfaceMode(SOFTWARE);
+	Architecture::buildTime();
+	Architecture::buildEPS();
+	Architecture::buildCOM();
+	Architecture::buildACS();
+	Architecture::buildRAD();
+	Architecture::buildGPS();
+	Architecture::buildScheduleManager();
+	Architecture::buildGND();
+
+
+	//---------Step2: Initialize HAL-----------------------
+	Logger::log(LEVEL_FATAL, "Initializing HAL");
+	vector<HardwareManager*> halinit = Architecture::buildHALInitVector();
+	for(vector<HardwareManager*>::iterator i = halinit.begin(); i != halinit.end(); i++){
+		(*i)->initialize();
+	}
+
+	//---------Step3: Initialize Subsystems-----------------------
+	vector<SubsystemBase*> subinit = Architecture::buildInitVector();
+	Logger::log(LEVEL_FATAL, "Initializing Subsystems");
+	for(vector<SubsystemBase*>::iterator i = subinit.begin(); i != subinit.end(); i++){
+		(*i)->initialize();
+	}
+
+	//---------Step4: Initialize Watchdog-----------------------
 	Watchdog watchdog;
-	ScheduleManager scheduler;
 
-	GPIOManager gpio(""); //fix this
-	SPIManager spi("",0,0); //fix this
-	ACPInterface acp(gpio,spi,0,0);
-	SubPowerInterface subPower(gpio, 0, 0, 0 , "");
+	//---------Step5: Initialize HS Thread-----------------------
+	Thread hsThread;
+	HSStruct hsargs;
+	hsargs.subsystemSequence = Architecture::buildHSVector();
+	hsargs.watchdog = &watchdog;
+	hsThread.CreateThread(NULL, FSWThreads::HealthStatusThread, (void*)&hsargs);
+	watchdog.AddThread(hsThread.GetID());
 
-	FileManager::updateRebootCount();
+	//---------Step6: Initialize GPS Thread-----------------------
+	Thread gpsThread;
+	GPSStruct gpsargs;
+	gpsargs.gps = Architecture::getGPS();
+	gpsargs.watchdog = &watchdog;
+	gpsThread.CreateThread(NULL, FSWThreads::GPSThread, (void*)&gpsargs);
+	watchdog.AddThread(gpsThread.GetID());
 
-	ACS acs(acp, subPower);
-	COM com(acp, subPower);
-	EPS eps(acp, subPower);
-	RAD rad(acp, subPower);
+	//---------Step7: Initialize Mode Thread-----------------------
+	Thread modeThread;
+	ModeStruct modeargs;
+	modeargs.FSWSequence = Architecture::buildModeSequencing();
+	modeargs.scheduler = Architecture::getSchedulerManager();
+	modeargs.watchdog = &watchdog;
+	modeThread.CreateThread(NULL, FSWThreads::ModeThread, (void*)&modeargs);
+	watchdog.AddThread(modeThread.GetID());
 
+	//---------Step8: Initialize GND Thread-----------------------
+	Thread gndThread;
+	GroundStruct gndargs;
+	gndargs.watchdog = &watchdog;
+	gndargs.gnd = Architecture::getGND();
+	gndThread.CreateThread(NULL, FSWThreads::GroundThread, (void*)&gndargs);
+	watchdog.AddThread(gndThread.GetID());
 
-	GroundCommunicationStruct groundStruct;
-	groundStruct.Subsystems = {&acs,&com,&eps,&rad};
-
-	ModeManagerStruct modeStruct;
-	modeStruct.scheduler = &scheduler;
-	modeStruct.watchdog = &watchdog;
-
-	modeStruct.FSWSequence[0].push_back(&acs);
-	modeStruct.FSWSequence[1].push_back(&acs);
-	modeStruct.FSWSequence[2].push_back(&acs);
-	modeStruct.FSWSequence[2].push_back(&com);
-	modeStruct.FSWSequence[3].push_back(&acs);
-	modeStruct.FSWSequence[3].push_back(&rad);
-	modeStruct.FSWSequence[3].push_back(&com);
-	modeStruct.FSWSequence[3].push_back(&eps);
-	modeStruct.FSWSequence[4].push_back(&acs);
-	modeStruct.FSWSequence[4].push_back(&rad);
-	modeStruct.FSWSequence[5].push_back(&rad);
-	modeStruct.FSWSequence[5].push_back(&acs);
-	modeStruct.FSWSequence[6].push_back(&acs);
-	modeStruct.FSWSequence[7].push_back(&com);
-	modeStruct.FSWSequence[7].push_back(&acs);
-
-	SubsystemSequenceStruct subsystemStruct;
-	subsystemStruct.watchdog = &watchdog;
-	subsystemStruct.SubsystemSequence[0] = &acs;
-	subsystemStruct.SubsystemSequence[1] = &com;
-	subsystemStruct.SubsystemSequence[2] = &eps;
-	//subsystemStruct.SubsystemSequence[3] = &gps;
-	subsystemStruct.SubsystemSequence[4] = &rad;
-
-
-
-	// Create Health and Status Thread
-	Thread healthStatusThread, watchdogThread, modeManagerThread, gpsManagerThread, groundCommunicationThread;
-
-	healthStatusThread.CreateThread(NULL, FSWThreads::GetHealthStatusThread, (void*)&subsystemStruct);
-	modeManagerThread.CreateThread(NULL, FSWThreads::ModeManagerThread, (void*)&modeStruct);
-	gpsManagerThread.CreateThread(NULL, FSWThreads::GPSManagerThread, (void*)&watchdog);
-	groundCommunicationThread.CreateThread(NULL, FSWThreads::GroundCommunicationThread, (void*)&groundStruct);
-
-	watchdog.AddThread(healthStatusThread.GetID());
-	watchdog.AddThread(modeManagerThread.GetID());
-	watchdog.AddThread(gpsManagerThread.GetID());
-	watchdog.AddThread(groundCommunicationThread.GetID());
-
+	//---------Step9: Start Watchdog-----------------------
+	Thread watchdogThread;
 	watchdogThread.CreateThread(NULL, FSWThreads::WatchdogThread, (void*)&watchdog);
 
-	// Join Threads
+	//---------Step10: Join Threads (never reached)-----------------------
 	int rv = 0;
-	healthStatusThread.JoinThread((void*)&rv);
+	hsThread.JoinThread((void*)&rv);
+	gpsThread.JoinThread((void*)&rv);
+	modeThread.JoinThread((void*)&rv);
+	gndThread.JoinThread((void*)&rv);
 	watchdogThread.JoinThread((void*)&rv);
-
-
 	return 0;
 }
 

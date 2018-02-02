@@ -53,7 +53,7 @@ public:
 	void loadSchedule(std::string filePath);
 
 
-PRIVATE:
+private:
 	std::queue <ScheduleStruct> ScheduleQueue;
 
 	ScheduleStruct currentSchedule;

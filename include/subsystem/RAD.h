@@ -72,6 +72,8 @@ PRIVATE:
 	bool resetRAD();
 	char dataFile[100];
 
+	bool hsAvailable;
+
 	ExternalProcess tftp;
 	ACPInterface& acp;
 	SubPowerInterface& subPower;

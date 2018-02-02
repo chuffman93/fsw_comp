@@ -11,6 +11,8 @@
 #include <stdint.h>
 #include <time.h>
 
+void initializeTime();
+
 uint32_t getCurrentTime();
 
 

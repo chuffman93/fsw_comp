@@ -31,7 +31,7 @@ enum ACSOpcode {
 };
 
 struct SerializeGPS {
-	GPSInertial gps;
+	GPSPositionTime gps;
 	std::vector<uint8_t> serialize(){
 		ByteStream bs;
 		bs << gps.posX << gps.posY << gps.posZ << gps.velX << gps.velY << gps.velZ << gps.GPSWeek << gps.GPSSec << gps.isAccurate;

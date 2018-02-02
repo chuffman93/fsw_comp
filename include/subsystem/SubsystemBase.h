@@ -18,6 +18,8 @@ struct HealthFileStruct {
 	std::string currentFile;
 	std::string basePath;
 	size_t fileSize;
+
+	void recordBytes(std::vector<uint8_t> message);
 };
 
 class SubsystemBase{

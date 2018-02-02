@@ -19,7 +19,7 @@
  */
 class ACPInterface{
 public:
-	ACPInterface(SPIManager& spiman, GPIOManager& intman, int spiid, int intid);
+	ACPInterface(SPIManager& spiman, GPIOManager& intman, int spiid, int intid, std::string instance);
 	MOCK ~ACPInterface();
 
 	MOCK bool transaction(ACPPacket& packet, ACPPacket& ret);
