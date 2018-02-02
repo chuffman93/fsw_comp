@@ -26,7 +26,10 @@ void * FSWThreads::HealthStatusThread(void * args) {
 				i != healthSeq.end(); i++) {
 			(*i)->getHealthStatus();
 		}
-		sleep(2);
+		while (sleep(60)){
+			watchdog->KickWatchdog();
+			sleep(1);
+		}
 	}
 	return NULL;
 }
@@ -67,7 +70,7 @@ void * FSWThreads::GPSThread(void * args) {
 	Logger::log(LEVEL_FATAL, "Starting GPS Thread");
 	while (1) {
 		watchdog->KickWatchdog();
-		gps->fetchNewGPS();
+		//gps->fetchNewGPS();
 		sleep(2);
 	}
 	return NULL;

@@ -21,9 +21,14 @@ GPIOManager dummyG("");
 
 class COMMockACPInterface: public ACPInterface{
 public:
+<<<<<<< HEAD
+	COMMockACPInterface(): ACPInterface(dummyS, dummyG, 0 , 0){}
+=======
 	COMMockACPInterface(): ACPInterface(dummyS, dummyG, 0 , 0, ""){}
+>>>>>>> develop
 	~COMMockACPInterface(){}
 	bool transaction(ACPPacket& packet, ACPPacket& ret){
+		ret.opcode = packet.opcode;
 		sentOpcodes.push_back(packet.opcode);
 		return true;
 	}
@@ -36,7 +41,11 @@ TEST_CASE("COM Test Initialization Routine", "[subsystem][COM]"){
 	SubPowerInterface subPower(dummyG, 0, 0, 0, "");
 	COM com(acp,subPower);
 	//call COM initialize
+<<<<<<< HEAD
+	REQUIRE(com.initialize());
+=======
 	com.initialize();
+>>>>>>> develop
 	//validate that it sends test alive opcode
 	REQUIRE(acp.sentOpcodes.end() != std::find(acp.sentOpcodes.begin(), acp.sentOpcodes.end(), OP_TESTALIVE));
 	//validate that it sends LED on opcode
@@ -52,7 +61,11 @@ TEST_CASE("COM Test Get Health and Status", "[subsystem][COM]"){
 	SubPowerInterface subPower(dummyG, 0, 0, 0, "");
 	COM com(acp,subPower);
 	//call COM initialize
+<<<<<<< HEAD
+	REQUIRE(com.initialize());
+=======
 	com.initialize();
+>>>>>>> develop
 	//call COM health and status
 	com.getHealthStatus();
 	//validate that it sends the health and status opcode
@@ -66,7 +79,11 @@ TEST_CASE("COM Test Command Reset", "[subsystem][COM]"){
 	SubPowerInterface subPower(dummyG, 0, 0, 0, "");
 	COM com(acp,subPower);
 	//call COM initialize
+<<<<<<< HEAD
+	REQUIRE(com.initialize());
+=======
 	com.initialize();
+>>>>>>> develop
 	com.handleMode(Mode_Reset);
 	//validate that it sends the health and status opcode
 	REQUIRE(acp.sentOpcodes.end() != std::find(acp.sentOpcodes.begin(), acp.sentOpcodes.end(), OP_SUBSYSTEMRESET));

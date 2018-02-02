@@ -10,35 +10,46 @@
 COM::COM(ACPInterface& acp, SubPowerInterface& subPower)
 : acp(acp), subPower(subPower){
 	tags += LogTag("Name", "CDH");
-	health.sync = COM_SYNC;
 	health.fileSize = MAX_FILE_SIZE;
 	health.basePath = HEALTH_DIRECTORY COM_PATH "/COM";
-	healthFileSize = 0;
 }
 
 COM::~COM(){}
 
 //Will set up the Gpio lines and the acp devices
-void COM::initialize(){
+bool COM::initialize(){
 	//TODO: error handling
 	Logger::Stream(LEVEL_INFO,tags) << "Initializing COM";
 
-	ACPPacket acpPacket(COM_SYNC, OP_TESTALIVE);
-	ACPPacket acpReturn;
-	acp.transaction(acpPacket,acpReturn);
+	std::vector<uint8_t> buff;
 
-	acpPacket.opcode = OP_TESTLED;
-	acp.transaction(acpPacket,acpReturn);
+	ACPPacket retPacket1 = sendOpcode(OP_TESTALIVE,buff);
+	if (!isSuccess(OP_TESTALIVE,retPacket1)){
+		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Alive: COM is not alive. Opcode Received: " << retPacket1.opcode;
+		return false;
+	}
 
-	acpPacket.opcode = OP_TESTCONFIG;
-	acp.transaction(acpPacket,acpReturn);
+	ACPPacket retPacket2 = sendOpcode(OP_TESTLED,buff);
+	if (!isSuccess(OP_TESTLED,retPacket2)){
+		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test LED: COM is not alive. Opcode Received: " << retPacket2.opcode;
+		return false;
+	}
+
+	ACPPacket retPacket3 = sendOpcode(OP_TESTCONFIG,buff);
+	if (!isSuccess(OP_TESTCONFIG,retPacket3)){
+		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Configurations: COM is not alive. Opcode Received: " << retPacket3.opcode;
+		return false;
+	}
+
+	return true;
 }
 
 //Handles any mode transition needs as well as any needs for tasks to be done in a mode.
 void COM::handleMode(FSWMode transition){
+	bool success;
 	switch (transition){
 	case Mode_Reset:
-		resetCOM();
+		success = resetCOM();
 		break;
 	default:
 		//TODO: error handling
@@ -49,10 +60,8 @@ void COM::handleMode(FSWMode transition){
 //Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 void COM::getHealthStatus(){
 
-	LockGuard l(lock);
-	ACPPacket acpPacket(health.sync, OP_HEALTHSTATUS);
-	ACPPacket acpReturn;
-	acp.transaction(acpPacket,acpReturn);
+	std::vector<uint8_t> buff;
+	ACPPacket acpReturn = sendOpcode(OP_HEALTHSTATUS, buff);
 
 
 	health.recordBytes(acpReturn.message);
@@ -68,35 +77,57 @@ void COM::sendBeacon(){
 
 }
 
-void COM::resetCOM(){
-	LockGuard l(lock);
+bool COM::resetCOM(){
 
 	Logger::Stream(LEVEL_INFO,tags) << "Preparing COM for Reset";
 
-	ACPPacket acpPacket(COM_SYNC, OP_SUBSYSTEMRESET);
-	ACPPacket acpReturn;
-	acp.transaction(acpPacket,acpReturn);
+	std::vector<uint8_t> buff;
+	ACPPacket retPacket = sendOpcode(OP_SUBSYSTEMRESET,buff);
+	if (!isSuccess(OP_SUBSYSTEMRESET,retPacket)){
+		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Subsystem Reset: Unable to reset subsystem. Opcode Received: " << retPacket.opcode;
+		return false;
+	}
+	return true;
 }
 
 void COM::changeBaudRate(uint32_t baudRate){
-	LockGuard l(lock);
 
 	Logger::Stream(LEVEL_INFO,tags) << "Changing COM Baud Rate to " << baudRate;
 
 	ByteStream bs;
 	bs << baudRate;
 
-	ACPPacket acpPacket(COM_SYNC, OP_HEALTHSTATUS, bs.vec());
-	ACPPacket acpReturn;
-	acp.transaction(acpPacket,acpReturn);
+	ACPPacket retPacket = sendOpcode(OP_HEALTHSTATUS, bs.vec());
+
 }
 
 //Need to figure out how the GND Communication stuff will work
 
-ACPPacket COM::sendOpcode(uint8_t opcode){
-	LockGuard l(lock);
-	ACPPacket acpPacket(COM_SYNC, opcode);
-	ACPPacket acpReturn;
-	acp.transaction(acpPacket,acpReturn);
-	return acpReturn;
+ACPPacket COM::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
+	//LockGuard l(lock);
+	if (buffer.empty()){
+		ACPPacket acpPacket(COM_SYNC, opcode);
+		ACPPacket acpReturn;
+		acp.transaction(acpPacket,acpReturn);
+		return acpReturn;
+	}else{
+		ACPPacket acpPacket(COM_SYNC, opcode, buffer);
+		ACPPacket acpReturn;
+		acp.transaction(acpPacket,acpReturn);
+		return acpReturn;
+	}
+}
+
+bool COM::isSuccess(COMOpcode opcode, ACPPacket retPacket){
+	if (opcode == retPacket.opcode){
+		return true;
+	}
+	return false;
+}
+
+bool COM::isSuccess(SubsystemOpcode opcode, ACPPacket retPacket){
+	if (opcode == retPacket.opcode){
+		return true;
+	}
+	return false;
 }

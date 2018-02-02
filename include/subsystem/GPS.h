@@ -47,7 +47,7 @@ public:
 	~GPS();
 
 	//Handle power on and initialization routine
-	void initialize();
+	MOCK bool initialize();
 	//Handles any mode transition needs as well as any needs for tasks to be done in a mode.
 	void handleMode(FSWMode transition);
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)

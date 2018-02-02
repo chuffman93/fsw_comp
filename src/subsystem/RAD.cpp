@@ -11,31 +11,32 @@ RAD::RAD(ACPInterface& acp, SubPowerInterface& subPower)
 : acp(acp), subPower(subPower){
 	hsAvailable = false;
 	tags += LogTag("Name", "RAD");
-	health.sync = RAD_SYNC;
 	health.fileSize = MAX_FILE_SIZE;
 	health.basePath = HEALTH_DIRECTORY RAD_PATH "/RAD";
 	RADDataNum = 0;
-	healthFileSize = 0;
 }
 
 
 
 RAD::~RAD(){}
 
-void RAD::initialize(){};
+bool RAD::initialize(){
+	return true;
+}
 
 
 //Handles any mode transition needs as well as any needs for tasks to be done in a mode.
 void RAD::handleMode(FSWMode transition){
+	bool success;
 	switch (transition){
 	case Mode_Reset:
-		//TODO: reset
+		success = resetRAD();
 		break;
 	case Trans_BusToPayload:
-		commandCollectionBegin();
+		success = commandCollectionBegin();
 		break;
 	case Trans_PayloadToBus:
-		commandCollectionEnd();
+		success = commandCollectionEnd();
 		break;
 	default:
 		break;
@@ -46,20 +47,40 @@ void RAD::handleMode(FSWMode transition){
 void RAD::getHealthStatus(){
 	if(hsAvailable){
 		LockGuard l(lock);
-		ACPPacket acpPacket(health.sync, OP_HEALTHSTATUS);
-		ACPPacket acpReturn;
-		acp.transaction(acpPacket,acpReturn);
+		std::vector<uint8_t> buff;
+		ACPPacket acpReturn = sendOpcode(OP_HEALTHSTATUS, buff);
 
 		health.recordBytes(acpReturn.message);
 	}
 }
 
-ACPPacket RAD::sendOpcode(uint8_t opcode){
-	LockGuard l(lock);
-	ACPPacket acpPacket(RAD_SYNC, opcode);
-	ACPPacket acpReturn;
-	acp.transaction(acpPacket,acpReturn);
-	return acpReturn;
+ACPPacket RAD::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
+	//LockGuard l(lock);
+	if (buffer.empty()){
+		ACPPacket acpPacket(RAD_SYNC, opcode);
+		ACPPacket acpReturn;
+		acp.transaction(acpPacket,acpReturn);
+		return acpReturn;
+	}else {
+		ACPPacket acpPacket(RAD_SYNC, opcode, buffer);
+		ACPPacket acpReturn;
+		acp.transaction(acpPacket,acpReturn);
+		return acpReturn;
+	}
+}
+
+bool RAD::isSuccess(PLDOpcode opcode, ACPPacket retPacket){
+	if (opcode == retPacket.opcode){
+		return true;
+	}
+	return false;
+}
+
+bool RAD::isSuccess(SubsystemOpcode opcode, ACPPacket retPacket){
+	if (opcode == retPacket.opcode){
+		return true;
+	}
+	return false;
 }
 
 
@@ -73,25 +94,39 @@ void RAD::configData(){
 }
 
 //Command the beginning of data collection
-void RAD::commandCollectionBegin(){
+bool RAD::commandCollectionBegin(){
 	//TODO: error handling
 
 	LockGuard l(lock);
 	//subPower.powerOn();
 
 	Logger::Stream(LEVEL_INFO,tags) << "Beginning RAD Science Collection";
-	ACPPacket acpPacket(RAD_SYNC, OP_TESTALIVE);
-	ACPPacket acpReturn;
-	acp.transaction(acpPacket,acpReturn);
+	std::vector<uint8_t> buff;
 
-	acpPacket.opcode = OP_TESTLED;
-	acp.transaction(acpPacket,acpReturn);
+	ACPPacket retPacket1 = sendOpcode(OP_TESTALIVE, buff);
+	if (!isSuccess(OP_TESTALIVE,retPacket1)){
+		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Alive: RAD is not alive. Opcode Received: " << retPacket1.opcode;
+		return false;
+	}
 
-	acpPacket.opcode = OP_TESTCONFIG;
-	acp.transaction(acpPacket,acpReturn);
+	ACPPacket retPacket2 = sendOpcode(OP_TESTLED, buff);
+	if (!isSuccess(OP_TESTLED,retPacket2)){
+		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Alive: RAD is not alive. Opcode Received: " << retPacket2.opcode;
+		return false;
+	}
 
-	acpPacket.opcode = OP_STARTSCIENCE;
-	acp.transaction(acpPacket, acpReturn);
+	ACPPacket retPacket3 = sendOpcode(OP_TESTCONFIG, buff);
+	if (!isSuccess(OP_TESTCONFIG,retPacket3)){
+		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Alive: RAD is not alive. Opcode Received: " << retPacket3.opcode;
+		return false;
+	}
+
+	ACPPacket retPacket4 = sendOpcode(OP_STARTSCIENCE, buff);
+	if (!isSuccess(OP_STARTSCIENCE,retPacket4)){
+		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Start Science: RAD unable to collect data. Opcode Received: " << retPacket4.opcode;
+		return false;
+	}
+
 
 	sprintf(dataFile, "RAD_%u", RADDataNum);
 	RADDataNum = updateDataNumber();
@@ -100,19 +135,25 @@ void RAD::commandCollectionBegin(){
 	// TODO: get correct IP and make sure this runs as intended
 	// char* argv[] = {(char *)"/usr/bin/tftp",(char *)"-g",(char*)"-r",dataFile,(char*)"10.14.134.207",NULL};
 	// tftp.launchProcess(argv);
+
+	return true;
 }
 
 
-void RAD::commandCollectionEnd(){
+bool RAD::commandCollectionEnd(){
 	//TODO: error handling
+	//TODO: SPLIT DATA PROCESSING AND TARBALLING INTO THIER OWN FUNCTIONS
 
 	LockGuard l(lock);
 	hsAvailable = false;
 
 	Logger::Stream(LEVEL_INFO,tags) << "Ending RAD Science Collection";
-	ACPPacket acpPacket(RAD_SYNC, OP_SUBSYSTEMRESET);
-	ACPPacket acpReturn;
-	acp.transaction(acpPacket, acpReturn);
+	std::vector<uint8_t> buff;
+	ACPPacket retPacket = sendOpcode(OP_SUBSYSTEMRESET,buff);
+	if (!isSuccess(OP_SUBSYSTEMRESET,retPacket)){
+		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Subsystem Reset: Unable to power of RAD. Opcode Received: " << retPacket.opcode;
+		return false;
+	}
 
 	//subPower.powerOff();
 
@@ -166,6 +207,8 @@ void RAD::commandCollectionEnd(){
 		sprintf(archiveName, MOCK_RAD_PATH "/%s0%s",dataFile,num);
 		// removes the chunks to save some space
 		remove(archiveName);
+
+		return true;
 	}
 
 	// removes the dataFile to save space
@@ -213,6 +256,19 @@ uint16_t RAD::updateDataNumber(){
 		remove(RAD_NUM_FILE);
 	}
 	return dataNumber;
+}
+
+bool RAD::resetRAD(){
+
+	Logger::Stream(LEVEL_INFO,tags) << "Preparing COM for Reset";
+
+	std::vector<uint8_t> buff;
+	ACPPacket retPacket = sendOpcode(OP_SUBSYSTEMRESET,buff);
+	if (!isSuccess(OP_SUBSYSTEMRESET,retPacket)){
+		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Subsystem Reset: Unable to reset subsystem. Opcode Received: " << retPacket.opcode;
+		return false;
+	}
+	return true;
 }
 
 
