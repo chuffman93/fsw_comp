@@ -104,6 +104,8 @@ void ScheduleManager::loadSchedule(std::string filePath){
 			break;
 		}
 	}
+
+	Logger::Stream(LEVEL_INFO,tags) << "Successfully loaded next schedule";
 }
 
 

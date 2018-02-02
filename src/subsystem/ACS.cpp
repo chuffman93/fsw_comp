@@ -23,6 +23,8 @@ void ACS::initialize(){
 	//TODO: error handling
 	Logger::Stream(LEVEL_INFO,tags) << "Initializing ACS";
 	LockGuard l(lock);
+
+
 	ACPPacket acpPacket(ACS_SYNC, OP_TESTALIVE);
 	ACPPacket acpReturn;
 	acp.transaction(acpPacket,acpReturn);

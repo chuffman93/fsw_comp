@@ -53,6 +53,7 @@ std::vector<uint8_t> FileManager::readFromFile(std::string filePath){
 	}
 	close(fileID);
 	lock.unlock();
+	Logger::Stream(LEVEL_INFO,tags) << "Opened " << filePath << "for reading";
 	return buffer;
 
 
@@ -109,6 +110,7 @@ void FileManager::appendToFile(std::string filePath, std::vector<uint8_t>& buffe
 	}
 	write(fileID, &buffer, buffer.size());
 	close(fileID);
+	Logger::Stream(LEVEL_INFO,tags) << "Appending " << buffer.size() << "bytes to " << filePath;
 	lock.unlock();
 }
 
@@ -158,10 +160,12 @@ bool FileManager::checkExistance(std::string filePath){
  * \param new file path that the file is being moved to
  */
 void FileManager::moveFile(std::string filePath, std::string newfilePath){
+	LogTag tags;
 	if (access(filePath.c_str(), F_OK) == 0){
 		lock.lock();
 		rename(filePath.c_str(),newfilePath.c_str());
 		lock.unlock();
+		Logger::Stream(LEVEL_INFO,tags) << "Moving " << filePath << "to " << newfilePath;
 	}
 }
 
@@ -204,10 +208,13 @@ std::string FileManager::createFileName(std::string basePath){
  */
 void FileManager::copyFile(std::string filePath, std::string newfilePath){
 	//TODO: dont use system call
+	LogTag tags;
 	if (access(filePath.c_str(), F_OK) == 0){
 		std::string command = "cp " + filePath + " " + newfilePath;
 		// TODO: get away from system command
 		system(command.c_str());
+		Logger::Stream(LEVEL_INFO,tags) << "Copying " << filePath << "to " << newfilePath;
+
 	}
 }
 
@@ -556,10 +563,13 @@ int FileManager::regexDelete(std::string dest,std::string R){
 }
 
 std::vector<std::string> FileManager::parseGroundFile(std::string filePath){
+	LogTags tags;
+
 	char *line = NULL;
 	size_t len;
 	ssize_t bytesRead;
 
+	Logger::Stream(LEVEL_INFO,tags) << "Parsing ground file: " << filePath;
 
 	std::vector<std::string> groundRequests;
 
