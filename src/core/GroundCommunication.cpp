@@ -337,6 +337,10 @@ void GroundCommunication::parseIEF(){
 
 
 void GroundCommunication::parsePPE(){
+	if (!FileManager::checkExistance(PPE_PATH)){
+		Logger::Stream(LEVEL_INFO,tags) << "No PPE file found";
+		return;
+	}
 	std::vector<std::string> requests = FileManager::parseGroundFile(PPE_PATH);
 	char line[100];
 	char * type;

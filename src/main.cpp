@@ -14,6 +14,7 @@
 #include "subsystem/subsystem.h"
 #include "test/testmacros.h"
 #include "core/Architecture.h"
+#include "DayInTheLife/softwareTest.h"
 using namespace std;
 
 
@@ -87,9 +88,11 @@ int main() {
 	gndThread.CreateThread(NULL, FSWThreads::GroundThread, (void*)&gndargs);
 	watchdog.AddThread(gndThread.GetID());
 
+
 	//---------Step9: Start Watchdog-----------------------
 	Thread watchdogThread;
 	watchdogThread.CreateThread(NULL, FSWThreads::WatchdogThread, (void*)&watchdog);
+
 
 	//---------Step10: Join Threads (never reached)-----------------------
 	int rv = 0;
@@ -99,6 +102,8 @@ int main() {
 	gndThread.JoinThread((void*)&rv);
 	watchdogThread.JoinThread((void*)&rv);
 	return 0;
+
+
 }
 
 
