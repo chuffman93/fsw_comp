@@ -36,7 +36,7 @@ bool GPS::initialize(){
 void GPS::handleMode(FSWMode transition){}
 
 
-ACPPacket GPS::sendOpcode(uint8_t opcode){
+ACPPacket GPS::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
 	//Pretty sure if this gets called, we fucked up
 	assert(false);
 	return ACPPacket(ACS_SYNC, 0);

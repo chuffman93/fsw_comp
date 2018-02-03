@@ -58,7 +58,7 @@ public:
 	GPSPositionTime getBestXYZI();
 	void getLatLong();
 
-	ACPPacket sendOpcode(uint8_t opcode);
+	ACPPacket sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer);
 
 private:
 	uint32_t CalculateCRC_GPS(char * buffer);

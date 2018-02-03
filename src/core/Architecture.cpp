@@ -123,7 +123,6 @@ void Architecture::buildRAD(){
 }
 
 void Architecture::buildGPS(){
-	/*
 	if(mode == HARDWARE){
 		buildUART();
 		NMEAInterface* nmea = new NMEAInterface(*uart);
@@ -135,7 +134,7 @@ void Architecture::buildGPS(){
 		gps = new GPS(*nmea, *sp);
 	}else{
 		gps = new GPS(*(new MockNMEA()), *(new MockSubPower("GPS")));
-	}*/
+	}
 }
 
 void Architecture::buildCDH(){
@@ -254,7 +253,7 @@ std::vector<HardwareManager*> Architecture::buildHALInitVector(){
 }
 
 GPS* Architecture::getGPS(){
-	//assert(gps != NULL);
+	assert(gps != NULL);
 	return gps;
 }
 
