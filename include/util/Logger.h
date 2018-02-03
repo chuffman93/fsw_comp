@@ -98,13 +98,12 @@ public:
 	static void clearFilters();
 	static void log(LogLevel level, LogTags tags, std::string);
 	static void log(LogLevel level, std::string);
-
+	static std::string getThreadName(pthread_t thread);
 private:
 	static LogTag levelTag(LogLevel level);
 	static LogTag threadTag();
 	static LogTag timeTag();
 	static std::string tagsToString(LogTags tags);
-
 	//! Filters to set different LogLevels
 	static std::vector<std::pair<LogTags, LogLevel> > filters;
 	//! Default logging level for all log messages

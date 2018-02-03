@@ -100,6 +100,19 @@ LogTag Logger::levelTag(LogLevel level){
 }
 
 /*!
+ * Helper function to get the string name of a thread. Used in watchdog to indicate that
+ * which threads had issue.
+ * \param thread id
+ * \return string name associated with ID.
+ */
+std::string Logger::getThreadName(pthread_t thread){
+	std::map<pthread_t, std::string>::iterator it = threadNames.find(thread);
+	std::stringstream ss;
+	ss << (*it).second;
+	return ss.str();
+}
+
+/*!
  * Helper function to convert the current thread id into a tag.
  * Will return the name of the thread if it is in the registry or the thread id if not
  * \return tag containing the name of the thread or the thread id

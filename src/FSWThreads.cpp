@@ -19,16 +19,18 @@ void * FSWThreads::HealthStatusThread(void * args) {
 	std::vector<SubsystemBase*> healthSeq = hsStruct->subsystemSequence;
 	Logger::registerThread("H&S");
 	Logger::log(LEVEL_FATAL, "Starting Health and Status Thread");
-	while (1) {
+	while (1){
 
 		watchdog->KickWatchdog();
 		for (std::vector<SubsystemBase*>::iterator i = healthSeq.begin();
 				i != healthSeq.end(); i++) {
 			(*i)->getHealthStatus();
 		}
-		while (sleep(60)){
+		int i = 0;
+		while(i <= 60){
 			watchdog->KickWatchdog();
 			sleep(1);
+			i++;
 		}
 	}
 	return NULL;

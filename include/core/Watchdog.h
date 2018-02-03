@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <map>
 #include "core/Lock.h"
+#include "util/Logger.h"
 
 class Watchdog
 {
@@ -38,6 +39,7 @@ public:
 private:
 	std::map<ThreadID,ThreadInfo> threadMap;
 	Lock lock;
+	LogTag tags;
 };
 
 

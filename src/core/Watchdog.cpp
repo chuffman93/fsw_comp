@@ -27,7 +27,7 @@ void Watchdog::CheckThreads(){
 		}
 
 		if (iter->second.alive == false){
-			printf("Thread %lu is dead!\n", iter->first);
+			Logger::Stream(LEVEL_FATAL,tags) << Logger::getThreadName(iter->first) << " thread is dead!";
 		}
 
 		iter->second.alive = false;
