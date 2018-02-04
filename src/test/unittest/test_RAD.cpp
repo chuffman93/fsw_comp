@@ -17,7 +17,7 @@ GPIOManager dummyGR("");
 
 class RADMockACPInterface: public ACPInterface{
 public:
-	RADMockACPInterface(): ACPInterface(dummySR, dummyGR, 0, 0){}
+	RADMockACPInterface(): ACPInterface(dummySR, dummyGR, 0, 0, ""){}
 	~RADMockACPInterface(){}
 	bool transaction(ACPPacket& packet, ACPPacket& ret){
 		sentOpcodes.push_back(packet.opcode);

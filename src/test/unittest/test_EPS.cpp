@@ -16,11 +16,11 @@
 
 using namespace std;
 SPIManager dummys("", 0, 0);
-GPIOManager dummyg("");
+GPIOManager dummygpi("");
 
 class EPSMockACPInterface: public ACPInterface{
 public:
-	EPSMockACPInterface(): ACPInterface(dummys, dummyg, 0 , 0){}
+	EPSMockACPInterface(): ACPInterface(dummys, dummygpi, 0 , 0, ""){}
 	~EPSMockACPInterface(){}
 	bool transaction(ACPPacket& packet, ACPPacket& ret){
 		sentOpcodes.push_back(packet.opcode);
@@ -41,7 +41,7 @@ public:
 TEST_CASE("EPS Test Initialization Routine", "[subsystem][EPS]"){
 	//initialize/setup
 	EPSMockACPInterface acp;
-	SubPowerInterface subPower(dummyg, 0, 0, 0, "");
+	SubPowerInterface subPower(dummygpi, 0, 0, 0, "");
 	EPS eps(acp,subPower);
 	//call EPS initialize
 	REQUIRE(eps.initialize());
@@ -57,7 +57,7 @@ TEST_CASE("EPS Test Initialization Routine", "[subsystem][EPS]"){
 TEST_CASE("EPS Test Get Health and Status", "[subsystem][EPS]"){
 	//initialize/setup
 	EPSMockACPInterface acp;
-	SubPowerInterface subPower(dummyg, 0, 0, 0, "");
+	SubPowerInterface subPower(dummygpi, 0, 0, 0, "");
 	EPS eps(acp,subPower);
 	//call EPS initialize
 	REQUIRE(eps.initialize());
@@ -74,7 +74,7 @@ TEST_CASE("EPS Test Get Health and Status", "[subsystem][EPS]"){
 TEST_CASE("EPS Test Command Reset", "[subsystem][EPS]"){
 	//initialize/setup
 	EPSMockACPInterface acp;
-	SubPowerInterface subPower(dummyg, 0, 0, 0, "");
+	SubPowerInterface subPower(dummygpi, 0, 0, 0, "");
 	EPS eps(acp,subPower);
 	//call EPS initialize
 	REQUIRE(eps.initialize());

@@ -20,7 +20,7 @@ GPIOManager dummygpio("");
 
 class ACSMockACPInterface: public ACPInterface{
 public:
-	ACSMockACPInterface(): ACPInterface(dummyspi, dummygpio, 0 , 0){}
+	ACSMockACPInterface(): ACPInterface(dummyspi, dummygpio, 0 , 0,"ACS"){}
 	~ACSMockACPInterface(){}
 	bool transaction(ACPPacket& packet, ACPPacket& ret){
 		sentOpcodes.push_back(packet.opcode);

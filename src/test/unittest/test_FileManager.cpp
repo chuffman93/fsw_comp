@@ -218,9 +218,9 @@ TEST_CASE("FILEMANAGER: GET FILE LIST","[filemanager]"){
 	std::fstream file(DFL_PATH);
 	std::string line;
 	REQUIRE(std::getline(file,line,','));
-	REQUIRE(line == "File1");
-	REQUIRE(std::getline(file,line,','));
 	REQUIRE(line == "File2");
+	REQUIRE(std::getline(file,line,','));
+	REQUIRE(line == "File1");
 
 }
 
