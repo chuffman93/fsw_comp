@@ -402,8 +402,6 @@ void GroundCommunication::spinGround(){
 		//begin post pass processes if downlink has concluded or if com has timed out
 		}else if (statePostPass)
 			Logger::Stream(LEVEL_INFO,tags) << "Entering Communication Post Pass";
-			ScheduleManager sch;
-			sch.handleScheduling();
 			parsePPE();
 			FileManager::deleteFile(SOT_PATH);
 			statePostPass = false;
