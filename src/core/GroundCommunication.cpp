@@ -8,7 +8,7 @@
 #include "core/GroundCommunication.h"
 
 GroundCommunication::GroundCommunication(std::vector<SubsystemBase*> subsystems)
-: stateDownlink(false), statePostPass(false), ComStartTime(-1), ComTimeout(720), subsystems(subsystems)
+: stateDownlink(false), statePostPass(false), ComStartTime(0), ComTimeout(720), subsystems(subsystems)
 {
 	tags += LogTag("Name", "GroundCommunication");
 }
@@ -33,6 +33,7 @@ void GroundCommunication::downlinkFiles(){
 }
 
 void GroundCommunication::clearDownlink(){
+	LockGuard l(lock);
 	Logger::Stream(LEVEL_INFO,tags) << "Communication Pass over, clearing downlink queue";
 	while (!DownlinkQueue.empty()){
 		DownlinkQueue.pop();
@@ -90,7 +91,7 @@ void GroundCommunication::parseDownlinkRequest(std::string line){
 		//log error
 		return;
 	}
-
+	LockGuard l(lock);
 	if (strcmp(type,"F") == 0){
 		Logger::Stream(LEVEL_INFO,tags) << "Adding file(s): " << line << " to downlink queue";
 		while (file != NULL){
@@ -156,7 +157,7 @@ void GroundCommunication::parseDeletionRequest(std::string line){
 		//log error
 		return;
 	}
-
+	LockGuard l(lock);
 	if (strcmp(type,"F") == 0){
 		Logger::Stream(LEVEL_INFO,tags) << "Deleting file(s) " << line ;
 		while (file != NULL){
@@ -301,6 +302,7 @@ void GroundCommunication::parseFileListRequest(std::string line){
 	if (dir == NULL){
 		//log error
 	}
+	LockGuard l(lock);
 	while (dir != NULL){
 		std::string directory = trimNewline(std::string(dir));
 		FileManager::generateFilesList(directory);
@@ -311,6 +313,7 @@ void GroundCommunication::parseFileListRequest(std::string line){
 
 void GroundCommunication::parseIEF(){
 
+	LockGuard l(lock);
 	std::vector<std::string> requests = FileManager::parseGroundFile(IEF_PATH);
 	char line[100];
 	char * type;
@@ -341,6 +344,7 @@ void GroundCommunication::parsePPE(){
 		Logger::Stream(LEVEL_INFO,tags) << "No PPE file found";
 		return;
 	}
+	LockGuard l(lock);
 	std::vector<std::string> requests = FileManager::parseGroundFile(PPE_PATH);
 	char line[100];
 	char * type;
@@ -370,9 +374,12 @@ void GroundCommunication::spinGround(){
 		//send beacon
 	}else{
 		//check if the communication pass has exceeded
+		Logger::Stream(LEVEL_DEBUG,tags) << "Start Time: " << ComStartTime << " ComTimeOut: " << ComTimeout << " Current Time: " << getCurrentTime();
 		if (ComStartTime + ComTimeout > getCurrentTime()){
 			Logger::Stream(LEVEL_INFO,tags) << "Communication Pass Timeout";
-			FileManager::deleteFile(IEF_PATH);
+			if (FileManager::checkExistance(IEF_PATH)){
+				FileManager::deleteFile(IEF_PATH);
+			}
 			stateDownlink = false;
 			clearDownlink();
 			statePostPass = true;
@@ -386,6 +393,7 @@ void GroundCommunication::spinGround(){
 		if (FileManager::checkExistance(IEF_PATH)){
 			Logger::Stream(LEVEL_INFO,tags) << "Received IEF";
 			parseIEF();
+			ComStartTime = 0;
 			stateDownlink = true;
 		//begin downlink if IEF processing has ended
 		}else if (stateDownlink){

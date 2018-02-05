@@ -53,7 +53,7 @@ std::vector<uint8_t> FileManager::readFromFile(std::string filePath){
 	}
 	close(fileID);
 	lock.unlock();
-	Logger::Stream(LEVEL_INFO,tags) << "Opened " << filePath << "for reading";
+	Logger::Stream(LEVEL_INFO,tags) << "Opened " << filePath << " for reading";
 	return buffer;
 
 

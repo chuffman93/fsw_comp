@@ -22,7 +22,7 @@ using namespace std;
 
 int main() {
 	Logger::setMode(MODE_PRINT);
-	Logger::setLevel(LEVEL_INFO);
+	Logger::setLevel(LEVEL_DEBUG);
 	Logger::registerThread("MAIN");
 	Logger::log(LEVEL_FATAL, "Entering Main");
 

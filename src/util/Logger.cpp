@@ -14,7 +14,7 @@
 
 using namespace std;
 
-LogLevel Logger::globalLevel = LEVEL_DEBUG;
+LogLevel Logger::globalLevel = LEVEL_INFO;
 Lock Logger::lock;
 std::map<pthread_t, std::string> Logger::threadNames;
 LogMode Logger::mode = MODE_NOTHING;
