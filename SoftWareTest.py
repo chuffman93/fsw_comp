@@ -55,10 +55,10 @@ def sendSchedule():
 print("----------Running Integrated Software Ground Simulation----------")
 
 nextSchedule = []
-
-nextSchedule.append(DITLSch(2,60,120))
-nextSchedule.append(DITLSch(3,120,120))
-nextSchedule.append(DITLSch(2,180,120))
+nextSchedule.append(DITLSch(2,0,20))
+nextSchedule.append(DITLSch(2,0,20))
+nextSchedule.append(DITLSch(3,0,20))
+nextSchedule.append(DITLSch(3,100,20))
 
 if not os.path.exists('./home/.uplink/DSCH'):
 	newDefault = []

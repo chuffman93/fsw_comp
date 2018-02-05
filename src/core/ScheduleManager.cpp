@@ -27,14 +27,32 @@ FSWMode ScheduleManager::checkNewMode(){
 	//check if it is time to switch modes
 	Logger::Stream(LEVEL_DEBUG,tags) << "Check new mode -- Queue Size: " << ScheduleQueue.size() << " With new mode at front: " << ScheduleQueue.front().mode;
 	Logger::Stream(LEVEL_DEBUG,tags) << "Current Mode:: " << CurrentMode << " Next Scheduled Mode: " << ScheduleQueue.front().mode << " Time: " << time;
-	if (!ScheduleQueue.empty() && currentSchedule.timeSinceEpoch <= time && CurrentMode != currentSchedule.mode && ScheduleQueue.front().mode != 0){
-		ScheduleQueue.pop();
-		CurrentMode = currentSchedule.mode;
-		modeEnterTime = getCurrentTime();
+	if (!ScheduleQueue.empty() && currentSchedule.timeSinceEpoch <= time && CurrentMode != currentSchedule.mode && ScheduleQueue.front().mode != 0 && (CurrentMode != Trans_PayloadToBus) && (CurrentMode != Trans_ComToBus)){
+		if(CurrentMode == Mode_Bus){
+			if(currentSchedule.mode == Mode_Payload){
+				CurrentMode = Trans_BusToPayload;
+			}
+			else if(currentSchedule.mode == Mode_Com){
+				CurrentMode = Trans_BusToCom;
+			}
+		}
+		else{
+			ScheduleQueue.pop();
+			CurrentMode = currentSchedule.mode;
+			modeEnterTime = getCurrentTime();
+		}
 		Logger::Stream(LEVEL_INFO, tags) << "Setting Mode to: " << CurrentMode;
 	//check if the mode time has exceeded its duration
-	}else if (((time - modeEnterTime) >= currentSchedule.duration) && CurrentMode != Mode_Bus){
-
+	}else if(((time - modeEnterTime) >= currentSchedule.duration) && CurrentMode != Mode_Bus && (CurrentMode != Trans_PayloadToBus) && (CurrentMode != Trans_ComToBus)){
+		if(CurrentMode == Mode_Payload){
+			CurrentMode = Trans_PayloadToBus;
+		}
+		else if(CurrentMode == Mode_Com){
+			CurrentMode = Trans_ComToBus;
+		}
+		Logger::Stream(LEVEL_INFO, tags) << "Setting Mode: " << CurrentMode;
+	//Transfer back to bus
+	}else if (CurrentMode == Trans_PayloadToBus || CurrentMode == Trans_ComToBus){
 		currentSchedule = ScheduleQueue.front();
 		CurrentMode = Mode_Bus;
 		Logger::Stream(LEVEL_INFO, tags) << "Setting Mode to Bus";
@@ -52,6 +70,7 @@ void ScheduleManager::handleScheduling(){
 		Logger::Stream(LEVEL_INFO,tags) << "Updating Default Schedule";
 		FileManager::moveFile(NEW_DEFAULT_SCH, DEFAULT_SCH);
 	}
+
 
 	if (FileManager::checkExistance(NEW_SCH)){
 		Logger::Stream(LEVEL_INFO,tags) << "Loading New Schedule";
