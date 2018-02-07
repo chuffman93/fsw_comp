@@ -40,12 +40,12 @@ FSWMode ScheduleManager::checkNewMode(){
 	//Transfer back to bus
 	}else if (CurrentMode == Trans_PayloadToBus || CurrentMode == Trans_ComToBus){
 		currentSchedule = ScheduleQueue.front();
-		FSWMode tmp = handleModeChange(CurrentMode,currentSchedule.mode);
+		FSWMode tmp = handleModeChange(CurrentMode,Mode_Bus);
 		CurrentMode = tmp;
 		Logger::Stream(LEVEL_INFO, tags) << "Setting Mode to Bus";
 	//check if it is time for reboot if the schedule is empty
 	}else if (ScheduleQueue.empty() && time > REBOOT_TIME){
-		FSWMode tmp = handleModeChange(Mode_Reset,currentSchedule.mode);
+		FSWMode tmp = handleModeChange(Mode_Reset,Mode_Reset);
 		CurrentMode = tmp;
 		Logger::Stream(LEVEL_INFO, tags) << "Setting Mode to Reset";
 	}
