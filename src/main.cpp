@@ -85,6 +85,7 @@ int main() {
 	GroundStruct gndargs;
 	gndargs.watchdog = &watchdog;
 	gndargs.gnd = Architecture::getGND();
+	gndargs.scheduler = Architecture::getSchedulerManager();
 	gndThread.CreateThread(NULL, FSWThreads::GroundThread, (void*)&gndargs);
 	watchdog.AddThread(gndThread.GetID());
 

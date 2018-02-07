@@ -20,6 +20,7 @@
 #include "core/FileManager.h"
 #include "core/FileSystem.h"
 #include "util/ByteStream.h"
+#include "core/Lock.h"
 
 #define REBOOT_TIME 86400
 
@@ -52,6 +53,10 @@ public:
 	//if new schedule: adds new schedule to queue, otherwise add default schedule to queue if empty
 	void loadSchedule(std::string filePath);
 	FSWMode handleModeChange(FSWMode current, FSWMode next);
+	void setModeToCom();
+	void exitComMode();
+	FSWMode checkMode();
+
 
 
 PRIVATE:
@@ -60,8 +65,8 @@ PRIVATE:
 	ScheduleStruct currentSchedule;
 	uint32_t modeEnterTime;
 	FSWMode CurrentMode;
-
-
+	Lock lock;
+	ScheduleStruct com;
 	//updates default schedule file
 	void updateDefaultSchedule();
 

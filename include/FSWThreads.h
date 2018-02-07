@@ -34,6 +34,7 @@ struct HSStruct{
 struct GroundStruct{
 	GroundCommunication * gnd;
 	Watchdog * watchdog;
+	ScheduleManager * scheduler;
 };
 
 struct GPSStruct{

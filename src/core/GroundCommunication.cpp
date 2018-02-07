@@ -369,25 +369,28 @@ void GroundCommunication::parsePPE(){
 	FileManager::deleteFile(PPE_PATH);
 }
 
-void GroundCommunication::spinGround(){
+bool GroundCommunication::spinGround(){
 	if (!FileManager::checkExistance(SOT_PATH)){
+		return false;
 		//send beacon
 	}else{
-		//check if the communication pass has exceeded
+		if (ComStartTime == 0){
+			Logger::Stream(LEVEL_INFO,tags) << "Beginning Communication Pass Timer";
+			ComStartTime = getCurrentTime();
+			return true;
+		}
 		Logger::Stream(LEVEL_DEBUG,tags) << "Start Time: " << ComStartTime << " ComTimeOut: " << ComTimeout << " Current Time: " << getCurrentTime();
-		if (ComStartTime + ComTimeout > getCurrentTime()){
+		//check if the communication pass has exceeded
+		if ((ComStartTime + ComTimeout) < getCurrentTime()){
 			Logger::Stream(LEVEL_INFO,tags) << "Communication Pass Timeout";
 			if (FileManager::checkExistance(IEF_PATH)){
 				FileManager::deleteFile(IEF_PATH);
 			}
+			ComStartTime = 0;
 			stateDownlink = false;
 			clearDownlink();
 			statePostPass = true;
-		}
-		//check if the com state time has been updated
-		if (ComStartTime == 0){
-			Logger::Stream(LEVEL_INFO,tags) << "Beginning Communication Pass Timer";
-			ComStartTime = getCurrentTime();
+			return false;
 		}
 		//begin IEF processing if IEF has been uplinked
 		if (FileManager::checkExistance(IEF_PATH)){
@@ -400,15 +403,16 @@ void GroundCommunication::spinGround(){
 			Logger::Stream(LEVEL_INFO,tags) << "Beginning Requested Downlink";
 			downlinkFiles();
 		//begin post pass processes if downlink has concluded or if com has timed out
-		}else if (statePostPass)
+		}else if (statePostPass){
 			Logger::Stream(LEVEL_INFO,tags) << "Entering Communication Post Pass";
 			parsePPE();
 			FileManager::deleteFile(SOT_PATH);
 			statePostPass = false;
 			ComStartTime = -1;
 			clearDownlink();
+			return false;
 		}
+	}
+	return true;
 }
-
-
 

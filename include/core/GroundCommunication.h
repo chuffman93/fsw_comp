@@ -38,8 +38,7 @@ public:
 	~GroundCommunication();
 	void downlinkFiles();
 	void clearDownlink();
-	void spinGround();
-
+	bool spinGround();
 	void parseIEF();
 
 	void parsePPE();
@@ -57,6 +56,7 @@ PRIVATE:
 	void parseCommandRequest(std::string line);
 	void parseFileListRequest(std::string line);
 	std::vector<SubsystemBase*> subsystems;
+
 	LogTags tags;
 	Lock lock;
 

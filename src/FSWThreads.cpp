@@ -96,11 +96,16 @@ void * FSWThreads::GroundThread(void * args) {
 	GroundStruct * groundStruct = (GroundStruct*) args;
 	Watchdog * watchdog = groundStruct->watchdog;
 	GroundCommunication * gnd = groundStruct->gnd;
-
+	ScheduleManager * scheduler = groundStruct->scheduler;
 	Logger::registerThread("GND");
 	Logger::log(LEVEL_FATAL, "Starting Ground Communication Thread");
 	while (1) {
-		gnd->spinGround();
+		bool toCom = gnd->spinGround();
+		if(toCom && scheduler->checkMode() != Mode_Com){
+			scheduler->setModeToCom();
+		}else if(!toCom && scheduler->checkMode() == Mode_Com){
+			scheduler->exitComMode();
+		}
 		watchdog->KickWatchdog();
 		sleep(1);
 	}
