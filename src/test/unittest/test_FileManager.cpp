@@ -78,7 +78,6 @@ TEST_CASE("FILEMANAGER: TEST DELETE FILE", "[filemanager]"){
 
 	mkdir(HOME_DIRECTORY "/DummyFolder",S_IRWXU | S_IRWXG | S_IRWXO);
 
-
 	FILE * dummy = fopen(dummyFile.c_str(),"w");
 	fclose(dummy);
 

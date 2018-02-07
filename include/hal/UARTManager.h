@@ -25,12 +25,12 @@ public:
 
 	MOCK void initialize();
 
-	MOCK std::vector<uint8_t> readData();
+	MOCK std::vector<uint8_t> readData(size_t len);
+	MOCK uint8_t readData();
 	MOCK void writeData(std::vector<uint8_t> data);
 
-	void closefd();
-
 private:
+	void closefd();
 	//! Holds the filename corrisponding to the UART
 	std::string filename;
 	//! Holds the file descriptor for the UART

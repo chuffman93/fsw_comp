@@ -21,7 +21,7 @@ SPIManager spiTest("",0,0);
 
 class GroundMockACPInterface: public ACPInterface{
 public:
-	GroundMockACPInterface(): ACPInterface(spiTest, gpioTest, 0 , 0) {}
+	GroundMockACPInterface(): ACPInterface(spiTest, gpioTest, 0 , 0, "") {}
 	~GroundMockACPInterface(){}
 	bool transaction(ACPPacket& packet, ACPPacket& ret){
 		sentOpcodes.push_back(packet.opcode);

@@ -32,23 +32,24 @@ public:
 	~COM();
 
 	//Will set up the Gpio lines and the acp devices
-	void initialize();
+	bool initialize();
 	//Handles any mode transition needs as well as any needs for tasks to be done in a mode.
 	void handleMode(FSWMode transition);
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 	void getHealthStatus();
 
-	ACPPacket sendOpcode(uint8_t opcode);
+	ACPPacket sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer);
+	bool isSuccess(COMOpcode opSent, ACPPacket retPacket);
+	bool isSuccess(SubsystemOpcode opSent, ACPPacket retPacket);
 
-	std::string currentHealthFile;
-	size_t healthFileSize;
+	HealthFileStruct health;
 private:
 	//Configure the lithium radio
 	void configureLithium();
 	//Send the beacon
 	void sendBeacon();
 	//Need to figure out how the GND Communication stuff will work
-	void resetCOM();
+	bool resetCOM();
 	void changeBaudRate(uint32_t baudRate);
 	ACPInterface& acp;
 	SubPowerInterface& subPower;

@@ -31,7 +31,7 @@ enum ACSOpcode {
 };
 
 struct SerializeGPS {
-	GPSInertial gps;
+	GPSPositionTime gps;
 	std::vector<uint8_t> serialize(){
 		ByteStream bs;
 		bs << gps.posX << gps.posY << gps.posZ << gps.velX << gps.velY << gps.velZ << gps.GPSWeek << gps.GPSSec << gps.isAccurate;
@@ -45,28 +45,34 @@ public:
 	~ACS();
 
 	//Will set up the Gpio lines and the acp devices
-	void initialize();
+	bool initialize();
 	//Handles any mode transition needs as well as any needs for tasks to be done in a mode.
 	void handleMode(FSWMode transition);
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 	void getHealthStatus();
 
-	ACPPacket sendOpcode(uint8_t opcode);
+	ACPPacket sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer);
+	bool isSuccess(ACSOpcode opSent, ACPPacket retPacket);
+	bool isSuccess(SubsystemOpcode opSent, ACPPacket retPacket);
+
+	float getTimeSinceLock();
 
 	HealthFileStruct health;
 private:
 	//Change the current pointing target
-	void pointNadir();
-	void pointCOM();
-	void pointSunSoak();
+	bool pointNadir();
+	bool pointCOM();
+	bool pointSunSoak();
 	//Update the GPS information on ACS
-	void sendGPS();
+	bool sendGPS();
 	//Configure the gains on ACS
 	void configureGains();
-	void resetACS();
+	bool resetACS();
 	ACPInterface& getACPRef();
+	void updateTimeSinceLock(std::vector<uint8_t> buffer);
 
 	bool pointingValid;// = false;
+	float TimeSinceLock;
 	ACPInterface& acp;
 	SubPowerInterface& subPower;
 	Lock lock;

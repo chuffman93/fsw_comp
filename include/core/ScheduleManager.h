@@ -51,6 +51,7 @@ public:
 	void handleScheduling();
 	//if new schedule: adds new schedule to queue, otherwise add default schedule to queue if empty
 	void loadSchedule(std::string filePath);
+	FSWMode handleModeChange(FSWMode current, FSWMode next);
 
 
 PRIVATE:

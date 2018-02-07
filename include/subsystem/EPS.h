@@ -27,7 +27,7 @@ public:
 	~EPS();
 
 	//Will set up the Gpio lines and the acp devices
-	void initialize();
+	bool initialize();
 	//Handles any mode transition needs as well as any needs for tasks to be done in a mode.
 	void handleMode(FSWMode transition);
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
@@ -35,13 +35,15 @@ public:
 	//Get battery capacity
 	uint16_t getBatteryCapacity();
 
-	ACPPacket sendOpcode(uint8_t opcode);
+	ACPPacket sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer);
+	bool isSuccess(EPSOpcode opSent, ACPPacket retPacket);
+	bool isSuccess(SubsystemOpcode opSent, ACPPacket retPacket);
 
 	HealthFileStruct health;
 
 private:
 	//Power cycle the entire satellite
-	void commandReset();
+	bool commandReset();
 
 	uint16_t batteryCharge;
 	//Constructor references

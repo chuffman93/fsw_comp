@@ -17,8 +17,9 @@
 struct HealthFileStruct {
 	std::string currentFile;
 	std::string basePath;
-	subsystem_sync_t sync;
 	size_t fileSize;
+
+	void recordBytes(std::vector<uint8_t> message);
 };
 
 class SubsystemBase{
@@ -27,13 +28,13 @@ public:
 	virtual ~SubsystemBase(){};
 	
 	//Will set up the Gpio lines and the acp devices
-	virtual void initialize() = 0;
+	virtual bool initialize() = 0;
 	//Handles any mode transition needs as well as any needs for tasks to be done in a mode. 
 	virtual void handleMode(FSWMode transition) = 0;
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 	virtual void getHealthStatus() = 0;
 
-	virtual ACPPacket sendOpcode(uint8_t opcode) = 0;
+	virtual ACPPacket sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer) = 0;
 
 	HealthFileStruct health;
 private:

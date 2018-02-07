@@ -14,7 +14,7 @@
 
 using namespace std;
 
-LogLevel Logger::globalLevel = LEVEL_DEBUG;
+LogLevel Logger::globalLevel = LEVEL_INFO;
 Lock Logger::lock;
 std::map<pthread_t, std::string> Logger::threadNames;
 LogMode Logger::mode = MODE_NOTHING;
@@ -97,6 +97,19 @@ LogTag Logger::levelTag(LogLevel level){
 	default:
 		return LogTag("Level", "\x1b[35m""INVALID""\x1b[0m");
 	}
+}
+
+/*!
+ * Helper function to get the string name of a thread. Used in watchdog to indicate that
+ * which threads had issue.
+ * \param thread id
+ * \return string name associated with ID.
+ */
+std::string Logger::getThreadName(pthread_t thread){
+	std::map<pthread_t, std::string>::iterator it = threadNames.find(thread);
+	std::stringstream ss;
+	ss << (*it).second;
+	return ss.str();
 }
 
 /*!

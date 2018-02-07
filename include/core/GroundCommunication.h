@@ -9,7 +9,7 @@
 #define GROUNDCOMMUNICATION_H_
 
 #include "core/FileManager.h"
-#include "core/ScheduleManager.h"
+#include "core/Lock.h"
 #include "subsystem/SubsystemBase.h"
 #include "subsystem/ACS.h"
 #include "subsystem/COM.h"
@@ -58,7 +58,7 @@ PRIVATE:
 	void parseFileListRequest(std::string line);
 	std::vector<SubsystemBase*> subsystems;
 	LogTags tags;
-
+	Lock lock;
 
 
 };

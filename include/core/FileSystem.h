@@ -37,12 +37,6 @@
 #define GPS_PATH			"/GPS"
 #define RAD_PATH			"/RAD"
 
-/*
 #define SOT_PATH			UPLINK_DIRECTORY	"/SOT"
 #define IEF_PATH			UPLINK_DIRECTORY	"/IEF.txt"
 #define PPE_PATH			UPLINK_DIRECTORY	"/PPE.txt"
-*/
-
-#define SOT_PATH			HOME_DIRECTORY	"/SOT"
-#define IEF_PATH			HOME_DIRECTORY	"/IEF.txt"
-#define PPE_PATH			HOME_DIRECTORY	"/PPE.txt"

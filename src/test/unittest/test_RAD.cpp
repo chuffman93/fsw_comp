@@ -17,10 +17,11 @@ GPIOManager dummyGR("");
 
 class RADMockACPInterface: public ACPInterface{
 public:
-	RADMockACPInterface(): ACPInterface(dummySR, dummyGR, 0, 0){}
+	RADMockACPInterface(): ACPInterface(dummySR, dummyGR, 0, 0, ""){}
 	~RADMockACPInterface(){}
 	bool transaction(ACPPacket& packet, ACPPacket& ret){
 		sentOpcodes.push_back(packet.opcode);
+		ret.opcode = packet.opcode;
 		return true;
 	}
 	std::vector<uint8_t> sentOpcodes;
@@ -32,7 +33,7 @@ RAD rad(acp,subPower);
 
 TEST_CASE("TEST INITIALIZATION ROUTINE","[PLD]"){
 
-	rad.commandCollectionBegin();
+	REQUIRE(rad.commandCollectionBegin());
 	REQUIRE(acp.sentOpcodes.end() != std::find(acp.sentOpcodes.begin(), acp.sentOpcodes.end(), OP_TESTALIVE));
 	//validate that it sends LED on opcode
 	REQUIRE(acp.sentOpcodes.end() != std::find(acp.sentOpcodes.begin(), acp.sentOpcodes.end(), OP_TESTLED));
@@ -44,7 +45,7 @@ TEST_CASE("TEST INITIALIZATION ROUTINE","[PLD]"){
 TEST_CASE("SPLIT DATA","[.][PLD]"){
 
 
-	rad.commandCollectionBegin();
+	REQUIRE(rad.commandCollectionBegin());
 
 
 	std::vector<uint8_t> buff;
@@ -57,7 +58,7 @@ TEST_CASE("SPLIT DATA","[.][PLD]"){
 
 	REQUIRE(access(HOME_DIRECTORY "/RAD_1",F_OK) == 0);
 	REQUIRE(access(HOME_DIRECTORY "/RAD_1009.tar.gz",F_OK) == -1);
-	rad.commandCollectionEnd();
+	REQUIRE(rad.commandCollectionEnd());
 	REQUIRE(access(HOME_DIRECTORY "/RAD_1",F_OK) == -1);
 	REQUIRE(access(HOME_DIRECTORY "/RAD_1009.tar.gz",F_OK) == 0);
 

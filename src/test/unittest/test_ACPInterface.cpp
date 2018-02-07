@@ -49,7 +49,7 @@ TEST_CASE("Test that the ACPInterface performs correctly", "[hal][ACPInterface]"
 	intrid = intr.attachDevice('C', 'U', INT_RISING);
 
 	INFO("Create an ACPInterface")
-	ACPInterface acp(spi, intr, spiid, intrid);
+	ACPInterface acp(spi, intr, spiid, intrid,"NULL");
 	acp.setTimeouts(0, 1, 0);
 
 	SECTION("Normal packet send and receive"){

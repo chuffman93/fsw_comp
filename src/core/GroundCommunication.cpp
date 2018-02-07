@@ -8,7 +8,7 @@
 #include "core/GroundCommunication.h"
 
 GroundCommunication::GroundCommunication(std::vector<SubsystemBase*> subsystems)
-: stateDownlink(false), statePostPass(false), ComStartTime(-1), ComTimeout(720), subsystems(subsystems)
+: stateDownlink(false), statePostPass(false), ComStartTime(0), ComTimeout(720), subsystems(subsystems)
 {
 	tags += LogTag("Name", "GroundCommunication");
 }
@@ -33,6 +33,8 @@ void GroundCommunication::downlinkFiles(){
 }
 
 void GroundCommunication::clearDownlink(){
+	LockGuard l(lock);
+	Logger::Stream(LEVEL_INFO,tags) << "Communication Pass over, clearing downlink queue";
 	while (!DownlinkQueue.empty()){
 		DownlinkQueue.pop();
 	}
@@ -89,8 +91,9 @@ void GroundCommunication::parseDownlinkRequest(std::string line){
 		//log error
 		return;
 	}
-
+	LockGuard l(lock);
 	if (strcmp(type,"F") == 0){
+		Logger::Stream(LEVEL_INFO,tags) << "Adding file(s): " << line << " to downlink queue";
 		while (file != NULL){
 			std::string path = trimNewline(std::string(file));
 			DownlinkQueue.push(path);
@@ -99,6 +102,7 @@ void GroundCommunication::parseDownlinkRequest(std::string line){
 
 
 	}else if (strcmp(type,"R") == 0){
+		Logger::Stream(LEVEL_INFO,tags) << "Adding regex(s) " << line << " to downlink queue";
 		while (file != NULL){
 			std::string regex = trimNewline(std::string(file));
 			std::vector<std::string> reg = FileManager::packageFiles(regex,"R");
@@ -110,6 +114,7 @@ void GroundCommunication::parseDownlinkRequest(std::string line){
 		}
 
 	}else if (strcmp(type,"RB") == 0){
+		Logger::Stream(LEVEL_INFO,tags) << "Adding regex before(s) " << line << " to downlink queue";
 		while (file != NULL){
 			std::string regex = trimNewline(std::string(file));
 			std::vector<std::string> reg = FileManager::packageFiles(regex,"RB");
@@ -121,6 +126,7 @@ void GroundCommunication::parseDownlinkRequest(std::string line){
 		}
 
 	}else if (strcmp(type,"RA") == 0){
+		Logger::Stream(LEVEL_INFO,tags) << "Adding regex after(s) " << line << " to downlink queue";
 		while (file != NULL){
 			std::string regex = trimNewline(std::string(file));
 			std::vector<std::string> reg = FileManager::packageFiles(regex,"RA");
@@ -151,8 +157,9 @@ void GroundCommunication::parseDeletionRequest(std::string line){
 		//log error
 		return;
 	}
-
+	LockGuard l(lock);
 	if (strcmp(type,"F") == 0){
+		Logger::Stream(LEVEL_INFO,tags) << "Deleting file(s) " << line ;
 		while (file != NULL){
 			std::string path = trimNewline(std::string(file));
 			FileManager::deleteFile(path);
@@ -161,6 +168,7 @@ void GroundCommunication::parseDeletionRequest(std::string line){
 
 
 	}if (strcmp(type,"R") == 0){
+		Logger::Stream(LEVEL_INFO,tags) << "Deleting regex(s) " << line ;
 		while (file != NULL){
 			std::string regex = trimNewline(std::string(file));
 			FileManager::regexDelete(regex,"R");
@@ -168,6 +176,7 @@ void GroundCommunication::parseDeletionRequest(std::string line){
 		}
 
 	}if (strcmp(type,"RB") == 0){
+		Logger::Stream(LEVEL_INFO,tags) << "Deleting regex(s) before " << line ;
 		while (file != NULL){
 			std::string regex = trimNewline(std::string(file));
 			FileManager::regexDelete(regex,"R");
@@ -175,6 +184,7 @@ void GroundCommunication::parseDeletionRequest(std::string line){
 		}
 
 	}if (strcmp(type,"RA") == 0){
+		Logger::Stream(LEVEL_INFO,tags) << "Deleting regex(s) after " << line ;
 		while (file != NULL){
 			std::string regex = trimNewline(std::string(file));
 			FileManager::regexDelete(regex,"R");
@@ -230,7 +240,9 @@ void GroundCommunication::parseCommandRequest(std::string line){
 			std::string tempCmd = trimNewline(std::string(command));
 			uint8_t cmd = (uint8_t)atoi((char*)tempCmd.c_str());
 			if ((cmd >= OP_ACS_MIN && cmd < OP_ACS_MAX) || (cmd >= OP_MIN && cmd < OP_MAX)){
-				ACPPacket ret = subsystems[0]->sendOpcode(cmd);
+				Logger::Stream(LEVEL_INFO,tags) << "Executing ACS command: " << command;
+				std::vector<uint8_t> buff;
+				ACPPacket ret = subsystems[0]->sendOpcode(cmd,buff);
 			}else{
 				Logger::Stream(LEVEL_ERROR,tags) << "Unable to Execute ACS Command, command does not exist";
 
@@ -243,7 +255,9 @@ void GroundCommunication::parseCommandRequest(std::string line){
 			std::string tempCmd = trimNewline(std::string(command));
 			uint8_t cmd = (uint8_t)atoi((char*)tempCmd.c_str());
 			if ((cmd >= OP_ACS_MIN && cmd < OP_ACS_MAX) || (cmd >= OP_MIN && cmd < OP_MAX)){
-				ACPPacket ret = subsystems[1]->sendOpcode(cmd);
+				Logger::Stream(LEVEL_INFO,tags) << "Executing COM command: " << command;
+				std::vector<uint8_t> buff;
+				ACPPacket ret = subsystems[1]->sendOpcode(cmd,buff);
 			}else{
 				Logger::Stream(LEVEL_ERROR,tags) << "Unable to Execute COM Command, command does not exist";
 			}
@@ -255,7 +269,9 @@ void GroundCommunication::parseCommandRequest(std::string line){
 			std::string tempCmd = trimNewline(std::string(command));
 			uint8_t cmd = (uint8_t)atoi((char*)tempCmd.c_str());
 			if ((cmd >= OP_ACS_MIN && cmd < OP_ACS_MAX) || (cmd >= OP_MIN && cmd < OP_MAX)){
-				ACPPacket ret = subsystems[2]->sendOpcode(cmd);
+				Logger::Stream(LEVEL_INFO,tags) << "Executing EPS command: " << command;
+				std::vector<uint8_t> buff;
+				ACPPacket ret = subsystems[2]->sendOpcode(cmd,buff);
 			}else{
 				Logger::Stream(LEVEL_ERROR,tags) << "Unable to Execute EPS Command, command does not exist";
 
@@ -267,7 +283,9 @@ void GroundCommunication::parseCommandRequest(std::string line){
 			std::string tempCmd = trimNewline(std::string(command));
 			uint8_t cmd = (uint8_t)atoi((char*)tempCmd.c_str());
 			if ((cmd >= OP_ACS_MIN && cmd < OP_ACS_MAX) || (cmd >= OP_MIN && cmd < OP_MAX)){
-				ACPPacket ret = subsystems[3]->sendOpcode(cmd);
+				Logger::Stream(LEVEL_INFO,tags) << "Executing RAD command: " << command;
+				std::vector<uint8_t> buff;
+				ACPPacket ret = subsystems[3]->sendOpcode(cmd,buff);
 			}else{
 				Logger::Stream(LEVEL_ERROR,tags) << "Unable to Execute RAD Command, command does not exist";
 			}
@@ -284,6 +302,7 @@ void GroundCommunication::parseFileListRequest(std::string line){
 	if (dir == NULL){
 		//log error
 	}
+	LockGuard l(lock);
 	while (dir != NULL){
 		std::string directory = trimNewline(std::string(dir));
 		FileManager::generateFilesList(directory);
@@ -294,6 +313,7 @@ void GroundCommunication::parseFileListRequest(std::string line){
 
 void GroundCommunication::parseIEF(){
 
+	LockGuard l(lock);
 	std::vector<std::string> requests = FileManager::parseGroundFile(IEF_PATH);
 	char line[100];
 	char * type;
@@ -320,6 +340,11 @@ void GroundCommunication::parseIEF(){
 
 
 void GroundCommunication::parsePPE(){
+	if (!FileManager::checkExistance(PPE_PATH)){
+		Logger::Stream(LEVEL_INFO,tags) << "No PPE file found";
+		return;
+	}
+	LockGuard l(lock);
 	std::vector<std::string> requests = FileManager::parseGroundFile(PPE_PATH);
 	char line[100];
 	char * type;
@@ -349,32 +374,39 @@ void GroundCommunication::spinGround(){
 		//send beacon
 	}else{
 		//check if the communication pass has exceeded
+		Logger::Stream(LEVEL_DEBUG,tags) << "Start Time: " << ComStartTime << " ComTimeOut: " << ComTimeout << " Current Time: " << getCurrentTime();
 		if (ComStartTime + ComTimeout > getCurrentTime()){
-			FileManager::deleteFile(IEF_PATH);
+			Logger::Stream(LEVEL_INFO,tags) << "Communication Pass Timeout";
+			if (FileManager::checkExistance(IEF_PATH)){
+				FileManager::deleteFile(IEF_PATH);
+			}
 			stateDownlink = false;
 			clearDownlink();
 			statePostPass = true;
 		}
 		//check if the com state time has been updated
 		if (ComStartTime == 0){
+			Logger::Stream(LEVEL_INFO,tags) << "Beginning Communication Pass Timer";
 			ComStartTime = getCurrentTime();
 		}
 		//begin IEF processing if IEF has been uplinked
 		if (FileManager::checkExistance(IEF_PATH)){
+			Logger::Stream(LEVEL_INFO,tags) << "Received IEF";
 			parseIEF();
+			ComStartTime = 0;
 			stateDownlink = true;
 		//begin downlink if IEF processing has ended
 		}else if (stateDownlink){
+			Logger::Stream(LEVEL_INFO,tags) << "Beginning Requested Downlink";
 			downlinkFiles();
 		//begin post pass processes if downlink has concluded or if com has timed out
 		}else if (statePostPass)
-			//ScheduleManager sch;
-			//sch.handleScheduling();
+			Logger::Stream(LEVEL_INFO,tags) << "Entering Communication Post Pass";
 			parsePPE();
 			FileManager::deleteFile(SOT_PATH);
 			statePostPass = false;
 			ComStartTime = -1;
-			//clear downlink directory
+			clearDownlink();
 		}
 }
 

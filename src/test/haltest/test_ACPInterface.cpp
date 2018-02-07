@@ -35,7 +35,7 @@ TEST_CASE("Communicate with RAD", "[.][hardware][acp][rad]"){
 	gpio.set(resetid, HIGH);
 
 	INFO("Create an ACPInterface")
-	ACPInterface acp(spi, gpio, spiid, intrid);
+	ACPInterface acp(spi, gpio, spiid, intrid,"");
 
 	PROMPT("Ready to send to PLD...");
 	REQUIRE(acp.transaction(test_send, test_recv) == true);
