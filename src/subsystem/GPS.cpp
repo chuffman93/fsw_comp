@@ -43,6 +43,7 @@ ACPPacket GPS::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
 }
 
 void GPS::getHealthStatus(){
+	LockGuard l(lock);
 	Logger::log(LEVEL_WARN, tags, "GPS Health and Status isn't implemented yet!");
 }
 

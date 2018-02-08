@@ -59,7 +59,7 @@ void COM::handleMode(FSWMode transition){
 
 //Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 void COM::getHealthStatus(){
-
+	LockGuard l(lock);
 	std::vector<uint8_t> buff;
 	ACPPacket acpReturn = sendOpcode(OP_HEALTHSTATUS, buff);
 

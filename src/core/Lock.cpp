@@ -4,7 +4,7 @@
  *  Created on: Dec 1, 2017
  *      Author: fsw
  */
-#include "core/Lock.h"
+#include "util/Logger.h"
 #include <pthread.h>
 
 //! Initializes the mutex

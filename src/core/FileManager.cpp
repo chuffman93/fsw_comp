@@ -13,6 +13,7 @@
 #include <iostream>
 #include <sstream>
 #include <iterator>
+#include <sstream>
 #include <fstream>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -22,6 +23,8 @@
 using namespace std;
 
 Lock FileManager::lock;
+std::string FileManager::logMessageFP = "";
+std::string FileManager::Reboot_num = GetReboot();
 
 FileManager::FileManager(){}
 
@@ -34,17 +37,14 @@ FileManager::~FileManager(){}
  */
 std::vector<uint8_t> FileManager::readFromFile(std::string filePath){
 
-
+	LockGuard l(lock);
 	LogTags tags;
 	tags += LogTag("Name", "FileManager");
 
 	std::vector<uint8_t> buffer;
-
-	lock.lock();
 	int fileID = open(filePath.c_str(),O_RDONLY);
 	if (fileID == -1){
 		Logger::Stream(LEVEL_ERROR,tags) << "Unable to open file for reading: " << filePath;
-		lock.unlock();
 		return buffer;
 	}
 	uint8_t byte;
@@ -52,7 +52,6 @@ std::vector<uint8_t> FileManager::readFromFile(std::string filePath){
 		buffer.push_back(byte);
 	}
 	close(fileID);
-	lock.unlock();
 	Logger::Stream(LEVEL_INFO,tags) << "Opened " << filePath << " for reading";
 	return buffer;
 
@@ -90,7 +89,7 @@ void FileManager::writeToFile(std::string filePath, std::vector<uint8_t> &buffer
  * \param vector of bytes that are to be added to a file
  */
 void FileManager::appendToFile(std::string filePath, std::vector<uint8_t>& buffer){
-
+	LockGuard l(lock);
 	LogTags tags;
 	tags += LogTag("Name", "FileManager");
 	if (filePath == ""){
@@ -101,17 +100,14 @@ void FileManager::appendToFile(std::string filePath, std::vector<uint8_t>& buffe
 		Logger::Stream(LEVEL_ERROR,tags) << "Unable to append to file, empty buffer: " << filePath;
 		return;
 	}
-	lock.lock();
 	int fileID = open(filePath.c_str(),O_APPEND);
 	if (fileID == -1){
 		Logger::Stream(LEVEL_ERROR,tags) << "Unable to append to file, file path does not exist: " << filePath;
-		lock.unlock();
 		return;
 	}
 	write(fileID, &buffer, buffer.size());
 	close(fileID);
 	Logger::Stream(LEVEL_INFO,tags) << "Appending " << buffer.size() << "bytes to " << filePath;
-	lock.unlock();
 }
 
 /*!
@@ -160,11 +156,10 @@ bool FileManager::checkExistance(std::string filePath){
  * \param new file path that the file is being moved to
  */
 void FileManager::moveFile(std::string filePath, std::string newfilePath){
+	LockGuard l(lock);
 	LogTag tags;
 	if (access(filePath.c_str(), F_OK) == 0){
-		lock.lock();
 		rename(filePath.c_str(),newfilePath.c_str());
-		lock.unlock();
 		Logger::Stream(LEVEL_INFO,tags) << "Moving " << filePath << "to " << newfilePath;
 	}
 }
@@ -175,29 +170,13 @@ void FileManager::moveFile(std::string filePath, std::string newfilePath){
  */
 std::string FileManager::createFileName(std::string basePath){
 
-	// get number of reboots
-	// Test again
-
-	lock.lock();
-	std::ifstream rebootFile(REBOOT_FILE);
-	int intCount;
-	rebootFile >> intCount;
-	rebootFile.close();
-	lock.unlock();
-
-	//convert boot count to string
-	stringstream strCount;
-	strCount << intCount;
-	std:: string RebootCount = strCount.str();
-
 	//get current time
 	uint32_t currentTime = getCurrentTime();
 	stringstream ss;
 	ss << currentTime;
 	std::string time = ss.str();
 
-	std::string filePath = basePath + "_" + RebootCount + "_" + time;
-
+	std::string filePath = basePath + "_" + Reboot_num + "_" + time;
 	return filePath;
 }
 
@@ -222,23 +201,21 @@ void FileManager::copyFile(std::string filePath, std::string newfilePath){
  * Creates or updates the reboot count file.
  */
 void FileManager::updateRebootCount(){
-
 	LogTags tags;
 	tags += LogTag("Name", "FileManager");
 	int RebootCount;
 
 	if (checkExistance(REBOOT_FILE)){
-		//read boot number from file
 		lock.lock();
+		//read boot number from file
 		std::ifstream rebootFile(REBOOT_FILE);
 		rebootFile >> RebootCount;
 		rebootFile.close();
-
+		lock.unlock();
 		//write boot count +1 to file
 		std::ofstream out(REBOOT_FILE);
 		out << ++RebootCount;
 		out.close();
-		lock.unlock();
 	}else {
 		//this is the first time the boot count has been incremented, write initial boot count to file
 		RebootCount = 1;
@@ -586,5 +563,34 @@ std::vector<std::string> FileManager::parseGroundFile(std::string filePath){
 
 }
 
+void FileManager::writeLog(std::string tags,std::string message){
+
+	if(logMessageFP == ""){
+		logMessageFP = FileManager::createFileName(LOG_MESSAGES) + ".txt";
+	}else{
+		struct stat st;
+		stat(logMessageFP.c_str(), &st);
+		if(st.st_size > MAX_FILE_SIZE){
+			logMessageFP = FileManager::createFileName(LOG_MESSAGES) + ".txt";
+		}
+	}
+	ofstream f(logMessageFP.c_str(),ofstream::out | ofstream::app);
+	f << tags << " " << message << '\n';
+	f.close();
+
+}
+
+std::string FileManager::GetReboot(){
+	int intCount;
+	lock.lock();
+	std::ifstream rebootFile(REBOOT_FILE);
+	rebootFile >> intCount;
+	rebootFile.close();
+	lock.unlock();
+	intCount++;
+	stringstream strCount;
+	strCount << intCount;
+	return strCount.str();
+}
 
 

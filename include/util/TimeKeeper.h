@@ -9,11 +9,11 @@
 #define TIMEKEEPER_H_
 
 #include <stdint.h>
+#include <iostream>
 #include <time.h>
 
 void initializeTime();
 
 uint32_t getCurrentTime();
-
 
 #endif /* TIMEKEEPER_H_ */

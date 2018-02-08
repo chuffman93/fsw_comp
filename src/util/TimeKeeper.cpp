@@ -6,13 +6,15 @@
  */
 
 #include "util/TimeKeeper.h"
-#include<iostream>
+#include <iostream>
 
 static uint32_t offsetTime = 0;
 
 void initializeTime(){
 	offsetTime = getCurrentTime();
 }
+
+
 
 uint32_t getCurrentTime(){
 	timespec t;

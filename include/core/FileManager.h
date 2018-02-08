@@ -51,12 +51,16 @@ public:
 	static int regexDelete(std::string filePath,std::string R);
 
 	static std::vector<std::string> parseGroundFile(std::string filePath);
+	static void writeLog(std::string tags,std::string message);
 
 
 	//static FileManager fm;
 
 private:
 	static Lock lock;
+	static std::string logMessageFP;
+	static std::string Reboot_num;
+	static std::string GetReboot();
 
 };
 

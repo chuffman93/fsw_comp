@@ -9,6 +9,7 @@
 #define LOGGER_H_
 
 #include "core/Lock.h"
+#include "core/FileManager.h"
 #include <pthread.h>
 #include <sstream>
 #include <string>
@@ -99,6 +100,7 @@ public:
 	static void log(LogLevel level, LogTags tags, std::string);
 	static void log(LogLevel level, std::string);
 	static std::string getThreadName(pthread_t thread);
+	static void writeLog(std::string tag, std::string message);
 private:
 	static LogTag levelTag(LogLevel level);
 	static LogTag threadTag();
@@ -114,6 +116,8 @@ private:
 	static std::map<pthread_t, std::string> threadNames;
 	//! Lock for the logger
 	static Lock lock;
+	static std::string logMessageFP;
+	static std::string updateFP(bool toBig);
 };
 
 

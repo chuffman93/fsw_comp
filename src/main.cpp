@@ -21,6 +21,8 @@ using namespace std;
 
 
 int main() {
+	Architecture::buildTime();
+	FileManager::updateRebootCount();
 	Logger::setMode(MODE_PRINT);
 	Logger::setLevel(LEVEL_DEBUG);
 	Logger::registerThread("MAIN");
@@ -28,7 +30,7 @@ int main() {
 
 	//---------Step1: Build FSW---------------------------
 	Architecture::setInterfaceMode(SOFTWARE);
-	Architecture::buildTime();
+
 	Architecture::buildEPS();
 	Architecture::buildCOM();
 	Architecture::buildACS();
