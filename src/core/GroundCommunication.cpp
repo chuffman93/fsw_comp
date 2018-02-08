@@ -408,7 +408,7 @@ bool GroundCommunication::spinGround(){
 			parsePPE();
 			FileManager::deleteFile(SOT_PATH);
 			statePostPass = false;
-			ComStartTime = -1;
+			ComStartTime = 0;
 			clearDownlink();
 			return false;
 		}

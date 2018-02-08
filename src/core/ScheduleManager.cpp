@@ -168,7 +168,6 @@ FSWMode ScheduleManager::handleModeChange(FSWMode current, FSWMode next){
 		case Trans_PayloadToBus:
 			return Mode_Bus;
 		case Trans_BusToCom:
-			ScheduleQueue.pop();
 			return Mode_Com;
 		case Trans_ComToBus:
 			return Mode_Bus;
@@ -194,6 +193,7 @@ FSWMode ScheduleManager::handleModeChange(FSWMode current, FSWMode next){
 }
 
 void ScheduleManager::setModeToCom(){
+	LockGuard l(lock);
 	Logger::Stream(LEVEL_DEBUG,tags) << "Attempting to switch to Com from GroundCommunication Thread";
 	com.timeSinceEpoch = getCurrentTime();
 	currentSchedule = com;

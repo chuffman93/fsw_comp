@@ -55,10 +55,8 @@ def sendSchedule():
 print("----------Running Integrated Software Ground Simulation----------")
 
 nextSchedule = []
-nextSchedule.append(DITLSch(2,0,20))
-nextSchedule.append(DITLSch(2,0,20))
-nextSchedule.append(DITLSch(3,0,20))
-nextSchedule.append(DITLSch(3,100,20))
+nextSchedule.append(DITLSch(2,20,20))
+nextSchedule.append(DITLSch(2,40,20))
 
 '''
 if not os.path.exists('./home/.uplink/DSCH'):
@@ -82,5 +80,5 @@ createIEF("")
 print("----------Sending Next Schedule for Payload Mode----------")
 sendSOT()
 sendSchedule()
-time.sleep(30)
+time.sleep(15)
 sendIEF()
