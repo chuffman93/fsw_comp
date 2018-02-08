@@ -5,7 +5,7 @@
  *      Author: cyborg9
  */
 
-#include <sys/stat.h>
+
 #include "util/Logger.h"
 #include <iostream>
 #include <pthread.h>
@@ -20,7 +20,6 @@ Lock Logger::lock;
 std::map<pthread_t, std::string> Logger::threadNames;
 LogMode Logger::mode = MODE_NOTHING;
 std::vector<std::pair<LogTags, LogLevel> > Logger::filters;
-std::string Logger::logMessageFP = "";
 
 LogTags::LogTags(){}
 
@@ -203,7 +202,7 @@ void Logger::log(LogLevel level, LogTags tags, std::string message){
 		case MODE_NOTHING:
 			break;
 		case MODE_PRINT:
-			cout << tagsToString(tags) << " " << message << endl;\
+			cout << tagsToString(tags) << " " << message << endl;
 			break;
 
 		}

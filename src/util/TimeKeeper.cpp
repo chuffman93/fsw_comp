@@ -6,7 +6,6 @@
  */
 
 #include "util/TimeKeeper.h"
-#include <iostream>
 
 static uint32_t offsetTime = 0;
 
