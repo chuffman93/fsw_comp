@@ -47,7 +47,7 @@ FSWMode ScheduleManager::checkNewMode(){
 		CurrentMode = tmp;
 		Logger::Stream(LEVEL_INFO, tags) << "Setting Mode to Bus";
 	//check if it is time for reboot if the schedule is empty
-	}else if (ScheduleQueue.empty() && time > REBOOT_TIME){
+	}else if ((ScheduleQueue.empty() && time > REBOOT_TIME) || (CurrentMode == Mode_Bus && currentSchedule.mode == Mode_Reset)){
 		FSWMode tmp = handleModeChange(Mode_Reset,Mode_Reset);
 		CurrentMode = tmp;
 		Logger::Stream(LEVEL_INFO, tags) << "Setting Mode to Reset";

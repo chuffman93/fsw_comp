@@ -61,6 +61,8 @@ PRIVATE:
 	//Various configurations for the data collection
 	void configMotor();
 	void configData();
+	void slipData();
+	void tarBallData();
 
 	uint16_t updateDataNumber();
 	uint16_t readDataNumber();

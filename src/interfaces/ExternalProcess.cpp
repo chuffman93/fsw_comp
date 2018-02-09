@@ -4,14 +4,19 @@
  *  Created on: Jan 8, 2018
  *      Author: chuffman93
  */
-#include "interfaces/ExternalProcess.h"
 #include "util/Logger.h"
+#include "interfaces/ExternalProcess.h"
+
 using namespace std;
 
-
+LogTags tags;
 
 ExternalProcess::ExternalProcess(){
+	tags += LogTag("Name", "ExternalProcess");
+	child_status = -1;
+	tpid = -1;
 	child_pid = -1;
+
 }
 
 /*!
@@ -22,7 +27,7 @@ void ExternalProcess::launchProcess(char * argv[]){
 	child_pid = fork();
 	if(child_pid == 0){
 		execv(argv[0],argv);
-		// TODO: add log message here
+		Logger::Stream(LEVEL_INFO,tags) << "Starting process: " << argv[0];
 		exit(0);
 	}else{
 		do{
@@ -43,7 +48,7 @@ void ExternalProcess::launchProcess(char * argv[],char * argc[]){
 		if(child_pid == 0){
 			execv(argv[0],argv);
 			execv(argc[0],argc);
-			// TODO: add log message here
+			Logger::Stream(LEVEL_INFO,tags) << "Starting process: " << argv[0] << " and " << argc[0];
 			exit(0);
 		}else{
 

@@ -8,7 +8,7 @@
 
 #ifndef INCLUDE_INTERFACES_EXTERNALPROCESS_H_
 #define INCLUDE_INTERFACES_EXTERNALPROCESS_H_
-
+#include "util/Logger.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
@@ -20,6 +20,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include "core/Lock.h"
+
 
 class ExternalProcess{
 public:
@@ -34,8 +35,6 @@ private:
 	pid_t child_pid;
 	int child_status;
 	Lock lock;
-
-
 
 };
 
