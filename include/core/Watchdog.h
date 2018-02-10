@@ -35,6 +35,7 @@ public:
 	void AddThread(ThreadID id, bool ignore = false);
 	void CheckThreads();
 	void KickWatchdog();
+	void SleepWatchdog();
 
 private:
 	std::map<ThreadID,ThreadInfo> threadMap;

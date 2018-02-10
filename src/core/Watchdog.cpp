@@ -43,3 +43,14 @@ void Watchdog::KickWatchdog(){
 	assert(iter != threadMap.end());
 	iter->second.alive = true;
 }
+
+void Watchdog::SleepWatchdog(){
+	LockGuard lock_guard(lock);
+	ThreadID id = Thread::GetMyThreadID();
+	std::map<ThreadID, ThreadInfo>::iterator iter = threadMap.find(id);
+	assert(iter != threadMap.end());
+	iter->second.ignore = true;
+}
+
+
+

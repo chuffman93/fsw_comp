@@ -26,12 +26,9 @@ void * FSWThreads::HealthStatusThread(void * args) {
 				i != healthSeq.end(); i++) {
 			(*i)->getHealthStatus();
 		}
-		int i = 0;
-		while(i <= 60){
-			watchdog->KickWatchdog();
-			sleep(1);
-			i++;
-		}
+
+		watchdog->SleepWatchdog();
+		sleep(60);
 	}
 	return NULL;
 }
