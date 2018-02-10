@@ -59,8 +59,6 @@ public:
 	void sendBeaconGPS();
 
 
-
-
 PRIVATE:
 	beaconGPS bGPS;
 	beaconSYS bSYS;

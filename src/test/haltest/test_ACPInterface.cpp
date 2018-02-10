@@ -13,20 +13,20 @@
 using namespace std;
 
 
-TEST_CASE("Communicate with RAD", "[.][hardware][acp][rad]"){
+TEST_CASE("Communicate with COM", "[hardware][acp][com]"){
 	INFO("Setting up Event Handler");
 	Logger::setMode(MODE_PRINT);
 
 	int spiid, intrid, acpid;
 	SPIManager spi("/dev/spidev32765", 0, 1000000);
 	GPIOManager gpio("/sys/class/gpio/");
-	ACPPacket test_send(RAD_SYNC, 8), test_recv;
+	ACPPacket test_send(COM_SYNC, 8), test_recv;
 
 	INFO("Register the Devices");
-	int powerid = gpio.attachDevice('B', 17, GPIO_OUTPUT);
-	int resetid = gpio.attachDevice('E', 11, GPIO_OUTPUT);
-	spiid = spi.attachDevice(3);
-	intrid = gpio.attachDevice('A', 25, INT_FALLING);
+	int powerid = gpio.attachDevice('B', 15, GPIO_OUTPUT);
+	int resetid = gpio.attachDevice('A', 11, GPIO_OUTPUT);
+	spiid = spi.attachDevice(1);
+	intrid = gpio.attachDevice('D', 6, INT_FALLING);
 
 	INFO("Initialize hardware");
 	spi.initialize();
@@ -37,7 +37,7 @@ TEST_CASE("Communicate with RAD", "[.][hardware][acp][rad]"){
 	INFO("Create an ACPInterface")
 	ACPInterface acp(spi, gpio, spiid, intrid,"");
 
-	PROMPT("Ready to send to PLD...");
+	PROMPT("Ready to send to COM...");
 	REQUIRE(acp.transaction(test_send, test_recv) == true);
 	cout << "Sync: " << (unsigned int)test_recv.sync << ", Op: " << (unsigned int)test_recv.opcode << ", Length: " << test_recv.message.size() << endl;
 

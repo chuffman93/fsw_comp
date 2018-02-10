@@ -54,7 +54,8 @@ public:
 	ACPPacket sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer);
 	bool isSuccess(PLDOpcode opSent, ACPPacket retPacket);
 	bool isSuccess(SubsystemOpcode opSent, ACPPacket retPacket);
-
+	bool commandCollectionBegin();
+	bool commandCollectionEnd();
 	HealthFileStruct health;
 	uint16_t RADDataNum;
 PRIVATE:
@@ -68,8 +69,7 @@ PRIVATE:
 	uint16_t readDataNumber();
 
 	//Command the beginning of data collection
-	bool commandCollectionBegin();
-	bool commandCollectionEnd();
+
 
 	bool resetRAD();
 	char dataFile[100];
