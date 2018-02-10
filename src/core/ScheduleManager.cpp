@@ -51,6 +51,8 @@ FSWMode ScheduleManager::checkNewMode(){
 		// exit mode on time
 		Logger::Stream(LEVEL_INFO, tags) << "Mode: " << CurrentMode << " Timeout.";
 		FSWMode tmp = handleModeChange(CurrentMode,currentSchedule.mode);
+		CurrentMode = tmp;
+		Logger::Stream(LEVEL_INFO, tags) << "Setting Mode to: " << CurrentMode;
 	}
 
 
