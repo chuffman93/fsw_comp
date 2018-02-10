@@ -124,14 +124,15 @@ bool EPS::commandReset(){
 	ACPPacket retPacket = sendOpcode(OP_SUBSYSTEMRESET,buff);
 	if (!isSuccess(OP_SUBSYSTEMRESET,retPacket)){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Subsystem Reset: unable to reset EPS Opcode Received: " << retPacket.opcode;
-		return false;
 	}
-	return true;
 
-	//sleep(5);
+	sleep(40);
 
-	//subPower.reset();
+	subPower.reset();
 
+	sleep(10);
+
+	return false;
 }
 
 uint16_t EPS::getBatteryCapacity(){

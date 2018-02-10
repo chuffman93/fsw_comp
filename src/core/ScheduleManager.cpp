@@ -47,7 +47,7 @@ FSWMode ScheduleManager::checkNewMode(){
 		CurrentMode = tmp;
 		Logger::Stream(LEVEL_INFO, tags) << "Setting Mode to Bus";
 	//check if it is time for reboot if the schedule is empty
-	}else if ((ScheduleQueue.empty() && time > REBOOT_TIME) || (CurrentMode == Mode_Bus && currentSchedule.mode == Mode_Reset)){
+	}else if ((ScheduleQueue.empty() && time > REBOOT_TIME) || (CurrentMode == Mode_Bus && currentSchedule.mode == Mode_Reset  && currentSchedule.timeSinceEpoch <= time)){
 		FSWMode tmp = handleModeChange(Mode_Reset,Mode_Reset);
 		CurrentMode = tmp;
 		Logger::Stream(LEVEL_INFO, tags) << "Setting Mode to Reset";
@@ -180,7 +180,10 @@ FSWMode ScheduleManager::handleModeChange(FSWMode current, FSWMode next){
 				return Trans_BusToPayload;
 			}else if(next == Mode_Com){
 				return Trans_BusToCom;
-			}else{
+			}else if (next == Mode_Reset){
+				return Mode_Reset;
+			}
+			else{
 				//error
 				return Mode_Bus;
 			}
