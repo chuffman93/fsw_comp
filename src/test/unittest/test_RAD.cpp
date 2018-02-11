@@ -42,7 +42,7 @@ TEST_CASE("TEST INITIALIZATION ROUTINE","[PLD]"){
 
 }
 
-TEST_CASE("SPLIT DATA","[.][PLD]"){
+TEST_CASE("SPLIT DATA","[.][PLD][splt]"){
 
 
 	REQUIRE(rad.commandCollectionBegin());
@@ -50,27 +50,17 @@ TEST_CASE("SPLIT DATA","[.][PLD]"){
 
 	std::vector<uint8_t> buff;
 	buff.assign(1000000,1);
-
-	std::ofstream in(HOME_DIRECTORY "/Random");
+	int num = rad.readDataNumber();
+	char mockDataFile[100];
+	sprintf(mockDataFile,MOCK_RAD_PATH "/RAD_%d",num);
+	std::ofstream in(mockDataFile);
 	for(std::vector<uint8_t>::iterator i = buff.begin(); i != buff.end(); i++){
 		in << *i;
 	}
 
-	REQUIRE(access(HOME_DIRECTORY "/RAD_1",F_OK) == 0);
-	REQUIRE(access(HOME_DIRECTORY "/RAD_1009.tar.gz",F_OK) == -1);
+	REQUIRE(access(mockDataFile,F_OK) == 0);
 	REQUIRE(rad.commandCollectionEnd());
-	REQUIRE(access(HOME_DIRECTORY "/RAD_1",F_OK) == -1);
-	REQUIRE(access(HOME_DIRECTORY "/RAD_1009.tar.gz",F_OK) == 0);
-
-	char argv[100];
-	sprintf(argv,"rm -r " HOME_DIRECTORY  "/RAD*");
-	FILE * fd;
-	fd = popen(argv, "r");
-	pclose(fd);
-	REQUIRE(access(HOME_DIRECTORY "/RAD_1009.tar.gz",F_OK) == -1);
+	REQUIRE(access(mockDataFile,F_OK) == -1);
 }
 
-TEST_CASE("Recieve Data","[PLD]"){
-
-}
 

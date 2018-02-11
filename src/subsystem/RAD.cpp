@@ -98,7 +98,7 @@ bool RAD::commandCollectionBegin(){
 	//TODO: error handling
 
 	LockGuard l(lock);
-	//subPower.powerOn();
+	subPower.powerOn();
 
 	Logger::Stream(LEVEL_INFO,tags) << "Beginning RAD Science Collection";
 	std::vector<uint8_t> buff;
@@ -142,7 +142,6 @@ bool RAD::commandCollectionBegin(){
 
 bool RAD::commandCollectionEnd(){
 	//TODO: error handling
-	//TODO: SPLIT DATA PROCESSING AND TARBALLING INTO THIER OWN FUNCTIONS
 
 	LockGuard l(lock);
 	hsAvailable = false;
@@ -155,64 +154,14 @@ bool RAD::commandCollectionEnd(){
 		return false;
 	}
 
-	//subPower.powerOff();
-
-	char archiveName[100];
-	char chunksize[10];
-	char dataPath[100];
-	char chunk[100];
-	// tftp.closeProcess();
-
-	//create archive name string for path to dataFile
-	sprintf(dataPath,MOCK_RAD_PATH"/%s",dataFile);
-	// get how many files it was split into by dividing the dataFile size by the number of bytes per chunk
-	std::ifstream in(dataPath, std::ifstream::ate | std::ifstream::binary);
-	int f_bytes = in.tellg();
-	int n_splits = f_bytes/RAD_CHUNK_SIZE;
-	in.close();
-
-
-	// split the file within the location using the same name (tags on 000,001,002,ect.)
-	sprintf(chunksize,"%d",RAD_CHUNK_SIZE);
-	char * sh_cmd[] = {(char *)"/usr/bin/split", (char*) "-b", (char*)chunksize, (char*) "-d",(char*) "-a", (char*)"3",(char*)dataPath,(char*)dataPath,NULL};
-
-	// runs the split command in the system
-	ExternalProcess tar;
-	ExternalProcess split;
-
-
-	split.launchProcess(sh_cmd);
-
-	// for loop through the number of splits created
-	for(int i = 0; i <= n_splits; i++){
-		int i2 = 0; // middle 0 if i < 10
-		char num[2]; // string to assign the numbers too, to reference each split file
-		if(i >= 10){
-			//num = to_string(i); // if i >=10 only need i to create the "000" tag on the file
-			sprintf(num,"%d",i);
-		}
-		else{
-			//num = to_string(i2) + to_string(i); // other wise need i2 and i
-			sprintf(num,"%d%d",i2,i);
-		}
-		// gets archive name we wish to create a .tar.gz compressed file for each chunk
-		sprintf(archiveName, MOCK_RAD_PATH"/%s0%s.tar.gz",dataFile,num);
-		sprintf(chunk, MOCK_RAD_PATH"/%s0%s",dataFile,num);
-
-		char * sh_cm[] = {(char*)"/bin/tar", (char*)"-czf",(char*)archiveName,(char*)chunk,(char*)"-P",NULL};
-		// runs the command on the system
-		tar.launchProcess(sh_cm);
-
-		// create a differenPLDUpdateDataNumbert archiveName referencing just the individual chunks
-		sprintf(archiveName, MOCK_RAD_PATH "/%s0%s",dataFile,num);
-		// removes the chunks to save some space
-		remove(archiveName);
-
-		return true;
+	subPower.powerOff();
+	int splits = splitData();
+	if(splits > 0){
+		tarBallData(splits);
 	}
 
-	// removes the dataFile to save space
-	remove(dataPath);
+
+	return true;
 }
 
 uint16_t RAD::readDataNumber(){
@@ -260,7 +209,7 @@ uint16_t RAD::updateDataNumber(){
 
 bool RAD::resetRAD(){
 
-	Logger::Stream(LEVEL_INFO,tags) << "Preparing COM for Reset";
+	Logger::Stream(LEVEL_INFO,tags) << "Preparing RAD for Reset";
 
 	std::vector<uint8_t> buff;
 	ACPPacket retPacket = sendOpcode(OP_SUBSYSTEMRESET,buff);
@@ -271,4 +220,66 @@ bool RAD::resetRAD(){
 	return true;
 }
 
+int RAD::splitData(){
+	LockGuard l(lock);
+	ExternalProcess split;
+
+	char dataPath[100];
+	char chunksize[10];
+	//create archive name string for path to dataFile
+	sprintf(dataPath,MOCK_RAD_PATH"/%s",dataFile);
+	// get how many files it was split into by dividing the dataFile size by the number of bytes per chunk
+	std::ifstream in(dataPath, std::ifstream::ate | std::ifstream::binary);
+	int f_bytes = in.tellg();
+	int n_splits = f_bytes/RAD_CHUNK_SIZE;
+	in.close();
+
+	// split the file within the location using the same name (tags on 000,001,002,ect.)
+	if(n_splits > 0){
+		sprintf(chunksize,"%d",RAD_CHUNK_SIZE);
+		char * sh_cmd[] = {(char *)"/usr/bin/split", (char*) "-b", (char*)chunksize, (char*) "-d",(char*) "-a", (char*)"3",(char*)dataPath,(char*)dataPath,NULL};
+		split.launchProcess(sh_cmd);
+		Logger::Stream(LEVEL_INFO,tags) << "Data file successfully split";
+		remove(dataPath);
+		return n_splits;
+	}else{
+		Logger::Stream(LEVEL_WARN,tags) << "No Data file to be split/collected";
+		return 0;
+	}
+}
+
+void RAD::tarBallData(int splits){
+	LockGuard l(lock);
+	ExternalProcess tar;
+	char archiveName[100];
+	char chunk[100];
+	// tftp.closeProcess();
+	Logger::Stream(LEVEL_INFO,tags) << "Beginning of tar-balling of data file splits";
+	// for loop through the number of splits created
+	for(int i = 0; i <= splits; i++){
+		int i2 = 0; // middle 0 if i < 10
+		char num[2]; // string to assign the numbers too, to reference each split file
+		if(i >= 10){
+			//num = to_string(i); // if i >=10 only need i to create the "000" tag on the file
+			sprintf(num,"%d",i);
+		}
+		else{
+			//num = to_string(i2) + to_string(i); // other wise need i2 and i
+			sprintf(num,"%d%d",i2,i);
+		}
+		// gets archive name we wish to create a .tar.gz compressed file for each chunk
+		sprintf(archiveName, MOCK_RAD_PATH"/%s0%s.tar.gz",dataFile,num);
+		sprintf(chunk, MOCK_RAD_PATH"/%s0%s",dataFile,num);
+
+		char * sh_cm[] = {(char*)"/bin/tar", (char*)"-czf",(char*)archiveName,(char*)chunk,(char*)"-P",NULL};
+		// runs the command on the system
+		tar.launchProcess(sh_cm);
+
+		// create a differenPLDUpdateDataNumbert archiveName referencing just the individual chunks
+		sprintf(archiveName, MOCK_RAD_PATH "/%s0%s",dataFile,num);
+		// removes the chunks to save some space
+		remove(archiveName);
+	}
+	Logger::Stream(LEVEL_INFO,tags) << "End of tar-balling of data file splits";
+}
 
