@@ -57,6 +57,7 @@ bool EPS::initialize(){
 
 //Handles any mode transition needs as well as any needs for tasks to be done in a mode.
 void EPS::handleMode(FSWMode transition){
+	LockGuard l(lock);
 	bool success;
 	switch (transition) {
 	case Mode_Reset:

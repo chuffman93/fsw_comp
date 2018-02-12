@@ -12,9 +12,9 @@
 #include <iostream>
 #include "hal/GPIOManager.h"
 
+
 SPIManager dummySR("", 0, 0);
 GPIOManager dummyGR("");
-
 class RADMockACPInterface: public ACPInterface{
 public:
 	RADMockACPInterface(): ACPInterface(dummySR, dummyGR, 0, 0, ""){}
@@ -27,11 +27,13 @@ public:
 	std::vector<uint8_t> sentOpcodes;
 };
 
-RADMockACPInterface acp;
-SubPowerInterface subPower(dummyGR, 0, 0, 0, "");
-RAD rad(acp,subPower);
 
 TEST_CASE("TEST INITIALIZATION ROUTINE","[PLD]"){
+	SPIManager dummySR("", 0, 0);
+	GPIOManager dummyGR("");
+	RADMockACPInterface acp;
+	SubPowerInterface subPower(dummyGR, 0, 0, 0, "");
+	RAD rad(acp,subPower);
 
 	REQUIRE(rad.commandCollectionBegin());
 	REQUIRE(acp.sentOpcodes.end() != std::find(acp.sentOpcodes.begin(), acp.sentOpcodes.end(), OP_TESTALIVE));
@@ -42,25 +44,43 @@ TEST_CASE("TEST INITIALIZATION ROUTINE","[PLD]"){
 
 }
 
-TEST_CASE("SPLIT DATA","[.][PLD][splt]"){
+TEST_CASE("SPLIT DATA","[PLD][splt]"){
+	SPIManager dummySR("", 0, 0);
+	GPIOManager dummyGR("");
+	RADMockACPInterface acp;
+	SubPowerInterface subPower(dummyGR, 0, 0, 0, "");
+	RAD rad(acp,subPower);
+	FSWMode T1 = Trans_BusToPayload;
+	FSWMode T2 = Trans_PayloadToBus;
+	int num = rad.readDataNumber();
+	rad.handleMode(T1);
 
-
-	REQUIRE(rad.commandCollectionBegin());
-
+	if(access(RAD_NUM_FILE,F_OK) == -1){
+		std::cout << "No Rad_NUM_FILE creating..." << std::endl;
+		std::fstream o(RAD_NUM_FILE, std::ofstream::out | std::ofstream::binary);
+		uint8_t beg = 1;
+		o << beg;
+		o.close();
+	}
 
 	std::vector<uint8_t> buff;
 	buff.assign(1000000,1);
-	int num = rad.readDataNumber();
+
+
 	char mockDataFile[100];
-	sprintf(mockDataFile,MOCK_RAD_PATH "/RAD_%d",num);
-	std::ofstream in(mockDataFile);
+	sprintf(mockDataFile,RAD_FILE_PATH"RAD_%d",num);
+	std::fstream in(mockDataFile, std::ofstream::out | std::ofstream::binary);
 	for(std::vector<uint8_t>::iterator i = buff.begin(); i != buff.end(); i++){
 		in << *i;
 	}
-
+	in.close();
+	char mock2[100];
+	sprintf(mock2,RAD_FILE_PATH"/RAD_%d009.tar.gz",num);
 	REQUIRE(access(mockDataFile,F_OK) == 0);
-	REQUIRE(rad.commandCollectionEnd());
+	REQUIRE(access(mock2,F_OK) == -1);
+	rad.handleMode(T2);
 	REQUIRE(access(mockDataFile,F_OK) == -1);
+	REQUIRE(access(mock2,F_OK) == 0);
 }
 
 

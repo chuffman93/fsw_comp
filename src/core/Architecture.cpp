@@ -171,6 +171,8 @@ std::map<FSWMode, std::vector<SubsystemBase*> > Architecture::buildModeSequencin
 	if(rad != NULL) nominal.push_back(rad);
 	if(eps != NULL) nominal.push_back(eps);
 
+
+	// What is the purpose of this? -> PLD doesn't actually exit in this order for some odd reason
 	std::vector<SubsystemBase*> pld2bus;
 	if(cdh != NULL) nominal.push_back(cdh);
 	if(gps != NULL) nominal.push_back(gps);
@@ -190,7 +192,7 @@ std::map<FSWMode, std::vector<SubsystemBase*> > Architecture::buildModeSequencin
 	sequences.insert(std::pair<FSWMode, std::vector<SubsystemBase*> >
 	(Trans_BusToPayload, nominal));
 	sequences.insert(std::pair<FSWMode, std::vector<SubsystemBase*> >
-	(Trans_PayloadToBus, pld2bus));
+	(Trans_PayloadToBus, nominal));
 	sequences.insert(std::pair<FSWMode, std::vector<SubsystemBase*> >
 	(Trans_BusToCom, nominal));
 	sequences.insert(std::pair<FSWMode, std::vector<SubsystemBase*> >

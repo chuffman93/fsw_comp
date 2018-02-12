@@ -33,7 +33,7 @@ public:
 
 
 
-TEST_CASE("Test parse IEF and PPE file requests", "[groundcommunication]"){
+TEST_CASE("Test parse IEF and PPE file requests", "[.][groundcommunication]"){
 
 	//Logger::setMode(MODE_PRINT);
 

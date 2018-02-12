@@ -48,8 +48,8 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/include}&quot;"/>
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.17430883" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="UBUNTU"/>
 									<listOptionValue builtIn="false" value="CATCH"/>
+									<listOptionValue builtIn="false" value="UBUNTU"/>
 								</option>
 								<option id="gnu.c.compiler.option.dialect.std.871161506" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.2132941268" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
@@ -98,7 +98,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="BeaconManager.cpp|test/haltest|threads|core|src/util/EventHandler.cpp|interfaces|interface|src/threads|src/main.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="src/test/haltest|BeaconManager.cpp|test/haltest|threads|core|src/util/EventHandler.cpp|interfaces|interface|src/threads|src/main.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

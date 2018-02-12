@@ -27,6 +27,7 @@ bool RAD::initialize(){
 
 //Handles any mode transition needs as well as any needs for tasks to be done in a mode.
 void RAD::handleMode(FSWMode transition){
+	LockGuard l(lock);
 	bool success;
 	switch (transition){
 	case Mode_Reset:
@@ -55,7 +56,6 @@ void RAD::getHealthStatus(){
 }
 
 ACPPacket RAD::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
-	//LockGuard l(lock);
 	if (buffer.empty()){
 		ACPPacket acpPacket(RAD_SYNC, opcode);
 		ACPPacket acpReturn;
@@ -96,9 +96,7 @@ void RAD::configData(){
 //Command the beginning of data collection
 bool RAD::commandCollectionBegin(){
 	//TODO: error handling
-
-	LockGuard l(lock);
-	subPower.powerOn();
+	//subPower.powerOn();
 
 	Logger::Stream(LEVEL_INFO,tags) << "Beginning RAD Science Collection";
 	std::vector<uint8_t> buff;
@@ -127,7 +125,7 @@ bool RAD::commandCollectionBegin(){
 		return false;
 	}
 
-
+	RADDataNum = readDataNumber();
 	sprintf(dataFile, "RAD_%u", RADDataNum);
 	RADDataNum = updateDataNumber();
 	hsAvailable = true;
@@ -142,8 +140,6 @@ bool RAD::commandCollectionBegin(){
 
 bool RAD::commandCollectionEnd(){
 	//TODO: error handling
-
-	LockGuard l(lock);
 	hsAvailable = false;
 
 	Logger::Stream(LEVEL_INFO,tags) << "Ending RAD Science Collection";
@@ -154,7 +150,7 @@ bool RAD::commandCollectionEnd(){
 		return false;
 	}
 
-	subPower.powerOff();
+	//subPower.powerOff();
 	int splits = splitData();
 	if(splits > 0){
 		tarBallData(splits);
@@ -200,6 +196,9 @@ uint16_t RAD::updateDataNumber(){
 		success &= (fputc(buffer[0], fp) != EOF);
 		success &= (fputc(buffer[1], fp) != EOF);
 		fclose(fp);
+	}else{
+		Logger::Stream(LEVEL_WARN,tags) << "No file at " << RAD_NUM_FILE;
+		success = false;
 	}
 	if (!success) {
 		remove(RAD_NUM_FILE);
@@ -221,19 +220,17 @@ bool RAD::resetRAD(){
 }
 
 int RAD::splitData(){
-	LockGuard l(lock);
 	ExternalProcess split;
 
 	char dataPath[100];
 	char chunksize[10];
 	//create archive name string for path to dataFile
-	sprintf(dataPath,MOCK_RAD_PATH"/%s",dataFile);
+	sprintf(dataPath,RAD_FILE_PATH"%s",dataFile);
 	// get how many files it was split into by dividing the dataFile size by the number of bytes per chunk
 	std::ifstream in(dataPath, std::ifstream::ate | std::ifstream::binary);
 	int f_bytes = in.tellg();
 	int n_splits = f_bytes/RAD_CHUNK_SIZE;
 	in.close();
-
 	// split the file within the location using the same name (tags on 000,001,002,ect.)
 	if(n_splits > 0){
 		sprintf(chunksize,"%d",RAD_CHUNK_SIZE);
@@ -249,7 +246,6 @@ int RAD::splitData(){
 }
 
 void RAD::tarBallData(int splits){
-	LockGuard l(lock);
 	ExternalProcess tar;
 	char archiveName[100];
 	char chunk[100];
@@ -257,26 +253,16 @@ void RAD::tarBallData(int splits){
 	Logger::Stream(LEVEL_INFO,tags) << "Beginning of tar-balling of data file splits";
 	// for loop through the number of splits created
 	for(int i = 0; i <= splits; i++){
-		int i2 = 0; // middle 0 if i < 10
-		char num[2]; // string to assign the numbers too, to reference each split file
-		if(i >= 10){
-			//num = to_string(i); // if i >=10 only need i to create the "000" tag on the file
-			sprintf(num,"%d",i);
-		}
-		else{
-			//num = to_string(i2) + to_string(i); // other wise need i2 and i
-			sprintf(num,"%d%d",i2,i);
-		}
 		// gets archive name we wish to create a .tar.gz compressed file for each chunk
-		sprintf(archiveName, MOCK_RAD_PATH"/%s0%s.tar.gz",dataFile,num);
-		sprintf(chunk, MOCK_RAD_PATH"/%s0%s",dataFile,num);
+		sprintf(archiveName, RAD_FILE_PATH"%s%03d.tar.gz",dataFile,i);
+		sprintf(chunk, RAD_FILE_PATH"%s%03d",dataFile,i);
 
 		char * sh_cm[] = {(char*)"/bin/tar", (char*)"-czf",(char*)archiveName,(char*)chunk,(char*)"-P",NULL};
 		// runs the command on the system
 		tar.launchProcess(sh_cm);
 
 		// create a differenPLDUpdateDataNumbert archiveName referencing just the individual chunks
-		sprintf(archiveName, MOCK_RAD_PATH "/%s0%s",dataFile,num);
+		sprintf(archiveName, RAD_FILE_PATH "%s%03d",dataFile,i);
 		// removes the chunks to save some space
 		remove(archiveName);
 	}

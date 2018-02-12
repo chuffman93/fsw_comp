@@ -50,6 +50,7 @@ bool ACS::initialize(){
 //Handles any mode transition needs as well as any needs for tasks to be done in a mode.
 void ACS::handleMode(FSWMode transition){
 	bool success;
+	LockGuard l(lock);
 	switch (transition){
 	case Mode_Bus:
 		success = sendGPS();

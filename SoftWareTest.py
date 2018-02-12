@@ -38,14 +38,14 @@ def sendSOT():
 	buff = []
 	F.write(struct.pack('B',0))
 	F.close()
-	os.rename("SOT","./home/.uplink/SOT")
+	os.rename("SOT","./home/root/uplink/SOT")
 
 
 def sendIEF():
-	os.rename("IEF.txt","./home/.uplink/IEF.txt")
+	os.rename("IEF.txt","./home/root/uplink/IEF.txt")
 
 def sendSchedule():
-	os.rename("SCH","./home/.uplink/SCH")
+	os.rename("SCH","./home//root/uplink/SCH")
 
 
 

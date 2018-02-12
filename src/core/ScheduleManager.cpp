@@ -61,11 +61,6 @@ FSWMode ScheduleManager::checkNewMode(){
 
 void ScheduleManager::handleScheduling(){
 	LockGuard l(lock);
-	if (FileManager::checkExistance(NEW_DEFAULT_SCH)){
-		Logger::Stream(LEVEL_INFO,tags) << "Updating Default Schedule";
-		FileManager::moveFile(NEW_DEFAULT_SCH, DEFAULT_SCH);
-	}
-
 	if (FileManager::checkExistance(NEW_SCH)){
 		Logger::Stream(LEVEL_INFO,tags) << "Loading New Schedule";
 		loadSchedule(NEW_SCH);
@@ -73,7 +68,6 @@ void ScheduleManager::handleScheduling(){
 		Logger::Stream(LEVEL_INFO,tags) << "Schedule Remains Unchanged";
 	}else if(CurrentMode == Mode_Bus){
 		Logger::Stream(LEVEL_INFO,tags) << "Loading Default Schedule";
-		loadSchedule(DEFAULT_SCH);
 	}
 
 }
@@ -94,36 +88,6 @@ void ScheduleManager::loadSchedule(std::string filePath){
 	if ((schedule.size()%9) != 0){
 		Logger::Stream(LEVEL_ERROR,tags) << "Unable To Load Next Schedule, incorrect file size";
 		return;
-	}
-	else if(filePath == DEFAULT_SCH){
-			for (size_t i = 0; i < (schedule.size()/9); i++){
-				bs >> mode >> sch.timeSinceEpoch >> sch.duration;
-				int md = (int)mode;
-				char log[100];
-				sprintf(log,"Loading Schedule -- Mode: %u Time Since Epoch: %u Duration: %u ",mode,sch.timeSinceEpoch,sch.duration);
-				Logger::Stream(LEVEL_DEBUG,tags) << log;
-				switch (md){
-				case 1:
-					sch.mode = Mode_Bus;
-					ScheduleQueue.push(sch);
-					break;
-				case 2:
-					sch.mode = Mode_Payload;
-					ScheduleQueue.push(sch);
-					break;
-				case 3:
-					sch.mode = Mode_Com;
-					ScheduleQueue.push(sch);
-					break;
-				case 4:
-					sch.mode = Mode_Reset;
-					ScheduleQueue.push(sch);
-					break;
-				default:
-					break;
-				}
-			}
-			Logger::Stream(LEVEL_INFO,tags) << "Successfully loaded default schedule";
 	}
 	else{
 		//clear contents of the queue

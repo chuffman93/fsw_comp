@@ -41,7 +41,7 @@ public:
 	bool faultOccurred(){return false;}
 };
 
-TEST_CASE("Test GPS fetchNewGPS", "[subsystem][gps]"){
+TEST_CASE("Test GPS fetchNewGPS", "[.][subsystem][gps]"){
 	MockNMEA nm;
 	MockPower pow;
 	GPS gps(nm, pow);
