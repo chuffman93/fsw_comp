@@ -98,6 +98,7 @@ void Architecture::buildACS(){
 		int resetid = gpio->attachDevice('A', 12, GPIO_OUTPUT);
 		int faultid = gpio->attachDevice('B', 5, GPIO_INPUT);
 		SubPowerInterface* sp = new SubPowerInterface(*gpio, powid, resetid, faultid, "ACS");
+		sp->configDelay(100,2000);
 		acs = new ACS(*acp, *sp);
 	}else{
 		acs = new ACS(*(new MockACP("ACS")), *(new MockSubPower("ACS")));
@@ -127,10 +128,8 @@ void Architecture::buildGPS(){
 		buildUART();
 		NMEAInterface* nmea = new NMEAInterface(*uart);
 		//TODO: Actually figure this shit out
-		int powid = gpio->attachDevice('B', 17, GPIO_OUTPUT);
-		int resetid = gpio->attachDevice('E', 11, GPIO_OUTPUT);
-		int faultid = gpio->attachDevice('B', 14, GPIO_INPUT);
-		SubPowerInterface* sp = new SubPowerInterface(*gpio, powid, resetid, faultid, "GPS");
+		int powid = gpio->attachDevice('B', 27, GPIO_OUTPUT);
+		SubPowerInterface* sp = new SubPowerInterface(*gpio, powid, -1, -1, "GPS");
 		gps = new GPS(*nmea, *sp);
 	}else{
 		gps = new GPS(*(new MockNMEA()), *(new MockSubPower("GPS")));
@@ -257,6 +256,11 @@ std::vector<HardwareManager*> Architecture::buildHALInitVector(){
 GPS* Architecture::getGPS(){
 	assert(gps != NULL);
 	return gps;
+}
+
+ACS* Architecture::getACS(){
+	assert(acs != NULL);
+	return acs;
 }
 
 GroundCommunication* Architecture::getGND(){

@@ -67,7 +67,7 @@ void ScheduleManager::handleScheduling(){
 	}else if(!ScheduleQueue.empty()){
 		Logger::Stream(LEVEL_INFO,tags) << "Schedule Remains Unchanged";
 	}else if(CurrentMode == Mode_Bus){
-		Logger::Stream(LEVEL_INFO,tags) << "Loading Default Schedule";
+		Logger::Stream(LEVEL_INFO,tags) << "Floating in Bus Mode";
 	}
 
 }

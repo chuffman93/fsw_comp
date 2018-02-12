@@ -155,8 +155,6 @@ bool RAD::commandCollectionEnd(){
 	if(splits > 0){
 		tarBallData(splits);
 	}
-
-
 	return true;
 }
 

@@ -23,7 +23,7 @@ bool ACS::initialize(){
 	//TODO: error handling
 	Logger::Stream(LEVEL_INFO,tags) << "Initializing ACS";
 	LockGuard l(lock);
-
+	subPower.powerOn();
 
 	std::vector<uint8_t> buff;
 	ACPPacket retPacket1 = sendOpcode(OP_TESTALIVE,buff);
@@ -49,18 +49,9 @@ bool ACS::initialize(){
 
 //Handles any mode transition needs as well as any needs for tasks to be done in a mode.
 void ACS::handleMode(FSWMode transition){
-	bool success;
 	LockGuard l(lock);
+	bool success;
 	switch (transition){
-	case Mode_Bus:
-		success = sendGPS();
-		break;
-	case Mode_Payload:
-		success = sendGPS();
-		break;
-	case Mode_Com:
-		success = sendGPS();
-		break;
 	case Mode_Reset:
 		success = resetACS();
 		break;
@@ -135,11 +126,11 @@ bool ACS::pointSunSoak(){
 
 
 //Update the GPS information on ACS
-bool ACS::sendGPS(){
-
-	SerializeGPS serGPS;
+bool ACS::sendGPS(GPSPositionTime gps){
+	LockGuard l(lock);
+	Logger::Stream(LEVEL_INFO,tags) << gps;
+	SerializeGPS serGPS(gps);
 	std::vector<uint8_t> buffer = serGPS.serialize();
-
 	ACPPacket retPacket = sendOpcode(OP_SENDGPS, buffer);
 	if (!isSuccess(OP_SENDGPS,retPacket)){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode send GPS: Unable to send GPS data to ACS. Opcode Received: " << retPacket.opcode;
@@ -168,7 +159,6 @@ bool ACS::resetACS(){
 
 
 ACPPacket ACS::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
-	//LockGuard l(lock);
 	if (buffer.empty()){
 		ACPPacket acpPacket(ACS_SYNC, opcode);
 		ACPPacket acpReturn;

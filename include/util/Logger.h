@@ -34,6 +34,7 @@ enum LogLevel{
 enum LogMode{
 	MODE_NOTHING,
 	MODE_PRINT,
+	MODE_PW,
 };
 
 

@@ -15,6 +15,8 @@ NMEAInterface::NMEAInterface(UARTManager& uart)
 :uart(uart)
 {
 	tags += LogTag("Name", "NMEAInterface");
+	databuffer = "";
+	state = WAIT_FOR_HASH;
 }
 
 NMEAInterface::~NMEAInterface(){}
@@ -24,19 +26,21 @@ NMEAInterface::~NMEAInterface(){}
  * \return a NMEA string
  */
 std::string NMEAInterface::getString(){
-	//TODO: timeout?
-	std::string data;
-	while(uart.readData() != '#');
+	char c;
 	do{
-		data += uart.readData();
-	}while(*data.rbegin() != '*');
-	//TODO: this was 10 in old fsw, may need to change when we test it
-	for(int i = 0; i < 8; i++){
-		data += uart.readData();
-	}
+		c = uart.readData();
+		if(c == 0){
+			Logger::Stream(LEVEL_DEBUG, tags) << "Nothing to be read";
+			return "";
+		}
+		databuffer += c;
+	}while(c != '\n');
 
-	Logger::Stream(LEVEL_DEBUG, tags) << "Read: " << data;
-	return data;
+	Logger::Stream(LEVEL_DEBUG, tags) << "Read: " << databuffer;
+
+	std::string ret = databuffer;
+	databuffer = "";
+	return databuffer;
 }
 
 /*!
