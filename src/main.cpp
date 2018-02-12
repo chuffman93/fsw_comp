@@ -23,19 +23,21 @@ using namespace std;
 int main() {
 	Architecture::buildTime();
 	FileManager::updateRebootCount();
-	Logger::setMode(MODE_PRINT);
-	Logger::setLevel(LEVEL_DEBUG);
+	Logger::setMode(MODE_PW);
+	Logger::setLevel(LEVEL_INFO);
 	Logger::registerThread("MAIN");
 	Logger::log(LEVEL_FATAL, "Entering Main");
 
 	//---------Step1: Build FSW---------------------------
-	Architecture::setInterfaceMode(SOFTWARE);
+	Architecture::setInterfaceMode(HARDWARE);
 
-	Architecture::buildEPS();
-	Architecture::buildCOM();
+	// Architecture::buildEPS();
+	// Architecture::buildCOM();
 	Architecture::buildACS();
-	Architecture::buildRAD();
+	//Architecture::buildRAD();
+	Architecture::setInterfaceMode(SOFTWARE);
 	Architecture::buildGPS();
+	Architecture::setInterfaceMode(HARDWARE);
 	Architecture::buildScheduleManager();
 	Architecture::buildGND();
 
@@ -70,8 +72,10 @@ int main() {
 	GPSStruct gpsargs;
 	gpsargs.gps = Architecture::getGPS();
 	gpsargs.watchdog = &watchdog;
+	gpsargs.acs = Architecture::getACS();
 	gpsThread.CreateThread(NULL, FSWThreads::GPSThread, (void*)&gpsargs);
 	watchdog.AddThread(gpsThread.GetID());
+
 
 	//---------Step7: Initialize Mode Thread-----------------------
 	Thread modeThread;
@@ -100,7 +104,7 @@ int main() {
 	//---------Step10: Join Threads (never reached)-----------------------
 	int rv = 0;
 	hsThread.JoinThread((void*)&rv);
-	gpsThread.JoinThread((void*)&rv);
+	// gpsThread.JoinThread((void*)&rv);
 	modeThread.JoinThread((void*)&rv);
 	gndThread.JoinThread((void*)&rv);
 	watchdogThread.JoinThread((void*)&rv);

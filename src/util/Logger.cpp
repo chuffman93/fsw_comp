@@ -197,11 +197,14 @@ void Logger::log(LogLevel level, LogTags tags, std::string message){
 		tags += levelTag(level);
 		tags += threadTag();
 		tags += timeTag();
-		FileManager::writeLog(tagsToString(tags),message);
 		switch(mode){
 		case MODE_NOTHING:
 			break;
 		case MODE_PRINT:
+			cout << tagsToString(tags) << " " << message << endl;
+			break;
+		case MODE_PW:
+			FileManager::writeLog(tagsToString(tags),message);
 			cout << tagsToString(tags) << " " << message << endl;
 			break;
 

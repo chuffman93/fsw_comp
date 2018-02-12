@@ -48,6 +48,8 @@ void GPS::getHealthStatus(){
 }
 
 GPSPositionTime GPS::getBestXYZ(){
+	return tempData;
+	// TODO: FIX THIS ISH
 	GPSPositionTime inertial = getBestXYZI();
 	// arrays for the rotation
 	double posECI[3];
@@ -106,9 +108,12 @@ GPSPositionTime GPS::getBestXYZI(){
  */
 void GPS::fetchNewGPS(){
 	std::string data = nm.getString();
+	if(data == "") return; //Nothing was read.
+	Logger::Stream(LEVEL_DEBUG,tags) << "Reading in: " << data;
+
 
 	//Everything below this line is from old FSW
-	GPSPositionTime tempData = {0,0,0,0,0,0,0,0};
+	tempData = {0,0,0,0,0,0,0,0};
 	char * token;
 	char * buffPtr = (char*)data.c_str();
 	bool solSuccess = true;
@@ -121,7 +126,6 @@ void GPS::fetchNewGPS(){
 			break;
 		}
 	}
-
 	if (!containsDelimiter) {
 		Logger::log(LEVEL_WARN, tags, "String doesn't contain '*' ");
 		return;
@@ -224,12 +228,10 @@ void GPS::fetchNewGPS(){
 	v[1] = tempData.velX;
 	v[2] = tempData.velY;
 	v[3] = tempData.velZ;
-	lock.lock();
 	lastLock.sysTime = getFSWMillis() / 1000.0; //Store current time to use for prop
 	rv2elem(MU_EARTH, r, v, &(lastLock.elements));
 	lastLock.GPSWeek = tempData.GPSWeek;
 	lastLock.GPSSec = tempData.GPSSec;
-	lock.unlock();
 }
 
 uint32_t GPS::CRCValue_GPS(int i) {

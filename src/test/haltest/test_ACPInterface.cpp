@@ -80,11 +80,12 @@ TEST_CASE("Communicate with RAD", "[.][hardware][acp][rad]"){
 TEST_CASE("Communicate with ACS", "[.][hardware][acp][acs]"){
 	INFO("Setting up Event Handler");
 	Logger::setMode(MODE_PRINT);
+	Logger::setLevel(LEVEL_DEBUG);
 
 	int spiid, intrid, acpid;
 	SPIManager spi("/dev/spidev32765", 0, 1000000);
 	GPIOManager gpio("/sys/class/gpio/");
-	ACPPacket test_send(COM_SYNC, 8), test_recv;
+	ACPPacket test_send(ACS_SYNC, 8), test_recv;
 
 	INFO("Register the Devices");
 	int powerid = gpio.attachDevice('B', 25, GPIO_OUTPUT);
@@ -100,6 +101,7 @@ TEST_CASE("Communicate with ACS", "[.][hardware][acp][acs]"){
 
 	INFO("Create an ACPInterface")
 	ACPInterface acp(spi, gpio, spiid, intrid,"");
+	acp.setTimeouts(1500,10,500);
 
 	PROMPT("Ready to send to ACS...");
 	REQUIRE(acp.transaction(test_send, test_recv) == true);

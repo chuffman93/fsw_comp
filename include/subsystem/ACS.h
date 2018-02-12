@@ -23,14 +23,17 @@
 enum ACSOpcode {
 	OP_ACS_MIN = 32,
 	OP_POINTNADIR = OP_ACS_MIN,
-	OP_POINTCOM = 33,
+	OP_POINTDST = 33,
 	OP_POINTSUN = 34,
-	OP_SENDGPS = 35,
-	OP_CONFIGGAINS = 36,
-	OP_ACS_MAX = 37,
+	OP_POINTCOM = 35,
+	OP_DET = 36,
+	OP_SENDGPS = 37,
+	OP_CONFIGGAINS = 38,
+	OP_ACS_MAX,
 };
 
 struct SerializeGPS {
+	SerializeGPS(GPSPositionTime gps):gps(gps){}
 	GPSPositionTime gps;
 	std::vector<uint8_t> serialize(){
 		ByteStream bs;
@@ -56,7 +59,7 @@ public:
 	bool isSuccess(SubsystemOpcode opSent, ACPPacket retPacket);
 
 	float getTimeSinceLock();
-
+	bool sendGPS(GPSPositionTime gps);
 	HealthFileStruct health;
 private:
 	//Change the current pointing target
@@ -64,7 +67,7 @@ private:
 	bool pointCOM();
 	bool pointSunSoak();
 	//Update the GPS information on ACS
-	bool sendGPS();
+
 	//Configure the gains on ACS
 	void configureGains();
 	bool resetACS();

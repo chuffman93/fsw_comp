@@ -27,8 +27,11 @@ void * FSWThreads::HealthStatusThread(void * args) {
 			(*i)->getHealthStatus();
 		}
 
-		watchdog->SleepWatchdog();
-		sleep(60);
+		for(int i = 0; i <= 60; i++){
+			sleep(1);
+			watchdog->KickWatchdog();
+		}
+
 	}
 	return NULL;
 }
@@ -53,6 +56,7 @@ void * FSWThreads::ModeThread(void * args) {
 		if(it != seq.end()){
 			for(vector<SubsystemBase*>::iterator sub = it->second.begin(); sub != it->second.end(); sub++){
 				(*sub)->handleMode(mode);
+				watchdog->KickWatchdog();
 			}
 		}
 
@@ -66,11 +70,13 @@ void * FSWThreads::GPSThread(void * args) {
 	GPSStruct *gpsargs = (GPSStruct*) args;
 	Watchdog * watchdog = gpsargs->watchdog;
 	GPS * gps = gpsargs->gps;
+	ACS* acs = gpsargs->acs;
 	Logger::registerThread("GPS");
 	Logger::log(LEVEL_FATAL, "Starting GPS Thread");
 	while (1) {
 		watchdog->KickWatchdog();
 		gps->fetchNewGPS();
+		acs->sendGPS(gps->getBestXYZ());
 		sleep(2);
 	}
 	return NULL;

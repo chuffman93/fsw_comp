@@ -20,6 +20,12 @@ public:
 	MOCK void sendCommand(std::string str);
 
 private:
+	enum{
+		WAIT_FOR_HASH,
+		WAIT_FOR_STAR,
+		WAIT_FOR_CRC,
+	} state;
+	std::string databuffer;
 	UARTManager& uart;
 	LogTags tags;
 };

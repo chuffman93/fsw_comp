@@ -164,7 +164,7 @@ bool RAD::commandCollectionEnd(){
 	// tftp.closeProcess();
 
 	//create archive name string for path to dataFile
-	sprintf(dataPath,MOCK_RAD_PATH"/%s",dataFile);
+	sprintf(dataPath,RAD_FILE_PATH"/%s",dataFile);
 	// get how many files it was split into by dividing the dataFile size by the number of bytes per chunk
 	std::ifstream in(dataPath, std::ifstream::ate | std::ifstream::binary);
 	int f_bytes = in.tellg();
@@ -196,15 +196,15 @@ bool RAD::commandCollectionEnd(){
 			sprintf(num,"%d%d",i2,i);
 		}
 		// gets archive name we wish to create a .tar.gz compressed file for each chunk
-		sprintf(archiveName, MOCK_RAD_PATH"/%s0%s.tar.gz",dataFile,num);
-		sprintf(chunk, MOCK_RAD_PATH"/%s0%s",dataFile,num);
+		sprintf(archiveName, RAD_FILE_PATH"/%s0%s.tar.gz",dataFile,num);
+		sprintf(chunk, RAD_FILE_PATH"/%s0%s",dataFile,num);
 
 		char * sh_cm[] = {(char*)"/bin/tar", (char*)"-czf",(char*)archiveName,(char*)chunk,(char*)"-P",NULL};
 		// runs the command on the system
 		tar.launchProcess(sh_cm);
 
 		// create a differenPLDUpdateDataNumbert archiveName referencing just the individual chunks
-		sprintf(archiveName, MOCK_RAD_PATH "/%s0%s",dataFile,num);
+		sprintf(archiveName, RAD_FILE_PATH "/%s0%s",dataFile,num);
 		// removes the chunks to save some space
 		remove(archiveName);
 

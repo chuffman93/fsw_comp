@@ -20,7 +20,7 @@ COM::~COM(){}
 bool COM::initialize(){
 	//TODO: error handling
 	Logger::Stream(LEVEL_INFO,tags) << "Initializing COM";
-
+	subPower.powerOn();
 	std::vector<uint8_t> buff;
 
 	ACPPacket retPacket1 = sendOpcode(OP_TESTALIVE,buff);

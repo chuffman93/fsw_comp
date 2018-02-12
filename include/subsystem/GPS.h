@@ -60,6 +60,7 @@ public:
 
 	ACPPacket sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer);
 
+
 private:
 	uint32_t CalculateCRC_GPS(char * buffer);
 	uint32_t CRCValue_GPS(int i);
@@ -75,6 +76,7 @@ private:
 	//! Tags to use for logging
 	LogTags tags;
 	GPSLockType lastLock;
+	GPSPositionTime tempData;
 };
 
 
