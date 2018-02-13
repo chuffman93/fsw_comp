@@ -11,7 +11,10 @@
 #include "test/mockhal/MockSPIManager.h"
 #include "subsystem/ACS.h"
 #include "subsystem/EPS.h"
+#include "subsystem/CDH.h"
 #include "subsystem/COM.h"
+#include "subsystem/GPS.h"
+#include "subsystem/RAD.h"
 #include "util/TimeKeeper.h"
 #include "util/ByteStream.h"
 #include <vector>
@@ -19,53 +22,45 @@
 #include <sys/sysinfo.h>
 
 
-
-struct beaconGPS{
-	int32_t satTime;
-	uint32_t epochNumber;
-	int32_t GPSWeek;
-	float GPSSec;
-	double xPosition;
-	double yPosition;
-	double zPosition;
-	double xVelocity;
-	double yVelocity;
-	double zVelocity;
-};
-
-struct beaconSYS{
-	int32_t satTime;
-	uint32_t epochNumber;
-	int32_t GPSWeek;
-	float GPSSec;
-	uint8_t systemMode;
-	uint16_t radNumber;
-	uint16_t batteryCap;
-	int8_t acsMode;
+struct Beacon{
+	uint32_t epochTime;
+	uint32_t systemTime;
+	uint32_t rebootCount;
+	uint8_t satelliteMode;
+	uint32_t currentModeEnterTime;
+	uint32_t comPassCount;
+	float timeSinceStarLock;
+	std::vector<float> targetMRP;
+	std::vector<float> actualMRP;
 	float memory;
-	float cpu15;
+	float cpu;
+	uint16_t batteryStateofCharge;
+	std::vector<double> xyzPosition;
+	std::vector<double> xyzVelocity;
+	int32_t gpsWeek;
+	float gpsSecond;
+	uint16_t radNumber;
 };
+
 
 class BeaconManager {
 public:
-	BeaconManager();
+	BeaconManager(ScheduleManager* sch, ACS* acs, EPS* eps, GPS* gps, RAD* rad); //TODO: add CDH cdh
 	~BeaconManager();
-	void createBeaconGPS( int32_t satTime, uint32_t epochNumber,int32_t GPSWeek,	float GPSSec, double xPosition,
-			double yPosition, double zPosition, double xVelocity, double yVelocity, double zVelocity);
-	void createBeaconSYS( int32_t satTime, uint32_t epochNumber, int32_t GPSWeek, float GPSSec, uint8_t systemMode,
-			uint16_t radNumber, uint16_t batteryCap, int8_t acsMode, float memory, float cpu15);
-	void serializeBeacon();
-	void sendBeaconSYS();
-	void sendBeaconGPS();
+	void sendBeacon();
 
 
 
 
 PRIVATE:
-	beaconGPS bGPS;
-	beaconSYS bSYS;
-	std::vector<uint8_t> GPS;
-	std::vector<uint8_t> SYS;
+	Beacon beacon;
+
+	ScheduleManager* sch;
+	ACS* acs;
+	EPS* eps;
+	//CDH& cdh;
+	GPS* gps;
+	RAD* rad;
 
 	// TODO: Decide on how/where rates will be handled
 	int32_t beaconRate;

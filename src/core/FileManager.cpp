@@ -24,7 +24,8 @@ using namespace std;
 
 Lock FileManager::lock;
 std::string FileManager::logMessageFP = "";
-std::string FileManager::Reboot_num = GetReboot();
+int FileManager::Reboot_num = -1;
+std::string FileManager::Reboot_string = "";
 
 FileManager::FileManager(){}
 
@@ -176,7 +177,7 @@ std::string FileManager::createFileName(std::string basePath){
 	ss << currentTime;
 	std::string time = ss.str();
 
-	std::string filePath = basePath + "_" + Reboot_num + "_" + time;
+	std::string filePath = basePath + "_" + Reboot_string + "_" + time;
 	return filePath;
 }
 
@@ -225,7 +226,62 @@ void FileManager::updateRebootCount(){
 		out.close();
 		lock.unlock();
 	}
+	Reboot_num = RebootCount;
+
+	stringstream strCount;
+	strCount << RebootCount;
+	Reboot_string = strCount.str();
+
 	Logger::Stream(LEVEL_INFO,tags) << "Updated Reboot Count to " << RebootCount;
+}
+
+int FileManager::updateComPassCount(){
+	LogTags tags;
+	tags += LogTag("Name", "FileManager");
+	int ComPassCount;
+
+	if (checkExistance(COM_PASS_COUNT)){
+		lock.lock();
+		//read boot number from file
+		std::ifstream ComPassCountFile(COM_PASS_COUNT);
+		ComPassCountFile >> ComPassCount;
+		ComPassCountFile.close();
+		lock.unlock();
+		//write boot count +1 to file
+		std::ofstream out(COM_PASS_COUNT);
+		out << ++ComPassCount;
+		out.close();
+	}else {
+		//this is the first time the boot count has been incremented, write initial boot count to file
+		ComPassCount = 1;
+		lock.lock();
+		std::ofstream out(COM_PASS_COUNT);
+		out << ComPassCount;
+		out.close();
+		lock.unlock();
+	}
+	Logger::Stream(LEVEL_INFO,tags) << "Updated ComPass Count to " << ComPassCount;
+	return ComPassCount;
+}
+
+int FileManager::getComPassCount(){
+	LogTags tags;
+	tags += LogTag("Name", "FileManager");
+	int ComPassCount;
+
+	if (checkExistance(COM_PASS_COUNT)){
+		lock.lock();
+		//read boot number from file
+		std::ifstream ComPassCountFile(COM_PASS_COUNT);
+		ComPassCountFile >> ComPassCount;
+		ComPassCountFile.close();
+		lock.unlock();
+	}else {
+		//this is the first time the boot count has been incremented, write initial boot count to file
+		ComPassCount = 0;
+	}
+	Logger::Stream(LEVEL_INFO,tags) << "Loaded ComPass Count: " << ComPassCount;
+	return ComPassCount;
 }
 
 /*!
@@ -580,17 +636,8 @@ void FileManager::writeLog(std::string tags,std::string message){
 
 }
 
-std::string FileManager::GetReboot(){
-	int intCount;
-	lock.lock();
-	std::ifstream rebootFile(REBOOT_FILE);
-	rebootFile >> intCount;
-	rebootFile.close();
-	lock.unlock();
-	intCount++;
-	stringstream strCount;
-	strCount << intCount;
-	return strCount.str();
+int FileManager::GetReboot(){
+	return Reboot_num;
 }
 
 

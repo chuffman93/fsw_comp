@@ -135,6 +135,6 @@ bool EPS::commandReset(){
 	return false;
 }
 
-uint16_t EPS::getBatteryCapacity(){
+uint16_t EPS::getBatteryStateOfCharge(){
 	return batteryCharge;
 }

@@ -33,6 +33,7 @@ public:
 	static void buildScheduleManager();
 	static void buildTime();
 	static void buildGND();
+	static void buildBeaconManager();
 	static void setInterfaceMode(InterfaceMode mode);
 
 	static std::vector<SubsystemBase*> buildHSVector();
@@ -42,6 +43,7 @@ public:
 	static GPS* getGPS();
 	static GroundCommunication* getGND();
 	static ScheduleManager* getSchedulerManager();
+	static BeaconManager* getBeaconManager();
 
 private:
 	static void buildSPI();
@@ -55,6 +57,7 @@ private:
 	static RAD* rad;
 	static GroundCommunication* gnd;
 	static ScheduleManager* sch;
+	static BeaconManager* bcn;
 
 	//HAL Layer
 	static SPIManager* spi;

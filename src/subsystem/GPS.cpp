@@ -269,7 +269,7 @@ uint32_t GPS::getFSWMillis(){
 }
 
 //! Only works for increments of less than a week
-void GPS::incrementGPSTime(uint16_t& GPSWeek, float& GPSSec, float dt){
+void GPS::incrementGPSTime(int32_t& GPSWeek, float& GPSSec, float dt){
 	//TODO check and make sure this is actually correct?
 	GPSSec += dt;
 	if(GPSSec > 604800){

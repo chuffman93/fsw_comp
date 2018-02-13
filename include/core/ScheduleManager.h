@@ -55,7 +55,10 @@ public:
 	FSWMode handleModeChange(FSWMode current, FSWMode next);
 	void setModeToCom();
 	void exitComMode();
-	FSWMode checkMode();
+	FSWMode getCurrentMode();
+	uint32_t getEpochTime();
+	uint32_t getModeEnterTime();
+	int getComPassCount();
 
 
 
@@ -64,6 +67,7 @@ PRIVATE:
 
 	ScheduleStruct currentSchedule;
 	uint32_t modeEnterTime;
+	int ComPassCount;
 	FSWMode CurrentMode;
 	Lock lock;
 	ScheduleStruct com;

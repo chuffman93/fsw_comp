@@ -19,6 +19,7 @@ RAD* Architecture::rad = NULL;
 
 GroundCommunication* Architecture::gnd = NULL;
 ScheduleManager* Architecture::sch = NULL;
+BeaconManager* Architecture::bcn = NULL;
 
 //HAL Layer
 SPIManager* Architecture::spi = NULL;
@@ -148,16 +149,25 @@ void Architecture::buildTime(){
 void Architecture::buildGND(){
 	//Yay for code reuse
 	//TODO: Rewrite Ground Comms so this isn't shit
-	gnd = new GroundCommunication(buildHSVector());
+	gnd = new GroundCommunication(buildHSVector(), *bcn);
 }
 
 void Architecture::buildScheduleManager(){
 	sch = new ScheduleManager();
 }
 
+void Architecture::buildBeaconManager(){
+	bcn = new BeaconManager(sch, acs, eps, gps, rad);
+}
+
 ScheduleManager* Architecture::getSchedulerManager(){
 	assert(sch != NULL);
 	return sch;
+}
+
+BeaconManager* Architecture::getBeaconManager(){
+	assert(bcn != NULL);
+	return bcn;
 }
 
 std::map<FSWMode, std::vector<SubsystemBase*> > Architecture::buildModeSequencing(){

@@ -16,6 +16,7 @@
 #define REBOOT_FILE			HOME_DIRECTORY		"/RBT.txt"
 #define RAD_NUM_FILE		HOME_DIRECTORY		"/RAD_Number"
 #define LOG_MESSAGES		HOME_DIRECTORY		"/LOG/LOG"
+#define COM_PASS_COUNT		HOME_DIRECTORY		"/CPC.txt"
 
 
 #define NEW_SCH				UPLINK_DIRECTORY	"/SCH"
@@ -24,8 +25,7 @@
 
 // TODO: Change from HOME_DIRECTORY to DOWNLINK_DIRECTORY
 #define DFL_PATH			HOME_DIRECTORY	"/DFL.txt"
-#define BCN_GPS				HOME_DIRECTORY	"/GPS"
-#define BCN_SYS				HOME_DIRECTORY	"/SYS"
+#define BEACON				HOME_DIRECTORY	"/beacon"
 
 #define RAD_FILE_PATH			"/SD_3/RAD" // Science data
 // TODO: Delete

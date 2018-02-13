@@ -97,10 +97,10 @@ void * FSWThreads::GroundThread(void * args) {
 	Logger::registerThread("GND");
 	Logger::log(LEVEL_FATAL, "Starting Ground Communication Thread");
 	while (1) {
-		bool toCom = gnd->spinGround();
-		if(toCom && scheduler->checkMode() != Mode_Com){
+		bool toCom = gnd->spinGround(watchdog);
+		if(toCom && scheduler->getCurrentMode() != Mode_Com){
 			scheduler->setModeToCom();
-		}else if(!toCom && scheduler->checkMode() == Mode_Com){
+		}else if(!toCom && scheduler->getCurrentMode() == Mode_Com){
 			scheduler->exitComMode();
 		}
 		watchdog->KickWatchdog();

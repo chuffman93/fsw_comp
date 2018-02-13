@@ -7,8 +7,8 @@
 
 #include "core/GroundCommunication.h"
 
-GroundCommunication::GroundCommunication(std::vector<SubsystemBase*> subsystems)
-: stateDownlink(false), statePostPass(false), ComStartTime(0), ComTimeout(720), subsystems(subsystems)
+GroundCommunication::GroundCommunication(std::vector<SubsystemBase*> subsystems, BeaconManager& beacon)
+: stateDownlink(false), statePostPass(false), ComStartTime(0), ComTimeout(720), subsystems(subsystems), beacon(beacon)
 {
 	tags += LogTag("Name", "GroundCommunication");
 }
@@ -369,10 +369,16 @@ void GroundCommunication::parsePPE(){
 	FileManager::deleteFile(PPE_PATH);
 }
 
-bool GroundCommunication::spinGround(){
+bool GroundCommunication::spinGround(Watchdog* watchdog){
 	if (!FileManager::checkExistance(SOT_PATH)){
+		Logger::Stream(LEVEL_INFO,tags) << "Sending beacon...";
+		beacon.sendBeacon();
+		Logger::Stream(LEVEL_INFO,tags) << "Beacon has been sent";
+		while (sleep(60)){
+			watchdog->KickWatchdog();
+		}
 		return false;
-		//send beacon
+
 	}else{
 		if (ComStartTime == 0){
 			Logger::Stream(LEVEL_INFO,tags) << "Beginning Communication Pass Timer";

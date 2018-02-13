@@ -37,7 +37,9 @@ int main() {
 	Architecture::buildRAD();
 	Architecture::buildGPS();
 	Architecture::buildScheduleManager();
+	Architecture::buildBeaconManager();
 	Architecture::buildGND();
+
 
 
 	//---------Step2: Initialize HAL-----------------------

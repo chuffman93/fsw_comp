@@ -11,10 +11,12 @@
 #include "core/FileManager.h"
 #include "core/Lock.h"
 #include "subsystem/SubsystemBase.h"
+#include "core/Watchdog.h"
 #include "subsystem/ACS.h"
 #include "subsystem/COM.h"
 #include "subsystem/EPS.h"
 #include "subsystem/RAD.h"
+#include "util/BeaconManager.h"
 #include <queue>
 #include <stdlib.h>
 #include <stdio.h>
@@ -34,11 +36,11 @@ typedef enum FSWCommandTypes {
 
 class GroundCommunication{
 public:
-	GroundCommunication(std::vector<SubsystemBase*> subsystems);
+	GroundCommunication(std::vector<SubsystemBase*> subsystems, BeaconManager& beacon);
 	~GroundCommunication();
 	void downlinkFiles();
 	void clearDownlink();
-	bool spinGround();
+	bool spinGround(Watchdog* watchdog);
 	void parseIEF();
 
 	void parsePPE();
@@ -56,6 +58,8 @@ PRIVATE:
 	void parseCommandRequest(std::string line);
 	void parseFileListRequest(std::string line);
 	std::vector<SubsystemBase*> subsystems;
+
+	BeaconManager& beacon;
 
 	LogTags tags;
 	Lock lock;
