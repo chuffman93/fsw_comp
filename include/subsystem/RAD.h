@@ -23,7 +23,7 @@
 
 #include <stdio.h>
 
-#define RAD_CHUNK_SIZE		102400
+#define RAD_CHUNK_SIZE		204800
 
 enum PLDOpcode {
 	OP_PLD_CMD_MIN = 32,

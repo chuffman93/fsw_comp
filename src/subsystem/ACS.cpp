@@ -128,7 +128,7 @@ bool ACS::pointSunSoak(){
 //Update the GPS information on ACS
 bool ACS::sendGPS(GPSPositionTime gps){
 	LockGuard l(lock);
-	Logger::Stream(LEVEL_INFO,tags) << gps;
+	Logger::Stream(LEVEL_DEBUG,tags) << gps;
 	SerializeGPS serGPS(gps);
 	std::vector<uint8_t> buffer = serGPS.serialize();
 	ACPPacket retPacket = sendOpcode(OP_SENDGPS, buffer);

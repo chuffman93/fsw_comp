@@ -75,12 +75,13 @@ TEST_CASE("SPLIT DATA","[PLD][splt]"){
 	}
 	in.close();
 	char mock2[100];
-	sprintf(mock2,RAD_FILE_PATH"/RAD_%d009.tar.gz",num);
+	sprintf(mock2,RAD_FILE_PATH"/RAD_%d003.tar.gz",num);
 	REQUIRE(access(mockDataFile,F_OK) == 0);
 	REQUIRE(access(mock2,F_OK) == -1);
 	rad.handleMode(T2);
 	REQUIRE(access(mockDataFile,F_OK) == -1);
 	REQUIRE(access(mock2,F_OK) == 0);
+	system("rm "RAD_FILE_PATH"/RAD_*");
 }
 
 
