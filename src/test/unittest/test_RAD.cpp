@@ -44,7 +44,7 @@ TEST_CASE("TEST INITIALIZATION ROUTINE","[PLD]"){
 
 }
 
-TEST_CASE("SPLIT DATA","[PLD][splt]"){
+TEST_CASE("SPLIT DATA","[.][PLD][splt]"){
 	SPIManager dummySR("", 0, 0);
 	GPIOManager dummyGR("");
 	RADMockACPInterface acp;
@@ -52,7 +52,6 @@ TEST_CASE("SPLIT DATA","[PLD][splt]"){
 	RAD rad(acp,subPower);
 	FSWMode T1 = Trans_BusToPayload;
 	FSWMode T2 = Trans_PayloadToBus;
-	int num = rad.readDataNumber();
 	rad.handleMode(T1);
 
 	if(access(RAD_NUM_FILE,F_OK) == -1){
@@ -68,20 +67,20 @@ TEST_CASE("SPLIT DATA","[PLD][splt]"){
 
 
 	char mockDataFile[100];
-	sprintf(mockDataFile,RAD_FILE_PATH"RAD_%d",num);
+	sprintf(mockDataFile,RAD_FILE_PATH"_80_%d_",getCurrentTime());
 	std::fstream in(mockDataFile, std::ofstream::out | std::ofstream::binary);
 	for(std::vector<uint8_t>::iterator i = buff.begin(); i != buff.end(); i++){
 		in << *i;
 	}
 	in.close();
 	char mock2[100];
-	sprintf(mock2,RAD_FILE_PATH"/RAD_%d003.tar.gz",num);
+	sprintf(mock2,RAD_FILE_PATH"_80_%d_003.tar.gz",getCurrentTime());
 	REQUIRE(access(mockDataFile,F_OK) == 0);
 	REQUIRE(access(mock2,F_OK) == -1);
 	rad.handleMode(T2);
 	REQUIRE(access(mockDataFile,F_OK) == -1);
 	REQUIRE(access(mock2,F_OK) == 0);
-	system("rm "RAD_FILE_PATH"/RAD_*");
+	system("rm "RAD_FILE_PATH"_*");
 }
 
 

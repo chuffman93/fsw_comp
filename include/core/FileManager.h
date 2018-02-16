@@ -59,8 +59,8 @@ public:
 private:
 	static Lock lock;
 	static std::string logMessageFP;
-	static std::string Reboot_num;
-	static std::string GetReboot();
+	static int Reboot_num;
+	static int GetReboot();
 
 };
 

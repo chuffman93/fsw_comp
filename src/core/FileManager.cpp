@@ -8,7 +8,6 @@
  */
 
 #include "core/FileManager.h"
-#include <stdio.h>
 #include <string.h>
 #include <iostream>
 #include <sstream>
@@ -17,6 +16,7 @@
 #include <fstream>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <regex>
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -24,7 +24,7 @@ using namespace std;
 
 Lock FileManager::lock;
 std::string FileManager::logMessageFP = "";
-std::string FileManager::Reboot_num = GetReboot();
+int FileManager::Reboot_num = GetReboot();
 
 FileManager::FileManager(){}
 
@@ -172,11 +172,13 @@ std::string FileManager::createFileName(std::string basePath){
 
 	//get current time
 	uint32_t currentTime = getCurrentTime();
-	stringstream ss;
-	ss << currentTime;
-	std::string time = ss.str();
-
-	std::string filePath = basePath + "_" + Reboot_num + "_" + time;
+	char filePath[50];
+	if(basePath == RAD_FILE_PATH){
+		sprintf(filePath,"%s_%d_%05d_",(char*)basePath.c_str(),Reboot_num,currentTime);
+		return filePath;
+	}
+	sprintf(filePath,"%s_%d_%05d",(char*)basePath.c_str(),Reboot_num,currentTime);
+	// std::string filePath = basePath + "_" + Reboot_num + "_" + time;
 	return filePath;
 }
 
@@ -234,7 +236,7 @@ void FileManager::updateRebootCount(){
  * \param R indicates if it is to be: R = the regex itself, RB = before regex, and RA = after regex, which is indicated by the reboot count of the file name
  */
 vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
-
+	LockGuard l(lock);
 	LogTags tags;
 	tags += LogTag("Name", "FileManager");
 
@@ -261,14 +263,13 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 		regex = regex+"_";
 		sprintf(sh_cmd, "tar -czf %s -C %s `ls -lr %s | grep ^- | awk '{print $9}' | grep \"%s\" | head -%d`>/dev/null 2>&1", (char*)newDest.c_str(), (char*)dest.c_str(), (char*)dest.c_str(), (char*)regex.c_str(), 50);
 		Files.push_back(newDest);
-		lock.lock();
 		if(!(fd = popen(sh_cmd, "r"))){
 			Logger::Stream(LEVEL_ERROR, tags) << "Tar creation failed.";
 		}
 		if(pclose(fd) == -1){
 			Logger::Stream(LEVEL_ERROR, tags) << "Tar pipe could not be closed.";
 		}
-		lock.unlock();
+
 	}else if(R == "RB"){
 		int i = dest.length()-1;
 		std::string regex = "";
@@ -295,7 +296,6 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 		if(dest != ext && dest.size() > ext.size() && (dest.substr((dest.size() - ext.size())) == regex)){
 			dest = dest.substr(0,dest.size()-ext.size());
 		}
-		lock.lock();
 		for(int y = 0; y < EN; y++){
 			std::string newDest = dest + pastReg[y] + ".tar";
 			pastReg[y] = pastReg[y] + "_";
@@ -311,7 +311,6 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 			}
 			Files.push_back(newDest);
 		}
-		lock.unlock();
 	}else if(R == "RA"){
 		int i = dest.length()-1;
 		std::string regex = "";
@@ -346,7 +345,6 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 		if(dest != ext && dest.size() > ext.size() && (dest.substr((dest.size() - ext.size())) == regex)){
 			dest = dest.substr(0,dest.size()-ext.size());
 		}
-		lock.lock();
 		for(int y = 0; y < itr+1; y++){
 			std::string newDest = dest + pastReg[y] + ".tar";
 			pastReg[y] = pastReg[y] + "_";
@@ -362,7 +360,6 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 			}
 			Files.push_back(newDest);
 		}
-		lock.unlock();
 	}
 	// handle multiple tar balls
 	Logger::Stream(LEVEL_INFO, tags) << "Files " << R << " successfully packaged with the file name " << dest;
@@ -580,7 +577,7 @@ void FileManager::writeLog(std::string tags,std::string message){
 
 }
 
-std::string FileManager::GetReboot(){
+int FileManager::GetReboot(){
 	int intCount;
 	lock.lock();
 	std::ifstream rebootFile(REBOOT_FILE);
@@ -588,9 +585,7 @@ std::string FileManager::GetReboot(){
 	rebootFile.close();
 	lock.unlock();
 	intCount++;
-	stringstream strCount;
-	strCount << intCount;
-	return strCount.str();
+	return intCount;
 }
 
 

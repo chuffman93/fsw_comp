@@ -72,7 +72,7 @@ PRIVATE:
 
 
 	bool resetRAD();
-	char dataFile[100];
+	std::string dataFile;
 
 	bool hsAvailable;
 

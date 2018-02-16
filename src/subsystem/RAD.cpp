@@ -125,13 +125,11 @@ bool RAD::commandCollectionBegin(){
 		return false;
 	}
 
-	RADDataNum = readDataNumber();
-	sprintf(dataFile, "RAD_%u", RADDataNum);
-	RADDataNum = updateDataNumber();
+	dataFile = FileManager::createFileName(RAD_FILE_PATH);
 	hsAvailable = true;
 
 	// TODO: get correct IP and make sure this runs as intended
-	// char* argv[] = {(char *)"/usr/bin/tftp",(char *)"-g",(char*)"-r",dataFile,(char*)"10.14.134.207",NULL};
+	// char* argv[] = {(char *)"/usr/bin/tftp",(char *)"-g",(char*)"-r",dataFile.c_str(),(char*)"10.14.134.207",NULL};
 	// tftp.launchProcess(argv);
 
 	return true;
@@ -158,51 +156,6 @@ bool RAD::commandCollectionEnd(){
 	return true;
 }
 
-uint16_t RAD::readDataNumber(){
-	uint16_t dataNumber;
-	FILE * fp;
-	int char1, char2;
-	bool success = true;
-
-	if(access(RAD_NUM_FILE,F_OK) != -1){
-		fp = fopen(RAD_NUM_FILE,"rb");
-		if(fp != NULL){
-			success &= (char1 = fgetc(fp)) != EOF;
-			success &= (char2 = fgetc(fp)) != EOF;
-			if(success){
-				dataNumber = ((uint16_t) char1) << 8 | ((uint16_t) char2);
-			}
-			fclose(fp);
-		}
-	}
-	return dataNumber;
-}
-uint16_t RAD::updateDataNumber(){
-	uint16_t dataNumber;
-	FILE * fp;
-	uint8_t buffer[2];
-	bool success = true;
-
-	dataNumber = readDataNumber();
-	dataNumber++;
-
-	buffer[0] = (dataNumber & 0xFF00) >> 8;
-	buffer[1] = (dataNumber & 0x00FF);
-
-	fp =fopen(RAD_NUM_FILE,"wb");
-	if(fp!=NULL){
-		success &= (fputc(buffer[0], fp) != EOF);
-		success &= (fputc(buffer[1], fp) != EOF);
-		fclose(fp);
-	}else{
-		Logger::Stream(LEVEL_WARN,tags) << "No file at " << RAD_NUM_FILE;
-		success = false;
-	}
-	if (!success) {
-		remove(RAD_NUM_FILE);
-	}
-	return dataNumber;
-}
 
 bool RAD::resetRAD(){
 
@@ -223,7 +176,7 @@ int RAD::splitData(){
 	char dataPath[100];
 	char chunksize[10];
 	//create archive name string for path to dataFile
-	sprintf(dataPath,RAD_FILE_PATH"%s",dataFile);
+	sprintf(dataPath,"%s",dataFile.c_str());
 	// get how many files it was split into by dividing the dataFile size by the number of bytes per chunk
 	std::ifstream in(dataPath, std::ifstream::ate | std::ifstream::binary);
 	long f_bytes = in.tellg();
@@ -251,15 +204,15 @@ void RAD::tarBallData(int splits){
 	// for loop through the number of splits created
 	for(int i = 0; i <= splits; i++){
 		// gets archive name we wish to create a .tar.gz compressed file for each chunk
-		sprintf(archiveName, RAD_FILE_PATH"%s%03d.tar.gz",dataFile,i);
-		sprintf(chunk, RAD_FILE_PATH"%s%03d",dataFile,i);
+		sprintf(archiveName,"%s%03d.tar.gz",dataFile.c_str(),i);
+		sprintf(chunk,"%s%03d",dataFile.c_str(),i);
 
 		char * sh_cm[] = {(char*)"/bin/tar", (char*)"-czf",(char*)archiveName,(char*)chunk,(char*)"-P",NULL};
 		// runs the command on the system
 		tar.launchProcess(sh_cm);
 
 		// create a differenPLDUpdateDataNumbert archiveName referencing just the individual chunks
-		sprintf(archiveName, RAD_FILE_PATH "%s%03d",dataFile,i);
+		sprintf(archiveName,"%s%03d",dataFile.c_str(),i);
 		// removes the chunks to save some space
 		remove(archiveName);
 	}
