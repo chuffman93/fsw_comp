@@ -52,7 +52,7 @@ public:
 
 	static std::vector<std::string> parseGroundFile(std::string filePath);
 	static void writeLog(std::string tags,std::string message);
-
+	static int GetReboot();
 
 	//static FileManager fm;
 
@@ -60,7 +60,7 @@ private:
 	static Lock lock;
 	static std::string logMessageFP;
 	static int Reboot_num;
-	static int GetReboot();
+
 
 };
 

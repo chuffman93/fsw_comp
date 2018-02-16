@@ -67,20 +67,20 @@ TEST_CASE("SPLIT DATA","[.][PLD][splt]"){
 
 
 	char mockDataFile[100];
-	sprintf(mockDataFile,RAD_FILE_PATH"_80_%d_",getCurrentTime());
+	sprintf(mockDataFile,RAD_FILE_PATH"_%d_%d_",FileManager::GetReboot(),getCurrentTime());
 	std::fstream in(mockDataFile, std::ofstream::out | std::ofstream::binary);
 	for(std::vector<uint8_t>::iterator i = buff.begin(); i != buff.end(); i++){
 		in << *i;
 	}
 	in.close();
 	char mock2[100];
-	sprintf(mock2,RAD_FILE_PATH"_80_%d_003.tar.gz",getCurrentTime());
+	sprintf(mock2,RAD_FILE_PATH"_%d_%d_003.tar.gz",FileManager::GetReboot(),getCurrentTime());
 	REQUIRE(access(mockDataFile,F_OK) == 0);
 	REQUIRE(access(mock2,F_OK) == -1);
 	rad.handleMode(T2);
 	REQUIRE(access(mockDataFile,F_OK) == -1);
 	REQUIRE(access(mock2,F_OK) == 0);
-	system("rm "RAD_FILE_PATH"_*");
+	system("rm " RAD_FILE_PATH "_*");
 }
 
 
