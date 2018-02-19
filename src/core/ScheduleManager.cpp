@@ -25,7 +25,6 @@ ScheduleManager::~ScheduleManager(){};
 //check for mode changes
 FSWMode ScheduleManager::checkNewMode(){
 	LockGuard l(lock);
-
 	uint32_t time = getCurrentTime();
 	Logger::Stream(LEVEL_DEBUG,tags) << "Check new mode -- Queue Size: " << ScheduleQueue.size() << " With new mode at front: " << ScheduleQueue.front().mode;
 	Logger::Stream(LEVEL_DEBUG,tags) <<"Current Schedule Mode: "<< currentSchedule.mode <<" Current Mode: " << CurrentMode << " Next Scheduled Mode: " << ScheduleQueue.front().mode << " Time: " << time;
@@ -54,8 +53,6 @@ FSWMode ScheduleManager::checkNewMode(){
 		CurrentMode = tmp;
 		Logger::Stream(LEVEL_INFO, tags) << "Setting Mode to: " << CurrentMode;
 	}
-
-
 	return CurrentMode;
 }
 

@@ -16,8 +16,9 @@ GroundCommunication::GroundCommunication(std::vector<SubsystemBase*> subsystems)
 GroundCommunication::~GroundCommunication(){}
 
 void GroundCommunication::downlinkFiles(){
-	std::string file = DownlinkQueue.front();
-	if (!DownlinkQueue.empty()){
+
+	while(!DownlinkQueue.empty()){
+		std::string file = DownlinkQueue.front();
 		if (!FileManager::checkExistance(DOWNLINK_DIRECTORY + file)){
 			Logger::Stream(LEVEL_INFO,tags) << "Downlinking Next File";
 			DownlinkQueue.pop();
@@ -33,7 +34,6 @@ void GroundCommunication::downlinkFiles(){
 }
 
 void GroundCommunication::clearDownlink(){
-	LockGuard l(lock);
 	Logger::Stream(LEVEL_INFO,tags) << "Communication Pass over, clearing downlink queue";
 	while (!DownlinkQueue.empty()){
 		DownlinkQueue.pop();
@@ -312,8 +312,6 @@ void GroundCommunication::parseFileListRequest(std::string line){
 
 
 void GroundCommunication::parseIEF(){
-
-	LockGuard l(lock);
 	std::vector<std::string> requests = FileManager::parseGroundFile(IEF_PATH);
 	char line[100];
 	char * type;
@@ -370,6 +368,7 @@ void GroundCommunication::parsePPE(){
 }
 
 bool GroundCommunication::spinGround(){
+	LockGuard l(lock);
 	if (!FileManager::checkExistance(SOT_PATH)){
 		return false;
 		//send beacon
@@ -378,6 +377,8 @@ bool GroundCommunication::spinGround(){
 			Logger::Stream(LEVEL_INFO,tags) << "Beginning Communication Pass Timer";
 			ComStartTime = getCurrentTime();
 			return true;
+
+
 		}
 		Logger::Stream(LEVEL_DEBUG,tags) << "Start Time: " << ComStartTime << " ComTimeOut: " << ComTimeout << " Current Time: " << getCurrentTime();
 		//check if the communication pass has exceeded
@@ -391,6 +392,7 @@ bool GroundCommunication::spinGround(){
 			clearDownlink();
 			statePostPass = true;
 			return false;
+
 		}
 		//begin IEF processing if IEF has been uplinked
 		if (FileManager::checkExistance(IEF_PATH)){

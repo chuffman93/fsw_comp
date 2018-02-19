@@ -29,15 +29,15 @@ int main() {
 	Logger::log(LEVEL_FATAL, "Entering Main");
 
 	//---------Step1: Build FSW---------------------------
-	Architecture::setInterfaceMode(HARDWARE);
-
-	// Architecture::buildEPS();
-	// Architecture::buildCOM();
-	Architecture::buildACS();
-	//Architecture::buildRAD();
 	Architecture::setInterfaceMode(SOFTWARE);
-	Architecture::buildGPS();
+
+	Architecture::buildEPS();
+	Architecture::buildCOM();
 	Architecture::setInterfaceMode(HARDWARE);
+	Architecture::buildACS();
+	Architecture::setInterfaceMode(SOFTWARE);
+	Architecture::buildRAD();
+	Architecture::buildGPS();
 	Architecture::buildScheduleManager();
 	Architecture::buildGND();
 
