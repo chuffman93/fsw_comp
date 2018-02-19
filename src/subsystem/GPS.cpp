@@ -38,6 +38,7 @@ void GPS::getHealthStatus(){
 }
 
 GPSPositionTime GPS::getBestXYZ(){
+	LockGuard l(lock);
 	GPSPositionTime inertial = getBestXYZI();
 
 
@@ -72,7 +73,6 @@ GPSPositionTime GPS::getBestXYZ(){
 }
 
 GPSPositionTime GPS::getBestXYZI(){
-	LockGuard l(lock);
 	float eciPos[3];
 	float eciVel[3];
 	int64_t currTime = getFSWMillis();
@@ -98,6 +98,7 @@ GPSPositionTime GPS::getBestXYZI(){
  * Waits to get new GPS coordinates then parses them
  */
 void GPS::fetchNewGPS(){
+	LockGuard l(lock);
 	std::string data = nm.getString();
 
 	//Everything below this line is from old FSW
@@ -223,7 +224,6 @@ void GPS::fetchNewGPS(){
 	gpsTime[0] = tempData.GPSWeek;
 	gpsTime[1] = tempData.GPSSec;
 	wgs2gcrf(r,v,gpsTime,rI,vI);
-	lock.lock();
 	float tempR[4] = {0};
 	float tempV[4] = {0};
 	for(int i = 0; i<3 ;i++){
@@ -234,7 +234,6 @@ void GPS::fetchNewGPS(){
 	rv2elem(MU_EARTH, tempR, tempV, &(lastLock.elements));
 	lastLock.GPSWeek = tempData.GPSWeek;
 	lastLock.GPSSec = tempData.GPSSec;
-	lock.unlock();
 }
 
 uint32_t GPS::CRCValue_GPS(int i) {
