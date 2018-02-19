@@ -16,8 +16,9 @@ GroundCommunication::GroundCommunication(std::vector<SubsystemBase*> subsystems)
 GroundCommunication::~GroundCommunication(){}
 
 void GroundCommunication::downlinkFiles(){
-	std::string file = DownlinkQueue.front();
+
 	if (!DownlinkQueue.empty()){
+		std::string file = DownlinkQueue.front();
 		if (!FileManager::checkExistance(DOWNLINK_DIRECTORY + file)){
 			Logger::Stream(LEVEL_INFO,tags) << "Downlinking Next File";
 			DownlinkQueue.pop();
@@ -369,7 +370,7 @@ void GroundCommunication::parsePPE(){
 	FileManager::deleteFile(PPE_PATH);
 }
 
-bool GroundCommunication::spinGround(){
+bool GroundCommunication::spinGround(){\
 	if (!FileManager::checkExistance(SOT_PATH)){
 		return false;
 		//send beacon

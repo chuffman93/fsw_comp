@@ -48,7 +48,9 @@ void * FSWThreads::ModeThread(void * args) {
 	while (1) {
 		watchdog->KickWatchdog();
 		scheduler->handleScheduling();
+		Logger::setLevel(LEVEL_DEBUG);
 		mode = scheduler->checkNewMode();
+		Logger::setLevel(LEVEL_INFO);
 		Logger::Stream(LEVEL_INFO) << "Mode: " << mode;
 		map<FSWMode, vector<SubsystemBase*> >::iterator it;
 		it = seq.find(mode);

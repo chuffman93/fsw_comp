@@ -36,7 +36,7 @@ FSWMode ScheduleManager::checkNewMode(){
 		CurrentMode = tmp;
 		Logger::Stream(LEVEL_INFO, tags) << "Setting Mode to Reset";
 	}
-	else if((!ScheduleQueue.empty()) && currentSchedule.timeSinceEpoch <= time && CurrentMode != currentSchedule.mode){
+	else if((currentSchedule.mode!=0) && currentSchedule.timeSinceEpoch <= time && CurrentMode != currentSchedule.mode){
 		FSWMode tmp = handleModeChange(CurrentMode,currentSchedule.mode);
 		CurrentMode = tmp;
 		modeEnterTime = getCurrentTime();

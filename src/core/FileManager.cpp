@@ -16,7 +16,7 @@
 #include <fstream>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <regex>
+//#include <regex>
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -73,7 +73,7 @@ void FileManager::writeToFile(std::string filePath, std::vector<uint8_t> &buffer
 	}
 	else{
 		Logger::Stream(LEVEL_INFO, tags) << "Writing " << buffer.size() << " bytes to \"" << filePath << "\"";
-		ofstream f(filePath.c_str(),ofstream::out | ofstream::binary | ofstream::ate);
+		ofstream f(filePath.c_str(),ofstream::binary | ofstream::app);
 
 		for(std::vector<uint8_t>::const_iterator i = buffer.begin(); i != buffer.end(); ++i){
 			f << *i;
