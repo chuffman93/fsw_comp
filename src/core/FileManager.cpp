@@ -73,7 +73,7 @@ void FileManager::writeToFile(std::string filePath, std::vector<uint8_t> &buffer
 	}
 	else{
 		Logger::Stream(LEVEL_INFO, tags) << "Writing " << buffer.size() << " bytes to \"" << filePath << "\"";
-		ofstream f(filePath.c_str(),ofstream::out | ofstream::binary);
+		ofstream f(filePath.c_str(),ofstream::out | ofstream::binary | ofstream::ate);
 
 		for(std::vector<uint8_t>::const_iterator i = buffer.begin(); i != buffer.end(); ++i){
 			f << *i;
