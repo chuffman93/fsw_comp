@@ -31,9 +31,7 @@ int main() {
 	//---------Step1: Build FSW---------------------------
 	Architecture::setInterfaceMode(SOFTWARE);
 	Architecture::buildEPS();
-	Architecture::setInterfaceMode(HARDWARE);
 	Architecture::buildCOM();
-	Architecture::setInterfaceMode(SOFTWARE);
 	Architecture::buildACS();
 	Architecture::buildRAD();
 	Architecture::buildGPS();
