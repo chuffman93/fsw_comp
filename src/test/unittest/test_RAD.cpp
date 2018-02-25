@@ -53,15 +53,6 @@ TEST_CASE("SPLIT DATA","[.][PLD][splt]"){
 	FSWMode T1 = Trans_BusToPayload;
 	FSWMode T2 = Trans_PayloadToBus;
 	rad.handleMode(T1);
-
-	if(access(RAD_NUM_FILE,F_OK) == -1){
-		std::cout << "No Rad_NUM_FILE creating..." << std::endl;
-		std::fstream o(RAD_NUM_FILE, std::ofstream::out | std::ofstream::binary);
-		uint8_t beg = 1;
-		o << beg;
-		o.close();
-	}
-
 	std::vector<uint8_t> buff;
 	buff.assign(1000000,1);
 
