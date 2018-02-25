@@ -52,15 +52,12 @@ public:
 	void getHealthStatus();
 
 	void fetchNewGPS();
-	GPSPositionTime getBestXYZ();
 	GPSPositionTime getBestXYZI();
-	void getLatLong();
 
 private:
 	uint32_t CalculateCRC_GPS(char * buffer);
 	uint32_t CRCValue_GPS(int i);
 	void incrementGPSTime(uint16_t& GPSWeek, float& GPSSec, float dt);
-	uint32_t getFSWMillis();
 
 	//! The UART connected to the physical GPS
 	NMEAInterface& nm;
