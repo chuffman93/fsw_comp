@@ -77,7 +77,7 @@ void * FSWThreads::GPSThread(void * args) {
 	while (1) {
 		watchdog->KickWatchdog();
 		gps->fetchNewGPS();
-		acs->sendGPS(gps->getBestXYZ());
+		acs->sendGPS(gps->getBestXYZI());
 		sleep(2);
 	}
 	return NULL;

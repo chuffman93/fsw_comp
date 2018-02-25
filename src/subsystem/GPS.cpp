@@ -8,7 +8,7 @@
 #include "subsystem/GPS.h"
 
 #include <string.h>
-
+#include "util/TimeKeeper.h"
 
 #define CRC32_POLYNOMIAL	0xEDB88320L
 
@@ -47,46 +47,12 @@ void GPS::getHealthStatus(){
 	Logger::log(LEVEL_WARN, tags, "GPS Health and Status isn't implemented yet!");
 }
 
-GPSPositionTime GPS::getBestXYZ(){
-	return tempData;
-	// TODO: FIX THIS ISH
-	GPSPositionTime inertial = getBestXYZI();
-	// arrays for the rotation
-	double posECI[3];
-	double velECI[3];
-	double posECEF[3];
-	double velECEF[3];
-	double gpsTime[2];
-
-	posECI[0] = inertial.posX;
-	posECI[1] = inertial.posY;
-	posECI[2] = inertial.posZ;
-	velECI[0] = inertial.velX;
-	velECI[1] = inertial.velY;
-	velECI[2] = inertial.velZ;
-	gpsTime[0] = inertial.GPSWeek;
-	gpsTime[1] = inertial.GPSSec;
-
-	gcrf2wgs(posECI, velECI, gpsTime, posECEF, velECEF);
-
-	GPSPositionTime retval;
-	retval.posX = posECEF[0];
-	retval.posY = posECEF[1];
-	retval.posZ = posECEF[2];
-	retval.velX = velECEF[0];
-	retval.velY = velECEF[1];
-	retval.velZ = velECEF[2];
-	retval.GPSWeek = inertial.GPSWeek;
-	retval.GPSSec = inertial.GPSSec;
-	return retval;
-}
 
 GPSPositionTime GPS::getBestXYZI(){
-	LockGuard l(lock);
 	float eciPos[3];
 	float eciVel[3];
-	int64_t currTime = getFSWMillis();
-	float propTime = currTime/1000.0 - lastLock.sysTime;
+	int64_t currTime = getCurrentTime();
+	float propTime = currTime - lastLock.sysTime;
 
 	propagatePositionVelocity(lastLock.elements, propTime, eciPos, eciVel);
 
@@ -107,6 +73,7 @@ GPSPositionTime GPS::getBestXYZI(){
  * Waits to get new GPS coordinates then parses them
  */
 void GPS::fetchNewGPS(){
+	LockGuard l(lock);
 	std::string data = nm.getString();
 	if(data == "") return; //Nothing was read.
 	Logger::Stream(LEVEL_DEBUG,tags) << "Reading in: " << data;
@@ -220,16 +187,28 @@ void GPS::fetchNewGPS(){
 
 
 	//Convert into orbital elements for the propigator
-	float r[4] = {0};
-	float v[4] = {0};
-	r[1] = tempData.posX;
-	r[2] = tempData.posY;
-	r[3] = tempData.posZ;
-	v[1] = tempData.velX;
-	v[2] = tempData.velY;
-	v[3] = tempData.velZ;
-	lastLock.sysTime = getFSWMillis() / 1000.0; //Store current time to use for prop
-	rv2elem(MU_EARTH, r, v, &(lastLock.elements));
+	double r[3] = {0};
+	double v[3] = {0};
+	double rI[3] = {0};
+	double vI[3] = {0};
+	double gpsTime[2] = {0};
+	r[0] = tempData.posX;
+	r[1] = tempData.posY;
+	r[2] = tempData.posZ;
+	v[0] = tempData.velX;
+	v[1] = tempData.velY;
+	v[2] = tempData.velZ;
+	gpsTime[0] = tempData.GPSWeek;
+	gpsTime[1] = tempData.GPSSec;
+	wgs2gcrf(r,v,gpsTime,rI,vI);
+	float tempR[4] = {0};
+	float tempV[4] = {0};
+	for(int i = 0; i<3 ;i++){
+		tempR[i+1] = (float)rI[i];
+		tempV[i+1] = (float)vI[i];
+	}
+	lastLock.sysTime = getCurrentTime() /1000; //Store current time to use for prop
+	rv2elem(MU_EARTH, tempR, tempV, &(lastLock.elements));
 	lastLock.GPSWeek = tempData.GPSWeek;
 	lastLock.GPSSec = tempData.GPSSec;
 }
@@ -264,12 +243,6 @@ uint32_t GPS::CalculateCRC_GPS(char * buffer) {
 	return CRC;
 }
 
-uint32_t GPS::getFSWMillis(){
-	timespec t;
-	clock_gettime(CLOCK_REALTIME, &t);
-	return t.tv_sec*1000 + t.tv_nsec/(1000*1000);
-}
-
 //! Only works for increments of less than a week
 void GPS::incrementGPSTime(uint16_t& GPSWeek, float& GPSSec, float dt){
 	//TODO check and make sure this is actually correct?
@@ -279,5 +252,4 @@ void GPS::incrementGPSTime(uint16_t& GPSWeek, float& GPSSec, float dt){
 		GPSWeek++;
 	}
 }
-
 

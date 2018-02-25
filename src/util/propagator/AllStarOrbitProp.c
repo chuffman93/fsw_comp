@@ -40,4 +40,5 @@ void propagatePositionVelocity(classicElements oe, float sysTime, float satPos[3
 			satVel[i] = v[i + 1];
 		}
 	}
+
 }
