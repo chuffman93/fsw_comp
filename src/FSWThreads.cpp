@@ -73,6 +73,10 @@ void * FSWThreads::GPSThread(void * args) {
 	Logger::registerThread("GPS");
 	Logger::log(LEVEL_FATAL, "Starting GPS Thread");
 	while (1) {
+		// GPS on, if lock, shut off GPS.
+		// Override in PLD (GPS) on
+		// config: how often to turn GPS on. (every two hours?)
+		// config: Timeout for GPS (first time, no, but after) (maybe 15 mins)
 		watchdog->KickWatchdog();
 		gps->fetchNewGPS();
 		acs->sendGPS(gps->getBestXYZI());
