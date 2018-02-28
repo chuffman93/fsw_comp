@@ -26,6 +26,9 @@ int main() {
 	Logger::setMode(MODE_PW);
 	Logger::setLevel(LEVEL_INFO);
 	Logger::registerThread("MAIN");
+	Logger::registerFilter(LogTag("Name", "GPS"), LEVEL_DEBUG);
+	Logger::registerFilter(LogTag("Name", "NMEAInterface"), LEVEL_DEBUG);
+
 	Logger::log(LEVEL_FATAL, "Entering Main");
 
 	//---------Step1: Build FSW---------------------------
@@ -34,10 +37,11 @@ int main() {
 	Architecture::buildCOM();
 	Architecture::buildACS();
 	Architecture::buildRAD();
+	Architecture::setInterfaceMode(HARDWARE);
 	Architecture::buildGPS();
+	Architecture::setInterfaceMode(SOFTWARE);
 	Architecture::buildScheduleManager();
 	Architecture::buildGND();
-
 
 	//---------Step2: Initialize HAL-----------------------
 	Logger::log(LEVEL_FATAL, "Initializing HAL");

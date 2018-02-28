@@ -47,7 +47,7 @@ void Architecture::buildGPIO(){
 void Architecture::buildUART(){
 	//Build UART if not already built
 	if(uart == NULL){
-		uart = new UARTManager("/dev/ttyS2");
+		uart = new UARTManager("/dev/ttyS1");
 	}
 }
 
@@ -126,6 +126,7 @@ void Architecture::buildRAD(){
 void Architecture::buildGPS(){
 	if(mode == HARDWARE){
 		buildUART();
+		buildGPIO();
 		NMEAInterface* nmea = new NMEAInterface(*uart);
 		//TODO: Actually figure this shit out
 		int powid = gpio->attachDevice('B', 27, GPIO_OUTPUT);

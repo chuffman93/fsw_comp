@@ -40,7 +40,7 @@ std::string NMEAInterface::getString(){
 
 	std::string ret = databuffer;
 	databuffer = "";
-	return databuffer;
+	return ret;
 }
 
 /*!

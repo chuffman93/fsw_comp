@@ -41,7 +41,7 @@ void UARTManager::initialize(){
 		Logger::Stream(LEVEL_ERROR, tags) << "Problem getting port attributes for \"" << filename << "\"";
 	}
 	port.c_iflag &= ~IXON;
-	port.c_lflag = 0;
+	port.c_lflag &= ~ECHO;
 
 	if(cfsetispeed(&port, B115200) < 0 || cfsetospeed(&port, B115200) < 0){
 		Logger::Stream(LEVEL_ERROR, tags) << "Problem setting baud rate for \"" << filename << "\"";

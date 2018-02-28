@@ -81,10 +81,12 @@ void * FSWThreads::GPSThread(void * args) {
 		for(int i = 0; i <= 7200; i++){
 			// if gps is on, try to get a lock
 			if(gps->isOn()){
+				Logger::Stream(LEVEL_INFO) << "Fetching GPS";
 				gps->fetchNewGPS();
 			}
 			// check if the lock was a success
 			if(!gps->getSuccess() && gps->isOn() && i < 900){
+				Logger::Stream(LEVEL_INFO) << "No Lock";
 				if(gps->getLockStatus()){
 					acs->sendGPS(gps->getBestXYZI());
 				}

@@ -21,6 +21,8 @@ std::ostream &operator<<(std::ostream &output, const GPSPositionTime &g ) {
 
 GPS::GPS(NMEAInterface& nm, SubPowerInterface& pow):nm(nm), pow(pow){
 	tags += LogTag("Name", "GPS");
+	solSuccess = false;
+	power = false;
 	isLocked = false;
 }
 
@@ -76,12 +78,15 @@ GPSPositionTime GPS::getBestXYZI(){
 void GPS::fetchNewGPS(){
 	LockGuard l(lock);
 	std::string data = nm.getString();
-	if(data == "") return; //Nothing was read.
+	if(data == ""){
+		Logger::Stream(LEVEL_DEBUG,tags) << "Nothing was read";
+		return; //Nothing was read.
+	}
 	Logger::Stream(LEVEL_DEBUG,tags) << "Reading in: " << data;
 
 
 	//Everything below this line is from old FSW
-	tempData = {0,0,0,0,0,0,0,0};
+	GPSPositionTime tempData = {0,0,0,0,0,0,0,0};
 	char * token;
 	char * buffPtr = (char*)data.c_str();
 	solSuccess = true;
@@ -116,8 +121,9 @@ void GPS::fetchNewGPS(){
 	char * log = strtok(NULL, ";");
 
 	// parse the message header
-	if (strcmp("BESTXYZA", strtok(header, ",")) != 0) {
-		Logger::log(LEVEL_WARN, tags, "Wrong message, expected BESTXYZA");
+	char * type = strtok(header, ",");
+	if (strcmp("#BESTXYZA", type) != 0) {
+		Logger::Stream(LEVEL_WARN, tags) << "Wrong message. Expected #BESTXYZA got:\"" << type << "\"";
 		solSuccess = false;
 		return;
 	}
