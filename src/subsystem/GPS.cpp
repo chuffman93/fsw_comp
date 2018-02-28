@@ -21,6 +21,7 @@ std::ostream &operator<<(std::ostream &output, const GPSPositionTime &g ) {
 
 GPS::GPS(NMEAInterface& nm, SubPowerInterface& pow):nm(nm), pow(pow){
 	tags += LogTag("Name", "GPS");
+	isLocked = false;
 }
 
 
@@ -28,8 +29,8 @@ GPS::~GPS(){}
 
 bool GPS::initialize(){
 	pow.configDelay(0, 1000);
-	pow.powerOff();
-	pow.powerOn();
+	powerOff();
+	powerOn();
 	return true;
 }
 
@@ -83,7 +84,7 @@ void GPS::fetchNewGPS(){
 	tempData = {0,0,0,0,0,0,0,0};
 	char * token;
 	char * buffPtr = (char*)data.c_str();
-	bool solSuccess = true;
+	solSuccess = true;
 	bool updateTime = false;
 
 	bool containsDelimiter = false;
@@ -95,6 +96,7 @@ void GPS::fetchNewGPS(){
 	}
 	if (!containsDelimiter) {
 		Logger::log(LEVEL_WARN, tags, "String doesn't contain '*' ");
+		solSuccess = false;
 		return;
 	}
 
@@ -116,6 +118,7 @@ void GPS::fetchNewGPS(){
 	// parse the message header
 	if (strcmp("BESTXYZA", strtok(header, ",")) != 0) {
 		Logger::log(LEVEL_WARN, tags, "Wrong message, expected BESTXYZA");
+		solSuccess = false;
 		return;
 	}
 
@@ -136,6 +139,7 @@ void GPS::fetchNewGPS(){
 	if (strcmp("SOL_COMPUTED", strtok(log, ",")) != 0) {
 		Logger::log(LEVEL_DEBUG, tags, "No position solution computed!");
 		solSuccess = false;
+		return;
 	} else {
 		Logger::log(LEVEL_DEBUG, tags, "Valid position solution computed!");
 		token = strtok(NULL, ","); // (UNUSED) position type
@@ -151,6 +155,7 @@ void GPS::fetchNewGPS(){
 	if (strcmp("SOL_COMPUTED", strtok(NULL, ",")) != 0) {
 		Logger::log(LEVEL_DEBUG, tags, "No velocity solution computed!");
 		solSuccess = false;
+		return;
 	} else {
 		Logger::log(LEVEL_DEBUG, tags, "Velocity solution computed!");
 		token = strtok(NULL, ","); // (UNUSED) velocity type
@@ -180,6 +185,7 @@ void GPS::fetchNewGPS(){
 
 	if (!solSuccess) {
 		Logger::Stream(LEVEL_DEBUG, tags) << "Invalid BESTXYZ, # of satellites: " << tempTracked;
+		solSuccess = false;
 		return;
 	}
 
@@ -211,6 +217,7 @@ void GPS::fetchNewGPS(){
 	rv2elem(MU_EARTH, tempR, tempV, &(lastLock.elements));
 	lastLock.GPSWeek = tempData.GPSWeek;
 	lastLock.GPSSec = tempData.GPSSec;
+	isLocked = true;
 }
 
 uint32_t GPS::CRCValue_GPS(int i) {
@@ -253,3 +260,24 @@ void GPS::incrementGPSTime(uint16_t& GPSWeek, float& GPSSec, float dt){
 	}
 }
 
+bool GPS::getSuccess(){
+	return solSuccess;
+}
+
+void GPS::powerOn(){
+	pow.powerOn();
+	power = true;
+}
+
+void GPS::powerOff(){
+	pow.powerOff();
+	power = false;
+}
+
+bool GPS::isOn(){
+	return power;
+}
+
+bool GPS::getLockStatus(){
+	return isLocked;
+}
