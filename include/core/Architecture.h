@@ -16,6 +16,10 @@
 #include "subsystem/RAD.h"
 #include "core/GroundCommunication.h"
 #include "core/ScheduleManager.h"
+#include "interfaces/HotSwapInterface.h"
+#include "interfaces/TempInterface.h"
+#include "interfaces/PowerMonitorInterface.h"
+#include "hal/I2CManager.h"
 
 enum InterfaceMode {
 	SOFTWARE,
@@ -24,6 +28,7 @@ enum InterfaceMode {
 
 class Architecture{
 public:
+
 	static void buildEPS();
 	static void buildCOM();
 	static void buildACS();
@@ -34,6 +39,9 @@ public:
 	static void buildTime();
 	static void buildGND();
 	static void buildBeaconManager();
+	static void buildHotSwapInterfaces();
+	static void buildTempInterfaces();
+	static void buildPowerMonitorInterfaces();
 	static void setInterfaceMode(InterfaceMode mode);
 
 	static std::vector<SubsystemBase*> buildHSVector();
@@ -45,7 +53,10 @@ public:
 	static ScheduleManager* getSchedulerManager();
 	static BeaconManager* getBeaconManager();
 
+
 private:
+	static void buildI2C();
+	static void buildOneWire();
 	static void buildSPI();
 	static void buildGPIO();
 	static void buildUART();
@@ -59,10 +70,18 @@ private:
 	static ScheduleManager* sch;
 	static BeaconManager* bcn;
 
+	static I2CManager* i2c;
+	static OneWireManager* onewire;
+
 	//HAL Layer
 	static SPIManager* spi;
 	static GPIOManager* gpio;
 	static UARTManager* uart;
+
+	static std::vector<HotSwapInterface*> hotswaps;
+	static std::vector<PowerMonitorInterface*> powermonitors;
+	static std::vector<TempInterface*> tempmonitors;
+
 	static InterfaceMode mode;
 
 };
