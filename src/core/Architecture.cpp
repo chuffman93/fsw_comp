@@ -162,9 +162,9 @@ void Architecture::buildCDH(){
 		buildHotSwapInterfaces();
 		buildTempInterfaces();
 		buildPowerMonitorInterfaces();
-		cdh = new CDH(&hotswaps, &powermonitors, &tempmonitors, *onewire);
+		cdh = new CDH(&hotswaps, &powermonitors, &tempmonitors, onewire);
 	}else{
-		cdh = new CDH(&hotswaps, &powermonitors, &tempmonitors, *onewire);
+		cdh = new CDH(&hotswaps, &powermonitors, &tempmonitors, onewire);
 	}
 
 }

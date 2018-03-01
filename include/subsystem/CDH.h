@@ -17,7 +17,7 @@
 
 class CDH: public SubsystemBase{
 public:
-	CDH(std::vector<HotSwapInterface*> * hotswaps, std::vector<PowerMonitorInterface*> * powermonitors, std::vector<TempInterface*> * thermalsensors, I2CManager& i2c);
+	CDH(std::vector<HotSwapInterface*> * hotswaps, std::vector<PowerMonitorInterface*> * powermonitors, std::vector<TempInterface*> * thermalsensors, OneWireManager* onewire);
 	~CDH();
 
 	//Will set up the Gpio lines and the acp devices
@@ -33,14 +33,14 @@ public:
 
 	private:
 	//Various methods for data collection
-	void collectHotswap();
-	void collectPowermon();
-	void collectTherm();
+	std::vector<HotSwapData> collectHotswap();
+	std::vector<PowerMonitorData> collectPowermon();
+	std::vector<float> collectTherm();
 
 	std::vector<HotSwapInterface*> * HotSwaps;
 	std::vector<PowerMonitorInterface*> * PowerMonitors;
 	std::vector<TempInterface*> * ThermalSensors;
-	I2CManager * i2cman;
+	OneWireManager * OneWireMan;
 
 
 
