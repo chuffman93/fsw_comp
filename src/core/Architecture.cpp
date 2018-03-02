@@ -151,9 +151,9 @@ void Architecture::buildGPS(){
 		int resetid = gpio->attachDevice('E', 11, GPIO_OUTPUT);
 		int faultid = gpio->attachDevice('B', 14, GPIO_INPUT);
 		SubPowerInterface* sp = new SubPowerInterface(*gpio, powid, resetid, faultid, "GPS");
-		gps = new GPS(*nmea, *sp);
+		//gps = new GPS(*nmea, *sp);
 	}else{
-		gps = new GPS(*(new MockNMEA()), *(new MockSubPower("GPS")));
+		//gps = new GPS(*(new MockNMEA()), *(new MockSubPower("GPS")));
 	}
 }
 
