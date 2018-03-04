@@ -30,6 +30,7 @@ bool CDH::initialize(){
 	OneWireMan->initialize();
 
 	return true;
+
 }
 
 //Handles any mode transition needs as well as any needs for tasks to be done in a mode.

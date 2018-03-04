@@ -153,12 +153,14 @@ void Architecture::buildGPS(){
 		SubPowerInterface* sp = new SubPowerInterface(*gpio, powid, resetid, faultid, "GPS");
 		//gps = new GPS(*nmea, *sp);
 	}else{
-		//gps = new GPS(*(new MockNMEA()), *(new MockSubPower("GPS")));
+		gps = new GPS(*(new MockNMEA()), *(new MockSubPower("GPS")));
 	}
 }
 
 void Architecture::buildCDH(){
 	if (mode == HARDWARE){
+		buildOneWire();
+		buildI2C();
 		buildHotSwapInterfaces();
 		buildTempInterfaces();
 		buildPowerMonitorInterfaces();
@@ -188,7 +190,6 @@ void Architecture::buildBeaconManager(){
 }
 
 void Architecture::buildHotSwapInterfaces(){
-
 	hotswaps.push_back(new HotSwapInterface(*i2c, i2c->attachDevice(0x80), 0.01,"COM 3V3"));
 	hotswaps.push_back(new HotSwapInterface(*i2c, i2c->attachDevice(0x82), 0.01,"COM VBAT"));
 	hotswaps.push_back(new HotSwapInterface(*i2c, i2c->attachDevice(0x84), 0.015,"COM 12V0"));

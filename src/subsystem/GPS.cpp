@@ -65,7 +65,7 @@ GPSPositionTime GPS::getBestXYZ(){
 	gpsTime[0] = inertial.GPSWeek;
 	gpsTime[1] = inertial.GPSSec;
 
-	//gcrf2wgs(posECI, velECI, gpsTime, posECEF, velECEF);
+	gcrf2wgs(posECI, velECI, gpsTime, posECEF, velECEF);
 
 	GPSPositionTime retval;
 	retval.posX = posECEF[0];
@@ -86,7 +86,7 @@ GPSPositionTime GPS::getBestXYZI(){
 	int64_t currTime = getFSWMillis();
 	float propTime = currTime/1000.0 - lastLock.sysTime;
 
-	//propagatePositionVelocity(lastLock.elements, propTime, eciPos, eciVel);
+	propagatePositionVelocity(lastLock.elements, propTime, eciPos, eciVel);
 
 	GPSPositionTime pt;
 	pt.posX = eciPos[0];
@@ -226,7 +226,7 @@ void GPS::fetchNewGPS(){
 	v[3] = tempData.velZ;
 	lock.lock();
 	lastLock.sysTime = getFSWMillis() / 1000.0; //Store current time to use for prop
-	//rv2elem(MU_EARTH, r, v, &(lastLock.elements));
+	rv2elem(MU_EARTH, r, v, &(lastLock.elements));
 	lastLock.GPSWeek = tempData.GPSWeek;
 	lastLock.GPSSec = tempData.GPSSec;
 	lock.unlock();
