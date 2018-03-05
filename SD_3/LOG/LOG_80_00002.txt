@@ -1,0 +1,58 @@
+[16:07:31.847][[34mINFO [0m][GPS ][MockACP][ACS] Received ACP Packet: {Sync: 0, Opcode: 37, Length: 255}
+[16:07:33.845][[34mINFO [0m][WPUP] Pinging from watchdog
+[16:07:33.847][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[16:07:33.847][[34mINFO [0m][Mode] Mode: 1
+[16:07:33.847][[33mWARN [0m][GPS ][GPS] CRC Failed
+[16:07:33.847][[34mINFO [0m][GPS ][GPS] Good BESTXYZ data: {x:-1634.53, y:-3664.62, z:4942.5, vx:1.1e-06, vy:-4.9e-06, vz:-1e-07, w:1419, s:340033}
+[16:07:33.847][[34mINFO [0m][GPS ][MockACP][ACS] Sending ACP Packet: {Sync: 166, Opcode: 37, Length: 55}
+[16:07:33.847][[34mINFO [0m][GPS ][MockACP][ACS] Received ACP Packet: {Sync: 0, Opcode: 37, Length: 255}
+[16:07:35.847][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[16:07:35.847][[34mINFO [0m][Mode] Mode: 1
+[16:07:35.848][[33mWARN [0m][GPS ][GPS] CRC Failed
+[16:07:35.848][[34mINFO [0m][GPS ][GPS] Good BESTXYZ data: {x:-1634.53, y:-3664.62, z:4942.5, vx:1.1e-06, vy:-4.9e-06, vz:-1e-07, w:1419, s:340033}
+[16:07:35.848][[34mINFO [0m][GPS ][MockACP][ACS] Sending ACP Packet: {Sync: 166, Opcode: 37, Length: 55}
+[16:07:35.848][[34mINFO [0m][GPS ][MockACP][ACS] Received ACP Packet: {Sync: 0, Opcode: 37, Length: 255}
+[16:07:37.846][[34mINFO [0m][WPUP] Pinging from watchdog
+[16:07:37.847][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[16:07:37.847][[34mINFO [0m][Mode] Mode: 1
+[16:07:37.848][[33mWARN [0m][GPS ][GPS] CRC Failed
+[16:07:37.848][[34mINFO [0m][GPS ][GPS] Good BESTXYZ data: {x:-1634.53, y:-3664.62, z:4942.5, vx:1.1e-06, vy:-4.9e-06, vz:-1e-07, w:1419, s:340033}
+[16:07:37.848][[34mINFO [0m][GPS ][MockACP][ACS] Sending ACP Packet: {Sync: 166, Opcode: 37, Length: 55}
+[16:07:37.848][[34mINFO [0m][GPS ][MockACP][ACS] Received ACP Packet: {Sync: 0, Opcode: 37, Length: 255}
+[16:07:39.848][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[16:07:39.848][[34mINFO [0m][Mode] Mode: 1
+[16:07:39.849][[33mWARN [0m][GPS ][GPS] CRC Failed
+[16:07:39.849][[34mINFO [0m][GPS ][GPS] Good BESTXYZ data: {x:-1634.53, y:-3664.62, z:4942.5, vx:1.1e-06, vy:-4.9e-06, vz:-1e-07, w:1419, s:340033}
+[16:07:39.849][[34mINFO [0m][GPS ][MockACP][ACS] Sending ACP Packet: {Sync: 166, Opcode: 37, Length: 55}
+[16:07:39.849][[34mINFO [0m][GPS ][MockACP][ACS] Received ACP Packet: {Sync: 0, Opcode: 37, Length: 255}
+[16:07:41.846][[34mINFO [0m][WPUP] Pinging from watchdog
+[16:07:41.848][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[16:07:41.848][[34mINFO [0m][Mode] Mode: 1
+[16:07:41.849][[33mWARN [0m][GPS ][GPS] CRC Failed
+[16:07:41.850][[34mINFO [0m][GPS ][GPS] Good BESTXYZ data: {x:-1634.53, y:-3664.62, z:4942.5, vx:1.1e-06, vy:-4.9e-06, vz:-1e-07, w:1419, s:340033}
+[16:07:41.850][[34mINFO [0m][GPS ][MockACP][ACS] Sending ACP Packet: {Sync: 166, Opcode: 37, Length: 55}
+[16:07:41.850][[34mINFO [0m][GPS ][MockACP][ACS] Received ACP Packet: {Sync: 0, Opcode: 37, Length: 255}
+[16:07:43.848][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[16:07:43.848][[34mINFO [0m][Mode] Mode: 1
+[16:07:43.850][[33mWARN [0m][GPS ][GPS] CRC Failed
+[16:07:43.850][[34mINFO [0m][GPS ][GPS] Good BESTXYZ data: {x:-1634.53, y:-3664.62, z:4942.5, vx:1.1e-06, vy:-4.9e-06, vz:-1e-07, w:1419, s:340033}
+[16:07:43.850][[34mINFO [0m][GPS ][MockACP][ACS] Sending ACP Packet: {Sync: 166, Opcode: 37, Length: 55}
+[16:07:43.850][[34mINFO [0m][GPS ][MockACP][ACS] Received ACP Packet: {Sync: 0, Opcode: 37, Length: 255}
+[16:07:45.846][[34mINFO [0m][WPUP] Pinging from watchdog
+[16:07:45.849][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[16:07:45.849][[34mINFO [0m][Mode] Mode: 1
+[16:07:45.850][[33mWARN [0m][GPS ][GPS] CRC Failed
+[16:07:45.851][[34mINFO [0m][GPS ][GPS] Good BESTXYZ data: {x:-1634.53, y:-3664.62, z:4942.5, vx:1.1e-06, vy:-4.9e-06, vz:-1e-07, w:1419, s:340033}
+[16:07:45.851][[34mINFO [0m][GPS ][MockACP][ACS] Sending ACP Packet: {Sync: 166, Opcode: 37, Length: 55}
+[16:07:45.851][[34mINFO [0m][GPS ][MockACP][ACS] Received ACP Packet: {Sync: 0, Opcode: 37, Length: 255}
+[16:07:47.849][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[16:07:47.849][[34mINFO [0m][Mode] Mode: 1
+[16:07:47.851][[33mWARN [0m][GPS ][GPS] CRC Failed
+[16:07:47.851][[34mINFO [0m][GPS ][GPS] Good BESTXYZ data: {x:-1634.53, y:-3664.62, z:4942.5, vx:1.1e-06, vy:-4.9e-06, vz:-1e-07, w:1419, s:340033}
+[16:07:47.851][[34mINFO [0m][GPS ][MockACP][ACS] Sending ACP Packet: {Sync: 166, Opcode: 37, Length: 55}
+[16:07:47.851][[34mINFO [0m][GPS ][MockACP][ACS] Received ACP Packet: {Sync: 0, Opcode: 37, Length: 255}
+[16:07:49.847][[34mINFO [0m][WPUP] Pinging from watchdog
+[16:07:49.849][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[16:07:49.850][[34mINFO [0m][Mode] Mode: 1
+[16:07:49.852][[33mWARN [0m][GPS ][GPS] CRC Failed
+[16:07:49.852][[34mINFO [0m][GPS ][GPS] Good BESTXYZ data: {x:-1634.53, y:-3664.62, z:4942.5, vx:1.1e-06, vy:-4.9e-06, vz:-1e-07, w:1419, s:340033}

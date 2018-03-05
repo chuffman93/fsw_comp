@@ -240,11 +240,11 @@
 								<option id="gnu.cpp.compiler.option.dialect.std.617496131" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" value="gnu.cpp.compiler.dialect.default" valueType="enumerated"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.967258766" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
-							<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.102109371" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.debug">
+							<tool command="arm-linux-gnueabihf-gcc" id="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.102109371" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.debug">
 								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.exe.debug.option.optimization.level.1829226276" name="Optimization Level" superClass="gnu.c.compiler.exe.debug.option.optimization.level" useByScannerDiscovery="false" valueType="enumerated"/>
 								<option id="gnu.c.compiler.exe.debug.option.debugging.level.57982563" name="Debug Level" superClass="gnu.c.compiler.exe.debug.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.704608370" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;$(workspace_loc/$(ProjName)/include)&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/include}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1678622755" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -283,8 +283,12 @@
 		<configuration configurationName="LINUX">
 			<resource resourceType="PROJECT" workspacePath="/fsw"/>
 		</configuration>
-		<configuration configurationName="DITL"/>
-		<configuration configurationName="HALTest"/>
+		<configuration configurationName="DITL">
+			<resource resourceType="PROJECT" workspacePath="/fsw"/>
+		</configuration>
+		<configuration configurationName="HALTest">
+			<resource resourceType="PROJECT" workspacePath="/fsw"/>
+		</configuration>
 		<configuration configurationName="UnitTest">
 			<resource resourceType="PROJECT" workspacePath="/fsw"/>
 		</configuration>
