@@ -31,7 +31,7 @@ void UARTManager::initialize(){
 	LockGuard l(lock);
 	Logger::Stream(LEVEL_INFO, tags) << "Initializing UART on \"" << filename << "\"";
 	struct termios port;
-	fd = open(filename.c_str(), O_RDWR | O_NOCTTY);
+	fd = open(filename.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);
 
 	if(fd == -1){
 		Logger::Stream(LEVEL_ERROR, tags) << "File \"" + filename + "\" not found";
@@ -41,7 +41,7 @@ void UARTManager::initialize(){
 		Logger::Stream(LEVEL_ERROR, tags) << "Problem getting port attributes for \"" << filename << "\"";
 	}
 	port.c_iflag &= ~IXON;
-	port.c_lflag = 0;
+	port.c_lflag &= ~ECHO;
 
 	if(cfsetispeed(&port, B115200) < 0 || cfsetospeed(&port, B115200) < 0){
 		Logger::Stream(LEVEL_ERROR, tags) << "Problem setting baud rate for \"" << filename << "\"";
@@ -74,8 +74,10 @@ uint8_t UARTManager::readData(){
 	LockGuard l(lock);
 	uint8_t rxbyte;
 	if(read(fd, &rxbyte, 1) != 1){
-		//TODO: Error Handling
+		Logger::Stream(LEVEL_DEBUG, tags) << "Invalid number of bytes read";
+		return 0;
 	}
+	Logger::Stream(LEVEL_DEBUG, tags) << "rxbyte read: " << rxbyte;
 	return rxbyte;
 }
 

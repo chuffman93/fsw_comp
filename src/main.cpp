@@ -22,15 +22,16 @@ using namespace std;
 
 int main() {
 	Architecture::buildTime();
-	FileManager::updateRebootCount();
-	Logger::setMode(MODE_PRINT);
-	Logger::setLevel(LEVEL_DEBUG);
+	Logger::setMode(MODE_PW);
+	Logger::setLevel(LEVEL_INFO);
 	Logger::registerThread("MAIN");
+	Logger::registerFilter(LogTag("Name", "GPS"), LEVEL_DEBUG);
+	Logger::registerFilter(LogTag("Name", "NMEAInterface"), LEVEL_DEBUG);
+
 	Logger::log(LEVEL_FATAL, "Entering Main");
 
 	//---------Step1: Build FSW---------------------------
 	Architecture::setInterfaceMode(SOFTWARE);
-
 	Architecture::buildEPS();
 	Architecture::setInterfaceMode(HARDWARE);
 	Architecture::buildCDH();
@@ -38,12 +39,12 @@ int main() {
 	Architecture::buildCOM();
 	Architecture::buildACS();
 	Architecture::buildRAD();
+	Architecture::setInterfaceMode(HARDWARE);
 	Architecture::buildGPS();
+	Architecture::setInterfaceMode(SOFTWARE);
 	Architecture::buildScheduleManager();
 	Architecture::buildBeaconManager();
 	Architecture::buildGND();
-
-
 
 	//---------Step2: Initialize HAL-----------------------
 	Logger::log(LEVEL_FATAL, "Initializing HAL");
@@ -75,8 +76,10 @@ int main() {
 	GPSStruct gpsargs;
 	gpsargs.gps = Architecture::getGPS();
 	gpsargs.watchdog = &watchdog;
+	gpsargs.acs = Architecture::getACS();
 	gpsThread.CreateThread(NULL, FSWThreads::GPSThread, (void*)&gpsargs);
 	watchdog.AddThread(gpsThread.GetID());
+
 
 	//---------Step7: Initialize Mode Thread-----------------------
 	Thread modeThread;
@@ -105,7 +108,7 @@ int main() {
 	//---------Step10: Join Threads (never reached)-----------------------
 	int rv = 0;
 	hsThread.JoinThread((void*)&rv);
-	gpsThread.JoinThread((void*)&rv);
+	// gpsThread.JoinThread((void*)&rv);
 	modeThread.JoinThread((void*)&rv);
 	gndThread.JoinThread((void*)&rv);
 	watchdogThread.JoinThread((void*)&rv);

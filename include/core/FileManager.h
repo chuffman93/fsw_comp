@@ -43,7 +43,7 @@ public:
 	static void copyFile(std::string filePath, std::string newfilePath);
 
 	//updates reboot count, this will only be called once in main.cpp
-	static void updateRebootCount();
+	static int updateRebootCount();
 	static int updateComPassCount();
 	static int getComPassCount();
 
@@ -54,9 +54,7 @@ public:
 
 	static std::vector<std::string> parseGroundFile(std::string filePath);
 	static void writeLog(std::string tags,std::string message);
-
 	static int GetReboot();
-
 
 	//static FileManager fm;
 
@@ -64,7 +62,6 @@ private:
 	static Lock lock;
 	static std::string logMessageFP;
 	static int Reboot_num;
-	static std::string Reboot_string;
 
 };
 

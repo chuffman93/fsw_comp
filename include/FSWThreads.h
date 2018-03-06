@@ -40,6 +40,7 @@ struct GroundStruct{
 struct GPSStruct{
 	GPS * gps;
 	Watchdog * watchdog;
+	ACS * acs;
 };
 
 class FSWThreads{

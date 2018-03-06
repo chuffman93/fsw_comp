@@ -26,50 +26,49 @@ ScheduleManager::~ScheduleManager(){};
 //check for mode changes
 FSWMode ScheduleManager::checkNewMode(){
 	LockGuard l(lock);
-	//get current time
+
 	uint32_t time = getCurrentTime();
-	//check if it is time to switch modes
 	Logger::Stream(LEVEL_DEBUG,tags) << "Check new mode -- Queue Size: " << ScheduleQueue.size() << " With new mode at front: " << ScheduleQueue.front().mode;
-	Logger::Stream(LEVEL_DEBUG,tags) << "Current Mode:: " << CurrentMode << " Next Scheduled Mode: " << ScheduleQueue.front().mode << " Time: " << time;
-	if (!ScheduleQueue.empty() && currentSchedule.timeSinceEpoch <= time && CurrentMode != currentSchedule.mode && ScheduleQueue.front().mode != 0 && (CurrentMode != Trans_PayloadToBus) && (CurrentMode != Trans_ComToBus)){
-		FSWMode tmp = handleModeChange(CurrentMode,currentSchedule.mode);
-		CurrentMode = tmp;
-		modeEnterTime = getCurrentTime();
-		Logger::Stream(LEVEL_INFO, tags) << "Setting Mode to: " << CurrentMode;
-	//check if the mode time has exceeded its duration, if so go into proper trans mode
-	}else if(((time - modeEnterTime) >= currentSchedule.duration) && CurrentMode != Mode_Bus && (CurrentMode != Trans_PayloadToBus) && (CurrentMode != Trans_ComToBus)){
-		FSWMode tmp = handleModeChange(CurrentMode,currentSchedule.mode);
-		CurrentMode = tmp;
-		Logger::Stream(LEVEL_INFO, tags) << "Setting Mode: " << CurrentMode;
-	//Transfer back to bus
-	}else if (CurrentMode == Trans_PayloadToBus || CurrentMode == Trans_ComToBus){
-		currentSchedule = ScheduleQueue.front();
-		FSWMode tmp = handleModeChange(CurrentMode,Mode_Bus);
-		CurrentMode = tmp;
-		Logger::Stream(LEVEL_INFO, tags) << "Setting Mode to Bus";
-	//check if it is time for reboot if the schedule is empty
-	}else if ((ScheduleQueue.empty() && time > REBOOT_TIME) || (CurrentMode == Mode_Bus && currentSchedule.mode == Mode_Reset  && currentSchedule.timeSinceEpoch <= time)){
+	Logger::Stream(LEVEL_DEBUG,tags) <<"Current Schedule Mode: "<< currentSchedule.mode <<" Current Mode: " << CurrentMode << " Next Scheduled Mode: " << ScheduleQueue.front().mode << " Time: " << time;
+
+	if((ScheduleQueue.empty() && time > REBOOT_TIME) ){
+		// reset if reboot time
 		FSWMode tmp = handleModeChange(Mode_Reset,Mode_Reset);
 		CurrentMode = tmp;
 		Logger::Stream(LEVEL_INFO, tags) << "Setting Mode to Reset";
 	}
+	else if((currentSchedule.mode!=0) && currentSchedule.timeSinceEpoch <= time && CurrentMode != currentSchedule.mode){
+		FSWMode tmp = handleModeChange(CurrentMode,currentSchedule.mode);
+		CurrentMode = tmp;
+		modeEnterTime = getCurrentTime();
+		Logger::Stream(LEVEL_INFO, tags) << "Setting Mode to: " << CurrentMode;
+	}
+	else if(CurrentMode != Mode_Bus && CurrentMode != currentSchedule.mode){
+		FSWMode tmp = handleModeChange(CurrentMode,Mode_Bus);
+		CurrentMode = tmp;
+		Logger::Stream(LEVEL_INFO, tags) << "Setting Mode to Bus";
+	}
+	else if((time - modeEnterTime) >= currentSchedule.duration && CurrentMode != Mode_Bus){
+		// exit mode on time
+		Logger::Stream(LEVEL_INFO, tags) << "Mode: " << CurrentMode << " Timeout.";
+		FSWMode tmp = handleModeChange(CurrentMode,currentSchedule.mode);
+		CurrentMode = tmp;
+		Logger::Stream(LEVEL_INFO, tags) << "Setting Mode to: " << CurrentMode;
+	}
+
+
 	return CurrentMode;
 }
 
 void ScheduleManager::handleScheduling(){
 	LockGuard l(lock);
-	if (FileManager::checkExistance(NEW_DEFAULT_SCH)){
-		Logger::Stream(LEVEL_INFO,tags) << "Updating Default Schedule";
-		FileManager::moveFile(NEW_DEFAULT_SCH, DEFAULT_SCH);
-	}
 	if (FileManager::checkExistance(NEW_SCH)){
 		Logger::Stream(LEVEL_INFO,tags) << "Loading New Schedule";
 		loadSchedule(NEW_SCH);
 	}else if(!ScheduleQueue.empty()){
 		Logger::Stream(LEVEL_INFO,tags) << "Schedule Remains Unchanged";
 	}else if(CurrentMode == Mode_Bus){
-		Logger::Stream(LEVEL_INFO,tags) << "Loading Default Schedule";
-		loadSchedule(DEFAULT_SCH);
+		Logger::Stream(LEVEL_INFO,tags) << "Floating in Bus Mode";
 	}
 
 }
@@ -90,36 +89,6 @@ void ScheduleManager::loadSchedule(std::string filePath){
 	if ((schedule.size()%9) != 0){
 		Logger::Stream(LEVEL_ERROR,tags) << "Unable To Load Next Schedule, incorrect file size";
 		return;
-	}
-	else if(filePath == DEFAULT_SCH){
-			for (size_t i = 0; i < (schedule.size()/9); i++){
-				bs >> mode >> sch.timeSinceEpoch >> sch.duration;
-				int md = (int)mode;
-				char log[100];
-				sprintf(log,"Loading Schedule -- Mode: %u Time Since Epoch: %u Duration: %u ",mode,sch.timeSinceEpoch,sch.duration);
-				Logger::Stream(LEVEL_DEBUG,tags) << log;
-				switch (md){
-				case 1:
-					sch.mode = Mode_Bus;
-					ScheduleQueue.push(sch);
-					break;
-				case 2:
-					sch.mode = Mode_Payload;
-					ScheduleQueue.push(sch);
-					break;
-				case 3:
-					sch.mode = Mode_Com;
-					ScheduleQueue.push(sch);
-					break;
-				case 4:
-					sch.mode = Mode_Reset;
-					ScheduleQueue.push(sch);
-					break;
-				default:
-					break;
-				}
-			}
-			Logger::Stream(LEVEL_INFO,tags) << "Successfully loaded default schedule";
 	}
 	else{
 		//clear contents of the queue
@@ -166,30 +135,43 @@ FSWMode ScheduleManager::handleModeChange(FSWMode current, FSWMode next){
 		case Trans_BusToPayload:
 			ScheduleQueue.pop();
 			return Mode_Payload;
+
 		case Trans_PayloadToBus:
+			currentSchedule = ScheduleQueue.front();
 			return Mode_Bus;
+
 		case Trans_BusToCom:
 			return Mode_Com;
+
 		case Trans_ComToBus:
+			currentSchedule = ScheduleQueue.front();
 			return Mode_Bus;
+
 		case Mode_Payload:
 			return Trans_PayloadToBus;
+
 		case Mode_Com:
 			return Trans_ComToBus;
+
 		case Mode_Bus:
 			if(next == Mode_Payload){
 				return Trans_BusToPayload;
 			}else if(next == Mode_Com){
 				return Trans_BusToCom;
-			}else if (next == Mode_Reset){
+			}else if(next == Mode_Reset){
 				return Mode_Reset;
 			}
 			else{
 				//error
+				currentSchedule = ScheduleQueue.front();
 				return Mode_Bus;
 			}
+
 		case Mode_Reset:
+			ScheduleQueue.pop();
+			currentSchedule = ScheduleQueue.front();
 			return Mode_Reset;
+
 		default:
 			return Mode_Bus;
 	}

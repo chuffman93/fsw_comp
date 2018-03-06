@@ -225,74 +225,10 @@ TEST_CASE("FILEMANAGER: GET FILE LIST","[filemanager]"){
 }
 
 
-TEST_CASE("FILEMANAGER: Manage Regex","[.][filemanager]"){
-
-	char fileName[100];
-	for(int i = 0; i < 40; i++){
-		sprintf(fileName,HOME_DIRECTORY "/EPS_5_%d.txt",i);
-		std::ofstream file(fileName);
-		file << "THIS IS A TEST FILE\nUSED TO TEST REGEX DELETION\n";
-		file.close();
-		memset(fileName,0,100);
-		sprintf(fileName,HOME_DIRECTORY "/EPS_4_%d.txt",i);
-		file.open(fileName);
-		file << "THIS IS A TEST FILE\nUSED TO TEST REGEX DELETION\n";
-		file.close();
-		memset(fileName,0,100);
-		sprintf(fileName,HOME_DIRECTORY "/EPS_3_%d.txt",i);
-		file.open(fileName);
-		file << "THIS IS A TEST FILE\nUSED TO TEST REGEX DELETION\n";
-		file.close();
-		memset(fileName,0,100);
-		sprintf(fileName,HOME_DIRECTORY "/EPS_2_%d.txt",i);
-		file.open(fileName);
-		file << "THIS IS A TEST FILE\nUSED TO TEST REGEX DELETION\n";
-		file.close();
-		memset(fileName,0,100);
-		sprintf(fileName,HOME_DIRECTORY "/EPS_1_%d.txt",i);
-		file.open(fileName);
-		file << "THIS IS A TEST FILE\nUSED TO TEST REGEX DELETION\n";
-		file.close();
-		memset(fileName,0,100);
-		sprintf(fileName,HOME_DIRECTORY "/EPS_0_%d.txt",i);
-		file.open(fileName);
-		file << "THIS IS A TEST FILE\nUSED TO TEST REGEX DELETION\n";
-		file.close();
-		memset(fileName,0,100);
-		sprintf(fileName,"/home/EPS_38_%d.txt",i);
-		file.open(fileName);
-		file << "THIS IS A TEST FILE\nUSED TO TEST REGEX DELETION\n";
-		file.close();
-		memset(fileName,0,100);
-		sprintf(fileName,"/home/EPS_39_%d.txt",i);
-		file.open(fileName);
-		file << "THIS IS A TEST FILE\nUSED TO TEST REGEX DELETION\n";
-		file.close();
-		memset(fileName,0,100);
-		sprintf(fileName,"/home/EPS_40_%d.txt",i);
-		file.open(fileName);
-		file << "THIS IS A TEST FILE\nUSED TO TEST REGEX DELETION\n";
-		file.close();
-		memset(fileName,0,100);
-		sprintf(fileName,"/home/EPS_41_%d.txt",i);
-		file.open(fileName);
-		file << "THIS IS A TEST FILE\nUSED TO TEST REGEX DELETION\n";
-		file.close();
-		memset(fileName,0,100);
-		sprintf(fileName,"/home/EPS_42_%d.txt",i);
-		file.open(fileName);
-		file << "THIS IS A TEST FILE\nUSED TO TEST REGEX DELETION\n";
-		file.close();
-		memset(fileName,0,100);
-	}
-	std::ofstream file("/home/EPS_6_18928.txt");
-	file << "THIS IS A TEST FILE\nUSED TO TEST REGEX DELETION\n";
-	file.close();
-
-
+TEST_CASE("FILEMANAGER: Manage Regex","[.][filemanager][regex]"){
 
 	SECTION("HANDLE PACKAGING"){
-		std::string filePath = "/home/EPS_5";
+		std::string filePath = LOG_MESSAGES"_70";
 		std::vector<std::string> Files;
 
 		// Within the regex epoch
@@ -300,18 +236,11 @@ TEST_CASE("FILEMANAGER: Manage Regex","[.][filemanager]"){
 		Files.push_back(filePath+".tar");
 		REQUIRE(FileManager::packageFiles((char*)filePath.c_str(),R).front() == Files.front());
 		Files.clear();
-		for(int i = 5; i >= 0; i--){
-			std::ostringstream oss;
-			oss << i;
-			std::string fileP = "/home/EPS_"+oss.str();
-			Files.push_back(fileP+".tar");
-
-		}
-
-
 		// Before regex epoch
+
 		R = "RB";
 		std::vector<std::string> test = FileManager::packageFiles((char*)filePath.c_str(),R);
+		/*
 		REQUIRE(test[0][0] == Files[0][0]);
 		REQUIRE(test[0][1] == Files[0][1]);
 		REQUIRE(test[0][2] == Files[0][2]);
@@ -385,6 +314,8 @@ TEST_CASE("FILEMANAGER: Manage Regex","[.][filemanager]"){
 		REQUIRE(access("/home/EPS_1_1.txt",F_OK) == -1);
 		REQUIRE(access("/home/EPS_41_1.txt",F_OK) == -1);
 		REQUIRE(access("/home/EPS_38_1.txt",F_OK) == -1);
+	}
+	*/
 	}
 }
 

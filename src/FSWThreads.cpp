@@ -27,8 +27,11 @@ void * FSWThreads::HealthStatusThread(void * args) {
 			(*i)->getHealthStatus();
 		}
 
-		watchdog->SleepWatchdog();
-		sleep(60);
+		for(int i = 0; i <= 60; i++){
+			sleep(1);
+			watchdog->KickWatchdog();
+		}
+
 	}
 	return NULL;
 }
@@ -46,7 +49,7 @@ void * FSWThreads::ModeThread(void * args) {
 		watchdog->KickWatchdog();
 		scheduler->handleScheduling();
 		mode = scheduler->checkNewMode();
-		Logger::Stream(LEVEL_DEBUG) << "Mode: " << mode;
+		Logger::Stream(LEVEL_INFO) << "Mode: " << mode;
 		map<FSWMode, vector<SubsystemBase*> >::iterator it;
 		it = seq.find(mode);
 
@@ -66,12 +69,40 @@ void * FSWThreads::GPSThread(void * args) {
 	GPSStruct *gpsargs = (GPSStruct*) args;
 	Watchdog * watchdog = gpsargs->watchdog;
 	GPS * gps = gpsargs->gps;
+	ACS* acs = gpsargs->acs;
 	Logger::registerThread("GPS");
 	Logger::log(LEVEL_FATAL, "Starting GPS Thread");
 	while (1) {
-		watchdog->KickWatchdog();
-		gps->fetchNewGPS();
-		sleep(2);
+		// GPS on, if lock, shut off GPS.
+		// Override in PLD (GPS) on
+		// config: how often to turn GPS on. (every two hours?)
+		// dont set the string to false when getting, use previous string otherwise
+		// config: Timeout for GPS (first time, no, but after) (maybe 15 mins)
+		for(int i = 0; i <= 3600; i++){
+			// if gps is on, try to get a lock
+			if(gps->isOn()){
+				Logger::Stream(LEVEL_INFO) << "Fetching GPS";
+				gps->fetchNewGPS();
+			}
+			// check if the lock was a success
+			if(!gps->getSuccess() && gps->isOn() && (i < 450 || !gps->getLockStatus())){
+				Logger::Stream(LEVEL_INFO) << "No Lock";
+				if(gps->getLockStatus()){
+					acs->sendGPS(gps->getBestXYZI());
+				}
+				watchdog->KickWatchdog();
+				sleep(2);
+				continue;
+			}
+			else if(gps->isOn()){
+				gps->powerOff();
+			}
+			watchdog->KickWatchdog();
+			acs->sendGPS(gps->getBestXYZI());
+			sleep(2);
+		}
+		gps->powerOn();
+
 	}
 	return NULL;
 }

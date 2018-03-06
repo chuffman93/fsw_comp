@@ -20,7 +20,7 @@ COM::~COM(){}
 bool COM::initialize(){
 	//TODO: error handling
 	Logger::Stream(LEVEL_INFO,tags) << "Initializing COM";
-
+	subPower.powerOn();
 	std::vector<uint8_t> buff;
 
 	ACPPacket retPacket1 = sendOpcode(OP_TESTALIVE,buff);
@@ -46,6 +46,7 @@ bool COM::initialize(){
 
 //Handles any mode transition needs as well as any needs for tasks to be done in a mode.
 void COM::handleMode(FSWMode transition){
+	LockGuard l(lock);
 	bool success;
 	switch (transition){
 	case Mode_Reset:

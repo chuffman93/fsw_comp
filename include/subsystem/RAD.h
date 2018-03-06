@@ -23,7 +23,7 @@
 
 #include <stdio.h>
 
-#define RAD_CHUNK_SIZE		102400
+#define RAD_CHUNK_SIZE		204800
 
 enum PLDOpcode {
 	OP_PLD_CMD_MIN = 32,
@@ -54,25 +54,25 @@ public:
 	ACPPacket sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer);
 	bool isSuccess(PLDOpcode opSent, ACPPacket retPacket);
 	bool isSuccess(SubsystemOpcode opSent, ACPPacket retPacket);
-
+	bool commandCollectionBegin();
+	bool commandCollectionEnd();
 	HealthFileStruct health;
 	uint16_t RADDataNum;
 PRIVATE:
 	//Various configurations for the data collection
 	void configMotor();
 	void configData();
-	void slipData();
-	void tarBallData();
+	int splitData();
+	void tarBallData(int splits);
 
 	uint16_t updateDataNumber();
 	uint16_t readDataNumber();
 
 	//Command the beginning of data collection
-	bool commandCollectionBegin();
-	bool commandCollectionEnd();
+
 
 	bool resetRAD();
-	char dataFile[100];
+	std::string dataFile;
 
 	bool hsAvailable;
 

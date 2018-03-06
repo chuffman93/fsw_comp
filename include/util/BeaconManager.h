@@ -50,8 +50,6 @@ public:
 	void sendBeacon();
 
 
-
-
 PRIVATE:
 	Beacon beacon;
 

@@ -71,7 +71,7 @@ TEST_CASE("EPS Test Get Health and Status", "[subsystem][EPS]"){
 
 }
 
-TEST_CASE("EPS Test Command Reset", "[subsystem][EPS]"){
+TEST_CASE("EPS Test Command Reset", "[.][subsystem][EPS]"){
 	//initialize/setup
 	EPSMockACPInterface acp;
 	SubPowerInterface subPower(dummygpi, 0, 0, 0, "");

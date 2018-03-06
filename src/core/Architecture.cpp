@@ -67,7 +67,7 @@ void Architecture::buildGPIO(){
 void Architecture::buildUART(){
 	//Build UART if not already built
 	if(uart == NULL){
-		uart = new UARTManager("/dev/ttyS2");
+		uart = new UARTManager("/dev/ttyS1");
 	}
 }
 
@@ -118,6 +118,7 @@ void Architecture::buildACS(){
 		int resetid = gpio->attachDevice('A', 12, GPIO_OUTPUT);
 		int faultid = gpio->attachDevice('B', 5, GPIO_INPUT);
 		SubPowerInterface* sp = new SubPowerInterface(*gpio, powid, resetid, faultid, "ACS");
+		sp->configDelay(100,2000);
 		acs = new ACS(*acp, *sp);
 	}else{
 		acs = new ACS(*(new MockACP("ACS")), *(new MockSubPower("ACS")));
@@ -145,13 +146,12 @@ void Architecture::buildRAD(){
 void Architecture::buildGPS(){
 	if(mode == HARDWARE){
 		buildUART();
+		buildGPIO();
 		NMEAInterface* nmea = new NMEAInterface(*uart);
 		//TODO: Actually figure this shit out
-		int powid = gpio->attachDevice('B', 17, GPIO_OUTPUT);
-		int resetid = gpio->attachDevice('E', 11, GPIO_OUTPUT);
-		int faultid = gpio->attachDevice('B', 14, GPIO_INPUT);
-		SubPowerInterface* sp = new SubPowerInterface(*gpio, powid, resetid, faultid, "GPS");
-		//gps = new GPS(*nmea, *sp);
+		int powid = gpio->attachDevice('B', 27, GPIO_OUTPUT);
+		SubPowerInterface* sp = new SubPowerInterface(*gpio, powid, -1, -1, "GPS");
+		gps = new GPS(*nmea, *sp);
 	}else{
 		gps = new GPS(*(new MockNMEA()), *(new MockSubPower("GPS")));
 	}
@@ -257,6 +257,8 @@ std::map<FSWMode, std::vector<SubsystemBase*> > Architecture::buildModeSequencin
 	if(rad != NULL) nominal.push_back(rad);
 	if(eps != NULL) nominal.push_back(eps);
 
+
+	// What is the purpose of this? -> PLD doesn't actually exit in this order for some odd reason
 	std::vector<SubsystemBase*> pld2bus;
 	if(cdh != NULL) nominal.push_back(cdh);
 	if(gps != NULL) nominal.push_back(gps);
@@ -276,7 +278,7 @@ std::map<FSWMode, std::vector<SubsystemBase*> > Architecture::buildModeSequencin
 	sequences.insert(std::pair<FSWMode, std::vector<SubsystemBase*> >
 	(Trans_BusToPayload, nominal));
 	sequences.insert(std::pair<FSWMode, std::vector<SubsystemBase*> >
-	(Trans_PayloadToBus, pld2bus));
+	(Trans_PayloadToBus, nominal));
 	sequences.insert(std::pair<FSWMode, std::vector<SubsystemBase*> >
 	(Trans_BusToCom, nominal));
 	sequences.insert(std::pair<FSWMode, std::vector<SubsystemBase*> >
@@ -324,6 +326,11 @@ std::vector<HardwareManager*> Architecture::buildHALInitVector(){
 GPS* Architecture::getGPS(){
 	assert(gps != NULL);
 	return gps;
+}
+
+ACS* Architecture::getACS(){
+	assert(acs != NULL);
+	return acs;
 }
 
 GroundCommunication* Architecture::getGND(){

@@ -49,6 +49,7 @@ public:
 	static std::vector<HardwareManager*> buildHALInitVector();
 	static std::map<FSWMode, std::vector<SubsystemBase*> > buildModeSequencing();
 	static GPS* getGPS();
+	static ACS* getACS();
 	static GroundCommunication* getGND();
 	static ScheduleManager* getSchedulerManager();
 	static BeaconManager* getBeaconManager();
