@@ -31,7 +31,6 @@ public:
 	void sendCommand(std::string str){
 
 	}
-
 	std::string teststr;
 };
 
@@ -46,6 +45,7 @@ public:
 	void reset(){}
 	bool faultOccurred(){return false;}
 };
+
 
 TEST_CASE("Test GPS fetchNewGPS", "[.][subsystem][gps]"){
 	MockNMEA nm;
@@ -63,8 +63,6 @@ TEST_CASE("Test GPS fetchNewGPS", "[.][subsystem][gps]"){
 	REQUIRE(fabs(pt.velZ - 7.612607) < 0.01);
 	REQUIRE(pt.GPSWeek == 1981);
 	REQUIRE(pt.GPSSec  == 140418);
-
-
 }
 
 TEST_CASE("Test that it doesn't set when the string is invalid", "[subsystem][gps][op]"){

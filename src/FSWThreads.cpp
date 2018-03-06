@@ -78,20 +78,20 @@ void * FSWThreads::GPSThread(void * args) {
 		// config: how often to turn GPS on. (every two hours?)
 		// dont set the string to false when getting, use previous string otherwise
 		// config: Timeout for GPS (first time, no, but after) (maybe 15 mins)
-		for(int i = 0; i <= 3600; i++){
+		for(int i = 0; i <= 7200; i++){
 			// if gps is on, try to get a lock
 			if(gps->isOn()){
 				Logger::Stream(LEVEL_INFO) << "Fetching GPS";
 				gps->fetchNewGPS();
 			}
 			// check if the lock was a success
-			if(!gps->getSuccess() && gps->isOn() && (i < 450 || !gps->getLockStatus())){
+			if(!gps->getSuccess() && gps->isOn() && (i < 900 || !gps->getLockStatus())){
 				Logger::Stream(LEVEL_INFO) << "No Lock";
 				if(gps->getLockStatus()){
 					acs->sendGPS(gps->getBestXYZI());
 				}
 				watchdog->KickWatchdog();
-				sleep(2);
+				sleep(1);
 				continue;
 			}
 			else if(gps->isOn()){
@@ -99,7 +99,7 @@ void * FSWThreads::GPSThread(void * args) {
 			}
 			watchdog->KickWatchdog();
 			acs->sendGPS(gps->getBestXYZI());
-			sleep(2);
+			sleep(1);
 		}
 		gps->powerOn();
 
