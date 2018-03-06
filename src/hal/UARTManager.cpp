@@ -77,6 +77,7 @@ uint8_t UARTManager::readData(){
 		Logger::Stream(LEVEL_DEBUG, tags) << "Invalid number of bytes read";
 		return 0;
 	}
+	Logger::Stream(LEVEL_DEBUG, tags) << "rxbyte read: " << rxbyte;
 	return rxbyte;
 }
 
