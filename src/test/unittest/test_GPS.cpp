@@ -23,15 +23,15 @@ std::string teststr = "BESTXYZA,COM1,0,55.0,FINESTEERING,1981,140418.000,0200004
 
 class MockNMEA: public NMEAInterface{
 public:
-	MockNMEA():NMEAInterface(dummyu){}
+	MockNMEA():NMEAInterface(dummyu){testst = "";}
 	std::string getString(){
-		return teststr;
+		return testst;
 	}
 
 	void sendCommand(std::string str){
 
 	}
-	std::string teststr;
+	std::string testst;
 };
 
 class MockPower: public SubPowerInterface{
@@ -52,7 +52,7 @@ TEST_CASE("Test GPS fetchNewGPS", "[.][subsystem][gps]"){
 	MockPower pow;
 	GPS gps(nm, pow);
 	initializeTime();
-	nm.teststr = teststr;
+	nm.testst = teststr;
 	gps.fetchNewGPS();
 	GPSPositionTime pt = gps.getBestXYZI();
 	REQUIRE(fabs(pt.posX - 6878.14) < 0.01);
@@ -69,11 +69,11 @@ TEST_CASE("Test that it doesn't set when the string is invalid", "[subsystem][gp
 	MockNMEA nm;
 	MockPower pow;
 	GPS gps(nm, pow);
-	nm.teststr = teststr;
+	nm.testst = teststr;
 	initializeTime();
 	gps.fetchNewGPS();
 	GPSPositionTime old = gps.getBestXYZI();
-	nm.teststr = "B" + teststr; //Give an invalid char at the front
+	nm.testst = "B" + teststr; //Give an invalid char at the front
 	gps.fetchNewGPS();
 
 	GPSPositionTime pt = gps.getBestXYZI();
@@ -95,7 +95,7 @@ TEST_CASE("Test GPS Orbital Propagator", "[subsystem][gps][op]"){
 	GPS gps(nm, pow);
 	// need to run propagater over a some time
 	initializeTime();
-	nm.teststr = teststr;
+	nm.testst = teststr;
 	gps.fetchNewGPS();
 	GPSPositionTime pt;
 	uint32_t timeFSW = getCurrentTime();

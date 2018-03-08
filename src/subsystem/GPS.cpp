@@ -134,7 +134,7 @@ void GPS::fetchNewGPS(){
 	if (strcmp("UNKNOWN", strtok(NULL, ",")) != 0) { // time status is ok
 		updateTime = true;
 	}
-	tempData.GPSWeek = (uint16_t) strtoul(strtok(NULL, ","), NULL, 10);
+	tempData.GPSWeek = (int32_t) strtoul(strtok(NULL, ","), NULL, 10);
 	tempData.GPSSec = strtof(strtok(NULL, ","), NULL);
 	token = strtok(NULL, ","); // (UNUSED) receiver status
 	token = strtok(NULL, ","); // (UNUSED) port
@@ -257,7 +257,7 @@ uint32_t GPS::CalculateCRC_GPS(char * buffer) {
 }
 
 //! Only works for increments of less than a week
-void GPS::incrementGPSTime(uint16_t& GPSWeek, float& GPSSec, float dt){
+void GPS::incrementGPSTime(int32_t& GPSWeek, float& GPSSec, float dt){
 	//TODO check and make sure this is actually correct?
 	GPSSec += dt;
 	if(GPSSec > 604800){

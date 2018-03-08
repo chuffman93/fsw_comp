@@ -27,7 +27,7 @@ struct GPSPositionTime{
   double velX;
   double velY;
   double velZ;
-  uint16_t GPSWeek;
+  int32_t GPSWeek;
   float GPSSec;
   bool isAccurate;
 
@@ -37,7 +37,7 @@ struct GPSPositionTime{
 struct GPSLockType {
 	classicElements elements;
 	float sysTime;
-	uint16_t GPSWeek;
+	int32_t GPSWeek;
 	float GPSSec;
 };
 
@@ -65,7 +65,7 @@ public:
 private:
 	uint32_t CalculateCRC_GPS(char * buffer);
 	uint32_t CRCValue_GPS(int i);
-	void incrementGPSTime(uint16_t& GPSWeek, float& GPSSec, float dt);
+	void incrementGPSTime(int32_t& GPSWeek, float& GPSSec, float dt);
 	bool solSuccess;
 	bool power;
 	bool isLocked;
