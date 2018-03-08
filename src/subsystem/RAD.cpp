@@ -86,11 +86,74 @@ bool RAD::isSuccess(SubsystemOpcode opcode, ACPPacket retPacket){
 
 //Various configurations for the data collection
 void RAD::configMotor(){
-
+	if (FileManager::checkExistance(RAD_MOTOR_CONFIG)){
+		std::vector<uint8_t> buff = FileManager::readFromFile(RAD_MOTOR_CONFIG);
+		if (buff.size() == CONFIG_MOTOR_SIZE){
+			Logger::Stream(LEVEL_INFO,tags) << "Sending RAD Motor Config";
+			ACPPacket acpReturn = sendOpcode(OP_MOTORCONFIG,buff);
+			if (!isSuccess(OP_MOTORCONFIG,acpReturn)){
+				Logger::Stream(LEVEL_ERROR,tags) << "RAD did not receive RAD Motor Config";
+			}
+		}else{
+			Logger::Stream(LEVEL_ERROR,tags) << "Incorrect RAD Motor Config file Size";
+		}
+	}else{
+		Logger::Stream(LEVEL_ERROR,tags) << "RAD Motor Config file does not exist";
+	}
 }
 
-void RAD::configData(){
+void RAD::configMotorUpdate(){
+	//TODO: figure out criteria for deleting and replacing
+	if (FileManager::checkExistance(RAD_MOTOR_CONFIG_UP)){
+		std::vector<uint8_t> buff = FileManager::readFromFile(RAD_MOTOR_CONFIG_UP);
+		if (buff.size() == CONFIG_MOTOR_SIZE){
+			Logger::Stream(LEVEL_INFO,tags) << "Sending RAD Motor Config Update";
+			ACPPacket acpReturn = sendOpcode(OP_MOTORCONFIG,buff);
+			if (!isSuccess(OP_MOTORCONFIG,acpReturn)){
+				Logger::Stream(LEVEL_ERROR,tags) << "RAD did not reeieve RAD Motor Config Update";
+			}
+		}else{
+			Logger::Stream(LEVEL_ERROR,tags) << "Incorrect RAD Motor Config Update file Size";
+		}
+	}else{
+		Logger::Stream(LEVEL_ERROR,tags) << "RAD Motor Config Update file does not exist";
+	}
+}
 
+
+void RAD::configData(){
+	if (FileManager::checkExistance(RAD_DATA_CONFIG)){
+		std::vector<uint8_t> buff = FileManager::readFromFile(RAD_DATA_CONFIG);
+		if (buff.size() == CONFIG_MOTOR_SIZE){
+			Logger::Stream(LEVEL_INFO,tags) << "Sending RAD Data Config";
+			ACPPacket acpReturn = sendOpcode(OP_DATACONFIG,buff);
+			if (!isSuccess(OP_DATACONFIG,acpReturn)){
+				Logger::Stream(LEVEL_ERROR,tags) << "RAD did not receive RAD Data Config";
+			}
+		}else{
+			Logger::Stream(LEVEL_ERROR,tags) << "Incorrect RAD Data Config file Size";
+		}
+	}else{
+		Logger::Stream(LEVEL_ERROR,tags) << "RAD Data Config file does not exist";
+	}
+}
+
+void RAD::configDataUpdate(){
+	//TODO: figure out criteria for deleting and replacing
+	if (FileManager::checkExistance(RAD_DATA_CONFIG_UP)){
+		std::vector<uint8_t> buff = FileManager::readFromFile(RAD_DATA_CONFIG_UP);
+		if (buff.size() == CONFIG_MOTOR_SIZE){
+			Logger::Stream(LEVEL_INFO,tags) << "Sending RAD Data Config Update";
+			ACPPacket acpReturn = sendOpcode(OP_DATACONFIG,buff);
+			if (!isSuccess(OP_DATACONFIG,acpReturn)){
+				Logger::Stream(LEVEL_ERROR,tags) << "RAD did not receive RAD Data Config Update";
+			}
+		}else{
+			Logger::Stream(LEVEL_ERROR,tags) << "Incorrect RAD Data Config Update file Size";
+		}
+	}else{
+		Logger::Stream(LEVEL_ERROR,tags) << "RAD Data Config Update file does not exist";
+	}
 }
 
 //Command the beginning of data collection

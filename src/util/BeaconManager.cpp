@@ -8,58 +8,51 @@
 #include "util/BeaconManager.h"
 #include "core/FileManager.h"
 
-BeaconManager::BeaconManager(){}
+BeaconManager::BeaconManager(ScheduleManager* sch, ACS* acs, EPS* eps, GPS* gps, RAD* rad)
+: sch(sch), acs(acs), eps(eps), gps(gps), rad(rad)
+{}
 
 BeaconManager::~BeaconManager(){}
 
-void BeaconManager::createBeaconGPS(int32_t satTime, uint32_t epochNumber,int32_t GPSWeek,	float GPSSec, double xPosition,
-			double yPosition, double zPosition, double xVelocity, double yVelocity, double zVelocity){
-	bGPS.satTime = satTime;
-	bGPS.epochNumber = epochNumber;
-	bGPS.GPSWeek = GPSWeek;
-	bGPS.GPSSec = GPSSec;
-	bGPS.xPosition = xPosition;
-	bGPS.yPosition = yPosition;
-	bGPS.zPosition = zPosition;
-	bGPS.xVelocity = xVelocity;
-	bGPS.yVelocity = yVelocity;
-	bGPS.zVelocity = zVelocity;
-}
+void BeaconManager::sendBeacon(){
+	//TODO::add GPS and CDH fields
 
-void BeaconManager::createBeaconSYS( int32_t satTime, uint32_t epochNumber, int32_t GPSWeek, float GPSSec, uint8_t systemMode,
-			uint16_t radNumber, uint16_t batteryCap, int8_t acsMode, float memory, float cpu15){
-	bSYS.satTime = satTime;
-	bSYS.epochNumber = epochNumber;
-	bSYS.GPSWeek = GPSWeek;
-	bSYS.GPSSec = GPSSec;
-	bSYS.systemMode = systemMode;
-	bSYS.radNumber = radNumber;
-	bSYS.batteryCap = batteryCap;
-	bSYS.acsMode = acsMode;
-	bSYS.memory = memory;
-	bSYS.cpu15 = cpu15;
-}
+	Beacon b;
+	b.epochTime = getCurrentTime();
 
-void BeaconManager::serializeBeacon(){
-	ByteStream bsgps;
-	ByteStream bssys;
+	timespec t;
+	clock_gettime(CLOCK_REALTIME, &t);
+	b.systemTime = t.tv_sec;
 
-	bsgps << bGPS.satTime << bGPS.epochNumber << bGPS.GPSWeek << bGPS.GPSSec << bGPS.xPosition << bGPS.yPosition << bGPS.zPosition << bGPS.xVelocity << bGPS.yVelocity << bGPS.zVelocity;
-	bssys << bSYS.satTime << bSYS.epochNumber << bSYS.GPSWeek << bSYS.GPSSec << bSYS.systemMode << bSYS.radNumber << bSYS.batteryCap << bSYS.acsMode << bSYS.memory << bSYS.cpu15;
+	b.rebootCount = FileManager::GetReboot();
+	b.satelliteMode = (uint8_t)sch->getCurrentMode();
+	b.currentModeEnterTime = sch->getModeEnterTime();
+	b.comPassCount = sch->getComPassCount();
+	b.timeSinceStarLock = acs->getTimeSinceLock();
+	b.targetMRP = acs->getTargetMRP();
+	b.actualMRP = acs->getActualMRP();
+	b.memory = 0; //fix
+	b.cpu = 0; //fix
+	b.batteryStateofCharge = eps->getBatteryStateOfCharge();
+	b.xyzPosition.assign(3,0);//fix
+	b.xyzVelocity.assign(3,0);//fix
+	b.gpsWeek = 0;//fix
+	b.gpsSecond = 0; //fix
+	b.radNumber = rad->RADDataNum;
 
-	this->GPS = bsgps.vec();
-	this->SYS = bssys.vec();
 
+	ByteStream bs;
+	bs << b.epochTime << b.systemTime <<b.rebootCount << b.satelliteMode << b.currentModeEnterTime << b.comPassCount << b.timeSinceStarLock << b.targetMRP << b.actualMRP << b.memory << b.cpu << b.batteryStateofCharge << b.xyzPosition << b.xyzVelocity << b.gpsWeek << b.gpsSecond << b.radNumber;
+
+	std::vector<uint8_t> buff = bs.vec();
+
+
+	//TODO: figure out naming convention... do we want to include timestamp and reboot count?
+	FileManager::writeToFile(BEACON,buff);
 
 }
 
-void BeaconManager::sendBeaconSYS(){
-	FileManager::writeToFile(BCN_SYS,SYS);
-}
 
-void BeaconManager::sendBeaconGPS(){
-	FileManager::writeToFile(BCN_GPS,GPS);
-}
 
 
 

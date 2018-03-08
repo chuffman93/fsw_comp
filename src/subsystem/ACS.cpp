@@ -14,6 +14,9 @@ ACS::ACS(ACPInterface& acp, SubPowerInterface& subPower)
 	health.basePath = HEALTH_DIRECTORY ACS_PATH "/ACS";
 	pointingValid = false;
 	TimeSinceLock = -1;
+	TargetMRP.assign(3,0);
+	ActualMRP.assign(3,0);
+
 }
 
 ACS::~ACS(){}
@@ -190,10 +193,31 @@ float ACS::getTimeSinceLock(){
 	return this->TimeSinceLock;
 }
 
+std::vector<float> ACS::getTargetMRP(){
+	return this->TargetMRP;
+}
+
+std::vector<float> ACS::getActualMRP(){
+	return this->ActualMRP;
+}
+
 void ACS::updateTimeSinceLock(std::vector<uint8_t> buffer){
 	ByteStream bs(buffer);
 	bs.seek(35);
 	bs >> TimeSinceLock;
+}
+
+void ACS::updateTargetMRP(std::vector<uint8_t> buffer){
+	ByteStream bs(buffer);
+	bs.seek(6);
+	bs >> TargetMRP[0] >> TargetMRP[1] >> TargetMRP[2];
+
+
+}
+void ACS::updateActualMRP(std::vector<uint8_t> buffer){
+	ByteStream bs(buffer);
+	bs.seek(3);
+	bs >> ActualMRP[0] >> ActualMRP[1] >> ActualMRP[2];
 }
 
 

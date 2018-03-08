@@ -9,7 +9,7 @@
 
 COM::COM(ACPInterface& acp, SubPowerInterface& subPower)
 : acp(acp), subPower(subPower){
-	tags += LogTag("Name", "CDH");
+	tags += LogTag("Name", "COM");
 	health.fileSize = MAX_FILE_SIZE;
 	health.basePath = HEALTH_DIRECTORY COM_PATH "/COM";
 }

@@ -18,6 +18,7 @@ ScheduleManager::ScheduleManager()
 	com.mode = Mode_Com;
 	CurrentMode = Mode_Bus;
 	modeEnterTime = getCurrentTime();
+	ComPassCount = FileManager::getComPassCount();
 	tags += LogTag("Name", "ScheduleManager");
  }
 ScheduleManager::~ScheduleManager(){};
@@ -182,6 +183,7 @@ void ScheduleManager::setModeToCom(){
 	Logger::Stream(LEVEL_DEBUG,tags) << "Attempting to switch to Com from GroundCommunication Thread";
 	com.timeSinceEpoch = getCurrentTime();
 	currentSchedule = com;
+	FileManager::updateComPassCount();
 }
 
 void ScheduleManager::exitComMode(){
@@ -190,7 +192,16 @@ void ScheduleManager::exitComMode(){
 	currentSchedule = ScheduleQueue.front();
 }
 
-FSWMode ScheduleManager::checkMode(){
+FSWMode ScheduleManager::getCurrentMode(){
 	return CurrentMode;
+}
+
+
+uint32_t ScheduleManager::getModeEnterTime(){
+	return modeEnterTime;
+}
+
+int ScheduleManager::getComPassCount(){
+	return ComPassCount;
 }
 

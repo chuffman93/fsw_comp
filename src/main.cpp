@@ -22,7 +22,6 @@ using namespace std;
 
 int main() {
 	Architecture::buildTime();
-	FileManager::updateRebootCount();
 	Logger::setMode(MODE_PW);
 	Logger::setLevel(LEVEL_INFO);
 	Logger::registerThread("MAIN");
@@ -34,13 +33,13 @@ int main() {
 	//---------Step1: Build FSW---------------------------
 	Architecture::setInterfaceMode(SOFTWARE);
 	Architecture::buildEPS();
+	Architecture::buildCDH();
 	Architecture::buildCOM();
 	Architecture::buildACS();
 	Architecture::buildRAD();
-	Architecture::setInterfaceMode(HARDWARE);
 	Architecture::buildGPS();
-	Architecture::setInterfaceMode(SOFTWARE);
 	Architecture::buildScheduleManager();
+	Architecture::buildBeaconManager();
 	Architecture::buildGND();
 
 	//---------Step2: Initialize HAL-----------------------

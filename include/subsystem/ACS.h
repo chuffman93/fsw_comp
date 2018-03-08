@@ -59,6 +59,8 @@ public:
 	bool isSuccess(SubsystemOpcode opSent, ACPPacket retPacket);
 
 	float getTimeSinceLock();
+	std::vector<float> getTargetMRP();
+	std::vector<float> getActualMRP();
 	bool sendGPS(GPSPositionTime gps);
 	HealthFileStruct health;
 private:
@@ -73,9 +75,13 @@ private:
 	bool resetACS();
 	ACPInterface& getACPRef();
 	void updateTimeSinceLock(std::vector<uint8_t> buffer);
+	void updateTargetMRP(std::vector<uint8_t> buffer);
+	void updateActualMRP(std::vector<uint8_t> buffer);
 
 	bool pointingValid;// = false;
 	float TimeSinceLock;
+	std::vector<float> TargetMRP;
+	std::vector<float> ActualMRP;
 	ACPInterface& acp;
 	SubPowerInterface& subPower;
 	Lock lock;

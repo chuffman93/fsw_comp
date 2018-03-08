@@ -43,7 +43,9 @@ public:
 	static void copyFile(std::string filePath, std::string newfilePath);
 
 	//updates reboot count, this will only be called once in main.cpp
-	static void updateRebootCount();
+	static int updateRebootCount();
+	static int updateComPassCount();
+	static int getComPassCount();
 
 
 	static std::vector<std::string> packageFiles(std::string filePath,std::string R);
@@ -60,7 +62,6 @@ private:
 	static Lock lock;
 	static std::string logMessageFP;
 	static int Reboot_num;
-
 
 };
 
