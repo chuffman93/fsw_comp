@@ -45,6 +45,7 @@ public:
 	static void setInterfaceMode(InterfaceMode mode);
 
 	static std::vector<SubsystemBase*> buildHSVector();
+	static std::vector<SubsystemBase*> buildCFVector();
 	static std::vector<SubsystemBase*> buildInitVector();
 	static std::vector<HardwareManager*> buildHALInitVector();
 	static std::map<FSWMode, std::vector<SubsystemBase*> > buildModeSequencing();

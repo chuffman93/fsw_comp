@@ -58,6 +58,10 @@ void COM::handleMode(FSWMode transition){
 	}
 }
 
+void COM::handleConfig(){}
+
+void COM::updateConfig(){}
+
 //Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 void COM::getHealthStatus(){
 	LockGuard l(lock);

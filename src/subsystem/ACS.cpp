@@ -47,6 +47,7 @@ bool ACS::initialize(){
 		return false;
 	}
 
+	handleConfig();
 	return true;
 }
 
@@ -74,6 +75,27 @@ void ACS::handleMode(FSWMode transition){
 		break;
 	}
 }
+
+void ACS::handleConfig(){
+	if(FileManager::checkExistance(ACS_CONFIG)){
+
+	}
+	else{
+		Logger::Stream(LEVEL_WARN,tags) << "ACS Config file does not exist";
+	}
+
+}
+
+void ACS::updateConfig(){
+	if(FileManager::checkExistance(ACS_CONFIG_UP)){
+
+	}
+	else{
+		Logger::Stream(LEVEL_WARN,tags) << "There are no ACS config updates";
+	}
+
+}
+
 
 //Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 void ACS::getHealthStatus(){

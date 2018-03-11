@@ -24,6 +24,8 @@ GPS::GPS(NMEAInterface& nm, SubPowerInterface& pow):nm(nm), pow(pow){
 	solSuccess = false;
 	power = false;
 	isLocked = false;
+	timeout = 0;
+	timein = 0;
 }
 
 
@@ -33,11 +35,42 @@ bool GPS::initialize(){
 	pow.configDelay(0, 1000);
 	powerOff();
 	powerOn();
+	handleConfig();
 	return true;
 }
 
 void GPS::handleMode(FSWMode transition){}
 
+void GPS::handleConfig(){
+	if(FileManager::checkExistance(GPS_CONFIG)){
+		std::vector<uint8_t> buff = FileManager::readFromFile(GPS_CONFIG);
+		if(buff.size() != 4){
+			Logger::Stream(LEVEL_ERROR,tags) << "Incorrect Size";
+			return;
+		}
+		uint8_t b1 = buff.at(0);
+		uint8_t b2 = buff.at(1);
+		uint8_t b3 = buff.at(2);
+		uint8_t b4 = buff.at(3);
+		timeout = ((uint16_t)b2 << 8)| b1;
+		timein = ((uint16_t)b4 << 8)| b3;
+		Logger::Stream(LEVEL_INFO,tags) << "Setting timeout to " << timeout << " and timein to " << timein;
+
+	}
+	else{
+		Logger::Stream(LEVEL_WARN,tags) << "GPS Config file does not exist";
+	}
+
+}
+
+void GPS::updateConfig(){
+	if(FileManager::checkExistance(GPS_CONFIG_UP)){
+
+	}
+	else{
+		Logger::Stream(LEVEL_WARN,tags) << "There are no GPS config updates";
+	}
+}
 
 ACPPacket GPS::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
 	//Pretty sure if this gets called, we fucked up
@@ -223,6 +256,7 @@ void GPS::fetchNewGPS(){
 	rv2elem(MU_EARTH, tempR, tempV, &(lastLock.elements));
 	lastLock.GPSWeek = tempData.GPSWeek;
 	lastLock.GPSSec = tempData.GPSSec;
+	Logger::Stream(LEVEL_INFO,tags) << "Lock Found";
 	isLocked = true;
 }
 

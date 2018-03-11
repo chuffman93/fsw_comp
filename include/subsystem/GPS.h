@@ -52,6 +52,8 @@ public:
 	void handleMode(FSWMode transition);
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 	void getHealthStatus();
+	void handleConfig();
+	void updateConfig();
 	bool getSuccess();
 	void fetchNewGPS();
 	GPSPositionTime getBestXYZI();
@@ -60,12 +62,15 @@ public:
 	bool getLockStatus();
 	bool isOn();
 	ACPPacket sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer);
+	uint16_t timeout;
+	uint16_t timein;
 
 
 private:
 	uint32_t CalculateCRC_GPS(char * buffer);
 	uint32_t CRCValue_GPS(int i);
 	void incrementGPSTime(int32_t& GPSWeek, float& GPSSec, float dt);
+	void setConfigs();
 	bool solSuccess;
 	bool power;
 	bool isLocked;

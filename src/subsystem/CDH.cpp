@@ -29,6 +29,7 @@ bool CDH::initialize(){
 	Logger::Stream(LEVEL_INFO,tags) << "Initializing Temperature Monitors";
 	OneWireMan->initialize();
 
+	handleConfig();
 	return true;
 
 }
@@ -37,6 +38,25 @@ bool CDH::initialize(){
 void CDH::handleMode(FSWMode transition){
 
 }
+
+void CDH::handleConfig(){
+	if(FileManager::checkExistance(CDH_CONFIG)){
+
+	}
+	else{
+		Logger::Stream(LEVEL_WARN,tags) << "CDH Config file does not exist";
+	}
+}
+
+void CDH::updateConfig(){
+	if(FileManager::checkExistance(CDH_CONFIG_UP)){
+
+	}
+	else{
+		Logger::Stream(LEVEL_WARN,tags) << "There are no CDH config updates";
+	}
+}
+
 
 //Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 void CDH::getHealthStatus(){

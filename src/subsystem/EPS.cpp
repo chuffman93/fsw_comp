@@ -51,7 +51,6 @@ bool EPS::initialize(){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Configurations: EPS is not alive. Opcode Received: " << retPacket3.opcode;
 		return false;
 	}
-
 	return true;
 }
 
@@ -67,6 +66,11 @@ void EPS::handleMode(FSWMode transition){
 		break;
 	}
 }
+
+void EPS::handleConfig(){
+}
+
+void EPS::updateConfig(){}
 
 //Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 void EPS::getHealthStatus(){

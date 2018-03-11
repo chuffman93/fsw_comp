@@ -112,3 +112,15 @@ TEST_CASE("Test GPS Orbital Propagator", "[subsystem][gps][op]"){
 	o.close();
 }
 
+TEST_CASE("Test GPS Config", "[.][subsystem][gps][cf]"){
+	MockNMEA nm;
+	MockPower pow;
+	GPS gps(nm, pow);
+	gps.initialize();
+	uint16_t to = 900;
+	uint16_t ti = 7200;
+	REQUIRE(gps.timeout == to);
+	REQUIRE(gps.timein == ti);
+
+}
+

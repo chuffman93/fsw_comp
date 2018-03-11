@@ -33,7 +33,7 @@ int main() {
 	//---------Step1: Build FSW---------------------------
 	Architecture::setInterfaceMode(SOFTWARE);
 	Architecture::buildEPS();
-	Architecture::buildCDH();
+	//Architecture::buildCDH();
 	Architecture::buildCOM();
 	Architecture::buildACS();
 	Architecture::buildRAD();
@@ -55,6 +55,7 @@ int main() {
 	for(vector<SubsystemBase*>::iterator i = subinit.begin(); i != subinit.end(); i++){
 		(*i)->initialize();
 	}
+
 
 	//---------Step4: Initialize Watchdog-----------------------
 	Watchdog watchdog;

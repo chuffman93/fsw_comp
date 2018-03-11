@@ -42,7 +42,12 @@ void RAD::handleMode(FSWMode transition){
 	default:
 		break;
 	}
+
 }
+
+void RAD::handleConfig(){}
+
+void RAD::updateConfig(){}
 
 //Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 void RAD::getHealthStatus(){
@@ -159,7 +164,7 @@ void RAD::configDataUpdate(){
 //Command the beginning of data collection
 bool RAD::commandCollectionBegin(){
 	//TODO: error handling
-	//subPower.powerOn();
+	subPower.powerOn();
 
 	Logger::Stream(LEVEL_INFO,tags) << "Beginning RAD Science Collection";
 	std::vector<uint8_t> buff;
@@ -211,7 +216,7 @@ bool RAD::commandCollectionEnd(){
 		return false;
 	}
 
-	//subPower.powerOff();
+	subPower.powerOff();
 	int splits = splitData();
 	if(splits > 0){
 		tarBallData(splits);
