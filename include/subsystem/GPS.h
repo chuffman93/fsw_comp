@@ -20,6 +20,8 @@ extern "C" {
 	#include "util/propagator/OrbitalMotionAllStar.h"
 }
 
+#define CONFIG_GPS_SIZE 4
+
 struct GPSPositionTime{
   double posX;
   double posY;

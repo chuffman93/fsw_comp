@@ -46,7 +46,6 @@ bool ACS::initialize(){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Configurations: ACS is not alive. Opcode Received: " << retPacket3.opcode;
 		return false;
 	}
-
 	handleConfig();
 	return true;
 }
@@ -78,17 +77,33 @@ void ACS::handleMode(FSWMode transition){
 
 void ACS::handleConfig(){
 	if(FileManager::checkExistance(ACS_CONFIG)){
-
+		std::vector<uint8_t> buff = FileManager::readFromFile(ACS_CONFIG);
+		if (buff.size() == ACS_CONFIG_SIZE){
+			Logger::Stream(LEVEL_INFO,tags) << "Sending ACS Config";
+			ACPPacket acpReturn = sendOpcode(OP_CONFIGGAINS,buff);
+			if (!isSuccess(OP_CONFIGGAINS,acpReturn)){
+				Logger::Stream(LEVEL_ERROR,tags) << "ACS did not receive ACS Config";
+			}
+		}else{
+			Logger::Stream(LEVEL_ERROR,tags) << "Incorrect ACS Config file Size";
+		}
+	}else{
+		Logger::Stream(LEVEL_ERROR,tags) << "ACS Config file does not exist";
 	}
-	else{
-		Logger::Stream(LEVEL_WARN,tags) << "ACS Config file does not exist";
-	}
-
 }
 
 void ACS::updateConfig(){
 	if(FileManager::checkExistance(ACS_CONFIG_UP)){
-
+		std::vector<uint8_t> buff = FileManager::readFromFile(ACS_CONFIG_UP);
+		if (buff.size() == ACS_CONFIG_SIZE){
+			Logger::Stream(LEVEL_INFO,tags) << "Sending ACS Config Update";
+			ACPPacket acpReturn = sendOpcode(OP_CONFIGGAINS,buff);
+			if (!isSuccess(OP_CONFIGGAINS,acpReturn)){
+				Logger::Stream(LEVEL_ERROR,tags) << "ACS did not receive ACS Config Update";
+			}
+		}else{
+			Logger::Stream(LEVEL_ERROR,tags) << "Incorrect ACS Config Update file Size";
+		}
 	}
 	else{
 		Logger::Stream(LEVEL_WARN,tags) << "There are no ACS config updates";

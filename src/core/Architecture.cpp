@@ -303,12 +303,8 @@ std::vector<SubsystemBase*> Architecture::buildHSVector(){
 
 std::vector<SubsystemBase*> Architecture::buildCFVector(){
 	std::vector<SubsystemBase*> ret;
-	if(eps != NULL) ret.push_back(eps);
-	if(com != NULL) ret.push_back(com);
 	if(acs != NULL) ret.push_back(acs);
-	if(cdh != NULL) ret.push_back(cdh);
 	if(gps != NULL) ret.push_back(gps);
-
 	return ret;
 }
 

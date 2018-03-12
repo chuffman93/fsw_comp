@@ -56,6 +56,8 @@ public:
 	static void writeLog(std::string tags,std::string message);
 	static int GetReboot();
 
+	static void handleConfig();
+	static void updateConfig();
 	//static FileManager fm;
 
 private:

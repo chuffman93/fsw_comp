@@ -59,6 +59,8 @@ public:
 	uint32_t getEpochTime();
 	uint32_t getModeEnterTime();
 	int getComPassCount();
+	void handleConfig();
+	void updateConfig();
 
 
 

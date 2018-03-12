@@ -3,6 +3,7 @@
 import struct
 import os
 import time
+import numpy as np
 
 class DITLSch:
 	def __init__(self,m,e,d):
@@ -38,14 +39,17 @@ def sendSOT():
 	buff = []
 	F.write(struct.pack('B',0))
 	F.close()
-	os.rename("SOT","./home/root/uplink/SOT")
+	os.rename("SOT","./opt/uplink/SOT")
 
 
 def sendIEF():
-	os.rename("IEF.txt","./home/root/uplink/IEF.txt")
+	os.rename("IEF.txt","./opt/uplink/IEF.txt")
 
 def sendSchedule():
-	os.rename("SCH","./home//root/uplink/SCH")
+	os.rename("SCH","./opt/uplink/SCH")
+
+def sendGPSConfig():
+	os.rename("ConfigUpGPS","./opt/uplink/ConfigUpGPS")
 
 
 
@@ -77,10 +81,17 @@ for i in nextSchedule:
 	print("Schedule is Mode: %u TSE: %u Duration: %u" %(struct.unpack(">B",i.mode)[0],struct.unpack(">I",i.epoch)[0],struct.unpack(">I",i.duration)[0]))
 createSchedule(nextSchedule)
 createIEF("")
+of = open("ConfigUpGPS",'wb')
+timeout = np.uint16(600)
+timein = np.uint16(7200)
+of.write(timeout)
+of.write(timein)
+of.close()
 
 print("----------Sending Next Schedule for Payload Mode----------")
 sendSOT()
 time.sleep(5)
 sendSchedule()
+sendGPSConfig()
 time.sleep(15)
 sendIEF()

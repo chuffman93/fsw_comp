@@ -42,10 +42,11 @@ bool GPS::initialize(){
 void GPS::handleMode(FSWMode transition){}
 
 void GPS::handleConfig(){
+	LockGuard l(lock);
 	if(FileManager::checkExistance(GPS_CONFIG)){
 		std::vector<uint8_t> buff = FileManager::readFromFile(GPS_CONFIG);
-		if(buff.size() != 4){
-			Logger::Stream(LEVEL_ERROR,tags) << "Incorrect Size";
+		if(buff.size() != CONFIG_GPS_SIZE){
+			Logger::Stream(LEVEL_ERROR,tags) << "Incorrect Size for config";
 			return;
 		}
 		uint8_t b1 = buff.at(0);
@@ -54,7 +55,7 @@ void GPS::handleConfig(){
 		uint8_t b4 = buff.at(3);
 		timeout = ((uint16_t)b2 << 8)| b1;
 		timein = ((uint16_t)b4 << 8)| b3;
-		Logger::Stream(LEVEL_INFO,tags) << "Setting timeout to " << timeout << " and timein to " << timein;
+		Logger::Stream(LEVEL_INFO,tags) << "Setting timeout to " << timeout/60 << " mins and timein to " << timein/3600 << " hrs";
 
 	}
 	else{
@@ -64,8 +65,22 @@ void GPS::handleConfig(){
 }
 
 void GPS::updateConfig(){
+	LockGuard l(lock);
 	if(FileManager::checkExistance(GPS_CONFIG_UP)){
-
+		std::vector<uint8_t> buff = FileManager::readFromFile(GPS_CONFIG_UP);
+		if(buff.size() != CONFIG_GPS_SIZE){
+			Logger::Stream(LEVEL_ERROR,tags) << "Incorrect Size for config";
+			return;
+		}
+		uint8_t b1 = buff.at(0);
+		uint8_t b2 = buff.at(1);
+		uint8_t b3 = buff.at(2);
+		uint8_t b4 = buff.at(3);
+		timeout = ((uint16_t)b2 << 8)| b1;
+		timein = ((uint16_t)b4 << 8)| b3;
+		Logger::Stream(LEVEL_INFO,tags) << "Updating timeout to " << timeout/60 << " mins and timein to " << timein/3600 << " hrs";
+		FileManager::moveFile(GPS_CONFIG_UP,GPS_CONFIG);
+		FileManager::deleteFile(GPS_CONFIG_UP);
 	}
 	else{
 		Logger::Stream(LEVEL_WARN,tags) << "There are no GPS config updates";
@@ -73,7 +88,6 @@ void GPS::updateConfig(){
 }
 
 ACPPacket GPS::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
-	//Pretty sure if this gets called, we fucked up
 	assert(false);
 	return ACPPacket(ACS_SYNC, 0);
 }

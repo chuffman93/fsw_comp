@@ -14,7 +14,6 @@
 ScheduleManager::ScheduleManager()
  : CurrentMode(Mode_Bus)
  {
-	com.duration = 720;
 	com.mode = Mode_Com;
 	CurrentMode = Mode_Bus;
 	modeEnterTime = getCurrentTime();

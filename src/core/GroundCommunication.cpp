@@ -377,6 +377,7 @@ bool GroundCommunication::spinGround(Watchdog* watchdog){
 		beacon.sendBeacon();
 		Logger::Stream(LEVEL_INFO,tags) << "Beacon has been sent";
 		for(int i = 0; i <= 60; i++){
+			if(FileManager::checkExistance(SOT_PATH)){break;}
 			watchdog->KickWatchdog();
 			sleep(1);
 		}

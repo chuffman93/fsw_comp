@@ -16,8 +16,9 @@
 #include "core/Lock.h"
 #include "util/ByteStream.h"
 #include "subsystem/GPS.h"
-
 #include <stdio.h>
+
+#define ACS_CONFIG_SIZE 803
 
 
 enum ACSOpcode {

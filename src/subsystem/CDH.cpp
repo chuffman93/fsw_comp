@@ -39,23 +39,9 @@ void CDH::handleMode(FSWMode transition){
 
 }
 
-void CDH::handleConfig(){
-	if(FileManager::checkExistance(CDH_CONFIG)){
+void CDH::handleConfig(){}
 
-	}
-	else{
-		Logger::Stream(LEVEL_WARN,tags) << "CDH Config file does not exist";
-	}
-}
-
-void CDH::updateConfig(){
-	if(FileManager::checkExistance(CDH_CONFIG_UP)){
-
-	}
-	else{
-		Logger::Stream(LEVEL_WARN,tags) << "There are no CDH config updates";
-	}
-}
+void CDH::updateConfig(){}
 
 
 //Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)

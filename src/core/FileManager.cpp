@@ -16,7 +16,6 @@
 #include <fstream>
 #include <sys/types.h>
 #include <sys/stat.h>
-//#include <regex>
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -630,5 +629,13 @@ void FileManager::writeLog(std::string tags,std::string message){
 
 int FileManager::GetReboot(){
 	return Reboot_num;
+}
+
+void FileManager::handleConfig(){
+
+}
+
+void FileManager::updateConfig(){
+
 }
 
