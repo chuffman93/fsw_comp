@@ -51,6 +51,9 @@ def sendSchedule():
 def sendGPSConfig():
 	os.rename("ConfigUpGPS","./opt/uplink/ConfigUpGPS")
 
+def sendSCHConfig():
+	os.rename("ConfigUpSCH","./opt/uplink/ConfigUpSCH")
+
 
 
 
@@ -88,10 +91,18 @@ of.write(timeout)
 of.write(timein)
 of.close()
 
+of = open("ConfigUpSCH",'wb')
+timeout = np.uint32(172800)
+timein = np.uint32(1200)
+of.write(timeout)
+of.write(timein)
+of.close()
+
 print("----------Sending Next Schedule for Payload Mode----------")
 sendSOT()
 time.sleep(5)
 sendSchedule()
 sendGPSConfig()
-time.sleep(15)
+sendSCHConfig()
+time.sleep(10)
 sendIEF()

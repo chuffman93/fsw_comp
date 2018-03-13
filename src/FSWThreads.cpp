@@ -141,6 +141,7 @@ void * FSWThreads::GroundThread(void * args) {
 				(*i)->updateConfig();
 				watchdog->KickWatchdog();
 			}
+			scheduler->updateConfig();
 		}
 		watchdog->KickWatchdog();
 		sleep(1);

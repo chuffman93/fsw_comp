@@ -48,13 +48,11 @@ void GPS::handleConfig(){
 		if(buff.size() != CONFIG_GPS_SIZE){
 			Logger::Stream(LEVEL_ERROR,tags) << "Incorrect Size for config";
 			return;
-		}
-		uint8_t b1 = buff.at(0);
-		uint8_t b2 = buff.at(1);
-		uint8_t b3 = buff.at(2);
-		uint8_t b4 = buff.at(3);
-		timeout = ((uint16_t)b2 << 8)| b1;
-		timein = ((uint16_t)b4 << 8)| b3;
+		}\
+		timeout = ((uint16_t)buff.at(1) << 8)|
+				buff.at(0);
+		timein = ((uint16_t)buff.at(3) << 8)|
+				buff.at(2);
 		Logger::Stream(LEVEL_INFO,tags) << "Setting timeout to " << timeout/60 << " mins and timein to " << timein/3600 << " hrs";
 
 	}
@@ -72,15 +70,12 @@ void GPS::updateConfig(){
 			Logger::Stream(LEVEL_ERROR,tags) << "Incorrect Size for config";
 			return;
 		}
-		uint8_t b1 = buff.at(0);
-		uint8_t b2 = buff.at(1);
-		uint8_t b3 = buff.at(2);
-		uint8_t b4 = buff.at(3);
-		timeout = ((uint16_t)b2 << 8)| b1;
-		timein = ((uint16_t)b4 << 8)| b3;
+		timeout = ((uint16_t)buff.at(1) << 8)|
+				buff.at(0);
+		timein = ((uint16_t)buff.at(3) << 8)|
+				buff.at(2);
 		Logger::Stream(LEVEL_INFO,tags) << "Updating timeout to " << timeout/60 << " mins and timein to " << timein/3600 << " hrs";
 		FileManager::moveFile(GPS_CONFIG_UP,GPS_CONFIG);
-		FileManager::deleteFile(GPS_CONFIG_UP);
 	}
 	else{
 		Logger::Stream(LEVEL_WARN,tags) << "There are no GPS config updates";

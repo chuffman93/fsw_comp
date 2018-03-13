@@ -18,6 +18,9 @@ ScheduleManager::ScheduleManager()
 	CurrentMode = Mode_Bus;
 	modeEnterTime = getCurrentTime();
 	ComPassCount = FileManager::getComPassCount();
+	REBOOT_TIME = 86400;
+	com.duration = 0;
+	handleConfig();
 	tags += LogTag("Name", "ScheduleManager");
  }
 ScheduleManager::~ScheduleManager(){};
@@ -203,4 +206,47 @@ uint32_t ScheduleManager::getModeEnterTime(){
 int ScheduleManager::getComPassCount(){
 	return ComPassCount;
 }
+
+void ScheduleManager::handleConfig(){
+	if(FileManager::checkExistance(SCH_CONFIG)){
+		std::vector<uint8_t> buff = FileManager::readFromFile(SCH_CONFIG);
+		REBOOT_TIME = (uint32_t)buff.at(3) << 24 |
+				(uint32_t)buff.at(2) << 16 |
+				(uint32_t)buff.at(1) << 8 |
+				buff.at(0);
+		com.duration = (uint32_t)buff.at(7) << 24 |
+				(uint32_t)buff.at(6) << 16 |
+				(uint32_t)buff.at(5) << 8 |
+				buff.at(4);
+		Logger::Stream(LEVEL_INFO,tags) << " Setting reboot_time to " << REBOOT_TIME/3600<< " hrs and com timeout to " << com.duration/60 << " mins";
+	}else{
+		Logger::Stream(LEVEL_WARN,tags) << "No Schedule Manager configs found";
+
+	}
+}
+
+void ScheduleManager::updateConfig(){
+	LockGuard l(lock);
+	if(FileManager::checkExistance(SCH_CONFIG_UP)){
+		std::vector<uint8_t> buff = FileManager::readFromFile(SCH_CONFIG_UP);
+		if(buff.size() != CONFIG_SCH_SIZE){
+			Logger::Stream(LEVEL_ERROR,tags) << "Incorrect Size for config";
+			return;
+		}
+		REBOOT_TIME = (uint32_t)buff.at(3) << 24 |
+				(uint32_t)buff.at(2) << 16 |
+				(uint32_t)buff.at(1) << 8 |
+				buff.at(0);
+		com.duration = (uint32_t)buff.at(7) << 24 |
+				(uint32_t)buff.at(6) << 16 |
+				(uint32_t)buff.at(5) << 8 |
+				buff.at(4);
+		Logger::Stream(LEVEL_INFO,tags) << " Setting reboot_time to " << REBOOT_TIME/3600<< " hrs and com timeout to " << com.duration/60 << " mins";
+		FileManager::moveFile(SCH_CONFIG_UP,SCH_CONFIG);
+	}
+	else{
+		Logger::Stream(LEVEL_WARN,tags) << "There are no SCH config updates";
+	}
+}
+
 
