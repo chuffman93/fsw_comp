@@ -15,6 +15,7 @@ ScheduleManager::ScheduleManager()
  : CurrentMode(Mode_Bus)
  {
 	com.mode = Mode_Com;
+	com.duration = 720;
 	CurrentMode = Mode_Bus;
 	modeEnterTime = getCurrentTime();
 	ComPassCount = FileManager::getComPassCount();

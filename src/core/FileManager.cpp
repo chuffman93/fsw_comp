@@ -189,12 +189,17 @@ std::string FileManager::createFileName(std::string basePath){
 void FileManager::copyFile(std::string filePath, std::string newfilePath){
 	//TODO: dont use system call
 	LogTag tags;
-	if (access(filePath.c_str(), F_OK) == 0){
-		std::string command = "cp " + filePath + " " + newfilePath;
-		// TODO: get away from system command
+	Logger::Stream(LEVEL_INFO,tags) << "Part 1: Copying " << filePath << "to " << newfilePath;
+	if (FileManager::checkExistance(filePath)){
+		Logger::Stream(LEVEL_INFO,tags) << "Part 2: Copying " << filePath << "to " << newfilePath;
+		/*
+		ExternalProcess cp;
+		char*sh_cp[] = {(char*)"/bin/cp",(char*)filePath.c_str(),(char*)newfilePath.c_str()};
+		cp.launchProcess(sh_cp);
+		Logger::Stream(LEVEL_INFO,tags) << "Copied " << filePath << "to " << newfilePath;
+		*/
+		std::string command = "cp " + filePath+ " " + newfilePath;
 		system(command.c_str());
-		Logger::Stream(LEVEL_INFO,tags) << "Copying " << filePath << "to " << newfilePath;
-
 	}
 }
 
@@ -439,6 +444,7 @@ void FileManager::generateFilesList(std::string dir){
 		if ( entry->d_name[0] != '.'){
 			fwrite(entry->d_name,strlen(entry->d_name),1,dwlkDFL);
 			fwrite(",",strlen(","),1,dwlkDFL);
+			Logger::Stream(LEVEL_DEBUG,tags) << "Generate file list entry: " << entry->d_name;
 		}
 	}
 	fwrite("\n",strlen("\n"),1,dwlkDFL);

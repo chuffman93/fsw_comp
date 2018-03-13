@@ -11,26 +11,37 @@ GroundCommunication::GroundCommunication(std::vector<SubsystemBase*> subsystems,
 : stateDownlink(false), statePostPass(false), ComStartTime(0), ComTimeout(720), subsystems(subsystems), beacon(beacon)
 {
 	tags += LogTag("Name", "GroundCommunication");
+	firstFile = true;
 }
 
 GroundCommunication::~GroundCommunication(){}
 
 void GroundCommunication::downlinkFiles(){
 
-	if (!DownlinkQueue.empty()){
+	if(!DownlinkQueue.empty()){
 		std::string file = DownlinkQueue.front();
-		if (!FileManager::checkExistance(DOWNLINK_DIRECTORY + file)){
+		if (firstFile == true){
 			Logger::Stream(LEVEL_INFO,tags) << "Downlinking Next File";
+			FileManager::copyFile(file, DOWNLINK_DIRECTORY + grabFileName(file));
+			firstFile = false;
+		}else if (!FileManager::checkExistance(DOWNLINK_DIRECTORY + grabFileName(file))){
 			DownlinkQueue.pop();
-			file = DownlinkQueue.front();
-			FileManager::copyFile(file, DOWNLINK_DIRECTORY + file);
+			if (!DownlinkQueue.empty()){
+				file = DownlinkQueue.front();
+				Logger::Stream(LEVEL_INFO,tags) << "Downlinking Next File";
+				FileManager::copyFile(file, DOWNLINK_DIRECTORY + grabFileName(file));
+			}
 		}
 	}
 	if (DownlinkQueue.empty()){
 		stateDownlink = false;
 		statePostPass = true;
+		firstFile = true;
+		if (FileManager::checkExistance(DFL_PATH)){
+			FileManager::deleteFile(DFL_PATH);
+		}
+		Logger::Stream(LEVEL_INFO,tags) << "Completed Downlink of All Files";
 	}
-	Logger::Stream(LEVEL_INFO,tags) << "Completed Downlink of All Files";
 }
 
 void GroundCommunication::clearDownlink(){
@@ -92,7 +103,7 @@ void GroundCommunication::parseDownlinkRequest(std::string line){
 		//log error
 		return;
 	}
-	LockGuard l(lock);
+	//.LockGuard l(lock);
 	if (strcmp(type,"F") == 0){
 		Logger::Stream(LEVEL_INFO,tags) << "Adding file(s): " << line << " to downlink queue";
 		while (file != NULL){
@@ -303,14 +314,29 @@ void GroundCommunication::parseFileListRequest(std::string line){
 	if (dir == NULL){
 		//log error
 	}
-	LockGuard l(lock);
+	// LockGuard l(lock);
 	while (dir != NULL){
 		std::string directory = trimNewline(std::string(dir));
 		FileManager::generateFilesList(directory);
 		dir = strtok(NULL, ",");
 	}
+
+	if (FileManager::checkExistance(DFL_PATH)){
+		DownlinkQueue.push(DFL_PATH);
+	}
 }
 
+
+std::string GroundCommunication::grabFileName(std::string path){
+	int i = path.length()-1;
+	std::string filename = "";
+	while(path[i]!='/'){
+		filename = path[i]+filename;
+		i--;
+	}
+	Logger::Stream(LEVEL_DEBUG,tags) << "Grabbed file name for downlink: " << filename;
+	return filename;
+}
 
 void GroundCommunication::parseIEF(){
 
@@ -389,7 +415,7 @@ bool GroundCommunication::spinGround(Watchdog* watchdog){
 			ComStartTime = getCurrentTime();
 			return true;
 		}
-		Logger::Stream(LEVEL_DEBUG,tags) << "Start Time: " << ComStartTime << " ComTimeOut: " << ComTimeout << " Current Time: " << getCurrentTime();
+		Logger::Stream(LEVEL_DEBUG,tags) << "Start Time: " << ComStartTime << " Com Duration: " << ComTimeout << " Current Time: " << getCurrentTime();
 		//check if the communication pass has exceeded
 		if ((ComStartTime + ComTimeout) < getCurrentTime()){
 			Logger::Stream(LEVEL_INFO,tags) << "Communication Pass Timeout";
