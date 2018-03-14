@@ -15,6 +15,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <stdio.h>
 
 /*
  * Enum to contain all of the different logging levels
@@ -75,6 +76,16 @@ public:
 		~Stream(){
 			Logger::log(level, tags, ss.str());
 		}
+
+		// Fix float print
+	    inline Stream& operator<<(const float& t)
+	    {
+	    	char buf[32];
+	    	sprintf(buf, "%f", t);
+	        ss << buf;
+	        return * this;
+	    }
+
 		/*!
 		 * Provides stream style syntax
 		 * \param t the object to intake
@@ -85,6 +96,7 @@ public:
 	        ss << t;
 	        return * this;
 	    }
+
 	private:
 	    //! Level to be used when logged
 		LogLevel level;
