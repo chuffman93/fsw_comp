@@ -77,9 +77,6 @@ void * FSWThreads::GPSThread(void * args) {
 	while (1) {
 		// GPS on, if lock, shut off GPS.
 		// Override in PLD (GPS) on
-		// config: how often to turn GPS on. (every two hours?)
-		// dont set the string to false when getting, use previous string otherwise
-		// config: Timeout for GPS (first time, no, but after) (maybe 15 mins)
 		for(int i = 0; i <= gps->timein; i++){
 			// if gps is on, try to get a lock
 			if(gps->isOn()){
