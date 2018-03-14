@@ -21,8 +21,10 @@ bool COM::initialize(){
 	//TODO: error handling
 	Logger::Stream(LEVEL_INFO,tags) << "Initializing COM";
 	subPower.powerOn();
+
+	LockGuard l(lock);
+
 	std::vector<uint8_t> buff;
-	/*
 	ACPPacket retPacket1 = sendOpcode(OP_TESTALIVE,buff);
 	if (!isSuccess(OP_TESTALIVE,retPacket1)){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Alive: COM is not alive. Opcode Received: " << retPacket1.opcode;
@@ -39,7 +41,7 @@ bool COM::initialize(){
 	if (!isSuccess(OP_TESTCONFIG,retPacket3)){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Configurations: COM is not alive. Opcode Received: " << retPacket3.opcode;
 		return false;
-	}*/
+	}
 
 	return true;
 }
@@ -66,13 +68,12 @@ void COM::updateConfig(){}
 void COM::getHealthStatus(){
 	LockGuard l(lock);
 
-	/*
 	std::vector<uint8_t> buff;
 	ACPPacket acpReturn = sendOpcode(OP_HEALTHSTATUS, buff);
 
 
 	health.recordBytes(acpReturn.message);
-	*/
+
 }
 
 //Configure the lithium radio
@@ -112,7 +113,6 @@ void COM::changeBaudRate(uint32_t baudRate){
 //Need to figure out how the GND Communication stuff will work
 
 ACPPacket COM::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
-	//LockGuard l(lock);
 	if (buffer.empty()){
 		ACPPacket acpPacket(COM_SYNC, opcode);
 		ACPPacket acpReturn;
@@ -130,12 +130,12 @@ bool COM::isSuccess(COMOpcode opcode, ACPPacket retPacket){
 	if (opcode == retPacket.opcode){
 		return true;
 	}
-	return true; //change to false
+	return false; //change to false
 }
 
 bool COM::isSuccess(SubsystemOpcode opcode, ACPPacket retPacket){
 	if (opcode == retPacket.opcode){
 		return true;
 	}
-	return true; //change to false
+	return false; //change to false
 }
