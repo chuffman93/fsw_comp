@@ -14,7 +14,7 @@ class DITLSch:
 
 
 def createSchedule(nextSchedule):
-	F = open("SCH",mode = "wb")
+	F = open("SCH.bin",mode = "wb")
 	for x in nextSchedule:
 		F.write(x.mode)
 		F.write(x.epoch)
@@ -35,24 +35,27 @@ def createIEF(nextIEF):
 	F.close()
 
 def sendSOT():
-	F = open("SOT","wb")
+	F = open("SOT.txt","wb")
 	buff = []
 	F.write(struct.pack('B',0))
 	F.close()
-	os.rename("SOT","./opt/uplink/SOT")
+	os.rename("SOT.txt","./opt/uplink/SOT.txt")
 
 
 def sendIEF():
 	os.rename("IEF.txt","./opt/uplink/IEF.txt")
 
 def sendSchedule():
-	os.rename("SCH","./opt/uplink/SCH")
+	os.rename("SCH.bin","./opt/uplink/SCH.bin")
 
 def sendGPSConfig():
 	os.rename("ConfigUpGPS","./opt/uplink/ConfigUpGPS")
 
 def sendSCHConfig():
 	os.rename("ConfigUpSCH","./opt/uplink/ConfigUpSCH")
+
+def sendFMGConfig():
+	os.rename("ConfigUpFMG","./opt/uplink/ConfigUpFMG")
 
 
 
@@ -98,11 +101,17 @@ of.write(timeout)
 of.write(timein)
 of.close()
 
+of = open("ConfigUpFMG",'wb')
+timeout = np.uint16(5000)
+of.write(timeout)
+of.close()
+
 print("----------Sending Next Schedule for Payload Mode----------")
 sendSOT()
 time.sleep(5)
 sendSchedule()
 sendGPSConfig()
 sendSCHConfig()
+sendFMGConfig();
 time.sleep(10)
 sendIEF()

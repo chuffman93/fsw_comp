@@ -10,7 +10,7 @@
 COM::COM(ACPInterface& acp, SubPowerInterface& subPower)
 : acp(acp), subPower(subPower){
 	tags += LogTag("Name", "COM");
-	health.fileSize = MAX_FILE_SIZE;
+	health.fileSize = FileManager::MAX_FILE_SIZE;
 	health.basePath = HEALTH_DIRECTORY COM_PATH "/COM";
 }
 
@@ -22,7 +22,7 @@ bool COM::initialize(){
 	Logger::Stream(LEVEL_INFO,tags) << "Initializing COM";
 	subPower.powerOn();
 	std::vector<uint8_t> buff;
-	/*
+
 	ACPPacket retPacket1 = sendOpcode(OP_TESTALIVE,buff);
 	if (!isSuccess(OP_TESTALIVE,retPacket1)){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Alive: COM is not alive. Opcode Received: " << retPacket1.opcode;
@@ -39,7 +39,9 @@ bool COM::initialize(){
 	if (!isSuccess(OP_TESTCONFIG,retPacket3)){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Configurations: COM is not alive. Opcode Received: " << retPacket3.opcode;
 		return false;
-	}*/
+	}
+
+	configureLithium();
 
 	return true;
 }
@@ -66,13 +68,13 @@ void COM::updateConfig(){}
 void COM::getHealthStatus(){
 	LockGuard l(lock);
 
-	/*
+
 	std::vector<uint8_t> buff;
 	ACPPacket acpReturn = sendOpcode(OP_HEALTHSTATUS, buff);
 
 
 	health.recordBytes(acpReturn.message);
-	*/
+
 }
 
 //Configure the lithium radio

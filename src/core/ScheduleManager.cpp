@@ -209,6 +209,7 @@ int ScheduleManager::getComPassCount(){
 }
 
 void ScheduleManager::handleConfig(){
+	LockGuard l(lock);
 	if(FileManager::checkExistance(SCH_CONFIG)){
 		std::vector<uint8_t> buff = FileManager::readFromFile(SCH_CONFIG);
 		REBOOT_TIME = (uint32_t)buff.at(3) << 24 |

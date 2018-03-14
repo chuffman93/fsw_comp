@@ -20,7 +20,7 @@
 EPS::EPS(ACPInterface& acp, SubPowerInterface& subPower)
 : acp(acp), subPower(subPower){
 	tags += LogTag("Name", "EPS");
-	health.fileSize = MAX_FILE_SIZE;
+	health.fileSize = FileManager::MAX_FILE_SIZE;
 	health.basePath = HEALTH_DIRECTORY EPS_PATH "/EPS";
 	batteryCharge = 0;
 }

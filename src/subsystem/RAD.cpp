@@ -11,7 +11,7 @@ RAD::RAD(ACPInterface& acp, SubPowerInterface& subPower)
 : acp(acp), subPower(subPower){
 	hsAvailable = false;
 	tags += LogTag("Name", "RAD");
-	health.fileSize = MAX_FILE_SIZE;
+	health.fileSize = FileManager::MAX_FILE_SIZE;
 	health.basePath = HEALTH_DIRECTORY RAD_PATH "/RAD";
 	RADDataNum = 0;
 }
@@ -194,9 +194,9 @@ bool RAD::commandCollectionBegin(){
 	hsAvailable = true;
 	configData();
 	configMotor();
-	// TODO: get correct IP and make sure this runs as intended
-	// char* argv[] = {(char *)"/usr/bin/tftp",(char *)"-g",(char*)"-r",dataFile.c_str(),(char*)"10.14.134.207",NULL};
-	// tftp.launchProcess(argv);
+
+	char* argv[] = {(char *)"/usr/bin/tftp",(char *)"-g",(char*)"-r",(char*)dataFile.c_str(),(char*)"10.14.134.207",NULL};
+	tftp.launchProcess(argv,FALSE);
 
 	return true;
 }

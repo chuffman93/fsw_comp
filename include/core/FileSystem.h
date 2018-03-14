@@ -1,6 +1,3 @@
-
-#define MAX_FILE_SIZE			5000
-
 #ifdef CDHBUILD
 #define ROOT_DIRECTORY	 		"/"
 #endif

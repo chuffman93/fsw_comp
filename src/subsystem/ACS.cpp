@@ -10,7 +10,7 @@
 ACS::ACS(ACPInterface& acp, SubPowerInterface& subPower)
 : acp(acp), subPower(subPower){
 	tags += LogTag("Name", "ACS");
-	health.fileSize = MAX_FILE_SIZE;
+	health.fileSize = FileManager::MAX_FILE_SIZE;
 	health.basePath = HEALTH_DIRECTORY ACS_PATH "/ACS";
 	pointingValid = false;
 	TimeSinceLock = -1;

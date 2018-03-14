@@ -12,7 +12,7 @@ using namespace std;
 LogTags tags;
 
 ExternalProcess::ExternalProcess(){
-	tags += LogTag("Name", "ExternalProcess");
+	tags += LogTag("Name", "ExternP");
 	child_status = -1;
 	tpid = -1;
 	child_pid = -1;
@@ -24,18 +24,17 @@ ExternalProcess::ExternalProcess(){
  * \param array of arguments to system call
  */
 void ExternalProcess::launchProcess(char * argv[]){
-
-	Logger::Stream(LEVEL_INFO,tags) << "Starting process: " << argv[0];
 	child_pid = fork();
 	if(child_pid == 0){
+		Logger::Stream(LEVEL_INFO,tags) << "Starting Process: " << argv[0];
 		execv(argv[0],argv);
 		exit(0);
 	}else{
 		do{
 			tpid = wait(&child_status);
 		}while(tpid != child_pid);
-		child_pid = -1;
 	}
+	child_pid = -1;
 }
 
 /*!
@@ -44,38 +43,25 @@ void ExternalProcess::launchProcess(char * argv[]){
  * \param array of arguments to second system call
  */
 void ExternalProcess::launchProcess(char * argv[],char * argc[]){
-
-	Logger::Stream(LEVEL_INFO,tags) << "Starting process: " << argv[0] << " and " << argc[0];
 	child_pid = fork();
 	if(child_pid == 0){
+		Logger::Stream(LEVEL_INFO,tags) << "Starting process: " << argv[0] << " and " << argc[0];
 		execv(argv[0],argv);
-		execv(argc[0],argc);exit(0);
-	}else{
-
-	}
+		execv(argc[0],argc);
+		exit(0);
+	}else{}
 }
  /*!
   * Kills the  process
   */
 void ExternalProcess::closeProcess(){
 	if(child_pid != -1){
-		stringstream ss;
-		ss << child_pid;
-		string pd = ss.str();
-		char * argv[] = {(char *)"/bin/kill",(char*)"-9",(char*)pd.c_str() ,NULL};
-		Logger::Stream(LEVEL_INFO,tags) << "Killing process: " << pd;
-		int f = fork();
-		if(f == 0){
-			execv(argv[0],argv);
-			exit(0);
-		}
-		else{
-			do{
-				tpid = wait(&child_status);
-			}
-			while(tpid != child_pid);
-			child_pid = -1;
-		}
+		kill(child_pid,SIGINT);
+
+		do{
+			tpid = wait(&child_status);
+		}while(tpid != child_pid);
+		child_pid = -1;
 	}
 	else
 		return;

@@ -24,6 +24,7 @@ using namespace std;
 Lock FileManager::lock;
 std::string FileManager::logMessageFP = "";
 int FileManager::Reboot_num = updateRebootCount();
+uint16_t FileManager::MAX_FILE_SIZE;
 
 FileManager::FileManager(){}
 
@@ -638,10 +639,36 @@ int FileManager::GetReboot(){
 }
 
 void FileManager::handleConfig(){
+	LogTags tags;
+	tags += LogTag("Name", "FileManager");
+	if(FileManager::checkExistance(FMG_CONFIG)){
+		std::vector<uint8_t> buff = FileManager::readFromFile(FMG_CONFIG);
+		FileManager::MAX_FILE_SIZE = (uint16_t)buff.at(1) << 8 |
+				buff.at(0);
+		Logger::Stream(LEVEL_INFO,tags) << " Setting max file size to " << FileManager::MAX_FILE_SIZE << " Bytes";
+	}else{
+		Logger::Stream(LEVEL_WARN,tags) << "No File Manager configs found";
 
+	}
 }
 
 void FileManager::updateConfig(){
+	LogTags tags;
+	tags += LogTag("Name", "FileManager");
+	if(FileManager::checkExistance(FMG_CONFIG_UP)){
+		std::vector<uint8_t> buff = FileManager::readFromFile(FMG_CONFIG_UP);
+		if(buff.size() != CONFIG_FMG_SIZE){
+			Logger::Stream(LEVEL_ERROR,tags) << "Incorrect Size for config";
+			return;
+		}
+		FileManager::MAX_FILE_SIZE = (uint16_t)buff.at(1) << 8|
+				buff.at(0);
+		Logger::Stream(LEVEL_INFO,tags) << " Setting max file size to " << FileManager::MAX_FILE_SIZE << " Bytes";
+		FileManager::moveFile(FMG_CONFIG_UP,FMG_CONFIG);
+	}
+	else{
+		Logger::Stream(LEVEL_WARN,tags) << "There are no FMG config updates";
+	}
 
 }
 

@@ -4,7 +4,7 @@
 CDH::CDH(std::vector<HotSwapInterface*> * hotswaps, std::vector<PowerMonitorInterface*> * powermonitors, std::vector<TempInterface*> * thermalsensors, OneWireManager* onewire)
 : HotSwaps(hotswaps), PowerMonitors(powermonitors), ThermalSensors(thermalsensors), OneWireMan(onewire) {
 	tags+= LogTag("Name","CDH");
-	health.fileSize = MAX_FILE_SIZE;
+	health.fileSize = FileManager::MAX_FILE_SIZE;
 	health.basePath = HEALTH_DIRECTORY CDH_PATH "/CDH";
 }
 
