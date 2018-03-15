@@ -33,6 +33,17 @@ HotSwapData HotSwapInterface::getData(){
 	retval.current = 0.10584 * ((float)currRaw/4096) / senseR; //Current
 
 	Logger::Stream(LEVEL_INFO, tags) << "Read: " << retval.voltage << "V " << retval.current << "A";
+
+/*
+ // TEST CODE GRAB STATUS IF COM DOSEN'T POWER ON
+	std::vector<uint8_t> data2;
+	data2.push_back(0x40);
+	Logger::log(LEVEL_INFO, tags, "Read Status");
+	i2cman.writeRaw(id, data2);
+
+	std::vector<uint8_t> data3 = i2cman.readRaw(id, 1);
+	Logger::Stream(LEVEL_INFO, tags) << "Read: " << (int)data3[0];
+*/
 	return retval;
 }
 
