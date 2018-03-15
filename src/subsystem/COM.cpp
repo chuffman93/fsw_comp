@@ -70,15 +70,14 @@ void COM::getHealthStatus(){
 	LockGuard l(lock);
 	std::vector<uint8_t> buff;
 	ACPPacket acpReturn = sendOpcode(OP_HEALTHSTATUS, buff);
-
-
 	health.recordBytes(acpReturn.message);
-
 }
 
 //Configure the lithium radio
 void COM::configureLithium(){
-		//set baud rate command
+		ExternalProcess da;
+		char* cm_da[] = {(char*)"/bin/comm_daemon_arm",(char*)"&",NULL};
+		da.launchProcess(cm_da);
 }
 
 //Send the beacon

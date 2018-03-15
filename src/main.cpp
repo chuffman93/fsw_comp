@@ -35,10 +35,11 @@ int main() {
 	Logger::log(LEVEL_FATAL, "Entering Main");
 
 	//---------Step1: Build FSW---------------------------
-	Architecture::setInterfaceMode(SOFTWARE);
+	Architecture::setInterfaceMode(HARDWARE);
 	Architecture::buildEPS();
 	//Architecture::buildCDH();
 	Architecture::buildCOM();
+	Architecture::setInterfaceMode(SOFTWARE);
 	Architecture::buildACS();
 	Architecture::buildRAD();
 	Architecture::buildGPS();
@@ -104,7 +105,6 @@ int main() {
 	//---------Step9: Start Watchdog-----------------------
 	Thread watchdogThread;
 	watchdogThread.CreateThread(NULL, FSWThreads::WatchdogThread, (void*)&watchdog);
-
 
 	//---------Step10: Join Threads (never reached)-----------------------
 	int rv = 0;
