@@ -77,7 +77,7 @@ void COM::getHealthStatus(){
 void COM::configureLithium(){
 		ExternalProcess da;
 		char* cm_da[] = {(char*)"/bin/comm_daemon_arm",(char*)"&",NULL};
-		da.launchProcess(cm_da);
+		da.launchProcess(cm_da,false);
 }
 
 //Send the beacon

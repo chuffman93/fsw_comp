@@ -637,6 +637,7 @@ void FileManager::handleConfig(){
 				buff.at(0);
 		Logger::Stream(LEVEL_INFO,tags) << " Setting max file size to " << FileManager::MAX_FILE_SIZE << " Bytes";
 	}else{
+		FileManager::MAX_FILE_SIZE = 5000;
 		Logger::Stream(LEVEL_WARN,tags) << "No File Manager configs found";
 
 	}
