@@ -25,7 +25,6 @@ using namespace std;
 
 TEST_CASE("Test OneWireManager", "[.][hardware][onewire]"){
 	Logger::setMode(MODE_PRINT);
-	Logger::setLevel(LEVEL_DEBUG);
 	OneWireManager onewire("/sys/bus/w1/devices/w1_bus_master1/");
 	int a5monitor = onewire.attachDevice("TEMP1");
 	onewire.initialize();
@@ -38,7 +37,7 @@ TEST_CASE("Test OneWireManager", "[.][hardware][onewire]"){
 	Logger::setMode(MODE_NOTHING);
 }
 
-TEST_CASE("Test Thermal Sensors","[hardware][onewire]" ){
+TEST_CASE("Test Thermal Sensors","[.][hardware][onewire][tempinterface]" ){
 	Logger::setMode(MODE_PRINT);
 
 	OneWireManager onewire("/sys/bus/w1/devices/w1_bus_master1/");
