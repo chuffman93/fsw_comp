@@ -46,7 +46,7 @@ public:
 	HealthFileStruct health;
 private:
 	//Configure the lithium radio
-	void configureLithium();
+	void launchDaemon();
 	//Send the beacon
 	void sendBeacon();
 	//Need to figure out how the GND Communication stuff will work
@@ -56,8 +56,7 @@ private:
 	SubPowerInterface& subPower;
 	Lock lock;
 	LogTags tags;
-	ExternalProcess st;
-	ExternalProcess sl;
+	ExternalProcess da;
 };
 
 

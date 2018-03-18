@@ -6,6 +6,7 @@
  */
 #include "util/Logger.h"
 #include "interfaces/ExternalProcess.h"
+#include <fstream>
 
 using namespace std;
 
@@ -44,12 +45,20 @@ void ExternalProcess::launchProcess(char * argv[]){
  */
 void ExternalProcess::launchProcess(char * argv[],char * argc[]){
 	child_pid = fork();
-	if(child_pid == 0){
-		Logger::Stream(LEVEL_INFO,tags) << "Starting process: " << argv[0] << " and " << argc[0];
-		execv(argv[0],argv);
-		execv(argc[0],argc);
-		exit(0);
-	}else{}
+	if(argc == 0){
+		if(child_pid == 0){
+			Logger::Stream(LEVEL_INFO,tags) << "Starting process: " << argv[0];
+			execv(argv[0],argv);
+			exit(0);
+		}else{}
+	}else{
+		if(child_pid == 0){
+			Logger::Stream(LEVEL_INFO,tags) << "Starting process: " << argv[0] << " and " << argc[0];
+			execv(argv[0],argv);
+			execv(argc[0],argc);
+			exit(0);
+		}else{}
+	}
 }
  /*!
   * Kills the  process

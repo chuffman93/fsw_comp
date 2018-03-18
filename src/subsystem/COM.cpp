@@ -43,7 +43,7 @@ bool COM::initialize(){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Configurations: COM is not alive. Opcode Received: " << retPacket3.opcode;
 		return false;
 	}
-	configureLithium();
+	launchDaemon();
 	return true;
 }
 
@@ -73,11 +73,10 @@ void COM::getHealthStatus(){
 	health.recordBytes(acpReturn.message);
 }
 
-//Configure the lithium radio
-void COM::configureLithium(){
-		ExternalProcess da;
+//Launch Comm Daemon
+void COM::launchDaemon(){
 		char* cm_da[] = {(char*)"/bin/comm_daemon_arm",(char*)"&",NULL};
-		da.launchProcess(cm_da,false);
+		da.launchProcess(cm_da,FALSE);
 }
 
 //Send the beacon
