@@ -35,13 +35,11 @@ int main() {
 	Architecture::buildEPS();
 	Architecture::setInterfaceMode(HARDWARE);
 	Architecture::buildCDH();
+	Architecture::buildACS();
 	Architecture::setInterfaceMode(SOFTWARE);
 	Architecture::buildCOM();
-	Architecture::buildACS();
 	Architecture::buildRAD();
-	Architecture::setInterfaceMode(HARDWARE);
 	Architecture::buildGPS();
-	Architecture::setInterfaceMode(SOFTWARE);
 	Architecture::buildScheduleManager();
 	Architecture::buildBeaconManager();
 	Architecture::buildGND();

@@ -376,8 +376,9 @@ bool GroundCommunication::spinGround(Watchdog* watchdog){
 		Logger::Stream(LEVEL_INFO,tags) << "Sending beacon...";
 		beacon.sendBeacon();
 		Logger::Stream(LEVEL_INFO,tags) << "Beacon has been sent";
-		while (sleep(60)){
+		for (int i=0; i<60; i++){
 			watchdog->KickWatchdog();
+			sleep(1);
 		}
 		return false;
 
