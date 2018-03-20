@@ -10,7 +10,7 @@
 COM::COM(ACPInterface& acp, SubPowerInterface& subPower)
 : acp(acp), subPower(subPower){
 	tags += LogTag("Name", "COM");
-	health.fileSize = MAX_FILE_SIZE;
+	health.fileSize = FileManager::MAX_FILE_SIZE;
 	health.basePath = HEALTH_DIRECTORY COM_PATH "/COM";
 }
 
@@ -21,6 +21,9 @@ bool COM::initialize(){
 	//TODO: error handling
 	Logger::Stream(LEVEL_INFO,tags) << "Initializing COM";
 	subPower.powerOn();
+
+	LockGuard l(lock);
+
 	std::vector<uint8_t> buff;
 
 	ACPPacket retPacket1 = sendOpcode(OP_TESTALIVE,buff);
@@ -40,7 +43,7 @@ bool COM::initialize(){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Configurations: COM is not alive. Opcode Received: " << retPacket3.opcode;
 		return false;
 	}
-
+	launchDaemon();
 	return true;
 }
 
@@ -58,19 +61,22 @@ void COM::handleMode(FSWMode transition){
 	}
 }
 
+void COM::handleConfig(){}
+
+void COM::updateConfig(){}
+
 //Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 void COM::getHealthStatus(){
 	LockGuard l(lock);
 	std::vector<uint8_t> buff;
 	ACPPacket acpReturn = sendOpcode(OP_HEALTHSTATUS, buff);
-
-
 	health.recordBytes(acpReturn.message);
 }
 
-//Configure the lithium radio
-void COM::configureLithium(){
-		//set baud rate command
+//Launch Comm Daemon
+void COM::launchDaemon(){
+		char* cm_da[] = {(char*)"/bin/comm_daemon_arm",(char*)"&",NULL};
+		da.launchProcess(cm_da,FALSE);
 }
 
 //Send the beacon
@@ -105,7 +111,6 @@ void COM::changeBaudRate(uint32_t baudRate){
 //Need to figure out how the GND Communication stuff will work
 
 ACPPacket COM::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
-	//LockGuard l(lock);
 	if (buffer.empty()){
 		ACPPacket acpPacket(COM_SYNC, opcode);
 		ACPPacket acpReturn;
@@ -123,12 +128,12 @@ bool COM::isSuccess(COMOpcode opcode, ACPPacket retPacket){
 	if (opcode == retPacket.opcode){
 		return true;
 	}
-	return false;
+	return false; //change to false
 }
 
 bool COM::isSuccess(SubsystemOpcode opcode, ACPPacket retPacket){
 	if (opcode == retPacket.opcode){
 		return true;
 	}
-	return false;
+	return false; //change to false
 }

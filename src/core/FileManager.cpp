@@ -16,7 +16,6 @@
 #include <fstream>
 #include <sys/types.h>
 #include <sys/stat.h>
-//#include <regex>
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -25,6 +24,7 @@ using namespace std;
 Lock FileManager::lock;
 std::string FileManager::logMessageFP = "";
 int FileManager::Reboot_num = updateRebootCount();
+uint16_t FileManager::MAX_FILE_SIZE;
 
 FileManager::FileManager(){}
 
@@ -190,12 +190,16 @@ std::string FileManager::createFileName(std::string basePath){
 void FileManager::copyFile(std::string filePath, std::string newfilePath){
 	//TODO: dont use system call
 	LogTag tags;
-	if (access(filePath.c_str(), F_OK) == 0){
-		std::string command = "cp " + filePath + " " + newfilePath;
-		// TODO: get away from system command
+	Logger::Stream(LEVEL_INFO,tags) << "Copying " << filePath << "to " << newfilePath;
+	if (FileManager::checkExistance(filePath)){
+		/*
+		ExternalProcess cp;
+		char*sh_cp[] = {(char*)"/bin/cp",(char*)filePath.c_str(),(char*)newfilePath.c_str()};
+		cp.launchProcess(sh_cp);
+		Logger::Stream(LEVEL_INFO,tags) << "Copied " << filePath << "to " << newfilePath;
+		*/
+		std::string command = "cp " + filePath+ " " + newfilePath;
 		system(command.c_str());
-		Logger::Stream(LEVEL_INFO,tags) << "Copying " << filePath << "to " << newfilePath;
-
 	}
 }
 
@@ -314,6 +318,7 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 		regex = regex+"_";
 		sprintf(sh_cmd, "tar -czf %s -C %s `ls -lr %s | grep ^- | awk '{print $9}' | grep \"%s\" | head -%d`>/dev/null 2>&1", (char*)newDest.c_str(), (char*)dest.c_str(), (char*)dest.c_str(), (char*)regex.c_str(), 50);
 		Files.push_back(newDest);
+		Logger::Stream(LEVEL_INFO,tags) << "Created tar file for regex: " << newDest;
 		if(!(fd = popen(sh_cmd, "r"))){
 			Logger::Stream(LEVEL_ERROR, tags) << "Tar creation failed.";
 		}
@@ -350,7 +355,7 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 		for(int y = 0; y < EN; y++){
 			std::string newDest = dest + pastReg[y] + ".tar";
 			pastReg[y] = pastReg[y] + "_";
-			sprintf(sh_cmd, "tar -czf %s -C %s `ls -lr %s | grep ^- | awk '{print $9}' | grep \"%s\" | head -%d` >/dev/null 2>&1", (char*)newDest.c_str(), (char*)dest.c_str(), (char*)dest.c_str(), (char*)pastReg[y].c_str(), 50);
+			sprintf(sh_cmd, "tar -czf %s -C %s `ls -lr %s | grep ^- | awk '{print $9}' | grep \"%s\" | head -%d`>/dev/null 2>&1", (char*)newDest.c_str(), (char*)dest.c_str(), (char*)dest.c_str(), (char*)pastReg[y].c_str(), 50);
 			if(!(fd = popen(sh_cmd, "r"))){
 				Logger::Stream(LEVEL_ERROR, tags) << "Tar creation failed.";
 				pclose(fd);
@@ -361,6 +366,7 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 				break;
 			}
 			Files.push_back(newDest);
+			Logger::Stream(LEVEL_INFO,tags) << "Created tar file for regex: " << newDest;
 		}
 	}else if(R == "RA"){
 		int i = dest.length()-1;
@@ -378,12 +384,7 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 			i--;
 		}
 		std::string nRegex = regex.substr(0,regex.size() - end.size());
-		lock.lock();;
-		std::ifstream rebootFile(REBOOT_FILE);
-		int intCount;
-		rebootFile >> intCount;
-		rebootFile.close();
-		lock.unlock();
+		int intCount = Reboot_num;
 		int itr = intCount - EN;
 		std::string pastReg[itr+1];
 		for(int x = 0; x < itr+1; x++){
@@ -410,6 +411,7 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 				break;
 			}
 			Files.push_back(newDest);
+			Logger::Stream(LEVEL_INFO,tags) << "Created tar file for regex: " << newDest;
 		}
 	}
 	// handle multiple tar balls
@@ -440,6 +442,7 @@ void FileManager::generateFilesList(std::string dir){
 		if ( entry->d_name[0] != '.'){
 			fwrite(entry->d_name,strlen(entry->d_name),1,dwlkDFL);
 			fwrite(",",strlen(","),1,dwlkDFL);
+			Logger::Stream(LEVEL_DEBUG,tags) << "Generate file list entry: " << entry->d_name;
 		}
 	}
 	fwrite("\n",strlen("\n"),1,dwlkDFL);
@@ -476,7 +479,7 @@ int FileManager::regexDelete(std::string dest,std::string R){
 				dest = dest.substr(0,dest.size()-ext.size());
 			}
 			regex = regex + "_";
-			sprintf(sh_cmd, "rm -r `ls -l %s | grep ^- | awk '{print \"%s\" \"/\" $9}' | grep \"%s\"`", (char*)dest.c_str(), (char*)dest.c_str(), (char*)regex.c_str());
+			sprintf(sh_cmd, "rm -rf `ls -l %s | grep ^- | awk '{print \"%s\" \"/\" $9}' | grep \"%s\"`", (char*)dest.c_str(), (char*)dest.c_str(), (char*)regex.c_str());
 			lock.lock();
 			if(!(fd = popen(sh_cmd, "r"))){
 				Logger::Stream(LEVEL_ERROR, tags) << "Regex files could not be deleted.";
@@ -517,7 +520,7 @@ int FileManager::regexDelete(std::string dest,std::string R){
 			}
 			lock.lock();
 			for(int y = 0; y < EN; y++){
-				sprintf(sh_cmd, "rm -r `ls -l %s | grep ^- | awk '{print \"%s\" \"/\" $9}' | grep \"%s\"`", (char*)dest.c_str(), (char*)dest.c_str(), (char*)pastReg[y].c_str());;
+				sprintf(sh_cmd, "rm -rf `ls -l %s | grep ^- | awk '{print \"%s\" \"/\" $9}' | grep \"%s\"`", (char*)dest.c_str(), (char*)dest.c_str(), (char*)pastReg[y].c_str());;
 				if(!(fd = popen(sh_cmd, "r"))){
 					Logger::Stream(LEVEL_ERROR, tags) << "Regex files could not be deleted.";
 					pclose(fd);
@@ -547,12 +550,7 @@ int FileManager::regexDelete(std::string dest,std::string R){
 				i--;
 			}
 			std::string nRegex = regex.substr(0,regex.size() - end.size());
-			lock.lock();
-			std::ifstream rebootFile(REBOOT_FILE);
-			int intCount;
-			rebootFile >> intCount;
-			rebootFile.close();
-			lock.unlock();
+			int intCount = Reboot_num;
 			int itr = intCount - EN;
 			std::string pastReg[itr+1];
 			for(int x = 0; x < itr+1; x++){
@@ -565,9 +563,8 @@ int FileManager::regexDelete(std::string dest,std::string R){
 			if(dest != ext && dest.size() > ext.size() && (dest.substr((dest.size() - ext.size())) == regex)){
 				dest = dest.substr(0,dest.size()-ext.size());
 			}
-			lock.lock();
 			for(int y = 0; y < itr+1; y++){
-				sprintf(sh_cmd, "rm -r `ls -l %s | grep ^- | awk '{print \"%s\" \"/\" $9}' | grep \"%s\"`", (char*)dest.c_str(), (char*)dest.c_str(), (char*)pastReg[y].c_str());;
+				sprintf(sh_cmd, "rm -rf `ls -l %s | grep ^- | awk '{print \"%s\" \"/\" $9}' | grep \"%s\"`", (char*)dest.c_str(), (char*)dest.c_str(), (char*)pastReg[y].c_str());;
 				if(!(fd = popen(sh_cmd, "r"))){
 					Logger::Stream(LEVEL_ERROR, tags) << "Regex files could not be deleted.";
 					pclose(fd);
@@ -580,7 +577,6 @@ int FileManager::regexDelete(std::string dest,std::string R){
 					return -1;
 				}
 			}
-			lock.unlock();
 		}
 	//TODO: Error handling
 	Logger::Stream(LEVEL_INFO, tags) << "Files deleted " << R << " with the file path including " << dest;
@@ -630,5 +626,40 @@ void FileManager::writeLog(std::string tags,std::string message){
 
 int FileManager::GetReboot(){
 	return Reboot_num;
+}
+
+void FileManager::handleConfig(){
+	LogTags tags;
+	tags += LogTag("Name", "FileManager");
+	if(FileManager::checkExistance(FMG_CONFIG)){
+		std::vector<uint8_t> buff = FileManager::readFromFile(FMG_CONFIG);
+		FileManager::MAX_FILE_SIZE = (uint16_t)buff.at(1) << 8 |
+				buff.at(0);
+		Logger::Stream(LEVEL_INFO,tags) << " Setting max file size to " << FileManager::MAX_FILE_SIZE << " Bytes";
+	}else{
+		FileManager::MAX_FILE_SIZE = 5000;
+		Logger::Stream(LEVEL_WARN,tags) << "No File Manager configs found";
+
+	}
+}
+
+void FileManager::updateConfig(){
+	LogTags tags;
+	tags += LogTag("Name", "FileManager");
+	if(FileManager::checkExistance(FMG_CONFIG_UP)){
+		std::vector<uint8_t> buff = FileManager::readFromFile(FMG_CONFIG_UP);
+		if(buff.size() != CONFIG_FMG_SIZE){
+			Logger::Stream(LEVEL_ERROR,tags) << "Incorrect Size for config";
+			return;
+		}
+		FileManager::MAX_FILE_SIZE = (uint16_t)buff.at(1) << 8|
+				buff.at(0);
+		Logger::Stream(LEVEL_INFO,tags) << " Setting max file size to " << FileManager::MAX_FILE_SIZE << " Bytes";
+		FileManager::moveFile(FMG_CONFIG_UP,FMG_CONFIG);
+	}
+	else{
+		Logger::Stream(LEVEL_WARN,tags) << "There are no FMG config updates";
+	}
+
 }
 

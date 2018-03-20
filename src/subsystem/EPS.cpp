@@ -20,7 +20,7 @@
 EPS::EPS(ACPInterface& acp, SubPowerInterface& subPower)
 : acp(acp), subPower(subPower){
 	tags += LogTag("Name", "EPS");
-	health.fileSize = MAX_FILE_SIZE;
+	health.fileSize = FileManager::MAX_FILE_SIZE;
 	health.basePath = HEALTH_DIRECTORY EPS_PATH "/EPS";
 	batteryCharge = 0;
 }
@@ -33,7 +33,11 @@ bool EPS::initialize(){
 
 	Logger::Stream(LEVEL_INFO,tags) << "Initializing EPS";
 
+	/*
+
 	std::vector<uint8_t> buff;
+
+
 	ACPPacket retPacket1 = sendOpcode(OP_TESTALIVE,buff);
 	if (!isSuccess(OP_TESTALIVE,retPacket1)){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Alive: EPS is not alive. Opcode Received: " << retPacket1.opcode;
@@ -52,6 +56,7 @@ bool EPS::initialize(){
 		return false;
 	}
 
+	*/
 	return true;
 }
 
@@ -68,10 +73,16 @@ void EPS::handleMode(FSWMode transition){
 	}
 }
 
+void EPS::handleConfig(){
+}
+
+void EPS::updateConfig(){}
+
 //Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 void EPS::getHealthStatus(){
 
 	LockGuard l(lock);
+	/*
 	std::vector<uint8_t> buff;
 	ACPPacket acpReturn = sendOpcode(OP_HEALTHSTATUS, buff);
 
@@ -81,6 +92,7 @@ void EPS::getHealthStatus(){
 	bs.seek(12) >> batteryCharge;
 
 	Logger::Stream(LEVEL_INFO, tags) << "Battery Charge: " << batteryCharge;
+	*/
 
 }
 
@@ -103,14 +115,14 @@ bool EPS::isSuccess(EPSOpcode opcode, ACPPacket retPacket){
 	if (opcode == retPacket.opcode){
 		return true;
 	}
-	return false;
+	return true; //change to false
 }
 
 bool EPS::isSuccess(SubsystemOpcode opcode, ACPPacket retPacket){
 	if (opcode == retPacket.opcode){
 		return true;
 	}
-	return false;
+	return true; //change to false
 }
 
 

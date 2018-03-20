@@ -24,6 +24,8 @@ GPS::GPS(NMEAInterface& nm, SubPowerInterface& pow):nm(nm), pow(pow){
 	solSuccess = false;
 	power = false;
 	isLocked = false;
+	timeout = 0;
+	timein = 0;
 }
 
 
@@ -33,14 +35,54 @@ bool GPS::initialize(){
 	pow.configDelay(0, 1000);
 	powerOff();
 	powerOn();
+	handleConfig();
 	return true;
 }
 
 void GPS::handleMode(FSWMode transition){}
 
+void GPS::handleConfig(){
+	LockGuard l(lock);
+	if(FileManager::checkExistance(GPS_CONFIG)){
+		std::vector<uint8_t> buff = FileManager::readFromFile(GPS_CONFIG);
+		if(buff.size() != CONFIG_GPS_SIZE){
+			Logger::Stream(LEVEL_ERROR,tags) << "Incorrect Size for config";
+			return;
+		}\
+		timeout = ((uint16_t)buff.at(1) << 8)|
+				buff.at(0);
+		timein = ((uint16_t)buff.at(3) << 8)|
+				buff.at(2);
+		Logger::Stream(LEVEL_INFO,tags) << "Setting timeout to " << timeout/60 << " mins and timein to " << timein/3600 << " hrs";
+
+	}
+	else{
+		Logger::Stream(LEVEL_WARN,tags) << "GPS Config file does not exist";
+	}
+
+}
+
+void GPS::updateConfig(){
+	LockGuard l(lock);
+	if(FileManager::checkExistance(GPS_CONFIG_UP)){
+		std::vector<uint8_t> buff = FileManager::readFromFile(GPS_CONFIG_UP);
+		if(buff.size() != CONFIG_GPS_SIZE){
+			Logger::Stream(LEVEL_ERROR,tags) << "Incorrect Size for config";
+			return;
+		}
+		timeout = ((uint16_t)buff.at(1) << 8)|
+				buff.at(0);
+		timein = ((uint16_t)buff.at(3) << 8)|
+				buff.at(2);
+		Logger::Stream(LEVEL_INFO,tags) << "Updating timeout to " << timeout/60 << " mins and timein to " << timein/3600 << " hrs";
+		FileManager::moveFile(GPS_CONFIG_UP,GPS_CONFIG);
+	}
+	else{
+		Logger::Stream(LEVEL_WARN,tags) << "There are no GPS config updates";
+	}
+}
 
 ACPPacket GPS::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
-	//Pretty sure if this gets called, we fucked up
 	assert(false);
 	return ACPPacket(ACS_SYNC, 0);
 }
@@ -134,7 +176,7 @@ void GPS::fetchNewGPS(){
 	if (strcmp("UNKNOWN", strtok(NULL, ",")) != 0) { // time status is ok
 		updateTime = true;
 	}
-	tempData.GPSWeek = (uint16_t) strtoul(strtok(NULL, ","), NULL, 10);
+	tempData.GPSWeek = (int32_t) strtoul(strtok(NULL, ","), NULL, 10);
 	tempData.GPSSec = strtof(strtok(NULL, ","), NULL);
 	token = strtok(NULL, ","); // (UNUSED) receiver status
 	token = strtok(NULL, ","); // (UNUSED) port
@@ -223,6 +265,7 @@ void GPS::fetchNewGPS(){
 	rv2elem(MU_EARTH, tempR, tempV, &(lastLock.elements));
 	lastLock.GPSWeek = tempData.GPSWeek;
 	lastLock.GPSSec = tempData.GPSSec;
+	Logger::Stream(LEVEL_INFO,tags) << "Lock Found";
 	isLocked = true;
 }
 

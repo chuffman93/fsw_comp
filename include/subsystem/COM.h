@@ -37,7 +37,8 @@ public:
 	void handleMode(FSWMode transition);
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 	void getHealthStatus();
-
+	void handleConfig();
+	void updateConfig();
 	ACPPacket sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer);
 	bool isSuccess(COMOpcode opSent, ACPPacket retPacket);
 	bool isSuccess(SubsystemOpcode opSent, ACPPacket retPacket);
@@ -45,7 +46,7 @@ public:
 	HealthFileStruct health;
 private:
 	//Configure the lithium radio
-	void configureLithium();
+	void launchDaemon();
 	//Send the beacon
 	void sendBeacon();
 	//Need to figure out how the GND Communication stuff will work
@@ -55,6 +56,7 @@ private:
 	SubPowerInterface& subPower;
 	Lock lock;
 	LogTags tags;
+	ExternalProcess da;
 };
 
 

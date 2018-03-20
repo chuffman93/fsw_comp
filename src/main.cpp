@@ -22,19 +22,22 @@ using namespace std;
 
 int main() {
 	Architecture::buildTime();
+	FileManager::handleConfig();
 	Logger::setMode(MODE_PW);
 	Logger::setLevel(LEVEL_INFO);
 	Logger::registerThread("MAIN");
 	Logger::registerFilter(LogTag("Name", "GPS"), LEVEL_DEBUG);
+	Logger::registerFilter(LogTag("Name", "GroundCommunication"), LEVEL_DEBUG);
+	Logger::registerFilter(LogTag("Name", "ScheduleManager"), LEVEL_DEBUG);
+	Logger::registerFilter(LogTag("Name", "FileManager"), LEVEL_DEBUG);
 	Logger::registerFilter(LogTag("Name", "NMEAInterface"), LEVEL_DEBUG);
 
 	Logger::log(LEVEL_FATAL, "Entering Main");
 
 	//---------Step1: Build FSW---------------------------
-	Architecture::setInterfaceMode(SOFTWARE);
-	Architecture::buildEPS();
 	Architecture::setInterfaceMode(HARDWARE);
 	Architecture::buildCDH();
+	Architecture::buildEPS();
 	Architecture::buildACS();
 	Architecture::setInterfaceMode(SOFTWARE);
 	Architecture::buildCOM();
@@ -57,6 +60,7 @@ int main() {
 	for(vector<SubsystemBase*>::iterator i = subinit.begin(); i != subinit.end(); i++){
 		(*i)->initialize();
 	}
+
 
 	//---------Step4: Initialize Watchdog-----------------------
 	Watchdog watchdog;
@@ -101,7 +105,6 @@ int main() {
 	//---------Step9: Start Watchdog-----------------------
 	Thread watchdogThread;
 	watchdogThread.CreateThread(NULL, FSWThreads::WatchdogThread, (void*)&watchdog);
-
 
 	//---------Step10: Join Threads (never reached)-----------------------
 	int rv = 0;

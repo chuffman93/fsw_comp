@@ -23,16 +23,15 @@ std::string teststr = "BESTXYZA,COM1,0,55.0,FINESTEERING,1981,140418.000,0200004
 
 class MockNMEA: public NMEAInterface{
 public:
-	MockNMEA():NMEAInterface(dummyu){}
+	MockNMEA():NMEAInterface(dummyu){testst = "";}
 	std::string getString(){
-		return teststr;
+		return testst;
 	}
 
 	void sendCommand(std::string str){
 
 	}
-
-	std::string teststr;
+	std::string testst;
 };
 
 class MockPower: public SubPowerInterface{
@@ -47,12 +46,13 @@ public:
 	bool faultOccurred(){return false;}
 };
 
+
 TEST_CASE("Test GPS fetchNewGPS", "[.][subsystem][gps]"){
 	MockNMEA nm;
 	MockPower pow;
 	GPS gps(nm, pow);
 	initializeTime();
-	nm.teststr = teststr;
+	nm.testst = teststr;
 	gps.fetchNewGPS();
 	GPSPositionTime pt = gps.getBestXYZI();
 	REQUIRE(fabs(pt.posX - 6878.14) < 0.01);
@@ -63,19 +63,17 @@ TEST_CASE("Test GPS fetchNewGPS", "[.][subsystem][gps]"){
 	REQUIRE(fabs(pt.velZ - 7.612607) < 0.01);
 	REQUIRE(pt.GPSWeek == 1981);
 	REQUIRE(pt.GPSSec  == 140418);
-
-
 }
 
 TEST_CASE("Test that it doesn't set when the string is invalid", "[subsystem][gps][op]"){
 	MockNMEA nm;
 	MockPower pow;
 	GPS gps(nm, pow);
-	nm.teststr = teststr;
+	nm.testst = teststr;
 	initializeTime();
 	gps.fetchNewGPS();
 	GPSPositionTime old = gps.getBestXYZI();
-	nm.teststr = "B" + teststr; //Give an invalid char at the front
+	nm.testst = "B" + teststr; //Give an invalid char at the front
 	gps.fetchNewGPS();
 
 	GPSPositionTime pt = gps.getBestXYZI();
@@ -97,7 +95,7 @@ TEST_CASE("Test GPS Orbital Propagator", "[subsystem][gps][op]"){
 	GPS gps(nm, pow);
 	// need to run propagater over a some time
 	initializeTime();
-	nm.teststr = teststr;
+	nm.testst = teststr;
 	gps.fetchNewGPS();
 	GPSPositionTime pt;
 	uint32_t timeFSW = getCurrentTime();
@@ -112,5 +110,17 @@ TEST_CASE("Test GPS Orbital Propagator", "[subsystem][gps][op]"){
 		o << timeFSW << "," << pt.posX << "," << pt.posY << "," << pt.posZ << "\n";
 	}
 	o.close();
+}
+
+TEST_CASE("Test GPS Config", "[.][subsystem][gps][cf]"){
+	MockNMEA nm;
+	MockPower pow;
+	GPS gps(nm, pow);
+	gps.initialize();
+	uint16_t to = 900;
+	uint16_t ti = 7200;
+	REQUIRE(gps.timeout == to);
+	REQUIRE(gps.timein == ti);
+
 }
 

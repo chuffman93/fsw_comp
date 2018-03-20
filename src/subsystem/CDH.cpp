@@ -4,7 +4,7 @@
 CDH::CDH(std::vector<HotSwapInterface*> * hotswaps, std::vector<PowerMonitorInterface*> * powermonitors, std::vector<TempInterface*> * thermalsensors, OneWireManager* onewire)
 : HotSwaps(hotswaps), PowerMonitors(powermonitors), ThermalSensors(thermalsensors), OneWireMan(onewire) {
 	tags+= LogTag("Name","CDH");
-	health.fileSize = MAX_FILE_SIZE;
+	health.fileSize = FileManager::MAX_FILE_SIZE;
 	health.basePath = HEALTH_DIRECTORY CDH_PATH "/CDH";
 }
 
@@ -29,6 +29,7 @@ bool CDH::initialize(){
 	Logger::Stream(LEVEL_INFO,tags) << "Initializing Temperature Monitors";
 	OneWireMan->initialize();
 
+	handleConfig();
 	return true;
 
 }
@@ -37,6 +38,11 @@ bool CDH::initialize(){
 void CDH::handleMode(FSWMode transition){
 
 }
+
+void CDH::handleConfig(){}
+
+void CDH::updateConfig(){}
+
 
 //Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 void CDH::getHealthStatus(){

@@ -9,7 +9,9 @@
 #include "subsystem/COM.h"
 #include "core/ScheduleManager.h"
 #include "core/GroundCommunication.h"
+#include "core/Architecture.h"
 #include "util/TimeKeeper.h"
+
 
 using namespace std;
 
@@ -75,23 +77,20 @@ void * FSWThreads::GPSThread(void * args) {
 	while (1) {
 		// GPS on, if lock, shut off GPS.
 		// Override in PLD (GPS) on
-		// config: how often to turn GPS on. (every two hours?)
-		// dont set the string to false when getting, use previous string otherwise
-		// config: Timeout for GPS (first time, no, but after) (maybe 15 mins)
-		for(int i = 0; i <= 3600; i++){
+		for(int i = 0; i <= gps->timein; i++){
 			// if gps is on, try to get a lock
 			if(gps->isOn()){
 				Logger::Stream(LEVEL_INFO) << "Fetching GPS";
 				gps->fetchNewGPS();
 			}
 			// check if the lock was a success
-			if(!gps->getSuccess() && gps->isOn() && (i < 450 || !gps->getLockStatus())){
+			if(!gps->getSuccess() && gps->isOn() && (i < gps->timeout || !gps->getLockStatus())){
 				Logger::Stream(LEVEL_INFO) << "No Lock";
 				if(gps->getLockStatus()){
 					acs->sendGPS(gps->getBestXYZI());
 				}
 				watchdog->KickWatchdog();
-				sleep(2);
+				sleep(1);
 				continue;
 			}
 			else if(gps->isOn()){
@@ -99,7 +98,7 @@ void * FSWThreads::GPSThread(void * args) {
 			}
 			watchdog->KickWatchdog();
 			acs->sendGPS(gps->getBestXYZI());
-			sleep(2);
+			sleep(1);
 		}
 		gps->powerOn();
 
@@ -133,6 +132,14 @@ void * FSWThreads::GroundThread(void * args) {
 			scheduler->setModeToCom();
 		}else if(!toCom && scheduler->getCurrentMode() == Mode_Com){
 			scheduler->exitComMode();
+			std::vector<SubsystemBase*> seq = Architecture::buildCFVector();
+			for (std::vector<SubsystemBase*>::iterator i = seq.begin();
+					i != seq.end(); i++) {
+				(*i)->updateConfig();
+				watchdog->KickWatchdog();
+			}
+			scheduler->updateConfig();
+			FileManager::updateConfig();
 		}
 		watchdog->KickWatchdog();
 		sleep(1);

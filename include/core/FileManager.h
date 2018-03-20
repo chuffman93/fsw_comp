@@ -12,16 +12,18 @@
 #include "util/Logger.h"
 #include "core/Lock.h"
 #include "util/TimeKeeper.h"
+#include "interfaces/ExternalProcess.h"
 
 
-#include <stdint.h>
+
 #include <vector>
 #include <unistd.h>
 #include <dirent.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "interfaces/ExternalProcess.h"
+
+#define CONFIG_FMG_SIZE 2
 
 class FileManager {
 public:
@@ -56,6 +58,10 @@ public:
 	static void writeLog(std::string tags,std::string message);
 	static int GetReboot();
 
+	static void handleConfig();
+	static void updateConfig();
+
+	static uint16_t MAX_FILE_SIZE;
 	//static FileManager fm;
 
 private:

@@ -3,6 +3,7 @@
 import struct
 import os
 import time
+import numpy as np
 
 class DITLSch:
 	def __init__(self,m,e,d):
@@ -13,7 +14,7 @@ class DITLSch:
 
 
 def createSchedule(nextSchedule):
-	F = open("SCH",mode = "wb")
+	F = open("SCH.bin",mode = "wb")
 	for x in nextSchedule:
 		F.write(x.mode)
 		F.write(x.epoch)
@@ -34,18 +35,27 @@ def createIEF(nextIEF):
 	F.close()
 
 def sendSOT():
-	F = open("SOT","wb")
+	F = open("SOT.txt","wb")
 	buff = []
 	F.write(struct.pack('B',0))
 	F.close()
-	os.rename("SOT","./home/root/uplink/SOT")
+	os.rename("SOT.txt","./opt/uplink/SOT.txt")
 
 
 def sendIEF():
-	os.rename("IEF.txt","./home/root/uplink/IEF.txt")
+	os.rename("IEF.txt","./opt/uplink/IEF.txt")
 
 def sendSchedule():
-	os.rename("SCH","./home//root/uplink/SCH")
+	os.rename("SCH.bin","./opt/uplink/SCH.bin")
+
+def sendGPSConfig():
+	os.rename("ConfigUpGPS","./opt/uplink/ConfigUpGPS")
+
+def sendSCHConfig():
+	os.rename("ConfigUpSCH","./opt/uplink/ConfigUpSCH")
+
+def sendFMGConfig():
+	os.rename("ConfigUpFMG","./opt/uplink/ConfigUpFMG")
 
 
 
@@ -77,10 +87,31 @@ for i in nextSchedule:
 	print("Schedule is Mode: %u TSE: %u Duration: %u" %(struct.unpack(">B",i.mode)[0],struct.unpack(">I",i.epoch)[0],struct.unpack(">I",i.duration)[0]))
 createSchedule(nextSchedule)
 createIEF("")
+of = open("ConfigUpGPS",'wb')
+timeout = np.uint16(600)
+timein = np.uint16(7200)
+of.write(timeout)
+of.write(timein)
+of.close()
+
+of = open("ConfigUpSCH",'wb')
+timeout = np.uint32(172800)
+timein = np.uint32(1200)
+of.write(timeout)
+of.write(timein)
+of.close()
+
+of = open("ConfigUpFMG",'wb')
+timeout = np.uint16(5000)
+of.write(timeout)
+of.close()
 
 print("----------Sending Next Schedule for Payload Mode----------")
 sendSOT()
 time.sleep(5)
 sendSchedule()
-time.sleep(15)
+sendGPSConfig()
+sendSCHConfig()
+sendFMGConfig();
+time.sleep(10)
 sendIEF()

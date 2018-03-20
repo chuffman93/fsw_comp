@@ -19,11 +19,17 @@ void GroundCommunication::downlinkFiles(){
 
 	if (!DownlinkQueue.empty()){
 		std::string file = DownlinkQueue.front();
-		if (!FileManager::checkExistance(DOWNLINK_DIRECTORY + file)){
-			Logger::Stream(LEVEL_INFO,tags) << "Downlinking Next File";
+		if (firstFile == true){
+			Logger::Stream(LEVEL_INFO,tags) << "Downlinking Next File" << grabFileName(file);
+			FileManager::copyFile(file, DOWNLINK_DIRECTORY + grabFileName(file));
+			firstFile = false;
+		}else if (!FileManager::checkExistance(DOWNLINK_DIRECTORY + grabFileName(file))){
 			DownlinkQueue.pop();
-			file = DownlinkQueue.front();
-			FileManager::copyFile(file, DOWNLINK_DIRECTORY + file);
+			if (!DownlinkQueue.empty()){
+				file = DownlinkQueue.front();
+				Logger::Stream(LEVEL_INFO,tags) << "Downlinking Next File: " << grabFileName(file);
+				FileManager::copyFile(file, DOWNLINK_DIRECTORY + grabFileName(file));
+			}
 		}
 	}
 	if (DownlinkQueue.empty()){
@@ -92,7 +98,6 @@ void GroundCommunication::parseDownlinkRequest(std::string line){
 		//log error
 		return;
 	}
-	LockGuard l(lock);
 	if (strcmp(type,"F") == 0){
 		Logger::Stream(LEVEL_INFO,tags) << "Adding file(s): " << line << " to downlink queue";
 		while (file != NULL){
@@ -108,19 +113,21 @@ void GroundCommunication::parseDownlinkRequest(std::string line){
 			std::string regex = trimNewline(std::string(file));
 			std::vector<std::string> reg = FileManager::packageFiles(regex,"R");
 			std::vector<std::string>::iterator it;
-			for (it = reg.begin(); it <= reg.end(); it++){
+			for (it = reg.begin(); it < reg.end(); it++){
+				Logger::Stream(LEVEL_DEBUG,tags) << "Adding: " << *it << " to downlink queue";
 				DownlinkQueue.push(*it);
 			}
 			file = strtok(NULL,",");
 		}
 
 	}else if (strcmp(type,"RB") == 0){
-		Logger::Stream(LEVEL_INFO,tags) << "Adding regex before(s) " << line << " to downlink queue";
+		Logger::Stream(LEVEL_INFO,tags) << "Adding regex(s) before " << line << " to downlink queue";
 		while (file != NULL){
 			std::string regex = trimNewline(std::string(file));
 			std::vector<std::string> reg = FileManager::packageFiles(regex,"RB");
 			std::vector<std::string>::iterator it;
-			for (it = reg.begin(); it <= reg.end(); it++){
+			for (it = reg.begin(); it < reg.end(); it++){
+				Logger::Stream(LEVEL_DEBUG,tags) << "Adding: " << *it << " to downlink queue";
 				DownlinkQueue.push(*it);
 			}
 			file = strtok(NULL,",");
@@ -132,7 +139,8 @@ void GroundCommunication::parseDownlinkRequest(std::string line){
 			std::string regex = trimNewline(std::string(file));
 			std::vector<std::string> reg = FileManager::packageFiles(regex,"RA");
 			std::vector<std::string>::iterator it;
-			for (it = reg.begin(); it <= reg.end(); it++){
+			for (it = reg.begin(); it < reg.end(); it++){
+				Logger::Stream(LEVEL_DEBUG,tags) << "Adding: " << *it << " to downlink queue";
 				DownlinkQueue.push(*it);
 			}
 			file = strtok(NULL,",");
@@ -158,7 +166,6 @@ void GroundCommunication::parseDeletionRequest(std::string line){
 		//log error
 		return;
 	}
-	LockGuard l(lock);
 	if (strcmp(type,"F") == 0){
 		Logger::Stream(LEVEL_INFO,tags) << "Deleting file(s) " << line ;
 		while (file != NULL){
@@ -180,7 +187,7 @@ void GroundCommunication::parseDeletionRequest(std::string line){
 		Logger::Stream(LEVEL_INFO,tags) << "Deleting regex(s) before " << line ;
 		while (file != NULL){
 			std::string regex = trimNewline(std::string(file));
-			FileManager::regexDelete(regex,"R");
+			FileManager::regexDelete(regex,"RB");
 			file = strtok(NULL,",");
 		}
 
@@ -188,7 +195,7 @@ void GroundCommunication::parseDeletionRequest(std::string line){
 		Logger::Stream(LEVEL_INFO,tags) << "Deleting regex(s) after " << line ;
 		while (file != NULL){
 			std::string regex = trimNewline(std::string(file));
-			FileManager::regexDelete(regex,"R");
+			FileManager::regexDelete(regex,"RA");
 			file = strtok(NULL,",");
 		}
 
@@ -303,13 +310,24 @@ void GroundCommunication::parseFileListRequest(std::string line){
 	if (dir == NULL){
 		//log error
 	}
-	LockGuard l(lock);
 	while (dir != NULL){
 		std::string directory = trimNewline(std::string(dir));
 		FileManager::generateFilesList(directory);
 		dir = strtok(NULL, ",");
 	}
 }
+
+std::string GroundCommunication::grabFileName(std::string path){
+	int i = path.length()-1;
+	std::string filename = "";
+	while(path[i]!='/'){
+		filename = path[i]+filename;
+		i--;
+	}
+	Logger::Stream(LEVEL_DEBUG,tags) << "Grabbed file name for downlink: " << filename;
+	return filename;
+}
+
 
 
 void GroundCommunication::parseIEF(){
@@ -335,8 +353,6 @@ void GroundCommunication::parseIEF(){
 			parseFileListRequest((*it).c_str());
 		}
 	}
-
-	FileManager::deleteFile(IEF_PATH);
 }
 
 
@@ -376,7 +392,8 @@ bool GroundCommunication::spinGround(Watchdog* watchdog){
 		Logger::Stream(LEVEL_INFO,tags) << "Sending beacon...";
 		beacon.sendBeacon();
 		Logger::Stream(LEVEL_INFO,tags) << "Beacon has been sent";
-		for (int i=0; i<60; i++){
+		for(int i = 0; i <= 60; i++){
+			if(FileManager::checkExistance(SOT_PATH)){break;}
 			watchdog->KickWatchdog();
 			sleep(1);
 		}
