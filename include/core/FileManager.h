@@ -61,6 +61,8 @@ public:
 	static void handleConfig();
 	static void updateConfig();
 
+	static std::vector<std::string> splitFile(std::string filePath);
+
 	static uint16_t MAX_FILE_SIZE;
 	//static FileManager fm;
 
@@ -68,6 +70,7 @@ private:
 	static Lock lock;
 	static std::string logMessageFP;
 	static int Reboot_num;
+	static uint16_t MAX_DOWN_SIZE;
 
 };
 

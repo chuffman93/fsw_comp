@@ -660,6 +660,7 @@ void FileManager::updateConfig(){
 	else{
 		Logger::Stream(LEVEL_WARN,tags) << "There are no FMG config updates";
 	}
-
 }
+
+
 

@@ -246,7 +246,8 @@ int RAD::splitData(){
 	// get how many files it was split into by dividing the dataFile size by the number of bytes per chunk
 	std::ifstream in(dataPath, std::ifstream::ate | std::ifstream::binary);
 	long f_bytes = in.tellg();
-	int n_splits = f_bytes/RAD_CHUNK_SIZE;in.close();
+	int n_splits = f_bytes/RAD_CHUNK_SIZE;
+	in.close();
 	// split the file within the location using the same name (tags on 000,001,002,ect.)
 	if(n_splits > 0){
 		sprintf(chunksize,"%d",RAD_CHUNK_SIZE);
