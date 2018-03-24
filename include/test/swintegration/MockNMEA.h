@@ -16,10 +16,12 @@ public:
 	~MockNMEA();
 
 	std::string getString();
+	void setString(std::string fakeGPS);
 	void sendCommand(std::string str);
 
 private:
 	LogTags tags;
+	std::string teststr;
 };
 
 

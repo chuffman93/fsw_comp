@@ -139,6 +139,12 @@ void FileManager::deleteFile(std::string filePath){
 
 }
 
+void FileManager::appendToStringFile(std::string filePath, std::vector<std::string>& buffer){
+
+
+}
+
+
 /*!
  * Checks the existance of a file
  * \param file path to file to be checked

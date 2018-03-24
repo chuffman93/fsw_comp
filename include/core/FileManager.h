@@ -36,6 +36,8 @@ public:
 	//for file that need to be appended to or new files
 	static void appendToFile(std::string filePath, std::vector<uint8_t>& buffer);
 
+	static void appendToStringFile(std::string filePath, std::vector<std::string>& buffer);
+
 	static void deleteFile(std::string filePath);
 	static bool checkExistance(std::string filePath);
 	static void moveFile(std::string filePath, std::string newfilePath);

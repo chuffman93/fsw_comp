@@ -317,6 +317,11 @@ void GroundCommunication::parseFileListRequest(std::string line){
 	}
 }
 
+void GroundCommunication::createCommandAcknowledgement(std::string command, std::string success){
+
+}
+
+
 std::string GroundCommunication::grabFileName(std::string path){
 	int i = path.length()-1;
 	std::string filename = "";
