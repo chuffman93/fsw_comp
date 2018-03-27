@@ -140,6 +140,7 @@ void FileManager::deleteFile(std::string filePath){
 
 }
 
+// TODO: Do we need this?
 void FileManager::appendToStringFile(std::string filePath, std::vector<std::string>& buffer){
 
 
@@ -176,8 +177,6 @@ void FileManager::moveFile(std::string filePath, std::string newfilePath){
  * \param base path including the Name of the file
  */
 std::string FileManager::createFileName(std::string basePath){
-
-	//get current time
 	uint32_t currentTime = getCurrentTime();
 	char filePath[50];
 	if(basePath == RAD_FILE_PATH){
@@ -185,7 +184,6 @@ std::string FileManager::createFileName(std::string basePath){
 		return filePath;
 	}
 	sprintf(filePath,"%s_%d_%05d",(char*)basePath.c_str(),Reboot_num,currentTime);
-	// std::string filePath = basePath + "_" + Reboot_num + "_" + time;
 	return filePath;
 }
 
@@ -242,6 +240,10 @@ int FileManager::updateRebootCount(){
 	return RebootCount;
 }
 
+
+/*!
+ * Creates or Updates the COM pass count
+ */
 int FileManager::updateComPassCount(){
 	LogTags tags;
 	tags += LogTag("Name", "FileManager");
@@ -271,6 +273,9 @@ int FileManager::updateComPassCount(){
 	return ComPassCount;
 }
 
+/*!
+ * Used to get the compass count
+ */
 int FileManager::getComPassCount(){
 	LogTags tags;
 	tags += LogTag("Name", "FileManager");
@@ -455,7 +460,10 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 }
 
 
-
+/*!
+ * Generates a list of files in a directory
+ * \param path to the directory
+ */
 void FileManager::generateFilesList(std::string dir){
 	LogTags tags;
 	tags += LogTag("Name", "FileManager");
@@ -618,6 +626,10 @@ int FileManager::regexDelete(std::string dest,std::string R){
 	return 0;
 }
 
+/*!
+ * Function to parse through a given ground file
+ * \param file path to the ground file
+ */
 std::vector<std::string> FileManager::parseGroundFile(std::string filePath){
 	LogTags tags;
 
@@ -642,6 +654,11 @@ std::vector<std::string> FileManager::parseGroundFile(std::string filePath){
 
 }
 
+/*!
+ * Function used to write logger messages to a file
+ * \param tags used in the logger message
+ * \param the message being recoreded
+ */
 void FileManager::writeLog(std::string tags,std::string message){
 
 	if(logMessageFP == ""){
@@ -659,10 +676,16 @@ void FileManager::writeLog(std::string tags,std::string message){
 
 }
 
+/*!
+ * Returns the reboot number
+ */
 int FileManager::GetReboot(){
 	return Reboot_num;
 }
 
+/*!
+ * Sets the configs for the FileManager
+ */
 void FileManager::handleConfig(){
 	LogTags tags;
 	tags += LogTag("Name", "FileManager");
@@ -684,6 +707,9 @@ void FileManager::handleConfig(){
 	}
 }
 
+/*!
+ * Handles updating the config if an update is uploaded
+ */
 void FileManager::updateConfig(){
 	LogTags tags;
 	tags += LogTag("Name", "FileManager");
@@ -708,6 +734,10 @@ void FileManager::updateConfig(){
 	}
 }
 
+/*!
+ * Used to split a file that exceeds the max downlink limit (used primarily for tar archives)
+ * \param Path to the file needing to be split
+ */
 std::vector<std::string> FileManager::splitFile(std::string FilePath){
 	LogTags tags;
 	tags += LogTag("Name", "FileManager");

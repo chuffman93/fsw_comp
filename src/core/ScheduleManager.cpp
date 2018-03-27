@@ -26,7 +26,7 @@ ScheduleManager::ScheduleManager()
  }
 ScheduleManager::~ScheduleManager(){};
 
-//check for mode changes
+//! Checks for mode changes
 FSWMode ScheduleManager::checkNewMode(){
 	LockGuard l(lock);
 
@@ -63,6 +63,7 @@ FSWMode ScheduleManager::checkNewMode(){
 	return CurrentMode;
 }
 
+//! Update the schedule sent by ground
 void ScheduleManager::handleScheduling(){
 	LockGuard l(lock);
 	if (FileManager::checkExistance(NEW_SCH)){
@@ -76,7 +77,10 @@ void ScheduleManager::handleScheduling(){
 
 }
 
-//if new schedule: adds new schedule to queue, otherwise add default schedule to queue if empty
+/*!
+ * If new schedule: adds new schedule to queue
+ * \param path to the schedule
+ */
 void ScheduleManager::loadSchedule(std::string filePath){
 
 
@@ -133,6 +137,11 @@ void ScheduleManager::loadSchedule(std::string filePath){
 	Logger::Stream(LEVEL_DEBUG,tags) << "New Queue Size: " << ScheduleQueue.size() << " With new mode up front being: " << ScheduleQueue.front().mode;
 }
 
+/*!
+ * Handles mode changes
+ * \param Current Mode
+ * \param Mode switching to
+ */
 FSWMode ScheduleManager::handleModeChange(FSWMode current, FSWMode next){
 	switch(current){
 		case Trans_BusToPayload:
@@ -182,6 +191,9 @@ FSWMode ScheduleManager::handleModeChange(FSWMode current, FSWMode next){
 
 }
 
+/*!
+ * Separate function to override schedule to go into com mode
+ */
 void ScheduleManager::setModeToCom(){
 	LockGuard l(lock);
 	Logger::Stream(LEVEL_DEBUG,tags) << "Attempting to switch to Com from GroundCommunication Thread";
@@ -189,25 +201,31 @@ void ScheduleManager::setModeToCom(){
 	currentSchedule = com;
 }
 
+/*!
+ * Exits com mode
+ */
 void ScheduleManager::exitComMode(){
 	LockGuard l(lock);
 	Logger::Stream(LEVEL_DEBUG,tags) << "Attempting to switch back from Com from GroundCommunication Thread";
 	currentSchedule = ScheduleQueue.front();
 }
 
+//! returns the mode that we are currently in
 FSWMode ScheduleManager::getCurrentMode(){
 	return CurrentMode;
 }
 
-
+//! returns the time the mode was entered
 uint32_t ScheduleManager::getModeEnterTime(){
 	return modeEnterTime;
 }
 
+//! returns the com pass count
 int ScheduleManager::getComPassCount(){
 	return ComPassCount;
 }
 
+//! handles the config for ScheduleManager
 void ScheduleManager::handleConfig(){
 	LockGuard l(lock);
 	if(FileManager::checkExistance(SCH_CONFIG)){
@@ -227,6 +245,7 @@ void ScheduleManager::handleConfig(){
 	}
 }
 
+//! handles updating the configs if ground uploads an update
 void ScheduleManager::updateConfig(){
 	LockGuard l(lock);
 	if(FileManager::checkExistance(SCH_CONFIG_UP)){
@@ -249,6 +268,11 @@ void ScheduleManager::updateConfig(){
 	else{
 		Logger::Stream(LEVEL_WARN,tags) << "There are no SCH config updates";
 	}
+}
+
+//! returns timeout for com (used to synch with GroundCommunication timeout
+uint32_t ScheduleManager::getComTimeout(){
+	return com.duration;
 }
 
 

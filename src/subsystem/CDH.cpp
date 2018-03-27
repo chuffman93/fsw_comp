@@ -12,7 +12,7 @@ CDH::~CDH(){
 
 }
 
-//Will set up the Gpio lines and the acp devices
+//! Will set up the Gpio lines, acp devices, and handles the configs
 bool CDH::initialize(){
 
 	std::vector<HotSwapInterface*>::iterator it1;
@@ -34,17 +34,14 @@ bool CDH::initialize(){
 
 }
 
-//Handles any mode transition needs as well as any needs for tasks to be done in a mode.
-void CDH::handleMode(FSWMode transition){
-
-}
+void CDH::handleMode(FSWMode transition){}
 
 void CDH::handleConfig(){}
 
 void CDH::updateConfig(){}
 
 
-//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
+//! Handles the capturing and storing of the health and status for a subsystem
 void CDH::getHealthStatus(){
 	std::vector<HotSwapData> HSHealth = collectHotswap();
 	std::vector<PowerMonitorData> PMHealth = collectPowermon();
@@ -73,12 +70,17 @@ void CDH::getHealthStatus(){
 
 }
 
+/*!
+ * Handles sendig opCodes
+ * \param opcode to be sent
+ * \param buffer to be sent if needed
+ */
 ACPPacket CDH::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
 	ACPPacket packet;
 	return packet;
 }
 
-//Various methods for data collection
+//! Handles collecting hot swap data
 std::vector<HotSwapData> CDH::collectHotswap(){
 	std::vector<HotSwapInterface*>::iterator it;
 	std::vector<HotSwapData> data;
@@ -91,6 +93,7 @@ std::vector<HotSwapData> CDH::collectHotswap(){
 	return data;
 }
 
+//! Handles collecting Power data
 std::vector<PowerMonitorData> CDH::collectPowermon(){
 	std::vector<PowerMonitorInterface*>::iterator it;
 	std::vector<PowerMonitorData> data;
@@ -103,6 +106,7 @@ std::vector<PowerMonitorData> CDH::collectPowermon(){
 
 }
 
+//! Handles collecting Temp Data
 std::vector<float> CDH::collectTherm(){
 	std::vector<TempInterface*>::iterator it;
 	std::vector<float> data;
