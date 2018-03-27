@@ -144,6 +144,7 @@ FSWMode ScheduleManager::handleModeChange(FSWMode current, FSWMode next){
 			return Mode_Bus;
 
 		case Trans_BusToCom:
+			FileManager::updateComPassCount();
 			return Mode_Com;
 
 		case Trans_ComToBus:
@@ -186,7 +187,6 @@ void ScheduleManager::setModeToCom(){
 	Logger::Stream(LEVEL_DEBUG,tags) << "Attempting to switch to Com from GroundCommunication Thread";
 	com.timeSinceEpoch = getCurrentTime();
 	currentSchedule = com;
-	FileManager::updateComPassCount();
 }
 
 void ScheduleManager::exitComMode(){

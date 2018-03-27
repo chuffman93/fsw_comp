@@ -20,14 +20,14 @@ void GroundCommunication::downlinkFiles(){
 	if (!DownlinkQueue.empty()){
 		std::string file = DownlinkQueue.front();
 		if (firstFile == true){
-			Logger::Stream(LEVEL_INFO,tags) << "Downlinking Next File" << grabFileName(file);
+			Logger::Stream(LEVEL_INFO,tags) << "Downlinking Next File: " << grabFileName(file).c_str();
 			FileManager::copyFile(file, DOWNLINK_DIRECTORY + grabFileName(file));
 			firstFile = false;
 		}else if (!FileManager::checkExistance(DOWNLINK_DIRECTORY + grabFileName(file))){
 			DownlinkQueue.pop();
 			if (!DownlinkQueue.empty()){
 				file = DownlinkQueue.front();
-				Logger::Stream(LEVEL_INFO,tags) << "Downlinking Next File: " << grabFileName(file);
+				Logger::Stream(LEVEL_INFO,tags) << "Downlinking Next File: " << grabFileName(file).c_str();
 				FileManager::copyFile(file, DOWNLINK_DIRECTORY + grabFileName(file));
 			}
 		}
@@ -114,7 +114,7 @@ void GroundCommunication::parseDownlinkRequest(std::string line){
 			std::vector<std::string> reg = FileManager::packageFiles(regex,"R");
 			std::vector<std::string>::iterator it;
 			for (it = reg.begin(); it < reg.end(); it++){
-				Logger::Stream(LEVEL_DEBUG,tags) << "Adding: " << *it << " to downlink queue";
+				Logger::Stream(LEVEL_DEBUG,tags) << "Adding: " << (*it).c_str() << ". to downlink queue";
 				DownlinkQueue.push(*it);
 			}
 			file = strtok(NULL,",");
@@ -127,7 +127,7 @@ void GroundCommunication::parseDownlinkRequest(std::string line){
 			std::vector<std::string> reg = FileManager::packageFiles(regex,"RB");
 			std::vector<std::string>::iterator it;
 			for (it = reg.begin(); it < reg.end(); it++){
-				Logger::Stream(LEVEL_DEBUG,tags) << "Adding: " << *it << " to downlink queue";
+				Logger::Stream(LEVEL_DEBUG,tags) << "Adding: " << (*it).c_str() << ". to downlink queue";
 				DownlinkQueue.push(*it);
 			}
 			file = strtok(NULL,",");
@@ -140,7 +140,7 @@ void GroundCommunication::parseDownlinkRequest(std::string line){
 			std::vector<std::string> reg = FileManager::packageFiles(regex,"RA");
 			std::vector<std::string>::iterator it;
 			for (it = reg.begin(); it < reg.end(); it++){
-				Logger::Stream(LEVEL_DEBUG,tags) << "Adding: " << *it << " to downlink queue";
+				Logger::Stream(LEVEL_DEBUG,tags) << "Adding: " << (*it).c_str() << " to downlink queue";
 				DownlinkQueue.push(*it);
 			}
 			file = strtok(NULL,",");
@@ -329,7 +329,7 @@ std::string GroundCommunication::grabFileName(std::string path){
 		filename = path[i]+filename;
 		i--;
 	}
-	Logger::Stream(LEVEL_DEBUG,tags) << "Grabbed file name for downlink: " << filename;
+	Logger::Stream(LEVEL_DEBUG,tags) << "Grabbed file name for downlink: " << filename.c_str() << ".";
 	return filename;
 }
 
