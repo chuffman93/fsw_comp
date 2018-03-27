@@ -116,7 +116,7 @@ TEST_CASE("Communicate with EPS", "[.][hardware][acp][EPS]"){
 	Logger::setMode(MODE_PRINT);
 	Logger::setLevel(LEVEL_DEBUG);
 	int spiid, intrid, acpid;
-	SPIManager spi("/dev/spidev32765", 1, 1000000);
+	SPIManager spi("/dev/spidev32765", 0, 1000000);
 	GPIOManager gpio("/sys/class/gpio/");
 	ACPPacket test_send(EPS_SYNC, 8), test_recv;
 
@@ -132,6 +132,7 @@ TEST_CASE("Communicate with EPS", "[.][hardware][acp][EPS]"){
 
 	INFO("Create an ACPInterface")
 	ACPInterface acp(spi, gpio, spiid, intrid,"");
+	acp.setTimeouts(10000000,10,100);
 
 	PROMPT("Ready to send to EPS...");
 	REQUIRE(acp.transaction(test_send, test_recv) == true);
