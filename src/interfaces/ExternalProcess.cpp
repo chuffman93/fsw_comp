@@ -41,7 +41,7 @@ void ExternalProcess::launchProcess(char * argv[]){
 /*!
  * Used to initialize a process that needs to also be configured (e.g. slip)
  * \param array of arguments to first system call
- * \param array of arguments to second system call
+ * \param array of arguments to second system call (can be NULL if no configuration is needed)
  */
 void ExternalProcess::launchProcess(char * argv[],char * argc[]){
 	child_pid = fork();

@@ -41,6 +41,7 @@ bool GPS::initialize(){
 
 void GPS::handleMode(FSWMode transition){}
 
+//! handles the configs for GPS
 void GPS::handleConfig(){
 	LockGuard l(lock);
 	if(FileManager::checkExistance(GPS_CONFIG)){
@@ -62,6 +63,7 @@ void GPS::handleConfig(){
 
 }
 
+//! handles updating configs if needed
 void GPS::updateConfig(){
 	LockGuard l(lock);
 	if(FileManager::checkExistance(GPS_CONFIG_UP)){
@@ -82,17 +84,23 @@ void GPS::updateConfig(){
 	}
 }
 
+/*!
+ * Handles sending opcodes
+ * \param opcode to be sent
+ * \param buffer to be sent if needed
+ */
 ACPPacket GPS::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
 	assert(false);
 	return ACPPacket(ACS_SYNC, 0);
 }
 
+// TODO: Will this be needed?
 void GPS::getHealthStatus(){
 	LockGuard l(lock);
 	Logger::log(LEVEL_WARN, tags, "GPS Health and Status isn't implemented yet!");
 }
 
-
+//! Gets the Propagated ECI coordinates from the orbital elements
 GPSPositionTime GPS::getBestXYZI(){
 	float eciPos[3];
 	float eciVel[3];
@@ -116,6 +124,8 @@ GPSPositionTime GPS::getBestXYZI(){
 
 /*!
  * Waits to get new GPS coordinates then parses them
+ * Takes the ECEF coords and tranforms them into ECI
+ * Then takes the ECI coordinates and chages them into orbital parameters
  */
 void GPS::fetchNewGPS(){
 	LockGuard l(lock);
@@ -269,6 +279,7 @@ void GPS::fetchNewGPS(){
 	isLocked = true;
 }
 
+// TODO: Double check these two
 uint32_t GPS::CRCValue_GPS(int i) {
 	int j;
 	uint32_t ulCRC;
@@ -309,24 +320,29 @@ void GPS::incrementGPSTime(int32_t& GPSWeek, float& GPSSec, float dt){
 	}
 }
 
+//! gets the check on whether or not the GPS gave a successful lock
 bool GPS::getSuccess(){
 	return solSuccess;
 }
 
+//! used to power on
 void GPS::powerOn(){
 	pow.powerOn();
 	power = true;
 }
 
+//! used to power off
 void GPS::powerOff(){
 	pow.powerOff();
 	power = false;
 }
 
+//! returns status of power
 bool GPS::isOn(){
 	return power;
 }
 
+//! returns status of the gps lock
 bool GPS::getLockStatus(){
 	return isLocked;
 }

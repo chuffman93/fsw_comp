@@ -31,7 +31,6 @@ int main() {
 	Logger::registerFilter(LogTag("Name", "ScheduleManager"), LEVEL_DEBUG);
 	Logger::registerFilter(LogTag("Name", "FileManager"), LEVEL_DEBUG);
 	Logger::registerFilter(LogTag("Name", "NMEAInterface"), LEVEL_DEBUG);
-
 	Logger::log(LEVEL_FATAL, "Entering Main");
 
 	//---------Step1: Build FSW---------------------------
@@ -61,7 +60,6 @@ int main() {
 		(*i)->initialize();
 	}
 
-
 	//---------Step4: Initialize Watchdog-----------------------
 	Watchdog watchdog;
 
@@ -82,7 +80,6 @@ int main() {
 	gpsThread.CreateThread(NULL, FSWThreads::GPSThread, (void*)&gpsargs);
 	watchdog.AddThread(gpsThread.GetID());
 
-
 	//---------Step7: Initialize Mode Thread-----------------------
 	Thread modeThread;
 	ModeStruct modeargs;
@@ -101,7 +98,6 @@ int main() {
 	gndThread.CreateThread(NULL, FSWThreads::GroundThread, (void*)&gndargs);
 	watchdog.AddThread(gndThread.GetID());
 
-
 	//---------Step9: Start Watchdog-----------------------
 	Thread watchdogThread;
 	watchdogThread.CreateThread(NULL, FSWThreads::WatchdogThread, (void*)&watchdog);
@@ -114,8 +110,6 @@ int main() {
 	gndThread.JoinThread((void*)&rv);
 	watchdogThread.JoinThread((void*)&rv);
 	return 0;
-
-
 }
 
 

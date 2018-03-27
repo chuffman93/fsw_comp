@@ -25,7 +25,7 @@ bool RAD::initialize(){
 }
 
 
-//Handles any mode transition needs as well as any needs for tasks to be done in a mode.
+//! Handles any mode transition needs as well as any needs for tasks to be done in a mode.
 void RAD::handleMode(FSWMode transition){
 	LockGuard l(lock);
 	bool success;
@@ -49,7 +49,7 @@ void RAD::handleConfig(){}
 
 void RAD::updateConfig(){}
 
-//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
+//! Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 void RAD::getHealthStatus(){
 	if(hsAvailable){
 		LockGuard l(lock);
@@ -60,6 +60,11 @@ void RAD::getHealthStatus(){
 	}
 }
 
+/*!
+ * Handles the sending of opcodes
+ * \param opcode to be sent
+ * \param buffer to be sent if need be
+ */
 ACPPacket RAD::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
 	if (buffer.empty()){
 		ACPPacket acpPacket(RAD_SYNC, opcode);
@@ -74,6 +79,7 @@ ACPPacket RAD::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
 	}
 }
 
+//! checks if the PLD opcode being sent was done so successfully
 bool RAD::isSuccess(PLDOpcode opcode, ACPPacket retPacket){
 	if (opcode == retPacket.opcode){
 		return true;
@@ -81,6 +87,7 @@ bool RAD::isSuccess(PLDOpcode opcode, ACPPacket retPacket){
 	return false;
 }
 
+//! checks if the subsystem opcode sent was done so successfully
 bool RAD::isSuccess(SubsystemOpcode opcode, ACPPacket retPacket){
 	if (opcode == retPacket.opcode){
 		return true;
@@ -89,7 +96,7 @@ bool RAD::isSuccess(SubsystemOpcode opcode, ACPPacket retPacket){
 }
 
 
-//Various configurations for the data collection
+//! Handles sending the Motor config to RAD
 void RAD::configMotor(){
 	if (FileManager::checkExistance(RAD_MOTOR_CONFIG_UP)){
 		std::vector<uint8_t> buff = FileManager::readFromFile(RAD_MOTOR_CONFIG_UP);
@@ -123,7 +130,7 @@ void RAD::configMotor(){
 }
 
 
-
+//! Handles sending the DATA config to RAD
 void RAD::configData(){
 	if (FileManager::checkExistance(RAD_DATA_CONFIG_UP)){
 		std::vector<uint8_t> buff = FileManager::readFromFile(RAD_DATA_CONFIG_UP);
@@ -157,7 +164,7 @@ void RAD::configData(){
 }
 
 
-//Command the beginning of data collection
+//! Command the beginning of data collection
 bool RAD::commandCollectionBegin(){
 	//TODO: error handling
 	subPower.powerOn();
@@ -201,7 +208,7 @@ bool RAD::commandCollectionBegin(){
 	return true;
 }
 
-
+//! Command the ending of data collection
 bool RAD::commandCollectionEnd(){
 	//TODO: error handling
 	hsAvailable = false;
@@ -222,7 +229,7 @@ bool RAD::commandCollectionEnd(){
 	return true;
 }
 
-
+//! resets RAD
 bool RAD::resetRAD(){
 
 	Logger::Stream(LEVEL_INFO,tags) << "Preparing RAD for Reset";
@@ -236,6 +243,7 @@ bool RAD::resetRAD(){
 	return true;
 }
 
+//! Splits the data collected into smaller chunks for easier/quicker downlink
 int RAD::splitData(){
 	ExternalProcess split;
 
@@ -262,6 +270,10 @@ int RAD::splitData(){
 	}
 }
 
+/*!
+ * Tar balls the split files from the data collection
+ * \param number of splits to look for and to be tar balled
+ */
 void RAD::tarBallData(int splits){
 	ExternalProcess tar;
 	char archiveName[100];

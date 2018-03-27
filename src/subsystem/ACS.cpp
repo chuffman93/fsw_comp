@@ -21,7 +21,7 @@ ACS::ACS(ACPInterface& acp, SubPowerInterface& subPower)
 
 ACS::~ACS(){}
 
-//Will set up the Gpio lines and the acp devices
+//! Will set up the Gpio lines, acp devices, handle configs, and test alive
 bool ACS::initialize(){
 	//TODO: error handling
 	Logger::Stream(LEVEL_INFO,tags) << "Initializing ACS";
@@ -50,7 +50,10 @@ bool ACS::initialize(){
 	return true;
 }
 
-//Handles any mode transition needs as well as any needs for tasks to be done in a mode.
+/*!
+ * Handles any mode transition needs as well as any needs for tasks to be done in a mode.
+ * \param Mode that FSW is in
+ */
 void ACS::handleMode(FSWMode transition){
 	LockGuard l(lock);
 	bool success;
@@ -75,6 +78,7 @@ void ACS::handleMode(FSWMode transition){
 	}
 }
 
+//! Sends the configs to ACS
 void ACS::handleConfig(){
 	if(FileManager::checkExistance(ACS_CONFIG)){
 		std::vector<uint8_t> buff = FileManager::readFromFile(ACS_CONFIG);
@@ -92,6 +96,7 @@ void ACS::handleConfig(){
 	}
 }
 
+//! Sends the updated config to ACS
 void ACS::updateConfig(){
 	if(FileManager::checkExistance(ACS_CONFIG_UP)){
 		std::vector<uint8_t> buff = FileManager::readFromFile(ACS_CONFIG_UP);
@@ -112,7 +117,7 @@ void ACS::updateConfig(){
 }
 
 
-//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
+//! Handles the capturing and storing of the health and status for a subsystem
 void ACS::getHealthStatus(){
 	LockGuard l(lock);
 	std::vector<uint8_t> buff;
@@ -123,7 +128,7 @@ void ACS::getHealthStatus(){
 	health.recordBytes(acpReturn.message);
 }
 
-//Change the current pointing target
+//! Change the current pointing target to Nadir
 bool ACS::pointNadir(){
 	//TODO: error handling
 	Logger::Stream(LEVEL_INFO,tags) << "Command ACS to point to NADIR";
@@ -137,6 +142,7 @@ bool ACS::pointNadir(){
 	return true;
 }
 
+//! Change the current pointing target to Ground
 bool ACS::pointCOM(){
 	//TODO: error handling
 	Logger::Stream(LEVEL_INFO,tags) << "Command ACS to point to Ground";
@@ -151,6 +157,7 @@ bool ACS::pointCOM(){
 
 }
 
+//! Change the current pointing target to Sun Soak
 bool ACS::pointSunSoak(){
 	//TODO: error handling
 	Logger::Stream(LEVEL_INFO,tags) << "Command ACS to point to Sun Soak";
@@ -164,8 +171,10 @@ bool ACS::pointSunSoak(){
 	return true;
 }
 
-
-//Update the GPS information on ACS
+/*!
+ * Sends GPS data to ACS
+ * \param ECI coordinates to be pasted
+ */
 bool ACS::sendGPS(GPSPositionTime gps){
 	LockGuard l(lock);
 	Logger::Stream(LEVEL_DEBUG,tags) << gps;
@@ -179,11 +188,12 @@ bool ACS::sendGPS(GPSPositionTime gps){
 	return true;
 }
 
-//Configure the gains on ACS
+//TODO: Do we need this?
 void ACS::configureGains(){
 
 }
 
+//! resets ACS
 bool ACS::resetACS(){
 	Logger::Stream(LEVEL_INFO,tags) << "Preparing ACS for Reset";
 	std::vector<uint8_t> buff;
@@ -197,7 +207,11 @@ bool ACS::resetACS(){
 
 }
 
-
+/*!
+ * Handles the sending of opCodes
+ * \param opcode to be sent
+ * \param buffer to be sent (if need be)
+ */
 ACPPacket ACS::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
 	if (buffer.empty()){
 		ACPPacket acpPacket(ACS_SYNC, opcode);
@@ -212,6 +226,7 @@ ACPPacket ACS::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
 	}
 }
 
+//! Checks the success of an ACS Specific opcode being sent
 bool ACS::isSuccess(ACSOpcode opcode, ACPPacket retPacket){
 	if (opcode == retPacket.opcode){
 		return true;
@@ -219,6 +234,7 @@ bool ACS::isSuccess(ACSOpcode opcode, ACPPacket retPacket){
 	return false;
 }
 
+//! Checks the success of a Subsystem opcode being sent
 bool ACS::isSuccess(SubsystemOpcode opcode, ACPPacket retPacket){
 	if (opcode == retPacket.opcode){
 		return true;
@@ -226,10 +242,12 @@ bool ACS::isSuccess(SubsystemOpcode opcode, ACPPacket retPacket){
 	return false;
 }
 
+//! returns the time since lock
 float ACS::getTimeSinceLock(){
 	return this->TimeSinceLock;
 }
 
+//! returns the target MRP
 std::vector<float> ACS::getTargetMRP(){
 	return this->TargetMRP;
 }
@@ -238,12 +256,20 @@ std::vector<float> ACS::getActualMRP(){
 	return this->ActualMRP;
 }
 
+/*!
+ * Updates the time since lock
+ * \param vector buffer containing info for updating
+ */
 void ACS::updateTimeSinceLock(std::vector<uint8_t> buffer){
 	ByteStream bs(buffer);
 	bs.seek(35);
 	bs >> TimeSinceLock;
 }
 
+/*!
+ * Updates the Target MRP
+ * \param vector buffer containing info for updating
+ */
 void ACS::updateTargetMRP(std::vector<uint8_t> buffer){
 	ByteStream bs(buffer);
 	bs.seek(6);
@@ -251,6 +277,11 @@ void ACS::updateTargetMRP(std::vector<uint8_t> buffer){
 
 
 }
+
+/*!
+ * Updates the Actual MRP
+ * \param vector buffer containing info for updating
+ */
 void ACS::updateActualMRP(std::vector<uint8_t> buffer){
 	ByteStream bs(buffer);
 	bs.seek(3);

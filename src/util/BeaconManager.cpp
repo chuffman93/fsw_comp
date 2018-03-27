@@ -13,7 +13,8 @@ BeaconManager::BeaconManager(ScheduleManager* sch, ACS* acs, EPS* eps, GPS* gps,
 {}
 
 BeaconManager::~BeaconManager(){}
-
+//TODO: Finalize this!
+//! Manages the collection of beacon data to be sent
 void BeaconManager::sendBeacon(){
 	//TODO::add GPS and CDH fields
 
