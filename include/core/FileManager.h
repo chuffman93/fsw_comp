@@ -23,7 +23,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define CONFIG_FMG_SIZE 2
+#define CONFIG_FMG_SIZE 6
 
 class FileManager {
 public:
@@ -72,8 +72,7 @@ private:
 	static Lock lock;
 	static std::string logMessageFP;
 	static int Reboot_num;
-	static uint16_t MAX_DOWN_SIZE;
-
+	static uint32_t MAX_DOWN_SIZE;
 };
 
 #endif /* INCLUDE_CORE_FILEMANAGER_H_ */

@@ -35,7 +35,7 @@ int main() {
 	Logger::log(LEVEL_FATAL, "Entering Main");
 
 	//---------Step1: Build FSW---------------------------
-	Architecture::setInterfaceMode(HARDWARE);
+	Architecture::setInterfaceMode(SOFTWARE);
 	Architecture::buildEPS();
 	//Architecture::buildCDH();
 	Architecture::buildACS();
