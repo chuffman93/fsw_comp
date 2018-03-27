@@ -724,7 +724,6 @@ std::vector<std::string> FileManager::splitFile(std::string FilePath){
 	int n_splits = st.st_size/FileManager::MAX_DOWN_SIZE;
 	char * sh_cmd[] = {(char *)"/usr/bin/split", (char*) "-b", (char*)chunksize, (char*) "-d",(char*) "-a", (char*)"3",(char*)FilePath.c_str(),(char*)FilePath.c_str(),NULL};
 	splt.launchProcess(sh_cmd);
-	// Logger::Stream(LEVEL_INFO,tags) << "Data file successfully split";
 	vector<std::string> tmp;
 	char temp[100];
 	for(int i = 0; i <= n_splits; i++){
