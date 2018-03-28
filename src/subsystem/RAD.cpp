@@ -55,7 +55,6 @@ void RAD::getHealthStatus(){
 		LockGuard l(lock);
 		std::vector<uint8_t> buff;
 		ACPPacket acpReturn = sendOpcode(OP_HEALTHSTATUS, buff);
-
 		health.recordBytes(acpReturn.message);
 	}
 }
@@ -166,13 +165,16 @@ void RAD::configData(){
 
 //! Command the beginning of data collection
 bool RAD::commandCollectionBegin(){
-	//TODO: error handling
+	LockGuard l(lock);
+
+	//1. Turn on Rad
 	subPower.powerOn();
 
 
 	Logger::Stream(LEVEL_INFO,tags) << "Beginning RAD Science Collection";
 	std::vector<uint8_t> buff;
 
+	//2. Aliveness Test
 	ACPPacket retPacket1 = sendOpcode(OP_TESTALIVE, buff);
 	if (!isSuccess(OP_TESTALIVE,retPacket1)){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Alive: RAD is not alive. Opcode Received: " << retPacket1.opcode;
@@ -191,41 +193,59 @@ bool RAD::commandCollectionBegin(){
 		return false;
 	}
 
+
+
+	//3. Initialize TFTP
+	char* argv[] = {(char *)"/usr/bin/tftp",(char *)"-g",(char*)"-r",(char*)dataFile.c_str(),(char*)"10.14.134.207",NULL};
+	tftp.launchProcess(argv,FALSE);
+
+	//4. Configure MiniRAD
+	dataFile = FileManager::createFileName(RAD_FILE_PATH);
+	hsAvailable = true;
+	configData();
+	configMotor();
+
+	//5. Command Start of Science
 	ACPPacket retPacket4 = sendOpcode(OP_STARTSCIENCE, buff);
 	if (!isSuccess(OP_STARTSCIENCE,retPacket4)){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Start Science: RAD unable to collect data. Opcode Received: " << retPacket4.opcode;
 		return false;
 	}
 
-	dataFile = FileManager::createFileName(RAD_FILE_PATH);
-	hsAvailable = true;
-	configData();
-	configMotor();
-
-	char* argv[] = {(char *)"/usr/bin/tftp",(char *)"-g",(char*)"-r",(char*)dataFile.c_str(),(char*)"10.14.134.207",NULL};
-	tftp.launchProcess(argv,FALSE);
-
 	return true;
 }
 
 //! Command the ending of data collection
 bool RAD::commandCollectionEnd(){
+	LockGuard l(lock);
 	//TODO: error handling
 	hsAvailable = false;
 
 	Logger::Stream(LEVEL_INFO,tags) << "Ending RAD Science Collection";
 	std::vector<uint8_t> buff;
+	//1. Command end of science mode
 	ACPPacket retPacket = sendOpcode(OP_SUBSYSTEMRESET,buff);
 	if (!isSuccess(OP_SUBSYSTEMRESET,retPacket)){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Subsystem Reset: Unable to power of RAD. Opcode Received: " << retPacket.opcode;
 		return false;
 	}
 
+
+	//2. Waitfor TFTP to finish and close tftp
+	usleep(3*1000*1000);
+	tftp.closeProcess();
+
+	//3. Turn off RAD
 	subPower.powerOff();
+
+	//4. Split Data Into Chunks
 	int splits = splitData();
+
+	//5. Tar Each File Chunk
 	if(splits > 0){
 		tarBallData(splits);
 	}
+
 	return true;
 }
 
