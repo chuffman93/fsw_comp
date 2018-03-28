@@ -133,7 +133,7 @@ void RAD::configMotor(){
 void RAD::configData(){
 	if (FileManager::checkExistance(RAD_DATA_CONFIG_UP)){
 		std::vector<uint8_t> buff = FileManager::readFromFile(RAD_DATA_CONFIG_UP);
-		if (buff.size() == CONFIG_MOTOR_SIZE){
+		if (buff.size() == CONFIG_DATA_SIZE){
 			Logger::Stream(LEVEL_INFO,tags) << "Sending RAD Data Config Update";
 			ACPPacket acpReturn = sendOpcode(OP_DATACONFIG,buff);
 			if (!isSuccess(OP_DATACONFIG,acpReturn)){
@@ -148,7 +148,7 @@ void RAD::configData(){
 		FileManager::deleteFile(RAD_DATA_CONFIG_UP);
 	}else if(FileManager::checkExistance(RAD_DATA_CONFIG)){
 		std::vector<uint8_t> buff = FileManager::readFromFile(RAD_DATA_CONFIG);
-		if (buff.size() == CONFIG_MOTOR_SIZE){
+		if (buff.size() == CONFIG_DATA_SIZE){
 			Logger::Stream(LEVEL_INFO,tags) << "Sending RAD Data Config";
 			ACPPacket acpReturn = sendOpcode(OP_DATACONFIG,buff);
 			if (!isSuccess(OP_DATACONFIG,acpReturn)){
@@ -165,7 +165,7 @@ void RAD::configData(){
 
 //! Command the beginning of data collection
 bool RAD::commandCollectionBegin(){
-	LockGuard l(lock);
+	// LockGuard l(lock);
 
 	//1. Turn on Rad
 	subPower.powerOn();
@@ -196,11 +196,12 @@ bool RAD::commandCollectionBegin(){
 
 
 	//3. Initialize TFTP
-	char* argv[] = {(char *)"/usr/bin/tftp",(char *)"-g",(char*)"-r",(char*)dataFile.c_str(),(char*)"10.14.134.207",NULL};
+	dataFile = FileManager::createFileName(RAD_FILE_PATH);
+	Logger::Stream(LEVEL_DEBUG,tags) << "File path for transfer of RAD data: " << dataFile.c_str();
+	char* argv[] = {(char *)"/usr/bin/tftp",(char *)"-g",(char*)"-r",(char*)RAD_TMP_DATA,(char*)"10.14.134.207",NULL};
 	tftp.launchProcess(argv,FALSE);
 
 	//4. Configure MiniRAD
-	dataFile = FileManager::createFileName(RAD_FILE_PATH);
 	hsAvailable = true;
 	configData();
 	configMotor();
@@ -217,7 +218,7 @@ bool RAD::commandCollectionBegin(){
 
 //! Command the ending of data collection
 bool RAD::commandCollectionEnd(){
-	LockGuard l(lock);
+	//LockGuard l(lock);
 	//TODO: error handling
 	hsAvailable = false;
 
@@ -235,7 +236,10 @@ bool RAD::commandCollectionEnd(){
 	usleep(3*1000*1000);
 	tftp.closeProcess();
 
+
 	//3. Turn off RAD
+	std::string s(RAD_TMP_DATA);
+	FileManager::moveFile(s,dataFile);
 	subPower.powerOff();
 
 	//4. Split Data Into Chunks

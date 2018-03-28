@@ -78,7 +78,6 @@ PRIVATE:
 
 	bool resetRAD();
 	std::string dataFile;
-
 	bool hsAvailable;
 
 	ExternalProcess tftp;

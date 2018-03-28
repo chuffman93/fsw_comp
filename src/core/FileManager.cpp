@@ -167,8 +167,10 @@ void FileManager::moveFile(std::string filePath, std::string newfilePath){
 	LockGuard l(lock);
 	LogTag tags;
 	if (access(filePath.c_str(), F_OK) == 0){
-		rename(filePath.c_str(),newfilePath.c_str());
-		Logger::Stream(LEVEL_INFO,tags) << "Moving " << filePath << "to " << newfilePath;
+		ExternalProcess mv;
+		char*sh_mv[] = {(char*)"/bin/mv",(char*)filePath.c_str(),(char*)newfilePath.c_str(),NULL};
+		mv.launchProcess(sh_mv);
+		Logger::Stream(LEVEL_INFO,tags) << "Moving " << filePath << " to " << newfilePath;
 	}
 }
 
