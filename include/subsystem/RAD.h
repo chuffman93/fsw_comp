@@ -24,8 +24,8 @@
 #include <stdio.h>
 
 #define RAD_CHUNK_SIZE		204800
-#define CONFIG_MOTOR_SIZE	15
-#define CONFIG_DATA_SIZE	17
+#define CONFIG_MOTOR_SIZE	18
+#define CONFIG_DATA_SIZE	20
 
 enum PLDOpcode {
 	OP_PLD_CMD_MIN = 32,
