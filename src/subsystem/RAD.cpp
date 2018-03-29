@@ -308,6 +308,8 @@ void RAD::tarBallData(int splits){
 		sprintf(archiveName,"%s%03d.tar.gz",dataFile.c_str(),i);
 		sprintf(chunk,"%s%03d",dataFile.c_str(),i);
 
+		Logger::Stream(LEVEL_DEBUG,tags) << "Chunk to be TAR-d: " << chunk << " New name: " << archiveName;
+
 		char * sh_cm[] = {(char*)"/bin/tar", (char*)"-czf",(char*)archiveName,(char*)chunk,(char*)"-P",NULL};
 		// runs the command on the system
 		tar.launchProcess(sh_cm);

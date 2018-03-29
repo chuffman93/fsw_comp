@@ -38,6 +38,7 @@ void GroundCommunication::downlinkFiles(){
 	if (DownlinkQueue.empty()){
 		stateDownlink = false;
 		statePostPass = true;
+		firstFile = true;
 	}
 	Logger::Stream(LEVEL_INFO,tags) << "Completed Downlink of All Files";
 }
@@ -464,7 +465,6 @@ bool GroundCommunication::spinGround(Watchdog* watchdog){
 		if (FileManager::checkExistance(IEF_PATH)){
 			Logger::Stream(LEVEL_INFO,tags) << "Received IEF";
 			parseIEF();
-			ComStartTime = 0;
 			stateDownlink = true;
 		//begin downlink if IEF processing has ended
 		}else if (stateDownlink){
