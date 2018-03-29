@@ -14,15 +14,19 @@
 ScheduleManager::ScheduleManager()
  : CurrentMode(Mode_Bus)
  {
-	com.duration = 720;
 	com.mode = Mode_Com;
+	com.duration = 720;
 	CurrentMode = Mode_Bus;
 	modeEnterTime = getCurrentTime();
+	ComPassCount = FileManager::getComPassCount();
+	REBOOT_TIME = 86400;
+	com.duration = 0;
+	handleConfig();
 	tags += LogTag("Name", "ScheduleManager");
  }
 ScheduleManager::~ScheduleManager(){};
 
-//check for mode changes
+//! Checks for mode changes
 FSWMode ScheduleManager::checkNewMode(){
 	LockGuard l(lock);
 	uint32_t time = getCurrentTime();
@@ -35,7 +39,7 @@ FSWMode ScheduleManager::checkNewMode(){
 		CurrentMode = tmp;
 		Logger::Stream(LEVEL_INFO, tags) << "Setting Mode to Reset";
 	}
-	else if(currentSchedule.timeSinceEpoch <= time && CurrentMode != currentSchedule.mode){
+	else if((currentSchedule.mode!=0) && currentSchedule.timeSinceEpoch <= time && CurrentMode != currentSchedule.mode){
 		FSWMode tmp = handleModeChange(CurrentMode,currentSchedule.mode);
 		CurrentMode = tmp;
 		modeEnterTime = getCurrentTime();
@@ -56,6 +60,7 @@ FSWMode ScheduleManager::checkNewMode(){
 	return CurrentMode;
 }
 
+//! Update the schedule sent by ground
 void ScheduleManager::handleScheduling(){
 	LockGuard l(lock);
 	if (FileManager::checkExistance(NEW_SCH)){
@@ -69,7 +74,10 @@ void ScheduleManager::handleScheduling(){
 
 }
 
-//if new schedule: adds new schedule to queue, otherwise add default schedule to queue if empty
+/*!
+ * If new schedule: adds new schedule to queue
+ * \param path to the schedule
+ */
 void ScheduleManager::loadSchedule(std::string filePath){
 
 
@@ -126,6 +134,11 @@ void ScheduleManager::loadSchedule(std::string filePath){
 	Logger::Stream(LEVEL_DEBUG,tags) << "New Queue Size: " << ScheduleQueue.size() << " With new mode up front being: " << ScheduleQueue.front().mode;
 }
 
+/*!
+ * Handles mode changes
+ * \param Current Mode
+ * \param Mode switching to
+ */
 FSWMode ScheduleManager::handleModeChange(FSWMode current, FSWMode next){
 	switch(current){
 		case Trans_BusToPayload:
@@ -137,6 +150,7 @@ FSWMode ScheduleManager::handleModeChange(FSWMode current, FSWMode next){
 			return Mode_Bus;
 
 		case Trans_BusToCom:
+			FileManager::updateComPassCount();
 			return Mode_Com;
 
 		case Trans_ComToBus:
@@ -174,6 +188,9 @@ FSWMode ScheduleManager::handleModeChange(FSWMode current, FSWMode next){
 
 }
 
+/*!
+ * Separate function to override schedule to go into com mode
+ */
 void ScheduleManager::setModeToCom(){
 	LockGuard l(lock);
 	Logger::Stream(LEVEL_DEBUG,tags) << "Attempting to switch to Com from GroundCommunication Thread";
@@ -181,13 +198,78 @@ void ScheduleManager::setModeToCom(){
 	currentSchedule = com;
 }
 
+/*!
+ * Exits com mode
+ */
 void ScheduleManager::exitComMode(){
 	LockGuard l(lock);
 	Logger::Stream(LEVEL_DEBUG,tags) << "Attempting to switch back from Com from GroundCommunication Thread";
 	currentSchedule = ScheduleQueue.front();
 }
 
-FSWMode ScheduleManager::checkMode(){
+//! returns the mode that we are currently in
+FSWMode ScheduleManager::getCurrentMode(){
 	return CurrentMode;
 }
+
+//! returns the time the mode was entered
+uint32_t ScheduleManager::getModeEnterTime(){
+	return modeEnterTime;
+}
+
+//! returns the com pass count
+int ScheduleManager::getComPassCount(){
+	return ComPassCount;
+}
+
+//! handles the config for ScheduleManager
+void ScheduleManager::handleConfig(){
+	LockGuard l(lock);
+	if(FileManager::checkExistance(SCH_CONFIG)){
+		std::vector<uint8_t> buff = FileManager::readFromFile(SCH_CONFIG);
+		REBOOT_TIME = (uint32_t)buff.at(3) << 24 |
+				(uint32_t)buff.at(2) << 16 |
+				(uint32_t)buff.at(1) << 8 |
+				buff.at(0);
+		com.duration = (uint32_t)buff.at(7) << 24 |
+				(uint32_t)buff.at(6) << 16 |
+				(uint32_t)buff.at(5) << 8 |
+				buff.at(4);
+		Logger::Stream(LEVEL_INFO,tags) << " Setting reboot_time to " << REBOOT_TIME/3600<< " hrs and com timeout to " << com.duration/60 << " mins";
+	}else{
+		Logger::Stream(LEVEL_WARN,tags) << "No Schedule Manager configs found";
+
+	}
+}
+
+//! handles updating the configs if ground uploads an update
+void ScheduleManager::updateConfig(){
+	LockGuard l(lock);
+	if(FileManager::checkExistance(SCH_CONFIG_UP)){
+		std::vector<uint8_t> buff = FileManager::readFromFile(SCH_CONFIG_UP);
+		if(buff.size() != CONFIG_SCH_SIZE){
+			Logger::Stream(LEVEL_ERROR,tags) << "Incorrect Size for config";
+			return;
+		}
+		REBOOT_TIME = (uint32_t)buff.at(3) << 24 |
+				(uint32_t)buff.at(2) << 16 |
+				(uint32_t)buff.at(1) << 8 |
+				buff.at(0);
+		com.duration = (uint32_t)buff.at(7) << 24 |
+				(uint32_t)buff.at(6) << 16 |
+				(uint32_t)buff.at(5) << 8 |
+				buff.at(4);
+		Logger::Stream(LEVEL_INFO,tags) << " Setting reboot_time to " << REBOOT_TIME/3600<< " hrs and com timeout to " << com.duration/60 << " mins";
+		FileManager::moveFile(SCH_CONFIG_UP,SCH_CONFIG);
+	}
+	else{
+		Logger::Stream(LEVEL_WARN,tags) << "There are no SCH config updates";
+	}
+}
+
+//! returns timeout for com (used to synch with GroundCommunication timeout
+uint32_t ScheduleManager::getComTimeout(){
+	return com.duration;
+}
+
 

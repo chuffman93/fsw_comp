@@ -16,8 +16,9 @@
 #include "core/Lock.h"
 #include "util/ByteStream.h"
 #include "subsystem/GPS.h"
-
 #include <stdio.h>
+
+#define ACS_CONFIG_SIZE 803
 
 
 enum ACSOpcode {
@@ -53,15 +54,18 @@ public:
 	void handleMode(FSWMode transition);
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 	void getHealthStatus();
-
+	void handleConfig();
+	void updateConfig();
 	ACPPacket sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer);
 	bool isSuccess(ACSOpcode opSent, ACPPacket retPacket);
 	bool isSuccess(SubsystemOpcode opSent, ACPPacket retPacket);
 
 	float getTimeSinceLock();
+	std::vector<float> getTargetMRP();
+	std::vector<float> getActualMRP();
 	bool sendGPS(GPSPositionTime gps);
 	HealthFileStruct health;
-private:
+PRIVATE:
 	//Change the current pointing target
 	bool pointNadir();
 	bool pointCOM();
@@ -73,9 +77,13 @@ private:
 	bool resetACS();
 	ACPInterface& getACPRef();
 	void updateTimeSinceLock(std::vector<uint8_t> buffer);
+	void updateTargetMRP(std::vector<uint8_t> buffer);
+	void updateActualMRP(std::vector<uint8_t> buffer);
 
 	bool pointingValid;// = false;
 	float TimeSinceLock;
+	std::vector<float> TargetMRP;
+	std::vector<float> ActualMRP;
 	ACPInterface& acp;
 	SubPowerInterface& subPower;
 	Lock lock;

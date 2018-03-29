@@ -8,7 +8,7 @@
 #include "subsystem/GPS.h"
 
 #include <string.h>
-
+#include "util/TimeKeeper.h"
 
 #define CRC32_POLYNOMIAL	0xEDB88320L
 
@@ -21,6 +21,11 @@ std::ostream &operator<<(std::ostream &output, const GPSPositionTime &g ) {
 
 GPS::GPS(NMEAInterface& nm, SubPowerInterface& pow):nm(nm), pow(pow){
 	tags += LogTag("Name", "GPS");
+	solSuccess = false;
+	power = false;
+	isLocked = false;
+	timeout = 0;
+	timein = 0;
 }
 
 
@@ -28,65 +33,79 @@ GPS::~GPS(){}
 
 bool GPS::initialize(){
 	pow.configDelay(0, 1000);
-	pow.powerOff();
-	pow.powerOn();
+	powerOff();
+	powerOn();
+	handleConfig();
 	return true;
 }
 
 void GPS::handleMode(FSWMode transition){}
 
+//! handles the configs for GPS
+void GPS::handleConfig(){
+	LockGuard l(lock);
+	if(FileManager::checkExistance(GPS_CONFIG)){
+		std::vector<uint8_t> buff = FileManager::readFromFile(GPS_CONFIG);
+		if(buff.size() != CONFIG_GPS_SIZE){
+			Logger::Stream(LEVEL_ERROR,tags) << "Incorrect Size for config";
+			return;
+		}\
+		timeout = ((uint16_t)buff.at(1) << 8)|
+				buff.at(0);
+		timein = ((uint16_t)buff.at(3) << 8)|
+				buff.at(2);
+		Logger::Stream(LEVEL_INFO,tags) << "Setting timeout to " << timeout/60 << " mins and timein to " << timein/3600 << " hrs";
 
+	}
+	else{
+		Logger::Stream(LEVEL_WARN,tags) << "GPS Config file does not exist";
+	}
+
+}
+
+//! handles updating configs if needed
+void GPS::updateConfig(){
+	LockGuard l(lock);
+	if(FileManager::checkExistance(GPS_CONFIG_UP)){
+		std::vector<uint8_t> buff = FileManager::readFromFile(GPS_CONFIG_UP);
+		if(buff.size() != CONFIG_GPS_SIZE){
+			Logger::Stream(LEVEL_ERROR,tags) << "Incorrect Size for config";
+			return;
+		}
+		timeout = ((uint16_t)buff.at(1) << 8)|
+				buff.at(0);
+		timein = ((uint16_t)buff.at(3) << 8)|
+				buff.at(2);
+		Logger::Stream(LEVEL_INFO,tags) << "Updating timeout to " << timeout/60 << " mins and timein to " << timein/3600 << " hrs";
+		FileManager::moveFile(GPS_CONFIG_UP,GPS_CONFIG);
+	}
+	else{
+		Logger::Stream(LEVEL_WARN,tags) << "There are no GPS config updates";
+	}
+}
+
+/*!
+ * Handles sending opcodes
+ * \param opcode to be sent
+ * \param buffer to be sent if needed
+ */
 ACPPacket GPS::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
-	//Pretty sure if this gets called, we fucked up
 	assert(false);
 	return ACPPacket(ACS_SYNC, 0);
 }
 
+// TODO: Will this be needed?
 void GPS::getHealthStatus(){
 	LockGuard l(lock);
 	Logger::log(LEVEL_WARN, tags, "GPS Health and Status isn't implemented yet!");
 }
 
-GPSPositionTime GPS::getBestXYZ(){
-	return tempData;
-	// TODO: FIX THIS ISH
-	GPSPositionTime inertial = getBestXYZI();
-	// arrays for the rotation
-	double posECI[3];
-	double velECI[3];
-	double posECEF[3];
-	double velECEF[3];
-	double gpsTime[2];
-
-	posECI[0] = inertial.posX;
-	posECI[1] = inertial.posY;
-	posECI[2] = inertial.posZ;
-	velECI[0] = inertial.velX;
-	velECI[1] = inertial.velY;
-	velECI[2] = inertial.velZ;
-	gpsTime[0] = inertial.GPSWeek;
-	gpsTime[1] = inertial.GPSSec;
-
-	gcrf2wgs(posECI, velECI, gpsTime, posECEF, velECEF);
-
-	GPSPositionTime retval;
-	retval.posX = posECEF[0];
-	retval.posY = posECEF[1];
-	retval.posZ = posECEF[2];
-	retval.velX = velECEF[0];
-	retval.velY = velECEF[1];
-	retval.velZ = velECEF[2];
-	retval.GPSWeek = inertial.GPSWeek;
-	retval.GPSSec = inertial.GPSSec;
-	return retval;
-}
-
+//! Gets the Propagated ECI coordinates from the orbital elements
 GPSPositionTime GPS::getBestXYZI(){
-	LockGuard l(lock);
 	float eciPos[3];
 	float eciVel[3];
-	int64_t currTime = getFSWMillis();
-	float propTime = currTime/1000.0 - lastLock.sysTime;
+	int64_t currTime = getCurrentTime();
+	float propTime = currTime - lastLock.sysTime;
 
 	propagatePositionVelocity(lastLock.elements, propTime, eciPos, eciVel);
 
@@ -105,18 +124,24 @@ GPSPositionTime GPS::getBestXYZI(){
 
 /*!
  * Waits to get new GPS coordinates then parses them
+ * Takes the ECEF coords and tranforms them into ECI
+ * Then takes the ECI coordinates and chages them into orbital parameters
  */
 void GPS::fetchNewGPS(){
+	LockGuard l(lock);
 	std::string data = nm.getString();
-	if(data == "") return; //Nothing was read.
+	if(data == ""){
+		Logger::Stream(LEVEL_DEBUG,tags) << "Nothing was read";
+		return; //Nothing was read.
+	}
 	Logger::Stream(LEVEL_DEBUG,tags) << "Reading in: " << data;
 
 
 	//Everything below this line is from old FSW
-	tempData = {0,0,0,0,0,0,0,0};
+	GPSPositionTime tempData = {0,0,0,0,0,0,0,0};
 	char * token;
 	char * buffPtr = (char*)data.c_str();
-	bool solSuccess = true;
+	solSuccess = true;
 	bool updateTime = false;
 
 	bool containsDelimiter = false;
@@ -128,6 +153,7 @@ void GPS::fetchNewGPS(){
 	}
 	if (!containsDelimiter) {
 		Logger::log(LEVEL_WARN, tags, "String doesn't contain '*' ");
+		solSuccess = false;
 		return;
 	}
 
@@ -147,8 +173,10 @@ void GPS::fetchNewGPS(){
 	char * log = strtok(NULL, ";");
 
 	// parse the message header
-	if (strcmp("BESTXYZA", strtok(header, ",")) != 0) {
-		Logger::log(LEVEL_WARN, tags, "Wrong message, expected BESTXYZA");
+	char * type = strtok(header, ",");
+	if (strcmp("#BESTXYZA", type) != 0) {
+		Logger::Stream(LEVEL_WARN, tags) << "Wrong message. Expected #BESTXYZA got:\"" << type << "\"";
+		solSuccess = false;
 		return;
 	}
 
@@ -158,7 +186,7 @@ void GPS::fetchNewGPS(){
 	if (strcmp("UNKNOWN", strtok(NULL, ",")) != 0) { // time status is ok
 		updateTime = true;
 	}
-	tempData.GPSWeek = (uint16_t) strtoul(strtok(NULL, ","), NULL, 10);
+	tempData.GPSWeek = (int32_t) strtoul(strtok(NULL, ","), NULL, 10);
 	tempData.GPSSec = strtof(strtok(NULL, ","), NULL);
 	token = strtok(NULL, ","); // (UNUSED) receiver status
 	token = strtok(NULL, ","); // (UNUSED) port
@@ -169,6 +197,7 @@ void GPS::fetchNewGPS(){
 	if (strcmp("SOL_COMPUTED", strtok(log, ",")) != 0) {
 		Logger::log(LEVEL_DEBUG, tags, "No position solution computed!");
 		solSuccess = false;
+		return;
 	} else {
 		Logger::log(LEVEL_DEBUG, tags, "Valid position solution computed!");
 		token = strtok(NULL, ","); // (UNUSED) position type
@@ -184,6 +213,7 @@ void GPS::fetchNewGPS(){
 	if (strcmp("SOL_COMPUTED", strtok(NULL, ",")) != 0) {
 		Logger::log(LEVEL_DEBUG, tags, "No velocity solution computed!");
 		solSuccess = false;
+		return;
 	} else {
 		Logger::log(LEVEL_DEBUG, tags, "Velocity solution computed!");
 		token = strtok(NULL, ","); // (UNUSED) velocity type
@@ -213,6 +243,7 @@ void GPS::fetchNewGPS(){
 
 	if (!solSuccess) {
 		Logger::Stream(LEVEL_DEBUG, tags) << "Invalid BESTXYZ, # of satellites: " << tempTracked;
+		solSuccess = false;
 		return;
 	}
 
@@ -220,20 +251,35 @@ void GPS::fetchNewGPS(){
 
 
 	//Convert into orbital elements for the propigator
-	float r[4] = {0};
-	float v[4] = {0};
-	r[1] = tempData.posX;
-	r[2] = tempData.posY;
-	r[3] = tempData.posZ;
-	v[1] = tempData.velX;
-	v[2] = tempData.velY;
-	v[3] = tempData.velZ;
-	lastLock.sysTime = getFSWMillis() / 1000.0; //Store current time to use for prop
-	rv2elem(MU_EARTH, r, v, &(lastLock.elements));
+	double r[3] = {0};
+	double v[3] = {0};
+	double rI[3] = {0};
+	double vI[3] = {0};
+	double gpsTime[2] = {0};
+	r[0] = tempData.posX;
+	r[1] = tempData.posY;
+	r[2] = tempData.posZ;
+	v[0] = tempData.velX;
+	v[1] = tempData.velY;
+	v[2] = tempData.velZ;
+	gpsTime[0] = tempData.GPSWeek;
+	gpsTime[1] = tempData.GPSSec;
+	wgs2gcrf(r,v,gpsTime,rI,vI);
+	float tempR[4] = {0};
+	float tempV[4] = {0};
+	for(int i = 0; i<3 ;i++){
+		tempR[i+1] = (float)rI[i];
+		tempV[i+1] = (float)vI[i];
+	}
+	lastLock.sysTime = getCurrentTime() /1000; //Store current time to use for prop
+	rv2elem(MU_EARTH, tempR, tempV, &(lastLock.elements));
 	lastLock.GPSWeek = tempData.GPSWeek;
 	lastLock.GPSSec = tempData.GPSSec;
+	Logger::Stream(LEVEL_INFO,tags) << "Lock Found";
+	isLocked = true;
 }
 
+// TODO: Double check these two
 uint32_t GPS::CRCValue_GPS(int i) {
 	int j;
 	uint32_t ulCRC;
@@ -264,14 +310,8 @@ uint32_t GPS::CalculateCRC_GPS(char * buffer) {
 	return CRC;
 }
 
-uint32_t GPS::getFSWMillis(){
-	timespec t;
-	clock_gettime(CLOCK_REALTIME, &t);
-	return t.tv_sec*1000 + t.tv_nsec/(1000*1000);
-}
-
 //! Only works for increments of less than a week
-void GPS::incrementGPSTime(uint16_t& GPSWeek, float& GPSSec, float dt){
+void GPS::incrementGPSTime(int32_t& GPSWeek, float& GPSSec, float dt){
 	//TODO check and make sure this is actually correct?
 	GPSSec += dt;
 	if(GPSSec > 604800){
@@ -280,4 +320,29 @@ void GPS::incrementGPSTime(uint16_t& GPSWeek, float& GPSSec, float dt){
 	}
 }
 
+//! gets the check on whether or not the GPS gave a successful lock
+bool GPS::getSuccess(){
+	return solSuccess;
+}
 
+//! used to power on
+void GPS::powerOn(){
+	pow.powerOn();
+	power = true;
+}
+
+//! used to power off
+void GPS::powerOff(){
+	pow.powerOff();
+	power = false;
+}
+
+//! returns status of power
+bool GPS::isOn(){
+	return power;
+}
+
+//! returns status of the gps lock
+bool GPS::getLockStatus(){
+	return isLocked;
+}

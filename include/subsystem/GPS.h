@@ -20,6 +20,8 @@ extern "C" {
 	#include "util/propagator/OrbitalMotionAllStar.h"
 }
 
+#define CONFIG_GPS_SIZE 4
+
 struct GPSPositionTime{
   double posX;
   double posY;
@@ -27,7 +29,7 @@ struct GPSPositionTime{
   double velX;
   double velY;
   double velZ;
-  uint16_t GPSWeek;
+  int32_t GPSWeek;
   float GPSSec;
   bool isAccurate;
 
@@ -37,7 +39,7 @@ struct GPSPositionTime{
 struct GPSLockType {
 	classicElements elements;
 	float sysTime;
-	uint16_t GPSWeek;
+	int32_t GPSWeek;
 	float GPSSec;
 };
 
@@ -52,21 +54,28 @@ public:
 	void handleMode(FSWMode transition);
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 	void getHealthStatus();
-
+	void handleConfig();
+	void updateConfig();
+	bool getSuccess();
 	void fetchNewGPS();
-	GPSPositionTime getBestXYZ();
 	GPSPositionTime getBestXYZI();
-	void getLatLong();
-
+	void powerOn();
+	void powerOff();
+	bool getLockStatus();
+	bool isOn();
 	ACPPacket sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer);
+	uint16_t timeout;
+	uint16_t timein;
 
 
 private:
 	uint32_t CalculateCRC_GPS(char * buffer);
 	uint32_t CRCValue_GPS(int i);
-	void incrementGPSTime(uint16_t& GPSWeek, float& GPSSec, float dt);
-	uint32_t getFSWMillis();
-
+	void incrementGPSTime(int32_t& GPSWeek, float& GPSSec, float dt);
+	void setConfigs();
+	bool solSuccess;
+	bool power;
+	bool isLocked;
 	//! The UART connected to the physical GPS
 	NMEAInterface& nm;
 	//! Power Interface for the GPS
@@ -76,7 +85,6 @@ private:
 	//! Tags to use for logging
 	LogTags tags;
 	GPSLockType lastLock;
-	GPSPositionTime tempData;
 };
 
 

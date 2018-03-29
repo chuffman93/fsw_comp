@@ -11,7 +11,7 @@ RAD::RAD(ACPInterface& acp, SubPowerInterface& subPower)
 : acp(acp), subPower(subPower){
 	hsAvailable = false;
 	tags += LogTag("Name", "RAD");
-	health.fileSize = MAX_FILE_SIZE;
+	health.fileSize = FileManager::MAX_FILE_SIZE;
 	health.basePath = HEALTH_DIRECTORY RAD_PATH "/RAD";
 	RADDataNum = 0;
 }
@@ -25,8 +25,9 @@ bool RAD::initialize(){
 }
 
 
-//Handles any mode transition needs as well as any needs for tasks to be done in a mode.
+//! Handles any mode transition needs as well as any needs for tasks to be done in a mode.
 void RAD::handleMode(FSWMode transition){
+	LockGuard l(lock);
 	bool success;
 	switch (transition){
 	case Mode_Reset:
@@ -41,21 +42,29 @@ void RAD::handleMode(FSWMode transition){
 	default:
 		break;
 	}
+
 }
 
-//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
+void RAD::handleConfig(){}
+
+void RAD::updateConfig(){}
+
+//! Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 void RAD::getHealthStatus(){
 	if(hsAvailable){
 		LockGuard l(lock);
 		std::vector<uint8_t> buff;
 		ACPPacket acpReturn = sendOpcode(OP_HEALTHSTATUS, buff);
-
 		health.recordBytes(acpReturn.message);
 	}
 }
 
+/*!
+ * Handles the sending of opcodes
+ * \param opcode to be sent
+ * \param buffer to be sent if need be
+ */
 ACPPacket RAD::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
-	//LockGuard l(lock);
 	if (buffer.empty()){
 		ACPPacket acpPacket(RAD_SYNC, opcode);
 		ACPPacket acpReturn;
@@ -69,6 +78,7 @@ ACPPacket RAD::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
 	}
 }
 
+//! checks if the PLD opcode being sent was done so successfully
 bool RAD::isSuccess(PLDOpcode opcode, ACPPacket retPacket){
 	if (opcode == retPacket.opcode){
 		return true;
@@ -76,6 +86,7 @@ bool RAD::isSuccess(PLDOpcode opcode, ACPPacket retPacket){
 	return false;
 }
 
+//! checks if the subsystem opcode sent was done so successfully
 bool RAD::isSuccess(SubsystemOpcode opcode, ACPPacket retPacket){
 	if (opcode == retPacket.opcode){
 		return true;
@@ -84,25 +95,85 @@ bool RAD::isSuccess(SubsystemOpcode opcode, ACPPacket retPacket){
 }
 
 
-//Various configurations for the data collection
+//! Handles sending the Motor config to RAD
 void RAD::configMotor(){
-
+	if (FileManager::checkExistance(RAD_MOTOR_CONFIG_UP)){
+		std::vector<uint8_t> buff = FileManager::readFromFile(RAD_MOTOR_CONFIG_UP);
+		if (buff.size() == CONFIG_MOTOR_SIZE){
+			Logger::Stream(LEVEL_INFO,tags) << "Sending RAD Motor Config Update";
+			ACPPacket acpReturn = sendOpcode(OP_MOTORCONFIG,buff);
+			if (!isSuccess(OP_MOTORCONFIG,acpReturn)){
+				Logger::Stream(LEVEL_ERROR,tags) << "RAD did not reeieve RAD Motor Config Update";
+				return;
+			}
+		}else{
+			Logger::Stream(LEVEL_ERROR,tags) << "Incorrect RAD Motor Config Update file Size";
+			return;
+		}
+		FileManager::moveFile(RAD_MOTOR_CONFIG_UP,RAD_MOTOR_CONFIG);
+		FileManager::deleteFile(RAD_MOTOR_CONFIG_UP);
+	}else if (FileManager::checkExistance(RAD_MOTOR_CONFIG)){
+		std::vector<uint8_t> buff = FileManager::readFromFile(RAD_MOTOR_CONFIG);
+		if (buff.size() == CONFIG_MOTOR_SIZE){
+			Logger::Stream(LEVEL_INFO,tags) << "Sending RAD Motor Config";
+			ACPPacket acpReturn = sendOpcode(OP_MOTORCONFIG,buff);
+			if (!isSuccess(OP_MOTORCONFIG,acpReturn)){
+				Logger::Stream(LEVEL_ERROR,tags) << "RAD did not receive RAD Motor Config";
+			}
+		}else{
+			Logger::Stream(LEVEL_ERROR,tags) << "Incorrect RAD Motor Config file Size";
+		}
+	}else{
+		Logger::Stream(LEVEL_ERROR,tags) << "RAD Motor Config file does not exist";
+	}
 }
 
+
+//! Handles sending the DATA config to RAD
 void RAD::configData(){
-
+	if (FileManager::checkExistance(RAD_DATA_CONFIG_UP)){
+		std::vector<uint8_t> buff = FileManager::readFromFile(RAD_DATA_CONFIG_UP);
+		if (buff.size() == CONFIG_DATA_SIZE){
+			Logger::Stream(LEVEL_INFO,tags) << "Sending RAD Data Config Update";
+			ACPPacket acpReturn = sendOpcode(OP_DATACONFIG,buff);
+			if (!isSuccess(OP_DATACONFIG,acpReturn)){
+				Logger::Stream(LEVEL_ERROR,tags) << "RAD did not receive RAD Data Config Update";
+				return;
+			}
+		}else{
+			Logger::Stream(LEVEL_ERROR,tags) << "Incorrect RAD Data Config Update file Size";
+			return;
+		}
+		FileManager::moveFile(RAD_DATA_CONFIG_UP,RAD_DATA_CONFIG);
+		FileManager::deleteFile(RAD_DATA_CONFIG_UP);
+	}else if(FileManager::checkExistance(RAD_DATA_CONFIG)){
+		std::vector<uint8_t> buff = FileManager::readFromFile(RAD_DATA_CONFIG);
+		if (buff.size() == CONFIG_DATA_SIZE){
+			Logger::Stream(LEVEL_INFO,tags) << "Sending RAD Data Config";
+			ACPPacket acpReturn = sendOpcode(OP_DATACONFIG,buff);
+			if (!isSuccess(OP_DATACONFIG,acpReturn)){
+				Logger::Stream(LEVEL_ERROR,tags) << "RAD did not receive RAD Data Config";
+			}
+		}else{
+			Logger::Stream(LEVEL_ERROR,tags) << "Incorrect RAD Data Config file Size";
+		}
+	}else{
+		Logger::Stream(LEVEL_ERROR,tags) << "RAD Data Config file does not exist";
+	}
 }
 
-//Command the beginning of data collection
-bool RAD::commandCollectionBegin(){
-	//TODO: error handling
 
-	LockGuard l(lock);
-	//subPower.powerOn();
+//! Command the beginning of data collection
+bool RAD::commandCollectionBegin(){
+
+	//1. Turn on Rad
+	subPower.powerOn();
+
 
 	Logger::Stream(LEVEL_INFO,tags) << "Beginning RAD Science Collection";
 	std::vector<uint8_t> buff;
 
+	//2. Aliveness Test
 	ACPPacket retPacket1 = sendOpcode(OP_TESTALIVE, buff);
 	if (!isSuccess(OP_TESTALIVE,retPacket1)){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Alive: RAD is not alive. Opcode Received: " << retPacket1.opcode;
@@ -121,146 +192,69 @@ bool RAD::commandCollectionBegin(){
 		return false;
 	}
 
+
+
+	//3. Initialize TFTP
+	dataFile = FileManager::createFileName(RAD_FILE_PATH);
+	Logger::Stream(LEVEL_DEBUG,tags) << "File path for transfer of RAD data: " << dataFile.c_str();
+	char* argv[] = {(char *)"/usr/bin/tftp",(char *)"-g",(char*)"-r",(char*)RAD_TMP_DATA,(char*)"10.14.134.207",NULL};
+	tftp.launchProcess(argv,FALSE);
+
+	//4. Configure MiniRAD
+	hsAvailable = true;
+	configData();
+	configMotor();
+
+	//5. Command Start of Science
 	ACPPacket retPacket4 = sendOpcode(OP_STARTSCIENCE, buff);
 	if (!isSuccess(OP_STARTSCIENCE,retPacket4)){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Start Science: RAD unable to collect data. Opcode Received: " << retPacket4.opcode;
 		return false;
 	}
 
-
-	sprintf(dataFile, "RAD_%u", RADDataNum);
-	RADDataNum = updateDataNumber();
-	hsAvailable = true;
-
-	// TODO: get correct IP and make sure this runs as intended
-	// char* argv[] = {(char *)"/usr/bin/tftp",(char *)"-g",(char*)"-r",dataFile,(char*)"10.14.134.207",NULL};
-	// tftp.launchProcess(argv);
-
 	return true;
 }
 
-
+//! Command the ending of data collection
 bool RAD::commandCollectionEnd(){
 	//TODO: error handling
-	//TODO: SPLIT DATA PROCESSING AND TARBALLING INTO THIER OWN FUNCTIONS
-
-	LockGuard l(lock);
 	hsAvailable = false;
 
 	Logger::Stream(LEVEL_INFO,tags) << "Ending RAD Science Collection";
 	std::vector<uint8_t> buff;
+	//1. Command end of science mode
 	ACPPacket retPacket = sendOpcode(OP_SUBSYSTEMRESET,buff);
 	if (!isSuccess(OP_SUBSYSTEMRESET,retPacket)){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Subsystem Reset: Unable to power of RAD. Opcode Received: " << retPacket.opcode;
 		return false;
 	}
 
-	//subPower.powerOff();
 
-	char archiveName[100];
-	char chunksize[10];
-	char dataPath[100];
-	char chunk[100];
-	// tftp.closeProcess();
-
-	//create archive name string for path to dataFile
-	sprintf(dataPath,RAD_FILE_PATH"/%s",dataFile);
-	// get how many files it was split into by dividing the dataFile size by the number of bytes per chunk
-	std::ifstream in(dataPath, std::ifstream::ate | std::ifstream::binary);
-	int f_bytes = in.tellg();
-	int n_splits = f_bytes/RAD_CHUNK_SIZE;
-	in.close();
+	//2. Waitfor TFTP to finish and close tftp
+	usleep(3*1000*1000);
+	tftp.closeProcess();
 
 
-	// split the file within the location using the same name (tags on 000,001,002,ect.)
-	sprintf(chunksize,"%d",RAD_CHUNK_SIZE);
-	char * sh_cmd[] = {(char *)"/usr/bin/split", (char*) "-b", (char*)chunksize, (char*) "-d",(char*) "-a", (char*)"3",(char*)dataPath,(char*)dataPath,NULL};
+	//3. Turn off RAD
+	std::string s(RAD_TMP_DATA);
+	FileManager::moveFile(s,dataFile);
+	subPower.powerOff();
 
-	// runs the split command in the system
-	ExternalProcess tar;
-	ExternalProcess split;
+	//4. Split Data Into Chunks
+	int splits = splitData();
 
-
-	split.launchProcess(sh_cmd);
-
-	// for loop through the number of splits created
-	for(int i = 0; i <= n_splits; i++){
-		int i2 = 0; // middle 0 if i < 10
-		char num[2]; // string to assign the numbers too, to reference each split file
-		if(i >= 10){
-			//num = to_string(i); // if i >=10 only need i to create the "000" tag on the file
-			sprintf(num,"%d",i);
-		}
-		else{
-			//num = to_string(i2) + to_string(i); // other wise need i2 and i
-			sprintf(num,"%d%d",i2,i);
-		}
-		// gets archive name we wish to create a .tar.gz compressed file for each chunk
-		sprintf(archiveName, RAD_FILE_PATH"/%s0%s.tar.gz",dataFile,num);
-		sprintf(chunk, RAD_FILE_PATH"/%s0%s",dataFile,num);
-
-		char * sh_cm[] = {(char*)"/bin/tar", (char*)"-czf",(char*)archiveName,(char*)chunk,(char*)"-P",NULL};
-		// runs the command on the system
-		tar.launchProcess(sh_cm);
-
-		// create a differenPLDUpdateDataNumbert archiveName referencing just the individual chunks
-		sprintf(archiveName, RAD_FILE_PATH "/%s0%s",dataFile,num);
-		// removes the chunks to save some space
-		remove(archiveName);
-
-		return true;
+	//5. Tar Each File Chunk
+	if(splits > 0){
+		tarBallData(splits);
 	}
 
-	// removes the dataFile to save space
-	remove(dataPath);
+	return true;
 }
 
-uint16_t RAD::readDataNumber(){
-	uint16_t dataNumber;
-	FILE * fp;
-	int char1, char2;
-	bool success = true;
-
-	if(access(RAD_NUM_FILE,F_OK) != -1){
-		fp = fopen(RAD_NUM_FILE,"rb");
-		if(fp != NULL){
-			success &= (char1 = fgetc(fp)) != EOF;
-			success &= (char2 = fgetc(fp)) != EOF;
-			if(success){
-				dataNumber = ((uint16_t) char1) << 8 | ((uint16_t) char2);
-			}
-			fclose(fp);
-		}
-	}
-	return dataNumber;
-}
-uint16_t RAD::updateDataNumber(){
-	uint16_t dataNumber;
-	FILE * fp;
-	uint8_t buffer[2];
-	bool success = true;
-
-	dataNumber = readDataNumber();
-	dataNumber++;
-
-	buffer[0] = (dataNumber & 0xFF00) >> 8;
-	buffer[1] = (dataNumber & 0x00FF);
-
-	fp =fopen(RAD_NUM_FILE,"wb");
-	if(fp!=NULL){
-		success &= (fputc(buffer[0], fp) != EOF);
-		success &= (fputc(buffer[1], fp) != EOF);
-		fclose(fp);
-	}
-	if (!success) {
-		remove(RAD_NUM_FILE);
-	}
-	return dataNumber;
-}
-
+//! resets RAD
 bool RAD::resetRAD(){
 
-	Logger::Stream(LEVEL_INFO,tags) << "Preparing COM for Reset";
+	Logger::Stream(LEVEL_INFO,tags) << "Preparing RAD for Reset";
 
 	std::vector<uint8_t> buff;
 	ACPPacket retPacket = sendOpcode(OP_SUBSYSTEMRESET,buff);
@@ -271,4 +265,60 @@ bool RAD::resetRAD(){
 	return true;
 }
 
+//! Splits the data collected into smaller chunks for easier/quicker downlink
+int RAD::splitData(){
+	ExternalProcess split;
+
+	char dataPath[100];
+	char chunksize[10];
+	//create archive name string for path to dataFile
+	sprintf(dataPath,"%s",dataFile.c_str());
+	// get how many files it was split into by dividing the dataFile size by the number of bytes per chunk
+	std::ifstream in(dataPath, std::ifstream::ate | std::ifstream::binary);
+	long f_bytes = in.tellg();
+	int n_splits = f_bytes/RAD_CHUNK_SIZE;
+	in.close();
+	// split the file within the location using the same name (tags on 000,001,002,ect.)
+	if(n_splits > 0){
+		sprintf(chunksize,"%d",RAD_CHUNK_SIZE);
+		char * sh_cmd[] = {(char *)"/usr/bin/split", (char*) "-b", (char*)chunksize, (char*) "-d",(char*) "-a", (char*)"3",(char*)dataPath,(char*)dataPath,NULL};
+		split.launchProcess(sh_cmd);
+		Logger::Stream(LEVEL_INFO,tags) << "Data file successfully split";
+		remove(dataPath);
+		return n_splits;
+	}else{
+		Logger::Stream(LEVEL_WARN,tags) << "No Data file to be split/collected";
+		return 0;
+	}
+}
+
+/*!
+ * Tar balls the split files from the data collection
+ * \param number of splits to look for and to be tar balled
+ */
+void RAD::tarBallData(int splits){
+	ExternalProcess tar;
+	char archiveName[100];
+	char chunk[100];
+	// tftp.closeProcess();
+	Logger::Stream(LEVEL_INFO,tags) << "Beginning of tar-balling of data file splits";
+	// for loop through the number of splits created
+	for(int i = 0; i <= splits; i++){
+		// gets archive name we wish to create a .tar.gz compressed file for each chunk
+		sprintf(archiveName,"%s%03d.tar.gz",dataFile.c_str(),i);
+		sprintf(chunk,"%s%03d",dataFile.c_str(),i);
+
+		Logger::Stream(LEVEL_DEBUG,tags) << "Chunk to be TAR-d: " << chunk << " New name: " << archiveName;
+
+		char * sh_cm[] = {(char*)"/bin/tar", (char*)"-czf",(char*)archiveName,(char*)chunk,(char*)"-P",NULL};
+		// runs the command on the system
+		tar.launchProcess(sh_cm);
+
+		// create a differenPLDUpdateDataNumbert archiveName referencing just the individual chunks
+		sprintf(archiveName,"%s%03d",dataFile.c_str(),i);
+		// removes the chunks to save some space
+		remove(archiveName);
+	}
+	Logger::Stream(LEVEL_INFO,tags) << "End of tar-balling of data file splits";
+}
 

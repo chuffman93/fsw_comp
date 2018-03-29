@@ -33,6 +33,9 @@ public:
 	virtual void handleMode(FSWMode transition) = 0;
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 	virtual void getHealthStatus() = 0;
+	//Handles the config retrieval and sending
+	virtual void handleConfig() = 0;
+	virtual void updateConfig() = 0;
 
 	virtual ACPPacket sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer) = 0;
 

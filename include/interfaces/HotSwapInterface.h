@@ -11,6 +11,14 @@
 #include "hal/I2CManager.h"
 #include "util/Logger.h"
 
+
+struct HotSwap{
+	HotSwap(int address, float senseR, std::string instance);
+	int address;
+	float senseR;
+	std::string instance;
+};
+
 struct HotSwapData{
 	float current;
 	float voltage;

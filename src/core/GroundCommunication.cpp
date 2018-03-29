@@ -7,32 +7,45 @@
 
 #include "core/GroundCommunication.h"
 
-GroundCommunication::GroundCommunication(std::vector<SubsystemBase*> subsystems)
-: stateDownlink(false), statePostPass(false), ComStartTime(0), ComTimeout(720), subsystems(subsystems)
+GroundCommunication::GroundCommunication(std::vector<SubsystemBase*> subsystems, BeaconManager& beacon)
+: stateDownlink(false), statePostPass(false), ComStartTime(0), ComTimeout(720), subsystems(subsystems), beacon(beacon)
 {
 	tags += LogTag("Name", "GroundCommunication");
 }
 
 GroundCommunication::~GroundCommunication(){}
 
+/*!
+ * Function used to run through the downlink queue and pass them into the downlink folder for COM
+ */
 void GroundCommunication::downlinkFiles(){
 
-	while(!DownlinkQueue.empty()){
+	if (!DownlinkQueue.empty()){
 		std::string file = DownlinkQueue.front();
-		if (!FileManager::checkExistance(DOWNLINK_DIRECTORY + file)){
-			Logger::Stream(LEVEL_INFO,tags) << "Downlinking Next File";
+		if (firstFile == true){
+			Logger::Stream(LEVEL_INFO,tags) << "Downlinking Next File: " << grabFileName(file).c_str();
+			FileManager::copyFile(file, DOWNLINK_DIRECTORY + grabFileName(file));
+			firstFile = false;
+		}else if (!FileManager::checkExistance(DOWNLINK_DIRECTORY + grabFileName(file))){
 			DownlinkQueue.pop();
-			file = DownlinkQueue.front();
-			FileManager::copyFile(file, DOWNLINK_DIRECTORY + file);
+			if (!DownlinkQueue.empty()){
+				file = DownlinkQueue.front();
+				Logger::Stream(LEVEL_INFO,tags) << "Downlinking Next File: " << grabFileName(file).c_str();
+				FileManager::copyFile(file, DOWNLINK_DIRECTORY + grabFileName(file));
+			}
 		}
 	}
 	if (DownlinkQueue.empty()){
 		stateDownlink = false;
 		statePostPass = true;
+		firstFile = true;
 	}
 	Logger::Stream(LEVEL_INFO,tags) << "Completed Downlink of All Files";
 }
 
+/*!
+ * Used to clean the downlink queue pending the ending of a COM pass
+ */
 void GroundCommunication::clearDownlink(){
 	Logger::Stream(LEVEL_INFO,tags) << "Communication Pass over, clearing downlink queue";
 	while (!DownlinkQueue.empty()){
@@ -40,12 +53,17 @@ void GroundCommunication::clearDownlink(){
 	}
 }
 
+/*!
+ * Used to trim the new line character when reading in lines from ground files
+ */
 std::string GroundCommunication::trimNewline(std::string buffer){
 	  // Remove the newline at the end of a string
 	buffer.erase(std::remove(buffer.begin(), buffer.end(), '\n'), buffer.end());
 	return buffer;
 }
 
+
+// TODO: Do we need this?
 void GroundCommunication::executeFSWCommand(int command){
 	int ret;
 	switch (command) {
@@ -75,6 +93,10 @@ void GroundCommunication::executeFSWCommand(int command){
 	}
 }
 
+/*!
+ * Decides how to handle a downlink request
+ * \param string read in from the IEF.txt indicating a desire for a downlink
+ */
 void GroundCommunication::parseDownlinkRequest(std::string line){
 	char downlinkRequest[100];
 	strcpy(downlinkRequest, line.c_str());
@@ -91,7 +113,6 @@ void GroundCommunication::parseDownlinkRequest(std::string line){
 		//log error
 		return;
 	}
-	LockGuard l(lock);
 	if (strcmp(type,"F") == 0){
 		Logger::Stream(LEVEL_INFO,tags) << "Adding file(s): " << line << " to downlink queue";
 		while (file != NULL){
@@ -107,19 +128,21 @@ void GroundCommunication::parseDownlinkRequest(std::string line){
 			std::string regex = trimNewline(std::string(file));
 			std::vector<std::string> reg = FileManager::packageFiles(regex,"R");
 			std::vector<std::string>::iterator it;
-			for (it = reg.begin(); it <= reg.end(); it++){
+			for (it = reg.begin(); it < reg.end(); it++){
+				Logger::Stream(LEVEL_DEBUG,tags) << "Adding: " << (*it).c_str() << ". to downlink queue";
 				DownlinkQueue.push(*it);
 			}
 			file = strtok(NULL,",");
 		}
 
 	}else if (strcmp(type,"RB") == 0){
-		Logger::Stream(LEVEL_INFO,tags) << "Adding regex before(s) " << line << " to downlink queue";
+		Logger::Stream(LEVEL_INFO,tags) << "Adding regex(s) before " << line << " to downlink queue";
 		while (file != NULL){
 			std::string regex = trimNewline(std::string(file));
 			std::vector<std::string> reg = FileManager::packageFiles(regex,"RB");
 			std::vector<std::string>::iterator it;
-			for (it = reg.begin(); it <= reg.end(); it++){
+			for (it = reg.begin(); it < reg.end(); it++){
+				Logger::Stream(LEVEL_DEBUG,tags) << "Adding: " << (*it).c_str() << ". to downlink queue";
 				DownlinkQueue.push(*it);
 			}
 			file = strtok(NULL,",");
@@ -131,7 +154,8 @@ void GroundCommunication::parseDownlinkRequest(std::string line){
 			std::string regex = trimNewline(std::string(file));
 			std::vector<std::string> reg = FileManager::packageFiles(regex,"RA");
 			std::vector<std::string>::iterator it;
-			for (it = reg.begin(); it <= reg.end(); it++){
+			for (it = reg.begin(); it < reg.end(); it++){
+				Logger::Stream(LEVEL_DEBUG,tags) << "Adding: " << (*it).c_str() << " to downlink queue";
 				DownlinkQueue.push(*it);
 			}
 			file = strtok(NULL,",");
@@ -142,6 +166,10 @@ void GroundCommunication::parseDownlinkRequest(std::string line){
 	}
 }
 
+/*!
+ * Decides how to handle a deletion request
+ * \param string read in from the IEF.txt indicating a desire for deletion
+ */
 void GroundCommunication::parseDeletionRequest(std::string line){
 	char deleteRequest[100];
 	strcpy(deleteRequest, line.c_str());
@@ -157,7 +185,6 @@ void GroundCommunication::parseDeletionRequest(std::string line){
 		//log error
 		return;
 	}
-	LockGuard l(lock);
 	if (strcmp(type,"F") == 0){
 		Logger::Stream(LEVEL_INFO,tags) << "Deleting file(s) " << line ;
 		while (file != NULL){
@@ -179,7 +206,7 @@ void GroundCommunication::parseDeletionRequest(std::string line){
 		Logger::Stream(LEVEL_INFO,tags) << "Deleting regex(s) before " << line ;
 		while (file != NULL){
 			std::string regex = trimNewline(std::string(file));
-			FileManager::regexDelete(regex,"R");
+			FileManager::regexDelete(regex,"RB");
 			file = strtok(NULL,",");
 		}
 
@@ -187,13 +214,17 @@ void GroundCommunication::parseDeletionRequest(std::string line){
 		Logger::Stream(LEVEL_INFO,tags) << "Deleting regex(s) after " << line ;
 		while (file != NULL){
 			std::string regex = trimNewline(std::string(file));
-			FileManager::regexDelete(regex,"R");
+			FileManager::regexDelete(regex,"RA");
 			file = strtok(NULL,",");
 		}
 
 	}
 }
 
+/*!
+ * Decides how to handle a command request
+ * \param string read in from the IEF.txt indicating a desire for commanding the system or a subsystem
+ */
 void GroundCommunication::parseCommandRequest(std::string line){
 	//TODO: error handling for opcodes numbers in between min and max that don't exist
 	char commandRequest[100];
@@ -294,6 +325,10 @@ void GroundCommunication::parseCommandRequest(std::string line){
 	}
 }
 
+/*!
+ * Handles getting a request for obtaining a list of files in a directory
+ * \param string read in from the IEF.txt indicating a desire for a file list
+ */
 void GroundCommunication::parseFileListRequest(std::string line){
 	char downlinkRequest[100];
 	strcpy(downlinkRequest, line.c_str());
@@ -302,7 +337,6 @@ void GroundCommunication::parseFileListRequest(std::string line){
 	if (dir == NULL){
 		//log error
 	}
-	LockGuard l(lock);
 	while (dir != NULL){
 		std::string directory = trimNewline(std::string(dir));
 		FileManager::generateFilesList(directory);
@@ -310,7 +344,30 @@ void GroundCommunication::parseFileListRequest(std::string line){
 	}
 }
 
+// TODO: Do we need this?
+void GroundCommunication::createCommandAcknowledgement(std::string command, std::string success){
 
+}
+
+/*!
+ * Grabs the name of a file from a path. Used for downlinking
+ * \param Path to the file
+ */
+std::string GroundCommunication::grabFileName(std::string path){
+	int i = path.length()-1;
+	std::string filename = "";
+	while(path[i]!='/'){
+		filename = path[i]+filename;
+		i--;
+	}
+	Logger::Stream(LEVEL_DEBUG,tags) << "Grabbed file name for downlink: " << filename.c_str() << ".";
+	return filename;
+}
+
+
+/*!
+ * Parsing through the IEF.txt file from ground to interpret the different requests
+ */
 void GroundCommunication::parseIEF(){
 	std::vector<std::string> requests = FileManager::parseGroundFile(IEF_PATH);
 	char line[100];
@@ -332,11 +389,9 @@ void GroundCommunication::parseIEF(){
 			parseFileListRequest((*it).c_str());
 		}
 	}
-
-	FileManager::deleteFile(IEF_PATH);
 }
 
-
+// TODO: Do we need this?
 void GroundCommunication::parsePPE(){
 	if (!FileManager::checkExistance(PPE_PATH)){
 		Logger::Stream(LEVEL_INFO,tags) << "No PPE file found";
@@ -367,11 +422,24 @@ void GroundCommunication::parsePPE(){
 	FileManager::deleteFile(PPE_PATH);
 }
 
-bool GroundCommunication::spinGround(){
-	LockGuard l(lock);
+
+/*!
+ * Heart of the GroundComm. Checks for SOT.txt for start of transmission and runs through the process for a COM pass.
+ * Also sends beacon.
+ * \param A pointer to the watchdog to allow spin to let watchdog know ground is not dead
+ */
+bool GroundCommunication::spinGround(Watchdog* watchdog){
 	if (!FileManager::checkExistance(SOT_PATH)){
+		Logger::Stream(LEVEL_INFO,tags) << "Sending beacon...";
+		beacon.sendBeacon();
+		Logger::Stream(LEVEL_INFO,tags) << "Beacon has been sent";
+		for(int i = 0; i <= 60; i++){
+			if(FileManager::checkExistance(SOT_PATH)){break;}
+			watchdog->KickWatchdog();
+			sleep(1);
+		}
 		return false;
-		//send beacon
+
 	}else{
 		if (ComStartTime == 0){
 			Logger::Stream(LEVEL_INFO,tags) << "Beginning Communication Pass Timer";
@@ -398,7 +466,6 @@ bool GroundCommunication::spinGround(){
 		if (FileManager::checkExistance(IEF_PATH)){
 			Logger::Stream(LEVEL_INFO,tags) << "Received IEF";
 			parseIEF();
-			ComStartTime = 0;
 			stateDownlink = true;
 		//begin downlink if IEF processing has ended
 		}else if (stateDownlink){

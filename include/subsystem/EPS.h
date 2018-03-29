@@ -32,8 +32,10 @@ public:
 	void handleMode(FSWMode transition);
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 	void getHealthStatus();
+	void handleConfig();
+	void updateConfig();
 	//Get battery capacity
-	uint16_t getBatteryCapacity();
+	uint16_t getBatteryStateOfCharge();
 
 	ACPPacket sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer);
 	bool isSuccess(EPSOpcode opSent, ACPPacket retPacket);

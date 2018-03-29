@@ -9,7 +9,9 @@
 #include "subsystem/COM.h"
 #include "core/ScheduleManager.h"
 #include "core/GroundCommunication.h"
+#include "core/Architecture.h"
 #include "util/TimeKeeper.h"
+
 
 using namespace std;
 
@@ -49,14 +51,13 @@ void * FSWThreads::ModeThread(void * args) {
 		watchdog->KickWatchdog();
 		scheduler->handleScheduling();
 		mode = scheduler->checkNewMode();
-		Logger::Stream(LEVEL_DEBUG) << "Mode: " << mode;
+		Logger::Stream(LEVEL_INFO) << "Mode: " << mode;
 		map<FSWMode, vector<SubsystemBase*> >::iterator it;
 		it = seq.find(mode);
 
 		if(it != seq.end()){
 			for(vector<SubsystemBase*>::iterator sub = it->second.begin(); sub != it->second.end(); sub++){
 				(*sub)->handleMode(mode);
-				watchdog->KickWatchdog();
 			}
 		}
 
@@ -74,10 +75,33 @@ void * FSWThreads::GPSThread(void * args) {
 	Logger::registerThread("GPS");
 	Logger::log(LEVEL_FATAL, "Starting GPS Thread");
 	while (1) {
-		watchdog->KickWatchdog();
-		gps->fetchNewGPS();
-		acs->sendGPS(gps->getBestXYZ());
-		sleep(2);
+		// GPS on, if lock, shut off GPS.
+		// Override in PLD (GPS) on
+		for(int i = 0; i <= gps->timein; i++){
+			// if gps is on, try to get a lock
+			if(gps->isOn()){
+				Logger::Stream(LEVEL_INFO) << "Fetching GPS";
+				gps->fetchNewGPS();
+			}
+			// check if the lock was a success
+			if(!gps->getSuccess() && gps->isOn() && (i < gps->timeout || !gps->getLockStatus())){
+				Logger::Stream(LEVEL_INFO) << "No Lock";
+				if(gps->getLockStatus()){
+					acs->sendGPS(gps->getBestXYZI());
+				}
+				watchdog->KickWatchdog();
+				sleep(1);
+				continue;
+			}
+			else if(gps->isOn()){
+				gps->powerOff();
+			}
+			watchdog->KickWatchdog();
+			acs->sendGPS(gps->getBestXYZI());
+			sleep(1);
+		}
+		gps->powerOn();
+
 	}
 	return NULL;
 }
@@ -87,7 +111,7 @@ void * FSWThreads::WatchdogThread(void * args) {
 	Logger::registerThread("WPUP");
 	Logger::log(LEVEL_FATAL, "Starting Watchdog Thread");
 	while (1) {
-		sleep(4);
+		sleep(20);
 		watchdog->CheckThreads();
 		Logger::Stream(LEVEL_INFO) << "Pinging from watchdog";
 
@@ -103,11 +127,22 @@ void * FSWThreads::GroundThread(void * args) {
 	Logger::registerThread("GND");
 	Logger::log(LEVEL_FATAL, "Starting Ground Communication Thread");
 	while (1) {
-		bool toCom = gnd->spinGround();
-		if(toCom && scheduler->checkMode() != Mode_Com){
+		if(gnd->ComTimeout != scheduler->getComTimeout()){
+			gnd->ComTimeout = scheduler->getComTimeout();
+		}
+		bool toCom = gnd->spinGround(watchdog);
+		if(toCom && scheduler->getCurrentMode() != Mode_Com){
 			scheduler->setModeToCom();
-		}else if(!toCom && scheduler->checkMode() == Mode_Com){
+		}else if(!toCom && scheduler->getCurrentMode() == Mode_Com){
 			scheduler->exitComMode();
+			std::vector<SubsystemBase*> seq = Architecture::buildCFVector();
+			for (std::vector<SubsystemBase*>::iterator i = seq.begin();
+					i != seq.end(); i++) {
+				(*i)->updateConfig();
+				watchdog->KickWatchdog();
+			}
+			scheduler->updateConfig();
+			FileManager::updateConfig();
 		}
 		watchdog->KickWatchdog();
 		sleep(1);

@@ -28,8 +28,8 @@ PowerMonitorData PowerMonitorInterface::getData(){
 	uint16_t voltRaw = ((uint16_t)i2cman.readReg(id, 0x1E) << 8) | i2cman.readReg(id, 0x1F);
 	uint16_t currRaw = ((uint16_t)i2cman.readReg(id, 0x14) << 8) | i2cman.readReg(id, 0x15);
 
-	retval.voltage = (float)voltRaw * (25.0/1000.0); //25mV to convert to V
-	retval.current = (float)currRaw *(25.0/1000000.0)*(1/senseR); //25uV * 1/SenseResistor to convert to A
+	retval.voltage = (float)voltRaw * (25.0/10000.0); //25mV to convert to V
+	retval.current = (float)currRaw *(25.0/10000000.0)*(1/senseR); //25uV * 1/SenseResistor to convert to A
 
 
 	Logger::Stream(LEVEL_INFO, tags) << "Read: " << retval.voltage << "V " << retval.current << "A";

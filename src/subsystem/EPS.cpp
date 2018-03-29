@@ -20,20 +20,21 @@
 EPS::EPS(ACPInterface& acp, SubPowerInterface& subPower)
 : acp(acp), subPower(subPower){
 	tags += LogTag("Name", "EPS");
-	health.fileSize = MAX_FILE_SIZE;
+	health.fileSize = FileManager::MAX_FILE_SIZE;
 	health.basePath = HEALTH_DIRECTORY EPS_PATH "/EPS";
 	batteryCharge = 0;
 }
 
 EPS::~EPS(){}
 
-//Will set up the Gpio lines and the acp devices
+//! Will set up the Gpio lines and the acp devices
 bool EPS::initialize(){
 	//TODO: error handling
 
 	Logger::Stream(LEVEL_INFO,tags) << "Initializing EPS";
-
 	std::vector<uint8_t> buff;
+
+
 	ACPPacket retPacket1 = sendOpcode(OP_TESTALIVE,buff);
 	if (!isSuccess(OP_TESTALIVE,retPacket1)){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Alive: EPS is not alive. Opcode Received: " << retPacket1.opcode;
@@ -51,12 +52,12 @@ bool EPS::initialize(){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Configurations: EPS is not alive. Opcode Received: " << retPacket3.opcode;
 		return false;
 	}
-
 	return true;
 }
 
-//Handles any mode transition needs as well as any needs for tasks to be done in a mode.
+//! Handles any mode transition needs as well as any needs for tasks to be done in a mode.
 void EPS::handleMode(FSWMode transition){
+	LockGuard l(lock);
 	bool success;
 	switch (transition) {
 	case Mode_Reset:
@@ -67,7 +68,12 @@ void EPS::handleMode(FSWMode transition){
 	}
 }
 
-//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
+void EPS::handleConfig(){
+}
+
+void EPS::updateConfig(){}
+
+//! Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 void EPS::getHealthStatus(){
 
 	LockGuard l(lock);
@@ -80,9 +86,13 @@ void EPS::getHealthStatus(){
 	bs.seek(12) >> batteryCharge;
 
 	Logger::Stream(LEVEL_INFO, tags) << "Battery Charge: " << batteryCharge;
-
 }
 
+/*!
+ * Handles the sending of opcodes
+ * \param opcode to be sent
+ * \param buffer to be sent if need be
+ */
 ACPPacket EPS::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
 	//LockGuard l(lock);
 	if (buffer.empty()){
@@ -98,6 +108,7 @@ ACPPacket EPS::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
 	}
 }
 
+//! checks to see if the EPS opcode was sent successfully
 bool EPS::isSuccess(EPSOpcode opcode, ACPPacket retPacket){
 	if (opcode == retPacket.opcode){
 		return true;
@@ -105,15 +116,16 @@ bool EPS::isSuccess(EPSOpcode opcode, ACPPacket retPacket){
 	return false;
 }
 
+//! checks if the subsystem opcode was sent successfully
 bool EPS::isSuccess(SubsystemOpcode opcode, ACPPacket retPacket){
 	if (opcode == retPacket.opcode){
 		return true;
 	}
-	return false;
+	return true;
 }
 
 
-//Power cycle the entire satellite
+//! Power cycle the entire satellite
 bool EPS::commandReset(){
 	//TODO: error handling
 	Logger::Stream(LEVEL_INFO,tags) << "Reseting EPS";
@@ -135,6 +147,7 @@ bool EPS::commandReset(){
 	return false;
 }
 
-uint16_t EPS::getBatteryCapacity(){
+//! returns the battery charge
+uint16_t EPS::getBatteryStateOfCharge(){
 	return batteryCharge;
 }

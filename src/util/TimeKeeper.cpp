@@ -22,3 +22,8 @@ uint32_t getCurrentTime(){
 	return time - offsetTime;
 }
 
+uint32_t spoofTime(uint32_t addTime){
+	offsetTime = offsetTime - addTime;
+	uint32_t t = getCurrentTime();
+	return t;
+}

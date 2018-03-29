@@ -23,7 +23,9 @@
 
 #include <stdio.h>
 
-#define RAD_CHUNK_SIZE		102400
+#define RAD_CHUNK_SIZE		204800
+#define CONFIG_MOTOR_SIZE	18
+#define CONFIG_DATA_SIZE	20
 
 enum PLDOpcode {
 	OP_PLD_CMD_MIN = 32,
@@ -50,7 +52,8 @@ public:
 	void handleMode(FSWMode transition);
 	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 	void getHealthStatus();
-
+	void handleConfig();
+	void updateConfig();
 	ACPPacket sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer);
 	bool isSuccess(PLDOpcode opSent, ACPPacket retPacket);
 	bool isSuccess(SubsystemOpcode opSent, ACPPacket retPacket);
@@ -61,9 +64,11 @@ public:
 PRIVATE:
 	//Various configurations for the data collection
 	void configMotor();
+	void configMotorUpdate();
 	void configData();
-	void slipData();
-	void tarBallData();
+	void configDataUpdate();
+	int splitData();
+	void tarBallData(int splits);
 
 	uint16_t updateDataNumber();
 	uint16_t readDataNumber();
@@ -72,8 +77,7 @@ PRIVATE:
 
 
 	bool resetRAD();
-	char dataFile[100];
-
+	std::string dataFile;
 	bool hsAvailable;
 
 	ExternalProcess tftp;

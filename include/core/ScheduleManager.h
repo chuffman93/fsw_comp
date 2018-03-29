@@ -22,7 +22,7 @@
 #include "util/ByteStream.h"
 #include "core/Lock.h"
 
-#define REBOOT_TIME 86400
+#define CONFIG_SCH_SIZE 8
 
 typedef enum _FSWMode{
 	Mode_Bus = 1,
@@ -55,15 +55,22 @@ public:
 	FSWMode handleModeChange(FSWMode current, FSWMode next);
 	void setModeToCom();
 	void exitComMode();
-	FSWMode checkMode();
+	FSWMode getCurrentMode();
+	uint32_t getEpochTime();
+	uint32_t getModeEnterTime();
+	int getComPassCount();
+	void handleConfig();
+	void updateConfig();
+	uint32_t getComTimeout();
 
 
 
 PRIVATE:
 	std::queue <ScheduleStruct> ScheduleQueue;
-
+	uint32_t REBOOT_TIME;
 	ScheduleStruct currentSchedule;
 	uint32_t modeEnterTime;
+	int ComPassCount;
 	FSWMode CurrentMode;
 	Lock lock;
 	ScheduleStruct com;

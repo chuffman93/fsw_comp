@@ -16,4 +16,6 @@ void initializeTime();
 
 uint32_t getCurrentTime();
 
+uint32_t spoofTime(uint32_t addTime);
+
 #endif /* TIMEKEEPER_H_ */

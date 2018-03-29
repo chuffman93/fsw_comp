@@ -8,25 +8,30 @@
 #include "test/catch.hpp"
 #include "test/testmacros.h"
 #include "subsystem/GPS.h"
+#include <unistd.h>
+#include <fstream>
+#include "util/TimeKeeper.h"
+
 
 UARTManager dummyu("");
 GPIOManager dummyg("");
 
-std::string teststr = "BESTXYZA,COM1,0,55.0,FINESTEERING,1419,340033.000,02000040,d821,2724;SOL_COMPUTED,NARROW_INT,-1634531.5683,-3664618.0326,4942496.3270,0.0099,0.0219,0.0115,SOL_COMPUTED,NARROW_INT,0.0011,-0.0049,-0.0001,0.0199,0.0439,0.0230,\"AAAA\",0.250,1.000,0.000,12,11,11,11,0,01,0,33*e9eafeca";
+
+std::string teststr = "BESTXYZA,COM1,0,55.0,FINESTEERING,1981,140418.000,02000040,d821,2724;SOL_COMPUTED,NARROW_INT,5197700.0,4504720.0,11860.5,0.0,0.0,0.0,SOL_COMPUTED,NARROW_INT,318.377,-387.397,7612.6,0.0,0.0,0.0,\"AAAA\",0.250,1.000,0.000,12,11,11,11,0,01,0,33*e9eafeca";
+//std::string teststr = "BESTXYZA,COM1,0,55.0,FINESTEERING,1957,240960.000,02000040,d821,2724;SOL_COMPUTED,NARROW_INT,4792805.471,-3190283.834,-3762966.202,0.0,0.0,0.0,SOL_COMPUTED,NARROW_INT,-3699.37,1958.58,-6372.311,0.0,0.0,0.0,\"AAAA\",0.250,1.000,0.000,12,11,11,11,0,01,0,33*e9eafeca";
 
 
 class MockNMEA: public NMEAInterface{
 public:
-	MockNMEA():NMEAInterface(dummyu){}
+	MockNMEA():NMEAInterface(dummyu){testst = "";}
 	std::string getString(){
-		return teststr;
+		return testst;
 	}
 
 	void sendCommand(std::string str){
 
 	}
-
-	std::string teststr;
+	std::string testst;
 };
 
 class MockPower: public SubPowerInterface{
@@ -41,66 +46,81 @@ public:
 	bool faultOccurred(){return false;}
 };
 
-TEST_CASE("Test GPS fetchNewGPS", "[subsystem][gps]"){
+
+TEST_CASE("Test GPS fetchNewGPS", "[.][subsystem][gps]"){
 	MockNMEA nm;
 	MockPower pow;
 	GPS gps(nm, pow);
+	initializeTime();
+	nm.testst = teststr;
+	gps.fetchNewGPS();
+	GPSPositionTime pt = gps.getBestXYZI();
+	REQUIRE(fabs(pt.posX - 6878.14) < 0.01);
+	REQUIRE(fabs(pt.posY - 0) < 0.01);
+	REQUIRE(fabs(pt.posZ - 0) < 0.01);
+	REQUIRE(fabs(pt.velX - 0) < 0.01);
+	REQUIRE(fabs(pt.velY - 0) < 0.01);
+	REQUIRE(fabs(pt.velZ - 7.612607) < 0.01);
+	REQUIRE(pt.GPSWeek == 1981);
+	REQUIRE(pt.GPSSec  == 140418);
+}
 
-	SECTION("Test nominal"){
-		nm.teststr = teststr;
-		gps.fetchNewGPS();
-		GPSPositionTime pt = gps.getBestXYZ();
+TEST_CASE("Test that it doesn't set when the string is invalid", "[subsystem][gps][op]"){
+	MockNMEA nm;
+	MockPower pow;
+	GPS gps(nm, pow);
+	nm.testst = teststr;
+	initializeTime();
+	gps.fetchNewGPS();
+	GPSPositionTime old = gps.getBestXYZI();
+	nm.testst = "B" + teststr; //Give an invalid char at the front
+	gps.fetchNewGPS();
 
-		/*
-		cout << "Read: Position = {" << pt.posX << ", " << pt.posY << ", " << pt.posZ << "}" << endl;
-		cout << "Read: Velocity = {" << pt.velX << ", " << pt.velY << ", " << pt.velZ << "}" << endl;
-		cout << "Read: Week " << pt.GPSWeek << " Second" << pt.GPSSec << endl;
-		*/
+	GPSPositionTime pt = gps.getBestXYZI();
 
-		REQUIRE(fabs(pt.posX - -1634.53) < 0.01);
-		REQUIRE(fabs(pt.posY - -3664.62) < 0.01);
-		REQUIRE(fabs(pt.posZ -   4942.5) < 0.01);
-		REQUIRE(fabs(pt.velX -  1.1e-06) < 0.01);
-		REQUIRE(fabs(pt.velY - -4.9e-06) < 0.01);
-		REQUIRE(fabs(pt.velZ -   -1e-07) < 0.01);
-		REQUIRE(pt.GPSWeek == 1419);
-		REQUIRE(pt.GPSSec  == 340033);
+	REQUIRE(fabs(old.posX - pt.posX) < 0.01);
+	REQUIRE(fabs(old.posY - pt.posY) < 0.01);
+	REQUIRE(fabs(old.posZ - pt.posZ) < 0.01);
+	REQUIRE(fabs(old.velX - pt.velX) < 0.01);
+	REQUIRE(fabs(old.velY - pt.velY) < 0.01);
+	REQUIRE(fabs(old.velZ - pt.velZ) < 0.01);
+	REQUIRE(old.GPSWeek == pt.GPSWeek);
+	REQUIRE(old.GPSSec == pt.GPSSec);
+}
+
+
+TEST_CASE("Test GPS Orbital Propagator", "[subsystem][gps][op]"){
+	MockNMEA nm;
+	MockPower pow;
+	GPS gps(nm, pow);
+	// need to run propagater over a some time
+	initializeTime();
+	nm.testst = teststr;
+	gps.fetchNewGPS();
+	GPSPositionTime pt;
+	uint32_t timeFSW = getCurrentTime();
+	pt = gps.getBestXYZI();
+	// file to visually test
+	std::ofstream o("GPSData.csv", std::ofstream::out);
+	o << timeFSW << "," << pt.posX << "," << pt.posY << "," << pt.posZ << "\n";
+	for(int i = 0; i <= 240; i++){
+		uint32_t tempT = 60;
+		timeFSW = spoofTime(tempT);
+		pt = gps.getBestXYZI();
+		o << timeFSW << "," << pt.posX << "," << pt.posY << "," << pt.posZ << "\n";
 	}
+	o.close();
+}
 
-	SECTION("Test that it doesn't set when the string is invalid"){
-		GPSPositionTime old = gps.getBestXYZ();
-		nm.teststr = "B" + teststr; //Give an invalid char at the front
-		gps.fetchNewGPS();
-
-		GPSPositionTime pt = gps.getBestXYZ();
-
-		REQUIRE(old.posX == pt.posX);
-		REQUIRE(old.posY == pt.posY);
-		REQUIRE(old.posZ == pt.posZ);
-		REQUIRE(old.velX == pt.velX);
-		REQUIRE(old.velY == pt.velY);
-		REQUIRE(old.velZ == pt.velZ);
-		REQUIRE(old.GPSWeek == pt.GPSWeek);
-		REQUIRE(old.GPSSec == pt.GPSSec);
-	}
-
-	/* Commented out since FSW doesn't actually check this stuff rn
-	SECTION("Test that it doesn't set when the crc is invalid"){
-		GPSPositionTime old = gps.getBestXYZ();
-		nm.teststr = teststr.substr(0, teststr.length() - 2) + "ao"; //Give an invalid char at the front
-		gps.fetchNewGPS();
-
-		GPSPositionTime pt = gps.getBestXYZ();
-
-		REQUIRE(old.posX == pt.posX);
-		REQUIRE(old.posY == pt.posY);
-		REQUIRE(old.posZ == pt.posZ);
-		REQUIRE(old.velX == pt.velX);
-		REQUIRE(old.velY == pt.velY);
-		REQUIRE(old.velZ == pt.velZ);
-		REQUIRE(old.GPSWeek == pt.GPSWeek);
-		REQUIRE(old.GPSSec == pt.GPSSec);
-	}
-	*/
+TEST_CASE("Test GPS Config", "[.][subsystem][gps][cf]"){
+	MockNMEA nm;
+	MockPower pow;
+	GPS gps(nm, pow);
+	gps.initialize();
+	uint16_t to = 900;
+	uint16_t ti = 7200;
+	REQUIRE(gps.timeout == to);
+	REQUIRE(gps.timein == ti);
 
 }
+
