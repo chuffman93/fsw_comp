@@ -28,6 +28,37 @@ std::string teststr11 = "#BESTXYZA,COM1,0,55.0,FINESTEERING,1981,143400.000,0200
 std::string teststr12 = "#BESTXYZA,COM1,0,55.0,FINESTEERING,1981,143700.000,02000040,d821,2724;SOL_COMPUTED,NARROW_INT,3929735.013,4534257.171,-3362508.472,0.0,0.0,0.0,SOL_COMPUTED,NARROW_INT,-2437.386,-2812.334,-6640.913,0.0,0.0,0.0,\"AAAA\",0.250,1.000,0.000,12,11,11,11,0,01,0,33*e9eafeca";
 std::string teststr13 = "#BESTXYZA,COM1,0,55.0,FINESTEERING,1981,144000.000,02000040,d821,2724;SOL_COMPUTED,NARROW_INT,2997242.715,3458317.459,-5134719.569,0.0,0.0,0.0,SOL_COMPUTED,NARROW_INT,-3722.01,-4294.576,-5065.082,0.0,0.0,0.0,\"AAAA\",0.250,1.000,0.000,12,11,11,11,0,01,0,33*e9eafeca";
 
+
+TEST_CASE("Same test different string","[gps2acs][t2]"){
+	MockNMEA nm;
+	GPS gps(nm,*(new MockSubPower("GPS")));
+	Logger::setMode(MODE_PRINT);
+	Logger::setLevel(LEVEL_INFO);
+	Logger::registerFilter(LogTag("Name", "GPS"), LEVEL_DEBUG);
+	Architecture::setInterfaceMode(HARDWARE);
+	Architecture::buildACS();
+	ACS *acs = Architecture::getACS();
+
+	Logger::log(LEVEL_FATAL, "Initializing HAL");
+	vector<HardwareManager*> halinit = Architecture::buildHALInitVector();
+	for(vector<HardwareManager*>::iterator i = halinit.begin(); i != halinit.end(); i++){
+		(*i)->initialize();
+	}
+
+	acs->initialize();
+
+	acs->pointSunSoak();
+	std::string teststr = "#BESTXYZA,COM1,0,55.0,FINESTEERING,1981,140418.000,02000040,d821,2724;SOL_COMPUTED,NARROW_INT,-4054145.6,-4364111.9,3439069.5,0.0,0.0,0.0,SOL_COMPUTED,NARROW_INT,2590.608,2.788675,6592.711,0.0,0.0,0.0,\"AAAA\",0.250,1.000,0.000,12,11,11,11,0,01,0,33*e9eafeca";
+	nm.setString(teststr);
+	gps.fetchNewGPS();
+	for(int y = 0; y <= 60; y++){
+		acs->sendGPS(gps.getBestXYZI());
+		if(y%60 == 0){
+			acs->getHealthStatus();
+		}
+	}
+}
+
 TEST_CASE("Test ACS's GPS handling","[.][gps2acs]"){
 
 

@@ -710,7 +710,7 @@ void FileManager::handleConfig(){
 }
 
 /*!
- * Handles updating the config if an update is uploaded
+ * Handles updating the configs if an update is uploaded
  */
 void FileManager::updateConfig(){
 	LogTags tags;

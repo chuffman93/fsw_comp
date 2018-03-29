@@ -26,22 +26,19 @@ int main() {
 	Logger::setMode(MODE_PW);
 	Logger::setLevel(LEVEL_INFO);
 	Logger::registerThread("MAIN");
-	Logger::registerFilter(LogTag("Name", "GPS"), LEVEL_DEBUG);
 	Logger::registerFilter(LogTag("Name", "GroundCommunication"), LEVEL_DEBUG);
 	Logger::registerFilter(LogTag("Name", "ScheduleManager"), LEVEL_DEBUG);
-	Logger::registerFilter(LogTag("Name", "FileManager"), LEVEL_DEBUG);
-	Logger::registerFilter(LogTag("Name", "NMEAInterface"), LEVEL_DEBUG);
 	Logger::log(LEVEL_FATAL, "Entering Main");
 
 	//---------Step1: Build FSW---------------------------
 	Architecture::setInterfaceMode(HARDWARE);
+	Architecture::buildACS();
 	Architecture::buildEPS();
-	Architecture::buildGPS();
+	Architecture::buildRAD();
+	Architecture::buildCOM();
 	Architecture::buildCDH();
 	Architecture::setInterfaceMode(SOFTWARE);
-	Architecture::buildACS();
-	Architecture::buildCOM();
-	Architecture::buildRAD();
+	Architecture::buildGPS();
 	Architecture::buildScheduleManager();
 	Architecture::buildBeaconManager();
 	Architecture::buildGND();

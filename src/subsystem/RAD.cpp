@@ -165,7 +165,6 @@ void RAD::configData(){
 
 //! Command the beginning of data collection
 bool RAD::commandCollectionBegin(){
-	// LockGuard l(lock);
 
 	//1. Turn on Rad
 	subPower.powerOn();
@@ -218,7 +217,6 @@ bool RAD::commandCollectionBegin(){
 
 //! Command the ending of data collection
 bool RAD::commandCollectionEnd(){
-	//LockGuard l(lock);
 	//TODO: error handling
 	hsAvailable = false;
 
