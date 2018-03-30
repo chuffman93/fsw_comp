@@ -184,6 +184,7 @@ void GPS::fetchNewGPS(){
 	token = strtok(NULL, ","); // (UNUSED) idle time
 	if (strcmp("UNKNOWN", strtok(NULL, ",")) != 0) { // time status is ok
 	}
+	//TODO: Check for finesteering
 	tempData.GPSWeek = (int32_t) strtoul(strtok(NULL, ","), NULL, 10);
 	tempData.GPSSec = strtof(strtok(NULL, ","), NULL);
 	token = strtok(NULL, ","); // (UNUSED) receiver status

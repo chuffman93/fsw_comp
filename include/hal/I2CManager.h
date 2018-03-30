@@ -38,6 +38,9 @@ public:
 	MOCK void initialize();
 	void initializeDevice(I2CDevice& dev);
 
+	uint32_t i2c_smbus_access(int file, char read_write, uint8_t command, int size, union i2c_smbus_data *data);
+	uint32_t i2c_smbus_read_word_data(int file, uint8_t command);
+
 	MOCK uint8_t readReg(int id, uint8_t reg);
 	MOCK void writeReg(int id, uint8_t reg, uint8_t value);
 	MOCK std::vector<uint8_t> readRaw(int id, size_t len);

@@ -31,7 +31,6 @@ PowerMonitorData PowerMonitorInterface::getData(){
 	retval.voltage = (float)voltRaw * (25.0/10000.0); //25mV to convert to V
 	retval.current = (float)currRaw *(25.0/10000000.0)*(1/senseR); //25uV * 1/SenseResistor to convert to A
 
-
 	Logger::Stream(LEVEL_INFO, tags) << "Read: " << retval.voltage << "V " << retval.current << "A";
 	return retval;
 }

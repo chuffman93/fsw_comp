@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <linux/i2c-dev.h>
+#include <linux/i2c.h>
 #include <sys/ioctl.h>
 #include <stdio.h>
 #include <iomanip>
@@ -28,6 +29,28 @@ I2CManager::I2CManager(string file)
 
 I2CManager::~I2CManager(){
 
+}
+
+uint32_t I2CManager::i2c_smbus_access(int file, char read_write, uint8_t command,
+                                     int size, union i2c_smbus_data *data)
+{
+        struct i2c_smbus_ioctl_data args;
+
+        args.read_write = read_write;
+        args.command = command;
+        args.size = size;
+        args.data = data;
+        return ioctl(file,I2C_SMBUS,&args);
+}
+
+uint32_t I2CManager::i2c_smbus_read_word_data(int file, uint8_t command)
+{
+        union i2c_smbus_data data;
+        if (i2c_smbus_access(file,I2C_SMBUS_READ,command,
+                             I2C_SMBUS_WORD_DATA,&data))
+                return -1;
+        else
+                return 0x0FFFF & data.word;
 }
 
 /*!
@@ -73,11 +96,30 @@ void I2CManager::writeReg(int id, uint8_t reg, uint8_t value){
  * \return the value read
  */
 uint8_t I2CManager::readReg(int id, uint8_t reg){
+/*
 	vector<uint8_t> data;
 	data.push_back(reg);
 	writeRaw(id, data);
 	data = readRaw(id, 1);
 	return data[0];
+	*/
+
+	LockGuard l(lock);
+	I2CDevice& dev = BusManager<I2CDevice>::getDevice(id);
+
+	int fd = open(devfilename.c_str(), O_RDONLY);
+	if(fd < 0){
+		Logger::Stream(LEVEL_ERROR, tags) << "Unable to open I2C bus " << devfilename;
+	}
+	if(ioctl(fd, I2C_SLAVE, dev.address) < 0){
+		Logger::Stream(LEVEL_WARN, tags) << "Unable to select i2c device on address "
+				 << hex <<  setfill('0') << setw(2) << (dev.address << 1); //Display the 8-bit address
+	}
+
+	uint16_t data = i2c_smbus_read_word_data(fd, reg);
+
+	return (data & 0xFF);
+
 }
 
 /*!
