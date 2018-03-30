@@ -51,6 +51,7 @@ public:
 	static std::map<FSWMode, std::vector<SubsystemBase*> > buildModeSequencing();
 	static GPS* getGPS();
 	static ACS* getACS();
+	static RAD* getRAD();
 	static GroundCommunication* getGND();
 	static ScheduleManager* getSchedulerManager();
 	static BeaconManager* getBeaconManager();

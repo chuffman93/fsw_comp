@@ -189,9 +189,7 @@ bool ACS::sendGPS(GPSPositionTime gps){
 }
 
 //TODO: Do we need this?
-void ACS::configureGains(){
-
-}
+void ACS::configureGains(){}
 
 //! resets ACS
 bool ACS::resetACS(){

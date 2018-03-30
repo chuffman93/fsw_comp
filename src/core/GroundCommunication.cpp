@@ -8,7 +8,7 @@
 #include "core/GroundCommunication.h"
 
 GroundCommunication::GroundCommunication(std::vector<SubsystemBase*> subsystems, BeaconManager& beacon)
-: stateDownlink(false), statePostPass(false), ComStartTime(0), ComTimeout(720), subsystems(subsystems), beacon(beacon)
+: stateDownlink(false), statePostPass(false), ComStartTime(0), ComTimeout(720), subsystems(subsystems), beacon(beacon), firstFile(true)
 {
 	tags += LogTag("Name", "GroundCommunication");
 }

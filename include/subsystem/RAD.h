@@ -16,6 +16,7 @@
 #include "core/FileManager.h"
 #include "core/Lock.h"
 #include "interfaces/ExternalProcess.h"
+#include "core/Watchdog.h"
 #include <fstream>
 #include <iostream>
 #include <stdio.h>
@@ -85,6 +86,7 @@ PRIVATE:
 	SubPowerInterface& subPower;
 	Lock lock;
 	LogTags tags;
+	Watchdog *watchdog;
 
 };
 

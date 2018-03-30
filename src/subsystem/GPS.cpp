@@ -142,7 +142,6 @@ void GPS::fetchNewGPS(){
 	char * token;
 	char * buffPtr = (char*)data.c_str();
 	solSuccess = true;
-	bool updateTime = false;
 
 	bool containsDelimiter = false;
 	while ((buffPtr - data.c_str() != 350) && (*buffPtr != '\0')) {
@@ -184,7 +183,6 @@ void GPS::fetchNewGPS(){
 	token = strtok(NULL, ","); // (UNUSED) sequence num
 	token = strtok(NULL, ","); // (UNUSED) idle time
 	if (strcmp("UNKNOWN", strtok(NULL, ",")) != 0) { // time status is ok
-		updateTime = true;
 	}
 	tempData.GPSWeek = (int32_t) strtoul(strtok(NULL, ","), NULL, 10);
 	tempData.GPSSec = strtof(strtok(NULL, ","), NULL);

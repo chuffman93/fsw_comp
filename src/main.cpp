@@ -60,6 +60,7 @@ int main() {
 
 	//---------Step4: Initialize Watchdog-----------------------
 	Watchdog watchdog;
+	Architecture::getRAD()->watchdog = &watchdog;
 
 	//---------Step5: Initialize HS Thread-----------------------
 	Thread hsThread;
@@ -103,7 +104,7 @@ int main() {
 	//---------Step10: Join Threads (never reached)-----------------------
 	int rv = 0;
 	hsThread.JoinThread((void*)&rv);
-	// gpsThread.JoinThread((void*)&rv);
+	gpsThread.JoinThread((void*)&rv);
 	modeThread.JoinThread((void*)&rv);
 	gndThread.JoinThread((void*)&rv);
 	watchdogThread.JoinThread((void*)&rv);

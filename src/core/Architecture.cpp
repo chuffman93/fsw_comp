@@ -335,6 +335,11 @@ GPS* Architecture::getGPS(){
 	return gps;
 }
 
+RAD* Architecture::getRAD(){
+	assert(rad != NULL);
+	return rad;
+}
+
 ACS* Architecture::getACS(){
 	assert(acs != NULL);
 	return acs;

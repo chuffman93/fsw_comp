@@ -14,6 +14,7 @@ RAD::RAD(ACPInterface& acp, SubPowerInterface& subPower)
 	health.fileSize = FileManager::MAX_FILE_SIZE;
 	health.basePath = HEALTH_DIRECTORY RAD_PATH "/RAD";
 	RADDataNum = 0;
+	watchdog = NULL;
 }
 
 
@@ -317,6 +318,9 @@ void RAD::tarBallData(int splits){
 		// create a differenPLDUpdateDataNumbert archiveName referencing just the individual chunks
 		sprintf(archiveName,"%s%03d",dataFile.c_str(),i);
 		// removes the chunks to save some space
+		if(i%5 == 0){
+			watchdog->KickWatchdog();
+		}
 		remove(archiveName);
 	}
 	Logger::Stream(LEVEL_INFO,tags) << "End of tar-balling of data file splits";
