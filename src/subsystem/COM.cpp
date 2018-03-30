@@ -75,8 +75,7 @@ void COM::getHealthStatus(){
 
 //! Launches Com Daemon
 void COM::launchDaemon(){
-		char* cm_li[] = {(char*)"/bin/li_control_arn",(char*)"-I",(char*)"sl0",(char*)"-d",(char*)"38400",(char*)"-u",(char*)"9600",(char*)"-t",(char*)"138",NULL};
-		li.launchProcess(cm_li);
+		usleep(5*1000*1000);
 		char* cm_da[] = {(char*)"/bin/comm_daemon_arm",(char*)"&",NULL};
 		da.launchProcess(cm_da,FALSE);
 }

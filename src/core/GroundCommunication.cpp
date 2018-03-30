@@ -332,6 +332,7 @@ void GroundCommunication::parseCommandRequest(std::string line){
  */
 void GroundCommunication::parseFileListRequest(std::string line){
 	char downlinkRequest[100];
+	FileManager::deleteFile(DFL_PATH);
 	strcpy(downlinkRequest, line.c_str());
 	char * request = strtok(downlinkRequest,",");
 	char * dir = strtok(NULL, ",");
@@ -343,6 +344,7 @@ void GroundCommunication::parseFileListRequest(std::string line){
 		FileManager::generateFilesList(directory);
 		dir = strtok(NULL, ",");
 	}
+	DownlinkQueue.push(DFL_PATH);
 }
 
 // TODO: Do we need this?

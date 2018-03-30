@@ -149,6 +149,7 @@ void GPS::fetchNewGPS(){
 			containsDelimiter = true;
 			break;
 		}
+		Logger::Stream(LEVEL_DEBUG,tags) << "*buffPtr: " << *buffPtr;
 	}
 	if (!containsDelimiter) {
 		Logger::log(LEVEL_WARN, tags, "String doesn't contain '*' ");

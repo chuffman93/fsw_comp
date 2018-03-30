@@ -480,17 +480,20 @@ void FileManager::generateFilesList(std::string dir){
 		lock.unlock();
 		return;
 	}
+	Logger::Stream(LEVEL_DEBUG,tags) << "Directory to get list from: " << dir.c_str();
 	count = 0;
 	// add full path
-	FILE * dwlkDFL = fopen(DFL_PATH,"w+");
+	FILE * dwlkDFL = fopen(DFL_PATH,"a+");
+	fwrite(dir.c_str(),strlen(dir.c_str()),1,dwlkDFL);
+	fwrite("\n",strlen("\n"),1,dwlkDFL);
 	while((entry = readdir(dp))!= NULL){
 		if ( entry->d_name[0] != '.'){
 			fwrite(entry->d_name,strlen(entry->d_name),1,dwlkDFL);
 			fwrite(",",strlen(","),1,dwlkDFL);
+			fwrite("\n",strlen("\n"),1,dwlkDFL);
 			Logger::Stream(LEVEL_DEBUG,tags) << "Generate file list entry: " << entry->d_name;
 		}
 	}
-	fwrite("\n",strlen("\n"),1,dwlkDFL);
 	closedir(dp);
 	fclose(dwlkDFL);
 	lock.unlock();

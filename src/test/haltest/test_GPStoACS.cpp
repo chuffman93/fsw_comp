@@ -48,16 +48,40 @@ TEST_CASE("Same test different string","[gps2acs][t2]"){
 	acs->initialize();
 
 	acs->pointSunSoak();
-	std::string teststr = "#BESTXYZA,COM1,0,55.0,FINESTEERING,1981,140418.000,02000040,d821,2724;SOL_COMPUTED,NARROW_INT,-4054145.6,-4364111.9,3439069.5,0.0,0.0,0.0,SOL_COMPUTED,NARROW_INT,2590.608,2.788675,6592.711,0.0,0.0,0.0,\"AAAA\",0.250,1.000,0.000,12,11,11,11,0,01,0,33*e9eafeca";
+	std::string teststr = "#BESTXYZA,COM1,0,55.0,FINESTEERING,1981,140400.000,02000040,d821,2724;SOL_COMPUTED,NARROW_INT,0,-6878132.838,-7566.621,0.0,0.0,0.0,SOL_COMPUTED,NARROW_INT,-10.113,-8.375,7612.597,0.0,0.0,0.0,\"AAAA\",0.250,1.000,0.000,12,11,11,11,0,01,0,33*e9eafeca";
 	nm.setString(teststr);
 	gps.fetchNewGPS();
-	for(int y = 0; y <= 60; y++){
+	for(int y = 0; y <= 300; y++){
+		acs->sendGPS(gps.getBestXYZI());
+		if(y%60 == 0){
+			acs->getHealthStatus();
+		}
+	}
+
+	acs->pointNadir();
+	std::string teststr = "#BESTXYZA,COM1,0,55.0,FINESTEERING,1981,140400.000,02000040,d821,2724;SOL_COMPUTED,NARROW_INT,0,-6878132.838,-7566.621,0.0,0.0,0.0,SOL_COMPUTED,NARROW_INT,-10.113,-8.375,7612.597,0.0,0.0,0.0,\"AAAA\",0.250,1.000,0.000,12,11,11,11,0,01,0,33*e9eafeca";
+	nm.setString(teststr);
+	gps.fetchNewGPS();
+	for(int y = 0; y <= 300; y++){
+		acs->sendGPS(gps.getBestXYZI());
+		if(y%60 == 0){
+			acs->getHealthStatus();
+		}
+	}
+
+	acs->pointCOM();
+	std::string teststr = "#BESTXYZA,COM1,0,55.0,FINESTEERING,1981,140400.000,02000040,d821,2724;SOL_COMPUTED,NARROW_INT,0,-6878132.838,-7566.621,0.0,0.0,0.0,SOL_COMPUTED,NARROW_INT,-10.113,-8.375,7612.597,0.0,0.0,0.0,\"AAAA\",0.250,1.000,0.000,12,11,11,11,0,01,0,33*e9eafeca";
+	nm.setString(teststr);
+	gps.fetchNewGPS();
+	for(int y = 0; y <= 300; y++){
 		acs->sendGPS(gps.getBestXYZI());
 		if(y%60 == 0){
 			acs->getHealthStatus();
 		}
 	}
 }
+
+
 
 TEST_CASE("Test ACS's GPS handling","[.][gps2acs]"){
 
