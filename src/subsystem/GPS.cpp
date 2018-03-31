@@ -26,6 +26,7 @@ GPS::GPS(NMEAInterface& nm, SubPowerInterface& pow):nm(nm), pow(pow){
 	isLocked = false;
 	timeout = 0;
 	timein = 0;
+	lockTries = 0;
 }
 
 
@@ -49,7 +50,7 @@ void GPS::handleConfig(){
 		if(buff.size() != CONFIG_GPS_SIZE){
 			Logger::Stream(LEVEL_ERROR,tags) << "Incorrect Size for config";
 			return;
-		}\
+		}
 		timeout = ((uint16_t)buff.at(1) << 8)|
 				buff.at(0);
 		timein = ((uint16_t)buff.at(3) << 8)|
@@ -183,7 +184,10 @@ void GPS::fetchNewGPS(){
 	token = strtok(NULL, ","); // (UNUSED) port
 	token = strtok(NULL, ","); // (UNUSED) sequence num
 	token = strtok(NULL, ","); // (UNUSED) idle time
-	if (strcmp("UNKNOWN", strtok(NULL, ",")) != 0) { // time status is ok
+	if (strcmp("FINESTEERING", strtok(NULL, ",")) != 0) {
+		Logger::log(LEVEL_DEBUG, tags, "Fine steering not reached!");
+		solSuccess = false;
+		return;
 	}
 	//TODO: Check for finesteering
 	tempData.GPSWeek = (int32_t) strtoul(strtok(NULL, ","), NULL, 10);
@@ -275,8 +279,14 @@ void GPS::fetchNewGPS(){
 	rv2elem(MU_EARTH, tempR, tempV, &(lastLock.elements));
 	lastLock.GPSWeek = tempData.GPSWeek;
 	lastLock.GPSSec = tempData.GPSSec;
-	Logger::Stream(LEVEL_INFO,tags) << "Lock Found";
-	isLocked = true;
+	if(lockTries == 15){
+		Logger::Stream(LEVEL_INFO,tags) << "Lock Found";
+		isLocked = true;
+		lockTries = 0;
+		return;
+	}
+	lockTries++;
+
 }
 
 // TODO: Double check these two
