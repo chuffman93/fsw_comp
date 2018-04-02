@@ -494,6 +494,7 @@ void FileManager::generateFilesList(std::string dir){
 			Logger::Stream(LEVEL_DEBUG,tags) << "Generate file list entry: " << entry->d_name;
 		}
 	}
+	fwrite("\n",strlen("\n"),1,dwlkDFL);
 	closedir(dp);
 	fclose(dwlkDFL);
 	lock.unlock();
