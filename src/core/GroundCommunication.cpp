@@ -341,6 +341,7 @@ void GroundCommunication::parseFileListRequest(std::string line){
 	}
 	while (dir != NULL){
 		std::string directory = trimNewline(std::string(dir));
+		Logger::Stream(LEVEL_DEBUG,tags) << "Getting list for: " << directory.c_str();
 		FileManager::generateFilesList(directory);
 		dir = strtok(NULL, ",");
 	}
