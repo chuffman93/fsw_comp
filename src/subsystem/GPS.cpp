@@ -103,6 +103,7 @@ void GPS::getHealthStatus(){
 
 //! Gets the Propagated ECI coordinates from the orbital elements
 GPSPositionTime GPS::getBestXYZI(){
+	LockGuard l(lock);
 	float eciPos[3];
 	float eciVel[3];
 	int64_t currTime = getCurrentTime();

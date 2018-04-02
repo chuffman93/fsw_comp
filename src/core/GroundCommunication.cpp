@@ -433,6 +433,7 @@ void GroundCommunication::parsePPE(){
  * \param A pointer to the watchdog to allow spin to let watchdog know ground is not dead
  */
 bool GroundCommunication::spinGround(Watchdog* watchdog){
+//	LockGuard l(lock);
 	if (!FileManager::checkExistance(SOT_PATH)){
 		Logger::Stream(LEVEL_INFO,tags) << "Sending beacon...";
 		beacon.sendBeacon();
