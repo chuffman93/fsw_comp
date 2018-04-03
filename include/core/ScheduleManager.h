@@ -61,6 +61,7 @@ public:
 	int getComPassCount();
 	void handleConfig();
 	void updateConfig();
+	uint32_t getComTimeout();
 
 
 

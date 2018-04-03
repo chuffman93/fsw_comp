@@ -56,6 +56,7 @@ private:
 	SubPowerInterface& subPower;
 	Lock lock;
 	LogTags tags;
+	ExternalProcess li;
 	ExternalProcess da;
 };
 

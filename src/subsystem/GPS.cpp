@@ -26,6 +26,7 @@ GPS::GPS(NMEAInterface& nm, SubPowerInterface& pow):nm(nm), pow(pow){
 	isLocked = false;
 	timeout = 0;
 	timein = 0;
+	lockTries = 0;
 }
 
 
@@ -41,6 +42,7 @@ bool GPS::initialize(){
 
 void GPS::handleMode(FSWMode transition){}
 
+//! handles the configs for GPS
 void GPS::handleConfig(){
 	LockGuard l(lock);
 	if(FileManager::checkExistance(GPS_CONFIG)){
@@ -48,7 +50,7 @@ void GPS::handleConfig(){
 		if(buff.size() != CONFIG_GPS_SIZE){
 			Logger::Stream(LEVEL_ERROR,tags) << "Incorrect Size for config";
 			return;
-		}\
+		}
 		timeout = ((uint16_t)buff.at(1) << 8)|
 				buff.at(0);
 		timein = ((uint16_t)buff.at(3) << 8)|
@@ -62,6 +64,7 @@ void GPS::handleConfig(){
 
 }
 
+//! handles updating configs if needed
 void GPS::updateConfig(){
 	LockGuard l(lock);
 	if(FileManager::checkExistance(GPS_CONFIG_UP)){
@@ -82,18 +85,25 @@ void GPS::updateConfig(){
 	}
 }
 
+/*!
+ * Handles sending opcodes
+ * \param opcode to be sent
+ * \param buffer to be sent if needed
+ */
 ACPPacket GPS::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
 	assert(false);
 	return ACPPacket(ACS_SYNC, 0);
 }
 
+// TODO: Will this be needed?
 void GPS::getHealthStatus(){
 	LockGuard l(lock);
 	Logger::log(LEVEL_WARN, tags, "GPS Health and Status isn't implemented yet!");
 }
 
-
+//! Gets the Propagated ECI coordinates from the orbital elements
 GPSPositionTime GPS::getBestXYZI(){
+	LockGuard l(lock);
 	float eciPos[3];
 	float eciVel[3];
 	int64_t currTime = getCurrentTime();
@@ -116,6 +126,8 @@ GPSPositionTime GPS::getBestXYZI(){
 
 /*!
  * Waits to get new GPS coordinates then parses them
+ * Takes the ECEF coords and tranforms them into ECI
+ * Then takes the ECI coordinates and chages them into orbital parameters
  */
 void GPS::fetchNewGPS(){
 	LockGuard l(lock);
@@ -132,7 +144,6 @@ void GPS::fetchNewGPS(){
 	char * token;
 	char * buffPtr = (char*)data.c_str();
 	solSuccess = true;
-	bool updateTime = false;
 
 	bool containsDelimiter = false;
 	while ((buffPtr - data.c_str() != 350) && (*buffPtr != '\0')) {
@@ -173,8 +184,10 @@ void GPS::fetchNewGPS(){
 	token = strtok(NULL, ","); // (UNUSED) port
 	token = strtok(NULL, ","); // (UNUSED) sequence num
 	token = strtok(NULL, ","); // (UNUSED) idle time
-	if (strcmp("UNKNOWN", strtok(NULL, ",")) != 0) { // time status is ok
-		updateTime = true;
+	if (strcmp("FINESTEERING", strtok(NULL, ",")) != 0) {
+		Logger::log(LEVEL_DEBUG, tags, "Fine steering not reached!");
+		solSuccess = false;
+		return;
 	}
 	//TODO: Check for finesteering
 	tempData.GPSWeek = (int32_t) strtoul(strtok(NULL, ","), NULL, 10);
@@ -266,10 +279,17 @@ void GPS::fetchNewGPS(){
 	rv2elem(MU_EARTH, tempR, tempV, &(lastLock.elements));
 	lastLock.GPSWeek = tempData.GPSWeek;
 	lastLock.GPSSec = tempData.GPSSec;
-	Logger::Stream(LEVEL_INFO,tags) << "Lock Found";
-	isLocked = true;
+	if(lockTries == 15){
+		Logger::Stream(LEVEL_INFO,tags) << "Lock Found";
+		isLocked = true;
+		lockTries = 0;
+		return;
+	}
+	lockTries++;
+
 }
 
+// TODO: Double check these two
 uint32_t GPS::CRCValue_GPS(int i) {
 	int j;
 	uint32_t ulCRC;
@@ -310,24 +330,29 @@ void GPS::incrementGPSTime(int32_t& GPSWeek, float& GPSSec, float dt){
 	}
 }
 
+//! gets the check on whether or not the GPS gave a successful lock
 bool GPS::getSuccess(){
 	return solSuccess;
 }
 
+//! used to power on
 void GPS::powerOn(){
 	pow.powerOn();
 	power = true;
 }
 
+//! used to power off
 void GPS::powerOff(){
 	pow.powerOff();
 	power = false;
 }
 
+//! returns status of power
 bool GPS::isOn(){
 	return power;
 }
 
+//! returns status of the gps lock
 bool GPS::getLockStatus(){
 	return isLocked;
 }

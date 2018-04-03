@@ -168,7 +168,7 @@ vector<uint8_t> I2CManager::readRaw(int id, size_t len){
 
 	vector<uint8_t> data(len);
 	int retval = read(fd, &data[0], len);
-	if(retval != len){
+	if(retval != (int)len){
 		Logger::Stream(LEVEL_WARN, tags) << "Read failed. read " << retval << " not " << len;
 	}
 

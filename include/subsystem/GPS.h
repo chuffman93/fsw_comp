@@ -85,6 +85,7 @@ private:
 	//! Tags to use for logging
 	LogTags tags;
 	GPSLockType lastLock;
+	int lockTries;
 };
 
 

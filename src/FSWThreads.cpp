@@ -127,6 +127,9 @@ void * FSWThreads::GroundThread(void * args) {
 	Logger::registerThread("GND");
 	Logger::log(LEVEL_FATAL, "Starting Ground Communication Thread");
 	while (1) {
+		if(gnd->ComTimeout != scheduler->getComTimeout()){
+			gnd->ComTimeout = scheduler->getComTimeout();
+		}
 		bool toCom = gnd->spinGround(watchdog);
 		if(toCom && scheduler->getCurrentMode() != Mode_Com){
 			scheduler->setModeToCom();

@@ -25,6 +25,7 @@ Lock FileManager::lock;
 std::string FileManager::logMessageFP = "";
 int FileManager::Reboot_num = updateRebootCount();
 uint16_t FileManager::MAX_FILE_SIZE;
+uint32_t FileManager::MAX_DOWN_SIZE;
 
 FileManager::FileManager(){}
 
@@ -139,6 +140,13 @@ void FileManager::deleteFile(std::string filePath){
 
 }
 
+// TODO: Do we need this?
+void FileManager::appendToStringFile(std::string filePath, std::vector<std::string>& buffer){
+
+
+}
+
+
 /*!
  * Checks the existance of a file
  * \param file path to file to be checked
@@ -159,8 +167,10 @@ void FileManager::moveFile(std::string filePath, std::string newfilePath){
 	LockGuard l(lock);
 	LogTag tags;
 	if (access(filePath.c_str(), F_OK) == 0){
-		rename(filePath.c_str(),newfilePath.c_str());
-		Logger::Stream(LEVEL_INFO,tags) << "Moving " << filePath << "to " << newfilePath;
+		ExternalProcess mv;
+		char*sh_mv[] = {(char*)"/bin/mv",(char*)filePath.c_str(),(char*)newfilePath.c_str(),NULL};
+		mv.launchProcess(sh_mv);
+		Logger::Stream(LEVEL_INFO,tags) << "Moving " << filePath << " to " << newfilePath;
 	}
 }
 
@@ -169,8 +179,6 @@ void FileManager::moveFile(std::string filePath, std::string newfilePath){
  * \param base path including the Name of the file
  */
 std::string FileManager::createFileName(std::string basePath){
-
-	//get current time
 	uint32_t currentTime = getCurrentTime();
 	char filePath[50];
 	if(basePath == RAD_FILE_PATH){
@@ -178,7 +186,6 @@ std::string FileManager::createFileName(std::string basePath){
 		return filePath;
 	}
 	sprintf(filePath,"%s_%d_%05d",(char*)basePath.c_str(),Reboot_num,currentTime);
-	// std::string filePath = basePath + "_" + Reboot_num + "_" + time;
 	return filePath;
 }
 
@@ -190,16 +197,15 @@ std::string FileManager::createFileName(std::string basePath){
 void FileManager::copyFile(std::string filePath, std::string newfilePath){
 	//TODO: dont use system call
 	LogTag tags;
-	Logger::Stream(LEVEL_INFO,tags) << "Copying " << filePath << "to " << newfilePath;
+	Logger::Stream(LEVEL_INFO,tags) << "Copying " << filePath.c_str() << " to " << newfilePath.c_str();
 	if (FileManager::checkExistance(filePath)){
-		/*
 		ExternalProcess cp;
-		char*sh_cp[] = {(char*)"/bin/cp",(char*)filePath.c_str(),(char*)newfilePath.c_str()};
+		char*sh_cp[] = {(char*)"/bin/cp",(char*)filePath.c_str(),(char*)newfilePath.c_str(),NULL};
 		cp.launchProcess(sh_cp);
-		Logger::Stream(LEVEL_INFO,tags) << "Copied " << filePath << "to " << newfilePath;
-		*/
-		std::string command = "cp " + filePath+ " " + newfilePath;
-		system(command.c_str());
+		Logger::Stream(LEVEL_INFO,tags) << "Copied " << filePath.c_str() << " to " << newfilePath.c_str();
+
+//		std::string command = "cp " + filePath+ " " + newfilePath;
+//		system(command.c_str());
 	}
 }
 
@@ -236,6 +242,10 @@ int FileManager::updateRebootCount(){
 	return RebootCount;
 }
 
+
+/*!
+ * Creates or Updates the COM pass count
+ */
 int FileManager::updateComPassCount(){
 	LogTags tags;
 	tags += LogTag("Name", "FileManager");
@@ -265,6 +275,9 @@ int FileManager::updateComPassCount(){
 	return ComPassCount;
 }
 
+/*!
+ * Used to get the compass count
+ */
 int FileManager::getComPassCount(){
 	LogTags tags;
 	tags += LogTag("Name", "FileManager");
@@ -297,7 +310,7 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 
 	// TODO: size checks and error handling
 
-	FILE *fd;
+	FILE *fd = NULL;
 	char sh_cmd[256];
 	vector<std::string> Files;
 	// manage fullfilepath + regex manipulation
@@ -317,14 +330,24 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 		std::string newDest = dest + regex + ".tar";
 		regex = regex+"_";
 		sprintf(sh_cmd, "tar -czf %s -C %s `ls -lr %s | grep ^- | awk '{print $9}' | grep \"%s\" | head -%d`>/dev/null 2>&1", (char*)newDest.c_str(), (char*)dest.c_str(), (char*)dest.c_str(), (char*)regex.c_str(), 50);
-		Files.push_back(newDest);
-		Logger::Stream(LEVEL_INFO,tags) << "Created tar file for regex: " << newDest;
+		Logger::Stream(LEVEL_INFO,tags) << "Created tar file for regex: " << newDest.c_str();
 		if(!(fd = popen(sh_cmd, "r"))){
 			Logger::Stream(LEVEL_ERROR, tags) << "Tar creation failed.";
 		}
 		if(pclose(fd) == -1){
 			Logger::Stream(LEVEL_ERROR, tags) << "Tar pipe could not be closed.";
+		}else{
+			struct stat st;
+			lstat(newDest.c_str(), &st);
+			if (st.st_size > FileManager::MAX_DOWN_SIZE){
+				Logger::Stream(LEVEL_INFO,tags) << "Tar size of: " << st.st_size << " is too large for a max downlink size of " << MAX_DOWN_SIZE << ", splitting into " << st.st_size/MAX_DOWN_SIZE << " archives";
+				vector<std::string> tmp = FileManager::splitFile(newDest);
+				Files.insert(Files.end(),tmp.begin(),tmp.end());
+			}else{
+				Files.push_back(newDest);
+			}
 		}
+
 
 	}else if(R == "RB"){
 		int i = dest.length()-1;
@@ -364,8 +387,17 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 			if(pclose(fd) == -1){
 				Logger::Stream(LEVEL_ERROR, tags) << "Tar pipe could not be closed.";
 				break;
+			}else{
+				struct stat st;
+				stat((char*)newDest.c_str(), &st);
+				if (st.st_size > FileManager::MAX_DOWN_SIZE){
+					Logger::Stream(LEVEL_INFO,tags) << "Tar size of: " << st.st_size << " is too large for a max downlink size of " << MAX_DOWN_SIZE << ", splitting into " << st.st_size/MAX_DOWN_SIZE << " archives";
+					vector<std::string> tmp = FileManager::splitFile(newDest);
+					Files.insert(Files.end(),tmp.begin(),tmp.end());
+				}else{
+					Files.push_back(newDest);
+				}
 			}
-			Files.push_back(newDest);
 			Logger::Stream(LEVEL_INFO,tags) << "Created tar file for regex: " << newDest;
 		}
 	}else if(R == "RA"){
@@ -409,8 +441,18 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 			if(pclose(fd) == -1){
 				Logger::Stream(LEVEL_ERROR, tags) << "Tar pipe could not be closed.";
 				break;
+			}else{
+				struct stat st;
+				lstat((char*)newDest.c_str(), &st);
+				if (st.st_size > FileManager::MAX_DOWN_SIZE){
+					Logger::Stream(LEVEL_INFO,tags) << "Tar size of: " << st.st_size << " is too large for a max downlink size of " << MAX_DOWN_SIZE << ", splitting into " << st.st_size/MAX_DOWN_SIZE << " archives";
+					vector<std::string> tmp = FileManager::splitFile(newDest);
+					Files.insert(Files.end(),tmp.begin(),tmp.end());
+				}else{
+					Files.push_back(newDest);
+				}
 			}
-			Files.push_back(newDest);
+
 			Logger::Stream(LEVEL_INFO,tags) << "Created tar file for regex: " << newDest;
 		}
 	}
@@ -420,7 +462,10 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 }
 
 
-
+/*!
+ * Generates a list of files in a directory
+ * \param path to the directory
+ */
 void FileManager::generateFilesList(std::string dir){
 	LogTags tags;
 	tags += LogTag("Name", "FileManager");
@@ -435,13 +480,17 @@ void FileManager::generateFilesList(std::string dir){
 		lock.unlock();
 		return;
 	}
+	Logger::Stream(LEVEL_DEBUG,tags) << "Directory to get list from: " << dir.c_str();
 	count = 0;
 	// add full path
-	FILE * dwlkDFL = fopen(DFL_PATH,"w+");
+	FILE * dwlkDFL = fopen(DFL_PATH,"a+");
+	fwrite(dir.c_str(),strlen(dir.c_str()),1,dwlkDFL);
+	fwrite("\n",strlen("\n"),1,dwlkDFL);
 	while((entry = readdir(dp))!= NULL){
 		if ( entry->d_name[0] != '.'){
 			fwrite(entry->d_name,strlen(entry->d_name),1,dwlkDFL);
 			fwrite(",",strlen(","),1,dwlkDFL);
+			fwrite("\n",strlen("\n"),1,dwlkDFL);
 			Logger::Stream(LEVEL_DEBUG,tags) << "Generate file list entry: " << entry->d_name;
 		}
 	}
@@ -539,7 +588,7 @@ int FileManager::regexDelete(std::string dest,std::string R){
 			std::string regex = "";
 			std::string num = "";
 			while(dest[i]!='_'){
-				num = dest[i]+num;Reboot_num;
+				num = dest[i]+num;
 				i--;
 			}
 			int EN = atoi(num.c_str());
@@ -583,6 +632,10 @@ int FileManager::regexDelete(std::string dest,std::string R){
 	return 0;
 }
 
+/*!
+ * Function to parse through a given ground file
+ * \param file path to the ground file
+ */
 std::vector<std::string> FileManager::parseGroundFile(std::string filePath){
 	LogTags tags;
 
@@ -607,6 +660,11 @@ std::vector<std::string> FileManager::parseGroundFile(std::string filePath){
 
 }
 
+/*!
+ * Function used to write logger messages to a file
+ * \param tags used in the logger message
+ * \param the message being recoreded
+ */
 void FileManager::writeLog(std::string tags,std::string message){
 
 	if(logMessageFP == ""){
@@ -624,10 +682,16 @@ void FileManager::writeLog(std::string tags,std::string message){
 
 }
 
+/*!
+ * Returns the reboot number
+ */
 int FileManager::GetReboot(){
 	return Reboot_num;
 }
 
+/*!
+ * Sets the configs for the FileManager
+ */
 void FileManager::handleConfig(){
 	LogTags tags;
 	tags += LogTag("Name", "FileManager");
@@ -635,14 +699,23 @@ void FileManager::handleConfig(){
 		std::vector<uint8_t> buff = FileManager::readFromFile(FMG_CONFIG);
 		FileManager::MAX_FILE_SIZE = (uint16_t)buff.at(1) << 8 |
 				buff.at(0);
-		Logger::Stream(LEVEL_INFO,tags) << " Setting max file size to " << FileManager::MAX_FILE_SIZE << " Bytes";
+		FileManager::MAX_DOWN_SIZE = (uint32_t)buff.at(5) << 24 |
+				(uint32_t)buff.at(4) << 16 |
+				(uint32_t)buff.at(3) << 8 |
+				buff.at(2);
+		Logger::Stream(LEVEL_INFO,tags) << " Setting max file size to " << FileManager::MAX_FILE_SIZE << " Bytes" <<
+				"Setting max downlink size to " << FileManager::MAX_DOWN_SIZE << " bytes.";
 	}else{
 		FileManager::MAX_FILE_SIZE = 5000;
+		FileManager::MAX_DOWN_SIZE = 100000;
 		Logger::Stream(LEVEL_WARN,tags) << "No File Manager configs found";
 
 	}
 }
 
+/*!
+ * Handles updating the configs if an update is uploaded
+ */
 void FileManager::updateConfig(){
 	LogTags tags;
 	tags += LogTag("Name", "FileManager");
@@ -654,12 +727,47 @@ void FileManager::updateConfig(){
 		}
 		FileManager::MAX_FILE_SIZE = (uint16_t)buff.at(1) << 8|
 				buff.at(0);
-		Logger::Stream(LEVEL_INFO,tags) << " Setting max file size to " << FileManager::MAX_FILE_SIZE << " Bytes";
+		FileManager::MAX_DOWN_SIZE = (uint32_t)buff.at(5) << 24 |
+				(uint32_t)buff.at(4) << 16 |
+				(uint32_t)buff.at(3) << 8 |
+				buff.at(2);
+		Logger::Stream(LEVEL_INFO,tags) << " Setting max file size to " << FileManager::MAX_FILE_SIZE << " Bytes" <<
+				"Setting max downlink size to " << FileManager::MAX_DOWN_SIZE << " bytes.";
 		FileManager::moveFile(FMG_CONFIG_UP,FMG_CONFIG);
 	}
 	else{
 		Logger::Stream(LEVEL_WARN,tags) << "There are no FMG config updates";
 	}
+}
 
+/*!
+ * Used to split a file that exceeds the max downlink limit (used primarily for tar archives)
+ * \param Path to the file needing to be split
+ */
+std::vector<std::string> FileManager::splitFile(std::string FilePath){
+	LogTags tags;
+	tags += LogTag("Name", "FileManager");
+
+	ExternalProcess splt;
+
+	char chunksize[15];
+	sprintf(chunksize,"%d",FileManager::MAX_DOWN_SIZE);
+
+	struct stat st;
+	if(stat((char*)FilePath.c_str(), &st) == -1){
+		Logger::Stream(LEVEL_ERROR,tags) << "Stat on the file: " << FilePath.c_str() << " was not successful";
+	}
+	int n_splits = st.st_size/FileManager::MAX_DOWN_SIZE;
+	char * sh_cmd[] = {(char *)"/usr/bin/split", (char*) "-b", (char*)chunksize, (char*) "-d",(char*) "-a", (char*)"3",(char*)FilePath.c_str(),(char*)FilePath.c_str(),NULL};
+	splt.launchProcess(sh_cmd);
+	vector<std::string> tmp;
+	char temp[100];
+	for(int i = 0; i <= n_splits; i++){
+		sprintf(temp,"%s%03d",(char*)FilePath.c_str(),i);
+		std::string buff(temp,sizeof(temp));
+		Logger::Stream(LEVEL_DEBUG,tags) << "Split File #" << i << " "<< buff.c_str();
+		tmp.push_back(buff);
+	}
+	return tmp;
 }
 

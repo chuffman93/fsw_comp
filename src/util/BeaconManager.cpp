@@ -9,11 +9,12 @@
 #include "core/FileManager.h"
 
 BeaconManager::BeaconManager(ScheduleManager* sch, ACS* acs, EPS* eps, GPS* gps, RAD* rad)
-: sch(sch), acs(acs), eps(eps), gps(gps), rad(rad)
+: sch(sch), acs(acs), eps(eps), gps(gps), rad(rad),beaconRate(0),increasedBeaconRate(0)
 {}
 
 BeaconManager::~BeaconManager(){}
-
+//TODO: Finalize this!
+//! Manages the collection of beacon data to be sent
 void BeaconManager::sendBeacon(){
 	//TODO::add GPS and CDH fields
 

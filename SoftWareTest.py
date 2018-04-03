@@ -103,7 +103,9 @@ of.close()
 
 of = open("ConfigUpFMG",'wb')
 timeout = np.uint16(5000)
+timein = np.uint32(100000)
 of.write(timeout)
+of.write(timein)
 of.close()
 
 print("----------Sending Next Schedule for Payload Mode----------")

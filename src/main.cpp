@@ -26,23 +26,21 @@ int main() {
 	Logger::setMode(MODE_PW);
 	Logger::setLevel(LEVEL_INFO);
 	Logger::registerThread("MAIN");
-	Logger::registerFilter(LogTag("Name", "GPS"), LEVEL_DEBUG);
-	Logger::registerFilter(LogTag("Name", "GroundCommunication"), LEVEL_DEBUG);
 	Logger::registerFilter(LogTag("Name", "ScheduleManager"), LEVEL_DEBUG);
 	Logger::registerFilter(LogTag("Name", "FileManager"), LEVEL_DEBUG);
 	Logger::registerFilter(LogTag("Name", "NMEAInterface"), LEVEL_DEBUG);
 	Logger::registerFilter(LogTag("Name", "GPS"), LEVEL_DEBUG);
-
-
+	Logger::registerFilter(LogTag("Name", "RAD"), LEVEL_DEBUG);
+	Logger::registerFilter(LogTag("Name", "GroundCommunication"), LEVEL_DEBUG);
 	Logger::log(LEVEL_FATAL, "Entering Main");
 
 	//---------Step1: Build FSW---------------------------
 	Architecture::setInterfaceMode(HARDWARE);
-	Architecture::buildCDH();
-	Architecture::buildEPS();
 	Architecture::buildACS();
-	Architecture::buildCOM();
+	Architecture::buildEPS();
 	Architecture::buildRAD();
+	Architecture::buildCOM();
+	Architecture::buildCDH();
 	Architecture::buildGPS();
 	Architecture::buildScheduleManager();
 	Architecture::buildBeaconManager();
@@ -62,9 +60,9 @@ int main() {
 		(*i)->initialize();
 	}
 
-
 	//---------Step4: Initialize Watchdog-----------------------
 	Watchdog watchdog;
+	Architecture::getRAD()->watchdog = &watchdog;
 
 	//---------Step5: Initialize HS Thread-----------------------
 	Thread hsThread;
@@ -82,7 +80,6 @@ int main() {
 	gpsargs.acs = Architecture::getACS();
 	gpsThread.CreateThread(NULL, FSWThreads::GPSThread, (void*)&gpsargs);
 	watchdog.AddThread(gpsThread.GetID());
-
 
 	//---------Step7: Initialize Mode Thread-----------------------
 	Thread modeThread;
@@ -102,7 +99,6 @@ int main() {
 	gndThread.CreateThread(NULL, FSWThreads::GroundThread, (void*)&gndargs);
 	watchdog.AddThread(gndThread.GetID());
 
-
 	//---------Step9: Start Watchdog-----------------------
 	Thread watchdogThread;
 	watchdogThread.CreateThread(NULL, FSWThreads::WatchdogThread, (void*)&watchdog);
@@ -110,13 +106,11 @@ int main() {
 	//---------Step10: Join Threads (never reached)-----------------------
 	int rv = 0;
 	hsThread.JoinThread((void*)&rv);
-	// gpsThread.JoinThread((void*)&rv);
+	gpsThread.JoinThread((void*)&rv);
 	modeThread.JoinThread((void*)&rv);
 	gndThread.JoinThread((void*)&rv);
 	watchdogThread.JoinThread((void*)&rv);
 	return 0;
-
-
 }
 
 

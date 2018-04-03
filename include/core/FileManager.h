@@ -23,7 +23,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define CONFIG_FMG_SIZE 2
+#define CONFIG_FMG_SIZE 6
 
 class FileManager {
 public:
@@ -35,6 +35,8 @@ public:
 	static void writeToFile(std::string filePath, std::vector<uint8_t>& buffer);
 	//for file that need to be appended to or new files
 	static void appendToFile(std::string filePath, std::vector<uint8_t>& buffer);
+
+	static void appendToStringFile(std::string filePath, std::vector<std::string>& buffer);
 
 	static void deleteFile(std::string filePath);
 	static bool checkExistance(std::string filePath);
@@ -61,6 +63,8 @@ public:
 	static void handleConfig();
 	static void updateConfig();
 
+	static std::vector<std::string> splitFile(std::string filePath);
+
 	static uint16_t MAX_FILE_SIZE;
 	//static FileManager fm;
 
@@ -68,7 +72,7 @@ private:
 	static Lock lock;
 	static std::string logMessageFP;
 	static int Reboot_num;
-
+	static uint32_t MAX_DOWN_SIZE;
 };
 
 #endif /* INCLUDE_CORE_FILEMANAGER_H_ */

@@ -57,6 +57,7 @@ PRIVATE:
 	void parseDeletionRequest(std::string line);
 	void parseCommandRequest(std::string line);
 	void parseFileListRequest(std::string line);
+	void createCommandAcknowledgement(std::string command, std::string success);
 	std::string grabFileName(std::string path);
 	std::vector<SubsystemBase*> subsystems;
 	bool firstFile;
