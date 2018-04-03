@@ -116,7 +116,7 @@ void FileManager::appendToFile(std::string filePath, std::vector<uint8_t>& buffe
  */
 void FileManager::deleteFile(std::string filePath){
 	//remove(filePath.c_str());
-	LockGuard l(lock);
+	if(filePath != NEW_SCH || filePath != SOT_PATH || filePath != IEF_PATH || filePath!=PPE_PATH)LockGuard l(lock);
 
 	struct stat s;
 	LogTags tags;

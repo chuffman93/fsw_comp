@@ -43,6 +43,7 @@
 #define SCH_CONFIG				CONFIG_DIRECTORY	"/ConfigSCH"
 #define FMG_CONFIG 				CONFIG_DIRECTORY	"/ConfigFMG"
 
+
 #define ACS_PATH			"/ACS"
 #define CDH_PATH			"/CDH"
 #define COM_PATH			"/COM"

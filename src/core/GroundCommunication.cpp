@@ -40,7 +40,6 @@ void GroundCommunication::downlinkFiles(){
 }
 
 void GroundCommunication::clearDownlink(){
-	LockGuard l(lock);
 	Logger::Stream(LEVEL_INFO,tags) << "Communication Pass over, clearing downlink queue";
 	while (!DownlinkQueue.empty()){
 		DownlinkQueue.pop();
@@ -331,8 +330,6 @@ std::string GroundCommunication::grabFileName(std::string path){
 
 
 void GroundCommunication::parseIEF(){
-
-	LockGuard l(lock);
 	std::vector<std::string> requests = FileManager::parseGroundFile(IEF_PATH);
 	char line[100];
 	char * type;
@@ -404,6 +401,8 @@ bool GroundCommunication::spinGround(Watchdog* watchdog){
 			Logger::Stream(LEVEL_INFO,tags) << "Beginning Communication Pass Timer";
 			ComStartTime = getCurrentTime();
 			return true;
+
+
 		}
 		Logger::Stream(LEVEL_DEBUG,tags) << "Start Time: " << ComStartTime << " ComTimeOut: " << ComTimeout << " Current Time: " << getCurrentTime();
 		//check if the communication pass has exceeded
@@ -417,6 +416,7 @@ bool GroundCommunication::spinGround(Watchdog* watchdog){
 			clearDownlink();
 			statePostPass = true;
 			return false;
+
 		}
 		//begin IEF processing if IEF has been uplinked
 		if (FileManager::checkExistance(IEF_PATH)){
