@@ -41,7 +41,6 @@ int main() {
 	Architecture::buildCDH();
 	Architecture::buildEPS();
 	Architecture::buildACS();
-	Architecture::setInterfaceMode(SOFTWARE);
 	Architecture::buildCOM();
 	Architecture::buildRAD();
 	Architecture::buildGPS();
