@@ -28,9 +28,9 @@ int main() {
 	Logger::registerThread("MAIN");
 	Logger::registerFilter(LogTag("Name", "ScheduleManager"), LEVEL_DEBUG);
 	Logger::registerFilter(LogTag("Name", "FileManager"), LEVEL_DEBUG);
-	Logger::registerFilter(LogTag("Name", "NMEAInterface"), LEVEL_DEBUG);
-	Logger::registerFilter(LogTag("Name", "GPS"), LEVEL_DEBUG);
-	Logger::registerFilter(LogTag("Name", "RAD"), LEVEL_DEBUG);
+	//Logger::registerFilter(LogTag("Name", "NMEAInterface"), LEVEL_DEBUG);
+	//Logger::registerFilter(LogTag("Name", "GPS"), LEVEL_DEBUG);
+	//Logger::registerFilter(LogTag("Name", "RAD"), LEVEL_DEBUG);
 	Logger::registerFilter(LogTag("Name", "GroundCommunication"), LEVEL_DEBUG);
 	Logger::log(LEVEL_FATAL, "Entering Main");
 

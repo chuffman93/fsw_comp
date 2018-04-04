@@ -140,10 +140,15 @@ void FileManager::deleteFile(std::string filePath){
 
 }
 
-// TODO: Do we need this?
-void FileManager::appendToStringFile(std::string filePath, std::vector<std::string>& buffer){
+void FileManager::writeToStringFile(std::string filePath, std::vector<std::string>& buffer){
+	LockGuard l(lock);
+	std::ofstream cmdFile(filePath.c_str());
 
-
+	std::vector<std::string>::iterator it;
+	for (it = buffer.begin(); it != buffer.end(); it++){
+		cmdFile << *(it);
+	}
+	cmdFile.close();
 }
 
 

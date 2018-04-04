@@ -32,12 +32,11 @@ GPS::GPS(NMEAInterface& nm, SubPowerInterface& pow):nm(nm), pow(pow){
 
 GPS::~GPS(){}
 
-bool GPS::initialize(){
+void GPS::initialize(){
 	pow.configDelay(0, 1000);
 	powerOff();
 	powerOn();
 	handleConfig();
-	return true;
 }
 
 void GPS::handleMode(FSWMode transition){}

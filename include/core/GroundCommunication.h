@@ -18,6 +18,7 @@
 #include "subsystem/RAD.h"
 #include "util/BeaconManager.h"
 #include <queue>
+#include <deque>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -48,21 +49,19 @@ public:
 	bool statePostPass;
 	uint32_t ComStartTime;
 	uint32_t ComTimeout;
-
-	std::queue<std::string> DownlinkQueue;
+	std::vector<std::string> CommandAcknowledgements;
+	std::deque<std::string> DownlinkQueue;
 PRIVATE:
 	std::string trimNewline(std::string buffer);
-	void executeFSWCommand(int command);
 	void parseDownlinkRequest(std::string line);
 	void parseDeletionRequest(std::string line);
 	void parseCommandRequest(std::string line);
 	void parseFileListRequest(std::string line);
-	void createCommandAcknowledgement(std::string command, std::string success);
+	void sendCommandAcknowledgements();
 	std::string grabFileName(std::string path);
 	std::vector<SubsystemBase*> subsystems;
 	bool firstFile;
 	BeaconManager& beacon;
-
 
 	LogTags tags;
 	Lock lock;
