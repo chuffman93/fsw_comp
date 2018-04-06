@@ -39,60 +39,6 @@ enum SubsystemOpcode{
 
 };
 
-typedef enum ErrorOpcode {
-	ERR_MIN = 0,
-
-	// ACS Errors
-	ERR_ACS_MIN = ERR_MIN, //0
-	ERR_ACS_NOTALIVE = ERR_ACS_MIN, //0
-	ERR_ACS_SELFCHECK, //1
-	ERR_ACS_MAX, //2
-
-	// CDH Errors
-	ERR_CDH_MIN = ERR_ACS_MAX, //2
-	ERR_CDH_MAX, //3
-
-	// CMD Errors
-	ERR_CMD_MIN = ERR_CDH_MAX, //3
-	ERR_CMD_MAX,//4
-
-	// COM Errors
-	ERR_COM_MIN = ERR_CMD_MAX, //4
-	ERR_COM_NOTALIVE = ERR_COM_MIN, //4
-	ERR_COM_SELFCHECK, //5
-	ERR_COM_MAX,
-
-	// EPS Errors
-	ERR_EPS_MIN = ERR_COM_MAX,
-	ERR_EPS_NOTALIVE = ERR_EPS_MIN,
-	ERR_EPS_SELFCHECK,
-	ERR_EPS_MAX,
-
-	// FMG Errors
-	ERR_FMG_MIN = ERR_EPS_MAX,
-	ERR_FMG_MAX,
-
-	// GPS Errors
-	ERR_GPS_MIN = ERR_FMG_MAX,
-	ERR_GPS_MAX,
-
-	// PLD Errors
-	ERR_PLD_MIN = ERR_GPS_MAX,
-	ERR_PLD_NOTALIVE = ERR_PLD_MIN,
-	ERR_PLD_SELFCHECK,
-	ERR_PLD_MAX,
-
-	// SCH Errors
-	ERR_SCH_MIN = ERR_PLD_MAX,
-	ERR_SCH_MAX,
-
-	// General errors (from the core)
-	ERR_GEN_MIN = ERR_SCH_MAX,
-	ERR_GEN_MAX,
-
-	ERR_MAX
-} ErrorOpcodeType;
-
 /*!
  * A struct to encapsulate the atomic unit of communication with the subsystems.
  */

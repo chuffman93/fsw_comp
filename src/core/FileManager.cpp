@@ -333,6 +333,7 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 			dest = dest.substr(0,dest.size()-ext.size());
 		}
 		std::string newDest = dest + regex + ".tar";
+		Logger::Stream(LEVEL_DEBUG,tags) << "Packaging " << dest.c_str() << " into " << newDest.c_str() << " with regex " << R.c_str();
 		regex = regex+"_";
 		sprintf(sh_cmd, "tar -czf %s -C %s `ls -lr %s | grep ^- | awk '{print $9}' | grep \"%s\" | head -%d`>/dev/null 2>&1", (char*)newDest.c_str(), (char*)dest.c_str(), (char*)dest.c_str(), (char*)regex.c_str(), 50);
 		Logger::Stream(LEVEL_INFO,tags) << "Created tar file for regex: " << newDest.c_str();
@@ -348,6 +349,8 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 				Logger::Stream(LEVEL_INFO,tags) << "Tar size of: " << st.st_size << " is too large for a max downlink size of " << MAX_DOWN_SIZE << ", splitting into " << st.st_size/MAX_DOWN_SIZE << " archives";
 				vector<std::string> tmp = FileManager::splitFile(newDest);
 				Files.insert(Files.end(),tmp.begin(),tmp.end());
+			}else if(st.st_size < 0){
+				Logger::Stream(LEVEL_ERROR,tags) << "Invalid file size for: " << newDest.c_str();
 			}else{
 				Files.push_back(newDest);
 			}
@@ -387,11 +390,11 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 			if(!(fd = popen(sh_cmd, "r"))){
 				Logger::Stream(LEVEL_ERROR, tags) << "Tar creation failed.";
 				pclose(fd);
-				break;
+				continue;
 			}
 			if(pclose(fd) == -1){
 				Logger::Stream(LEVEL_ERROR, tags) << "Tar pipe could not be closed.";
-				break;
+				continue;
 			}else{
 				struct stat st;
 				stat((char*)newDest.c_str(), &st);
@@ -399,6 +402,9 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 					Logger::Stream(LEVEL_INFO,tags) << "Tar size of: " << st.st_size << " is too large for a max downlink size of " << MAX_DOWN_SIZE << ", splitting into " << st.st_size/MAX_DOWN_SIZE << " archives";
 					vector<std::string> tmp = FileManager::splitFile(newDest);
 					Files.insert(Files.end(),tmp.begin(),tmp.end());
+				}else if(st.st_size < 0){
+					Logger::Stream(LEVEL_ERROR,tags) << "Invalid file size for: " << newDest.c_str();
+					continue;
 				}else{
 					Files.push_back(newDest);
 				}
@@ -441,11 +447,11 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 			if(!(fd = popen(sh_cmd, "r"))){
 				Logger::Stream(LEVEL_ERROR, tags) << "Tar creation failed.";
 				pclose(fd);
-				break;
+				continue;
 			}
 			if(pclose(fd) == -1){
 				Logger::Stream(LEVEL_ERROR, tags) << "Tar pipe could not be closed.";
-				break;
+				continue;
 			}else{
 				struct stat st;
 				lstat((char*)newDest.c_str(), &st);
@@ -453,6 +459,9 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 					Logger::Stream(LEVEL_INFO,tags) << "Tar size of: " << st.st_size << " is too large for a max downlink size of " << MAX_DOWN_SIZE << ", splitting into " << st.st_size/MAX_DOWN_SIZE << " archives";
 					vector<std::string> tmp = FileManager::splitFile(newDest);
 					Files.insert(Files.end(),tmp.begin(),tmp.end());
+				}else if(st.st_size < 0){
+					Logger::Stream(LEVEL_ERROR,tags) << "Invalid file size for: " << newDest.c_str();
+					continue;
 				}else{
 					Files.push_back(newDest);
 				}
@@ -671,7 +680,6 @@ std::vector<std::string> FileManager::parseGroundFile(std::string filePath){
  * \param the message being recoreded
  */
 void FileManager::writeLog(std::string tags,std::string message){
-
 	if(logMessageFP == ""){
 		logMessageFP = FileManager::createFileName(LOG_MESSAGES) + ".txt";
 	}else{
@@ -752,11 +760,13 @@ void FileManager::updateConfig(){
 std::vector<std::string> FileManager::splitFile(std::string FilePath){
 	LogTags tags;
 	tags += LogTag("Name", "FileManager");
+	Logger::Stream(LEVEL_DEBUG,tags) << "File Being Split: " << FilePath.c_str();
 
 	ExternalProcess splt;
 
 	char chunksize[15];
 	sprintf(chunksize,"%d",FileManager::MAX_DOWN_SIZE);
+
 
 	struct stat st;
 	if(stat((char*)FilePath.c_str(), &st) == -1){

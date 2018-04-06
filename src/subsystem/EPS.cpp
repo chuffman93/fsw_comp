@@ -126,7 +126,7 @@ bool EPS::commandReset(){
 	//TODO: error handling
 	Logger::Stream(LEVEL_INFO,tags) << "Reseting EPS";
 	std::vector<uint8_t> buff;
-	getHealthStatus();
+	//getHealthStatus();
 
 
 	ACPPacket retPacket = sendOpcode(OP_SUBSYSTEMRESET,buff);
@@ -134,7 +134,7 @@ bool EPS::commandReset(){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Subsystem Reset: unable to reset EPS Opcode Received: " << retPacket.opcode;
 	}
 
-	sleep(40);
+	sleep(10);
 
 	subPower.reset();
 

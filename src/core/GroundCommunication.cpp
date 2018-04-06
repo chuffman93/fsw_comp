@@ -11,6 +11,7 @@ GroundCommunication::GroundCommunication(std::vector<SubsystemBase*> subsystems,
 : stateDownlink(false), statePostPass(false), ComStartTime(0), ComTimeout(720), subsystems(subsystems), beacon(beacon)
 {
 	tags += LogTag("Name", "GroundCommunication");
+	firstFile = true;
 }
 
 GroundCommunication::~GroundCommunication(){}
@@ -20,7 +21,7 @@ void GroundCommunication::downlinkFiles(){
 	if (!DownlinkQueue.empty()){
 		std::string file = DownlinkQueue.front();
 		if (firstFile == true){
-			Logger::Stream(LEVEL_INFO,tags) << "Downlinking Next File" << grabFileName(file);
+			Logger::Stream(LEVEL_INFO,tags) << "Downlinking First File" << grabFileName(file).c_str();
 			FileManager::copyFile(file, DOWNLINK_DIRECTORY + grabFileName(file));
 			if (!FileManager::checkExistance(DOWNLINK_DIRECTORY + grabFileName(file))){
 				Logger::Stream(LEVEL_DEBUG,tags) << "Error copying: " << file << "to " << DOWNLINK_DIRECTORY + grabFileName(file);
@@ -30,7 +31,7 @@ void GroundCommunication::downlinkFiles(){
 			DownlinkQueue.pop_front();
 			if (!DownlinkQueue.empty()){
 				file = DownlinkQueue.front();
-				Logger::Stream(LEVEL_INFO,tags) << "Downlinking Next File: " << grabFileName(file);
+				Logger::Stream(LEVEL_INFO,tags) << "Downlinking Next File: " << grabFileName(file).c_str();
 				FileManager::copyFile(file, DOWNLINK_DIRECTORY + grabFileName(file));
 			}
 		}
@@ -48,6 +49,7 @@ void GroundCommunication::clearDownlink(){
 	//while (!DownlinkQueue.empty()){
 		DownlinkQueue.clear();
 	//}
+		firstFile = true;
 }
 
 std::string GroundCommunication::trimNewline(std::string buffer){
@@ -73,53 +75,38 @@ void GroundCommunication::parseDownlinkRequest(std::string line){
 		return;
 	}
 	if (strcmp(type,"F") == 0){
-		Logger::Stream(LEVEL_INFO,tags) << "Adding file(s): " << line << " to downlink queue";
-		while (file != NULL){
-			std::string path = trimNewline(std::string(file));
-			DownlinkQueue.push_back(path);
-			file = strtok(NULL,",");
-		}
-
-
+		Logger::Stream(LEVEL_INFO,tags) << "Adding file(s): " << line.c_str() << " to downlink queue";
+		std::string path = trimNewline(std::string(file));
+		DownlinkQueue.push_back(path);
+		file = strtok(NULL,",");
 	}else if (strcmp(type,"R") == 0){
-		Logger::Stream(LEVEL_INFO,tags) << "Adding regex(s) " << line << " to downlink queue";
-		while (file != NULL){
-			std::string regex = trimNewline(std::string(file));
-			std::vector<std::string> reg = FileManager::packageFiles(regex,"R");
-			std::vector<std::string>::iterator it;
-			for (it = reg.begin(); it < reg.end(); it++){
-				Logger::Stream(LEVEL_DEBUG,tags) << "Adding: " << *it << " to downlink queue";
-				DownlinkQueue.push_back(*it);
-			}
-			file = strtok(NULL,",");
+		Logger::Stream(LEVEL_INFO,tags) << "Fetching R regex for: " << line.c_str();
+		Logger::Stream(LEVEL_DEBUG,tags) << "Processing R regex for: " << file;
+		std::string regex = trimNewline(std::string(file));
+		std::vector<std::string> reg = FileManager::packageFiles(regex,"R");
+		std::vector<std::string>::iterator it;
+		for (it = reg.begin(); it < reg.end(); it++){
+			Logger::Stream(LEVEL_DEBUG,tags) << "Adding: " <<  (*it).c_str()  << " to downlink queue";
+			DownlinkQueue.push_back(*it);
 		}
-
 	}else if (strcmp(type,"RB") == 0){
 		Logger::Stream(LEVEL_INFO,tags) << "Adding regex(s) before " << line << " to downlink queue";
-		while (file != NULL){
-			std::string regex = trimNewline(std::string(file));
-			std::vector<std::string> reg = FileManager::packageFiles(regex,"RB");
-			std::vector<std::string>::iterator it;
-			for (it = reg.begin(); it < reg.end(); it++){
-				Logger::Stream(LEVEL_DEBUG,tags) << "Adding: " << *it << " to downlink queue";
-				DownlinkQueue.push_back(*it);
-			}
-			file = strtok(NULL,",");
+		std::string regex = trimNewline(std::string(file));
+		std::vector<std::string> reg = FileManager::packageFiles(regex,"RB");
+		std::vector<std::string>::iterator it;
+		for (it = reg.begin(); it < reg.end(); it++){
+			Logger::Stream(LEVEL_DEBUG,tags) << "Adding: " <<  (*it).c_str()  << " to downlink queue";
+			DownlinkQueue.push_back(*it);
 		}
-
 	}else if (strcmp(type,"RA") == 0){
 		Logger::Stream(LEVEL_INFO,tags) << "Adding regex after(s) " << line << " to downlink queue";
-		while (file != NULL){
-			std::string regex = trimNewline(std::string(file));
-			std::vector<std::string> reg = FileManager::packageFiles(regex,"RA");
-			std::vector<std::string>::iterator it;
-			for (it = reg.begin(); it < reg.end(); it++){
-				Logger::Stream(LEVEL_DEBUG,tags) << "Adding: " << *it << " to downlink queue";
-				DownlinkQueue.push_back(*it);
-			}
-			file = strtok(NULL,",");
+		std::string regex = trimNewline(std::string(file));
+		std::vector<std::string> reg = FileManager::packageFiles(regex,"RA");
+		std::vector<std::string>::iterator it;
+		for (it = reg.begin(); it < reg.end(); it++){
+			Logger::Stream(LEVEL_DEBUG,tags) << "Adding: " << (*it).c_str() << " to downlink queue";
+			DownlinkQueue.push_back(*it);
 		}
-
 	}else {
 		//log error
 	}
@@ -142,37 +129,20 @@ void GroundCommunication::parseDeletionRequest(std::string line){
 	}
 	if (strcmp(type,"F") == 0){
 		Logger::Stream(LEVEL_INFO,tags) << "Deleting file(s) " << line ;
-		while (file != NULL){
-			std::string path = trimNewline(std::string(file));
-			FileManager::deleteFile(path);
-			file = strtok(NULL,",");
-		}
-
-
+		std::string path = trimNewline(std::string(file));
+		FileManager::deleteFile(path);
 	}if (strcmp(type,"R") == 0){
 		Logger::Stream(LEVEL_INFO,tags) << "Deleting regex(s) " << line ;
-		while (file != NULL){
-			std::string regex = trimNewline(std::string(file));
-			FileManager::regexDelete(regex,"R");
-			file = strtok(NULL,",");
-		}
-
+		std::string regex = trimNewline(std::string(file));
+		FileManager::regexDelete(regex,"R");
 	}if (strcmp(type,"RB") == 0){
 		Logger::Stream(LEVEL_INFO,tags) << "Deleting regex(s) before " << line ;
-		while (file != NULL){
-			std::string regex = trimNewline(std::string(file));
-			FileManager::regexDelete(regex,"RB");
-			file = strtok(NULL,",");
-		}
-
+		std::string regex = trimNewline(std::string(file));
+		FileManager::regexDelete(regex,"RB");
 	}if (strcmp(type,"RA") == 0){
 		Logger::Stream(LEVEL_INFO,tags) << "Deleting regex(s) after " << line ;
-		while (file != NULL){
-			std::string regex = trimNewline(std::string(file));
-			FileManager::regexDelete(regex,"RA");
-			file = strtok(NULL,",");
-		}
-
+		std::string regex = trimNewline(std::string(file));
+		FileManager::regexDelete(regex,"RA");
 	}
 }
 
@@ -198,98 +168,79 @@ void GroundCommunication::parseCommandRequest(std::string line){
 	}
 
 	if (strcmp(sys,"SYS") == 0){
-		while (command != NULL){
-			std::string cmd = trimNewline(std::string(command));
-			command = (char*) cmd.c_str();
-			Logger::Stream(LEVEL_INFO,tags) << "Executing System Command: " << command;
-			//TODO: should we use the external process manager for this?
-			int16_t ret = system(command);
-			if (ret == 0 || ret == -1){
-				CommandAcknowledgements.push_back("SYS," + cmd + ",F\n");
-			}else{
-				CommandAcknowledgements.push_back("SYS," + cmd + ",S\n");
-			}
-
-			Logger::Stream(LEVEL_INFO,tags) << "System Command Return: " << ret;
-			command = strtok(NULL,",");
+		std::string cmd = trimNewline(std::string(command));
+		command = (char*) cmd.c_str();
+		Logger::Stream(LEVEL_INFO,tags) << "Executing System Command: " << command;
+		int16_t ret = system(command);
+		if (ret == 0 || ret == -1){
+			CommandAcknowledgements.push_back("SYS," + cmd + ",F\n");
+		}else{
+			CommandAcknowledgements.push_back("SYS," + cmd + ",S\n");
 		}
-
+		Logger::Stream(LEVEL_INFO,tags) << "System Command Return: " << ret;
 	}else if (strcmp(sys, "ACS") == 0){
-		while (command != NULL){
-			std::string tempCmd = trimNewline(std::string(command));
-			uint8_t cmd = (uint8_t)atoi((char*)tempCmd.c_str());
-			if ((cmd >= OP_ACS_MIN && cmd < OP_ACS_MAX) || (cmd >= OP_MIN && cmd < OP_MAX)){
-				Logger::Stream(LEVEL_INFO,tags) << "Executing ACS command: " << command;
-				std::vector<uint8_t> buff;
-				ACPPacket ret = subsystems[0]->sendOpcode(cmd,buff);
-				if (ret.opcode == cmd){
-					CommandAcknowledgements.push_back("ACS," + tempCmd + ",S\n");
-				}else{
-					CommandAcknowledgements.push_back("ACS," + tempCmd + ",f\n");
-				}
+		std::string tempCmd = trimNewline(std::string(command));
+		uint8_t cmd = (uint8_t)atoi((char*)tempCmd.c_str());
+		if ((cmd >= OP_ACS_MIN && cmd < OP_ACS_MAX) || (cmd >= OP_MIN && cmd < OP_MAX)){
+			Logger::Stream(LEVEL_INFO,tags) << "Executing ACS command: " << command;
+			std::vector<uint8_t> buff;
+			ACPPacket ret = subsystems[2]->sendOpcode(cmd,buff);
+			if (ret.opcode == cmd){
+				CommandAcknowledgements.push_back("ACS," + tempCmd + ",S\n");
 			}else{
-				Logger::Stream(LEVEL_ERROR,tags) << "Unable to Execute ACS Command, command does not exist";
 				CommandAcknowledgements.push_back("ACS," + tempCmd + ",F\n");
 			}
-			command = strtok(NULL,",");
+		}else{
+			Logger::Stream(LEVEL_ERROR,tags) << "Unable to Execute ACS Command, command does not exist";
+			CommandAcknowledgements.push_back("ACS," + tempCmd + ",F\n");
 		}
-
 	}else if (strcmp(sys, "COM") == 0){
-		while (command!= NULL){
-			std::string tempCmd = trimNewline(std::string(command));
-			uint8_t cmd = (uint8_t)atoi((char*)tempCmd.c_str());
-			if ((cmd >= OP_ACS_MIN && cmd < OP_ACS_MAX) || (cmd >= OP_MIN && cmd < OP_MAX)){
-				Logger::Stream(LEVEL_INFO,tags) << "Executing COM command: " << command;
-				std::vector<uint8_t> buff;
-				ACPPacket ret = subsystems[1]->sendOpcode(cmd,buff);
-				if (ret.opcode == cmd){
-					CommandAcknowledgements.push_back("COM," + tempCmd + ",S\n");
-				}else{
-					CommandAcknowledgements.push_back("COM," + tempCmd + ",F\n");
-				}
+		std::string tempCmd = trimNewline(std::string(command));
+		uint8_t cmd = (uint8_t)atoi((char*)tempCmd.c_str());
+		if ((cmd >= OP_COM_MIN && cmd < OP_COM_MAX) || (cmd >= OP_MIN && cmd < OP_MAX)){
+			Logger::Stream(LEVEL_INFO,tags) << "Executing COM command: " << command;
+			std::vector<uint8_t> buff;
+			ACPPacket ret = subsystems[1]->sendOpcode(cmd,buff);
+			if (ret.opcode == cmd){
+				CommandAcknowledgements.push_back("COM," + tempCmd + ",S\n");
 			}else{
-				Logger::Stream(LEVEL_ERROR,tags) << "Unable to Execute COM Command, command does not exist";
 				CommandAcknowledgements.push_back("COM," + tempCmd + ",F\n");
 			}
-			command = strtok(NULL,",");
+		}else{
+			Logger::Stream(LEVEL_ERROR,tags) << "Unable to Execute COM Command, command does not exist";
+			CommandAcknowledgements.push_back("COM," + tempCmd + ",F\n");
 		}
-
 	}else if (strcmp(sys, "EPS") == 0){
-		while (command != NULL){
-			std::string tempCmd = trimNewline(std::string(command));
-			uint8_t cmd = (uint8_t)atoi((char*)tempCmd.c_str());
-			if ((cmd >= OP_ACS_MIN && cmd < OP_ACS_MAX) || (cmd >= OP_MIN && cmd < OP_MAX)){
-				Logger::Stream(LEVEL_INFO,tags) << "Executing EPS command: " << command;
-				std::vector<uint8_t> buff;
-				ACPPacket ret = subsystems[2]->sendOpcode(cmd,buff);
-				if (ret.opcode == cmd){
-					CommandAcknowledgements.push_back("EPS," + tempCmd + ",S\n");
-				}else{
-					CommandAcknowledgements.push_back("EPS," + tempCmd + ",F\n");
-				}
+		std::string tempCmd = trimNewline(std::string(command));
+		uint8_t cmd = (uint8_t)atoi((char*)tempCmd.c_str());
+		if ((cmd >= OP_EPS_MIN && cmd < OP_EPS_MAX) || (cmd >= OP_MIN && cmd < OP_MAX)){
+			Logger::Stream(LEVEL_INFO,tags) << "Executing EPS command: " << command;
+			std::vector<uint8_t> buff;
+			ACPPacket ret = subsystems[0]->sendOpcode(cmd,buff);
+			if (ret.opcode == cmd){
+				CommandAcknowledgements.push_back("EPS," + tempCmd + ",S\n");
 			}else{
-				Logger::Stream(LEVEL_ERROR,tags) << "Unable to Execute EPS Command, command does not exist";
 				CommandAcknowledgements.push_back("EPS," + tempCmd + ",F\n");
 			}
-			command = strtok(NULL,",");
+		}else{
+			Logger::Stream(LEVEL_ERROR,tags) << "Unable to Execute EPS Command, command does not exist";
+			CommandAcknowledgements.push_back("EPS," + tempCmd + ",F\n");
 		}
 	}else if (strcmp(sys, "RAD") == 0){
-		while (command != NULL){
-			std::string tempCmd = trimNewline(std::string(command));
-			uint8_t cmd = (uint8_t)atoi((char*)tempCmd.c_str());
-			if ((cmd >= OP_ACS_MIN && cmd < OP_ACS_MAX) || (cmd >= OP_MIN && cmd < OP_MAX)){
-				Logger::Stream(LEVEL_INFO,tags) << "Executing RAD command: " << command;
-				std::vector<uint8_t> buff;
-				ACPPacket ret = subsystems[3]->sendOpcode(cmd,buff);
-				if (ret.opcode == cmd){
-					CommandAcknowledgements.push_back("RAD," + tempCmd + ",S\n");
-				}else{
-					CommandAcknowledgements.push_back("RAD," + tempCmd + ",F\n");
-				}
-				Logger::Stream(LEVEL_ERROR,tags) << "Unable to Execute RAD Command, command does not exist";
+		std::string tempCmd = trimNewline(std::string(command));
+		uint8_t cmd = (uint8_t)atoi((char*)tempCmd.c_str());
+		if ((cmd >= OP_PLD_CMD_MIN && cmd < OP_PLD_CMD_MAX) || (cmd >= OP_MIN && cmd < OP_MAX)){
+			Logger::Stream(LEVEL_INFO,tags) << "Executing RAD command: " << command;
+			std::vector<uint8_t> buff;
+			ACPPacket ret = subsystems[3]->sendOpcode(cmd,buff);
+			if (ret.opcode == cmd){
+				CommandAcknowledgements.push_back("RAD," + tempCmd + ",S\n");
+			}else{
 				CommandAcknowledgements.push_back("RAD," + tempCmd + ",F\n");
 			}
-			command = strtok(NULL,",");
+		}else{
+			Logger::Stream(LEVEL_ERROR,tags) << "Unable to Execute RAD Command, command does not exist";
+			CommandAcknowledgements.push_back("RAD," + tempCmd + ",F\n");
 		}
 	}
 }
@@ -307,6 +258,7 @@ void GroundCommunication::parseFileListRequest(std::string line){
 		FileManager::generateFilesList(directory);
 		dir = strtok(NULL, ",");
 	}
+	DownlinkQueue.push_back(DFL_PATH);
 }
 
 void GroundCommunication::sendCommandAcknowledgements(){
@@ -325,7 +277,7 @@ std::string GroundCommunication::grabFileName(std::string path){
 		filename = path[i]+filename;
 		i--;
 	}
-	Logger::Stream(LEVEL_DEBUG,tags) << "Grabbed file name for downlink: " << filename;
+	Logger::Stream(LEVEL_DEBUG,tags) << "Grabbed file name for downlink: " << filename.c_str();
 	return filename;
 }
 
@@ -398,7 +350,6 @@ bool GroundCommunication::spinGround(Watchdog* watchdog){
 		if (FileManager::checkExistance(IEF_PATH)){
 			Logger::Stream(LEVEL_INFO,tags) << "Received IEF";
 			parseIEF();
-			ComStartTime = 0;
 			stateDownlink = true;
 		//begin downlink if IEF processing has ended
 		}else if (stateDownlink){

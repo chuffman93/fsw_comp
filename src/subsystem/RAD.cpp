@@ -96,7 +96,7 @@ void RAD::configMotor(){
 			Logger::Stream(LEVEL_INFO,tags) << "Sending RAD Motor Config Update";
 			ACPPacket acpReturn = sendOpcode(OP_MOTORCONFIG,buff);
 			if (!isSuccess(OP_MOTORCONFIG,acpReturn)){
-				Logger::Stream(LEVEL_ERROR,tags) << "RAD did not reeieve RAD Motor Config Update";
+				Logger::Stream(LEVEL_ERROR,tags) << "RAD did not recieve RAD Motor Config Update";
 				return;
 			}
 		}else{
@@ -223,8 +223,11 @@ bool RAD::commandCollectionEnd(){
 
 
 bool RAD::resetRAD(){
-
 	Logger::Stream(LEVEL_INFO,tags) << "Preparing RAD for Reset";
+
+	if (!hsAvailable){
+		return true;
+	}
 
 	std::vector<uint8_t> buff;
 	ACPPacket retPacket = sendOpcode(OP_SUBSYSTEMRESET,buff);
