@@ -36,7 +36,7 @@ std::string NMEAInterface::getString(){
 		databuffer += c;
 	}while(c != '\n');
 	uart.readData();
-	Logger::Stream(LEVEL_DEBUG, tags) << "Read: " << databuffer;
+	Logger::Stream(LEVEL_DEBUG, tags) << "Read: " << databuffer.c_str();
 
 	std::string ret = databuffer;
 	databuffer = "";

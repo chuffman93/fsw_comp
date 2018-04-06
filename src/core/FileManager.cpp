@@ -330,7 +330,7 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 		std::string newDest = dest + regex + ".tar";
 		regex = regex+"_";
 		sprintf(sh_cmd, "tar -czf %s -C %s `ls -lr %s | grep ^- | awk '{print $9}' | grep \"%s\" | head -%d`>/dev/null 2>&1", (char*)newDest.c_str(), (char*)dest.c_str(), (char*)dest.c_str(), (char*)regex.c_str(), 50);
-		Logger::Stream(LEVEL_INFO,tags) << "Created tar file for regex: " << newDest;
+		Logger::Stream(LEVEL_INFO,tags) << "Created tar file for regex: " << newDest.c_str();
 		if(!(fd = popen(sh_cmd, "r"))){
 			Logger::Stream(LEVEL_ERROR, tags) << "Tar creation failed.";
 		}
@@ -755,7 +755,7 @@ std::vector<std::string> FileManager::splitFile(std::string FilePath){
 
 	struct stat st;
 	if(stat((char*)FilePath.c_str(), &st) == -1){
-		Logger::Stream(LEVEL_ERROR,tags) << "Stat on the file: " << FilePath << " was not successful";
+		Logger::Stream(LEVEL_ERROR,tags) << "Stat on the file: " << FilePath.c_str() << " was not successful";
 	}
 	int n_splits = st.st_size/FileManager::MAX_DOWN_SIZE;
 	char * sh_cmd[] = {(char *)"/usr/bin/split", (char*) "-b", (char*)chunksize, (char*) "-d",(char*) "-a", (char*)"3",(char*)FilePath.c_str(),(char*)FilePath.c_str(),NULL};
