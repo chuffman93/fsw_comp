@@ -51,7 +51,6 @@ void RAD::updateConfig(){}
 //Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 void RAD::getHealthStatus(){
 	if(hsAvailable){
-		LockGuard l(lock);
 		std::vector<uint8_t> buff;
 		ACPPacket acpReturn = sendOpcode(OP_HEALTHSTATUS, buff);
 
@@ -158,7 +157,8 @@ void RAD::configData(){
 
 //Command the beginning of data collection
 bool RAD::commandCollectionBegin(){
-	//TODO: error handling
+
+	//1. Turn on Rad
 	subPower.powerOn();
 
 
@@ -204,7 +204,6 @@ bool RAD::commandCollectionBegin(){
 bool RAD::commandCollectionEnd(){
 	//TODO: error handling
 	hsAvailable = false;
-
 	Logger::Stream(LEVEL_INFO,tags) << "Ending RAD Science Collection";
 	std::vector<uint8_t> buff;
 	ACPPacket retPacket = sendOpcode(OP_SUBSYSTEMRESET,buff);

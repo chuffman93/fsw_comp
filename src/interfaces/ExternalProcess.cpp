@@ -26,6 +26,7 @@ ExternalProcess::ExternalProcess(){
  */
 void ExternalProcess::launchProcess(char * argv[]){
 	child_pid = fork();
+	Logger::Stream(LEVEL_DEBUG,tags) << "ID of child: " << child_pid;
 	if(child_pid == 0){
 		Logger::Stream(LEVEL_INFO,tags) << "Starting Process: " << argv[0];
 		execv(argv[0],argv);
