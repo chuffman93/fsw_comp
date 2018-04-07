@@ -27,14 +27,18 @@ ExternalProcess::ExternalProcess(){
 void ExternalProcess::launchProcess(char * argv[]){
 	child_pid = fork();
 	Logger::Stream(LEVEL_DEBUG,tags) << "ID of child: " << child_pid;
+
 	if(child_pid == 0){
 		Logger::Stream(LEVEL_INFO,tags) << "Starting Process: " << argv[0];
 		execv(argv[0],argv);
 		exit(0);
 	}else{
 		do{
+			Logger::Stream(LEVEL_DEBUG,tags) << "Waiting for previous process to end";
 			tpid = wait(&child_status);
-		}while(tpid != child_pid);
+			Logger::Stream(LEVEL_DEBUG,tags) << "tpid: " << tpid;
+			Logger::Stream(LEVEL_DEBUG,tags) << "argv: " << &argv;
+		}while((tpid != child_pid) && (tpid != -1));
 	}
 	child_pid = -1;
 }

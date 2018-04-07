@@ -359,6 +359,7 @@ bool GroundCommunication::spinGround(Watchdog* watchdog){
 		}else if (statePostPass){
 			Logger::Stream(LEVEL_INFO,tags) << "Entering Communication Post Pass";
 			FileManager::deleteFile(SOT_PATH);
+			FileManager::deleteFile(DFL_PATH);
 			statePostPass = false;
 			ComStartTime = 0;
 			clearDownlink();

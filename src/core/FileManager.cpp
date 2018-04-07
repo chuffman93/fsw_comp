@@ -488,6 +488,7 @@ void FileManager::generateFilesList(std::string dir){
 	struct dirent *entry;
 	int count;
 	lock.lock();
+	Logger::Stream(LEVEL_DEBUG,tags) << "Parsing directory: " << dir;
 	dp = opendir(dir.c_str());
 	if(dp == NULL){
 		Logger::Stream(LEVEL_ERROR, tags) << "Directory could not be found.";

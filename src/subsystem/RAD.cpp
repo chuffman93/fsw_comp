@@ -183,19 +183,22 @@ bool RAD::commandCollectionBegin(){
 		return false;
 	}
 
+	dataFile = FileManager::createFileName(RAD_FILE_PATH);
+	Logger::Stream(LEVEL_DEBUG,tags) << "File path for transfer of RAD data: " << dataFile.c_str();
+	char* argv[] = {(char *)"/usr/bin/tftp",(char *)"-g",(char*)"-r",(char*)RAD_TMP_DATA,(char*)"10.14.134.207",NULL};
+	tftp.launchProcess(argv,FALSE);
+
+	//4. Configure MiniRAD
+	hsAvailable = true;
+	configData();
+	configMotor();
+
 	ACPPacket retPacket4 = sendOpcode(OP_STARTSCIENCE, buff);
 	if (!isSuccess(OP_STARTSCIENCE,retPacket4)){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Start Science: RAD unable to collect data. Opcode Received: " << retPacket4.opcode;
 		return false;
 	}
 
-	dataFile = FileManager::createFileName(RAD_FILE_PATH);
-	hsAvailable = true;
-	configData();
-	configMotor();
-
-	char* argv[] = {(char *)"/usr/bin/tftp",(char *)"-g",(char*)"-r",(char*)dataFile.c_str(),(char*)"10.14.134.207",NULL};
-	tftp.launchProcess(argv,FALSE);
 
 	return true;
 }
@@ -206,18 +209,33 @@ bool RAD::commandCollectionEnd(){
 	hsAvailable = false;
 	Logger::Stream(LEVEL_INFO,tags) << "Ending RAD Science Collection";
 	std::vector<uint8_t> buff;
+	//1. Command end of science mode
 	ACPPacket retPacket = sendOpcode(OP_SUBSYSTEMRESET,buff);
 	if (!isSuccess(OP_SUBSYSTEMRESET,retPacket)){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Subsystem Reset: Unable to power of RAD. Opcode Received: " << retPacket.opcode;
 		return false;
 	}
 
+
+	//2. Waitfor TFTP to finish and close tftp
+	usleep(3*1000*1000);
+	tftp.closeProcess();
+
+
+	//3. Turn off RAD
+	std::string s(RAD_TMP_DATA);
+	FileManager::moveFile(s,dataFile);
 	subPower.powerOff();
+
+	//4. Split Data Into Chunks
 	int splits = splitData();
+
+	//5. Tar Each File Chunk
 	if(splits > 0){
 		tarBallData(splits);
 	}
-	return true;
+
+return true;
 }
 
 
