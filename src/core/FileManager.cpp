@@ -683,12 +683,6 @@ std::vector<std::string> FileManager::parseGroundFile(std::string filePath){
 void FileManager::writeLog(std::string tags,std::string message){
 	if(logMessageFP == ""){
 		logMessageFP = FileManager::createFileName(LOG_MESSAGES) + ".txt";
-	}else{
-		struct stat st;
-		stat(logMessageFP.c_str(), &st);
-		if(st.st_size > MAX_FILE_SIZE){
-			logMessageFP = FileManager::createFileName(LOG_MESSAGES) + ".txt";
-		}
 	}
 	ofstream f(logMessageFP.c_str(),ofstream::out | ofstream::app);
 	f << tags << " " << message << '\n';

@@ -62,14 +62,15 @@ void GroundCommunication::parseDownlinkRequest(std::string line){
 	char downlinkRequest[100];
 	strcpy(downlinkRequest, line.c_str());
 
-	char * dwl = strtok(downlinkRequest,",");
+	char * savePtr;
+	char * dwl = strtok_r(downlinkRequest,",", &savePtr);
 
-	char * type = strtok(NULL, ",");
+	char * type = strtok_r(NULL, ",", &savePtr);
 	if (type == NULL){
 		//log error
 		return;
 	}
-	char * file = strtok(NULL, ",");
+	char * file = strtok_r(NULL, ",", &savePtr);
 	if (file == NULL){
 		//log error
 		return;
@@ -78,7 +79,7 @@ void GroundCommunication::parseDownlinkRequest(std::string line){
 		Logger::Stream(LEVEL_INFO,tags) << "Adding file(s): " << line.c_str() << " to downlink queue";
 		std::string path = trimNewline(std::string(file));
 		DownlinkQueue.push_back(path);
-		file = strtok(NULL,",");
+		file = strtok_r(NULL,",", &savePtr);
 	}else if (strcmp(type,"R") == 0){
 		Logger::Stream(LEVEL_INFO,tags) << "Fetching R regex for: " << line.c_str();
 		Logger::Stream(LEVEL_DEBUG,tags) << "Processing R regex for: " << file;
@@ -115,14 +116,16 @@ void GroundCommunication::parseDownlinkRequest(std::string line){
 void GroundCommunication::parseDeletionRequest(std::string line){
 	char deleteRequest[100];
 	strcpy(deleteRequest, line.c_str());
-	char * del = strtok(deleteRequest, ",");
 
-	char * type = strtok(NULL, ",");
+	char * savePtr;
+	char * del = strtok_r(deleteRequest, ",", &savePtr);
+
+	char * type = strtok_r(NULL, ",", &savePtr);
 	if (type == NULL){
 		//log error
 		return;
 	}
-	char * file = strtok(NULL, ",");
+	char * file = strtok_r(NULL, ",", &savePtr);
 	if (file == NULL){
 		//log error
 		return;
@@ -151,16 +154,17 @@ void GroundCommunication::parseCommandRequest(std::string line){
 	char commandRequest[100];
 	strcpy(commandRequest, line.c_str());
 
-	char * c = strtok(commandRequest,",");
+	char * savePtr;
+	char * c = strtok_r(commandRequest,",",&savePtr);
 
-	char * sys = strtok(NULL,",");
+	char * sys = strtok_r(NULL,",",&savePtr);
 	if (sys == NULL){
 		Logger::Stream(LEVEL_ERROR,tags) << "ParseCommandRequest: No system given for command execution";
 		CommandAcknowledgements.push_back(line+",F\n");
 		return;
 	}
 
-	char * command = strtok(NULL, ",");
+	char * command = strtok_r(NULL, ",",&savePtr);
 	if (command == NULL){
 		Logger::Stream(LEVEL_ERROR,tags) << "ParseCommandRequest: No command given for command execution";
 		CommandAcknowledgements.push_back(line+",F\n");
@@ -248,15 +252,17 @@ void GroundCommunication::parseCommandRequest(std::string line){
 void GroundCommunication::parseFileListRequest(std::string line){
 	char downlinkRequest[100];
 	strcpy(downlinkRequest, line.c_str());
-	char * request = strtok(downlinkRequest,",");
-	char * dir = strtok(NULL, ",");
+
+	char * savePtr;
+	char * request = strtok_r(downlinkRequest,",",&savePtr);
+	char * dir = strtok_r(NULL, ",",&savePtr);
 	if (dir == NULL){
 		//log error
 	}
 	while (dir != NULL){
 		std::string directory = trimNewline(std::string(dir));
 		FileManager::generateFilesList(directory);
-		dir = strtok(NULL, ",");
+		dir = strtok_r(NULL, ",",&savePtr);
 	}
 	DownlinkQueue.push_back(DFL_PATH);
 }
@@ -287,11 +293,12 @@ void GroundCommunication::parseIEF(){
 	std::vector<std::string> requests = FileManager::parseGroundFile(IEF_PATH);
 	char line[100];
 	char * type;
+	char * savePtr;
 
 	std::vector<std::string>::iterator it;
 	for (it = requests.begin(); it != requests.end(); it++){
 		strcpy(line, (*it).c_str());
-		type = strtok(line,",");
+		type = strtok_r(line,",",&savePtr);
 		if (type == NULL){
 			continue;
 		}else if (strcmp(type,"CMD") == 0){
@@ -332,7 +339,7 @@ bool GroundCommunication::spinGround(Watchdog* watchdog){
 
 
 		}
-		Logger::Stream(LEVEL_DEBUG,tags) << "Start Time: " << ComStartTime << " ComTimeOut: " << ComTimeout << " Current Time: " << getCurrentTime();
+		Logger::Stream(LEVEL_DEBUG,tags) << "Start Time: " << ComStartTime << " ComTimeOut: " << ComTimeout+ComStartTime << " Current Time: " << getCurrentTime();
 		//check if the communication pass has exceeded
 		if ((ComStartTime + ComTimeout) < getCurrentTime()){
 			Logger::Stream(LEVEL_INFO,tags) << "Communication Pass Timeout";

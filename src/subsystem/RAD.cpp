@@ -50,6 +50,7 @@ void RAD::updateConfig(){}
 
 //Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 void RAD::getHealthStatus(){
+	LockGuard l(lock);
 	if(hsAvailable){
 		std::vector<uint8_t> buff;
 		ACPPacket acpReturn = sendOpcode(OP_HEALTHSTATUS, buff);
@@ -125,7 +126,7 @@ void RAD::configMotor(){
 void RAD::configData(){
 	if (FileManager::checkExistance(RAD_DATA_CONFIG_UP)){
 		std::vector<uint8_t> buff = FileManager::readFromFile(RAD_DATA_CONFIG_UP);
-		if (buff.size() == CONFIG_MOTOR_SIZE){
+		if (buff.size() == CONFIG_DATA_SIZE){
 			Logger::Stream(LEVEL_INFO,tags) << "Sending RAD Data Config Update";
 			ACPPacket acpReturn = sendOpcode(OP_DATACONFIG,buff);
 			if (!isSuccess(OP_DATACONFIG,acpReturn)){
@@ -140,7 +141,7 @@ void RAD::configData(){
 		FileManager::deleteFile(RAD_DATA_CONFIG_UP);
 	}else if(FileManager::checkExistance(RAD_DATA_CONFIG)){
 		std::vector<uint8_t> buff = FileManager::readFromFile(RAD_DATA_CONFIG);
-		if (buff.size() == CONFIG_MOTOR_SIZE){
+		if (buff.size() == CONFIG_DATA_SIZE){
 			Logger::Stream(LEVEL_INFO,tags) << "Sending RAD Data Config";
 			ACPPacket acpReturn = sendOpcode(OP_DATACONFIG,buff);
 			if (!isSuccess(OP_DATACONFIG,acpReturn)){
@@ -265,7 +266,9 @@ int RAD::splitData(){
 	// get how many files it was split into by dividing the dataFile size by the number of bytes per chunk
 	std::ifstream in(dataPath, std::ifstream::ate | std::ifstream::binary);
 	long f_bytes = in.tellg();
-	int n_splits = f_bytes/RAD_CHUNK_SIZE;in.close();
+	int n_splits = f_bytes/RAD_CHUNK_SIZE;
+	Logger::Stream(LEVEL_DEBUG,tags) << "Bytes: " << f_bytes << " Num Splits: " << n_splits;
+	in.close();
 	// split the file within the location using the same name (tags on 000,001,002,ect.)
 	if(n_splits > 0){
 		sprintf(chunksize,"%d",RAD_CHUNK_SIZE);
@@ -281,19 +284,19 @@ int RAD::splitData(){
 }
 
 void RAD::tarBallData(int splits){
-	ExternalProcess tar;
 	char archiveName[100];
 	char chunk[100];
-	// tftp.closeProcess();
 	Logger::Stream(LEVEL_INFO,tags) << "Beginning of tar-balling of data file splits";
 	// for loop through the number of splits created
 	for(int i = 0; i <= splits; i++){
+		Logger::Stream(LEVEL_INFO,tags) << "Tar-balling split " << i << " of " << splits;
 		// gets archive name we wish to create a .tar.gz compressed file for each chunk
 		sprintf(archiveName,"%s%03d.tar.gz",dataFile.c_str(),i);
 		sprintf(chunk,"%s%03d",dataFile.c_str(),i);
 
 		char * sh_cm[] = {(char*)"/bin/tar", (char*)"-czf",(char*)archiveName,(char*)chunk,(char*)"-P",NULL};
 		// runs the command on the system
+		ExternalProcess tar;
 		tar.launchProcess(sh_cm);
 
 		// create a differenPLDUpdateDataNumbert archiveName referencing just the individual chunks

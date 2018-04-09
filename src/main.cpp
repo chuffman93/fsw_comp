@@ -26,14 +26,7 @@ int main() {
 	Logger::setMode(MODE_PW);
 	Logger::setLevel(LEVEL_INFO);
 	Logger::registerThread("MAIN");
-	Logger::registerFilter(LogTag("Name", "ScheduleManager"), LEVEL_DEBUG);
-	Logger::registerFilter(LogTag("Name", "FileManager"), LEVEL_DEBUG);
-	//Logger::registerFilter(LogTag("Name", "NMEAInterface"), LEVEL_DEBUG);
-	Logger::registerFilter(LogTag("Name", "ExternP"), LEVEL_DEBUG);
-	// Logger::registerFilter(LogTag("Name", "GPS"), LEVEL_DEBUG);
-	Logger::registerFilter(LogTag("Name", "RAD"), LEVEL_DEBUG);
-	Logger::registerFilter(LogTag("Name", "GroundCommunication"), LEVEL_DEBUG);
-	Logger::log(LEVEL_FATAL, "Entering Main");
+	Logger::log(LEVEL_INFO, "Entering Main");
 
 	//---------Step1: Build FSW---------------------------
 	Architecture::setInterfaceMode(HARDWARE);
@@ -48,7 +41,7 @@ int main() {
 	Architecture::buildGND();
 
 	//---------Step2: Initialize HAL-----------------------
-	Logger::log(LEVEL_FATAL, "Initializing HAL");
+	Logger::log(LEVEL_INFO, "Initializing HAL");
 	vector<HardwareManager*> halinit = Architecture::buildHALInitVector();
 	for(vector<HardwareManager*>::iterator i = halinit.begin(); i != halinit.end(); i++){
 		(*i)->initialize();
@@ -56,7 +49,7 @@ int main() {
 
 	//---------Step3: Initialize Subsystems-----------------------
 	vector<SubsystemBase*> subinit = Architecture::buildInitVector();
-	Logger::log(LEVEL_FATAL, "Initializing Subsystems");
+	Logger::log(LEVEL_INFO, "Initializing Subsystems");
 	for(vector<SubsystemBase*>::iterator i = subinit.begin(); i != subinit.end(); i++){
 		(*i)->initialize();
 	}
