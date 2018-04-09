@@ -14,19 +14,17 @@ RAD::RAD(ACPInterface& acp, SubPowerInterface& subPower)
 	health.fileSize = FileManager::MAX_FILE_SIZE;
 	health.basePath = HEALTH_DIRECTORY RAD_PATH "/RAD";
 	RADDataNum = 0;
-	watchdog = NULL;
 }
 
 
 
 RAD::~RAD(){}
 
-bool RAD::initialize(){
-	return true;
+void RAD::initialize(){
 }
 
 
-//! Handles any mode transition needs as well as any needs for tasks to be done in a mode.
+//Handles any mode transition needs as well as any needs for tasks to be done in a mode.
 void RAD::handleMode(FSWMode transition){
 	LockGuard l(lock);
 	bool success;
@@ -50,20 +48,17 @@ void RAD::handleConfig(){}
 
 void RAD::updateConfig(){}
 
-//! Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
+//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 void RAD::getHealthStatus(){
+	LockGuard l(lock);
 	if(hsAvailable){
 		std::vector<uint8_t> buff;
 		ACPPacket acpReturn = sendOpcode(OP_HEALTHSTATUS, buff);
+
 		health.recordBytes(acpReturn.message);
 	}
 }
 
-/*!
- * Handles the sending of opcodes
- * \param opcode to be sent
- * \param buffer to be sent if need be
- */
 ACPPacket RAD::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
 	if (buffer.empty()){
 		ACPPacket acpPacket(RAD_SYNC, opcode);
@@ -78,7 +73,6 @@ ACPPacket RAD::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
 	}
 }
 
-//! checks if the PLD opcode being sent was done so successfully
 bool RAD::isSuccess(PLDOpcode opcode, ACPPacket retPacket){
 	if (opcode == retPacket.opcode){
 		return true;
@@ -86,7 +80,6 @@ bool RAD::isSuccess(PLDOpcode opcode, ACPPacket retPacket){
 	return false;
 }
 
-//! checks if the subsystem opcode sent was done so successfully
 bool RAD::isSuccess(SubsystemOpcode opcode, ACPPacket retPacket){
 	if (opcode == retPacket.opcode){
 		return true;
@@ -95,7 +88,7 @@ bool RAD::isSuccess(SubsystemOpcode opcode, ACPPacket retPacket){
 }
 
 
-//! Handles sending the Motor config to RAD
+//Various configurations for the data collection
 void RAD::configMotor(){
 	if (FileManager::checkExistance(RAD_MOTOR_CONFIG_UP)){
 		std::vector<uint8_t> buff = FileManager::readFromFile(RAD_MOTOR_CONFIG_UP);
@@ -103,7 +96,7 @@ void RAD::configMotor(){
 			Logger::Stream(LEVEL_INFO,tags) << "Sending RAD Motor Config Update";
 			ACPPacket acpReturn = sendOpcode(OP_MOTORCONFIG,buff);
 			if (!isSuccess(OP_MOTORCONFIG,acpReturn)){
-				Logger::Stream(LEVEL_ERROR,tags) << "RAD did not reeieve RAD Motor Config Update";
+				Logger::Stream(LEVEL_ERROR,tags) << "RAD did not recieve RAD Motor Config Update";
 				return;
 			}
 		}else{
@@ -129,7 +122,7 @@ void RAD::configMotor(){
 }
 
 
-//! Handles sending the DATA config to RAD
+
 void RAD::configData(){
 	if (FileManager::checkExistance(RAD_DATA_CONFIG_UP)){
 		std::vector<uint8_t> buff = FileManager::readFromFile(RAD_DATA_CONFIG_UP);
@@ -163,8 +156,9 @@ void RAD::configData(){
 }
 
 
-//! Command the beginning of data collection
+//Command the beginning of data collection
 bool RAD::commandCollectionBegin(){
+
 	//1. Turn on Rad
 	subPower.powerOn();
 
@@ -172,7 +166,6 @@ bool RAD::commandCollectionBegin(){
 	Logger::Stream(LEVEL_INFO,tags) << "Beginning RAD Science Collection";
 	std::vector<uint8_t> buff;
 
-	//2. Aliveness Test
 	ACPPacket retPacket1 = sendOpcode(OP_TESTALIVE, buff);
 	if (!isSuccess(OP_TESTALIVE,retPacket1)){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Alive: RAD is not alive. Opcode Received: " << retPacket1.opcode;
@@ -191,9 +184,6 @@ bool RAD::commandCollectionBegin(){
 		return false;
 	}
 
-
-
-	//3. Initialize TFTP
 	dataFile = FileManager::createFileName(RAD_FILE_PATH);
 	Logger::Stream(LEVEL_DEBUG,tags) << "File path for transfer of RAD data: " << dataFile.c_str();
 	char* argv[] = {(char *)"/usr/bin/tftp",(char *)"-g",(char*)"-r",(char*)RAD_TMP_DATA,(char*)"10.14.134.207",NULL};
@@ -204,17 +194,17 @@ bool RAD::commandCollectionBegin(){
 	configData();
 	configMotor();
 
-	//5. Command Start of Science
 	ACPPacket retPacket4 = sendOpcode(OP_STARTSCIENCE, buff);
 	if (!isSuccess(OP_STARTSCIENCE,retPacket4)){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Start Science: RAD unable to collect data. Opcode Received: " << retPacket4.opcode;
 		return false;
 	}
 
+
 	return true;
 }
 
-//! Command the ending of data collection
+
 bool RAD::commandCollectionEnd(){
 	//TODO: error handling
 	hsAvailable = false;
@@ -246,13 +236,16 @@ bool RAD::commandCollectionEnd(){
 		tarBallData(splits);
 	}
 
-	return true;
+return true;
 }
 
-//! resets RAD
-bool RAD::resetRAD(){
 
+bool RAD::resetRAD(){
 	Logger::Stream(LEVEL_INFO,tags) << "Preparing RAD for Reset";
+
+	if (!hsAvailable){
+		return true;
+	}
 
 	std::vector<uint8_t> buff;
 	ACPPacket retPacket = sendOpcode(OP_SUBSYSTEMRESET,buff);
@@ -263,7 +256,6 @@ bool RAD::resetRAD(){
 	return true;
 }
 
-//! Splits the data collected into smaller chunks for easier/quicker downlink
 int RAD::splitData(){
 	ExternalProcess split;
 
@@ -275,6 +267,7 @@ int RAD::splitData(){
 	std::ifstream in(dataPath, std::ifstream::ate | std::ifstream::binary);
 	long f_bytes = in.tellg();
 	int n_splits = f_bytes/RAD_CHUNK_SIZE;
+	Logger::Stream(LEVEL_DEBUG,tags) << "Bytes: " << f_bytes << " Num Splits: " << n_splits;
 	in.close();
 	// split the file within the location using the same name (tags on 000,001,002,ect.)
 	if(n_splits > 0){
@@ -290,34 +283,25 @@ int RAD::splitData(){
 	}
 }
 
-/*!
- * Tar balls the split files from the data collection
- * \param number of splits to look for and to be tar balled
- */
 void RAD::tarBallData(int splits){
-	ExternalProcess tar;
 	char archiveName[100];
 	char chunk[100];
-	// tftp.closeProcess();
 	Logger::Stream(LEVEL_INFO,tags) << "Beginning of tar-balling of data file splits";
 	// for loop through the number of splits created
 	for(int i = 0; i <= splits; i++){
+		Logger::Stream(LEVEL_INFO,tags) << "Tar-balling split " << i << " of " << splits;
 		// gets archive name we wish to create a .tar.gz compressed file for each chunk
 		sprintf(archiveName,"%s%03d.tar.gz",dataFile.c_str(),i);
 		sprintf(chunk,"%s%03d",dataFile.c_str(),i);
 
-		Logger::Stream(LEVEL_DEBUG,tags) << "Chunk to be TAR-d: " << chunk << " New name: " << archiveName;
-
 		char * sh_cm[] = {(char*)"/bin/tar", (char*)"-czf",(char*)archiveName,(char*)chunk,(char*)"-P",NULL};
 		// runs the command on the system
+		ExternalProcess tar;
 		tar.launchProcess(sh_cm);
 
 		// create a differenPLDUpdateDataNumbert archiveName referencing just the individual chunks
 		sprintf(archiveName,"%s%03d",dataFile.c_str(),i);
 		// removes the chunks to save some space
-		if(i%5 == 0){
-			watchdog->KickWatchdog();
-		}
 		remove(archiveName);
 	}
 	Logger::Stream(LEVEL_INFO,tags) << "End of tar-balling of data file splits";

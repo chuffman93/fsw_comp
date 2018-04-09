@@ -13,7 +13,7 @@ CDH::~CDH(){
 }
 
 //! Will set up the Gpio lines, acp devices, and handles the configs
-bool CDH::initialize(){
+void CDH::initialize(){
 
 	std::vector<HotSwapInterface*>::iterator it1;
 	std::vector<PowerMonitorInterface*>::iterator it2;
@@ -30,7 +30,6 @@ bool CDH::initialize(){
 	OneWireMan->initialize();
 
 	handleConfig();
-	return true;
 
 }
 

@@ -32,12 +32,11 @@ GPS::GPS(NMEAInterface& nm, SubPowerInterface& pow):nm(nm), pow(pow){
 
 GPS::~GPS(){}
 
-bool GPS::initialize(){
+void GPS::initialize(){
 	pow.configDelay(0, 1000);
 	powerOff();
 	powerOn();
 	handleConfig();
-	return true;
 }
 
 void GPS::handleMode(FSWMode transition){}
@@ -138,20 +137,22 @@ void GPS::fetchNewGPS(){
 	}
 	Logger::Stream(LEVEL_DEBUG,tags) << "Reading in: " << data;
 
-
 	//Everything below this line is from old FSW
 	GPSPositionTime tempData = {0,0,0,0,0,0,0,0};
-	char * token;
-	char * buffPtr = (char*)data.c_str();
+	char buffer[1024];
+	char * buffPtr0 = strcpy(buffer,data.c_str());
+	char * buffPtr1 = strcpy(buffer,data.c_str());
 	solSuccess = true;
 
 	bool containsDelimiter = false;
-	while ((buffPtr - data.c_str() != 350) && (*buffPtr != '\0')) {
-		if (*buffPtr++ == '*') {
+
+	while ((buffPtr0 - data.c_str() != 350) && (*buffPtr0 != '\0')) {
+		if (*buffPtr0++ == '*') {
 			containsDelimiter = true;
 			break;
 		}
 	}
+
 	if (!containsDelimiter) {
 		Logger::log(LEVEL_WARN, tags, "String doesn't contain '*' ");
 		solSuccess = false;
@@ -159,9 +160,12 @@ void GPS::fetchNewGPS(){
 	}
 
 	// split into message and crc
-	char * message = strtok((char*)data.c_str(), "*");
-	char * crcStr = strtok(NULL, "*");
-	uint32_t crc = strtoul(crcStr, &token, 16);
+	char * saveIndex0;
+	char * message = strtok_r(buffPtr1, "*", &saveIndex0);
+	char * crcStr = strtok_r(NULL, "*", &saveIndex0);
+
+	char * tailPtr;
+	uint32_t crc = strtoul(crcStr, &tailPtr, 16);
 
 	// validate crc
 	if (crc != CalculateCRC_GPS(message)) {
@@ -170,78 +174,86 @@ void GPS::fetchNewGPS(){
 	}
 
 	// parse the message into header and log
-	char * header = strtok(message, ";");
-	char * log = strtok(NULL, ";");
+	char * saveIndex1;
+	char * header = strtok_r(message, ";", &saveIndex1);
+	char * log = strtok_r(NULL, ";", &saveIndex1);
 
 	// parse the message header
-	char * type = strtok(header, ",");
+	char * saveIndex2;
+	char * type = strtok_r(header, ",", &saveIndex2);
+
 	if (strcmp("#BESTXYZA", type) != 0) {
 		Logger::Stream(LEVEL_WARN, tags) << "Wrong message. Expected #BESTXYZA got:\"" << type << "\"";
 		solSuccess = false;
 		return;
 	}
 
-	token = strtok(NULL, ","); // (UNUSED) port
-	token = strtok(NULL, ","); // (UNUSED) sequence num
-	token = strtok(NULL, ","); // (UNUSED) idle time
-	if (strcmp("FINESTEERING", strtok(NULL, ",")) != 0) {
+	char * token;
+	token = strtok_r(NULL, ",", &saveIndex2); // (UNUSED) port
+	token = strtok_r(NULL, ",", &saveIndex2); // (UNUSED) sequence num
+	token = strtok_r(NULL, ",", &saveIndex2); // (UNUSED) idle time
+
+	if (strcmp("FINESTEERING", strtok_r(NULL, ",", &saveIndex2)) != 0) {
 		Logger::log(LEVEL_DEBUG, tags, "Fine steering not reached!");
 		solSuccess = false;
 		return;
 	}
+
 	//TODO: Check for finesteering
-	tempData.GPSWeek = (int32_t) strtoul(strtok(NULL, ","), NULL, 10);
-	tempData.GPSSec = strtof(strtok(NULL, ","), NULL);
-	token = strtok(NULL, ","); // (UNUSED) receiver status
-	token = strtok(NULL, ","); // (UNUSED) port
-	token = strtok(NULL, ","); // (UNUSED) reserved for vendor
-	token = strtok(NULL, ","); // (UNUSED) software build
+	tempData.GPSWeek = (int32_t) strtoul(strtok_r(NULL, ",", &saveIndex2), NULL, 10);
+
+	tempData.GPSSec = strtof(strtok_r(NULL, ",", &saveIndex2), NULL);
+	token = strtok_r(NULL, ",", &saveIndex2); // (UNUSED) receiver status
+	token = strtok_r(NULL, ",", &saveIndex2); // (UNUSED) port
+	token = strtok_r(NULL, ",", &saveIndex2); // (UNUSED) reserved for vendor
+	token = strtok_r(NULL, ",", &saveIndex2); // (UNUSED) software build
 
 	// parse the position log part of the message
-	if (strcmp("SOL_COMPUTED", strtok(log, ",")) != 0) {
+	char * saveIndex3;
+	if (strcmp("SOL_COMPUTED", strtok_r(log, ",", &saveIndex3)) != 0) {
 		Logger::log(LEVEL_DEBUG, tags, "No position solution computed!");
 		solSuccess = false;
 		return;
 	} else {
 		Logger::log(LEVEL_DEBUG, tags, "Valid position solution computed!");
-		token = strtok(NULL, ","); // (UNUSED) position type
-		tempData.posX = strtod(strtok(NULL, ","), NULL) / 1000.0; // convert from m to km
-		tempData.posY = strtod(strtok(NULL, ","), NULL) / 1000.0; // convert from m to km
-		tempData.posZ = strtod(strtok(NULL, ","), NULL) / 1000.0; // convert from m to km
-		token = strtok(NULL, ","); // (UNUSED) std dev x
-		token = strtok(NULL, ","); // (UNUSED) std dev y
-		token = strtok(NULL, ","); // (UNUSED) std dev z
+		token = strtok_r(NULL, ",", &saveIndex3); // (UNUSED) position type
+		tempData.posX = strtod(strtok_r(NULL, ",", &saveIndex3), NULL) / 1000.0; // convert from m to km
+		tempData.posY = strtod(strtok_r(NULL, ",", &saveIndex3), NULL) / 1000.0; // convert from m to km
+		tempData.posZ = strtod(strtok_r(NULL, ",", &saveIndex3), NULL) / 1000.0; // convert from m to km
+		token = strtok_r(NULL, ",", &saveIndex3); // (UNUSED) std dev x
+		token = strtok_r(NULL, ",", &saveIndex3); // (UNUSED) std dev y
+		token = strtok_r(NULL, ",", &saveIndex3); // (UNUSED) std dev z
 	}
 
 	// parse the velocity log part of the message
-	if (strcmp("SOL_COMPUTED", strtok(NULL, ",")) != 0) {
+	if (strcmp("SOL_COMPUTED", strtok_r(NULL, ",", &saveIndex3)) != 0) {
 		Logger::log(LEVEL_DEBUG, tags, "No velocity solution computed!");
 		solSuccess = false;
 		return;
 	} else {
 		Logger::log(LEVEL_DEBUG, tags, "Velocity solution computed!");
-		token = strtok(NULL, ","); // (UNUSED) velocity type
-		tempData.velX = strtod(strtok(NULL, ","), NULL) / 1000.0; // convert from m to km
-		tempData.velY = strtod(strtok(NULL, ","), NULL) / 1000.0; // convert from m to km
-		tempData.velZ = strtod(strtok(NULL, ","), NULL) / 1000.0; // convert from m to km
-		token = strtok(NULL, ","); // (UNUSED) std dev x
-		token = strtok(NULL, ","); // (UNUSED) std dev y
-		token = strtok(NULL, ","); // (UNUSED) std dev z
+		token = strtok_r(NULL, ",", &saveIndex3); // (UNUSED) velocity type
+		tempData.velX = strtod(strtok_r(NULL, ",", &saveIndex3), NULL) / 1000.0; // convert from m to km
+		tempData.velY = strtod(strtok_r(NULL, ",", &saveIndex3), NULL) / 1000.0; // convert from m to km
+		tempData.velZ = strtod(strtok_r(NULL, ",", &saveIndex3), NULL) / 1000.0; // convert from m to km
+		token = strtok_r(NULL, ",", &saveIndex3); // (UNUSED) std dev x
+		token = strtok_r(NULL, ",", &saveIndex3); // (UNUSED) std dev y
+		token = strtok_r(NULL, ",", &saveIndex3); // (UNUSED) std dev z
 	}
 
 	// parse the rest of the log
-	token = strtok(NULL, ","); // (UNUSED) base station
-	token = strtok(NULL, ","); // (UNUSED) latency
-	token = strtok(NULL, ","); // (UNUSED) diff age
-	token = strtok(NULL, ","); // (UNUSED) sol age
-	uint8_t tempTracked = (uint8_t) atoi(strtok(NULL, ","));
-	token = strtok(NULL, ","); // (UNUSED) num used in solution
-	token = strtok(NULL, ","); // (UNUSED) GPS + GLONASS L1
-	token = strtok(NULL, ","); // (UNUSED) GPS + GLONASS L1/L2
-	token = strtok(NULL, ","); // (UNUSED) reserved for vendor
-	token = strtok(NULL, ","); // (UNUSED) extended solution status
-	token = strtok(NULL, ","); // (UNUSED) reserved for vendor
-	token = strtok(NULL, ","); // (UNUSED) signals used
+	token = strtok_r(NULL, ",", &saveIndex3); // (UNUSED) base station
+	token = strtok_r(NULL, ",", &saveIndex3); // (UNUSED) latency
+	token = strtok_r(NULL, ",", &saveIndex3); // (UNUSED) diff age
+	token = strtok_r(NULL, ",", &saveIndex3); // (UNUSED) sol age
+	uint8_t tempTracked = (uint8_t) atoi(strtok_r(NULL, ",", &saveIndex3));
+	token = strtok_r(NULL, ",", &saveIndex3); // (UNUSED) num used in solution
+	token = strtok_r(NULL, ",", &saveIndex3); // (UNUSED) GPS + GLONASS L1
+	token = strtok_r(NULL, ",", &saveIndex3); // (UNUSED) GPS + GLONASS L1/L2
+	token = strtok_r(NULL, ",", &saveIndex3); // (UNUSED) reserved for vendor
+	token = strtok_r(NULL, ",", &saveIndex3); // (UNUSED) extended solution status
+	token = strtok_r(NULL, ",", &saveIndex3); // (UNUSED) reserved for vendor
+	token = strtok_r(NULL, ",", &saveIndex3); // (UNUSED) signals used
 
 	//Removed the update time section of code
 
@@ -311,6 +323,7 @@ uint32_t GPS::CalculateCRC_GPS(char * buffer) {
 	uint32_t temp2;
 	uint32_t CRC = 0;
 
+	buffer++;
 	while (*buffer != '\0') {
 		temp1 = (CRC >> 8) & 0x00FFFFFFL;
 		temp2 = CRCValue_GPS(((int) CRC ^ ((uint8_t) *buffer++)) & 0xff);

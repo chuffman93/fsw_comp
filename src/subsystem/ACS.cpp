@@ -22,7 +22,7 @@ ACS::ACS(ACPInterface& acp, SubPowerInterface& subPower)
 ACS::~ACS(){}
 
 //! Will set up the Gpio lines, acp devices, handle configs, and test alive
-bool ACS::initialize(){
+void ACS::initialize(){
 	//TODO: error handling
 	Logger::Stream(LEVEL_INFO,tags) << "Initializing ACS";
 	LockGuard l(lock);
@@ -32,22 +32,18 @@ bool ACS::initialize(){
 	ACPPacket retPacket1 = sendOpcode(OP_TESTALIVE,buff);
 	if (!isSuccess(OP_TESTALIVE,retPacket1)){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Alive: ACS is not alive. Opcode Received: " << retPacket1.opcode;
-		return false;
 	}
 
 	ACPPacket retPacket2 = sendOpcode(OP_TESTLED,buff);
 	if (!isSuccess(OP_TESTLED,retPacket2)){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test LED: ACS is not alive. Opcode Received: " << retPacket2.opcode;
-		return false;
 	}
 
 	ACPPacket retPacket3 = sendOpcode(OP_TESTCONFIG,buff);
 	if (!isSuccess(OP_TESTCONFIG,retPacket3)){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Configurations: ACS is not alive. Opcode Received: " << retPacket3.opcode;
-		return false;
 	}
 	handleConfig();
-	return true;
 }
 
 /*!

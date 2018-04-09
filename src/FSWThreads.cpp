@@ -20,7 +20,7 @@ void * FSWThreads::HealthStatusThread(void * args) {
 	Watchdog * watchdog = hsStruct->watchdog;
 	std::vector<SubsystemBase*> healthSeq = hsStruct->subsystemSequence;
 	Logger::registerThread("H&S");
-	Logger::log(LEVEL_FATAL, "Starting Health and Status Thread");
+	Logger::log(LEVEL_INFO, "Starting Health and Status Thread");
 	while (1){
 
 		watchdog->KickWatchdog();
@@ -46,7 +46,7 @@ void * FSWThreads::ModeThread(void * args) {
 	FSWMode mode;
 
 	Logger::registerThread("Mode");
-	Logger::log(LEVEL_FATAL, "Starting Mode Thread");
+	Logger::log(LEVEL_INFO, "Starting Mode Thread");
 	while (1) {
 		watchdog->KickWatchdog();
 		scheduler->handleScheduling();
@@ -73,7 +73,7 @@ void * FSWThreads::GPSThread(void * args) {
 	GPS * gps = gpsargs->gps;
 	ACS* acs = gpsargs->acs;
 	Logger::registerThread("GPS");
-	Logger::log(LEVEL_FATAL, "Starting GPS Thread");
+	Logger::log(LEVEL_INFO, "Starting GPS Thread");
 	while (1) {
 		// GPS on, if lock, shut off GPS.
 		// Override in PLD (GPS) on
@@ -109,7 +109,7 @@ void * FSWThreads::GPSThread(void * args) {
 void * FSWThreads::WatchdogThread(void * args) {
 	Watchdog * watchdog = (Watchdog*) args;
 	Logger::registerThread("WPUP");
-	Logger::log(LEVEL_FATAL, "Starting Watchdog Thread");
+	Logger::log(LEVEL_INFO, "Starting Watchdog Thread");
 	while (1) {
 		sleep(20);
 		watchdog->CheckThreads();
@@ -125,7 +125,7 @@ void * FSWThreads::GroundThread(void * args) {
 	GroundCommunication * gnd = groundStruct->gnd;
 	ScheduleManager * scheduler = groundStruct->scheduler;
 	Logger::registerThread("GND");
-	Logger::log(LEVEL_FATAL, "Starting Ground Communication Thread");
+	Logger::log(LEVEL_INFO, "Starting Ground Communication Thread");
 	while (1) {
 		if(gnd->ComTimeout != scheduler->getComTimeout()){
 			gnd->ComTimeout = scheduler->getComTimeout();
