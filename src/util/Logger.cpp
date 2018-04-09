@@ -53,7 +53,7 @@ LogTags LogTags::operator+(const LogTags& tags2){
 void Logger::setLevel(LogLevel level){
 	LogTags tags;
 	tags += LogTag("Name", "Logger");
-	Stream(LEVEL_FATAL, tags) << "Setting global log level to " << levelTag(level).second;
+	Stream(LEVEL_INFO, tags) << "Setting global log level to " << levelTag(level).second;
 	lock.lock();
 	globalLevel = level;
 	lock.unlock();
@@ -153,7 +153,7 @@ LogTag Logger::timeTag(){
  * \param level The new threshold for comparison
  */
 void Logger::registerFilter(LogTags tags, LogLevel level){
-	Logger::Stream(LEVEL_FATAL, tags) << "Will now filter to level " << levelTag(level).second;
+	Logger::Stream(LEVEL_INFO, tags) << "Will now filter to level " << levelTag(level).second;
 	lock.lock();
 	filters.push_back(std::pair<LogTags, LogLevel>(tags, level));
 	lock.unlock();

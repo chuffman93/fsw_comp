@@ -26,10 +26,7 @@ int main() {
 	Logger::setMode(MODE_PW);
 	Logger::setLevel(LEVEL_INFO);
 	Logger::registerThread("MAIN");
-	Logger::registerFilter(LogTag("Name", "GroundCommunication"), LEVEL_DEBUG);
-	Logger::registerFilter(LogTag("Name", "ScheduleManager"), LEVEL_DEBUG);
-	Logger::registerFilter(LogTag("Name", "RAD"), LEVEL_DEBUG);
-	Logger::log(LEVEL_FATAL, "Entering Main");
+	Logger::log(LEVEL_INFO, "Entering Main");
 
 	//---------Step1: Build FSW---------------------------
 	Architecture::setInterfaceMode(HARDWARE);
@@ -38,15 +35,13 @@ int main() {
 	Architecture::buildRAD();
 	Architecture::buildCOM();
 	Architecture::buildCDH();
-	Architecture::setInterfaceMode(SOFTWARE);
-	Architecture::buildRAD();
 	Architecture::buildGPS();
 	Architecture::buildScheduleManager();
 	Architecture::buildBeaconManager();
 	Architecture::buildGND();
 
 	//---------Step2: Initialize HAL-----------------------
-	Logger::log(LEVEL_FATAL, "Initializing HAL");
+	Logger::log(LEVEL_INFO, "Initializing HAL");
 	vector<HardwareManager*> halinit = Architecture::buildHALInitVector();
 	for(vector<HardwareManager*>::iterator i = halinit.begin(); i != halinit.end(); i++){
 		(*i)->initialize();
@@ -54,13 +49,14 @@ int main() {
 
 	//---------Step3: Initialize Subsystems-----------------------
 	vector<SubsystemBase*> subinit = Architecture::buildInitVector();
-	Logger::log(LEVEL_FATAL, "Initializing Subsystems");
+	Logger::log(LEVEL_INFO, "Initializing Subsystems");
 	for(vector<SubsystemBase*>::iterator i = subinit.begin(); i != subinit.end(); i++){
 		(*i)->initialize();
 	}
 
 	//---------Step4: Initialize Watchdog-----------------------
 	Watchdog watchdog;
+	Architecture::getRAD()->watchdog = &watchdog;
 
 	//---------Step5: Initialize HS Thread-----------------------
 	Thread hsThread;
@@ -104,7 +100,7 @@ int main() {
 	//---------Step10: Join Threads (never reached)-----------------------
 	int rv = 0;
 	hsThread.JoinThread((void*)&rv);
-	// gpsThread.JoinThread((void*)&rv);
+	gpsThread.JoinThread((void*)&rv);
 	modeThread.JoinThread((void*)&rv);
 	gndThread.JoinThread((void*)&rv);
 	watchdogThread.JoinThread((void*)&rv);

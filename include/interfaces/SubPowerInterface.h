@@ -15,7 +15,7 @@
 class SubPowerInterface{
 public:
 	SubPowerInterface(GPIOManager& gpioman, int powerid, int resetid, int faultid, std::string instance);
-	~SubPowerInterface();
+	MOCK ~SubPowerInterface();
 
 	MOCK void configDelay(size_t resetdelay, size_t startupdelay);
 

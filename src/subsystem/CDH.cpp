@@ -13,7 +13,7 @@ CDH::~CDH(){
 }
 
 //! Will set up the Gpio lines, acp devices, and handles the configs
-bool CDH::initialize(){
+void CDH::initialize(){
 
 	std::vector<HotSwapInterface*>::iterator it1;
 	std::vector<PowerMonitorInterface*>::iterator it2;
@@ -30,7 +30,6 @@ bool CDH::initialize(){
 	OneWireMan->initialize();
 
 	handleConfig();
-	return true;
 
 }
 
@@ -114,7 +113,9 @@ std::vector<float> CDH::collectTherm(){
 	Logger::Stream(LEVEL_INFO,tags) << "Collecting Temperature Sensor Data";
 	for (it = ThermalSensors->begin(); it != ThermalSensors->end(); it++){
 		(*it)->beginSample();
-		usleep(1000*1000);
+	}
+	usleep(1000*1000);
+	for (it = ThermalSensors->begin(); it != ThermalSensors->end(); it++){
 		data.push_back((*it)->getSample());
 	}
 

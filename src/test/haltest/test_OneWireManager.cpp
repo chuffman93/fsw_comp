@@ -6,6 +6,7 @@
  */
 
 #include "hal/OneWireManager.h"
+#include "interfaces/TempInterface.h"
 #include "test/catch.hpp"
 #include "test/testmacros.h"
 #include "util/Logger.h"
@@ -30,10 +31,37 @@ TEST_CASE("Test OneWireManager", "[.][hardware][onewire]"){
 
 	onewire.writeToFile(a5monitor, "start", "1");
 	usleep(1000*1000);
-	string data = onewire.readFromFile(a5monitor, "temp");
+	string data = onewire.readFromFile(a5monitor, "TEMP1");
 
 	cout << "Read the following data from A5 temp sensor" << endl << data;
 	Logger::setMode(MODE_NOTHING);
+}
+
+TEST_CASE("Test Thermal Sensors","[.][hardware][onewire][tempinterface]" ){
+	Logger::setMode(MODE_PRINT);
+
+	OneWireManager onewire("/sys/bus/w1/devices/w1_bus_master1/");
+
+	TempInterface t0(onewire, onewire.attachDevice("TEMP0"));
+	TempInterface t1(onewire, onewire.attachDevice("TEMP1"));
+
+	onewire.initialize();
+
+
+	t0.beginSample();
+	usleep(750000);
+	t0.getSample();
+
+	t1.beginSample();
+	usleep(750000);
+	t1.getSample();
+
+
+
+
+
+
+
 }
 
 

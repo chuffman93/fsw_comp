@@ -17,7 +17,7 @@ COM::COM(ACPInterface& acp, SubPowerInterface& subPower)
 COM::~COM(){}
 
 //! Will set up the Gpio lines, the acp devices, and launch the com daemon
-bool COM::initialize(){
+void COM::initialize(){
 	//TODO: error handling
 	Logger::Stream(LEVEL_INFO,tags) << "Initializing COM";
 	subPower.powerOn();
@@ -29,22 +29,18 @@ bool COM::initialize(){
 	ACPPacket retPacket1 = sendOpcode(OP_TESTALIVE,buff);
 	if (!isSuccess(OP_TESTALIVE,retPacket1)){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Alive: COM is not alive. Opcode Received: " << retPacket1.opcode;
-		return false;
 	}
 
 	ACPPacket retPacket2 = sendOpcode(OP_TESTLED,buff);
 	if (!isSuccess(OP_TESTLED,retPacket2)){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test LED: COM is not alive. Opcode Received: " << retPacket2.opcode;
-		return false;
 	}
 
 	ACPPacket retPacket3 = sendOpcode(OP_TESTCONFIG,buff);
 	if (!isSuccess(OP_TESTCONFIG,retPacket3)){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Configurations: COM is not alive. Opcode Received: " << retPacket3.opcode;
-		return false;
 	}
 	launchDaemon();
-	return true;
 }
 
 //! Handles any mode transition needs as well as any needs for tasks to be done in a mode.
@@ -75,8 +71,7 @@ void COM::getHealthStatus(){
 
 //! Launches Com Daemon
 void COM::launchDaemon(){
-		char* cm_li[] = {(char*)"/bin/li_control_arn",(char*)"-I",(char*)"sl0",(char*)"-d",(char*)"38400",(char*)"-u",(char*)"9600",(char*)"-t",(char*)"138",NULL};
-		li.launchProcess(cm_li);
+		usleep(5*1000*1000);
 		char* cm_da[] = {(char*)"/bin/comm_daemon_arm",(char*)"&",NULL};
 		da.launchProcess(cm_da,FALSE);
 }

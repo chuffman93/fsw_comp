@@ -140,10 +140,15 @@ void FileManager::deleteFile(std::string filePath){
 
 }
 
-// TODO: Do we need this?
-void FileManager::appendToStringFile(std::string filePath, std::vector<std::string>& buffer){
+void FileManager::writeToStringFile(std::string filePath, std::vector<std::string>& buffer){
+	LockGuard l(lock);
+	std::ofstream cmdFile(filePath.c_str());
 
-
+	std::vector<std::string>::iterator it;
+	for (it = buffer.begin(); it != buffer.end(); it++){
+		cmdFile << *(it);
+	}
+	cmdFile.close();
 }
 
 
@@ -328,9 +333,10 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 			dest = dest.substr(0,dest.size()-ext.size());
 		}
 		std::string newDest = dest + regex + ".tar";
+		Logger::Stream(LEVEL_DEBUG,tags) << "Packaging " << dest.c_str() << " into " << newDest.c_str() << " with regex " << R.c_str();
 		regex = regex+"_";
 		sprintf(sh_cmd, "tar -czf %s -C %s `ls -lr %s | grep ^- | awk '{print $9}' | grep \"%s\" | head -%d`>/dev/null 2>&1", (char*)newDest.c_str(), (char*)dest.c_str(), (char*)dest.c_str(), (char*)regex.c_str(), 50);
-		Logger::Stream(LEVEL_INFO,tags) << "Created tar file for regex: " << newDest;
+		Logger::Stream(LEVEL_INFO,tags) << "Created tar file for regex: " << newDest.c_str();
 		if(!(fd = popen(sh_cmd, "r"))){
 			Logger::Stream(LEVEL_ERROR, tags) << "Tar creation failed.";
 		}
@@ -343,6 +349,8 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 				Logger::Stream(LEVEL_INFO,tags) << "Tar size of: " << st.st_size << " is too large for a max downlink size of " << MAX_DOWN_SIZE << ", splitting into " << st.st_size/MAX_DOWN_SIZE << " archives";
 				vector<std::string> tmp = FileManager::splitFile(newDest);
 				Files.insert(Files.end(),tmp.begin(),tmp.end());
+			}else if(st.st_size < 0){
+				Logger::Stream(LEVEL_ERROR,tags) << "Invalid file size for: " << newDest.c_str();
 			}else{
 				Files.push_back(newDest);
 			}
@@ -382,11 +390,11 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 			if(!(fd = popen(sh_cmd, "r"))){
 				Logger::Stream(LEVEL_ERROR, tags) << "Tar creation failed.";
 				pclose(fd);
-				break;
+				continue;
 			}
 			if(pclose(fd) == -1){
 				Logger::Stream(LEVEL_ERROR, tags) << "Tar pipe could not be closed.";
-				break;
+				continue;
 			}else{
 				struct stat st;
 				stat((char*)newDest.c_str(), &st);
@@ -394,6 +402,9 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 					Logger::Stream(LEVEL_INFO,tags) << "Tar size of: " << st.st_size << " is too large for a max downlink size of " << MAX_DOWN_SIZE << ", splitting into " << st.st_size/MAX_DOWN_SIZE << " archives";
 					vector<std::string> tmp = FileManager::splitFile(newDest);
 					Files.insert(Files.end(),tmp.begin(),tmp.end());
+				}else if(st.st_size < 0){
+					Logger::Stream(LEVEL_ERROR,tags) << "Invalid file size for: " << newDest.c_str();
+					continue;
 				}else{
 					Files.push_back(newDest);
 				}
@@ -436,11 +447,11 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 			if(!(fd = popen(sh_cmd, "r"))){
 				Logger::Stream(LEVEL_ERROR, tags) << "Tar creation failed.";
 				pclose(fd);
-				break;
+				continue;
 			}
 			if(pclose(fd) == -1){
 				Logger::Stream(LEVEL_ERROR, tags) << "Tar pipe could not be closed.";
-				break;
+				continue;
 			}else{
 				struct stat st;
 				lstat((char*)newDest.c_str(), &st);
@@ -448,6 +459,9 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 					Logger::Stream(LEVEL_INFO,tags) << "Tar size of: " << st.st_size << " is too large for a max downlink size of " << MAX_DOWN_SIZE << ", splitting into " << st.st_size/MAX_DOWN_SIZE << " archives";
 					vector<std::string> tmp = FileManager::splitFile(newDest);
 					Files.insert(Files.end(),tmp.begin(),tmp.end());
+				}else if(st.st_size < 0){
+					Logger::Stream(LEVEL_ERROR,tags) << "Invalid file size for: " << newDest.c_str();
+					continue;
 				}else{
 					Files.push_back(newDest);
 				}
@@ -474,19 +488,24 @@ void FileManager::generateFilesList(std::string dir){
 	struct dirent *entry;
 	int count;
 	lock.lock();
+	Logger::Stream(LEVEL_DEBUG,tags) << "Parsing directory: " << dir;
 	dp = opendir(dir.c_str());
 	if(dp == NULL){
 		Logger::Stream(LEVEL_ERROR, tags) << "Directory could not be found.";
 		lock.unlock();
 		return;
 	}
+	Logger::Stream(LEVEL_DEBUG,tags) << "Directory to get list from: " << dir.c_str();
 	count = 0;
 	// add full path
-	FILE * dwlkDFL = fopen(DFL_PATH,"w+");
+	FILE * dwlkDFL = fopen(DFL_PATH,"a+");
+	fwrite(dir.c_str(),strlen(dir.c_str()),1,dwlkDFL);
+	fwrite("\n",strlen("\n"),1,dwlkDFL);
 	while((entry = readdir(dp))!= NULL){
 		if ( entry->d_name[0] != '.'){
 			fwrite(entry->d_name,strlen(entry->d_name),1,dwlkDFL);
 			fwrite(",",strlen(","),1,dwlkDFL);
+			fwrite("\n",strlen("\n"),1,dwlkDFL);
 			Logger::Stream(LEVEL_DEBUG,tags) << "Generate file list entry: " << entry->d_name;
 		}
 	}
@@ -662,15 +681,8 @@ std::vector<std::string> FileManager::parseGroundFile(std::string filePath){
  * \param the message being recoreded
  */
 void FileManager::writeLog(std::string tags,std::string message){
-
 	if(logMessageFP == ""){
 		logMessageFP = FileManager::createFileName(LOG_MESSAGES) + ".txt";
-	}else{
-		struct stat st;
-		stat(logMessageFP.c_str(), &st);
-		if(st.st_size > MAX_FILE_SIZE){
-			logMessageFP = FileManager::createFileName(LOG_MESSAGES) + ".txt";
-		}
 	}
 	ofstream f(logMessageFP.c_str(),ofstream::out | ofstream::app);
 	f << tags << " " << message << '\n';
@@ -743,15 +755,17 @@ void FileManager::updateConfig(){
 std::vector<std::string> FileManager::splitFile(std::string FilePath){
 	LogTags tags;
 	tags += LogTag("Name", "FileManager");
+	Logger::Stream(LEVEL_DEBUG,tags) << "File Being Split: " << FilePath.c_str();
 
 	ExternalProcess splt;
 
 	char chunksize[15];
 	sprintf(chunksize,"%d",FileManager::MAX_DOWN_SIZE);
 
+
 	struct stat st;
 	if(stat((char*)FilePath.c_str(), &st) == -1){
-		Logger::Stream(LEVEL_ERROR,tags) << "Stat on the file: " << FilePath << " was not successful";
+		Logger::Stream(LEVEL_ERROR,tags) << "Stat on the file: " << FilePath.c_str() << " was not successful";
 	}
 	int n_splits = st.st_size/FileManager::MAX_DOWN_SIZE;
 	char * sh_cmd[] = {(char *)"/usr/bin/split", (char*) "-b", (char*)chunksize, (char*) "-d",(char*) "-a", (char*)"3",(char*)FilePath.c_str(),(char*)FilePath.c_str(),NULL};

@@ -26,14 +26,12 @@ ExternalProcess::ExternalProcess(){
  */
 void ExternalProcess::launchProcess(char * argv[]){
 	child_pid = fork();
+
 	if(child_pid == 0){
-		Logger::Stream(LEVEL_INFO,tags) << "Starting Process: " << argv[0];
 		execv(argv[0],argv);
 		exit(0);
 	}else{
-		do{
-			tpid = wait(&child_status);
-		}while(tpid != child_pid);
+		waitpid(child_pid,&child_status,0);
 	}
 	child_pid = -1;
 }
@@ -47,13 +45,11 @@ void ExternalProcess::launchProcess(char * argv[],char * argc[]){
 	child_pid = fork();
 	if(argc == 0){
 		if(child_pid == 0){
-			Logger::Stream(LEVEL_INFO,tags) << "Starting process: " << argv[0];
 			execv(argv[0],argv);
 			exit(0);
 		}else{}
 	}else{
 		if(child_pid == 0){
-			Logger::Stream(LEVEL_INFO,tags) << "Starting process: " << argv[0] << " and " << argc[0];
 			execv(argv[0],argv);
 			execv(argc[0],argc);
 			exit(0);

@@ -534,11 +534,8 @@ void getXYs_simple(double mjd_tt, double *X, double *Y, double *s)
     double		sec2rad;
     double		tempans[3];
     int         seed;
-    int         numCols;
     int         numElements;
 
-    /* indicies in array that should be interpreted as columns */
-    numCols = 7;
     numElements = sizeof(iau2006_XYs)/sizeof(*iau2006_XYs);
 
     sec2rad = 4.848136811095359935899141e-6; // arcseconds to radians

@@ -28,7 +28,7 @@ EPS::EPS(ACPInterface& acp, SubPowerInterface& subPower)
 EPS::~EPS(){}
 
 //! Will set up the Gpio lines and the acp devices
-bool EPS::initialize(){
+void EPS::initialize(){
 	//TODO: error handling
 
 	Logger::Stream(LEVEL_INFO,tags) << "Initializing EPS";
@@ -38,21 +38,17 @@ bool EPS::initialize(){
 	ACPPacket retPacket1 = sendOpcode(OP_TESTALIVE,buff);
 	if (!isSuccess(OP_TESTALIVE,retPacket1)){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Alive: EPS is not alive. Opcode Received: " << retPacket1.opcode;
-		return false;
 	}
 
 	ACPPacket retPacket2 = sendOpcode(OP_TESTLED,buff);
 	if (!isSuccess(OP_TESTLED,retPacket2)){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test LED: EPS is not alive. Opcode Received: " << retPacket2.opcode;
-		return false;
 	}
 
 	ACPPacket retPacket3 = sendOpcode(OP_TESTCONFIG,buff);
 	if (!isSuccess(OP_TESTCONFIG,retPacket3)){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Configurations: EPS is not alive. Opcode Received: " << retPacket3.opcode;
-		return false;
 	}
-	return true;
 }
 
 //! Handles any mode transition needs as well as any needs for tasks to be done in a mode.
@@ -130,7 +126,7 @@ bool EPS::commandReset(){
 	//TODO: error handling
 	Logger::Stream(LEVEL_INFO,tags) << "Reseting EPS";
 	std::vector<uint8_t> buff;
-	getHealthStatus();
+	//getHealthStatus();
 
 
 	ACPPacket retPacket = sendOpcode(OP_SUBSYSTEMRESET,buff);
@@ -138,7 +134,7 @@ bool EPS::commandReset(){
 		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Subsystem Reset: unable to reset EPS Opcode Received: " << retPacket.opcode;
 	}
 
-	sleep(40);
+	sleep(10);
 
 	subPower.reset();
 
