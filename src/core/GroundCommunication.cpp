@@ -47,7 +47,6 @@ void GroundCommunication::downlinkFiles(){
  * Used to clean the downlink queue pending the ending of a COM pass
  */
 void GroundCommunication::clearDownlink(){
-	LockGuard l(lock);
 	Logger::Stream(LEVEL_INFO,tags) << "Communication Pass over, clearing downlink queue";
 	while (!DownlinkQueue.empty()){
 		DownlinkQueue.pop();
@@ -373,8 +372,6 @@ std::string GroundCommunication::grabFileName(std::string path){
  * Parsing through the IEF.txt file from ground to interpret the different requests
  */
 void GroundCommunication::parseIEF(){
-
-	LockGuard l(lock);
 	std::vector<std::string> requests = FileManager::parseGroundFile(IEF_PATH);
 	char line[100];
 	char * type;
@@ -428,6 +425,7 @@ void GroundCommunication::parsePPE(){
 	FileManager::deleteFile(PPE_PATH);
 }
 
+
 /*!
  * Heart of the GroundComm. Checks for SOT.txt for start of transmission and runs through the process for a COM pass.
  * Also sends beacon.
@@ -451,6 +449,8 @@ bool GroundCommunication::spinGround(Watchdog* watchdog){
 			Logger::Stream(LEVEL_INFO,tags) << "Beginning Communication Pass Timer";
 			ComStartTime = getCurrentTime();
 			return true;
+
+
 		}
 		Logger::Stream(LEVEL_DEBUG,tags) << "Start Time: " << ComStartTime << " ComTimeOut: " << ComTimeout << " Current Time: " << getCurrentTime();
 		//check if the communication pass has exceeded
@@ -464,6 +464,7 @@ bool GroundCommunication::spinGround(Watchdog* watchdog){
 			clearDownlink();
 			statePostPass = true;
 			return false;
+
 		}
 		//begin IEF processing if IEF has been uplinked
 		if (FileManager::checkExistance(IEF_PATH)){
