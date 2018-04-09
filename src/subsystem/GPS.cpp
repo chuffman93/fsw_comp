@@ -50,10 +50,8 @@ void GPS::handleConfig(){
 			Logger::Stream(LEVEL_ERROR,tags) << "Incorrect Size for config";
 			return;
 		}
-		timeout = ((uint16_t)buff.at(1) << 8)|
-				buff.at(0);
-		timein = ((uint16_t)buff.at(3) << 8)|
-				buff.at(2);
+		ByteStream bs(buff);
+		bs >> timeout >> timein;
 		Logger::Stream(LEVEL_INFO,tags) << "Setting timeout to " << timeout/60 << " mins and timein to " << timein/3600 << " hrs";
 
 	}
@@ -72,10 +70,9 @@ void GPS::updateConfig(){
 			Logger::Stream(LEVEL_ERROR,tags) << "Incorrect Size for config";
 			return;
 		}
-		timeout = ((uint16_t)buff.at(1) << 8)|
-				buff.at(0);
-		timein = ((uint16_t)buff.at(3) << 8)|
-				buff.at(2);
+
+		ByteStream bs(buff);
+		bs >> timeout >> timein;
 		Logger::Stream(LEVEL_INFO,tags) << "Updating timeout to " << timeout/60 << " mins and timein to " << timein/3600 << " hrs";
 		FileManager::moveFile(GPS_CONFIG_UP,GPS_CONFIG);
 	}

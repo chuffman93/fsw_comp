@@ -228,14 +228,8 @@ void ScheduleManager::handleConfig(){
 	LockGuard l(lock);
 	if(FileManager::checkExistance(SCH_CONFIG)){
 		std::vector<uint8_t> buff = FileManager::readFromFile(SCH_CONFIG);
-		REBOOT_TIME = (uint32_t)buff.at(3) << 24 |
-				(uint32_t)buff.at(2) << 16 |
-				(uint32_t)buff.at(1) << 8 |
-				buff.at(0);
-		com.duration = (uint32_t)buff.at(7) << 24 |
-				(uint32_t)buff.at(6) << 16 |
-				(uint32_t)buff.at(5) << 8 |
-				buff.at(4);
+		ByteStream bs(buff);
+		bs >> REBOOT_TIME >> com.duration;
 		Logger::Stream(LEVEL_INFO,tags) << " Setting reboot_time to " << REBOOT_TIME/3600<< " hrs and com timeout to " << com.duration/60 << " mins";
 	}else{
 		Logger::Stream(LEVEL_WARN,tags) << "No Schedule Manager configs found";
@@ -252,14 +246,8 @@ void ScheduleManager::updateConfig(){
 			Logger::Stream(LEVEL_ERROR,tags) << "Incorrect Size for config";
 			return;
 		}
-		REBOOT_TIME = (uint32_t)buff.at(3) << 24 |
-				(uint32_t)buff.at(2) << 16 |
-				(uint32_t)buff.at(1) << 8 |
-				buff.at(0);
-		com.duration = (uint32_t)buff.at(7) << 24 |
-				(uint32_t)buff.at(6) << 16 |
-				(uint32_t)buff.at(5) << 8 |
-				buff.at(4);
+		ByteStream bs(buff);
+		bs >> REBOOT_TIME >> com.duration;
 		Logger::Stream(LEVEL_INFO,tags) << " Setting reboot_time to " << REBOOT_TIME/3600<< " hrs and com timeout to " << com.duration/60 << " mins";
 		FileManager::moveFile(SCH_CONFIG_UP,SCH_CONFIG);
 	}

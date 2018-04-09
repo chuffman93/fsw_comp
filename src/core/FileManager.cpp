@@ -16,6 +16,7 @@
 #include <fstream>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include "util/ByteStream.h"
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -705,12 +706,8 @@ void FileManager::handleConfig(){
 	tags += LogTag("Name", "FileManager");
 	if(FileManager::checkExistance(FMG_CONFIG)){
 		std::vector<uint8_t> buff = FileManager::readFromFile(FMG_CONFIG);
-		FileManager::MAX_FILE_SIZE = (uint16_t)buff.at(1) << 8 |
-				buff.at(0);
-		FileManager::MAX_DOWN_SIZE = (uint32_t)buff.at(5) << 24 |
-				(uint32_t)buff.at(4) << 16 |
-				(uint32_t)buff.at(3) << 8 |
-				buff.at(2);
+		ByteStream bs(buff);
+		bs >> FileManager::MAX_FILE_SIZE >> FileManager::MAX_DOWN_SIZE;
 		Logger::Stream(LEVEL_INFO,tags) << " Setting max file size to " << FileManager::MAX_FILE_SIZE << " Bytes" <<
 				"Setting max downlink size to " << FileManager::MAX_DOWN_SIZE << " bytes.";
 	}else{
@@ -733,12 +730,8 @@ void FileManager::updateConfig(){
 			Logger::Stream(LEVEL_ERROR,tags) << "Incorrect Size for config";
 			return;
 		}
-		FileManager::MAX_FILE_SIZE = (uint16_t)buff.at(1) << 8|
-				buff.at(0);
-		FileManager::MAX_DOWN_SIZE = (uint32_t)buff.at(5) << 24 |
-				(uint32_t)buff.at(4) << 16 |
-				(uint32_t)buff.at(3) << 8 |
-				buff.at(2);
+		ByteStream bs(buff);
+		bs >> FileManager::MAX_FILE_SIZE >> FileManager::MAX_DOWN_SIZE;
 		Logger::Stream(LEVEL_INFO,tags) << " Setting max file size to " << FileManager::MAX_FILE_SIZE << " Bytes" <<
 				"Setting max downlink size to " << FileManager::MAX_DOWN_SIZE << " bytes.";
 		FileManager::moveFile(FMG_CONFIG_UP,FMG_CONFIG);

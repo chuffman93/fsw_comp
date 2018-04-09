@@ -62,6 +62,7 @@ public:
 	bool commandCollectionEnd();
 	HealthFileStruct health;
 	uint16_t RADDataNum;
+	Watchdog *watchdog;
 PRIVATE:
 	//Various configurations for the data collection
 	void configMotor();
@@ -86,7 +87,7 @@ PRIVATE:
 	SubPowerInterface& subPower;
 	Lock lock;
 	LogTags tags;
-	Watchdog *watchdog;
+
 
 };
 
