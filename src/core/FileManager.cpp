@@ -345,7 +345,11 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 			Logger::Stream(LEVEL_ERROR, tags) << "Tar pipe could not be closed.";
 		}else{
 			struct stat st;
-			lstat(newDest.c_str(), &st);
+			int success = lstat(newDest.c_str(), &st);
+			if(success == -1){
+				Logger::Stream(LEVEL_ERROR,tags) << "Stat of file could not be found.";
+				return Files;
+			}
 			if (st.st_size > FileManager::MAX_DOWN_SIZE){
 				Logger::Stream(LEVEL_INFO,tags) << "Tar size of: " << st.st_size << " is too large for a max downlink size of " << MAX_DOWN_SIZE << ", splitting into " << st.st_size/MAX_DOWN_SIZE << " archives";
 				vector<std::string> tmp = FileManager::splitFile(newDest);
@@ -398,7 +402,11 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 				continue;
 			}else{
 				struct stat st;
-				stat((char*)newDest.c_str(), &st);
+				int success = lstat((char*)newDest.c_str(), &st);
+				if(success == -1){
+					Logger::Stream(LEVEL_ERROR,tags) << "Stat of file could not be found.";
+					continue;
+				}
 				if (st.st_size > FileManager::MAX_DOWN_SIZE){
 					Logger::Stream(LEVEL_INFO,tags) << "Tar size of: " << st.st_size << " is too large for a max downlink size of " << MAX_DOWN_SIZE << ", splitting into " << st.st_size/MAX_DOWN_SIZE << " archives";
 					vector<std::string> tmp = FileManager::splitFile(newDest);
@@ -455,7 +463,11 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 				continue;
 			}else{
 				struct stat st;
-				lstat((char*)newDest.c_str(), &st);
+				int success = lstat((char*)newDest.c_str(), &st);
+				if(success == -1){
+					Logger::Stream(LEVEL_ERROR,tags) << "Stat of file could not be found.";
+					continue;
+				}
 				if (st.st_size > FileManager::MAX_DOWN_SIZE){
 					Logger::Stream(LEVEL_INFO,tags) << "Tar size of: " << st.st_size << " is too large for a max downlink size of " << MAX_DOWN_SIZE << ", splitting into " << st.st_size/MAX_DOWN_SIZE << " archives";
 					vector<std::string> tmp = FileManager::splitFile(newDest);
