@@ -54,11 +54,9 @@ void GPS::handleConfig(){
 		bs >> timeout >> timein;
 		Logger::Stream(LEVEL_INFO,tags) << "Setting timeout to " << timeout/60 << " mins and timein to " << timein/3600 << " hrs";
 
-	}
-	else{
+	}else{
 		Logger::Stream(LEVEL_WARN,tags) << "GPS Config file does not exist";
 	}
-
 }
 
 //! handles updating configs if needed
@@ -70,13 +68,11 @@ void GPS::updateConfig(){
 			Logger::Stream(LEVEL_ERROR,tags) << "Incorrect Size for config";
 			return;
 		}
-
 		ByteStream bs(buff);
 		bs >> timeout >> timein;
 		Logger::Stream(LEVEL_INFO,tags) << "Updating timeout to " << timeout/60 << " mins and timein to " << timein/3600 << " hrs";
 		FileManager::moveFile(GPS_CONFIG_UP,GPS_CONFIG);
-	}
-	else{
+	}else{
 		Logger::Stream(LEVEL_WARN,tags) << "There are no GPS config updates";
 	}
 }
@@ -295,7 +291,6 @@ void GPS::fetchNewGPS(){
 		return;
 	}
 	lockTries++;
-
 }
 
 // TODO: Double check these two
@@ -326,7 +321,6 @@ uint32_t GPS::CalculateCRC_GPS(char * buffer) {
 		temp2 = CRCValue_GPS(((int) CRC ^ ((uint8_t) *buffer++)) & 0xff);
 		CRC = temp1 ^ temp2;
 	}
-
 	return CRC;
 }
 

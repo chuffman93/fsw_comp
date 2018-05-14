@@ -555,7 +555,6 @@ int FileManager::regexDelete(std::string dest,std::string R){
 			if(dest != ext && dest.size() > ext.size() && (dest.substr((dest.size() - ext.size())) == regex)){
 				dest = dest.substr(0,dest.size()-ext.size());
 			}
-			regex = regex + "_";
 			sprintf(sh_cmd, "rm -rf `ls -l %s | grep ^- | awk '{print \"%s\" \"/\" $9}' | grep \"%s\"`", (char*)dest.c_str(), (char*)dest.c_str(), (char*)regex.c_str());
 			lock.lock();
 			if(!(fd = popen(sh_cmd, "r"))){
@@ -589,7 +588,7 @@ int FileManager::regexDelete(std::string dest,std::string R){
 			for(int x = 0; x < EN ; x++){
 				std::ostringstream oss;
 				oss << x;
-				pastReg[x] = nRegex+"_"+oss.str()+"_";
+				pastReg[x] = nRegex+"_"+oss.str();
 			}
 			const std::string ext(regex);
 			if(dest != ext && dest.size() > ext.size() && (dest.substr((dest.size() - ext.size())) == regex)){
@@ -633,7 +632,7 @@ int FileManager::regexDelete(std::string dest,std::string R){
 			for(int x = 0; x < itr+1; x++){
 				std::ostringstream oss;
 				oss << EN;
-				pastReg[x] = nRegex+"_"+oss.str()+"_";
+				pastReg[x] = nRegex+"_"+oss.str();
 				EN++;
 			}
 			const std::string ext(regex);
