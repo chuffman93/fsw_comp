@@ -98,9 +98,9 @@ GPSPositionTime GPS::getBestXYZI(){
 	LockGuard l(lock);
 	float eciPos[3];
 	float eciVel[3];
-	int64_t currTime = getCurrentTime();
+	int64_t currTime = getCurrentTime()/1000.0;
 	float propTime = currTime - lastLock.sysTime;
-
+	Logger::Stream(LEVEL_DEBUG,tags) << "PropTime: " << propTime;
 	propagatePositionVelocity(lastLock.elements, propTime, eciPos, eciVel);
 
 	GPSPositionTime pt;
@@ -112,6 +112,7 @@ GPSPositionTime GPS::getBestXYZI(){
 	pt.velZ = eciVel[2];
 	pt.GPSSec = lastLock.GPSSec;
 	pt.GPSWeek = lastLock.GPSWeek;
+	Logger::Stream(LEVEL_DEBUG) << lastLock.elements.a << lastLock.elements.e << lastLock.elements.i << lastLock.elements.Omega << lastLock.elements.omega << lastLock.elements.anom;
 	incrementGPSTime(pt.GPSWeek, pt.GPSSec, propTime);
 	return pt;
 }
@@ -282,8 +283,11 @@ void GPS::fetchNewGPS(){
 	}
 	lastLock.sysTime = getCurrentTime() /1000; //Store current time to use for prop
 	rv2elem(MU_EARTH, tempR, tempV, &(lastLock.elements));
+	Logger::Stream(LEVEL_DEBUG,tags) << "ELEMENTS: a: " << lastLock.elements.a << " e: " << lastLock.elements.e << " i: " << lastLock.elements.i << " O: " << lastLock.elements.Omega << " o: " << lastLock.elements.omega << " anom: " << lastLock.elements.anom;
 	lastLock.GPSWeek = tempData.GPSWeek;
 	lastLock.GPSSec = tempData.GPSSec;
+	Logger::Stream(LEVEL_DEBUG,tags) << tempR[0]<< ','<< tempR[1] << ','<< tempR[2] << ','<< tempR[3];
+	Logger::Stream(LEVEL_DEBUG,tags) << tempV[0]<< ','<<tempV[1]<<','<< tempV[2]<<','<< tempV[3];
 	if(lockTries == 15){
 		Logger::Stream(LEVEL_INFO,tags) << "Lock Found";
 		isLocked = true;

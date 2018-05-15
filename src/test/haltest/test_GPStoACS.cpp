@@ -35,7 +35,7 @@ TEST_CASE("Same test different string","[gps2acs][t2]"){
 	Logger::setMode(MODE_PRINT);
 	Logger::setLevel(LEVEL_INFO);
 	Logger::registerFilter(LogTag("Name", "GPS"), LEVEL_DEBUG);
-	Architecture::setInterfaceMode(HARDWARE);
+	Architecture::setInterfaceMode(SOFTWARE);
 	Architecture::buildACS();
 	ACS *acs = Architecture::getACS();
 
@@ -48,15 +48,22 @@ TEST_CASE("Same test different string","[gps2acs][t2]"){
 	acs->initialize();
 
 	acs->pointSunSoak();
-	std::string teststr = "#BESTXYZA,COM1,0,55.0,FINESTEERING,1981,140400.000,02000040,d821,2724;SOL_COMPUTED,NARROW_INT,0,-6878132.838,-7566.621,0.0,0.0,0.0,SOL_COMPUTED,NARROW_INT,-10.113,-8.375,7612.597,0.0,0.0,0.0,\"AAAA\",0.250,1.000,0.000,12,11,11,11,0,01,0,33*e9eafeca";
+	std::string teststr = "#BESTXYZA,COM1,0,55.0,FINESTEERING,1981,140418.000,02000040,d821,2724;SOL_COMPUTED,NARROW_INT,-210817.835999999,-5956876.66,3432241.469,0.0,0.0,0.0,SOL_COMPUTED,NARROW_INT,122.524,3797.68,6597.06,0.0,0.0,0.0,\"AAAA\",0.250,1.000,0.000,12,11,11,11,0,01,0,33*e9eafeca";
 	nm.setString(teststr);
 	gps.fetchNewGPS();
+	GPSPositionTime pt = gps.getBestXYZI();
+	Logger::Stream(LEVEL_INFO) <<  pt;
 	for(int y = 0; y <= 300; y++){
 		acs->sendGPS(gps.getBestXYZI());
-		if(y%60 == 0){
-			acs->getHealthStatus();
-		}
 	}
+	REQUIRE(fabs(pt.posX - -4045.750977) < 0.01);
+	REQUIRE(fabs(pt.posY - -4363.587891) < 0.01);
+	REQUIRE(fabs(pt.posZ - 3493.069580) < 0.01);
+	REQUIRE(fabs(pt.velX - 2.909381) < 0.01);
+	REQUIRE(fabs(pt.velY - 2.493242) < 0.01);
+	REQUIRE(fabs(pt.velZ - 6.592149) < 0.01);
+	REQUIRE(pt.GPSWeek == 1981);
+	REQUIRE(pt.GPSSec  == 140418);
 
 	acs->pointNadir();
 	teststr = "#BESTXYZA,COM1,0,55.0,FINESTEERING,1981,140400.000,02000040,d821,2724;SOL_COMPUTED,NARROW_INT,0,-6878132.838,-7566.621,0.0,0.0,0.0,SOL_COMPUTED,NARROW_INT,-10.113,-8.375,7612.597,0.0,0.0,0.0,\"AAAA\",0.250,1.000,0.000,12,11,11,11,0,01,0,33*e9eafeca";
