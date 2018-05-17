@@ -16,6 +16,8 @@ using namespace std;
 TEST_CASE("Communicate with COM", "[.][hardware][acp][com]"){
 	INFO("Setting up Event Handler");
 	Logger::setMode(MODE_PRINT);
+	Logger::setLevel(LEVEL_DEBUG);
+
 
 	int spiid, intrid, acpid;
 	SPIManager spi("/dev/spidev32765", 0, 1000000);
@@ -48,6 +50,8 @@ TEST_CASE("Communicate with COM", "[.][hardware][acp][com]"){
 TEST_CASE("Communicate with RAD", "[.][hardware][acp][rad]"){
 	INFO("Setting up Event Handler");
 	Logger::setMode(MODE_PRINT);
+	Logger::setLevel(LEVEL_DEBUG);
+
 
 	int spiid, intrid, acpid;
 	SPIManager spi("/dev/spidev32765", 0, 1000000);
@@ -101,7 +105,8 @@ TEST_CASE("Communicate with ACS", "[.][hardware][acp][acs]"){
 
 	INFO("Create an ACPInterface")
 	ACPInterface acp(spi, gpio, spiid, intrid,"");
-	acp.setTimeouts(1500,10,500);
+	acp.setTimeouts(1500000000,10,600);
+
 
 	PROMPT("Ready to send to ACS...");
 	REQUIRE(acp.transaction(test_send, test_recv) == true);
@@ -132,7 +137,7 @@ TEST_CASE("Communicate with EPS", "[.][hardware][acp][EPS]"){
 
 	INFO("Create an ACPInterface")
 	ACPInterface acp(spi, gpio, spiid, intrid,"");
-	acp.setTimeouts(10000000,10,100);
+	acp.setTimeouts(2000000000,10,1);
 
 	PROMPT("Ready to send to EPS...");
 	REQUIRE(acp.transaction(test_send, test_recv) == true);

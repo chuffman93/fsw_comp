@@ -9,13 +9,24 @@
 
 #include <string.h>
 #include "util/TimeKeeper.h"
+#include <stdio.h>
 
 #define CRC32_POLYNOMIAL	0xEDB88320L
 
 std::ostream &operator<<(std::ostream &output, const GPSPositionTime &g ) {
-	output << "{x:" << g.posX << ", y:" << g.posY << ", z:" << g.posZ
-			<< ", vx:" << g.velX << ", vy:" << g.velY << ", vz:" << g.velZ
-			<< ", w:" << g.GPSWeek << ", s:" << g.GPSSec << "}";
+
+	char buf[200];
+	sprintf(buf, "{x:%f, y:%f, z:%f, vx:%f, vy:%f, vz:%f, w:%d, s:%f}", g.posX, g.posY, g.posZ, g.velX, g.velY, g.velZ, g.GPSWeek, g.GPSSec);
+    output << buf;
+
+//	output << "{x:" << g.posX << ", y:" << g.posY << ", z:" << g.posZ
+//			<< ", vx:" << g.velX << ", vy:" << g.velY << ", vz:" << g.velZ
+//			<< ", w:" << g.GPSWeek << ", s:" << g.GPSSec << "}";
+/*
+    double a = g.posX;
+	fprintf(stderr, "WHAT THE MOTHER FUCKING HELL IS GOING ON: %f %f %f\n", a, g.posY, 202.202);
+	fflush(stderr);
+	output << a << " " << g.posY << " " << 202.202;*/
 	return output;
 }
 
@@ -98,11 +109,10 @@ GPSPositionTime GPS::getBestXYZI(){
 	LockGuard l(lock);
 	float eciPos[3];
 	float eciVel[3];
-	int64_t currTime = getCurrentTime()/1000.0;
+	float currTime = getCurrentTime();
 	float propTime = currTime - lastLock.sysTime;
-	Logger::Stream(LEVEL_DEBUG,tags) << "PropTime: " << propTime;
+	Logger::Stream(LEVEL_DEBUG,tags) << "PropTime: " << propTime << " currTime: " << currTime << " lastLock.sysTime: " << lastLock.sysTime;
 	propagatePositionVelocity(lastLock.elements, propTime, eciPos, eciVel);
-
 	GPSPositionTime pt;
 	pt.posX = eciPos[0];
 	pt.posY = eciPos[1];
@@ -112,7 +122,8 @@ GPSPositionTime GPS::getBestXYZI(){
 	pt.velZ = eciVel[2];
 	pt.GPSSec = lastLock.GPSSec;
 	pt.GPSWeek = lastLock.GPSWeek;
-	Logger::Stream(LEVEL_DEBUG) << lastLock.elements.a << lastLock.elements.e << lastLock.elements.i << lastLock.elements.Omega << lastLock.elements.omega << lastLock.elements.anom;
+	Logger::Stream(LEVEL_DEBUG,tags) << pt;
+	Logger::Stream(LEVEL_DEBUG,tags) << lastLock.elements.a << lastLock.elements.e << lastLock.elements.i << lastLock.elements.Omega << lastLock.elements.omega << lastLock.elements.anom;
 	incrementGPSTime(pt.GPSWeek, pt.GPSSec, propTime);
 	return pt;
 }
@@ -214,6 +225,7 @@ void GPS::fetchNewGPS(){
 		tempData.posX = strtod(strtok_r(NULL, ",", &saveIndex3), NULL) / 1000.0; // convert from m to km
 		tempData.posY = strtod(strtok_r(NULL, ",", &saveIndex3), NULL) / 1000.0; // convert from m to km
 		tempData.posZ = strtod(strtok_r(NULL, ",", &saveIndex3), NULL) / 1000.0; // convert from m to km
+		Logger::Stream(LEVEL_DEBUG,tags) << tempData;
 		token = strtok_r(NULL, ",", &saveIndex3); // (UNUSED) std dev x
 		token = strtok_r(NULL, ",", &saveIndex3); // (UNUSED) std dev y
 		token = strtok_r(NULL, ",", &saveIndex3); // (UNUSED) std dev z
@@ -233,6 +245,7 @@ void GPS::fetchNewGPS(){
 		token = strtok_r(NULL, ",", &saveIndex3); // (UNUSED) std dev x
 		token = strtok_r(NULL, ",", &saveIndex3); // (UNUSED) std dev y
 		token = strtok_r(NULL, ",", &saveIndex3); // (UNUSED) std dev z
+		Logger::Stream(LEVEL_DEBUG,tags) << tempData;
 	}
 
 	// parse the rest of the log
@@ -281,13 +294,13 @@ void GPS::fetchNewGPS(){
 		tempR[i+1] = (float)rI[i];
 		tempV[i+1] = (float)vI[i];
 	}
-	lastLock.sysTime = getCurrentTime() /1000; //Store current time to use for prop
+	lastLock.sysTime = getCurrentTime(); //Store current time to use for prop
 	rv2elem(MU_EARTH, tempR, tempV, &(lastLock.elements));
+	Logger::Stream(LEVEL_DEBUG,tags) << tempR[1] << ", " << tempR[2] << ", " << tempR[3];
+	Logger::Stream(LEVEL_DEBUG,tags) << tempV[1] << ", " << tempV[2] << ", " << tempV[3];
 	Logger::Stream(LEVEL_DEBUG,tags) << "ELEMENTS: a: " << lastLock.elements.a << " e: " << lastLock.elements.e << " i: " << lastLock.elements.i << " O: " << lastLock.elements.Omega << " o: " << lastLock.elements.omega << " anom: " << lastLock.elements.anom;
 	lastLock.GPSWeek = tempData.GPSWeek;
 	lastLock.GPSSec = tempData.GPSSec;
-	Logger::Stream(LEVEL_DEBUG,tags) << tempR[0]<< ','<< tempR[1] << ','<< tempR[2] << ','<< tempR[3];
-	Logger::Stream(LEVEL_DEBUG,tags) << tempV[0]<< ','<<tempV[1]<<','<< tempV[2]<<','<< tempV[3];
 	if(lockTries == 15){
 		Logger::Stream(LEVEL_INFO,tags) << "Lock Found";
 		isLocked = true;

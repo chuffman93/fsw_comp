@@ -92,7 +92,7 @@ TEST_CASE("Same test different string","[gps2acs][t2]"){
 
 TEST_CASE("Test ACS's GPS handling","[.][gps2acs]"){
 
-
+	Architecture::buildTime();
 	MockNMEA nm;
 	GPS gps(nm,*(new MockSubPower("GPS")));
 	Logger::setMode(MODE_PRINT);

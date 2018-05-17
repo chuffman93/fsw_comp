@@ -19,7 +19,7 @@ uint32_t getCurrentTime(){
 	timespec t;
 	clock_gettime(CLOCK_REALTIME, &t);
 	uint32_t time = t.tv_sec;
-	return time - offsetTime;
+	return (time - offsetTime);
 }
 
 uint32_t spoofTime(uint32_t addTime){

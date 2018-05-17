@@ -86,6 +86,14 @@ public:
 	        return * this;
 	    }
 
+	    inline Stream& operator<<(const double& t)
+	    {
+	    	char buf[32];
+	    	sprintf(buf, "%f", t);
+	        ss << buf;
+	        return * this;
+	    }
+
 		/*!
 		 * Provides stream style syntax
 		 * \param t the object to intake
