@@ -102,6 +102,8 @@ TEST_CASE("Test ACS's GPS handling","[.][gps2acs]"){
 	Architecture::buildACS();
 	ACS *acs = Architecture::getACS();
 
+
+
 	Logger::log(LEVEL_FATAL, "Initializing HAL");
 	vector<HardwareManager*> halinit = Architecture::buildHALInitVector();
 	for(vector<HardwareManager*>::iterator i = halinit.begin(); i != halinit.end(); i++){
@@ -109,6 +111,7 @@ TEST_CASE("Test ACS's GPS handling","[.][gps2acs]"){
 	}
 
 	acs->initialize();
+	PROMPT("Wait for debug");
 
 	acs->pointSunSoak();
 	std::string tststrs[6] = {teststr1,teststr2,teststr3,teststr4,teststr5,teststr6};

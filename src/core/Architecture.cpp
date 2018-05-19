@@ -113,7 +113,7 @@ void Architecture::buildACS(){
 		int intid = gpio->attachDevice('A', 4, INT_FALLING);
 		int spiid = spi->attachDevice(2);
 		ACPInterface* acp = new ACPInterface(*spi, *gpio, spiid, intid, "ACS");
-
+		acp->setTimeouts(1500000000,10,600);
 		int powid = gpio->attachDevice('B', 25, GPIO_OUTPUT);
 		int resetid = gpio->attachDevice('A', 12, GPIO_OUTPUT);
 		int faultid = gpio->attachDevice('B', 5, GPIO_INPUT);

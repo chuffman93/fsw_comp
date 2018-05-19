@@ -32,7 +32,9 @@ int main() {
 	Architecture::setInterfaceMode(HARDWARE);
 	Architecture::buildACS();
 	Architecture::buildEPS();
+	Architecture::setInterfaceMode(SOFTWARE);
 	Architecture::buildRAD();
+	Architecture::setInterfaceMode(HARDWARE);
 	Architecture::buildCOM();
 	Architecture::buildCDH();
 	Architecture::buildGPS();

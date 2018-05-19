@@ -199,7 +199,19 @@ void GroundCommunication::parseCommandRequest(std::string line){
 	}else if (strcmp(sys, "COM") == 0){
 		std::string tempCmd = trimNewline(std::string(command));
 		uint8_t cmd = (uint8_t)atoi((char*)tempCmd.c_str());
-		if ((cmd >= OP_COM_MIN && cmd < OP_COM_MAX) || (cmd >= OP_MIN && cmd < OP_MAX)){
+		if (cmd == OP_TX_OFF){
+			Logger::Stream(LEVEL_INFO,tags) << "Executing COM command: TRANSMISSION OFF";
+
+			//Kill comm daemon
+			ExternalProcess da_off;
+			char * cm_da_off[] = {(char*)"pkill",(char*)"comm_daemon_arm",NULL};
+			da_off.launchProcess(cm_da_off,FALSE);
+
+			//Update TX file
+			FileManager::deleteFile(TX_FILE);
+
+		}
+		else if ((cmd >= OP_COM_MIN && cmd < OP_COM_MAX) || (cmd >= OP_MIN && cmd < OP_MAX)){
 			Logger::Stream(LEVEL_INFO,tags) << "Executing COM command: " << command;
 			std::vector<uint8_t> buff;
 			ACPPacket ret = subsystems[1]->sendOpcode(cmd,buff);
