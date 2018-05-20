@@ -345,6 +345,11 @@ ACS* Architecture::getACS(){
 	return acs;
 }
 
+EPS* Architecture::getEPS(){
+	assert(eps != NULL);
+	return eps;
+}
+
 GroundCommunication* Architecture::getGND(){
 	assert(gnd != NULL);
 	return gnd;

@@ -204,11 +204,14 @@ void GroundCommunication::parseCommandRequest(std::string line){
 
 			//Kill comm daemon
 			ExternalProcess da_off;
-			char * cm_da_off[] = {(char*)"pkill",(char*)"comm_daemon_arm",NULL};
-			da_off.launchProcess(cm_da_off,FALSE);
+			char * cm_da_off[] = {(char*)"/usr/bin/pkill",(char*)"comm_daemon_arm",NULL};
+			da_off.launchProcess(cm_da_off);
 
 			//Update TX file
-			FileManager::deleteFile(TX_FILE);
+			std::string farewell = "Goodbye PolarCube!\n";
+			std::vector<std::string> buff;
+			buff.push_back(farewell);
+			FileManager::writeToStringFile(TX_FILE,buff);
 
 		}
 		else if ((cmd >= OP_COM_MIN && cmd < OP_COM_MAX) || (cmd >= OP_MIN && cmd < OP_MAX)){

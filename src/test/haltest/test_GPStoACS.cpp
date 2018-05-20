@@ -120,10 +120,11 @@ TEST_CASE("Test ACS's GPS handling","[.][gps2acs]"){
 		gps.fetchNewGPS();
 		for(int y = 0; y <= 300; y++){
 			acs->sendGPS(gps.getBestXYZI());
-			if(y%60 == 0){
-				acs->getHealthStatus();
-			}
+//			if(y%60 == 0){
+//				acs->getHealthStatus();
+//			}
 		}
+		PROMPT("First 300 done");
 	}
 
 	acs->pointNadir();

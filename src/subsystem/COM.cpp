@@ -71,7 +71,7 @@ void COM::getHealthStatus(){
 
 //! Launches Com Daemon
 void COM::launchDaemon(){
-	if (FileManager::checkExistance(TX_FILE)){
+	if (!(FileManager::checkExistance(TX_FILE))){
 		Logger::Stream(LEVEL_INFO,tags) << "Launching comm daemon";
 		usleep(5*1000*1000);
 		char* cm_da[] = {(char*)"/bin/comm_daemon_arm",(char*)"&",NULL};

@@ -52,6 +52,7 @@ public:
 	static GPS* getGPS();
 	static ACS* getACS();
 	static RAD* getRAD();
+	static EPS* getEPS();
 	static GroundCommunication* getGND();
 	static ScheduleManager* getSchedulerManager();
 	static BeaconManager* getBeaconManager();
