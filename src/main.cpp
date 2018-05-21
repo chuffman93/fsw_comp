@@ -30,14 +30,14 @@ int main() {
 	Logger::log(LEVEL_INFO, "Entering Main");
 
 	//---------Step1: Build FSW---------------------------
-	Architecture::setInterfaceMode(HARDWARE);
+	Architecture::setInterfaceMode(SOFTWARE);
 	Architecture::buildACS();
 	Architecture::buildEPS();
-	Architecture::setInterfaceMode(SOFTWARE);
+	//Architecture::setInterfaceMode(SOFTWARE);
 	Architecture::buildRAD();
-	Architecture::setInterfaceMode(HARDWARE);
+	//Architecture::setInterfaceMode(HARDWARE);
 	Architecture::buildCOM();
-	Architecture::buildCDH();
+	//Architecture::buildCDH();
 	Architecture::buildGPS();
 	Architecture::buildScheduleManager();
 	Architecture::buildBeaconManager();
@@ -58,7 +58,7 @@ int main() {
 	}
 
 	//---------Step4: Initialize Watchdog-----------------------
-	Watchdog watchdog;
+	Watchdog watchdog(*(Architecture::getEPS()));
 	Architecture::getRAD()->watchdog = &watchdog;
 
 	//---------Step5: Initialize HS Thread-----------------------

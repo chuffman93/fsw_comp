@@ -39,12 +39,12 @@ float TempInterface::getSample(){
 	std::stringstream ss(data);
 	std::string line1, line2;
 
-	if(!std::getline(ss, line1, '\n')){
+ 	if(!std::getline(ss, line1, '\n')){
 		Logger::Stream(LEVEL_WARN, tags) << "Invalid data string: \"" << data << "\"";
 		return NAN;
 	}
 	std::getline(ss, line2, '\n');
-
+	Logger::Stream(LEVEL_DEBUG, tags) << ss;
 	if(line2.c_str()[27] != 'V'){
 		Logger::Stream(LEVEL_WARN, tags) << "Data fails crc: \"" << line2 << "\"";
 		return NAN;

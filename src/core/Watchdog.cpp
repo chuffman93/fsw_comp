@@ -11,6 +11,16 @@
 #include "util/Thread.h"
 
 
+Watchdog::Watchdog(EPS& eps)
+: eps(eps)
+{
+
+}
+
+Watchdog::~Watchdog(){
+
+}
+
 void Watchdog::AddThread(ThreadID id, bool ignore){
 	ThreadInfo info(ignore);
 	threadMap.insert(std::pair<ThreadID,ThreadInfo>(id, info));
@@ -28,6 +38,7 @@ void Watchdog::CheckThreads(){
 
 		if (iter->second.alive == false){
 			Logger::Stream(LEVEL_FATAL,tags) << Logger::getThreadName(iter->first) << " thread is dead!";
+			eps.subPower.reset();
 		}
 
 		iter->second.alive = false;

@@ -42,6 +42,7 @@ public:
 	bool isSuccess(SubsystemOpcode opSent, ACPPacket retPacket);
 
 	HealthFileStruct health;
+	SubPowerInterface& subPower;
 
 private:
 	//Power cycle the entire satellite
@@ -50,7 +51,6 @@ private:
 	uint16_t batteryCharge;
 	//Constructor references
 	ACPInterface& acp;
-	SubPowerInterface& subPower;
 	Lock lock;
 	LogTags tags;
 };

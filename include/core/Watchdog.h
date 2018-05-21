@@ -15,6 +15,7 @@
 #include <map>
 #include "core/Lock.h"
 #include "util/Logger.h"
+#include "subsystem/EPS.h"
 
 class Watchdog
 {
@@ -29,8 +30,8 @@ class Watchdog
 public:
 
 
-	Watchdog(){};
-	~Watchdog(){};
+	Watchdog(EPS& eps);
+	~Watchdog();
 
 	void AddThread(ThreadID id, bool ignore = false);
 	void CheckThreads();
@@ -39,6 +40,7 @@ public:
 
 private:
 	std::map<ThreadID,ThreadInfo> threadMap;
+	EPS& eps;
 	Lock lock;
 	LogTag tags;
 };
