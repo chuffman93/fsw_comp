@@ -31,13 +31,11 @@ int main() {
 
 	//---------Step1: Build FSW---------------------------
 	Architecture::setInterfaceMode(SOFTWARE);
-	Architecture::buildACS();
+	Architecture::buildCDH();
 	Architecture::buildEPS();
-	//Architecture::setInterfaceMode(SOFTWARE);
+	Architecture::buildACS();
 	Architecture::buildRAD();
-	//Architecture::setInterfaceMode(HARDWARE);
 	Architecture::buildCOM();
-	//Architecture::buildCDH();
 	Architecture::buildGPS();
 	Architecture::buildScheduleManager();
 	Architecture::buildBeaconManager();
@@ -56,10 +54,12 @@ int main() {
 	for(vector<SubsystemBase*>::iterator i = subinit.begin(); i != subinit.end(); i++){
 		(*i)->initialize();
 	}
+	Architecture::getACS()->sch = Architecture::getSchedulerManager();
 
 	//---------Step4: Initialize Watchdog-----------------------
 	Watchdog watchdog(*(Architecture::getEPS()));
 	Architecture::getRAD()->watchdog = &watchdog;
+
 
 	//---------Step5: Initialize HS Thread-----------------------
 	Thread hsThread;

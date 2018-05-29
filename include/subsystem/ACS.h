@@ -64,6 +64,9 @@ public:
 	std::vector<float> getTargetMRP();
 	std::vector<float> getActualMRP();
 	bool sendGPS(GPSPositionTime gps);
+
+	ScheduleManager * sch;
+
 	HealthFileStruct health;
 PRIVATE:
 	//Change the current pointing target

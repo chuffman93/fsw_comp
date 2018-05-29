@@ -12,15 +12,15 @@
 #include <string>
 
 ScheduleManager::ScheduleManager()
- : CurrentMode(Mode_Bus)
+ :CurrentMode(Mode_Detumble)
  {
 	com.mode = Mode_Com;
 	com.duration = 720;
-	CurrentMode = Mode_Bus;
 	modeEnterTime = getCurrentTime();
 	ComPassCount = FileManager::getComPassCount();
 	REBOOT_TIME = 86400;
 	com.duration = 0;
+	acsDetumble = true;
 	handleConfig();
 	tags += LogTag("Name", "ScheduleManager");
  }
@@ -34,23 +34,37 @@ FSWMode ScheduleManager::checkNewMode(){
 	//Logger::Stream(LEVEL_DEBUG,tags) <<"Current Schedule Mode: "<< currentSchedule.mode <<" Current Mode: " << CurrentMode << " Next Scheduled Mode: " << ScheduleQueue.front().mode << " Time: " << time;
 	Logger::Stream(LEVEL_DEBUG,tags) << "Current Mode: " << CurrentMode << " Next Scheduled Mode: " << ScheduleQueue.front().mode << " Time: " << time << " Enter time: " << modeEnterTime;
 
+
+	//If schedule is empty and its time for reboot, begin satellite reboot
 	if((ScheduleQueue.empty() && time > REBOOT_TIME) ){
 		// reset if reboot time
 		FSWMode tmp = handleModeChange(Mode_Reset,Mode_Reset);
 		CurrentMode = tmp;
 		Logger::Stream(LEVEL_INFO, tags) << "Setting Mode to Reset";
 	}
+
+	else if (CurrentMode == Mode_Detumble){
+			if (!acsDetumble){
+				FSWMode tmp = handleModeChange(CurrentMode,Mode_Bus);
+				CurrentMode = tmp;
+				Logger::Stream(LEVEL_INFO, tags) << "Setting Mode to: " << CurrentMode;
+				modeEnterTime = getCurrentTime();
+			}
+	}
+	//If it is time to switch to next scheduled mode and it is not in that mode, switch to next scheduled mode
 	else if((currentSchedule.mode!=0) && currentSchedule.timeSinceEpoch <= time && CurrentMode != currentSchedule.mode){
 		FSWMode tmp = handleModeChange(CurrentMode,currentSchedule.mode);
 		CurrentMode = tmp;
 		modeEnterTime = getCurrentTime();
 		Logger::Stream(LEVEL_INFO, tags) << "Setting Mode to: " << CurrentMode;
 	}
+	//If the satellite is not in bus mode and the current mode is not the scheduled mode
 	else if(CurrentMode != Mode_Bus && CurrentMode != currentSchedule.mode){
 		FSWMode tmp = handleModeChange(CurrentMode,Mode_Bus);
 		CurrentMode = tmp;
 		Logger::Stream(LEVEL_INFO, tags) << "Setting Mode to Bus";
 	}
+	//If the scheduled mode duration has surpassed, switch to next scheduled mode
 	else if((time - modeEnterTime) >= currentSchedule.duration && CurrentMode != Mode_Bus){
 		// exit mode on time
 		Logger::Stream(LEVEL_INFO, tags) << "Mode: " << CurrentMode << " Timeout.";
@@ -177,6 +191,9 @@ FSWMode ScheduleManager::handleModeChange(FSWMode current, FSWMode next){
 				currentSchedule = ScheduleQueue.front();
 				return Mode_Bus;
 			}
+
+		case Mode_Detumble:
+			return Trans_DetumbleToBus;
 
 		case Mode_Reset:
 			ScheduleQueue.pop();
