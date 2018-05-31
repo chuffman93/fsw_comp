@@ -69,6 +69,9 @@ void ACS::handleMode(FSWMode transition){
 	case Trans_ComToBus:
 		success =  pointSunSoak();
 		break;
+	case Trans_DetumbleToBus:
+		success = pointSunSoak();
+		break;
 	default:
 		break;
 	}
@@ -122,6 +125,15 @@ void ACS::getHealthStatus(){
 	updateTimeSinceLock(acpReturn.message);
 
 	health.recordBytes(acpReturn.message);
+
+	uint8_t modeACS;
+	ByteStream bs(acpReturn.message);
+	bs >> modeACS;
+
+	if (modeACS != 0) {
+		sch->acsDetumble = false;
+	}
+
 }
 
 //! Change the current pointing target to Nadir
@@ -281,5 +293,6 @@ void ACS::updateActualMRP(std::vector<uint8_t> buffer){
 	bs.seek(3);
 	bs >> ActualMRP[0] >> ActualMRP[1] >> ActualMRP[2];
 }
+
 
 

@@ -33,6 +33,8 @@ typedef enum _FSWMode{
 	Trans_PayloadToBus = 6,
 	Trans_BusToCom = 7,
 	Trans_ComToBus = 8,
+	Trans_DetumbleToBus = 9,
+	Mode_Detumble = 10,
 }FSWMode;
 
 struct ScheduleStruct {
@@ -67,13 +69,20 @@ public:
 
 PRIVATE:
 	std::queue <ScheduleStruct> ScheduleQueue;
+
 	uint32_t REBOOT_TIME;
-	ScheduleStruct currentSchedule;
 	uint32_t modeEnterTime;
 	int ComPassCount;
-	FSWMode CurrentMode;
-	Lock lock;
+
+	ScheduleStruct currentSchedule;
 	ScheduleStruct com;
+
+	FSWMode CurrentMode;
+
+	bool acsDetumble;
+
+	Lock lock;
+
 	//updates default schedule file
 	void updateDefaultSchedule();
 

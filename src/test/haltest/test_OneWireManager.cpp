@@ -48,9 +48,11 @@ TEST_CASE("Test Thermal Sensors","[.][hardware][onewire][tempinterface]" ){
 	onewire.initialize();
 
 
-	t0.beginSample();
-	usleep(750000);
-	t0.getSample();
+	while (1) {
+		t0.beginSample();
+		usleep(1000000);
+		t0.getSample();
+	}
 
 	t1.beginSample();
 	usleep(750000);
