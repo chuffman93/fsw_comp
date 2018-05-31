@@ -124,7 +124,7 @@ GPSPositionTime GPS::getBestXYZI(){
 	pt.GPSWeek = lastLock.GPSWeek;
 	pt.isAccurate = 1;
 	Logger::Stream(LEVEL_DEBUG,tags) <<"ECI: "<< pt;
-	Logger::Stream(LEVEL_DEBUG,tags) << lastLock.elements.a << lastLock.elements.e << lastLock.elements.i << lastLock.elements.Omega << lastLock.elements.omega << lastLock.elements.anom;
+	Logger::Stream(LEVEL_DEBUG,tags) << lastLock.elements.a <<','<< lastLock.elements.e <<','<< lastLock.elements.i<< ','<< lastLock.elements.Omega<<',' << lastLock.elements.omega<< ',' << lastLock.elements.anom;
 
 	/*
 	double gpsTime[2] = {0};

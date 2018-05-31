@@ -118,7 +118,7 @@ void Architecture::buildACS(){
 		int resetid = gpio->attachDevice('A', 12, GPIO_OUTPUT);
 		int faultid = gpio->attachDevice('B', 5, GPIO_INPUT);
 		SubPowerInterface* sp = new SubPowerInterface(*gpio, powid, resetid, faultid, "ACS");
-		sp->configDelay(100,2000);
+		sp->configDelay(100,5000);
 		acs = new ACS(*acp, *sp);
 	}else{
 		acs = new ACS(*(new MockACP("ACS")), *(new MockSubPower("ACS")));
