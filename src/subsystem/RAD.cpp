@@ -14,6 +14,7 @@ RAD::RAD(ACPInterface& acp, SubPowerInterface& subPower)
 	health.fileSize = FileManager::MAX_FILE_SIZE;
 	health.basePath = HEALTH_DIRECTORY RAD_PATH "/RAD";
 	RADDataNum = 0;
+	watchdog = 0;
 }
 
 

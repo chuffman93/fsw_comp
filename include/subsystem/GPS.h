@@ -86,6 +86,7 @@ private:
 	LogTags tags;
 	GPSLockType lastLock;
 	int lockTries;
+	bool inRange;
 };
 
 

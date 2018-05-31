@@ -18,15 +18,6 @@ std::ostream &operator<<(std::ostream &output, const GPSPositionTime &g ) {
 	char buf[200];
 	sprintf(buf, "{x:%f, y:%f, z:%f, vx:%f, vy:%f, vz:%f, w:%d, s:%f}", g.posX, g.posY, g.posZ, g.velX, g.velY, g.velZ, g.GPSWeek, g.GPSSec);
     output << buf;
-
-//	output << "{x:" << g.posX << ", y:" << g.posY << ", z:" << g.posZ
-//			<< ", vx:" << g.velX << ", vy:" << g.velY << ", vz:" << g.velZ
-//			<< ", w:" << g.GPSWeek << ", s:" << g.GPSSec << "}";
-/*
-    double a = g.posX;
-	fprintf(stderr, "WHAT THE MOTHER FUCKING HELL IS GOING ON: %f %f %f\n", a, g.posY, 202.202);
-	fflush(stderr);
-	output << a << " " << g.posY << " " << 202.202;*/
 	return output;
 }
 
@@ -125,39 +116,6 @@ GPSPositionTime GPS::getBestXYZI(){
 	pt.isAccurate = 1;
 	Logger::Stream(LEVEL_DEBUG,tags) <<"ECI: "<< pt;
 	Logger::Stream(LEVEL_DEBUG,tags) << lastLock.elements.a << lastLock.elements.e << lastLock.elements.i << lastLock.elements.Omega << lastLock.elements.omega << lastLock.elements.anom;
-
-	/*
-	double gpsTime[2] = {0};
-	gpsTime[0] = lastLock.GPSWeek;
-	gpsTime[1] = lastLock.GPSSec;
-	double rF[3] = {0};
-	double vF[3] = {0};
-	double eiPos[3];
-	double eiVel[3];
-	eiPos[0] = pt.posX;
-	eiPos[1] = pt.posY;
-	eiPos[2] = pt.posZ;
-	eiVel[0] = pt.velX;
-	eiVel[1] = pt.velY;
-	eiVel[2] = pt.velZ;
-	gcrf2wgs(eiPos,eiVel,gpsTime,rF,vF);
-	double tempR[4] = {0};
-	double tempV[4] = {0};
-	for(int i = 0; i<3 ;i++){
-		tempR[i+1] = rF[i];
-		tempV[i+1] = vF[i];
-	}
-	pt.posX = tempR[1];
-	pt.posY = tempR[2];
-	pt.posZ = tempR[3];
-	pt.velX = tempV[1];
-	pt.velY = tempV[2];
-	pt.velZ = tempV[3];
-	pt.GPSSec = lastLock.GPSSec;
-	pt.GPSWeek = lastLock.GPSWeek;
-	Logger::Stream(LEVEL_DEBUG,tags) <<"ECEF: "<< pt;
-	*/
-
 	incrementGPSTime(pt.GPSWeek, pt.GPSSec, propTime);
 	return pt;
 }

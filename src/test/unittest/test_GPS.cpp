@@ -37,7 +37,6 @@ public:
 class MockPower: public SubPowerInterface{
 public:
 	MockPower(): SubPowerInterface(dummyg, -1, -1, -1, ""){}
-	~MockPower();
 	void configDelay(size_t resetdelay, size_t startupdelay){}
 
 	void powerOff(){}
