@@ -30,8 +30,13 @@ void BeaconManager::sendBeacon(){
 	b.currentModeEnterTime = sch->getModeEnterTime();
 	b.comPassCount = sch->getComPassCount();
 	b.timeSinceStarLock = acs->getTimeSinceLock();
+	b.starMRP = acs->getStarMRP();
 	b.targetMRP = acs->getTargetMRP();
 	b.actualMRP = acs->getActualMRP();
+	b.xPixel = acs->getXPixel();
+	b.yPixel= acs->getYPixel();
+	b.catalogID = acs->getCatalogID();
+	b.numStarsFound = acs->getNumStarsFound();
 	b.memory = 0; //fix
 	b.cpu = 0; //fix
 	b.batteryStateofCharge = eps->getBatteryStateOfCharge();

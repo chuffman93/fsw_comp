@@ -63,6 +63,12 @@ public:
 	float getTimeSinceLock();
 	std::vector<float> getTargetMRP();
 	std::vector<float> getActualMRP();
+	float getStarMRP();
+	std::vector<uint16_t> getXPixel();
+	std::vector<uint16_t> getYPixel();
+	std::vector<uint16_t> getCatalogID();
+	uint8_t getNumStarsFound();
+
 	bool sendGPS(GPSPositionTime gps);
 
 	ScheduleManager * sch;
@@ -79,14 +85,27 @@ PRIVATE:
 	void configureGains();
 	bool resetACS();
 	ACPInterface& getACPRef();
-	void updateTimeSinceLock(std::vector<uint8_t> buffer);
+	void checkACSMode(std::vector<uint8_t> buffer);
+	void updateStarMRP(std::vector<uint8_t> buffer);
 	void updateTargetMRP(std::vector<uint8_t> buffer);
 	void updateActualMRP(std::vector<uint8_t> buffer);
+	void updateTimeSinceLock(std::vector<uint8_t> buffer);
+	void updateXPixel(std::vector<uint8_t> buffer);
+	void updateYPixel(std::vector<uint8_t> buffer);
+	void updateCatalogID(std::vector<uint8_t> buffer);
+	void updateNumStarsFound(std::vector<uint8_t> buffer);
+
+
 
 	bool pointingValid;// = false;
 	float TimeSinceLock;
+	float starMRP;
 	std::vector<float> TargetMRP;
 	std::vector<float> ActualMRP;
+	std::vector<uint16_t> xPixel;
+	std::vector<uint16_t> yPixel;
+	std::vector<uint16_t> catalogID;
+	uint8_t numStarsFound;
 	ACPInterface& acp;
 	SubPowerInterface& subPower;
 	Lock lock;

@@ -30,8 +30,13 @@ struct Beacon{
 	uint32_t currentModeEnterTime;
 	uint32_t comPassCount;
 	float timeSinceStarLock;
+	float starMRP;
 	std::vector<float> targetMRP;
 	std::vector<float> actualMRP;
+	std::vector<uint16_t> xPixel;
+	std::vector<uint16_t> yPixel;
+	std::vector<uint16_t> catalogID;
+	uint8_t numStarsFound;
 	float memory;
 	float cpu;
 	uint16_t batteryStateofCharge;

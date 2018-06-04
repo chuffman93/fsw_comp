@@ -14,8 +14,13 @@ ACS::ACS(ACPInterface& acp, SubPowerInterface& subPower)
 	health.basePath = HEALTH_DIRECTORY ACS_PATH "/ACS";
 	pointingValid = false;
 	TimeSinceLock = -1;
+	starMRP = 0;
 	TargetMRP.assign(3,0);
 	ActualMRP.assign(3,0);
+	xPixel.assign(20,0);
+	yPixel.assign(20,0);
+	catalogID.assign(20,0);
+	numStarsFound = 0;
 
 }
 
@@ -122,18 +127,17 @@ void ACS::getHealthStatus(){
 	std::vector<uint8_t> buff;
 	ACPPacket acpReturn = sendOpcode(OP_HEALTHSTATUS,buff);
 
+	checkACSMode(acpReturn.message);
+	updateStarMRP(acpReturn.message);
+	updateTargetMRP(acpReturn.message);
+	updateActualMRP(acpReturn.message);
 	updateTimeSinceLock(acpReturn.message);
+	updateXPixel(acpReturn.message);
+	updateYPixel(acpReturn.message);
+	updateCatalogID(acpReturn.message);
+	updateNumStarsFound(acpReturn.message);
 
 	health.recordBytes(acpReturn.message);
-
-	uint8_t modeACS;
-	ByteStream bs(acpReturn.message);
-	bs >> modeACS;
-
-	Logger::Stream(LEVEL_DEBUG,tags) << "modeACS: " << (int)modeACS;
-	if ((int)modeACS != 0) {
-		sch->acsDetumble = false;
-	}
 
 }
 
@@ -263,6 +267,28 @@ std::vector<float> ACS::getActualMRP(){
 	return this->ActualMRP;
 }
 
+
+float ACS::getStarMRP(){
+	return this->starMRP;
+}
+
+std::vector<uint16_t> ACS::getXPixel(){
+	return this->xPixel;
+}
+
+std::vector<uint16_t> ACS::getYPixel(){
+	return this->yPixel;
+}
+
+std::vector<uint16_t> ACS::getCatalogID(){
+	return this->catalogID;
+}
+
+uint8_t ACS::getNumStarsFound(){
+	return this->numStarsFound;
+}
+
+
 /*!
  * Updates the time since lock
  * \param vector buffer containing info for updating
@@ -293,6 +319,57 @@ void ACS::updateActualMRP(std::vector<uint8_t> buffer){
 	ByteStream bs(buffer);
 	bs.seek(3);
 	bs >> ActualMRP[0] >> ActualMRP[1] >> ActualMRP[2];
+}
+
+void ACS::checkACSMode(std::vector<uint8_t> buffer){
+	uint8_t modeACS;
+	ByteStream bs(buffer);
+	bs.seek(0);
+	bs >> modeACS;
+
+	Logger::Stream(LEVEL_DEBUG,tags) << "modeACS: " << (int)modeACS;
+	if ((int)modeACS != 0) {
+		sch->acsDetumble = false;
+	}
+}
+
+void ACS::updateStarMRP(std::vector<uint8_t> buffer){
+	ByteStream bs(buffer);
+	bs.seek(1);
+	bs >> starMRP;
+}
+
+void ACS::updateXPixel(std::vector<uint8_t> buffer){
+	ByteStream bs(buffer);
+	bs.seek(161);
+
+	for (int i = 0; i<20; i++){
+		bs >> xPixel[i];
+	}
+}
+
+void ACS::updateYPixel(std::vector<uint8_t> buffer){
+	ByteStream bs(buffer);
+	bs.seek(201);
+
+	for (int i = 0; i<20; i++){
+		bs >> yPixel[i];
+	}
+}
+
+void ACS::updateCatalogID(std::vector<uint8_t> buffer){
+	ByteStream bs(buffer);
+	bs.seek(241);
+
+	for (int i = 0; i<20; i++){
+		bs >> catalogID[i];
+	}
+}
+
+void ACS::updateNumStarsFound(std::vector<uint8_t> buffer){
+	ByteStream bs(buffer);
+	bs.seek(282);
+	bs >> numStarsFound;
 }
 
 
