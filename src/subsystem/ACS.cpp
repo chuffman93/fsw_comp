@@ -130,7 +130,8 @@ void ACS::getHealthStatus(){
 	ByteStream bs(acpReturn.message);
 	bs >> modeACS;
 
-	if (modeACS != 0) {
+	Logger::Stream(LEVEL_DEBUG,tags) << "modeACS: " << (int)modeACS;
+	if ((int)modeACS != 0) {
 		sch->acsDetumble = false;
 	}
 

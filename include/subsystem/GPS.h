@@ -66,6 +66,7 @@ public:
 	ACPPacket sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer);
 	uint16_t timeout;
 	uint16_t timein;
+	float propTime;
 
 
 private:

@@ -101,7 +101,7 @@ GPSPositionTime GPS::getBestXYZI(){
 	float eciPos[3];
 	float eciVel[3];
 	float currTime = getCurrentTime();
-	float propTime = currTime - lastLock.sysTime;
+	propTime = currTime - lastLock.sysTime;
 	Logger::Stream(LEVEL_DEBUG,tags) << "PropTime: " << propTime << " currTime: " << currTime << " lastLock.sysTime: " << lastLock.sysTime;
 	propagatePositionVelocity(lastLock.elements, propTime, eciPos, eciVel);
 	GPSPositionTime pt;

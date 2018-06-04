@@ -18,7 +18,7 @@
 #include "subsystem/GPS.h"
 #include <stdio.h>
 
-#define ACS_CONFIG_SIZE 803
+#define ACS_CONFIG_SIZE 838
 
 
 enum ACSOpcode {

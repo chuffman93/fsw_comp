@@ -40,13 +40,13 @@ public:
 	ACPPacket sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer);
 	bool isSuccess(EPSOpcode opSent, ACPPacket retPacket);
 	bool isSuccess(SubsystemOpcode opSent, ACPPacket retPacket);
-
+	//Power cycle the entire satellite
+	bool commandReset();
 	HealthFileStruct health;
 	SubPowerInterface& subPower;
 
 private:
-	//Power cycle the entire satellite
-	bool commandReset();
+
 
 	uint16_t batteryCharge;
 	//Constructor references

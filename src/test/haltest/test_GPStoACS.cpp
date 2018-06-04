@@ -137,3 +137,58 @@ TEST_CASE("Test ACS's GPS handling","[.][gps2acs]"){
 	}
 
 }
+
+
+TEST_CASE("Test ACS's GPS handling through propagator","[.][gps2acs][proptst]"){
+
+	Architecture::buildTime();
+	MockNMEA nm;
+	GPS gps(nm,*(new MockSubPower("GPS")));
+	Logger::setMode(MODE_PRINT);
+	Logger::setLevel(LEVEL_INFO);
+	Logger::registerFilter(LogTag("Name", "GPS"), LEVEL_DEBUG);
+	Architecture::setInterfaceMode(HARDWARE);
+	Architecture::buildACS();
+	ACS *acs = Architecture::getACS();
+
+
+
+	Logger::log(LEVEL_FATAL, "Initializing HAL");
+	vector<HardwareManager*> halinit = Architecture::buildHALInitVector();
+	for(vector<HardwareManager*>::iterator i = halinit.begin(); i != halinit.end(); i++){
+		(*i)->initialize();
+	}
+
+	acs->initialize();
+	PROMPT("A STRING");
+	string testString="#BESTXYZA,COM1,0,55.0,FINESTEERING,1981,140400.000,02000040,d821,2724;SOL_COMPUTED,NARROW_INT,3738095.872,-4642851.077,3432104.561,0.0,0.0,0.0,SOL_COMPUTED,NARROW_INT,-1986.912,3282.352,6598.043,0.0,0.0,0.0,\"AAAA\",0.250,1.000,0.000,12,11,11,11,0,01,0,33*e9eafeca";
+	acs->pointSunSoak();
+	nm.setString(testString);
+	gps.fetchNewGPS();
+	for(int x = 0; x < 5400; x++){
+		acs->sendGPS(gps.getBestXYZI());
+		if((int)gps.propTime%60 == 0){
+			acs->getHealthStatus();
+		}
+	}
+	string testString1="#BESTXYZA,COM1,0,55.0,FINESTEERING,1981,140400.000,02000040,d821,2724;SOL_COMPUTED,NARROW_INT,3738095.872,-4642851.077,3432104.561,0.0,0.0,0.0,SOL_COMPUTED,NARROW_INT,-1986.912,3282.352,6598.043,0.0,0.0,0.0,\"AAAA\",0.250,1.000,0.000,12,11,11,11,0,01,0,33*e9eafeca";
+	acs->pointNadir();
+	nm.setString(testString1);
+	gps.fetchNewGPS();
+	for(int x = 0; x < 5400; x++){
+		acs->sendGPS(gps.getBestXYZI());
+		if((int)gps.propTime%60 == 0){
+			acs->getHealthStatus();
+		}
+	}
+	string testString2="#BESTXYZA,COM1,0,55.0,FINESTEERING,1981,140400.000,02000040,d821,2724;SOL_COMPUTED,NARROW_INT,3738095.872,-4642851.077,3432104.561,0.0,0.0,0.0,SOL_COMPUTED,NARROW_INT,-1986.912,3282.352,6598.043,0.0,0.0,0.0,\"AAAA\",0.250,1.000,0.000,12,11,11,11,0,01,0,33*e9eafeca";
+	acs->pointCOM();
+	nm.setString(testString2);
+	gps.fetchNewGPS();
+	for(int x = 0; x < 5400; x++){
+		acs->sendGPS(gps.getBestXYZI());
+		if((int)gps.propTime%60 == 0){
+			acs->getHealthStatus();
+		}
+	}
+}

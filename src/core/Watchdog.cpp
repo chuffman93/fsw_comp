@@ -38,7 +38,7 @@ void Watchdog::CheckThreads(){
 
 		if (iter->second.alive == false){
 			Logger::Stream(LEVEL_FATAL,tags) << Logger::getThreadName(iter->first) << " thread is dead!";
-			eps.subPower.reset();
+			eps.commandReset();
 		}
 
 		iter->second.alive = false;
