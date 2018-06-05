@@ -38,6 +38,9 @@ GPS::GPS(NMEAInterface& nm, SubPowerInterface& pow):nm(nm), pow(pow){
 	pt.GPSWeek = 0;
 	pt.GPSSec = 0;
 	pt.isAccurate = 0;
+	propTime = 0;
+	beaconOut = false;
+	bOut = 0;
 }
 
 
@@ -62,9 +65,23 @@ void GPS::handleConfig(){
 			return;
 		}
 		ByteStream bs(buff);
-		bs >> timeout >> timein;
+		bs >> timeout >> timein>>bOut;
 		Logger::Stream(LEVEL_INFO,tags) << "Setting timeout to " << timeout/60 << " mins and timein to " << timein/3600 << " hrs";
-
+		switch(bOut){
+			case 0:
+				Logger::Stream(LEVEL_INFO,tags) << "Beaconing worldwide.";
+				beaconOut = true;
+				break;
+			case 1:
+				Logger::Stream(LEVEL_INFO,tags) << "Only beaconing within range.";
+				break;
+			case 2:
+				Logger::Stream(LEVEL_INFO,tags) << "Will not beacon.";
+				break;
+			default:
+				Logger::Stream(LEVEL_INFO,tags) << "Beaconing worldwide.";
+				beaconOut = true;
+		}
 	}else{
 		Logger::Stream(LEVEL_WARN,tags) << "GPS Config file does not exist";
 	}
@@ -80,8 +97,23 @@ void GPS::updateConfig(){
 			return;
 		}
 		ByteStream bs(buff);
-		bs >> timeout >> timein;
+		bs >> timeout >> timein>>bOut;
 		Logger::Stream(LEVEL_INFO,tags) << "Updating timeout to " << timeout/60 << " mins and timein to " << timein/3600 << " hrs";
+		switch(bOut){
+			case 0:
+				Logger::Stream(LEVEL_INFO,tags) << "Switching to beaconing worldwide.";
+				beaconOut = true;
+				break;
+			case 1:
+				Logger::Stream(LEVEL_INFO,tags) << "Switching to only beaconing within range.";
+				break;
+			case 2:
+				Logger::Stream(LEVEL_INFO,tags) << "Switching to will not beacon.";
+				break;
+			default:
+				Logger::Stream(LEVEL_INFO,tags) << "Switching to beaconing worldwide.";
+				beaconOut = true;
+		}
 		FileManager::moveFile(GPS_CONFIG_UP,GPS_CONFIG);
 	}else{
 		Logger::Stream(LEVEL_WARN,tags) << "There are no GPS config updates";
@@ -113,9 +145,7 @@ GPSPositionTime GPS::getBestXYZI(){
 	propTime = currTime - lastLock.sysTime;
 	Logger::Stream(LEVEL_DEBUG,tags) << "PropTime: " << propTime << " currTime: " << currTime << " lastLock.sysTime: " << lastLock.sysTime;
 	propagatePositionVelocity(lastLock.elements, propTime, eciPos, eciVel);
-	std::cout << "before" << std::endl;
 	pt.posX = eciPos[0];
-	std::cout << "after" << std::endl;
 	pt.posY = eciPos[1];
 	pt.posZ = eciPos[2];
 	pt.velX = eciVel[0];
@@ -126,38 +156,6 @@ GPSPositionTime GPS::getBestXYZI(){
 	pt.isAccurate = 1;
 	Logger::Stream(LEVEL_DEBUG,tags) <<"ECI: "<< pt;
 	Logger::Stream(LEVEL_DEBUG,tags) << lastLock.elements.a <<','<< lastLock.elements.e <<','<< lastLock.elements.i<< ','<< lastLock.elements.Omega<<',' << lastLock.elements.omega<< ',' << lastLock.elements.anom;
-
-	/*
-	double gpsTime[2] = {0};
-	gpsTime[0] = lastLock.GPSWeek;
-	gpsTime[1] = lastLock.GPSSec;
-	double rF[3] = {0};
-	double vF[3] = {0};
-	double eiPos[3];
-	double eiVel[3];
-	eiPos[0] = pt.posX;
-	eiPos[1] = pt.posY;
-	eiPos[2] = pt.posZ;
-	eiVel[0] = pt.velX;
-	eiVel[1] = pt.velY;
-	eiVel[2] = pt.velZ;
-	gcrf2wgs(eiPos,eiVel,gpsTime,rF,vF);
-	double tempR[4] = {0};
-	double tempV[4] = {0};
-	for(int i = 0; i<3 ;i++){
-		tempR[i+1] = rF[i];
-		tempV[i+1] = vF[i];
-	}
-	pt.posX = tempR[1];
-	pt.posY = tempR[2];
-	pt.posZ = tempR[3];
-	pt.velX = tempV[1];
-	pt.velY = tempV[2];
-	pt.velZ = tempV[3];
-	pt.GPSSec = lastLock.GPSSec;
-	pt.GPSWeek = lastLock.GPSWeek;
-	Logger::Stream(LEVEL_DEBUG,tags) <<"ECEF: "<< pt;
-	*/
 	incrementGPSTime(pt.GPSWeek, pt.GPSSec, propTime);
 	return pt;
 }

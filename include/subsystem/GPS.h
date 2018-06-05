@@ -20,7 +20,7 @@ extern "C" {
 	#include "util/propagator/OrbitalMotionAllStar.h"
 }
 
-#define CONFIG_GPS_SIZE 4
+#define CONFIG_GPS_SIZE 5
 
 struct GPSPositionTime{
   double posX;
@@ -68,6 +68,7 @@ public:
 	uint16_t timeout;
 	uint16_t timein;
 	float propTime;
+	bool beaconOut;
 
 
 private:
@@ -78,6 +79,8 @@ private:
 	bool solSuccess;
 	bool power;
 	bool isLocked;
+
+	uint8_t bOut;
 
 	GPSPositionTime pt;
 
@@ -91,7 +94,6 @@ private:
 	LogTags tags;
 	GPSLockType lastLock;
 	int lockTries;
-	//bool inRange;
 };
 
 
