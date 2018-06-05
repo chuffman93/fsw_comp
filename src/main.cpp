@@ -26,7 +26,7 @@ int main() {
 	Logger::setMode(MODE_PW);
 	Logger::setLevel(LEVEL_INFO);
 	Logger::registerThread("MAIN");
-	Logger::registerFilter(LogTag("Name", "ACS"),LEVEL_DEBUG);
+	Logger::registerFilter(LogTag("Name", "GPS"),LEVEL_DEBUG);
 	Logger::log(LEVEL_INFO, "Entering Main");
 
 	//---------Step1: Build FSW---------------------------

@@ -38,10 +38,12 @@ struct Beacon{
 	std::vector<uint16_t> catalogID;
 	uint8_t numStarsFound;
 	float memory;
-	float cpu;
+	float cpu1;
+	float cpu5;
+	float cpu15;
 	uint16_t batteryStateofCharge;
-	std::vector<double> xyzPosition;
-	std::vector<double> xyzVelocity;
+	double xyzPosition[3];
+	double xyzVelocity[3];
 	int32_t gpsWeek;
 	float gpsSecond;
 	uint16_t radNumber;
@@ -50,7 +52,7 @@ struct Beacon{
 
 class BeaconManager {
 public:
-	BeaconManager(ScheduleManager* sch, ACS* acs, EPS* eps, GPS* gps, RAD* rad); //TODO: add CDH cdh
+	BeaconManager(ScheduleManager* sch, ACS* acs, CDH* cdh, EPS* eps, GPS* gps, RAD* rad); //TODO: add CDH cdh
 	~BeaconManager();
 	void sendBeacon();
 
@@ -60,6 +62,7 @@ PRIVATE:
 
 	ScheduleManager* sch;
 	ACS* acs;
+	CDH *cdh;
 	EPS* eps;
 	//CDH& cdh;
 	GPS* gps;

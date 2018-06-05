@@ -12,8 +12,15 @@
 #include "interfaces/HotSwapInterface.h"
 #include "interfaces/TempInterface.h"
 #include "interfaces/PowerMonitorInterface.h"
+#include <sys/sysinfo.h>
 //#include <vector>
 
+struct CDHState {
+	unsigned long cpu1;
+	unsigned long cpu5;
+	unsigned long cpu15;
+	unsigned short memory;
+};
 
 class CDH: public SubsystemBase{
 public:
@@ -29,6 +36,7 @@ public:
 	ACPPacket sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer);
 	void handleConfig();
 	void updateConfig();
+	CDHState getCDHState();
 	HealthFileStruct health;
 
 	private:
@@ -42,7 +50,7 @@ public:
 	std::vector<TempInterface*> * ThermalSensors;
 	OneWireManager * OneWireMan;
 
-
+	CDHState state;
 
 	Lock lock;
 	LogTags tags;

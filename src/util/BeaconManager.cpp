@@ -8,8 +8,8 @@
 #include "util/BeaconManager.h"
 #include "core/FileManager.h"
 
-BeaconManager::BeaconManager(ScheduleManager* sch, ACS* acs, EPS* eps, GPS* gps, RAD* rad)
-: sch(sch), acs(acs), eps(eps), gps(gps), rad(rad),beaconRate(0),increasedBeaconRate(0)
+BeaconManager::BeaconManager(ScheduleManager* sch, ACS* acs, CDH * cdh, EPS* eps, GPS* gps, RAD* rad)
+: sch(sch), acs(acs), eps(eps), gps(gps), rad(rad),beaconRate(0),increasedBeaconRate(0), cdh(cdh)
 {}
 
 BeaconManager::~BeaconManager(){}
@@ -20,7 +20,6 @@ void BeaconManager::sendBeacon(){
 
 	Beacon b;
 	b.epochTime = getCurrentTime();
-
 	timespec t;
 	clock_gettime(CLOCK_REALTIME, &t);
 	b.systemTime = t.tv_sec;
@@ -37,18 +36,46 @@ void BeaconManager::sendBeacon(){
 	b.yPixel= acs->getYPixel();
 	b.catalogID = acs->getCatalogID();
 	b.numStarsFound = acs->getNumStarsFound();
-	b.memory = 0; //fix
-	b.cpu = 0; //fix
+	b.memory = (cdh->getCDHState()).memory;
+	b.cpu1 = (cdh->getCDHState()).cpu1;
+	b.cpu5 = (cdh->getCDHState()).cpu5;
+	b.cpu15 = (cdh->getCDHState()).cpu15;
 	b.batteryStateofCharge = eps->getBatteryStateOfCharge();
-	b.xyzPosition.assign(3,0);//fix
-	b.xyzVelocity.assign(3,0);//fix
-	b.gpsWeek = 0;//fix
-	b.gpsSecond = 0; //fix
+	std::cout << "GPSSSSSSSSSSSSSSASSs" << gps << std::endl;
+	b.xyzPosition[0] = (gps->getPositionTime()).posX;
+	std::cout << "lafjlkdflkdsjflsajfsa" << std::endl;
+	b.xyzPosition[1] = (gps->getPositionTime()).posY;
+	b.xyzPosition[2] = (gps->getPositionTime()).posZ;
+	b.xyzVelocity[0]  = (gps->getPositionTime()).velX;
+	b.xyzVelocity[1]  = (gps->getPositionTime()).velY;
+	b.xyzVelocity[2]  = (gps->getPositionTime()).velZ;
+
+	b.gpsWeek = (gps->getPositionTime()).GPSWeek;
+	b.gpsSecond = (gps->getPositionTime()).GPSSec;
 	b.radNumber = rad->RADDataNum;
 
 
 	ByteStream bs;
-	bs << b.epochTime << b.systemTime <<b.rebootCount << b.satelliteMode << b.currentModeEnterTime << b.comPassCount << b.timeSinceStarLock << b.targetMRP << b.actualMRP << b.memory << b.cpu << b.batteryStateofCharge << b.xyzPosition << b.xyzVelocity << b.gpsWeek << b.gpsSecond << b.radNumber;
+	bs << b.epochTime << b.systemTime <<b.rebootCount << b.satelliteMode << b.currentModeEnterTime << b.comPassCount << b.timeSinceStarLock;
+	bs << b.targetMRP[0] << b.targetMRP[1] << b.targetMRP[2];
+	bs << b.actualMRP[0] << b.actualMRP[1] << b.actualMRP[2];
+
+	for (int i=0; i<20; i++){
+		bs << b.xPixel[i];
+	}
+
+	for (int j=0; j<20; j++){
+		bs << b.yPixel[j];
+	}
+
+	for (int k=0; k<20; k++){
+		bs << b.catalogID[k];
+	}
+
+	bs << b.numStarsFound << b.memory << b.cpu1 << b.cpu5 << b.cpu15 << b.batteryStateofCharge;
+	bs << b.xyzPosition[0] << b.xyzPosition[1] << b.xyzPosition[2];
+	bs << b.xyzVelocity[0] << b.xyzVelocity[1] << b.xyzVelocity[2];
+	bs << b.gpsWeek << b.gpsSecond << b.radNumber;
 
 	std::vector<uint8_t> buff = bs.vec();
 

@@ -59,6 +59,7 @@ public:
 	bool getSuccess();
 	void fetchNewGPS();
 	GPSPositionTime getBestXYZI();
+	GPSPositionTime getPositionTime();
 	void powerOn();
 	void powerOff();
 	bool getLockStatus();
@@ -77,6 +78,9 @@ private:
 	bool solSuccess;
 	bool power;
 	bool isLocked;
+
+	GPSPositionTime pt;
+
 	//! The UART connected to the physical GPS
 	NMEAInterface& nm;
 	//! Power Interface for the GPS
@@ -87,7 +91,7 @@ private:
 	LogTags tags;
 	GPSLockType lastLock;
 	int lockTries;
-	bool inRange;
+	//bool inRange;
 };
 
 

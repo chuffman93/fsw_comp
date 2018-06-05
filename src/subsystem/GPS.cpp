@@ -29,6 +29,15 @@ GPS::GPS(NMEAInterface& nm, SubPowerInterface& pow):nm(nm), pow(pow){
 	timeout = 0;
 	timein = 0;
 	lockTries = 0;
+	pt.posX = 0;
+	pt.posY = 0;
+	pt.posZ = 0;
+	pt.velX = 0;
+	pt.velY = 0;
+	pt.velZ = 0;
+	pt.GPSWeek = 0;
+	pt.GPSSec = 0;
+	pt.isAccurate = 0;
 }
 
 
@@ -104,8 +113,9 @@ GPSPositionTime GPS::getBestXYZI(){
 	propTime = currTime - lastLock.sysTime;
 	Logger::Stream(LEVEL_DEBUG,tags) << "PropTime: " << propTime << " currTime: " << currTime << " lastLock.sysTime: " << lastLock.sysTime;
 	propagatePositionVelocity(lastLock.elements, propTime, eciPos, eciVel);
-	GPSPositionTime pt;
+	std::cout << "before" << std::endl;
 	pt.posX = eciPos[0];
+	std::cout << "after" << std::endl;
 	pt.posY = eciPos[1];
 	pt.posZ = eciPos[2];
 	pt.velX = eciVel[0];
@@ -149,6 +159,11 @@ GPSPositionTime GPS::getBestXYZI(){
 	Logger::Stream(LEVEL_DEBUG,tags) <<"ECEF: "<< pt;
 	*/
 	incrementGPSTime(pt.GPSWeek, pt.GPSSec, propTime);
+	return pt;
+}
+
+GPSPositionTime GPS::getPositionTime(){
+	LockGuard l(lock);
 	return pt;
 }
 

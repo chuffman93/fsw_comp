@@ -6,6 +6,11 @@ CDH::CDH(std::vector<HotSwapInterface*> * hotswaps, std::vector<PowerMonitorInte
 	tags+= LogTag("Name","CDH");
 	health.fileSize = FileManager::MAX_FILE_SIZE;
 	health.basePath = HEALTH_DIRECTORY CDH_PATH "/CDH";
+	state.cpu1 = 0;
+	state.cpu5 = 0;
+	state.cpu15 = 0;
+	state.memory = 0;
+
 }
 
 CDH::~CDH(){
@@ -39,6 +44,10 @@ void CDH::handleConfig(){}
 
 void CDH::updateConfig(){}
 
+CDHState CDH::getCDHState(){
+	return this->state;
+}
+
 
 //! Handles the capturing and storing of the health and status for a subsystem
 void CDH::getHealthStatus(){
@@ -46,11 +55,26 @@ void CDH::getHealthStatus(){
 	std::vector<PowerMonitorData> PMHealth = collectPowermon();
 	std::vector<float> THealth = collectTherm();
 
+	struct sysinfo systemInfo;
+	if (sysinfo(&systemInfo) == 0){
+		state.cpu1 = systemInfo.loads[0]/6553.6;
+		state.cpu5 = systemInfo.loads[1]/6553.6;
+		state.cpu15 = systemInfo.loads[2]/6553.6;
+		state.memory = 100.0*(259964928.0 - ((float) systemInfo.freeram)) / (259964928.0);
+	}else {
+		state.cpu1 = 0;
+		state.cpu5 = 0;
+		state.cpu15 = 0;
+		state.memory = 0;
+	}
+
 	std::vector<HotSwapData>::iterator it1;
 	std::vector<PowerMonitorData>::iterator it2;
 	std::vector<float>::iterator it3;
 
 	ByteStream bs;
+
+	bs << state.cpu1 << state.cpu5 << state.cpu15 << state.memory;
 
 	for (it1 = HSHealth.begin(); it1 != HSHealth.end(); it1++){
 		bs << (*it1).current << (*it1).voltage;
@@ -63,6 +87,8 @@ void CDH::getHealthStatus(){
 	for (it3 = THealth.begin(); it3 != THealth.end(); it3++){
 		bs << (*it3);
 	}
+
+
 
 	std::vector<uint8_t> buff = bs.vec();
 	health.recordBytes(buff);

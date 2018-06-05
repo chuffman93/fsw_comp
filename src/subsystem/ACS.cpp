@@ -255,36 +255,44 @@ bool ACS::isSuccess(SubsystemOpcode opcode, ACPPacket retPacket){
 
 //! returns the time since lock
 float ACS::getTimeSinceLock(){
+	LockGuard l(lock);
 	return this->TimeSinceLock;
 }
 
 //! returns the target MRP
 std::vector<float> ACS::getTargetMRP(){
+	LockGuard l(lock);
 	return this->TargetMRP;
 }
 
 std::vector<float> ACS::getActualMRP(){
+	LockGuard l(lock);
 	return this->ActualMRP;
 }
 
 
 float ACS::getStarMRP(){
+	LockGuard l(lock);
 	return this->starMRP;
 }
 
 std::vector<uint16_t> ACS::getXPixel(){
+	LockGuard l(lock);
 	return this->xPixel;
 }
 
 std::vector<uint16_t> ACS::getYPixel(){
+	LockGuard l(lock);
 	return this->yPixel;
 }
 
 std::vector<uint16_t> ACS::getCatalogID(){
+	LockGuard l(lock);
 	return this->catalogID;
 }
 
 uint8_t ACS::getNumStarsFound(){
+	LockGuard l(lock);
 	return this->numStarsFound;
 }
 
