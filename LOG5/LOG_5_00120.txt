@@ -1,9 +1,0 @@
-[13:49:31.327][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 0 Current Mode: 1 Next Scheduled Mode: 0 Time: 120
-[13:49:31.337][[34mINFO [0m][Mode] Mode: 1
-[13:49:31.393][[34mINFO [0m][GPS ] Fetching GPS
-[13:49:31.402][[33mWARN [0m][GPS ][GPS] CRC Failed
-[13:49:31.406][[34mINFO [0m][GPS ] No Lock
-[13:49:31.443][[34mINFO [0m][WPUP] Pinging from watchdog
-[13:49:32.428][[34mINFO [0m][GPS ] Fetching GPS
-[13:49:32.437][[33mWARN [0m][GPS ][GPS] CRC Failed
-[13:49:32.442][[34mINFO [0m][GPS ] No Lock
