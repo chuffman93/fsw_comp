@@ -1,0 +1,57 @@
+[13:42:56.237][[34mINFO [0m][MAIN][ACPInterface][COM] Sending ACP Packet: {Sync: 165, Opcode: 1, Length: 0}
+[13:42:56.363][[34mINFO [0m][MAIN][ACPInterface][COM] Received ACP Packet: {Sync: 165, Opcode: 1, Length: 1}
+[13:43:01.376][[34mINFO [0m][MAIN][EPS] Initializing EPS
+[13:43:01.384][[34mINFO [0m][MAIN][ACPInterface][EPS] Sending ACP Packet: {Sync: 164, Opcode: 8, Length: 0}
+[13:43:01.379][[34mINFO [0m][MAIN][ExternP] Starting process: /bin/comm_daemon_arm
+[13:43:01.424][[34mINFO [0m][MAIN][ACPInterface][EPS] Received ACP Packet: {Sync: 164, Opcode: 8, Length: 1}
+[13:43:01.431][[34mINFO [0m][MAIN][ACPInterface][EPS] Sending ACP Packet: {Sync: 164, Opcode: 0, Length: 0}
+[13:43:01.825][[34mINFO [0m][MAIN][ACPInterface][EPS] Received ACP Packet: {Sync: 164, Opcode: 0, Length: 1}
+[13:43:01.833][[34mINFO [0m][MAIN][ACPInterface][EPS] Sending ACP Packet: {Sync: 164, Opcode: 1, Length: 0}
+[13:43:02.225][[34mINFO [0m][MAIN][ACPInterface][EPS] Received ACP Packet: {Sync: 164, Opcode: 1, Length: 1}
+[13:43:02.231][[34mINFO [0m][MAIN][SubPower][GPS] Powering off
+[13:43:02.239][[34mINFO [0m][MAIN][SubPower][GPS] Powering on
+[13:43:03.267][[34mINFO [0m][MAIN][FileManager] Opened /home/root/config/ConfigGPS for reading
+[13:43:03.274][[34mINFO [0m][MAIN][GPS] Setting timeout to 10 mins and timein to 2 hrs
+[13:43:03.282][[35mFATAL[0m][WPUP] Starting Watchdog Thread
+[13:43:03.287][[35mFATAL[0m][GND ] Starting Ground Communication Thread
+[13:43:03.293][[34mINFO [0m][GND ][GroundCommunication] Beginning Communication Pass Timer
+[13:43:03.298][[35mFATAL[0m][H&S ] Starting Health and Status Thread
+[13:43:03.303][[34mINFO [0m][H&S ][ACPInterface][EPS] Sending ACP Packet: {Sync: 164, Opcode: 16, Length: 0}
+[13:43:03.308][[35mFATAL[0m][Mode] Starting Mode Thread
+[13:43:03.314][[35mFATAL[0m][GPS ] Starting GPS Thread
+[13:43:03.319][[34mINFO [0m][GPS ] Fetching GPS
+[13:43:03.324][[34mINFO [0m][GPS ] No Lock
+[13:43:03.330][DEBUG][GND ][ScheduleManager] Attempting to switch to Com from GroundCommunication Thread
+[13:43:03.336][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[13:43:03.341][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 0 With new mode at front: 0
+[13:43:03.346][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 3 Current Mode: 1 Next Scheduled Mode: 0 Time: 20
+[13:43:03.351][[34mINFO [0m][Mode][ScheduleManager] Setting Mode to: 7
+[13:43:03.357][[34mINFO [0m][Mode] Mode: 7
+[13:43:03.363][[34mINFO [0m][Mode][ACS] Command ACS to point to Ground
+[13:43:03.369][[34mINFO [0m][Mode][ACPInterface][ACS] Sending ACP Packet: {Sync: 166, Opcode: 35, Length: 0}
+[13:43:03.442][[34mINFO [0m][H&S ][ACPInterface][EPS] Received ACP Packet: {Sync: 164, Opcode: 16, Length: 40}
+[13:43:03.450][[34mINFO [0m][H&S ][FileManager] Writing 40 bytes to "/SD_2/HST/EPS/EPS_4_00020"
+[13:43:03.489][[34mINFO [0m][H&S ][EPS] Battery Charge: 24576
+[13:43:03.493][[34mINFO [0m][H&S ][ACPInterface][COM] Sending ACP Packet: {Sync: 165, Opcode: 16, Length: 0}
+[13:43:03.601][[34mINFO [0m][H&S ][ACPInterface][COM] Received ACP Packet: {Sync: 165, Opcode: 16, Length: 1}
+[13:43:03.609][[34mINFO [0m][H&S ][FileManager] Writing 1 bytes to "/SD_2/HST/COM/COM_4_00020"
+[13:43:03.997][[34mINFO [0m][Mode][ACPInterface][ACS] Received ACP Packet: {Sync: 166, Opcode: 35, Length: 1}
+[13:43:04.005][[34mINFO [0m][H&S ][ACPInterface][ACS] Sending ACP Packet: {Sync: 166, Opcode: 16, Length: 0}
+[13:43:04.338][[34mINFO [0m][GPS ] Fetching GPS
+[13:43:04.346][[34mINFO [0m][GPS ] No Lock
+[13:43:04.351][DEBUG][GND ][GroundCommunication] Start Time: 20 ComTimeOut: 1200 Current Time: 21
+[13:43:04.357][DEBUG][GND ][ScheduleManager] Attempting to switch to Com from GroundCommunication Thread
+[13:43:05.089][[34mINFO [0m][H&S ][ACPInterface][ACS] Received ACP Packet: {Sync: 166, Opcode: 16, Length: 162}
+[13:43:05.097][[34mINFO [0m][H&S ][FileManager] Writing 162 bytes to "/SD_2/HST/ACS/ACS_4_00022"
+[13:43:05.112][[34mINFO [0m][H&S ][CDH] Collecting Hot Swap Data
+[13:43:05.118][[34mINFO [0m][H&S ][HotSwapInterface][COM 3V3] Read: 3.274451V 0.082688A
+[13:43:05.125][[34mINFO [0m][H&S ][HotSwapInterface][COM VBAT] Read: 7.282275V 0.033592A
+[13:43:05.131][[34mINFO [0m][H&S ][HotSwapInterface][COM 12V0] Read: 12.145703V 0.017227A
+[13:43:05.138][[34mINFO [0m][H&S ][HotSwapInterface][ACS 3V3] Read: 3.242285V 0.072352A
+[13:43:05.144][[34mINFO [0m][H&S ][HotSwapInterface][ACS VBAT] Read: 7.327307V 0.025840A
+[13:43:05.150][[34mINFO [0m][H&S ][HotSwapInterface][ACS 12V0] Read: 12.081372V 0.013781A
+[13:43:05.155][[34mINFO [0m][H&S ][HotSwapInterface][PROP 3V3] Read: 3.197253V 0.015504A
+[13:43:05.161][[34mINFO [0m][H&S ][HotSwapInterface][PROP VBAT] Read: 7.262976V 0.025840A
+[13:43:05.167][[34mINFO [0m][H&S ][HotSwapInterface][PROP 12V0] Read: 12.042773V 0.017227A
+[13:43:05.173][[34mINFO [0m][H&S ][HotSwapInterface][GPS 3V3] Read: 3.261585V 0.222223A
+[13:43:05.178][[34mINFO [0m][H&S ][HotSwapInterface][GPS VBAT] Read: 7.314441V 0.031008A

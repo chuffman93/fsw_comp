@@ -1,0 +1,78 @@
+[12:12:25.651][[34mINFO [0m][GPS ] Fetching GPS
+[12:12:25.670][[34mINFO [0m][GPS ] No Lock
+[12:12:26.682][[34mINFO [0m][GPS ] Fetching GPS
+[12:12:26.689][[34mINFO [0m][GPS ] No Lock
+[12:12:26.822][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[12:12:26.829][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 0 With new mode at front: 0
+[12:12:26.833][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 0 Current Mode: 1 Next Scheduled Mode: 0 Time: 24
+[12:12:26.839][[34mINFO [0m][Mode] Mode: 1
+[12:12:27.703][[34mINFO [0m][GPS ] Fetching GPS
+[12:12:27.710][[34mINFO [0m][GPS ] No Lock
+[12:12:28.724][[34mINFO [0m][GPS ] Fetching GPS
+[12:12:28.731][[34mINFO [0m][GPS ] No Lock
+[12:12:28.854][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[12:12:28.861][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 0 With new mode at front: 0
+[12:12:28.866][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 0 Current Mode: 1 Next Scheduled Mode: 0 Time: 26
+[12:12:28.872][[34mINFO [0m][Mode] Mode: 1
+[12:12:29.745][[34mINFO [0m][GPS ] Fetching GPS
+[12:12:29.753][[33mWARN [0m][GPS ][GPS] CRC Failed
+[12:12:29.758][[33mWARN [0m][GPS ][GPS] Wrong message. Expected #BESTXYZA got:"[COM1]#BESTXYZA"
+[12:12:29.763][[34mINFO [0m][GPS ] No Lock
+[12:12:30.776][[34mINFO [0m][GPS ] Fetching GPS
+[12:12:30.784][[33mWARN [0m][GPS ][GPS] CRC Failed
+[12:12:30.789][[34mINFO [0m][GPS ] No Lock
+[12:12:30.886][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[12:12:30.893][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 0 With new mode at front: 0
+[12:12:30.898][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 0 Current Mode: 1 Next Scheduled Mode: 0 Time: 28
+[12:12:30.904][[34mINFO [0m][Mode] Mode: 1
+[12:12:31.807][[34mINFO [0m][GPS ] Fetching GPS
+[12:12:31.815][[33mWARN [0m][GPS ][GPS] CRC Failed
+[12:12:31.820][[34mINFO [0m][GPS ] No Lock
+[12:12:32.838][[34mINFO [0m][GPS ] Fetching GPS
+[12:12:32.846][[33mWARN [0m][GPS ][GPS] CRC Failed
+[12:12:32.851][[34mINFO [0m][GPS ] No Lock
+[12:12:32.928][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[12:12:32.935][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 0 With new mode at front: 0
+[12:12:32.940][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 0 Current Mode: 1 Next Scheduled Mode: 0 Time: 30
+[12:12:32.947][[34mINFO [0m][Mode] Mode: 1
+[12:12:33.869][[34mINFO [0m][GPS ] Fetching GPS
+[12:12:33.878][[33mWARN [0m][GPS ][GPS] CRC Failed
+[12:12:33.883][[34mINFO [0m][GPS ] No Lock
+[12:12:34.890][[34mINFO [0m][GPS ] Fetching GPS
+[12:12:34.899][[33mWARN [0m][GPS ][GPS] CRC Failed
+[12:12:34.904][[34mINFO [0m][GPS ] No Lock
+[12:12:34.960][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[12:12:34.967][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 0 With new mode at front: 0
+[12:12:34.972][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 0 Current Mode: 1 Next Scheduled Mode: 0 Time: 32
+[12:12:34.977][[34mINFO [0m][Mode] Mode: 1
+[12:12:35.921][[34mINFO [0m][GPS ] Fetching GPS
+[12:12:35.930][[33mWARN [0m][GPS ][GPS] CRC Failed
+[12:12:35.936][[34mINFO [0m][GPS ] No Lock
+[12:12:36.952][[34mINFO [0m][GPS ] Fetching GPS
+[12:12:36.960][[33mWARN [0m][GPS ][GPS] CRC Failed
+[12:12:36.966][[34mINFO [0m][GPS ] No Lock
+[12:12:36.992][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[12:12:36.999][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 0 With new mode at front: 0
+[12:12:37.004][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 0 Current Mode: 1 Next Scheduled Mode: 0 Time: 34
+[12:12:37.009][[34mINFO [0m][Mode] Mode: 1
+[12:12:37.983][[34mINFO [0m][GPS ] Fetching GPS
+[12:12:37.991][[33mWARN [0m][GPS ][GPS] CRC Failed
+[12:12:37.997][[34mINFO [0m][GPS ] No Lock
+[12:12:39.014][[34mINFO [0m][GPS ] Fetching GPS
+[12:12:39.022][[33mWARN [0m][GPS ][GPS] CRC Failed
+[12:12:39.030][[34mINFO [0m][GPS ] No Lock
+[12:12:39.035][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[12:12:39.041][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 0 With new mode at front: 0
+[12:12:39.048][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 0 Current Mode: 1 Next Scheduled Mode: 0 Time: 37
+[12:12:39.053][[34mINFO [0m][Mode] Mode: 1
+[12:12:40.045][[34mINFO [0m][GPS ] Fetching GPS
+[12:12:40.053][[33mWARN [0m][GPS ][GPS] CRC Failed
+[12:12:40.058][[34mINFO [0m][GPS ] No Lock
+[12:12:41.066][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[12:12:41.073][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 0 With new mode at front: 0
+[12:12:41.079][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 0 Current Mode: 1 Next Scheduled Mode: 0 Time: 39
+[12:12:41.084][[34mINFO [0m][Mode] Mode: 1
+[12:12:41.090][[34mINFO [0m][GPS ] Fetching GPS
+[12:12:41.098][[33mWARN [0m][GPS ][GPS] CRC Failed
+[12:12:41.103][[34mINFO [0m][GPS ] No Lock
+[12:12:42.117][[34mINFO [0m][GPS ] Fetching GPS

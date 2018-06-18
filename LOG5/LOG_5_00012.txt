@@ -1,0 +1,54 @@
+[10:08:13.451][[34mINFO [0m][GPS ][MockACP][ACS] Received ACP Packet: {Sync: 0, Opcode: 37, Length: 255}
+[10:08:13.469][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[10:08:13.474][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 0 With new mode at front: 0
+[10:08:13.480][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 0 Current Mode: 1 Next Scheduled Mode: 0 Time: 12
+[10:08:13.485][[34mINFO [0m][Mode] Mode: 1
+[10:08:14.470][[34mINFO [0m][GPS ][MockACP][ACS] Sending ACP Packet: {Sync: 166, Opcode: 37, Length: 57}
+[10:08:14.477][[34mINFO [0m][GPS ][MockACP][ACS] Received ACP Packet: {Sync: 0, Opcode: 37, Length: 255}
+[10:08:14.990][[34mINFO [0m][WPUP] Pinging from watchdog
+[10:08:15.491][[34mINFO [0m][GPS ][MockACP][ACS] Sending ACP Packet: {Sync: 166, Opcode: 37, Length: 57}
+[10:08:15.498][[34mINFO [0m][GPS ][MockACP][ACS] Received ACP Packet: {Sync: 0, Opcode: 37, Length: 255}
+[10:08:15.504][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[10:08:15.510][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 0 With new mode at front: 0
+[10:08:15.516][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 0 Current Mode: 1 Next Scheduled Mode: 0 Time: 14
+[10:08:15.522][[34mINFO [0m][Mode] Mode: 1
+[10:08:16.512][[34mINFO [0m][GPS ][MockACP][ACS] Sending ACP Packet: {Sync: 166, Opcode: 37, Length: 57}
+[10:08:16.520][[34mINFO [0m][GPS ][MockACP][ACS] Received ACP Packet: {Sync: 0, Opcode: 37, Length: 255}
+[10:08:17.533][[34mINFO [0m][GPS ][MockACP][ACS] Sending ACP Packet: {Sync: 166, Opcode: 37, Length: 57}
+[10:08:17.541][[34mINFO [0m][GPS ][MockACP][ACS] Received ACP Packet: {Sync: 0, Opcode: 37, Length: 255}
+[10:08:17.546][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[10:08:17.552][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 0 With new mode at front: 0
+[10:08:17.557][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 0 Current Mode: 1 Next Scheduled Mode: 0 Time: 16
+[10:08:17.563][[34mINFO [0m][Mode] Mode: 1
+[10:08:18.554][[34mINFO [0m][GPS ][MockACP][ACS] Sending ACP Packet: {Sync: 166, Opcode: 37, Length: 57}
+[10:08:18.562][[34mINFO [0m][GPS ][MockACP][ACS] Received ACP Packet: {Sync: 0, Opcode: 37, Length: 255}
+[10:08:19.004][[34mINFO [0m][WPUP] Pinging from watchdog
+[10:08:19.575][[34mINFO [0m][GPS ][MockACP][ACS] Sending ACP Packet: {Sync: 166, Opcode: 37, Length: 57}
+[10:08:19.583][[34mINFO [0m][GPS ][MockACP][ACS] Received ACP Packet: {Sync: 0, Opcode: 37, Length: 255}
+[10:08:19.588][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[10:08:19.594][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 0 With new mode at front: 0
+[10:08:19.600][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 0 Current Mode: 1 Next Scheduled Mode: 0 Time: 18
+[10:08:19.606][[34mINFO [0m][Mode] Mode: 1
+[10:08:20.596][[34mINFO [0m][GPS ][MockACP][ACS] Sending ACP Packet: {Sync: 166, Opcode: 37, Length: 57}
+[10:08:20.604][[34mINFO [0m][GPS ][MockACP][ACS] Received ACP Packet: {Sync: 0, Opcode: 37, Length: 255}
+[10:08:21.618][[34mINFO [0m][GPS ][MockACP][ACS] Sending ACP Packet: {Sync: 166, Opcode: 37, Length: 57}
+[10:08:21.625][[34mINFO [0m][GPS ][MockACP][ACS] Received ACP Packet: {Sync: 0, Opcode: 37, Length: 255}
+[10:08:21.631][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[10:08:21.636][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 0 With new mode at front: 0
+[10:08:21.643][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 0 Current Mode: 1 Next Scheduled Mode: 0 Time: 20
+[10:08:21.648][[34mINFO [0m][Mode] Mode: 1
+[10:08:22.649][[34mINFO [0m][GPS ][MockACP][ACS] Sending ACP Packet: {Sync: 166, Opcode: 37, Length: 57}
+[10:08:22.656][[34mINFO [0m][GPS ][MockACP][ACS] Received ACP Packet: {Sync: 0, Opcode: 37, Length: 255}
+[10:08:23.028][[34mINFO [0m][WPUP] Pinging from watchdog
+[10:08:23.669][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[10:08:23.677][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 0 With new mode at front: 0
+[10:08:23.683][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 0 Current Mode: 1 Next Scheduled Mode: 0 Time: 22
+[10:08:23.690][[34mINFO [0m][GPS ][MockACP][ACS] Sending ACP Packet: {Sync: 166, Opcode: 37, Length: 57}
+[10:08:23.696][[34mINFO [0m][GPS ][MockACP][ACS] Received ACP Packet: {Sync: 0, Opcode: 37, Length: 255}
+[10:08:23.702][[34mINFO [0m][Mode] Mode: 1
+[10:08:24.711][[34mINFO [0m][GPS ][MockACP][ACS] Sending ACP Packet: {Sync: 166, Opcode: 37, Length: 57}
+[10:08:24.718][[34mINFO [0m][GPS ][MockACP][ACS] Received ACP Packet: {Sync: 0, Opcode: 37, Length: 255}
+[10:08:25.711][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[10:08:25.718][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 0 With new mode at front: 0
+[10:08:25.723][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 0 Current Mode: 1 Next Scheduled Mode: 0 Time: 24
+[10:08:25.728][[34mINFO [0m][Mode] Mode: 1

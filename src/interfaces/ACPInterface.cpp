@@ -97,7 +97,6 @@ bool ACPInterface::receivePacket(ACPPacket& ret){
 	bool goodsync = false;
 	for(int i = 0; i < 10; i++){
 		if((debug = spiman.receivebyte(spiid)) != ret.sync){
-			while(true);
 			Logger::Stream(LEVEL_WARN, tags) << "Received bad sync: "<< hex <<  setfill('0') << setw(2) << debug;
 		}else{
 			goodsync = true;

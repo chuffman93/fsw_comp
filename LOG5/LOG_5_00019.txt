@@ -1,0 +1,60 @@
+[12:12:21.110][[34mINFO [0m][MAIN][ACPInterface][EPS] Received ACP Packet: {Sync: 164, Opcode: 0, Length: 1}
+[12:12:21.123][[34mINFO [0m][MAIN][ACPInterface][EPS] Sending ACP Packet: {Sync: 164, Opcode: 1, Length: 0}
+[12:12:21.511][[34mINFO [0m][MAIN][ACPInterface][EPS] Received ACP Packet: {Sync: 164, Opcode: 1, Length: 1}
+[12:12:21.518][[34mINFO [0m][MAIN][SubPower][GPS] Powering off
+[12:12:21.523][[34mINFO [0m][MAIN][SubPower][GPS] Powering on
+[12:12:22.548][[34mINFO [0m][MAIN][FileManager] Opened /home/root/config/ConfigGPS for reading
+[12:12:22.555][[34mINFO [0m][MAIN][GPS] Setting timeout to 10 mins and timein to 2 hrs
+[12:12:22.563][[35mFATAL[0m][WPUP] Starting Watchdog Thread
+[12:12:22.568][[35mFATAL[0m][GND ] Starting Ground Communication Thread
+[12:12:22.573][[35mFATAL[0m][GPS ] Starting GPS Thread
+[12:12:22.579][[34mINFO [0m][GPS ] Fetching GPS
+[12:12:22.585][[34mINFO [0m][GPS ] No Lock
+[12:12:22.590][[34mINFO [0m][GND ][GroundCommunication] Sending beacon...
+[12:12:22.595][[34mINFO [0m][GND ][FileManager] Writing 93 bytes to "/opt/beacon/beacon"
+[12:12:22.601][[35mFATAL[0m][H&S ] Starting Health and Status Thread
+[12:12:22.607][[34mINFO [0m][H&S ][ACPInterface][EPS] Sending ACP Packet: {Sync: 164, Opcode: 16, Length: 0}
+[12:12:22.613][[34mINFO [0m][GND ][GroundCommunication] Beacon has been sent
+[12:12:22.618][[35mFATAL[0m][Mode] Starting Mode Thread
+[12:12:22.624][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[12:12:22.629][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 0 With new mode at front: 0
+[12:12:22.634][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 0 Current Mode: 1 Next Scheduled Mode: 0 Time: 20
+[12:12:22.639][[34mINFO [0m][Mode] Mode: 1
+[12:12:22.729][[34mINFO [0m][H&S ][ACPInterface][EPS] Received ACP Packet: {Sync: 164, Opcode: 16, Length: 40}
+[12:12:22.736][[34mINFO [0m][H&S ][FileManager] Writing 40 bytes to "/SD_2/HST/EPS/EPS_5_00020"
+[12:12:22.767][[34mINFO [0m][H&S ][EPS] Battery Charge: 23296
+[12:12:22.773][[34mINFO [0m][H&S ][ACPInterface][COM] Sending ACP Packet: {Sync: 165, Opcode: 16, Length: 0}
+[12:12:22.864][[34mINFO [0m][H&S ][ACPInterface][COM] Received ACP Packet: {Sync: 165, Opcode: 16, Length: 1}
+[12:12:22.872][[34mINFO [0m][H&S ][FileManager] Writing 1 bytes to "/SD_2/HST/COM/COM_5_00020"
+[12:12:22.884][[34mINFO [0m][H&S ][ACPInterface][ACS] Sending ACP Packet: {Sync: 166, Opcode: 16, Length: 0}
+[12:12:23.111][[34mINFO [0m][H&S ][ACPInterface][ACS] Received ACP Packet: {Sync: 166, Opcode: 16, Length: 162}
+[12:12:23.119][[34mINFO [0m][H&S ][FileManager] Writing 162 bytes to "/SD_2/HST/ACS/ACS_5_00021"
+[12:12:23.147][[34mINFO [0m][H&S ][CDH] Collecting Hot Swap Data
+[12:12:23.153][[34mINFO [0m][H&S ][HotSwapInterface][COM 3V3] Read: 3.287317V 0.062016A
+[12:12:23.158][[34mINFO [0m][H&S ][HotSwapInterface][COM VBAT] Read: 7.282275V 0.036176A
+[12:12:23.166][[34mINFO [0m][H&S ][HotSwapInterface][COM 12V0] Read: 12.139270V 0.013781A
+[12:12:23.172][[34mINFO [0m][H&S ][HotSwapInterface][ACS 3V3] Read: 3.268018V 0.054264A
+[12:12:23.178][[34mINFO [0m][H&S ][HotSwapInterface][ACS VBAT] Read: 7.282275V 0.023256A
+[12:12:23.185][[34mINFO [0m][H&S ][HotSwapInterface][ACS 12V0] Read: 12.139270V 0.013781A
+[12:12:23.191][[34mINFO [0m][H&S ][HotSwapInterface][PROP 3V3] Read: 3.242285V 0.010336A
+[12:12:23.197][[34mINFO [0m][H&S ][HotSwapInterface][PROP VBAT] Read: 7.224378V 0.023256A
+[12:12:23.203][[34mINFO [0m][H&S ][HotSwapInterface][PROP 12V0] Read: 12.017041V 0.015504A
+[12:12:23.209][[34mINFO [0m][H&S ][HotSwapInterface][GPS 3V3] Read: 3.248718V 0.142119A
+[12:12:23.216][[34mINFO [0m][H&S ][HotSwapInterface][GPS VBAT] Read: 7.301575V 0.028424A
+[12:12:23.221][[34mINFO [0m][H&S ][HotSwapInterface][AUXCOM 3V3] Read: 3.235852V 0.010336A
+[12:12:23.227][[34mINFO [0m][H&S ][HotSwapInterface][AUXCOM VBAT] Read: 7.192212V 0.020672A
+[12:12:23.233][[34mINFO [0m][H&S ][CDH] Collecting Power Monitor Data
+[12:12:23.241][[34mINFO [0m][H&S ][PowerMonitor][A5 1V8] Read: 2.880000V 0.126000A
+[12:12:23.249][[34mINFO [0m][H&S ][PowerMonitor][A5 1V2] Read: 1.920000V 0.148000A
+[12:12:23.258][[34mINFO [0m][H&S ][PowerMonitor][ETH 2V5] Read: 4.080000V 0.098000A
+[12:12:23.266][[34mINFO [0m][H&S ][PowerMonitor][ETH 1V2] Read: 1.920000V 0.200000A
+[12:12:23.271][[34mINFO [0m][H&S ][CDH] Collecting Temperature Sensor Data
+[12:12:23.598][[34mINFO [0m][GPS ] Fetching GPS
+[12:12:23.606][[34mINFO [0m][GPS ] No Lock
+[12:12:24.501][[34mINFO [0m][H&S ][TempInterface] Read 26062mC from the sensor
+[12:12:24.550][[34mINFO [0m][H&S ][TempInterface] Read 29187mC from the sensor
+[12:12:24.558][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[12:12:24.564][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[12:12:24.570][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[12:12:24.576][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[12:12:24.582][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""

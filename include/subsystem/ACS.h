@@ -14,6 +14,7 @@
 #include "interfaces/ACPInterface.h"
 #include "core/FileSystem.h"
 #include "core/Lock.h"
+#include "core/Watchdog.h"
 #include "util/ByteStream.h"
 #include "subsystem/GPS.h"
 #include <stdio.h>

@@ -1,0 +1,19 @@
+[16:01:54.339][[34mINFO [0m][5984][Logger] Setting global log level to [34mINFO [0m
+[16:01:54.339][[34mINFO [0m][MAIN][OneWireManager] Will now filter to level DEBUG
+[16:01:54.340][[34mINFO [0m][MAIN] Entering Main
+[16:01:54.340][[34mINFO [0m][MAIN][FileManager] Loaded ComPass Count: 0
+[16:01:54.340][[33mWARN [0m][MAIN] No Schedule Manager configs found
+[16:01:54.340][[34mINFO [0m][MAIN] Initializing HAL
+[16:01:54.340][[34mINFO [0m][MAIN] Initializing Subsystems
+[16:01:54.340][[34mINFO [0m][MAIN][ACS] Initializing ACS
+[16:01:54.340][[34mINFO [0m][MAIN][MockSubPower][ACS] Power On
+[16:01:54.340][[34mINFO [0m][MAIN][MockACP][ACS] Sending ACP Packet: {Sync: 166, Opcode: 8, Length: 0}
+[16:01:54.341][[34mINFO [0m][MAIN][MockACP][ACS] Received ACP Packet: {Sync: 0, Opcode: 8, Length: 255}
+[16:01:54.341][[34mINFO [0m][MAIN][MockACP][ACS] Sending ACP Packet: {Sync: 166, Opcode: 0, Length: 0}
+[16:01:54.341][[34mINFO [0m][MAIN][MockACP][ACS] Received ACP Packet: {Sync: 0, Opcode: 0, Length: 255}
+[16:01:54.341][[34mINFO [0m][MAIN][MockACP][ACS] Sending ACP Packet: {Sync: 166, Opcode: 1, Length: 0}
+[16:01:54.341][[34mINFO [0m][MAIN][MockACP][ACS] Received ACP Packet: {Sync: 0, Opcode: 1, Length: 255}
+[16:01:54.341][[31mERROR[0m][MAIN][ACS] ACS Config file does not exist
+[16:01:54.342][[34mINFO [0m][MAIN][CDH] Initializing Hot Swaps
+[16:01:54.342][[34mINFO [0m][MAIN][CDH] Initializing Power Monitors
+[16:01:54.342][[34mINFO [0m][MAIN][CDH] Initializing Temperature Monitors

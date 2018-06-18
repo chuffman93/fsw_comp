@@ -1,0 +1,64 @@
+[18:47:34.546][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[18:47:35.526][[34mINFO [0m][GPS ] Fetching GPS
+[18:47:35.526][DEBUG][GPS ][NMEAInterface] Nothing to be read
+[18:47:35.526][DEBUG][GPS ][GPS] Nothing was read
+[18:47:35.526][[34mINFO [0m][GPS ] No Lock
+[18:47:35.528][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[18:47:35.528][[34mINFO [0m][Mode] Mode: 1
+[18:47:35.547][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[18:47:36.547][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[18:47:37.525][[35mFATAL[0m][WPUP] GND thread is dead!
+[18:47:37.525][[34mINFO [0m][WPUP] Pinging from watchdog
+[18:47:37.527][[34mINFO [0m][GPS ] Fetching GPS
+[18:47:37.527][DEBUG][GPS ][NMEAInterface] Nothing to be read
+[18:47:37.527][DEBUG][GPS ][GPS] Nothing was read
+[18:47:37.527][[34mINFO [0m][GPS ] No Lock
+[18:47:37.528][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[18:47:37.528][[34mINFO [0m][Mode] Mode: 1
+[18:47:37.547][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[18:47:38.548][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[18:47:39.527][[34mINFO [0m][GPS ] Fetching GPS
+[18:47:39.527][DEBUG][GPS ][NMEAInterface] Nothing to be read
+[18:47:39.527][DEBUG][GPS ][GPS] Nothing was read
+[18:47:39.527][[34mINFO [0m][GPS ] No Lock
+[18:47:39.528][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[18:47:39.528][[34mINFO [0m][Mode] Mode: 1
+[18:47:39.548][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[18:47:40.549][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[18:47:41.525][[35mFATAL[0m][WPUP] GND thread is dead!
+[18:47:41.525][[35mFATAL[0m][WPUP] H&S thread is dead!
+[18:47:41.525][[34mINFO [0m][WPUP] Pinging from watchdog
+[18:47:41.528][[34mINFO [0m][GPS ] Fetching GPS
+[18:47:41.528][DEBUG][GPS ][NMEAInterface] Nothing to be read
+[18:47:41.528][DEBUG][GPS ][GPS] Nothing was read
+[18:47:41.528][[34mINFO [0m][GPS ] No Lock
+[18:47:41.529][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[18:47:41.529][[34mINFO [0m][Mode] Mode: 1
+[18:47:41.549][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[18:47:42.549][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[18:47:43.528][[34mINFO [0m][GPS ] Fetching GPS
+[18:47:43.528][DEBUG][GPS ][NMEAInterface] Nothing to be read
+[18:47:43.528][DEBUG][GPS ][GPS] Nothing was read
+[18:47:43.528][[34mINFO [0m][GPS ] No Lock
+[18:47:43.529][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[18:47:43.529][[34mINFO [0m][Mode] Mode: 1
+[18:47:43.550][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[18:47:44.550][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[18:47:45.525][[35mFATAL[0m][WPUP] GND thread is dead!
+[18:47:45.526][[35mFATAL[0m][WPUP] H&S thread is dead!
+[18:47:45.526][[34mINFO [0m][WPUP] Pinging from watchdog
+[18:47:45.529][[34mINFO [0m][GPS ] Fetching GPS
+[18:47:45.529][DEBUG][GPS ][NMEAInterface] Nothing to be read
+[18:47:45.529][DEBUG][GPS ][GPS] Nothing was read
+[18:47:45.529][[34mINFO [0m][GPS ] No Lock
+[18:47:45.529][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[18:47:45.529][[34mINFO [0m][Mode] Mode: 1
+[18:47:45.550][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[18:47:46.550][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[18:47:47.529][[34mINFO [0m][GPS ] Fetching GPS
+[18:47:47.529][DEBUG][GPS ][NMEAInterface] Nothing to be read
+[18:47:47.529][DEBUG][GPS ][GPS] Nothing was read
+[18:47:47.529][[34mINFO [0m][GPS ] No Lock
+[18:47:47.529][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[18:47:47.529][[34mINFO [0m][Mode] Mode: 1
+[18:47:47.551][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""

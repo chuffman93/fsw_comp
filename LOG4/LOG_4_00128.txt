@@ -1,0 +1,79 @@
+[13:44:51.017][[34mINFO [0m][GPS ] Fetching GPS
+[13:44:51.334][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:44:51.356][[34mINFO [0m][GPS ] No Lock
+[13:44:51.948][[33mWARN [0m][GND ][GPIOManager] Interrupt timeout occured on pioA4/
+[13:44:52.378][[34mINFO [0m][GPS ] Fetching GPS
+[13:44:52.400][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:44:52.413][[34mINFO [0m][GPS ] No Lock
+[13:44:52.979][[34mINFO [0m][GND ][ACPInterface][ACS] Sending ACP Packet: {Sync: 166, Opcode: 0, Length: 0}
+[13:44:53.450][[34mINFO [0m][GPS ] Fetching GPS
+[13:44:53.471][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:44:53.485][[34mINFO [0m][GPS ] No Lock
+[13:44:54.501][[34mINFO [0m][GPS ] Fetching GPS
+[13:44:54.515][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:44:54.526][[34mINFO [0m][GPS ] No Lock
+[13:44:54.537][[33mWARN [0m][GND ][GPIOManager] Interrupt timeout occured on pioA4/
+[13:44:55.542][[34mINFO [0m][GPS ] Fetching GPS
+[13:44:55.556][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:44:55.566][[34mINFO [0m][GPS ] No Lock
+[13:44:55.577][[34mINFO [0m][GND ][ACPInterface][ACS] Sending ACP Packet: {Sync: 166, Opcode: 0, Length: 0}
+[13:44:56.583][[34mINFO [0m][GPS ] Fetching GPS
+[13:44:56.605][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:44:56.629][[34mINFO [0m][GPS ] No Lock
+[13:44:57.103][[33mWARN [0m][GND ][GPIOManager] Interrupt timeout occured on pioA4/
+[13:44:57.664][[34mINFO [0m][GPS ] Fetching GPS
+[13:44:57.678][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:44:57.688][[34mINFO [0m][GPS ] No Lock
+[13:44:58.124][[34mINFO [0m][GND ][ACPInterface][ACS] Sending ACP Packet: {Sync: 166, Opcode: 0, Length: 0}
+[13:44:58.715][[34mINFO [0m][GPS ] Fetching GPS
+[13:44:58.729][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:44:58.739][[34mINFO [0m][GPS ] No Lock
+[13:44:59.656][[33mWARN [0m][GND ][GPIOManager] Interrupt timeout occured on pioA4/
+[13:44:59.766][[34mINFO [0m][GPS ] Fetching GPS
+[13:44:59.780][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:44:59.790][[34mINFO [0m][GPS ] No Lock
+[13:45:00.687][[34mINFO [0m][GND ][GroundCommunication] Executing EPS command: 0
+[13:45:00.699][[34mINFO [0m][GND ][ACPInterface][ACS] Sending ACP Packet: {Sync: 166, Opcode: 0, Length: 0}
+[13:45:00.817][[34mINFO [0m][GPS ] Fetching GPS
+[13:45:00.830][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:45:00.852][[34mINFO [0m][GPS ] No Lock
+[13:45:01.888][[34mINFO [0m][GPS ] Fetching GPS
+[13:45:01.902][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:45:01.912][[34mINFO [0m][GPS ] No Lock
+[13:45:02.229][[33mWARN [0m][GND ][GPIOManager] Interrupt timeout occured on pioA4/
+[13:45:02.949][[34mINFO [0m][GPS ] Fetching GPS
+[13:45:02.958][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:45:02.962][[34mINFO [0m][GPS ] No Lock
+[13:45:03.250][[34mINFO [0m][GND ][ACPInterface][ACS] Sending ACP Packet: {Sync: 166, Opcode: 0, Length: 0}
+[13:45:03.430][[35mFATAL[0m][WPUP] GND thread is dead!
+[13:45:03.437][[35mFATAL[0m][WPUP] Mode thread is dead!
+[13:45:03.453][[35mFATAL[0m][WPUP] H&S thread is dead!
+[13:45:03.459][[34mINFO [0m][WPUP] Pinging from watchdog
+[13:45:03.970][[34mINFO [0m][GPS ] Fetching GPS
+[13:45:03.979][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:45:03.983][[34mINFO [0m][GPS ] No Lock
+[13:45:04.761][[33mWARN [0m][GND ][GPIOManager] Interrupt timeout occured on pioA4/
+[13:45:04.991][[34mINFO [0m][GPS ] Fetching GPS
+[13:45:05.012][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:45:05.019][[34mINFO [0m][GPS ] No Lock
+[13:45:05.772][[34mINFO [0m][GND ][ACPInterface][ACS] Sending ACP Packet: {Sync: 166, Opcode: 0, Length: 0}
+[13:45:05.918][[34mINFO [0m][GND ][ACPInterface][ACS] Received ACP Packet: {Sync: 166, Opcode: 0, Length: 1}
+[13:45:06.032][[34mINFO [0m][GPS ] Fetching GPS
+[13:45:06.040][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:45:06.057][[34mINFO [0m][GPS ] No Lock
+[13:45:06.943][[34mINFO [0m][GND ][GroundCommunication] Beginning Communication Pass Timer
+[13:45:07.073][[34mINFO [0m][GPS ] Fetching GPS
+[13:45:07.081][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:45:07.098][[34mINFO [0m][GPS ] No Lock
+[13:45:07.964][DEBUG][GND ][GroundCommunication] Start Time: 143 ComTimeOut: 1200 Current Time: 144
+[13:45:07.973][[34mINFO [0m][GND ][GroundCommunication] Beginning Requested Downlink
+[13:45:07.989][DEBUG][GND ][GroundCommunication] Grabbed file name for downlink: CMD_4_00142
+[13:45:07.995][[34mINFO [0m][GND ][GroundCommunication] Completed Downlink of All Files
+[13:45:08.114][[34mINFO [0m][GPS ] Fetching GPS
+[13:45:08.122][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:45:08.140][[34mINFO [0m][GPS ] No Lock
+[13:45:09.015][DEBUG][GND ][GroundCommunication] Start Time: 143 ComTimeOut: 1200 Current Time: 146
+[13:45:09.022][[34mINFO [0m][GND ][GroundCommunication] Entering Communication Post Pass
+[13:45:09.039][[34mINFO [0m][GND ][FileManager] Deleting file "/opt/uplink/SOT.txt"
+[13:45:09.055][[34mINFO [0m][GND ][GroundCommunication] Communication Pass over, clearing downlink queue
+[13:45:09.063][DEBUG][GND ][ScheduleManager] Attempting to switch back from Com from GroundCommunication Thread

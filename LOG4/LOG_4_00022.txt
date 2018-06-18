@@ -1,0 +1,65 @@
+[13:43:05.185][[34mINFO [0m][H&S ][HotSwapInterface][AUXCOM 3V3] Read: 3.229419V 0.005168A
+[13:43:05.211][[34mINFO [0m][H&S ][HotSwapInterface][AUXCOM VBAT] Read: 7.198645V 0.020672A
+[13:43:05.216][[34mINFO [0m][H&S ][CDH] Collecting Power Monitor Data
+[13:43:05.224][[34mINFO [0m][H&S ][PowerMonitor][A5 1V8] Read: 2.880000V 0.126000A
+[13:43:05.231][[34mINFO [0m][H&S ][PowerMonitor][A5 1V2] Read: 1.920000V 0.120000A
+[13:43:05.239][[34mINFO [0m][H&S ][PowerMonitor][ETH 2V5] Read: 4.080000V 0.098000A
+[13:43:05.247][[34mINFO [0m][H&S ][PowerMonitor][ETH 1V2] Read: 1.920000V 0.198000A
+[13:43:05.252][[34mINFO [0m][H&S ][CDH] Collecting Temperature Sensor Data
+[13:43:05.369][[34mINFO [0m][GPS ] Fetching GPS
+[13:43:05.378][[34mINFO [0m][GPS ] No Lock
+[13:43:05.384][DEBUG][GND ][GroundCommunication] Start Time: 20 ComTimeOut: 1200 Current Time: 22
+[13:43:05.388][DEBUG][GND ][ScheduleManager] Attempting to switch to Com from GroundCommunication Thread
+[13:43:06.010][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 0 With new mode at front: 0
+[13:43:06.017][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 3 Current Mode: 7 Next Scheduled Mode: 0 Time: 23
+[13:43:06.023][[34mINFO [0m][Mode][FileManager] Updated ComPass Count to 343
+[13:43:06.028][[34mINFO [0m][Mode][ScheduleManager] Setting Mode to: 3
+[13:43:06.034][[34mINFO [0m][Mode] Mode: 3
+[13:43:06.271][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[13:43:06.278][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[13:43:06.283][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[13:43:06.288][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[13:43:06.294][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[13:43:06.300][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[13:43:06.306][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[13:43:06.311][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[13:43:06.317][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[13:43:06.323][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[13:43:06.328][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[13:43:06.334][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[13:43:06.340][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[13:43:06.347][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[13:43:06.352][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[13:43:06.358][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[13:43:06.364][[34mINFO [0m][H&S ][FileManager] Writing 200 bytes to "/SD_2/HST/CDH/CDH_4_00023"
+[13:43:06.379][[33mWARN [0m][H&S ][GPS] GPS Health and Status isn't implemented yet!
+[13:43:06.390][[34mINFO [0m][GPS ] Fetching GPS
+[13:43:06.397][[34mINFO [0m][GPS ] No Lock
+[13:43:06.403][DEBUG][GND ][GroundCommunication] Start Time: 20 ComTimeOut: 1200 Current Time: 23
+[13:43:07.411][[34mINFO [0m][GPS ] Fetching GPS
+[13:43:07.419][[34mINFO [0m][GPS ] No Lock
+[13:43:07.424][DEBUG][GND ][GroundCommunication] Start Time: 20 ComTimeOut: 1200 Current Time: 24
+[13:43:08.042][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 0 With new mode at front: 0
+[13:43:08.049][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 3 Current Mode: 3 Next Scheduled Mode: 0 Time: 25
+[13:43:08.054][[34mINFO [0m][Mode] Mode: 3
+[13:43:08.432][[34mINFO [0m][GPS ] Fetching GPS
+[13:43:08.440][[34mINFO [0m][GPS ] No Lock
+[13:43:08.445][DEBUG][GND ][GroundCommunication] Start Time: 20 ComTimeOut: 1200 Current Time: 25
+[13:43:09.454][[34mINFO [0m][GPS ] Fetching GPS
+[13:43:09.461][[34mINFO [0m][GPS ] No Lock
+[13:43:09.466][DEBUG][GND ][GroundCommunication] Start Time: 20 ComTimeOut: 1200 Current Time: 26
+[13:43:10.074][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 0 With new mode at front: 0
+[13:43:10.081][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 3 Current Mode: 3 Next Scheduled Mode: 0 Time: 27
+[13:43:10.086][[34mINFO [0m][Mode] Mode: 3
+[13:43:10.475][[34mINFO [0m][GPS ] Fetching GPS
+[13:43:10.481][[34mINFO [0m][GPS ] No Lock
+[13:43:10.487][DEBUG][GND ][GroundCommunication] Start Time: 20 ComTimeOut: 1200 Current Time: 27
+[13:43:11.496][[34mINFO [0m][GPS ] Fetching GPS
+[13:43:11.504][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:43:11.510][[33mWARN [0m][GPS ][GPS] Wrong message. Expected #BESTXYZA got:"[COM1]#BESTXYZA"
+[13:43:11.515][[34mINFO [0m][GPS ] No Lock
+[13:43:11.521][DEBUG][GND ][GroundCommunication] Start Time: 20 ComTimeOut: 1200 Current Time: 28
+[13:43:12.106][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 0 With new mode at front: 0
+[13:43:12.113][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 3 Current Mode: 3 Next Scheduled Mode: 0 Time: 29
+[13:43:12.118][[34mINFO [0m][Mode] Mode: 3
+[13:43:12.537][DEBUG][GND ][GroundCommunication] Start Time: 20 ComTimeOut: 1200 Current Time: 29

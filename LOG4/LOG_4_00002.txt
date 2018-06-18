@@ -1,0 +1,57 @@
+[13:42:45.569][[34mINFO [0m][MAIN][ACPInterface][ACS] Sending ACP Packet: {Sync: 166, Opcode: 8, Length: 0}
+[13:42:45.614][[34mINFO [0m][MAIN][ACPInterface][ACS] Received ACP Packet: {Sync: 166, Opcode: 8, Length: 1}
+[13:42:45.621][[34mINFO [0m][MAIN][ACPInterface][ACS] Sending ACP Packet: {Sync: 166, Opcode: 0, Length: 0}
+[13:42:46.694][[34mINFO [0m][MAIN][ACPInterface][ACS] Received ACP Packet: {Sync: 166, Opcode: 0, Length: 1}
+[13:42:46.701][[34mINFO [0m][MAIN][ACPInterface][ACS] Sending ACP Packet: {Sync: 166, Opcode: 1, Length: 0}
+[13:42:47.775][[34mINFO [0m][MAIN][ACPInterface][ACS] Received ACP Packet: {Sync: 166, Opcode: 1, Length: 1}
+[13:42:47.782][[31mERROR[0m][MAIN][ACS] ACS Config file does not exist
+[13:42:47.788][[34mINFO [0m][MAIN][CDH] Initializing Hot Swaps
+[13:42:47.793][[34mINFO [0m][MAIN][HotSwapInterface][COM 3V3] Configuring HotSwap
+[13:42:47.799][[34mINFO [0m][MAIN][HotSwapInterface][COM VBAT] Configuring HotSwap
+[13:42:47.804][[34mINFO [0m][MAIN][HotSwapInterface][COM 12V0] Configuring HotSwap
+[13:42:47.810][[34mINFO [0m][MAIN][HotSwapInterface][ACS 3V3] Configuring HotSwap
+[13:42:47.816][[34mINFO [0m][MAIN][HotSwapInterface][ACS VBAT] Configuring HotSwap
+[13:42:47.821][[34mINFO [0m][MAIN][HotSwapInterface][ACS 12V0] Configuring HotSwap
+[13:42:47.827][[34mINFO [0m][MAIN][HotSwapInterface][PROP 3V3] Configuring HotSwap
+[13:42:47.833][[34mINFO [0m][MAIN][HotSwapInterface][PROP VBAT] Configuring HotSwap
+[13:42:47.839][[34mINFO [0m][MAIN][HotSwapInterface][PROP 12V0] Configuring HotSwap
+[13:42:47.845][[34mINFO [0m][MAIN][HotSwapInterface][GPS 3V3] Configuring HotSwap
+[13:42:47.851][[34mINFO [0m][MAIN][HotSwapInterface][GPS VBAT] Configuring HotSwap
+[13:42:47.856][[34mINFO [0m][MAIN][HotSwapInterface][AUXCOM 3V3] Configuring HotSwap
+[13:42:47.862][[34mINFO [0m][MAIN][HotSwapInterface][AUXCOM VBAT] Configuring HotSwap
+[13:42:47.867][[34mINFO [0m][MAIN][CDH] Initializing Power Monitors
+[13:42:47.872][[34mINFO [0m][MAIN][PowerMonitor][A5 1V8] Configuring Power Monitor
+[13:42:47.878][[34mINFO [0m][MAIN][PowerMonitor][A5 1V2] Configuring Power Monitor
+[13:42:47.885][[34mINFO [0m][MAIN][PowerMonitor][ETH 2V5] Configuring Power Monitor
+[13:42:47.891][[34mINFO [0m][MAIN][PowerMonitor][ETH 1V2] Configuring Power Monitor
+[13:42:47.897][[34mINFO [0m][MAIN][CDH] Initializing Temperature Monitors
+[13:42:47.902][[34mINFO [0m][MAIN][OneWireManager] Initializing one wire bus at /sys/bus/w1/devices/w1_bus_master1/
+[13:42:47.908][[34mINFO [0m][MAIN][OneWireManager] Initializing one device TEMP0/
+[13:42:47.913][[34mINFO [0m][MAIN][OneWireManager] Initializing one device TEMP1/
+[13:42:47.919][[34mINFO [0m][MAIN][OneWireManager] Initializing one device TEMP2/
+[13:42:47.924][[34mINFO [0m][MAIN][OneWireManager] Initializing one device TEMP3/
+[13:42:47.930][[34mINFO [0m][MAIN][OneWireManager] Initializing one device TEMP4/
+[13:42:47.936][[34mINFO [0m][MAIN][OneWireManager] Initializing one device TEMP5/
+[13:42:47.941][[34mINFO [0m][MAIN][OneWireManager] Initializing one device TEMP6/
+[13:42:47.947][[34mINFO [0m][MAIN][OneWireManager] Initializing one device TEMP7/
+[13:42:47.952][[34mINFO [0m][MAIN][OneWireManager] Initializing one device TEMP8/
+[13:42:47.957][[34mINFO [0m][MAIN][OneWireManager] Initializing one device TEMP9/
+[13:42:47.962][[34mINFO [0m][MAIN][OneWireManager] Initializing one device TEMP10/
+[13:42:47.968][[34mINFO [0m][MAIN][OneWireManager] Initializing one device TEMP11/
+[13:42:47.974][[34mINFO [0m][MAIN][OneWireManager] Initializing one device TEMP12/
+[13:42:47.979][[34mINFO [0m][MAIN][OneWireManager] Initializing one device TEMP13/
+[13:42:47.985][[34mINFO [0m][MAIN][OneWireManager] Initializing one device TEMP14/
+[13:42:47.990][[34mINFO [0m][MAIN][OneWireManager] Initializing one device TEMP15/
+[13:42:47.996][[34mINFO [0m][MAIN][COM] Initializing COM
+[13:42:48.001][[34mINFO [0m][MAIN][SubPower][COM] Powering on
+[13:42:48.022][[34mINFO [0m][MAIN][ACPInterface][COM] Sending ACP Packet: {Sync: 165, Opcode: 8, Length: 0}
+[13:42:49.543][[33mWARN [0m][MAIN][GPIOManager] Interrupt timeout occured on pioD6/
+[13:42:50.564][[34mINFO [0m][MAIN][ACPInterface][COM] Sending ACP Packet: {Sync: 165, Opcode: 8, Length: 0}
+[13:42:52.086][[33mWARN [0m][MAIN][GPIOManager] Interrupt timeout occured on pioD6/
+[13:42:53.107][[34mINFO [0m][MAIN][ACPInterface][COM] Sending ACP Packet: {Sync: 165, Opcode: 8, Length: 0}
+[13:42:54.959][[33mWARN [0m][MAIN][GPIOManager] Interrupt timeout occured on pioD6/
+[13:42:55.970][[34mINFO [0m][MAIN][ACPInterface][COM] Sending ACP Packet: {Sync: 165, Opcode: 8, Length: 0}
+[13:42:56.094][[34mINFO [0m][MAIN][ACPInterface][COM] Received ACP Packet: {Sync: 165, Opcode: 8, Length: 1}
+[13:42:56.102][[34mINFO [0m][MAIN][ACPInterface][COM] Sending ACP Packet: {Sync: 165, Opcode: 0, Length: 0}
+[13:42:56.229][[34mINFO [0m][MAIN][ACPInterface][COM] Received ACP Packet: {Sync: 165, Opcode: 0, Length: 1}
+[12:10:48.752][[34mINFO [0m][MAIN][ACPInterface][ACS] Sending ACP Packet: {Sync: 166, Opcode: 8, Length: 0}

@@ -1,0 +1,179 @@
+[18:48:05.784][[35mFATAL[0m][WPUP] Starting Watchdog Thread
+[18:48:05.784][[35mFATAL[0m][GND ] Starting Ground Communication Thread
+[18:48:05.784][[34mINFO [0m][GND ][GroundCommunication] Sending beacon...
+[18:48:05.784][[34mINFO [0m][GND ][FileManager] Writing 141 bytes to "./opt/beacon/beacon"
+[18:48:05.784][[34mINFO [0m][GND ][GroundCommunication] Beacon has been sent
+[18:48:05.784][[35mFATAL[0m][Mode] Starting Mode Thread
+[18:48:05.784][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[18:48:05.785][[34mINFO [0m][Mode] Mode: 1
+[18:48:05.785][[35mFATAL[0m][GPS ] Starting GPS Thread
+[18:48:05.785][[34mINFO [0m][GPS ] Fetching GPS
+[18:48:05.785][DEBUG][GPS ][NMEAInterface] Nothing to be read
+[18:48:05.785][DEBUG][GPS ][GPS] Nothing was read
+[18:48:05.785][[34mINFO [0m][GPS ] No Lock
+[18:48:05.785][[35mFATAL[0m][H&S ] Starting Health and Status Thread
+[18:48:05.785][[34mINFO [0m][H&S ][MockACP][EPS] Sending ACP Packet: {Sync: 164, Opcode: 16, Length: 0}
+[18:48:05.785][[34mINFO [0m][H&S ][MockACP][EPS] Received ACP Packet: {Sync: 0, Opcode: 16, Length: 255}
+[18:48:05.785][[34mINFO [0m][H&S ][FileManager] Writing 255 bytes to "./SD_2/HST/EPS/EPS_85_00001"
+[18:48:05.785][[34mINFO [0m][H&S ][EPS] Battery Charge: 0
+[18:48:05.785][[34mINFO [0m][H&S ][MockACP][COM] Sending ACP Packet: {Sync: 165, Opcode: 16, Length: 0}
+[18:48:05.785][[34mINFO [0m][H&S ][MockACP][COM] Received ACP Packet: {Sync: 0, Opcode: 16, Length: 255}
+[18:48:05.785][[34mINFO [0m][H&S ][FileManager] Writing 255 bytes to "./SD_2/HST/COM/COM_85_00001"
+[18:48:05.785][[34mINFO [0m][H&S ][MockACP][ACS] Sending ACP Packet: {Sync: 166, Opcode: 16, Length: 0}
+[18:48:05.786][[34mINFO [0m][H&S ][MockACP][ACS] Received ACP Packet: {Sync: 0, Opcode: 16, Length: 255}
+[18:48:05.786][[34mINFO [0m][H&S ][FileManager] Writing 255 bytes to "./SD_2/HST/ACS/ACS_85_00001"
+[18:48:05.786][[34mINFO [0m][H&S ][CDH] Collecting Hot Swap Data
+[18:48:05.786][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.786][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address 80
+[18:48:05.786][[33mWARN [0m][H&S ][I2CManager] Read failed. read -1 not 3
+[18:48:05.786][[34mINFO [0m][H&S ][HotSwapInterface][COM 3V3] Read: 0V 0A
+[18:48:05.786][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.786][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address 82
+[18:48:05.786][[33mWARN [0m][H&S ][I2CManager] Read failed. read -1 not 3
+[18:48:05.786][[34mINFO [0m][H&S ][HotSwapInterface][COM VBAT] Read: 0V 0A
+[18:48:05.786][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.786][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address 84
+[18:48:05.786][[33mWARN [0m][H&S ][I2CManager] Read failed. read -1 not 3
+[18:48:05.786][[34mINFO [0m][H&S ][HotSwapInterface][COM 12V0] Read: 0V 0A
+[18:48:05.786][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.786][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address 86
+[18:48:05.787][[33mWARN [0m][H&S ][I2CManager] Read failed. read -1 not 3
+[18:48:05.787][[34mINFO [0m][H&S ][HotSwapInterface][ACS 3V3] Read: 0V 0A
+[18:48:05.787][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.787][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address 88
+[18:48:05.787][[33mWARN [0m][H&S ][I2CManager] Read failed. read -1 not 3
+[18:48:05.787][[34mINFO [0m][H&S ][HotSwapInterface][ACS VBAT] Read: 0V 0A
+[18:48:05.787][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.787][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address 8a
+[18:48:05.787][[33mWARN [0m][H&S ][I2CManager] Read failed. read -1 not 3
+[18:48:05.787][[34mINFO [0m][H&S ][HotSwapInterface][ACS 12V0] Read: 0V 0A
+[18:48:05.787][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.787][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address 8c
+[18:48:05.787][[33mWARN [0m][H&S ][I2CManager] Read failed. read -1 not 3
+[18:48:05.787][[34mINFO [0m][H&S ][HotSwapInterface][PROP 3V3] Read: 0V 0A
+[18:48:05.787][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.787][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address 8e
+[18:48:05.787][[33mWARN [0m][H&S ][I2CManager] Read failed. read -1 not 3
+[18:48:05.787][[34mINFO [0m][H&S ][HotSwapInterface][PROP VBAT] Read: 0V 0A
+[18:48:05.788][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.788][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address 90
+[18:48:05.788][[33mWARN [0m][H&S ][I2CManager] Read failed. read -1 not 3
+[18:48:05.788][[34mINFO [0m][H&S ][HotSwapInterface][PROP 12V0] Read: 0V 0A
+[18:48:05.788][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.788][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address 98
+[18:48:05.788][[33mWARN [0m][H&S ][I2CManager] Read failed. read -1 not 3
+[18:48:05.788][[34mINFO [0m][H&S ][HotSwapInterface][GPS 3V3] Read: 0V 0A
+[18:48:05.788][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.788][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address 9a
+[18:48:05.788][[33mWARN [0m][H&S ][I2CManager] Read failed. read -1 not 3
+[18:48:05.788][[34mINFO [0m][H&S ][HotSwapInterface][GPS VBAT] Read: 0V 0A
+[18:48:05.788][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.788][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address 9c
+[18:48:05.788][[33mWARN [0m][H&S ][I2CManager] Read failed. read -1 not 3
+[18:48:05.788][[34mINFO [0m][H&S ][HotSwapInterface][AUXCOM 3V3] Read: 0V 0A
+[18:48:05.788][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.789][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address 9e
+[18:48:05.789][[33mWARN [0m][H&S ][I2CManager] Read failed. read -1 not 3
+[18:48:05.789][[34mINFO [0m][H&S ][HotSwapInterface][AUXCOM VBAT] Read: 0V 0A
+[18:48:05.789][[34mINFO [0m][H&S ][CDH] Collecting Power Monitor Data
+[18:48:05.789][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.789][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address ce
+[18:48:05.789][[33mWARN [0m][H&S ][I2CManager] Write failed. Wrote -1 not 1
+[18:48:05.789][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.789][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address ce
+[18:48:05.789][[33mWARN [0m][H&S ][I2CManager] Read failed. read -1 not 1
+[18:48:05.789][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.789][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address ce
+[18:48:05.789][[33mWARN [0m][H&S ][I2CManager] Write failed. Wrote -1 not 1
+[18:48:05.789][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.789][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address ce
+[18:48:05.789][[33mWARN [0m][H&S ][I2CManager] Read failed. read -1 not 1
+[18:48:05.790][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.790][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address ce
+[18:48:05.790][[33mWARN [0m][H&S ][I2CManager] Write failed. Wrote -1 not 1
+[18:48:05.790][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.790][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address ce
+[18:48:05.790][[33mWARN [0m][H&S ][I2CManager] Read failed. read -1 not 1
+[18:48:05.790][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.790][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address ce
+[18:48:05.790][[33mWARN [0m][H&S ][I2CManager] Write failed. Wrote -1 not 1
+[18:48:05.790][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.790][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address ce
+[18:48:05.790][[33mWARN [0m][H&S ][I2CManager] Read failed. read -1 not 1
+[18:48:05.790][[34mINFO [0m][H&S ][PowerMonitor][A5 1V8] Read: 0V 0A
+[18:48:05.790][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.790][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address d0
+[18:48:05.791][[33mWARN [0m][H&S ][I2CManager] Write failed. Wrote -1 not 1
+[18:48:05.791][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.791][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address d0
+[18:48:05.791][[33mWARN [0m][H&S ][I2CManager] Read failed. read -1 not 1
+[18:48:05.791][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.791][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address d0
+[18:48:05.791][[33mWARN [0m][H&S ][I2CManager] Write failed. Wrote -1 not 1
+[18:48:05.791][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.791][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address d0
+[18:48:05.791][[33mWARN [0m][H&S ][I2CManager] Read failed. read -1 not 1
+[18:48:05.791][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.791][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address d0
+[18:48:05.791][[33mWARN [0m][H&S ][I2CManager] Write failed. Wrote -1 not 1
+[18:48:05.791][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.791][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address d0
+[18:48:05.792][[33mWARN [0m][H&S ][I2CManager] Read failed. read -1 not 1
+[18:48:05.792][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.792][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address d0
+[18:48:05.792][[33mWARN [0m][H&S ][I2CManager] Write failed. Wrote -1 not 1
+[18:48:05.792][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.792][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address d0
+[18:48:05.792][[33mWARN [0m][H&S ][I2CManager] Read failed. read -1 not 1
+[18:48:05.792][[34mINFO [0m][H&S ][PowerMonitor][A5 1V2] Read: 0V 0A
+[18:48:05.792][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.792][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address d2
+[18:48:05.792][[33mWARN [0m][H&S ][I2CManager] Write failed. Wrote -1 not 1
+[18:48:05.792][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.792][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address d2
+[18:48:05.792][[33mWARN [0m][H&S ][I2CManager] Read failed. read -1 not 1
+[18:48:05.792][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.793][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address d2
+[18:48:05.793][[33mWARN [0m][H&S ][I2CManager] Write failed. Wrote -1 not 1
+[18:48:05.793][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.793][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address d2
+[18:48:05.793][[33mWARN [0m][H&S ][I2CManager] Read failed. read -1 not 1
+[18:48:05.793][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.793][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address d2
+[18:48:05.793][[33mWARN [0m][H&S ][I2CManager] Write failed. Wrote -1 not 1
+[18:48:05.793][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.793][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address d2
+[18:48:05.793][[33mWARN [0m][H&S ][I2CManager] Read failed. read -1 not 1
+[18:48:05.793][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.793][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address d2
+[18:48:05.793][[33mWARN [0m][H&S ][I2CManager] Write failed. Wrote -1 not 1
+[18:48:05.794][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.794][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address d2
+[18:48:05.794][[33mWARN [0m][H&S ][I2CManager] Read failed. read -1 not 1
+[18:48:05.794][[34mINFO [0m][H&S ][PowerMonitor][ETH 2V5] Read: 0V 0A
+[18:48:05.794][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.794][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address d4
+[18:48:05.794][[33mWARN [0m][H&S ][I2CManager] Write failed. Wrote -1 not 1
+[18:48:05.794][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.794][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address d4
+[18:48:05.794][[33mWARN [0m][H&S ][I2CManager] Read failed. read -1 not 1
+[18:48:05.794][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.794][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address d4
+[18:48:05.794][[33mWARN [0m][H&S ][I2CManager] Write failed. Wrote -1 not 1
+[18:48:05.794][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.794][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address d4
+[18:48:05.795][[33mWARN [0m][H&S ][I2CManager] Read failed. read -1 not 1
+[18:48:05.795][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.795][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address d4
+[18:48:05.795][[33mWARN [0m][H&S ][I2CManager] Write failed. Wrote -1 not 1
+[18:48:05.795][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.795][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address d4
+[18:48:05.795][[33mWARN [0m][H&S ][I2CManager] Read failed. read -1 not 1
+[18:48:05.795][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.795][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address d4
+[18:48:05.795][[33mWARN [0m][H&S ][I2CManager] Write failed. Wrote -1 not 1
+[18:48:05.795][[31mERROR[0m][H&S ][I2CManager] Unable to open I2C bus /dev/i2c-2
+[18:48:05.795][[33mWARN [0m][H&S ][I2CManager] Unable to select i2c device on address d4
+[18:48:05.795][[33mWARN [0m][H&S ][I2CManager] Read failed. read -1 not 1
+[18:48:05.795][[34mINFO [0m][H&S ][PowerMonitor][ETH 1V2] Read: 0V 0A
+[18:48:05.796][[34mINFO [0m][H&S ][CDH] Collecting Temperature Sensor Data

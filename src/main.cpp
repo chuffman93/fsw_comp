@@ -26,20 +26,21 @@ int main() {
 	Logger::setMode(MODE_PW);
 	Logger::setLevel(LEVEL_INFO);
 	Logger::registerThread("MAIN");
-	Logger::registerFilter(LogTag("Name", "GPS"),LEVEL_DEBUG);
+	Logger::registerFilter(LogTag("Instance", "EPS"),LEVEL_DEBUG);
 	Logger::log(LEVEL_INFO, "Entering Main");
 
 	//---------Step1: Build FSW---------------------------
 	Architecture::setInterfaceMode(HARDWARE);
 	Architecture::buildCDH();
-	Architecture::buildEPS();
 	Architecture::buildACS();
+	Architecture::buildGPS();
+	Architecture::buildEPS();
 	Architecture::buildRAD();
 	Architecture::buildCOM();
-	Architecture::buildGPS();
 	Architecture::buildScheduleManager();
 	Architecture::buildBeaconManager();
 	Architecture::buildGND();
+
 
 	//---------Step2: Initialize HAL-----------------------
 	Logger::log(LEVEL_INFO, "Initializing HAL");
@@ -47,6 +48,7 @@ int main() {
 	for(vector<HardwareManager*>::iterator i = halinit.begin(); i != halinit.end(); i++){
 		(*i)->initialize();
 	}
+
 
 	//---------Step3: Initialize Subsystems-----------------------
 	vector<SubsystemBase*> subinit = Architecture::buildInitVector();

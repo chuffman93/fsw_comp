@@ -61,6 +61,7 @@ void RAD::getHealthStatus(){
 }
 
 ACPPacket RAD::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
+	watchdog->KickWatchdog();
 	if (buffer.empty()){
 		ACPPacket acpPacket(RAD_SYNC, opcode);
 		ACPPacket acpReturn;
@@ -302,6 +303,10 @@ void RAD::tarBallData(int splits){
 
 		// create a differenPLDUpdateDataNumbert archiveName referencing just the individual chunks
 		sprintf(archiveName,"%s%03d",dataFile.c_str(),i);
+
+		if(i%5 == 0){
+			watchdog->KickWatchdog();
+		}
 		// removes the chunks to save some space
 		remove(archiveName);
 	}

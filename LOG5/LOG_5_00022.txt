@@ -1,0 +1,91 @@
+[13:47:53.006][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[13:47:53.022][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[13:47:53.028][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[13:47:53.034][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[13:47:53.040][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[13:47:53.046][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[13:47:53.052][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[13:47:53.058][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[13:47:53.064][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[13:47:53.069][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[13:47:53.074][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[13:47:53.079][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[13:47:53.085][[34mINFO [0m][H&S ][FileManager] Writing 200 bytes to "/SD_2/HST/CDH/CDH_5_00022"
+[13:47:53.098][[33mWARN [0m][H&S ][GPS] GPS Health and Status isn't implemented yet!
+[13:47:53.463][[34mINFO [0m][GPS ] Fetching GPS
+[13:47:53.470][[34mINFO [0m][GPS ] No Lock
+[13:47:53.603][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[13:47:53.610][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 0 With new mode at front: 0
+[13:47:53.615][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 0 Current Mode: 1 Next Scheduled Mode: 0 Time: 22
+[13:47:53.621][[34mINFO [0m][Mode] Mode: 1
+[13:47:54.484][[34mINFO [0m][GPS ] Fetching GPS
+[13:47:54.491][[34mINFO [0m][GPS ] No Lock
+[13:47:55.505][[34mINFO [0m][GPS ] Fetching GPS
+[13:47:55.512][[34mINFO [0m][GPS ] No Lock
+[13:47:55.635][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[13:47:55.642][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 0 With new mode at front: 0
+[13:47:55.647][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 0 Current Mode: 1 Next Scheduled Mode: 0 Time: 24
+[13:47:55.653][[34mINFO [0m][Mode] Mode: 1
+[13:47:56.526][[34mINFO [0m][GPS ] Fetching GPS
+[13:47:56.533][[34mINFO [0m][GPS ] No Lock
+[13:47:57.547][[34mINFO [0m][GPS ] Fetching GPS
+[13:47:57.554][[34mINFO [0m][GPS ] No Lock
+[13:47:57.667][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[13:47:57.674][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 0 With new mode at front: 0
+[13:47:57.679][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 0 Current Mode: 1 Next Scheduled Mode: 0 Time: 26
+[13:47:57.684][[34mINFO [0m][Mode] Mode: 1
+[13:47:58.568][[34mINFO [0m][GPS ] Fetching GPS
+[13:47:58.575][[34mINFO [0m][GPS ] No Lock
+[13:47:59.604][[34mINFO [0m][GPS ] Fetching GPS
+[13:47:59.616][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:47:59.638][[33mWARN [0m][GPS ][GPS] Wrong message. Expected #BESTXYZA got:"[COM1]#BESTXYZA"
+[13:47:59.643][[34mINFO [0m][GPS ] No Lock
+[13:47:59.699][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[13:47:59.708][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 0 With new mode at front: 0
+[13:47:59.714][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 0 Current Mode: 1 Next Scheduled Mode: 0 Time: 28
+[13:47:59.719][[34mINFO [0m][Mode] Mode: 1
+[13:48:00.650][[34mINFO [0m][GPS ] Fetching GPS
+[13:48:00.659][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:48:00.664][[34mINFO [0m][GPS ] No Lock
+[13:48:01.671][[34mINFO [0m][GPS ] Fetching GPS
+[13:48:01.680][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:48:01.685][[34mINFO [0m][GPS ] No Lock
+[13:48:01.732][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[13:48:01.738][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 0 With new mode at front: 0
+[13:48:01.744][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 0 Current Mode: 1 Next Scheduled Mode: 0 Time: 30
+[13:48:01.749][[34mINFO [0m][Mode] Mode: 1
+[13:48:02.702][[34mINFO [0m][GPS ] Fetching GPS
+[13:48:02.711][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:48:02.715][[34mINFO [0m][GPS ] No Lock
+[13:48:03.733][[34mINFO [0m][GPS ] Fetching GPS
+[13:48:03.743][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:48:03.749][[34mINFO [0m][GPS ] No Lock
+[13:48:03.764][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[13:48:03.770][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 0 With new mode at front: 0
+[13:48:03.775][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 0 Current Mode: 1 Next Scheduled Mode: 0 Time: 32
+[13:48:03.780][[34mINFO [0m][Mode] Mode: 1
+[13:48:04.765][[34mINFO [0m][GPS ] Fetching GPS
+[13:48:04.773][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:48:04.778][[34mINFO [0m][GPS ] No Lock
+[13:48:05.796][[34mINFO [0m][GPS ] Fetching GPS
+[13:48:05.804][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:48:05.809][[34mINFO [0m][GPS ] No Lock
+[13:48:05.814][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[13:48:05.819][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 0 With new mode at front: 0
+[12:12:24.630][[34mINFO [0m][GPS ] Fetching GPS
+[12:12:24.639][[34mINFO [0m][GPS ] No Lock
+[12:12:24.646][[34mINFO [0m][H&S ][TempInterface] Read 23437mC from the sensor
+[12:12:24.651][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[12:12:24.657][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[12:12:24.663][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[12:12:24.669][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[12:12:24.771][[34mINFO [0m][H&S ][TempInterface] Read 23000mC from the sensor
+[12:12:24.779][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[12:12:24.785][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[12:12:24.791][[34mINFO [0m][Mode][ScheduleManager] Floating in Bus Mode
+[12:12:24.796][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 0 With new mode at front: 0
+[12:12:24.801][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 0 Current Mode: 1 Next Scheduled Mode: 0 Time: 22
+[12:12:24.806][[34mINFO [0m][Mode] Mode: 1
+[12:12:24.812][[33mWARN [0m][H&S ][TempInterface] Invalid data string: ""
+[12:12:24.818][[34mINFO [0m][H&S ][FileManager] Writing 200 bytes to "/SD_2/HST/CDH/CDH_5_00022"
+[12:12:24.831][[33mWARN [0m][H&S ][GPS] GPS Health and Status isn't implemented yet!

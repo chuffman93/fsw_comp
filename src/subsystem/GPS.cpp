@@ -154,7 +154,7 @@ GPSPositionTime GPS::getBestXYZI(){
 	pt.GPSSec = lastLock.GPSSec;
 	pt.GPSWeek = lastLock.GPSWeek;
 	pt.isAccurate = 1;
-	// Used for finding weather or not we are in range of the ground station, by converting ECI back to ECEF
+	// Used for finding whether or not we are in range of the ground station, by converting ECI back to ECEF
 	if(bOut == 1){
 		double gpsTime[2] = {0};
 		gpsTime[0] = lastLock.GPSWeek;
@@ -170,12 +170,11 @@ GPSPositionTime GPS::getBestXYZI(){
 		eiVel[1] = pt.velY;
 		eiVel[2] = pt.velZ;
 		gcrf2wgs(eiPos,eiVel,gpsTime,rF,vF);
-		double tempR[4] = {0};
-		double tempV[4] = {0};
-		for(int i = 0; i<3 ;i++){
-			tempR[i+1] = rF[i];
-			tempV[i+1] = vF[i];
-		}
+		//TODO: get values to put in.
+//		if((rF[0] >  && rF[0] < ) && (rF[1] >  && rF[1] < ) && (rF[2] > && rF[2] < )){
+//			beaconOut = true;
+//		}else
+//			beaconOut = false;
 	}
 	Logger::Stream(LEVEL_DEBUG,tags) <<"ECI: "<< pt;
 	Logger::Stream(LEVEL_DEBUG,tags) << lastLock.elements.a <<','<< lastLock.elements.e <<','<< lastLock.elements.i<< ','<< lastLock.elements.Omega<<',' << lastLock.elements.omega<< ',' << lastLock.elements.anom;
@@ -354,6 +353,13 @@ void GPS::fetchNewGPS(){
 		tempR[i+1] = (float)rI[i];
 		tempV[i+1] = (float)vI[i];
 	}
+	// used to check if in range to beacon
+	if(bOut == 1){
+//		if((r[0] >  && r[0] < ) && (r[1] >  && r[1] < ) && (r[2] > && r[2] < )){
+//			beaconOut = true;
+//		}else
+//			beaconOut = false;
+	}
 	lastLock.sysTime = getCurrentTime(); //Store current time to use for prop
 	rv2elem(MU_EARTH, tempR, tempV, &(lastLock.elements));
 	Logger::Stream(LEVEL_DEBUG,tags) << tempR[1] << ", " << tempR[2] << ", " << tempR[3];
@@ -361,6 +367,7 @@ void GPS::fetchNewGPS(){
 	Logger::Stream(LEVEL_DEBUG,tags) << "ELEMENTS: a: " << lastLock.elements.a << " e: " << lastLock.elements.e << " i: " << lastLock.elements.i << " O: " << lastLock.elements.Omega << " o: " << lastLock.elements.omega << " anom: " << lastLock.elements.anom;
 	lastLock.GPSWeek = tempData.GPSWeek;
 	lastLock.GPSSec = tempData.GPSSec;
+	propTime = 0;
 	if(lockTries == 15){
 		Logger::Stream(LEVEL_INFO,tags) << "Lock Found";
 		isLocked = true;

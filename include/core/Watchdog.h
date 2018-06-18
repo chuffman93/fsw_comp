@@ -42,7 +42,7 @@ private:
 	std::map<ThreadID,ThreadInfo> threadMap;
 	EPS& eps;
 	Lock lock;
-	LogTag tags;
+	LogTags tags;
 };
 
 

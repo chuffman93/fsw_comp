@@ -1,0 +1,81 @@
+[13:44:08.517][[34mINFO [0m][GND ][ACPInterface][ACS] Received ACP Packet: {Sync: 166, Opcode: 0, Length: 1}
+[13:44:08.528][[34mINFO [0m][GND ][GroundCommunication] Executing EPS command: ´H´d´|´ÿÿÿÿA
+[13:44:08.534][[34mINFO [0m][GND ][ACPInterface][ACS] Sending ACP Packet: {Sync: 166, Opcode: 0, Length: 0}
+[13:44:09.164][[34mINFO [0m][Mode][ScheduleManager] Schedule Remains Unchanged
+[13:44:09.171][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 1 With new mode at front: 2
+[13:44:09.176][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 3 Current Mode: 3 Next Scheduled Mode: 2 Time: 86
+[13:44:09.181][[34mINFO [0m][Mode] Mode: 3
+[13:44:09.264][[34mINFO [0m][GPS ] Fetching GPS
+[13:44:09.273][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:44:09.277][[34mINFO [0m][GPS ] No Lock
+[13:44:10.296][[34mINFO [0m][GPS ] Fetching GPS
+[13:44:10.304][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:44:10.309][[34mINFO [0m][GPS ] No Lock
+[13:44:11.046][[33mWARN [0m][GND ][GPIOManager] Interrupt timeout occured on pioA4/
+[13:44:11.327][[34mINFO [0m][GPS ] Fetching GPS
+[13:44:11.335][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:44:11.340][[34mINFO [0m][GPS ] No Lock
+[13:44:12.067][[34mINFO [0m][GND ][ACPInterface][ACS] Sending ACP Packet: {Sync: 166, Opcode: 0, Length: 0}
+[13:44:12.358][[34mINFO [0m][GPS ] Fetching GPS
+[13:44:12.366][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:44:12.371][[34mINFO [0m][GPS ] No Lock
+[13:44:13.389][[34mINFO [0m][GPS ] Fetching GPS
+[13:44:13.397][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:44:13.402][[34mINFO [0m][GPS ] No Lock
+[13:44:13.589][[33mWARN [0m][GND ][GPIOManager] Interrupt timeout occured on pioA4/
+[13:44:14.410][[34mINFO [0m][GPS ] Fetching GPS
+[13:44:14.418][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:44:14.435][[34mINFO [0m][GPS ] No Lock
+[13:44:14.600][[34mINFO [0m][GND ][ACPInterface][ACS] Sending ACP Packet: {Sync: 166, Opcode: 0, Length: 0}
+[13:44:15.451][[34mINFO [0m][GPS ] Fetching GPS
+[13:44:15.459][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:44:15.464][[34mINFO [0m][GPS ] No Lock
+[13:44:16.132][[33mWARN [0m][GND ][GPIOManager] Interrupt timeout occured on pioA4/
+[13:44:16.472][[34mINFO [0m][GPS ] Fetching GPS
+[13:44:16.480][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:44:16.498][[34mINFO [0m][GPS ] No Lock
+[13:44:17.143][[34mINFO [0m][GND ][ACPInterface][ACS] Sending ACP Packet: {Sync: 166, Opcode: 0, Length: 0}
+[13:44:17.513][[34mINFO [0m][GPS ] Fetching GPS
+[13:44:17.521][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:44:17.538][[34mINFO [0m][GPS ] No Lock
+[13:44:18.554][[34mINFO [0m][GPS ] Fetching GPS
+[13:44:18.562][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:44:18.580][[34mINFO [0m][GPS ] No Lock
+[13:44:18.664][[33mWARN [0m][GND ][GPIOManager] Interrupt timeout occured on pioA4/
+[13:44:19.605][[34mINFO [0m][GPS ] Fetching GPS
+[13:44:19.614][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:44:19.619][[34mINFO [0m][GPS ] No Lock
+[13:44:19.685][[34mINFO [0m][GND ][ACPInterface][ACS] Sending ACP Packet: {Sync: 166, Opcode: 0, Length: 0}
+[13:44:20.636][[34mINFO [0m][GPS ] Fetching GPS
+[13:44:20.644][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:44:20.661][[34mINFO [0m][GPS ] No Lock
+[13:44:21.207][[33mWARN [0m][GND ][GPIOManager] Interrupt timeout occured on pioA4/
+[13:44:21.677][[34mINFO [0m][GPS ] Fetching GPS
+[13:44:21.685][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:44:21.702][[34mINFO [0m][GPS ] No Lock
+[13:44:22.228][[34mINFO [0m][GND ][ACPInterface][ACS] Sending ACP Packet: {Sync: 166, Opcode: 0, Length: 0}
+[13:44:22.728][[34mINFO [0m][GPS ] Fetching GPS
+[13:44:22.736][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:44:22.753][[34mINFO [0m][GPS ] No Lock
+[13:44:23.359][[35mFATAL[0m][WPUP] GND thread is dead!
+[13:44:23.366][[34mINFO [0m][WPUP] Pinging from watchdog
+[13:44:23.749][[33mWARN [0m][GND ][GPIOManager] Interrupt timeout occured on pioA4/
+[13:44:23.769][[34mINFO [0m][GPS ] Fetching GPS
+[13:44:23.777][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:44:23.784][[34mINFO [0m][GPS ] No Lock
+[13:44:24.760][[34mINFO [0m][GND ][ACPInterface][ACS] Sending ACP Packet: {Sync: 166, Opcode: 0, Length: 0}
+[13:44:24.790][[34mINFO [0m][GPS ] Fetching GPS
+[13:44:24.798][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:44:24.815][[34mINFO [0m][GPS ] No Lock
+[13:44:25.841][[34mINFO [0m][GPS ] Fetching GPS
+[13:44:25.849][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:44:25.866][[34mINFO [0m][GPS ] No Lock
+[13:44:26.282][[33mWARN [0m][GND ][GPIOManager] Interrupt timeout occured on pioA4/
+[13:44:26.892][[34mINFO [0m][GPS ] Fetching GPS
+[13:44:26.900][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:44:26.917][[34mINFO [0m][GPS ] No Lock
+[13:44:27.293][[34mINFO [0m][GND ][ACPInterface][ACS] Sending ACP Packet: {Sync: 166, Opcode: 0, Length: 0}
+[13:44:27.934][[34mINFO [0m][GPS ] Fetching GPS
+[13:44:27.942][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:44:27.959][[34mINFO [0m][GPS ] No Lock
+[13:44:28.814][[33mWARN [0m][GND ][GPIOManager] Interrupt timeout occured on pioA4/

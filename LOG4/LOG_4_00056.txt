@@ -1,0 +1,72 @@
+[13:43:39.387][[34mINFO [0m][GPS ] No Lock
+[13:43:40.015][DEBUG][GND ][GroundCommunication] Start Time: 20 ComTimeOut: 1200 Current Time: 57
+[13:43:40.425][[34mINFO [0m][GPS ] Fetching GPS
+[13:43:40.433][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:43:40.438][[34mINFO [0m][GPS ] No Lock
+[13:43:40.645][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 0 With new mode at front: 0
+[13:43:40.652][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 3 Current Mode: 3 Next Scheduled Mode: 0 Time: 57
+[13:43:40.657][[34mINFO [0m][Mode] Mode: 3
+[13:43:41.036][DEBUG][GND ][GroundCommunication] Start Time: 20 ComTimeOut: 1200 Current Time: 58
+[13:43:41.456][[34mINFO [0m][GPS ] Fetching GPS
+[13:43:41.465][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:43:41.469][[34mINFO [0m][GPS ] No Lock
+[13:43:42.057][DEBUG][GND ][GroundCommunication] Start Time: 20 ComTimeOut: 1200 Current Time: 59
+[13:43:42.487][[34mINFO [0m][GPS ] Fetching GPS
+[13:43:42.499][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:43:42.506][[34mINFO [0m][GPS ] No Lock
+[13:43:42.678][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 0 With new mode at front: 0
+[13:43:42.684][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 3 Current Mode: 3 Next Scheduled Mode: 0 Time: 59
+[13:43:42.691][[34mINFO [0m][Mode] Mode: 3
+[13:43:43.078][DEBUG][GND ][GroundCommunication] Start Time: 20 ComTimeOut: 1200 Current Time: 60
+[13:43:43.318][[34mINFO [0m][WPUP] Pinging from watchdog
+[13:43:43.528][[34mINFO [0m][GPS ] Fetching GPS
+[13:43:43.536][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:43:43.541][[34mINFO [0m][GPS ] No Lock
+[13:43:44.099][DEBUG][GND ][GroundCommunication] Start Time: 20 ComTimeOut: 1200 Current Time: 61
+[13:43:44.559][[34mINFO [0m][GPS ] Fetching GPS
+[13:43:44.568][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:43:44.573][[34mINFO [0m][GPS ] No Lock
+[13:43:44.710][[34mINFO [0m][Mode][ScheduleManager] Loading New Schedule
+[13:43:44.717][[34mINFO [0m][Mode][FileManager] Opened /opt/uplink/SCH.bin for reading
+[13:43:44.722][DEBUG][Mode][ScheduleManager] Schedule size: 9
+[13:43:44.727][DEBUG][Mode][ScheduleManager] Loading Schedule -- Mode: 2 Time Since Epoch: 400 Duration: 100 
+[13:43:44.733][[34mINFO [0m][Mode][ScheduleManager] Successfully loaded next schedule
+[13:43:44.738][[34mINFO [0m][Mode][FileManager] Deleting file "/opt/uplink/SCH.bin"
+[13:43:44.744][DEBUG][Mode][ScheduleManager] New Queue Size: 1 With new mode up front being: 2
+[13:43:44.749][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 1 With new mode at front: 2
+[13:43:44.755][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 3 Current Mode: 3 Next Scheduled Mode: 2 Time: 61
+[13:43:44.761][[34mINFO [0m][Mode] Mode: 3
+[13:43:45.110][DEBUG][GND ][GroundCommunication] Start Time: 20 ComTimeOut: 1200 Current Time: 62
+[13:43:45.580][[34mINFO [0m][GPS ] Fetching GPS
+[13:43:45.588][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:43:45.593][[34mINFO [0m][GPS ] No Lock
+[13:43:46.121][DEBUG][GND ][GroundCommunication] Start Time: 20 ComTimeOut: 1200 Current Time: 63
+[13:43:46.601][[34mINFO [0m][GPS ] Fetching GPS
+[13:43:46.609][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:43:46.617][[34mINFO [0m][GPS ] No Lock
+[13:43:46.772][[34mINFO [0m][Mode][ScheduleManager] Schedule Remains Unchanged
+[13:43:46.778][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 1 With new mode at front: 2
+[13:43:46.783][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 3 Current Mode: 3 Next Scheduled Mode: 2 Time: 63
+[13:43:46.789][[34mINFO [0m][Mode] Mode: 3
+[13:43:47.132][DEBUG][GND ][GroundCommunication] Start Time: 20 ComTimeOut: 1200 Current Time: 64
+[13:43:47.632][[34mINFO [0m][GPS ] Fetching GPS
+[13:43:47.640][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:43:47.646][[34mINFO [0m][GPS ] No Lock
+[13:43:48.143][DEBUG][GND ][GroundCommunication] Start Time: 20 ComTimeOut: 1200 Current Time: 65
+[13:43:48.664][[34mINFO [0m][GPS ] Fetching GPS
+[13:43:48.671][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:43:48.676][[34mINFO [0m][GPS ] No Lock
+[13:43:48.804][[34mINFO [0m][Mode][ScheduleManager] Schedule Remains Unchanged
+[13:43:48.811][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 1 With new mode at front: 2
+[13:43:48.817][DEBUG][Mode][ScheduleManager] Current Schedule Mode: 3 Current Mode: 3 Next Scheduled Mode: 2 Time: 65
+[13:43:48.823][[34mINFO [0m][Mode] Mode: 3
+[13:43:49.164][DEBUG][GND ][GroundCommunication] Start Time: 20 ComTimeOut: 1200 Current Time: 66
+[13:43:49.695][[34mINFO [0m][GPS ] Fetching GPS
+[13:43:49.703][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:43:49.708][[34mINFO [0m][GPS ] No Lock
+[13:43:50.185][DEBUG][GND ][GroundCommunication] Start Time: 20 ComTimeOut: 1200 Current Time: 67
+[13:43:50.726][[34mINFO [0m][GPS ] Fetching GPS
+[13:43:50.734][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:43:50.739][[34mINFO [0m][GPS ] No Lock
+[13:43:50.836][[34mINFO [0m][Mode][ScheduleManager] Schedule Remains Unchanged
+[13:43:50.843][DEBUG][Mode][ScheduleManager] Check new mode -- Queue Size: 1 With new mode at front: 2

@@ -1,0 +1,121 @@
+[16:01:18.715][[34mINFO [0m][8688][Logger] Setting global log level to [34mINFO [0m
+[16:01:18.716][[34mINFO [0m][MAIN][OneWireManager] Will now filter to level DEBUG
+[16:01:18.716][[34mINFO [0m][MAIN] Entering Main
+[16:01:18.716][[34mINFO [0m][MAIN][FileManager] Loaded ComPass Count: 0
+[16:01:18.716][[33mWARN [0m][MAIN] No Schedule Manager configs found
+[16:01:18.716][[34mINFO [0m][MAIN] Initializing HAL
+[16:01:18.716][[34mINFO [0m][MAIN][SPIManager] Initializing bus on "/dev/spidev32765"
+[16:01:18.716][[34mINFO [0m][MAIN][SPIManager] Initializing device with cs 0
+[16:01:18.716][[34mINFO [0m][MAIN][GPIOManager] Initializing GPIO on pioE6/ to be an INPUT Edge triggered
+[16:01:18.716][[34mINFO [0m][MAIN][GPIOManager] Initializing GPIO on pioE10/ to be an OUTPUT
+[16:01:18.716][[34mINFO [0m][MAIN] Initializing Subsystems
+[16:01:18.716][[34mINFO [0m][MAIN][ACS] Initializing ACS
+[16:01:18.716][[34mINFO [0m][MAIN][MockSubPower][ACS] Power On
+[16:01:18.716][[34mINFO [0m][MAIN][MockACP][ACS] Sending ACP Packet: {Sync: 166, Opcode: 8, Length: 0}
+[16:01:18.716][[34mINFO [0m][MAIN][MockACP][ACS] Received ACP Packet: {Sync: 0, Opcode: 8, Length: 255}
+[16:01:18.717][[34mINFO [0m][MAIN][MockACP][ACS] Sending ACP Packet: {Sync: 166, Opcode: 0, Length: 0}
+[16:01:18.717][[34mINFO [0m][MAIN][MockACP][ACS] Received ACP Packet: {Sync: 0, Opcode: 0, Length: 255}
+[16:01:18.717][[34mINFO [0m][MAIN][MockACP][ACS] Sending ACP Packet: {Sync: 166, Opcode: 1, Length: 0}
+[16:01:18.717][[34mINFO [0m][MAIN][MockACP][ACS] Received ACP Packet: {Sync: 0, Opcode: 1, Length: 255}
+[16:01:18.717][[31mERROR[0m][MAIN][ACS] ACS Config file does not exist
+[16:01:18.717][[34mINFO [0m][MAIN][CDH] Initializing Hot Swaps
+[16:01:18.717][[34mINFO [0m][MAIN][HotSwapInterface][COM 3V3] Configuring HotSwap
+[16:01:18.717][[31mERROR[0m][MAIN][I2CManager] Unable to open I2C bus /dev/i2c-2
+[16:01:18.717][[33mWARN [0m][MAIN][I2CManager] Unable to select i2c device on address 80
+[16:01:18.717][[33mWARN [0m][MAIN][I2CManager] Write failed. Wrote -1 not 1
+[16:01:18.717][[34mINFO [0m][MAIN][HotSwapInterface][COM VBAT] Configuring HotSwap
+[16:01:18.717][[31mERROR[0m][MAIN][I2CManager] Unable to open I2C bus /dev/i2c-2
+[16:01:18.717][[33mWARN [0m][MAIN][I2CManager] Unable to select i2c device on address 82
+[16:01:18.717][[33mWARN [0m][MAIN][I2CManager] Write failed. Wrote -1 not 1
+[16:01:18.717][[34mINFO [0m][MAIN][HotSwapInterface][COM 12V0] Configuring HotSwap
+[16:01:18.718][[31mERROR[0m][MAIN][I2CManager] Unable to open I2C bus /dev/i2c-2
+[16:01:18.718][[33mWARN [0m][MAIN][I2CManager] Unable to select i2c device on address 84
+[16:01:18.718][[33mWARN [0m][MAIN][I2CManager] Write failed. Wrote -1 not 1
+[16:01:18.718][[34mINFO [0m][MAIN][HotSwapInterface][ACS 3V3] Configuring HotSwap
+[16:01:18.718][[31mERROR[0m][MAIN][I2CManager] Unable to open I2C bus /dev/i2c-2
+[16:01:18.718][[33mWARN [0m][MAIN][I2CManager] Unable to select i2c device on address 86
+[16:01:18.718][[33mWARN [0m][MAIN][I2CManager] Write failed. Wrote -1 not 1
+[16:01:18.718][[34mINFO [0m][MAIN][HotSwapInterface][ACS VBAT] Configuring HotSwap
+[16:01:18.718][[31mERROR[0m][MAIN][I2CManager] Unable to open I2C bus /dev/i2c-2
+[16:01:18.718][[33mWARN [0m][MAIN][I2CManager] Unable to select i2c device on address 88
+[16:01:18.718][[33mWARN [0m][MAIN][I2CManager] Write failed. Wrote -1 not 1
+[16:01:18.718][[34mINFO [0m][MAIN][HotSwapInterface][ACS 12V0] Configuring HotSwap
+[16:01:18.718][[31mERROR[0m][MAIN][I2CManager] Unable to open I2C bus /dev/i2c-2
+[16:01:18.718][[33mWARN [0m][MAIN][I2CManager] Unable to select i2c device on address 8a
+[16:01:18.718][[33mWARN [0m][MAIN][I2CManager] Write failed. Wrote -1 not 1
+[16:01:18.718][[34mINFO [0m][MAIN][HotSwapInterface][PROP 3V3] Configuring HotSwap
+[16:01:18.719][[31mERROR[0m][MAIN][I2CManager] Unable to open I2C bus /dev/i2c-2
+[16:01:18.719][[33mWARN [0m][MAIN][I2CManager] Unable to select i2c device on address 8c
+[16:01:18.719][[33mWARN [0m][MAIN][I2CManager] Write failed. Wrote -1 not 1
+[16:01:18.719][[34mINFO [0m][MAIN][HotSwapInterface][PROP VBAT] Configuring HotSwap
+[16:01:18.719][[31mERROR[0m][MAIN][I2CManager] Unable to open I2C bus /dev/i2c-2
+[16:01:18.719][[33mWARN [0m][MAIN][I2CManager] Unable to select i2c device on address 8e
+[16:01:18.719][[33mWARN [0m][MAIN][I2CManager] Write failed. Wrote -1 not 1
+[16:01:18.719][[34mINFO [0m][MAIN][HotSwapInterface][PROP 12V0] Configuring HotSwap
+[16:01:18.719][[31mERROR[0m][MAIN][I2CManager] Unable to open I2C bus /dev/i2c-2
+[16:01:18.719][[33mWARN [0m][MAIN][I2CManager] Unable to select i2c device on address 90
+[16:01:18.719][[33mWARN [0m][MAIN][I2CManager] Write failed. Wrote -1 not 1
+[16:01:18.719][[34mINFO [0m][MAIN][HotSwapInterface][GPS 3V3] Configuring HotSwap
+[16:01:18.719][[31mERROR[0m][MAIN][I2CManager] Unable to open I2C bus /dev/i2c-2
+[16:01:18.719][[33mWARN [0m][MAIN][I2CManager] Unable to select i2c device on address 98
+[16:01:18.719][[33mWARN [0m][MAIN][I2CManager] Write failed. Wrote -1 not 1
+[16:01:18.719][[34mINFO [0m][MAIN][HotSwapInterface][GPS VBAT] Configuring HotSwap
+[16:01:18.719][[31mERROR[0m][MAIN][I2CManager] Unable to open I2C bus /dev/i2c-2
+[16:01:18.719][[33mWARN [0m][MAIN][I2CManager] Unable to select i2c device on address 9a
+[16:01:18.720][[33mWARN [0m][MAIN][I2CManager] Write failed. Wrote -1 not 1
+[16:01:18.720][[34mINFO [0m][MAIN][HotSwapInterface][AUXCOM 3V3] Configuring HotSwap
+[16:01:18.720][[31mERROR[0m][MAIN][I2CManager] Unable to open I2C bus /dev/i2c-2
+[16:01:18.720][[33mWARN [0m][MAIN][I2CManager] Unable to select i2c device on address 9c
+[16:01:18.720][[33mWARN [0m][MAIN][I2CManager] Write failed. Wrote -1 not 1
+[16:01:18.720][[34mINFO [0m][MAIN][HotSwapInterface][AUXCOM VBAT] Configuring HotSwap
+[16:01:18.720][[31mERROR[0m][MAIN][I2CManager] Unable to open I2C bus /dev/i2c-2
+[16:01:18.720][[33mWARN [0m][MAIN][I2CManager] Unable to select i2c device on address 9e
+[16:01:18.720][[33mWARN [0m][MAIN][I2CManager] Write failed. Wrote -1 not 1
+[16:01:18.720][[34mINFO [0m][MAIN][CDH] Initializing Power Monitors
+[16:01:18.720][[34mINFO [0m][MAIN][PowerMonitor][A5 1V8] Configuring Power Monitor
+[16:01:18.720][[31mERROR[0m][MAIN][I2CManager] Unable to open I2C bus /dev/i2c-2
+[16:01:18.720][[33mWARN [0m][MAIN][I2CManager] Unable to select i2c device on address ce
+[16:01:18.720][[33mWARN [0m][MAIN][I2CManager] Write failed. Wrote -1 not 2
+[16:01:18.720][[34mINFO [0m][MAIN][PowerMonitor][A5 1V2] Configuring Power Monitor
+[16:01:18.720][[31mERROR[0m][MAIN][I2CManager] Unable to open I2C bus /dev/i2c-2
+[16:01:18.721][[33mWARN [0m][MAIN][I2CManager] Unable to select i2c device on address d0
+[16:01:18.721][[33mWARN [0m][MAIN][I2CManager] Write failed. Wrote -1 not 2
+[16:01:18.721][[34mINFO [0m][MAIN][PowerMonitor][ETH 2V5] Configuring Power Monitor
+[16:01:18.721][[31mERROR[0m][MAIN][I2CManager] Unable to open I2C bus /dev/i2c-2
+[16:01:18.721][[33mWARN [0m][MAIN][I2CManager] Unable to select i2c device on address d2
+[16:01:18.721][[33mWARN [0m][MAIN][I2CManager] Write failed. Wrote -1 not 2
+[16:01:18.721][[34mINFO [0m][MAIN][PowerMonitor][ETH 1V2] Configuring Power Monitor
+[16:01:18.721][[31mERROR[0m][MAIN][I2CManager] Unable to open I2C bus /dev/i2c-2
+[16:01:18.721][[33mWARN [0m][MAIN][I2CManager] Unable to select i2c device on address d4
+[16:01:18.721][[33mWARN [0m][MAIN][I2CManager] Write failed. Wrote -1 not 2
+[16:01:18.721][[34mINFO [0m][MAIN][CDH] Initializing Temperature Monitors
+[16:01:18.721][[34mINFO [0m][MAIN][OneWireManager] Initializing one wire bus at /sys/bus/w1/devices/w1_bus_master1/
+[16:01:18.721][[34mINFO [0m][MAIN][OneWireManager] Initializing one device TEMP0/
+[16:01:18.721][[34mINFO [0m][MAIN][OneWireManager] Initializing one device TEMP1/
+[16:01:18.721][[34mINFO [0m][MAIN][OneWireManager] Initializing one device TEMP2/
+[16:01:18.721][[34mINFO [0m][MAIN][OneWireManager] Initializing one device TEMP3/
+[16:01:18.721][[34mINFO [0m][MAIN][OneWireManager] Initializing one device TEMP4/
+[16:01:18.721][[34mINFO [0m][MAIN][OneWireManager] Initializing one device TEMP5/
+[16:01:18.721][[34mINFO [0m][MAIN][OneWireManager] Initializing one device TEMP6/
+[16:01:18.722][[34mINFO [0m][MAIN][OneWireManager] Initializing one device TEMP7/
+[16:01:18.722][[34mINFO [0m][MAIN][OneWireManager] Initializing one device TEMP8/
+[16:01:18.722][[34mINFO [0m][MAIN][OneWireManager] Initializing one device TEMP9/
+[16:01:18.722][[34mINFO [0m][MAIN][OneWireManager] Initializing one device TEMP10/
+[16:01:18.722][[34mINFO [0m][MAIN][OneWireManager] Initializing one device TEMP11/
+[16:01:18.722][[34mINFO [0m][MAIN][OneWireManager] Initializing one device TEMP12/
+[16:01:18.722][[34mINFO [0m][MAIN][OneWireManager] Initializing one device TEMP13/
+[16:01:18.722][[34mINFO [0m][MAIN][OneWireManager] Initializing one device TEMP14/
+[16:01:18.722][[34mINFO [0m][MAIN][OneWireManager] Initializing one device TEMP15/
+[16:01:18.722][[34mINFO [0m][MAIN][COM] Initializing COM
+[16:01:18.722][[34mINFO [0m][MAIN][MockSubPower][COM] Power On
+[16:01:18.722][[34mINFO [0m][MAIN][MockACP][COM] Sending ACP Packet: {Sync: 165, Opcode: 8, Length: 0}
+[16:01:18.722][[34mINFO [0m][MAIN][MockACP][COM] Received ACP Packet: {Sync: 0, Opcode: 8, Length: 255}
+[16:01:18.722][[34mINFO [0m][MAIN][MockACP][COM] Sending ACP Packet: {Sync: 165, Opcode: 0, Length: 0}
+[16:01:18.722][[34mINFO [0m][MAIN][MockACP][COM] Received ACP Packet: {Sync: 0, Opcode: 0, Length: 255}
+[16:01:18.722][[34mINFO [0m][MAIN][MockACP][COM] Sending ACP Packet: {Sync: 165, Opcode: 1, Length: 0}
+[16:01:18.722][[34mINFO [0m][MAIN][MockACP][COM] Received ACP Packet: {Sync: 0, Opcode: 1, Length: 255}
+[16:01:18.722][[34mINFO [0m][MAIN][COM] Launching comm daemon
+[16:01:23.723][[34mINFO [0m][MAIN][EPS] Initializing EPS
+[16:01:23.723][[34mINFO [0m][MAIN][ACPInterface][EPS] Sending ACP Packet: {Sync: 164, Opcode: 8, Length: 0}
+[16:01:25.225][[33mWARN [0m][MAIN][GPIOManager] Interrupt timeout occured on pioE6/
+[16:01:26.225][[34mINFO [0m][MAIN][ACPInterface][EPS] Sending ACP Packet: {Sync: 164, Opcode: 8, Length: 0}

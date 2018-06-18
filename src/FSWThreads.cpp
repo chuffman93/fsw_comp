@@ -111,7 +111,7 @@ void * FSWThreads::WatchdogThread(void * args) {
 	Logger::registerThread("WPUP");
 	Logger::log(LEVEL_INFO, "Starting Watchdog Thread");
 	while (1) {
-		sleep(20);
+		sleep(60);
 		watchdog->CheckThreads();
 		Logger::Stream(LEVEL_INFO) << "Pinging from watchdog";
 

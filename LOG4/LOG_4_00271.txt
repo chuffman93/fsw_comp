@@ -1,0 +1,54 @@
+[13:47:14.266][[34mINFO [0m][GPS ] No Lock
+[13:47:14.503][DEBUG][GND ][ScheduleManager] Attempting to switch back from Com from GroundCommunication Thread
+[13:47:14.511][[33mWARN [0m][GND ][ACS] There are no ACS config updates
+[13:47:14.528][[33mWARN [0m][GND ][GPS] There are no GPS config updates
+[13:47:14.534][[33mWARN [0m][GND ][ScheduleManager] There are no SCH config updates
+[13:47:14.548][[33mWARN [0m][GND ][FileManager] There are no FMG config updates
+[13:47:15.284][[34mINFO [0m][GPS ] Fetching GPS
+[13:47:15.292][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:47:15.297][[34mINFO [0m][GPS ] No Lock
+[13:47:15.564][[34mINFO [0m][GND ][GroundCommunication] Sending beacon...
+[13:47:15.571][[34mINFO [0m][GND ][FileManager] Writing 93 bytes to "/opt/beacon/beacon"
+[13:47:15.577][[34mINFO [0m][GND ][GroundCommunication] Beacon has been sent
+[13:47:16.315][[34mINFO [0m][GPS ] Fetching GPS
+[13:47:16.323][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:47:16.337][[34mINFO [0m][GPS ] No Lock
+[13:47:17.356][[34mINFO [0m][GPS ] Fetching GPS
+[13:47:17.364][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:47:17.381][[34mINFO [0m][GPS ] No Lock
+[13:47:18.397][[34mINFO [0m][GPS ] Fetching GPS
+[13:47:18.405][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:47:18.411][[34mINFO [0m][GPS ] No Lock
+[13:47:19.428][[34mINFO [0m][GPS ] Fetching GPS
+[13:47:19.436][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:47:19.449][[34mINFO [0m][GPS ] No Lock
+[13:47:20.469][[34mINFO [0m][GPS ] Fetching GPS
+[13:47:20.478][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:47:20.482][[34mINFO [0m][GPS ] No Lock
+[13:47:21.490][[34mINFO [0m][GPS ] Fetching GPS
+[13:47:21.513][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:47:21.522][[34mINFO [0m][GPS ] No Lock
+[13:47:22.541][[34mINFO [0m][GPS ] Fetching GPS
+[13:47:22.549][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:47:22.566][[34mINFO [0m][GPS ] No Lock
+[13:47:23.593][[34mINFO [0m][GPS ] Fetching GPS
+[13:47:23.601][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:47:23.617][[34mINFO [0m][GPS ] No Lock
+[13:47:23.673][[35mFATAL[0m][WPUP] Mode thread is dead!
+[13:47:23.679][[35mFATAL[0m][WPUP] H&S thread is dead!
+[13:47:23.696][[34mINFO [0m][WPUP] Pinging from watchdog
+[13:47:24.644][[34mINFO [0m][GPS ] Fetching GPS
+[13:47:24.652][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:47:24.657][[34mINFO [0m][GPS ] No Lock
+[13:47:25.675][[34mINFO [0m][GPS ] Fetching GPS
+[13:47:25.683][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:47:25.700][[34mINFO [0m][GPS ] No Lock
+[13:47:26.726][[34mINFO [0m][GPS ] Fetching GPS
+[13:47:26.734][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:47:26.739][[34mINFO [0m][GPS ] No Lock
+[13:47:27.757][[34mINFO [0m][GPS ] Fetching GPS
+[13:47:27.765][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:47:27.770][[34mINFO [0m][GPS ] No Lock
+[13:47:28.788][[34mINFO [0m][GPS ] Fetching GPS
+[13:47:28.796][[33mWARN [0m][GPS ][GPS] CRC Failed
+[13:47:28.801][[34mINFO [0m][GPS ] No Lock

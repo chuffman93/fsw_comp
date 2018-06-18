@@ -93,6 +93,7 @@ void ACS::handleConfig(){
 				Logger::Stream(LEVEL_ERROR,tags) << "ACS did not receive ACS Config";
 			}
 		}else{
+			Logger::Stream(LEVEL_DEBUG,tags) << "ELSE....";
 			Logger::Stream(LEVEL_ERROR,tags) << "Incorrect ACS Config file Size";
 		}
 	}else{
@@ -332,7 +333,7 @@ void ACS::updateActualMRP(std::vector<uint8_t> buffer){
 void ACS::checkACSMode(std::vector<uint8_t> buffer){
 	uint8_t modeACS;
 	ByteStream bs(buffer);
-	bs.seek(0);
+	bs.seek(1);
 	bs >> modeACS;
 
 	Logger::Stream(LEVEL_DEBUG,tags) << "modeACS: " << (int)modeACS;

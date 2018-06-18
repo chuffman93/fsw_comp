@@ -1,0 +1,99 @@
+[09:49:24.471][DEBUG][GPS ][GPS] *buffPtr: I
+[09:49:24.495][DEBUG][GPS ][GPS] *buffPtr: N
+[09:49:24.506][DEBUG][GPS ][GPS] *buffPtr: T
+[09:49:24.518][DEBUG][GPS ][GPS] *buffPtr: ,
+[09:49:24.529][DEBUG][GPS ][GPS] *buffPtr: 3
+[09:49:24.541][DEBUG][GPS ][GPS] *buffPtr: 1
+[09:49:24.552][DEBUG][GPS ][GPS] *buffPtr: 8
+[09:49:24.562][DEBUG][GPS ][GPS] *buffPtr: .
+[09:49:24.574][DEBUG][GPS ][GPS] *buffPtr: 3
+[09:49:24.585][DEBUG][GPS ][GPS] *buffPtr: 7
+[09:49:24.597][DEBUG][GPS ][GPS] *buffPtr: 7
+[09:49:24.609][DEBUG][GPS ][GPS] *buffPtr: ,
+[09:49:24.619][DEBUG][GPS ][GPS] *buffPtr: -
+[09:49:24.631][DEBUG][GPS ][GPS] *buffPtr: 3
+[09:49:24.642][DEBUG][GPS ][GPS] *buffPtr: 8
+[09:49:24.654][DEBUG][GPS ][GPS] *buffPtr: 7
+[09:49:24.666][DEBUG][GPS ][GPS] *buffPtr: .
+[09:49:24.677][DEBUG][GPS ][GPS] *buffPtr: 3
+[09:49:24.683][DEBUG][GPS ][GPS] *buffPtr: 9
+[09:49:24.688][DEBUG][GPS ][GPS] *buffPtr: 7
+[09:49:24.694][DEBUG][GPS ][GPS] *buffPtr: ,
+[09:49:24.700][DEBUG][GPS ][GPS] *buffPtr: 7
+[09:49:24.705][DEBUG][GPS ][GPS] *buffPtr: 6
+[09:49:24.711][DEBUG][GPS ][GPS] *buffPtr: 1
+[09:49:24.719][DEBUG][GPS ][GPS] *buffPtr: 2
+[09:49:24.725][DEBUG][GPS ][GPS] *buffPtr: .
+[09:49:24.730][DEBUG][GPS ][GPS] *buffPtr: 6
+[09:49:24.736][DEBUG][GPS ][GPS] *buffPtr: ,
+[09:49:24.741][DEBUG][GPS ][GPS] *buffPtr: 0
+[09:49:24.746][DEBUG][GPS ][GPS] *buffPtr: .
+[09:49:24.752][DEBUG][GPS ][GPS] *buffPtr: 0
+[09:49:24.758][DEBUG][GPS ][GPS] *buffPtr: ,
+[09:49:24.763][DEBUG][GPS ][GPS] *buffPtr: 0
+[09:49:24.769][DEBUG][GPS ][GPS] *buffPtr: .
+[09:49:24.774][DEBUG][GPS ][GPS] *buffPtr: 0
+[09:49:24.779][DEBUG][GPS ][GPS] *buffPtr: ,
+[09:49:24.785][DEBUG][GPS ][GPS] *buffPtr: 0
+[09:49:24.790][DEBUG][GPS ][GPS] *buffPtr: .
+[09:49:24.795][DEBUG][GPS ][GPS] *buffPtr: 0
+[09:49:24.801][DEBUG][GPS ][GPS] *buffPtr: ,
+[09:49:24.807][DEBUG][GPS ][GPS] *buffPtr: "
+[09:49:24.813][DEBUG][GPS ][GPS] *buffPtr: A
+[09:49:24.819][DEBUG][GPS ][GPS] *buffPtr: A
+[09:49:24.824][DEBUG][GPS ][GPS] *buffPtr: A
+[09:49:24.830][DEBUG][GPS ][GPS] *buffPtr: A
+[09:49:24.836][DEBUG][GPS ][GPS] *buffPtr: "
+[09:49:24.841][DEBUG][GPS ][GPS] *buffPtr: ,
+[09:49:24.847][DEBUG][GPS ][GPS] *buffPtr: 0
+[09:49:24.852][DEBUG][GPS ][GPS] *buffPtr: .
+[09:49:24.857][DEBUG][GPS ][GPS] *buffPtr: 2
+[09:49:24.862][DEBUG][GPS ][GPS] *buffPtr: 5
+[09:49:24.867][DEBUG][GPS ][GPS] *buffPtr: 0
+[09:49:24.872][DEBUG][GPS ][GPS] *buffPtr: ,
+[09:49:24.877][DEBUG][GPS ][GPS] *buffPtr: 1
+[09:49:24.882][DEBUG][GPS ][GPS] *buffPtr: .
+[09:49:24.887][DEBUG][GPS ][GPS] *buffPtr: 0
+[09:49:24.892][DEBUG][GPS ][GPS] *buffPtr: 0
+[09:49:24.897][DEBUG][GPS ][GPS] *buffPtr: 0
+[09:49:24.903][DEBUG][GPS ][GPS] *buffPtr: ,
+[09:49:24.908][DEBUG][GPS ][GPS] *buffPtr: 0
+[09:49:24.914][DEBUG][GPS ][GPS] *buffPtr: .
+[09:49:24.920][DEBUG][GPS ][GPS] *buffPtr: 0
+[09:49:24.925][DEBUG][GPS ][GPS] *buffPtr: 0
+[09:49:24.930][DEBUG][GPS ][GPS] *buffPtr: 0
+[09:49:24.935][DEBUG][GPS ][GPS] *buffPtr: ,
+[09:49:24.941][DEBUG][GPS ][GPS] *buffPtr: 1
+[09:49:24.947][DEBUG][GPS ][GPS] *buffPtr: 2
+[09:49:24.953][DEBUG][GPS ][GPS] *buffPtr: ,
+[09:49:24.959][DEBUG][GPS ][GPS] *buffPtr: 1
+[09:49:24.964][DEBUG][GPS ][GPS] *buffPtr: 1
+[09:49:24.970][DEBUG][GPS ][GPS] *buffPtr: ,
+[09:49:24.975][DEBUG][GPS ][GPS] *buffPtr: 1
+[09:49:24.981][DEBUG][GPS ][GPS] *buffPtr: 1
+[09:49:24.986][[33mWARN [0m][H&S ][GPIOManager] Interrupt timeout occured on pioE6/
+[09:49:24.992][DEBUG][GPS ][GPS] *buffPtr: ,
+[09:49:24.997][DEBUG][GPS ][GPS] *buffPtr: 1
+[09:49:25.003][DEBUG][GPS ][GPS] *buffPtr: 1
+[09:49:25.008][DEBUG][GPS ][GPS] *buffPtr: ,
+[09:49:25.013][DEBUG][GPS ][GPS] *buffPtr: 0
+[09:49:25.018][DEBUG][GPS ][GPS] *buffPtr: ,
+[09:49:25.024][DEBUG][GPS ][GPS] *buffPtr: 0
+[09:49:25.030][DEBUG][GPS ][GPS] *buffPtr: 1
+[09:49:25.036][DEBUG][GPS ][GPS] *buffPtr: ,
+[09:49:25.041][DEBUG][GPS ][GPS] *buffPtr: 0
+[09:49:25.047][DEBUG][GPS ][GPS] *buffPtr: ,
+[09:49:25.053][DEBUG][GPS ][GPS] *buffPtr: 3
+[09:49:25.058][DEBUG][GPS ][GPS] *buffPtr: 3
+[09:49:25.063][DEBUG][GPS ][GPS] *buffPtr: *
+[09:49:25.069][[33mWARN [0m][GPS ][GPS] CRC Failed
+[09:49:25.077][DEBUG][GPS ][GPS] Valid position solution computed!
+[09:49:25.083][DEBUG][GPS ][GPS] Velocity solution computed!
+[09:49:25.089][[34mINFO [0m][GPS ][GPS] Good BESTXYZ data: {x:5197.7, y:4504.72, z:11.8605, vx:0.318377, vy:-0.387397, vz:7.6126, w:1981, s:140418}
+[09:49:25.109][[34mINFO [0m][GPS ][MockSubPower][GPS] Resetting
+[09:49:25.122][[34mINFO [0m][GPS ][ACPInterface][ACS] Sending ACP Packet: {Sync: 166, Opcode: 37, Length: 57}
+[09:49:26.007][[34mINFO [0m][H&S ][ACPInterface][EPS] Sending ACP Packet: {Sync: 164, Opcode: 16, Length: 0}
+[09:49:26.215][[34mINFO [0m][H&S ][ACPInterface][EPS] Received ACP Packet: {Sync: 164, Opcode: 16, Length: 40}
+[09:49:26.223][[34mINFO [0m][H&S ][FileManager] Writing 40 bytes to "/SD_2/HST/EPS/EPS_5_00034"
+[09:49:26.261][[34mINFO [0m][H&S ][EPS] Battery Charge: 24576
+[09:49:26.267][[34mINFO [0m][H&S ][ACPInterface][COM] Sending ACP Packet: {Sync: 165, Opcode: 16, Length: 0}

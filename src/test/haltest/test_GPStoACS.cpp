@@ -192,3 +192,87 @@ TEST_CASE("Test ACS's GPS handling through propagator","[.][gps2acs][proptst]"){
 		}
 	}
 }
+
+
+TEST_CASE("Test ACS's GPS handling through propagator 2","[.][gps2acs][proptst2]"){
+	Architecture::buildTime();
+	MockNMEA nm;
+	GPS gps(nm,*(new MockSubPower("GPS")));
+	Logger::setMode(MODE_PRINT);
+	Logger::setLevel(LEVEL_INFO);
+	Logger::registerFilter(LogTag("Name", "GPS"), LEVEL_DEBUG);
+	Architecture::setInterfaceMode(HARDWARE);
+	Architecture::buildACS();
+	ACS *acs = Architecture::getACS();
+
+
+
+	Logger::log(LEVEL_FATAL, "Initializing HAL");
+	vector<HardwareManager*> halinit = Architecture::buildHALInitVector();
+	for(vector<HardwareManager*>::iterator i = halinit.begin(); i != halinit.end(); i++){
+		(*i)->initialize();
+	}
+
+	acs->initialize();
+	PROMPT("A STRING");
+	string testStringa="#BESTXYZA,COM1,0,55.0,FINESTEERING,1981,140400.000,02000040,d821,2724;SOL_COMPUTED,NARROW_INT,-2468289.715,6458839.236,3827.102,0.0,0.0,0.0,SOL_COMPUTED,NARROW_INT,-10.087,-8.354,7592.602,0.0,0.0,0.0,\"AAAA\",0.250,1.000,0.000,12,11,11,11,0,01,0,33*e9eafeca";
+	string testStringb="#BESTXYZA,COM1,0,55.0,FINESTEERING,1981,140400.000,02000040,d821,2724;SOL_COMPUTED,NARROW_INT,2877.672,91217.799,6913808.218,0.0,0.0,0.0,SOL_COMPUTED,NARROW_INT,-1176.915,-7500.184,99.444,0.0,0.0,0.0,\"AAAA\",0.250,1.000,0.000,12,11,11,11,0,01,0,33*e9eafeca";
+	acs->pointSunSoak();
+	nm.setString(testStringa);
+	gps.fetchNewGPS();
+	while((int)gps.propTime <= 7200){
+		acs->sendGPS(gps.getBestXYZI());
+		if((int)gps.propTime%60 == 0){
+			acs->getHealthStatus();
+		}
+	}
+	nm.setString(testStringb);
+	gps.fetchNewGPS();
+	while((int)gps.propTime <= 3600){
+		acs->sendGPS(gps.getBestXYZI());
+		if((int)gps.propTime%60 == 0){
+			acs->getHealthStatus();
+		}
+	}
+
+	string testString1a="#BESTXYZA,COM1,0,55.0,FINESTEERING,1981,140400.000,02000040,d821,2724;SOL_COMPUTED,NARROW_INT,-2468289.715,6458839.236,3827.102,0.0,0.0,0.0,SOL_COMPUTED,NARROW_INT,-10.087,-8.354,7592.602,0.0,0.0,0.0,\"AAAA\",0.250,1.000,0.000,12,11,11,11,0,01,0,33*e9eafeca";
+	string testString1b="#BESTXYZA,COM1,0,55.0,FINESTEERING,1981,140400.000,02000040,d821,2724;SOL_COMPUTED,NARROW_INT,2877.672,91217.799,6913808.218,0.0,0.0,0.0,SOL_COMPUTED,NARROW_INT,-1176.915,-7500.184,99.444,0.0,0.0,0.0,\"AAAA\",0.250,1.000,0.000,12,11,11,11,0,01,0,33*e9eafeca";
+	acs->pointCOM();
+	nm.setString(testString1a);
+	gps.fetchNewGPS();
+	while((int)gps.propTime <= 7200){
+		acs->sendGPS(gps.getBestXYZI());
+		if((int)gps.propTime%60 == 0){
+			acs->getHealthStatus();
+		}
+	}
+	nm.setString(testString1b);
+	gps.fetchNewGPS();
+	while((int)gps.propTime <= 3600){
+		acs->sendGPS(gps.getBestXYZI());
+		if((int)gps.propTime%60 == 0){
+			acs->getHealthStatus();
+		}
+	}
+
+	string testString2a="#BESTXYZA,COM1,0,55.0,FINESTEERING,1981,140400.000,02000040,d821,2724;SOL_COMPUTED,NARROW_INT,-2468289.715,6458839.236,3827.102,0.0,0.0,0.0,SOL_COMPUTED,NARROW_INT,-10.087,-8.354,7592.602,0.0,0.0,0.0,\"AAAA\",0.250,1.000,0.000,12,11,11,11,0,01,0,33*e9eafeca";
+	string testString2b="#BESTXYZA,COM1,0,55.0,FINESTEERING,1981,140400.000,02000040,d821,2724;SOL_COMPUTED,NARROW_INT,2877.672,91217.799,6913808.218,0.0,0.0,0.0,SOL_COMPUTED,NARROW_INT,-1176.915,-7500.184,99.444,0.0,0.0,0.0,\"AAAA\",0.250,1.000,0.000,12,11,11,11,0,01,0,33*e9eafeca";
+	acs->pointNadir();
+	nm.setString(testString2a);
+	gps.fetchNewGPS();
+	while((int)gps.propTime <= 7200){
+		acs->sendGPS(gps.getBestXYZI());
+		if((int)gps.propTime%60 == 0){
+			acs->getHealthStatus();
+		}
+	}
+	nm.setString(testString2b);
+	gps.fetchNewGPS();
+	while((int)gps.propTime <= 3600){
+		acs->sendGPS(gps.getBestXYZI());
+		if((int)gps.propTime%60 == 0){
+			acs->getHealthStatus();
+		}
+	}
+
+}
