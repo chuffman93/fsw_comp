@@ -79,6 +79,12 @@ private:
 	bool solSuccess;
 	bool power;
 	bool isLocked;
+	double xlow;
+	double xhigh;
+	double ylow;
+	double yhigh;
+	double zlow;
+	double zhigh;
 
 	uint8_t bOut;
 

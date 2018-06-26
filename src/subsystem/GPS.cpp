@@ -41,6 +41,12 @@ GPS::GPS(NMEAInterface& nm, SubPowerInterface& pow):nm(nm), pow(pow){
 	propTime = 0;
 	beaconOut = false;
 	bOut = 0;
+	xlow = -3800;
+	xhigh = 1400;
+	ylow = -6600;
+	yhigh = -3500;
+	zlow = 1400;
+	zhigh = 6000;
 }
 
 
@@ -171,10 +177,10 @@ GPSPositionTime GPS::getBestXYZI(){
 		eiVel[2] = pt.velZ;
 		gcrf2wgs(eiPos,eiVel,gpsTime,rF,vF);
 		//TODO: get values to put in.
-//		if((rF[0] >  && rF[0] < ) && (rF[1] >  && rF[1] < ) && (rF[2] > && rF[2] < )){
-//			beaconOut = true;
-//		}else
-//			beaconOut = false;
+		if((rF[0] > xlow  && rF[0] < xhigh) && (rF[1] > ylow && rF[1] < yhigh) && (rF[2] > zlow && rF[2] < zhigh )){
+			beaconOut = true;
+		}else
+			beaconOut = false;
 	}
 	Logger::Stream(LEVEL_DEBUG,tags) <<"ECI: "<< pt;
 	Logger::Stream(LEVEL_DEBUG,tags) << lastLock.elements.a <<','<< lastLock.elements.e <<','<< lastLock.elements.i<< ','<< lastLock.elements.Omega<<',' << lastLock.elements.omega<< ',' << lastLock.elements.anom;
@@ -355,10 +361,10 @@ void GPS::fetchNewGPS(){
 	}
 	// used to check if in range to beacon
 	if(bOut == 1){
-//		if((r[0] >  && r[0] < ) && (r[1] >  && r[1] < ) && (r[2] > && r[2] < )){
-//			beaconOut = true;
-//		}else
-//			beaconOut = false;
+		if((r[0] > xlow && r[0] < xhigh) && (r[1] > ylow && r[1] < yhigh) && (r[2] > zlow && r[2] < zhigh)){
+			beaconOut = true;
+		}else
+			beaconOut = false;
 	}
 	lastLock.sysTime = getCurrentTime(); //Store current time to use for prop
 	rv2elem(MU_EARTH, tempR, tempV, &(lastLock.elements));
