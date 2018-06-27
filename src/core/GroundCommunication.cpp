@@ -200,7 +200,7 @@ void GroundCommunication::parseCommandRequest(std::string line){
 		std::string tempCmd = trimNewline(std::string(command));
 		uint8_t cmd = (uint8_t)atoi((char*)tempCmd.c_str());
 		if (cmd == OP_TX_ARM){
-			Logger::Stream(LEVEL_INFO,tags) << "Executing COM command: ARMING KILL COMMAND FOR COM";
+			Logger::Stream(LEVEL_INFO,tags) << "Executing COM command: ARMING KILL COMMAND";
 			com->setKillCom(true);
 		}else if (cmd == OP_TX_KILL){
 			if(com->getKillCom()){
@@ -374,6 +374,7 @@ bool GroundCommunication::spinGround(Watchdog* watchdog){
 			stateDownlink = false;
 			clearDownlink();
 			statePostPass = true;
+			com->setKillCom(false);
 			return false;
 
 		}
@@ -394,6 +395,7 @@ bool GroundCommunication::spinGround(Watchdog* watchdog){
 			statePostPass = false;
 			ComStartTime = 0;
 			clearDownlink();
+			com->setKillCom(false);
 			return false;
 		}
 	}
