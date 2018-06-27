@@ -12,7 +12,7 @@
 #include <string>
 
 ScheduleManager::ScheduleManager()
- :CurrentMode(Mode_Detumble)
+ :CurrentMode(Mode_Bus)
  {
 	com.mode = Mode_Com;
 	com.duration = 720;
@@ -20,7 +20,7 @@ ScheduleManager::ScheduleManager()
 	ComPassCount = FileManager::getComPassCount();
 	REBOOT_TIME = 86400;
 	com.duration = 0;
-	acsDetumble = true;
+	acsDetumble = false;
 	handleConfig();
 	tags += LogTag("Name", "ScheduleManager");
  }

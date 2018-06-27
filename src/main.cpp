@@ -30,9 +30,14 @@ int main() {
 	Logger::log(LEVEL_INFO, "Entering Main");
 
 	//---------Step1: Build FSW---------------------------
-	Architecture::setInterfaceMode(HARDWARE);
-	Architecture::buildCDH();
+	Architecture::setInterfaceMode(SOFTWARE);
+	//Architecture::buildCDH();
+
+	// KEEP ACS OFF
+	Architecture::setInterfaceMode(SOFTWARE);
 	Architecture::buildACS();
+
+	Architecture::setInterfaceMode(SOFTWARE);
 	Architecture::buildGPS();
 	Architecture::buildEPS();
 	Architecture::buildRAD();
@@ -95,6 +100,7 @@ int main() {
 	gndargs.watchdog = &watchdog;
 	gndargs.gnd = Architecture::getGND();
 	gndargs.scheduler = Architecture::getSchedulerManager();
+	gndargs.com = Architecture::getCOM();
 	gndThread.CreateThread(NULL, FSWThreads::GroundThread, (void*)&gndargs);
 	watchdog.AddThread(gndThread.GetID());
 

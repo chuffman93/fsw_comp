@@ -43,6 +43,9 @@ def sendSOT():
 
 
 def sendIEF():
+	F = open("IEF.txt","w")
+	F.write("CMD,COM,191\nCMD,COM,71")
+	F.close();
 	os.rename("IEF.txt","./opt/uplink/IEF.txt")
 
 def sendSchedule():

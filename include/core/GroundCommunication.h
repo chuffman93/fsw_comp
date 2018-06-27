@@ -61,7 +61,7 @@ PRIVATE:
 	std::vector<SubsystemBase*> subsystems;
 	bool firstFile;
 	BeaconManager& beacon;
-
+	COM* com;
 	LogTags tags;
 	Lock lock;
 

@@ -355,6 +355,11 @@ GroundCommunication* Architecture::getGND(){
 	return gnd;
 }
 
+COM* Architecture::getCOM(){
+	assert(com != NULL);
+	return com;
+}
+
 void Architecture::setInterfaceMode(InterfaceMode mode){
 	Architecture::mode = mode;
 }

@@ -8,7 +8,7 @@
 #include "core/GroundCommunication.h"
 
 GroundCommunication::GroundCommunication(std::vector<SubsystemBase*> subsystems, BeaconManager& beacon)
-: stateDownlink(false), statePostPass(false), ComStartTime(0), ComTimeout(720), subsystems(subsystems), beacon(beacon)
+: stateDownlink(false), statePostPass(false), ComStartTime(0), ComTimeout(720), subsystems(subsystems), beacon(beacon),com(0)
 {
 	tags += LogTag("Name", "GroundCommunication");
 	firstFile = true;
@@ -199,22 +199,28 @@ void GroundCommunication::parseCommandRequest(std::string line){
 	}else if (strcmp(sys, "COM") == 0){
 		std::string tempCmd = trimNewline(std::string(command));
 		uint8_t cmd = (uint8_t)atoi((char*)tempCmd.c_str());
-		if (cmd == OP_TX_OFF){
-			Logger::Stream(LEVEL_INFO,tags) << "Executing COM command: TRANSMISSION OFF";
+		if (cmd == OP_TX_ARM){
+			Logger::Stream(LEVEL_INFO,tags) << "Executing COM command: ARMING KILL COMMAND FOR COM";
+			com->setKillCom(true);
+		}else if (cmd == OP_TX_KILL){
+			if(com->getKillCom()){
+				Logger::Stream(LEVEL_INFO,tags) << "Executing COM command: TRANSMISSION OFF";
 
-			//Kill comm daemon
-			ExternalProcess da_off;
-			char * cm_da_off[] = {(char*)"/usr/bin/pkill",(char*)"comm_daemon_arm",NULL};
-			da_off.launchProcess(cm_da_off);
+				//Kill comm daemon
+				ExternalProcess da_off;
+				char * cm_da_off[] = {(char*)"/usr/bin/pkill",(char*)"comm_daemon_arm",NULL};
+				da_off.launchProcess(cm_da_off);
 
-			//Update TX file
-			std::string farewell = "Goodbye PolarCube!\n";
-			std::vector<std::string> buff;
-			buff.push_back(farewell);
-			FileManager::writeToStringFile(TX_FILE,buff);
+				//Update TX file
+				std::string farewell = "Goodbye PolarCube!\n";
+				std::vector<std::string> buff;
+				buff.push_back(farewell);
+				FileManager::writeToStringFile(TX_FILE,buff);
+			}else{
+				Logger::Stream(LEVEL_INFO,tags) << "Executing COM command: END TRANSMISSION NOT ARMED";
+			}
 
-		}
-		else if ((cmd >= OP_COM_MIN && cmd < OP_COM_MAX) || (cmd >= OP_MIN && cmd < OP_MAX)){
+		}else if ((cmd >= OP_COM_MIN && cmd < OP_COM_MAX) || (cmd >= OP_MIN && cmd < OP_MAX)){
 			Logger::Stream(LEVEL_INFO,tags) << "Executing COM command: " << command;
 			std::vector<uint8_t> buff;
 			ACPPacket ret = subsystems[1]->sendOpcode(cmd,buff);

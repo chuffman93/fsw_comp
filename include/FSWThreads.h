@@ -35,6 +35,7 @@ struct GroundStruct{
 	GroundCommunication * gnd;
 	Watchdog * watchdog;
 	ScheduleManager * scheduler;
+	COM* com;
 };
 
 struct GPSStruct{

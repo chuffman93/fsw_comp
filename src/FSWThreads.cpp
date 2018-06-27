@@ -123,6 +123,7 @@ void * FSWThreads::GroundThread(void * args) {
 	GroundStruct * groundStruct = (GroundStruct*) args;
 	Watchdog * watchdog = groundStruct->watchdog;
 	GroundCommunication * gnd = groundStruct->gnd;
+	gnd->com = groundStruct->com;
 	ScheduleManager * scheduler = groundStruct->scheduler;
 	Logger::registerThread("GND");
 	Logger::log(LEVEL_INFO, "Starting Ground Communication Thread");

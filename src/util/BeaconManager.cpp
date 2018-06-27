@@ -29,17 +29,21 @@ void BeaconManager::sendBeacon(){
 		b.currentModeEnterTime = sch->getModeEnterTime();
 		b.comPassCount = sch->getComPassCount();
 		b.timeSinceStarLock = acs->getTimeSinceLock();
-		b.starMRP = acs->getStarMRP();
-		b.targetMRP = acs->getTargetMRP();
-		b.actualMRP = acs->getActualMRP();
-		b.xPixel = acs->getXPixel();
-		b.yPixel= acs->getYPixel();
-		b.catalogID = acs->getCatalogID();
-		b.numStarsFound = acs->getNumStarsFound();
-		b.memory = (cdh->getCDHState()).memory;
-		b.cpu1 = (cdh->getCDHState()).cpu1;
-		b.cpu5 = (cdh->getCDHState()).cpu5;
-		b.cpu15 = (cdh->getCDHState()).cpu15;
+		if(acs!=NULL){
+			b.starMRP = acs->getStarMRP();
+			b.targetMRP = acs->getTargetMRP();
+			b.actualMRP = acs->getActualMRP();
+			b.xPixel = acs->getXPixel();
+			b.yPixel= acs->getYPixel();
+			b.catalogID = acs->getCatalogID();
+			b.numStarsFound = acs->getNumStarsFound();
+		}
+		if(cdh != NULL){
+			b.memory = (cdh->getCDHState()).memory;
+			b.cpu1 = (cdh->getCDHState()).cpu1;
+			b.cpu5 = (cdh->getCDHState()).cpu5;
+			b.cpu15 = (cdh->getCDHState()).cpu15;
+		}
 		b.batteryStateofCharge = eps->getBatteryStateOfCharge();
 		b.xyzPosition[0] = (gps->getPositionTime()).posX;
 		b.xyzPosition[1] = (gps->getPositionTime()).posY;

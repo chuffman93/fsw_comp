@@ -12,6 +12,7 @@ COM::COM(ACPInterface& acp, SubPowerInterface& subPower)
 	tags += LogTag("Name", "COM");
 	health.fileSize = FileManager::MAX_FILE_SIZE;
 	health.basePath = HEALTH_DIRECTORY COM_PATH "/COM";
+	killCom = false;
 }
 
 COM::~COM(){}
@@ -58,6 +59,14 @@ void COM::handleMode(FSWMode transition){
 }
 
 void COM::handleConfig(){}
+
+void COM::setKillCom(bool toKill){
+	killCom = toKill;
+}
+
+bool COM::getKillCom(){
+	return killCom;
+}
 
 void COM::updateConfig(){}
 

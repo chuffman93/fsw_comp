@@ -22,7 +22,8 @@ enum COMOpcode {
 	OP_FULLDUPLEX = 34,
 	OP_BEACON = 35,
 	OP_CHANGEBAUD = 36, //ROBERT FILL IN THIS ENUM
-	OP_TX_OFF = 191,
+	OP_TX_ARM = 71,
+	OP_TX_KILL = 191,
 	OP_COM_MAX = 192,
 };
 
@@ -40,6 +41,8 @@ public:
 	void getHealthStatus();
 	void handleConfig();
 	void updateConfig();
+	void setKillCom(bool toKill);
+	bool getKillCom();
 	ACPPacket sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer);
 	bool isSuccess(COMOpcode opSent, ACPPacket retPacket);
 	bool isSuccess(SubsystemOpcode opSent, ACPPacket retPacket);
@@ -47,6 +50,7 @@ public:
 	HealthFileStruct health;
 private:
 	//Configure the lithium radio
+	bool killCom;
 	void launchDaemon();
 	//Send the beacon
 	void sendBeacon();
