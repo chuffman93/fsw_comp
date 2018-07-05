@@ -72,20 +72,27 @@ void * FSWThreads::GPSThread(void * args) {
 	Watchdog * watchdog = gpsargs->watchdog;
 	GPS * gps = gpsargs->gps;
 	ACS* acs = gpsargs->acs;
+	ScheduleManager * scheduler = gpsargs->scheduler;
+	gps->sfFile=FileManager::createFileName(GPS_SRT_FNSH);
+	std::vector<std::string> buff;
+	std::string start = "";
+	std::string finish = "";
+	stringstream ss;
 	Logger::registerThread("GPS");
 	Logger::log(LEVEL_INFO, "Starting GPS Thread");
+	FSWMode mode;
 	while (1) {
 		// GPS on, if lock, shut off GPS.
 		// Override in PLD (GPS) on
 		for(int i = 0; i <= gps->timein; i++){
 			// if gps is on, try to get a lock
 			if(gps->isOn()){
-				Logger::Stream(LEVEL_INFO) << "Fetching GPS";
+				Logger::log(LEVEL_INFO,"Fetching GPS");
 				gps->fetchNewGPS();
 			}
 			// check if the lock was a success
 			if(!gps->getSuccess() && gps->isOn() && (i < gps->timeout || !gps->getLockStatus())){
-				Logger::Stream(LEVEL_INFO) << "No Lock";
+				Logger::log(LEVEL_INFO,"No Lock");
 				if(gps->getLockStatus()){
 					acs->sendGPS(gps->getBestXYZI());
 				}
@@ -98,6 +105,26 @@ void * FSWThreads::GPSThread(void * args) {
 			}
 			watchdog->KickWatchdog();
 			acs->sendGPS(gps->getBestXYZI());
+			mode = scheduler->getCurrentMode();
+			if(mode == Trans_BusToPayload && !(gps->stcl)){
+				Logger::log(LEVEL_INFO,"Logging Start GPS Lock");
+				start = "Start: ";
+				ss << start << gps->getBestXYZI() << "\n";
+				buff.push_back(ss.str());
+				FileManager::writeToStringFile(gps->sfFile,buff);
+				buff.clear();
+				ss.str("");
+				gps->stcl = true;
+			}else if(mode == Trans_PayloadToBus && gps->stcl){
+				Logger::log(LEVEL_INFO,"Logging Finish GPS Lock");
+				finish = "Finish: ";
+				ss << finish << gps->getBestXYZI() << "\n";
+				buff.push_back(ss.str());
+				FileManager::writeToStringFile(gps->sfFile,buff);
+				buff.clear();
+				ss.str("");
+				gps->stcl = false;
+			}
 			sleep(1);
 		}
 		gps->powerOn();

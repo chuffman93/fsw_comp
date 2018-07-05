@@ -44,9 +44,11 @@ GPS::GPS(NMEAInterface& nm, SubPowerInterface& pow):nm(nm), pow(pow){
 	xlow = -3800;
 	xhigh = 1400;
 	ylow = -6600;
-	yhigh = -3500;
+	yhigh = -3000;
 	zlow = 1400;
 	zhigh = 6000;
+	sleepTime = 0;
+	stcl = false;
 }
 
 
@@ -161,10 +163,13 @@ GPSPositionTime GPS::getBestXYZI(){
 	pt.GPSWeek = lastLock.GPSWeek;
 	pt.isAccurate = 1;
 	// Used for finding whether or not we are in range of the ground station, by converting ECI back to ECEF
+	Logger::Stream(LEVEL_DEBUG,tags) <<"ECI: "<< pt;
+	Logger::Stream(LEVEL_DEBUG,tags) << lastLock.elements.a <<','<< lastLock.elements.e <<','<< lastLock.elements.i<< ','<< lastLock.elements.Omega<<',' << lastLock.elements.omega<< ',' << lastLock.elements.anom;
+	incrementGPSTime(pt.GPSWeek, pt.GPSSec, propTime);
 	if(bOut == 1){
 		double gpsTime[2] = {0};
-		gpsTime[0] = lastLock.GPSWeek;
-		gpsTime[1] = lastLock.GPSSec;
+		gpsTime[0] = pt.GPSWeek;
+		gpsTime[1] = pt.GPSSec;
 		double rF[3] = {0};
 		double vF[3] = {0};
 		double eiPos[3];
@@ -178,14 +183,54 @@ GPSPositionTime GPS::getBestXYZI(){
 		gcrf2wgs(eiPos,eiVel,gpsTime,rF,vF);
 		//TODO: get values to put in.
 		if((rF[0] > xlow  && rF[0] < xhigh) && (rF[1] > ylow && rF[1] < yhigh) && (rF[2] > zlow && rF[2] < zhigh )){
+			Logger::Stream(LEVEL_DEBUG,tags) << "Within range of Ground Station";
 			beaconOut = true;
 		}else
+			Logger::Stream(LEVEL_DEBUG,tags) << "Not within range of Ground Station";
 			beaconOut = false;
 	}
-	Logger::Stream(LEVEL_DEBUG,tags) <<"ECI: "<< pt;
-	Logger::Stream(LEVEL_DEBUG,tags) << lastLock.elements.a <<','<< lastLock.elements.e <<','<< lastLock.elements.i<< ','<< lastLock.elements.Omega<<',' << lastLock.elements.omega<< ',' << lastLock.elements.anom;
-	incrementGPSTime(pt.GPSWeek, pt.GPSSec, propTime);
 	return pt;
+}
+
+uint64_t GPS::calcSleepTime(GPSPositionTime st){
+	float fkprop = 0;
+	float eciPos[3];
+	float eciVel[3];
+	double rF[3] = {0};
+	double vF[3] = {0};
+	double eiPos[3];
+	double eiVel[3];
+	double gpsTime[2] = {0};
+	while(!((rF[0] > xlow  && rF[0] < xhigh) && (rF[1] > ylow && rF[1] < yhigh) && (rF[2] > zlow && rF[2] < zhigh ))){
+		if(fkprop > 86400){
+			Logger::Stream(LEVEL_DEBUG,tags) << "Time Out for Calc Sleep exceeded";
+			return -1;
+		}
+		propagatePositionVelocity(lastLock.elements, fkprop, eciPos, eciVel);
+		st.posX = eciPos[0];
+		st.posY = eciPos[1];
+		st.posZ = eciPos[2];
+		st.velX = eciVel[0];
+		st.velY = eciVel[1];
+		st.velZ = eciVel[2];
+		gpsTime[1] = st.GPSSec;
+		gpsTime[0] = st.GPSWeek;
+		st.GPSSec = lastLock.GPSSec;
+		st.GPSWeek = lastLock.GPSWeek;
+		eiPos[0] = st.posX;
+		eiPos[1] = st.posY;
+		eiPos[2] = st.posZ;
+		eiVel[0] = st.velX;
+		eiVel[1] = st.velY;
+		eiVel[2] = st.velZ;
+		gcrf2wgs(eiPos,eiVel,gpsTime,rF,vF);
+		incrementGPSTime(st.GPSWeek, st.GPSSec, fkprop);
+		Logger::Stream(LEVEL_DEBUG,tags) << "prop: " << fkprop << "\nECEF x: "<< rF[0] << " y: " <<
+				rF[1] << " z: " << rF[2] << " x: " << vF[0] << " y: " << vF[1] << " z: " << vF[2]; // << "\nECI: " << st;
+		fkprop++;
+	}
+	sleepTime = fkprop;
+	return sleepTime;
 }
 
 GPSPositionTime GPS::getPositionTime(){
@@ -269,7 +314,6 @@ void GPS::fetchNewGPS(){
 		return;
 	}
 
-	//TODO: Check for finesteering
 	tempData.GPSWeek = (int32_t) strtoul(strtok_r(NULL, ",", &saveIndex2), NULL, 10);
 
 	tempData.GPSSec = strtof(strtok_r(NULL, ",", &saveIndex2), NULL);
@@ -417,9 +461,9 @@ uint32_t GPS::CalculateCRC_GPS(char * buffer) {
 //! Only works for increments of less than a week
 void GPS::incrementGPSTime(int32_t& GPSWeek, float& GPSSec, float dt){
 	//TODO check and make sure this is actually correct?
-	GPSSec += dt;
+	GPSSec = GPSSec + dt;
 	if(GPSSec > 604800){
-		GPSSec -= 604800;
+		GPSSec = GPSSec - 604800;
 		GPSWeek++;
 	}
 }

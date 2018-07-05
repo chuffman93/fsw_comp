@@ -64,17 +64,23 @@ public:
 	void powerOff();
 	bool getLockStatus();
 	bool isOn();
+	uint64_t calcSleepTime(GPSPositionTime st);
 	ACPPacket sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer);
 	uint16_t timeout;
 	uint16_t timein;
 	float propTime;
 	bool beaconOut;
+	bool stcl;
+	GPSPositionTime pt;
+	std::string sfFile;
+
 
 
 private:
 	uint32_t CalculateCRC_GPS(char * buffer);
 	uint32_t CRCValue_GPS(int i);
 	void incrementGPSTime(int32_t& GPSWeek, float& GPSSec, float dt);
+	uint64_t sleepTime;
 	void setConfigs();
 	bool solSuccess;
 	bool power;
@@ -87,8 +93,6 @@ private:
 	double zhigh;
 
 	uint8_t bOut;
-
-	GPSPositionTime pt;
 
 	//! The UART connected to the physical GPS
 	NMEAInterface& nm;

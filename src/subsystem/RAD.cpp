@@ -189,7 +189,7 @@ bool RAD::commandCollectionBegin(){
 	dataFile = FileManager::createFileName(RAD_FILE_PATH);
 	Logger::Stream(LEVEL_DEBUG,tags) << "File path for transfer of RAD data: " << dataFile.c_str();
 	char* argv[] = {(char *)"/usr/bin/tftp",(char *)"-g",(char*)"-r",(char*)RAD_TMP_DATA,(char*)"10.14.134.207",NULL};
-	tftp.launchProcess(argv,FALSE);
+	//tftp.launchProcess(argv,FALSE);
 
 	//4. Configure MiniRAD
 	hsAvailable = true;
@@ -220,7 +220,7 @@ bool RAD::commandCollectionEnd(){
 	}
 
 
-	//2. Waitfor TFTP to finish and close tftp
+	//2. Wait for TFTP to finish and close tftp
 	usleep(3*1000*1000);
 	tftp.closeProcess();
 

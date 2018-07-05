@@ -217,7 +217,7 @@ void GroundCommunication::parseCommandRequest(std::string line){
 				buff.push_back(farewell);
 				FileManager::writeToStringFile(TX_FILE,buff);
 			}else{
-				Logger::Stream(LEVEL_INFO,tags) << "Executing COM command: END TRANSMISSION NOT ARMED";
+				Logger::Stream(LEVEL_ERROR,tags) << "Executing COM command: END TRANSMISSION NOT ARMED";
 			}
 
 		}else if ((cmd >= OP_COM_MIN && cmd < OP_COM_MAX) || (cmd >= OP_MIN && cmd < OP_MAX)){
@@ -374,7 +374,10 @@ bool GroundCommunication::spinGround(Watchdog* watchdog){
 			stateDownlink = false;
 			clearDownlink();
 			statePostPass = true;
-			com->setKillCom(false);
+			if(com->getKillCom()){
+				com->setKillCom(false);
+				Logger::Stream(LEVEL_WARN,tags) << "End Transmission disarmed";
+			}
 			return false;
 
 		}
@@ -395,7 +398,10 @@ bool GroundCommunication::spinGround(Watchdog* watchdog){
 			statePostPass = false;
 			ComStartTime = 0;
 			clearDownlink();
-			com->setKillCom(false);
+			if(com->getKillCom()){
+				com->setKillCom(false);
+				Logger::Stream(LEVEL_WARN,tags) << "End Transmission disarmed";
+			}
 			return false;
 		}
 	}

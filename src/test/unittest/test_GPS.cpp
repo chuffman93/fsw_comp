@@ -11,47 +11,23 @@
 #include <unistd.h>
 #include <fstream>
 #include "util/TimeKeeper.h"
+#include "test/swintegration/MockSubPower.h"
+#include "test/swintegration/MockNMEA.h"
 
 
 UARTManager dummyu("");
 GPIOManager dummyg("");
 
 
-std::string teststr = "BESTXYZA,COM1,0,55.0,FINESTEERING,1981,140418.000,02000040,d821,2724;SOL_COMPUTED,NARROW_INT,5197700.0,4504720.0,11860.5,0.0,0.0,0.0,SOL_COMPUTED,NARROW_INT,318.377,-387.397,7612.6,0.0,0.0,0.0,\"AAAA\",0.250,1.000,0.000,12,11,11,11,0,01,0,33*e9eafeca";
-//std::string teststr = "BESTXYZA,COM1,0,55.0,FINESTEERING,1957,240960.000,02000040,d821,2724;SOL_COMPUTED,NARROW_INT,4792805.471,-3190283.834,-3762966.202,0.0,0.0,0.0,SOL_COMPUTED,NARROW_INT,-3699.37,1958.58,-6372.311,0.0,0.0,0.0,\"AAAA\",0.250,1.000,0.000,12,11,11,11,0,01,0,33*e9eafeca";
-
-
-class MockNMEA: public NMEAInterface{
-public:
-	MockNMEA():NMEAInterface(dummyu){testst = "";}
-	std::string getString(){
-		return testst;
-	}
-
-	void sendCommand(std::string str){
-
-	}
-	std::string testst;
-};
-
-class MockPower: public SubPowerInterface{
-public:
-	MockPower(): SubPowerInterface(dummyg, -1, -1, -1, ""){}
-	void configDelay(size_t resetdelay, size_t startupdelay){}
-
-	void powerOff(){}
-	void powerOn(){}
-	void reset(){}
-	bool faultOccurred(){return false;}
-};
-
+std::string teststr = "#BESTXYZA,COM1,0,55.0,FINESTEERING,1981,141600.000,02000040,d821,2724;SOL_COMPUTED,NARROW_INT,6800000.00,0.00,0.00,0.0,0.0,0.0,SOL_COMPUTED,NARROW_INT,0.00,500.00,7600.00,0.0,0.0,0.0,\"AAAA\",0.250,1.000,0.000,12,11,11,11,0,01,0,33*e9eafeca";
+//std::string teststr = "#BESTXYZA,COM1,0,55.0,FINESTEERING,1981,141600.000,02000040,d821,2724;SOL_COMPUTED,NARROW_INT,-424512.363,-6786732.88,11179.885,0.0,0.0,0.0,SOL_COMPUTED,NARROW_INT,499.107,-29.901,7600.00,0.0,0.0,0.0,\"AAAA\",0.250,1.000,0.000,12,11,11,11,0,01,0,33*e9eafeca";
+// ^^^^ string for shortened calc sleep
 
 TEST_CASE("Test GPS fetchNewGPS", "[.][subsystem][gps]"){
 	MockNMEA nm;
-	MockPower pow;
-	GPS gps(nm, pow);
+	GPS gps(nm,*(new MockSubPower("GPS")));
 	initializeTime();
-	nm.testst = teststr;
+	nm.setString(teststr);
 	gps.fetchNewGPS();
 	GPSPositionTime pt = gps.getBestXYZI();
 	REQUIRE(fabs(pt.posX - 6878.14) < 0.01);
@@ -66,13 +42,12 @@ TEST_CASE("Test GPS fetchNewGPS", "[.][subsystem][gps]"){
 
 TEST_CASE("Test that it doesn't set when the string is invalid", "[subsystem][gps][op]"){
 	MockNMEA nm;
-	MockPower pow;
-	GPS gps(nm, pow);
-	nm.testst = teststr;
+	GPS gps(nm,*(new MockSubPower("GPS")));
+	nm.setString(teststr);
 	initializeTime();
 	gps.fetchNewGPS();
 	GPSPositionTime old = gps.getBestXYZI();
-	nm.testst = "B" + teststr; //Give an invalid char at the front
+	nm.setString("B" + teststr); //Give an invalid char at the front
 	gps.fetchNewGPS();
 
 	GPSPositionTime pt = gps.getBestXYZI();
@@ -90,11 +65,10 @@ TEST_CASE("Test that it doesn't set when the string is invalid", "[subsystem][gp
 
 TEST_CASE("Test GPS Orbital Propagator", "[subsystem][gps][op]"){
 	MockNMEA nm;
-	MockPower pow;
-	GPS gps(nm, pow);
+	GPS gps(nm,*(new MockSubPower("GPS")));
 	// need to run propagater over a some time
 	initializeTime();
-	nm.testst = teststr;
+	nm.setString(teststr);
 	gps.fetchNewGPS();
 	GPSPositionTime pt;
 	uint32_t timeFSW = getCurrentTime();
@@ -113,8 +87,7 @@ TEST_CASE("Test GPS Orbital Propagator", "[subsystem][gps][op]"){
 
 TEST_CASE("Test GPS Config", "[.][subsystem][gps][cf]"){
 	MockNMEA nm;
-	MockPower pow;
-	GPS gps(nm, pow);
+	GPS gps(nm,*(new MockSubPower("GPS")));
 	gps.initialize();
 	uint16_t to = 900;
 	uint16_t ti = 7200;
@@ -123,3 +96,16 @@ TEST_CASE("Test GPS Config", "[.][subsystem][gps][cf]"){
 
 }
 
+TEST_CASE("GPS time calculation until in range","[.][subsystem][gps][ttr]"){
+	MockNMEA nm;
+	GPS gps(nm,*(new MockSubPower("GPS")));
+	initializeTime();
+	Logger::setMode(MODE_PRINT);
+	Logger::setLevel(LEVEL_INFO);
+	Logger::registerFilter(LogTag("Name", "GPS"), LEVEL_DEBUG);
+	gps.initialize();
+	nm.setString(teststr);
+	gps.fetchNewGPS();
+	uint64_t tts = gps.calcSleepTime(gps.getBestXYZI());
+	cout << tts << endl;
+}

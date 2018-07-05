@@ -42,6 +42,7 @@ struct GPSStruct{
 	GPS * gps;
 	Watchdog * watchdog;
 	ACS * acs;
+	ScheduleManager * scheduler;
 };
 
 

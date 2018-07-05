@@ -26,17 +26,16 @@ int main() {
 	Logger::setMode(MODE_PW);
 	Logger::setLevel(LEVEL_INFO);
 	Logger::registerThread("MAIN");
-	Logger::registerFilter(LogTag("Instance", "EPS"),LEVEL_DEBUG);
+	Logger::registerFilter(LogTag("Name", "GPS"), LEVEL_DEBUG);
 	Logger::log(LEVEL_INFO, "Entering Main");
 
 	//---------Step1: Build FSW---------------------------
 	Architecture::setInterfaceMode(SOFTWARE);
 	//Architecture::buildCDH();
-
 	// KEEP ACS OFF
 	Architecture::setInterfaceMode(SOFTWARE);
 	Architecture::buildACS();
-
+	// KEEP ACS OFF
 	Architecture::setInterfaceMode(SOFTWARE);
 	Architecture::buildGPS();
 	Architecture::buildEPS();
@@ -82,6 +81,7 @@ int main() {
 	gpsargs.gps = Architecture::getGPS();
 	gpsargs.watchdog = &watchdog;
 	gpsargs.acs = Architecture::getACS();
+	gpsargs.scheduler = Architecture::getSchedulerManager();
 	gpsThread.CreateThread(NULL, FSWThreads::GPSThread, (void*)&gpsargs);
 	watchdog.AddThread(gpsThread.GetID());
 
