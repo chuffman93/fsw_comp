@@ -45,14 +45,12 @@ int main() {
 	Architecture::buildBeaconManager();
 	Architecture::buildGND();
 
-
 	//---------Step2: Initialize HAL-----------------------
 	Logger::log(LEVEL_INFO, "Initializing HAL");
 	vector<HardwareManager*> halinit = Architecture::buildHALInitVector();
 	for(vector<HardwareManager*>::iterator i = halinit.begin(); i != halinit.end(); i++){
 		(*i)->initialize();
 	}
-
 
 	//---------Step3: Initialize Subsystems-----------------------
 	vector<SubsystemBase*> subinit = Architecture::buildInitVector();
@@ -65,7 +63,6 @@ int main() {
 	//---------Step4: Initialize Watchdog-----------------------
 	Watchdog watchdog(*(Architecture::getEPS()));
 	Architecture::getRAD()->watchdog = &watchdog;
-
 
 	//---------Step5: Initialize HS Thread-----------------------
 	Thread hsThread;

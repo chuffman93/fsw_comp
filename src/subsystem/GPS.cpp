@@ -9,6 +9,7 @@
 
 #include <string.h>
 #include "util/TimeKeeper.h"
+#include "subsystem/EPS.h"
 #include <stdio.h>
 
 #define CRC32_POLYNOMIAL	0xEDB88320L
@@ -47,7 +48,6 @@ GPS::GPS(NMEAInterface& nm, SubPowerInterface& pow):nm(nm), pow(pow){
 	yhigh = -3000;
 	zlow = 1400;
 	zhigh = 6000;
-	sleepTime = 0;
 	stcl = false;
 }
 
@@ -229,8 +229,16 @@ uint64_t GPS::calcSleepTime(GPSPositionTime st){
 				rF[1] << " z: " << rF[2] << " x: " << vF[0] << " y: " << vF[1] << " z: " << vF[2]; // << "\nECI: " << st;
 		fkprop++;
 	}
-	sleepTime = fkprop;
+	uint64_t sleepTime = fkprop;
 	return sleepTime;
+}
+
+void GPS::sendEPStime(){
+	LockGuard l(lock);
+	ByteStream bs;
+	uint64_t sleepTime = calcSleepTime(getBestXYZI());
+	bs << sleepTime;
+	ACPPacket acpPacket(EPS_SYNC,OP_BATTERYCONFIG,bs.vec());
 }
 
 GPSPositionTime GPS::getPositionTime(){

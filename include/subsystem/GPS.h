@@ -58,6 +58,7 @@ public:
 	void updateConfig();
 	bool getSuccess();
 	void fetchNewGPS();
+	void sendEPStime();
 	GPSPositionTime getBestXYZI();
 	GPSPositionTime getPositionTime();
 	void powerOn();
@@ -80,7 +81,6 @@ private:
 	uint32_t CalculateCRC_GPS(char * buffer);
 	uint32_t CRCValue_GPS(int i);
 	void incrementGPSTime(int32_t& GPSWeek, float& GPSSec, float dt);
-	uint64_t sleepTime;
 	void setConfigs();
 	bool solSuccess;
 	bool power;

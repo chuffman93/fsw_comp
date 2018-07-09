@@ -52,7 +52,7 @@ struct Beacon{
 
 class BeaconManager {
 public:
-	BeaconManager(ScheduleManager* sch, ACS* acs, CDH* cdh, EPS* eps, GPS* gps, RAD* rad); //TODO: add CDH cdh
+	BeaconManager(ScheduleManager* sch,ACS* acs,EPS* eps,GPS* gps,RAD* rad,CDH* cdh); //TODO: add CDH cdh
 	~BeaconManager();
 	void sendBeacon();
 

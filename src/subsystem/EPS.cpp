@@ -64,8 +64,7 @@ void EPS::handleMode(FSWMode transition){
 	}
 }
 
-void EPS::handleConfig(){
-}
+void EPS::handleConfig(){}
 
 void EPS::updateConfig(){}
 
@@ -90,7 +89,6 @@ void EPS::getHealthStatus(){
  * \param buffer to be sent if need be
  */
 ACPPacket EPS::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
-	//LockGuard l(lock);
 	if (buffer.empty()){
 		ACPPacket acpPacket(EPS_SYNC, opcode);
 		ACPPacket acpReturn;

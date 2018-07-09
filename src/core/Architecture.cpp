@@ -186,7 +186,7 @@ void Architecture::buildScheduleManager(){
 }
 
 void Architecture::buildBeaconManager(){
-	bcn = new BeaconManager(sch, acs, cdh, eps, gps, rad);
+	bcn = new BeaconManager(sch,acs,eps,gps,rad,cdh);
 }
 
 void Architecture::buildHotSwapInterfaces(){

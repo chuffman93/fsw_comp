@@ -25,7 +25,7 @@ class EPS: public SubsystemBase{
 public:
 	EPS(ACPInterface& acp, SubPowerInterface& subPower);
 	~EPS();
-
+	SubPowerInterface& subPower;
 	//Will set up the Gpio lines and the acp devices
 	void initialize();
 	//Handles any mode transition needs as well as any needs for tasks to be done in a mode.
@@ -43,14 +43,12 @@ public:
 	//Power cycle the entire satellite
 	bool commandReset();
 	HealthFileStruct health;
-	SubPowerInterface& subPower;
+
 
 private:
-
-
-	uint16_t batteryCharge;
 	//Constructor references
 	ACPInterface& acp;
+	uint16_t batteryCharge;
 	Lock lock;
 	LogTags tags;
 };

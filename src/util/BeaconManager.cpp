@@ -8,7 +8,7 @@
 #include "util/BeaconManager.h"
 #include "core/FileManager.h"
 
-BeaconManager::BeaconManager(ScheduleManager* sch, ACS* acs, CDH * cdh, EPS* eps, GPS* gps, RAD* rad)
+BeaconManager::BeaconManager(ScheduleManager* sch,ACS* acs,EPS* eps,GPS* gps,RAD* rad,CDH* cdh)
 : sch(sch), acs(acs), eps(eps), gps(gps), rad(rad),beaconRate(0),increasedBeaconRate(0), cdh(cdh)
 {}
 
