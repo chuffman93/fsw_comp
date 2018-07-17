@@ -34,7 +34,7 @@ enum SubsystemOpcode{
 	OP_TESTALIVE = 8,
 	OP_HEALTHSTATUS = 16,
 	OP_SUBSYSTEMRESET = 17,
-	OP_MAX = 18,
+	OP_MAX = 18
 
 
 };

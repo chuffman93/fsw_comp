@@ -30,17 +30,17 @@ int main() {
 	Logger::log(LEVEL_INFO, "Entering Main");
 
 	//---------Step1: Build FSW---------------------------
-	Architecture::setInterfaceMode(SOFTWARE);
-	//Architecture::buildCDH();
+
 	// KEEP ACS OFF
 	Architecture::setInterfaceMode(SOFTWARE);
 	Architecture::buildACS();
-	// KEEP ACS OFF
-	Architecture::setInterfaceMode(SOFTWARE);
 	Architecture::buildGPS();
-	Architecture::buildEPS();
 	Architecture::buildRAD();
+	Architecture::setInterfaceMode(HARDWARE);
+	Architecture::buildCDH();
+	Architecture::buildEPS();
 	Architecture::buildCOM();
+	Architecture::setInterfaceMode(SOFTWARE);
 	Architecture::buildScheduleManager();
 	Architecture::buildBeaconManager();
 	Architecture::buildGND();
@@ -69,6 +69,7 @@ int main() {
 	HSStruct hsargs;
 	hsargs.subsystemSequence = Architecture::buildHSVector();
 	hsargs.watchdog = &watchdog;
+	hsargs.eps = Architecture::getEPS();
 	hsThread.CreateThread(NULL, FSWThreads::HealthStatusThread, (void*)&hsargs);
 	watchdog.AddThread(hsThread.GetID());
 

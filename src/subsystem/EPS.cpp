@@ -17,8 +17,8 @@
 
 
 
-EPS::EPS(ACPInterface& acp, SubPowerInterface& subPower)
-: acp(acp), subPower(subPower){
+EPS::EPS(ACPInterface& acp, SubPowerInterface& subPower, GPS& gps)
+: acp(acp), subPower(subPower), gps(gps){
 	tags += LogTag("Name", "EPS");
 	health.fileSize = FileManager::MAX_FILE_SIZE;
 	health.basePath = HEALTH_DIRECTORY EPS_PATH "/EPS";
@@ -144,4 +144,16 @@ bool EPS::commandReset(){
 //! returns the battery charge
 uint16_t EPS::getBatteryStateOfCharge(){
 	return batteryCharge;
+}
+
+void EPS::getSleepTime(){
+	LockGuard l(lock);
+	ByteStream bs;
+	uint32_t sleepTime = gps.calcSleepTime(gps.getBestXYZI());
+	bs << sleepTime;
+	ACPPacket retPacket = sendOpcode(OP_SLEEP,bs.vec());
+	if (!isSuccess(OP_SLEEP,retPacket)){
+		Logger::Stream(LEVEL_FATAL,tags) << "Time to sleep failed to send OpCode Returned: " << retPacket.opcode;
+	}
+
 }

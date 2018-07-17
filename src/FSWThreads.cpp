@@ -18,6 +18,7 @@ using namespace std;
 void * FSWThreads::HealthStatusThread(void * args) {
 	HSStruct * hsStruct = (HSStruct*) args;
 	Watchdog * watchdog = hsStruct->watchdog;
+	EPS * eps = hsStruct->eps;
 	std::vector<SubsystemBase*> healthSeq = hsStruct->subsystemSequence;
 	Logger::registerThread("H&S");
 	Logger::log(LEVEL_INFO, "Starting Health and Status Thread");
@@ -33,6 +34,7 @@ void * FSWThreads::HealthStatusThread(void * args) {
 			sleep(1);
 			watchdog->KickWatchdog();
 		}
+		eps->getSleepTime();
 
 	}
 	return NULL;

@@ -85,6 +85,9 @@ void GPS::handleConfig(){
 				break;
 			case 2:
 				Logger::Stream(LEVEL_INFO,tags) << "Will not beacon.";
+				if(FileManager::checkExistance(BEACON)){
+					FileManager::deleteFile(BEACON);
+				}
 				break;
 			default:
 				Logger::Stream(LEVEL_INFO,tags) << "Beaconing worldwide.";
@@ -117,6 +120,9 @@ void GPS::updateConfig(){
 				break;
 			case 2:
 				Logger::Stream(LEVEL_INFO,tags) << "Switching to will not beacon.";
+				if(FileManager::checkExistance(BEACON)){
+					FileManager::deleteFile(BEACON);
+				}
 				break;
 			default:
 				Logger::Stream(LEVEL_INFO,tags) << "Switching to beaconing worldwide.";
@@ -185,9 +191,13 @@ GPSPositionTime GPS::getBestXYZI(){
 		if((rF[0] > xlow  && rF[0] < xhigh) && (rF[1] > ylow && rF[1] < yhigh) && (rF[2] > zlow && rF[2] < zhigh )){
 			Logger::Stream(LEVEL_DEBUG,tags) << "Within range of Ground Station";
 			beaconOut = true;
-		}else
+		}else{
+			if(FileManager::checkExistance(BEACON)){
+				FileManager::deleteFile(BEACON);
+			}
 			Logger::Stream(LEVEL_DEBUG,tags) << "Not within range of Ground Station";
 			beaconOut = false;
+		}
 	}
 	return pt;
 }
@@ -229,16 +239,8 @@ uint64_t GPS::calcSleepTime(GPSPositionTime st){
 				rF[1] << " z: " << rF[2] << " x: " << vF[0] << " y: " << vF[1] << " z: " << vF[2]; // << "\nECI: " << st;
 		fkprop++;
 	}
-	uint64_t sleepTime = fkprop;
+	uint32_t sleepTime = fkprop;
 	return sleepTime;
-}
-
-void GPS::sendEPStime(){
-	LockGuard l(lock);
-	ByteStream bs;
-	uint64_t sleepTime = calcSleepTime(getBestXYZI());
-	bs << sleepTime;
-	ACPPacket acpPacket(EPS_SYNC,OP_BATTERYCONFIG,bs.vec());
 }
 
 GPSPositionTime GPS::getPositionTime(){

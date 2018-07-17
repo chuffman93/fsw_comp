@@ -136,7 +136,7 @@ TEST_CASE("Communicate with EPS", "[.][hardware][acp][EPS]"){
 	gpio.set(resetid, HIGH);
 
 	INFO("Create an ACPInterface")
-	ACPInterface acp(spi, gpio, spiid, intrid,"");
+	ACPInterface acp(spi, gpio, spiid, intrid,"EPSTEST");
 	acp.setTimeouts(2000000000,10,1);
 
 	PROMPT("Ready to send to EPS...");

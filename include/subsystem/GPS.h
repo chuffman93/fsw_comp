@@ -58,7 +58,6 @@ public:
 	void updateConfig();
 	bool getSuccess();
 	void fetchNewGPS();
-	void sendEPStime();
 	GPSPositionTime getBestXYZI();
 	GPSPositionTime getPositionTime();
 	void powerOn();

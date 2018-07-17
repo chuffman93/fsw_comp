@@ -10,6 +10,7 @@
 #include "subsystem/SubsystemBase.h"
 #include "interfaces/SubPowerInterface.h"
 #include "interfaces/ACPInterface.h"
+#include "subsystem/GPS.h"
 #include "core/FileSystem.h"
 #include "core/Lock.h"
 
@@ -18,12 +19,13 @@
 enum EPSOpcode{
 	OP_EPS_MIN = 32,
 	OP_BATTERYCONFIG = OP_EPS_MIN,
-	OP_EPS_MAX = 33,
+	OP_SLEEP = 33,
+	OP_EPS_MAX = 34
 };
 
 class EPS: public SubsystemBase{
 public:
-	EPS(ACPInterface& acp, SubPowerInterface& subPower);
+	EPS(ACPInterface& acp, SubPowerInterface& subPower, GPS& gps);
 	~EPS();
 	SubPowerInterface& subPower;
 	//Will set up the Gpio lines and the acp devices
@@ -43,6 +45,7 @@ public:
 	//Power cycle the entire satellite
 	bool commandReset();
 	HealthFileStruct health;
+	void getSleepTime();
 
 
 private:
@@ -51,6 +54,7 @@ private:
 	uint16_t batteryCharge;
 	Lock lock;
 	LogTags tags;
+	GPS& gps;
 };
 
 #endif /* INCLUDE_SUBSYSTEM_EPS_H_ */
