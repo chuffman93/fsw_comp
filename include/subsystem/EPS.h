@@ -25,7 +25,7 @@ enum EPSOpcode{
 
 class EPS: public SubsystemBase{
 public:
-	EPS(ACPInterface& acp, SubPowerInterface& subPower, GPS& gps);
+	EPS(ACPInterface& acp, SubPowerInterface& subPower, GPS* gps);
 	~EPS();
 	SubPowerInterface& subPower;
 	//Will set up the Gpio lines and the acp devices
@@ -54,7 +54,7 @@ private:
 	uint16_t batteryCharge;
 	Lock lock;
 	LogTags tags;
-	GPS& gps;
+	GPS* gps;
 };
 
 #endif /* INCLUDE_SUBSYSTEM_EPS_H_ */

@@ -236,7 +236,7 @@ uint64_t GPS::calcSleepTime(GPSPositionTime st){
 		gcrf2wgs(eiPos,eiVel,gpsTime,rF,vF);
 		incrementGPSTime(st.GPSWeek, st.GPSSec, fkprop);
 		Logger::Stream(LEVEL_DEBUG,tags) << "prop: " << fkprop << "\nECEF x: "<< rF[0] << " y: " <<
-				rF[1] << " z: " << rF[2] << " x: " << vF[0] << " y: " << vF[1] << " z: " << vF[2]; // << "\nECI: " << st;
+				rF[1] << " z: " << rF[2] << " x: " << vF[0] << " y: " << vF[1] << " z: " << vF[2] << "\n" << st; // << "\nECI: " << st;
 		fkprop++;
 	}
 	uint32_t sleepTime = fkprop;

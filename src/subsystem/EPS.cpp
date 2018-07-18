@@ -17,7 +17,7 @@
 
 
 
-EPS::EPS(ACPInterface& acp, SubPowerInterface& subPower, GPS& gps)
+EPS::EPS(ACPInterface& acp, SubPowerInterface& subPower, GPS* gps)
 : acp(acp), subPower(subPower), gps(gps){
 	tags += LogTag("Name", "EPS");
 	health.fileSize = FileManager::MAX_FILE_SIZE;
@@ -149,7 +149,8 @@ uint16_t EPS::getBatteryStateOfCharge(){
 void EPS::getSleepTime(){
 	LockGuard l(lock);
 	ByteStream bs;
-	uint32_t sleepTime = gps.calcSleepTime(gps.getBestXYZI());
+	GPSPositionTime st = gps->pt;
+	uint32_t sleepTime = gps->calcSleepTime(st);
 	bs << sleepTime;
 	ACPPacket retPacket = sendOpcode(OP_SLEEP,bs.vec());
 	if (!isSuccess(OP_SLEEP,retPacket)){
