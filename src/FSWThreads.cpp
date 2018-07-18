@@ -12,7 +12,6 @@
 #include "core/Architecture.h"
 #include "util/TimeKeeper.h"
 
-
 using namespace std;
 
 void * FSWThreads::HealthStatusThread(void * args) {
@@ -36,7 +35,10 @@ void * FSWThreads::HealthStatusThread(void * args) {
 			sleep(1);
 			watchdog->KickWatchdog();
 		}
-		if((sch->getCurrentMode() != Mode_Com) && sch->scheduleEmpty() && (gps->getLockStatus() || !gps->isOn())){
+		if((sch->getCurrentMode() != Mode_Com) &&
+				sch->scheduleEmpty() &&
+				(gps->getLockStatus() || !gps->isOn()) &&
+				!(FileManager::checkExistance(SCIENCE_MODE) || FileManager::checkExistance(COM_MODE) || FileManager::checkExistance(ADS_MODE))){
 			eps->getSleepTime();
 		}
 	}
@@ -49,7 +51,7 @@ void * FSWThreads::ModeThread(void * args) {
 	std::map<FSWMode, std::vector<SubsystemBase*> > seq = modeStruct->FSWSequence;
 	ScheduleManager * scheduler = modeStruct->scheduler;
 	FSWMode mode;
-
+	scheduler->checkForSchedule();
 	Logger::registerThread("Mode");
 	Logger::log(LEVEL_INFO, "Starting Mode Thread");
 	while (1) {

@@ -110,6 +110,9 @@ void ScheduleManager::loadSchedule(std::string filePath){
 		return;
 	}
 	else{
+		std::string writeToFile = "1";
+		std::vector<std::string> buff;
+		buff.push_back(writeToFile);
 		//clear contents of the queue
 		while(!ScheduleQueue.empty()){
 			ScheduleQueue.pop();
@@ -127,7 +130,8 @@ void ScheduleManager::loadSchedule(std::string filePath){
 				break;
 			case 2:
 				sch.mode = Mode_Payload;
-				ScheduleQueue.push(sch);
+				FileManager::writeToStringFile(SCIENCE_MODE,buff);
+				// ScheduleQueue.push(sch);
 				break;
 			case 3:
 				sch.mode = Mode_Com;
@@ -136,6 +140,11 @@ void ScheduleManager::loadSchedule(std::string filePath){
 			case 4:
 				sch.mode = Mode_Reset;
 				ScheduleQueue.push(sch);
+				break;
+			case 5:
+				sch.mode = Mode_ADS;
+				FileManager::writeToStringFile(ADS_MODE,buff);
+				// ScheduleQueue.push(sch);
 				break;
 			default:
 				break;
@@ -285,6 +294,25 @@ bool ScheduleManager::scheduleEmpty(){
 	}
 	else{
 		return false;
+	}
+}
+
+void ScheduleManager::checkForSchedule(){
+	ScheduleStruct sch;
+	if(FileManager::checkExistance(SCIENCE_MODE)){
+		sch.mode = Mode_Payload;
+		sch.duration = 900;
+		sch.timeSinceEpoch = 0;
+		Logger::Stream(LEVEL_INFO) << "Adding payload mode to schedule";
+		ScheduleQueue.push(sch);
+	}else if(FileManager::checkExistance(ADS_MODE)){
+		sch.mode = Mode_ADS;
+		sch.duration = 3600;
+		sch.timeSinceEpoch = 0;
+		Logger::Stream(LEVEL_INFO) << "Adding ADS mode to schedule";
+		ScheduleQueue.push(sch);
+	}else{
+		Logger::Stream(LEVEL_INFO) << "No mode added to schedule";
 	}
 }
 

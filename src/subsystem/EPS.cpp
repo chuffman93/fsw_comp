@@ -150,6 +150,10 @@ void EPS::getSleepTime(){
 	LockGuard l(lock);
 	uint32_t sleepTime = gps.calcSleepTime(gps.getBestXYZI());
 	if(sleepTime > 0){
+		std::string writeToFile = "1";
+		std::vector<std::string> buff;
+		buff.push_back(writeToFile);
+		FileManager::writeToStringFile(COM_MODE,buff);
 		ByteStream bs;
 		bs << sleepTime;
 		ACPPacket retPacket = sendOpcode(OP_SLEEP,bs.vec());

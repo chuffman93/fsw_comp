@@ -35,6 +35,7 @@ typedef enum _FSWMode{
 	Trans_ComToBus = 8,
 	Trans_DetumbleToBus = 9,
 	Mode_Detumble = 10,
+	Mode_ADS = 11,
 }FSWMode;
 
 struct ScheduleStruct {
@@ -65,6 +66,7 @@ public:
 	void updateConfig();
 	uint32_t getComTimeout();
 	bool scheduleEmpty();
+	void checkForSchedule();
 
 
 
