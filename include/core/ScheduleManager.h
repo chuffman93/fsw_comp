@@ -15,7 +15,6 @@
 #include <queue>
 #include <vector>
 #include <math.h>
-
 #include "util/TimeKeeper.h"
 #include "core/FileManager.h"
 #include "core/FileSystem.h"
@@ -35,6 +34,7 @@ typedef enum _FSWMode{
 	Trans_ComToBus = 8,
 	Trans_DetumbleToBus = 9,
 	Mode_Detumble = 10,
+	Mode_ADS = 11,
 }FSWMode;
 
 struct ScheduleStruct {
@@ -64,12 +64,14 @@ public:
 	void handleConfig();
 	void updateConfig();
 	uint32_t getComTimeout();
+	bool scheduleEmpty();
+	void checkForSchedule();
+
 
 
 
 PRIVATE:
 	std::queue <ScheduleStruct> ScheduleQueue;
-
 	uint32_t REBOOT_TIME;
 	uint32_t modeEnterTime;
 	int ComPassCount;

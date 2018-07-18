@@ -12,13 +12,14 @@
 #include "core/Architecture.h"
 #include "util/TimeKeeper.h"
 
-
 using namespace std;
 
 void * FSWThreads::HealthStatusThread(void * args) {
 	HSStruct * hsStruct = (HSStruct*) args;
 	Watchdog * watchdog = hsStruct->watchdog;
 	EPS * eps = hsStruct->eps;
+	ScheduleManager * sch = hsStruct->scheduler;
+	GPS * gps = hsStruct->gps;
 	std::vector<SubsystemBase*> healthSeq = hsStruct->subsystemSequence;
 	Logger::registerThread("H&S");
 	Logger::log(LEVEL_INFO, "Starting Health and Status Thread");
@@ -34,8 +35,12 @@ void * FSWThreads::HealthStatusThread(void * args) {
 			sleep(1);
 			watchdog->KickWatchdog();
 		}
-		eps->getSleepTime();
-
+		if((sch->getCurrentMode() != Mode_Com) &&
+				sch->scheduleEmpty() &&
+				(gps->getLockStatus() || !gps->isOn()) &&
+				!(FileManager::checkExistance(SCIENCE_MODE) || FileManager::checkExistance(COM_MODE) || FileManager::checkExistance(ADS_MODE))){
+			eps->getSleepTime();
+		}
 	}
 	return NULL;
 }
@@ -43,15 +48,20 @@ void * FSWThreads::HealthStatusThread(void * args) {
 void * FSWThreads::ModeThread(void * args) {
 	ModeStruct * modeStruct = (ModeStruct*) args;
 	Watchdog * watchdog = modeStruct->watchdog;
+	EPS* eps = modeStruct->eps;
 	std::map<FSWMode, std::vector<SubsystemBase*> > seq = modeStruct->FSWSequence;
 	ScheduleManager * scheduler = modeStruct->scheduler;
 	FSWMode mode;
-
+	scheduler->checkForSchedule();
 	Logger::registerThread("Mode");
 	Logger::log(LEVEL_INFO, "Starting Mode Thread");
 	while (1) {
 		watchdog->KickWatchdog();
 		scheduler->handleScheduling();
+		if(!scheduler->ScheduleQueue.empty() &&
+				scheduler->currentSchedule.timeSinceEpoch != 0){
+			eps->sendSleepTime(scheduler->currentSchedule.timeSinceEpoch);
+		}
 		mode = scheduler->checkNewMode();
 		Logger::Stream(LEVEL_INFO) << "Mode: " << mode;
 		map<FSWMode, vector<SubsystemBase*> >::iterator it;

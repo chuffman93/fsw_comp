@@ -378,6 +378,7 @@ bool GroundCommunication::spinGround(Watchdog* watchdog){
 				com->setKillCom(false);
 				Logger::Stream(LEVEL_WARN,tags) << "End Transmission disarmed";
 			}
+			FileManager::deleteFile(COM_MODE);
 			return false;
 
 		}
@@ -402,6 +403,7 @@ bool GroundCommunication::spinGround(Watchdog* watchdog){
 				com->setKillCom(false);
 				Logger::Stream(LEVEL_WARN,tags) << "End Transmission disarmed";
 			}
+			FileManager::deleteFile(COM_MODE);
 			return false;
 		}
 	}

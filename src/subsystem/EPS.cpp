@@ -148,13 +148,32 @@ uint16_t EPS::getBatteryStateOfCharge(){
 
 void EPS::getSleepTime(){
 	LockGuard l(lock);
-	ByteStream bs;
 	GPSPositionTime st = gps->pt;
 	uint32_t sleepTime = gps->calcSleepTime(st);
-	bs << sleepTime;
+	if(sleepTime > 0){
+		std::string writeToFile = "COM_MODE\n!";
+		std::vector<std::string> buff;
+		buff.push_back(writeToFile);
+		FileManager::writeToStringFile(COM_MODE,buff);
+		ByteStream bs;
+		bs << sleepTime;
+		ACPPacket retPacket = sendOpcode(OP_SLEEP,bs.vec());
+		if (!isSuccess(OP_SLEEP,retPacket)){
+			Logger::Stream(LEVEL_FATAL,tags) << "Time to sleep failed to send OpCode Returned: " << retPacket.opcode;
+		}
+		Logger::Stream(LEVEL_FATAL,tags) << "Sending Sleep Time";
+
+	}else{
+		Logger::Stream(LEVEL_INFO,tags) << "PolarCube is Within Range of Boulder and does not need to be sleeping";
+	}
+}
+
+void EPS::sendSleepTime(uint32_t time){
+	LockGuard l(lock);
+	ByteStream bs;
+	bs << time;
 	ACPPacket retPacket = sendOpcode(OP_SLEEP,bs.vec());
 	if (!isSuccess(OP_SLEEP,retPacket)){
 		Logger::Stream(LEVEL_FATAL,tags) << "Time to sleep failed to send OpCode Returned: " << retPacket.opcode;
 	}
-
 }

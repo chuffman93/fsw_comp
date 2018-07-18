@@ -237,7 +237,7 @@ bool RAD::commandCollectionEnd(){
 	if(splits > 0){
 		tarBallData(splits);
 	}
-
+	FileManager::deleteFile(SCIENCE_MODE);
 return true;
 }
 

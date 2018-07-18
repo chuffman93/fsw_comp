@@ -24,12 +24,15 @@ struct ModeStruct{
 	std::map<FSWMode, std::vector<SubsystemBase*> >FSWSequence;
 	ScheduleManager * scheduler;
 	Watchdog * watchdog;
+	EPS* eps;
 };
 
 struct HSStruct{
 	std::vector<SubsystemBase*> subsystemSequence;
 	Watchdog * watchdog;
+	ScheduleManager * scheduler;
 	EPS* eps;
+	GPS * gps;
 };
 
 struct GroundStruct{

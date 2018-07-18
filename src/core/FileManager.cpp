@@ -143,6 +143,9 @@ void FileManager::deleteFile(std::string filePath){
 
 void FileManager::writeToStringFile(std::string filePath, std::vector<std::string>& buffer){
 	LockGuard l(lock);
+	LogTags tags;
+	tags += LogTag("Name", "FileManager");
+	Logger::Stream(LEVEL_INFO,tags) << "Writing string to /" << filePath;
 	std::ofstream cmdFile(filePath.c_str(),std::ofstream::app);
 	std::vector<std::string>::iterator it;
 	for (it = buffer.begin(); it != buffer.end(); it++){

@@ -46,6 +46,7 @@ public:
 	bool commandReset();
 	HealthFileStruct health;
 	void getSleepTime();
+	void sendSleepTime(uint32_t time);
 
 
 private:
