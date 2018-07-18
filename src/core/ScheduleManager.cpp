@@ -278,4 +278,14 @@ uint32_t ScheduleManager::getComTimeout(){
 	return com.duration;
 }
 
+bool ScheduleManager::scheduleEmpty(){
+	LockGuard l(lock);
+	if(ScheduleQueue.empty()){
+		return true;
+	}
+	else{
+		return false;
+	}
+}
+
 

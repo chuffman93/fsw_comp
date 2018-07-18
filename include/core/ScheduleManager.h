@@ -64,6 +64,7 @@ public:
 	void handleConfig();
 	void updateConfig();
 	uint32_t getComTimeout();
+	bool scheduleEmpty();
 
 
 

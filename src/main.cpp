@@ -70,6 +70,8 @@ int main() {
 	hsargs.subsystemSequence = Architecture::buildHSVector();
 	hsargs.watchdog = &watchdog;
 	hsargs.eps = Architecture::getEPS();
+	hsargs.scheduler = Architecture::getSchedulerManager();
+	hsargs.gps = Architecture::getGPS();
 	hsThread.CreateThread(NULL, FSWThreads::HealthStatusThread, (void*)&hsargs);
 	watchdog.AddThread(hsThread.GetID());
 

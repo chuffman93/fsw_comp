@@ -29,7 +29,9 @@ struct ModeStruct{
 struct HSStruct{
 	std::vector<SubsystemBase*> subsystemSequence;
 	Watchdog * watchdog;
+	ScheduleManager * scheduler;
 	EPS* eps;
+	GPS * gps;
 };
 
 struct GroundStruct{

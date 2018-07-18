@@ -19,6 +19,8 @@ void * FSWThreads::HealthStatusThread(void * args) {
 	HSStruct * hsStruct = (HSStruct*) args;
 	Watchdog * watchdog = hsStruct->watchdog;
 	EPS * eps = hsStruct->eps;
+	ScheduleManager * sch = hsStruct->scheduler;
+	GPS * gps = hsStruct->gps;
 	std::vector<SubsystemBase*> healthSeq = hsStruct->subsystemSequence;
 	Logger::registerThread("H&S");
 	Logger::log(LEVEL_INFO, "Starting Health and Status Thread");
@@ -34,8 +36,9 @@ void * FSWThreads::HealthStatusThread(void * args) {
 			sleep(1);
 			watchdog->KickWatchdog();
 		}
-		eps->getSleepTime();
-
+		if((sch->getCurrentMode() != Mode_Com) && sch->scheduleEmpty() && (gps->getLockStatus() || !gps->isOn())){
+			eps->getSleepTime();
+		}
 	}
 	return NULL;
 }
