@@ -434,6 +434,7 @@ void GPS::fetchNewGPS(){
 		lockTries = 0;
 		return;
 	}
+	Logger::Stream(LEVEL_DEBUG,tags) << "Lock tries: " << lockTries;
 	lockTries++;
 }
 
@@ -493,6 +494,10 @@ void GPS::powerOn(){
 void GPS::powerOff(){
 	pow.powerOff();
 	power = false;
+}
+
+void GPS::resetLock(){
+	isLocked = false;
 }
 
 //! returns status of power

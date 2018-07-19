@@ -39,7 +39,13 @@ void * FSWThreads::HealthStatusThread(void * args) {
 				sch->scheduleEmpty() &&
 				(gps->getLockStatus() || !gps->isOn()) &&
 				!(FileManager::checkExistance(SCIENCE_MODE) || FileManager::checkExistance(COM_MODE) || FileManager::checkExistance(ADS_MODE))){
+//			if(!gps->getLockStatus() && !gps->isOn()){
+//				eps->sendSleepTime(14400);
+//			}else{
+//				eps->getSleepTime();
+//			}
 			eps->getSleepTime();
+
 		}
 	}
 	return NULL;
@@ -99,22 +105,22 @@ void * FSWThreads::GPSThread(void * args) {
 		// Override in PLD (GPS) on
 		for(int i = 0; i <= gps->timein; i++){
 			// if gps is on, try to get a lock
-			if(gps->isOn()){
+			if (gps->isOn()){
 				Logger::log(LEVEL_INFO,"Fetching GPS");
 				gps->fetchNewGPS();
-			}
-			// check if the lock was a success
-			if(!gps->getSuccess() && gps->isOn() && (i < gps->timeout || !gps->getLockStatus())){
-				Logger::log(LEVEL_INFO,"No Lock");
-				if(gps->getLockStatus()){
-					acs->sendGPS(gps->getBestXYZI());
+				// check if the lock was a success
+				if(i < gps->timeout && !gps->getLockStatus()){
+					Logger::log(LEVEL_INFO,"No Lock");
+					if(gps->getLockStatus()){
+						acs->sendGPS(gps->getBestXYZI());
+					}
+					watchdog->KickWatchdog();
+					sleep(1);
+					continue;
 				}
-				watchdog->KickWatchdog();
-				sleep(1);
-				continue;
-			}
-			else if(gps->isOn()){
-				gps->powerOff();
+				else{
+					gps->powerOff();
+				}
 			}
 			watchdog->KickWatchdog();
 			acs->sendGPS(gps->getBestXYZI());
@@ -140,6 +146,7 @@ void * FSWThreads::GPSThread(void * args) {
 			}
 			sleep(1);
 		}
+		gps->resetLock();
 		gps->powerOn();
 
 	}

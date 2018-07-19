@@ -26,7 +26,7 @@ int main() {
 	Logger::setMode(MODE_PRINT);
 	Logger::setLevel(LEVEL_INFO);
 	Logger::registerThread("MAIN");
-	Logger::registerFilter(LogTag("Name", "ScheduleManager"), LEVEL_DEBUG);
+	Logger::registerFilter(LogTag("Name", "ScheduleManager"), LEVEL_DEBUG);Logger::registerFilter(LogTag("Name", "GPS"), LEVEL_DEBUG);
 	Logger::log(LEVEL_INFO, "Entering Main");
 
 	//---------Step1: Build FSW---------------------------
@@ -34,13 +34,14 @@ int main() {
 	// KEEP ACS OFF
 	Architecture::setInterfaceMode(SOFTWARE);
 	Architecture::buildACS();
-	// KEEP ACS OFF
 	Architecture::buildGPS();
+	// KEEP ACS OFF
 	Architecture::buildRAD();
+	Architecture::buildCOM();
 	Architecture::setInterfaceMode(HARDWARE);
 	Architecture::buildCDH();
 	Architecture::buildEPS();
-	Architecture::buildCOM();
+
 	Architecture::buildScheduleManager();
 	Architecture::buildBeaconManager();
 	Architecture::buildGND();
@@ -58,6 +59,7 @@ int main() {
 	for(vector<SubsystemBase*>::iterator i = subinit.begin(); i != subinit.end(); i++){
 		(*i)->initialize();
 	}
+
 	Architecture::getACS()->sch = Architecture::getSchedulerManager();
 
 	//---------Step4: Initialize Watchdog-----------------------

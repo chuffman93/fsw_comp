@@ -73,6 +73,7 @@ public:
 	bool stcl;
 	GPSPositionTime pt;
 	std::string sfFile;
+	void resetLock();
 
 
 
