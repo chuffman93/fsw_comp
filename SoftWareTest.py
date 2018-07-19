@@ -69,8 +69,6 @@ print("----------Running Integrated Software Ground Simulation----------")
 
 nextSchedule = []
 nextSchedule.append(DITLSch(2,20,20))
-nextSchedule.append(DITLSch(2,40,20))
-nextSchedule.append(DITLSch(2,100,20))
 
 '''
 if not os.path.exists('./home/.uplink/DSCH'):

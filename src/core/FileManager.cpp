@@ -160,6 +160,7 @@ void FileManager::writeToStringFile(std::string filePath, std::vector<std::strin
  * \param file path to file to be checked
  */
 bool FileManager::checkExistance(std::string filePath){
+	LockGuard l(lock);
 	if (access(filePath.c_str(), F_OK) == 0){
 		return true;
 	}

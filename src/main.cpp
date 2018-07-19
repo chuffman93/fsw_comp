@@ -36,8 +36,8 @@ int main() {
 	Architecture::buildACS();
 	Architecture::buildGPS();
 	Architecture::buildRAD();
-	Architecture::setInterfaceMode(HARDWARE);
-	Architecture::buildCDH();
+	Architecture::setInterfaceMode(SOFTWARE);
+	//Architecture::buildCDH();
 	Architecture::buildEPS();
 	Architecture::buildCOM();
 	Architecture::setInterfaceMode(SOFTWARE);
