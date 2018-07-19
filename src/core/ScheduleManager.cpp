@@ -32,7 +32,7 @@ FSWMode ScheduleManager::checkNewMode(){
 	uint32_t time = getCurrentTime();
 	Logger::Stream(LEVEL_DEBUG,tags) << "Check new mode -- Queue Size: " << ScheduleQueue.size() << " With new mode at front: " << ScheduleQueue.front().mode;
 	//Logger::Stream(LEVEL_DEBUG,tags) <<"Current Schedule Mode: "<< currentSchedule.mode <<" Current Mode: " << CurrentMode << " Next Scheduled Mode: " << ScheduleQueue.front().mode << " Time: " << time;
-	Logger::Stream(LEVEL_DEBUG,tags) << "Current Mode: " << CurrentMode << " Next Scheduled Mode: " << ScheduleQueue.front().mode << " Time: " << time << " Enter time: " << modeEnterTime;
+	Logger::Stream(LEVEL_DEBUG,tags) << "Current Mode: " << CurrentMode << "Current Schedule.mode(): "<< currentSchedule.mode << " Next Scheduled Mode: " << ScheduleQueue.front().mode << " Time since epoch: " << ScheduleQueue.front().timeSinceEpoch << " Time: " << time << " Enter time: " << modeEnterTime;
 
 
 	//If schedule is empty and its time for reboot, begin satellite reboot
@@ -164,6 +164,7 @@ void ScheduleManager::loadSchedule(std::string filePath){
  * \param Mode switching to
  */
 FSWMode ScheduleManager::handleModeChange(FSWMode current, FSWMode next){
+	Logger::Stream(LEVEL_DEBUG,tags) << "handleModeChange: current-" << current << " next-" << next;
 	switch(current){
 		case Trans_BusToPayload:
 			ScheduleQueue.pop();
@@ -305,12 +306,14 @@ void ScheduleManager::checkForSchedule(){
 		sch.timeSinceEpoch = 0;
 		Logger::Stream(LEVEL_INFO) << "Adding payload mode to schedule";
 		ScheduleQueue.push(sch);
+		currentSchedule = ScheduleQueue.front();
 	}else if(FileManager::checkExistance(ADS_MODE)){
 		sch.mode = Mode_ADS;
 		sch.duration = 3600;
 		sch.timeSinceEpoch = 0;
 		Logger::Stream(LEVEL_INFO) << "Adding ADS mode to schedule";
 		ScheduleQueue.push(sch);
+		currentSchedule = ScheduleQueue.front();
 	}else{
 		Logger::Stream(LEVEL_INFO) << "No mode added to schedule";
 	}

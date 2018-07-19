@@ -23,10 +23,10 @@ using namespace std;
 int main() {
 	Architecture::buildTime();
 	FileManager::handleConfig();
-	Logger::setMode(MODE_PW);
+	Logger::setMode(MODE_PRINT);
 	Logger::setLevel(LEVEL_INFO);
 	Logger::registerThread("MAIN");
-	Logger::registerFilter(LogTag("Name", "EPS"), LEVEL_DEBUG);
+	Logger::registerFilter(LogTag("Name", "ScheduleManager"), LEVEL_DEBUG);
 	Logger::log(LEVEL_INFO, "Entering Main");
 
 	//---------Step1: Build FSW---------------------------
@@ -34,13 +34,13 @@ int main() {
 	// KEEP ACS OFF
 	Architecture::setInterfaceMode(SOFTWARE);
 	Architecture::buildACS();
+	// KEEP ACS OFF
 	Architecture::buildGPS();
 	Architecture::buildRAD();
-	Architecture::setInterfaceMode(SOFTWARE);
-	//Architecture::buildCDH();
+	Architecture::setInterfaceMode(HARDWARE);
+	Architecture::buildCDH();
 	Architecture::buildEPS();
 	Architecture::buildCOM();
-	Architecture::setInterfaceMode(SOFTWARE);
 	Architecture::buildScheduleManager();
 	Architecture::buildBeaconManager();
 	Architecture::buildGND();

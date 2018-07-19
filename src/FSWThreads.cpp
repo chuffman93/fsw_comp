@@ -59,7 +59,8 @@ void * FSWThreads::ModeThread(void * args) {
 		watchdog->KickWatchdog();
 		scheduler->handleScheduling();
 		if(!scheduler->ScheduleQueue.empty() &&
-				scheduler->currentSchedule.timeSinceEpoch != 0){
+				scheduler->currentSchedule.timeSinceEpoch != 0 &&
+				scheduler->CurrentMode != Mode_Com){
 			eps->sendSleepTime(scheduler->currentSchedule.timeSinceEpoch);
 		}
 		mode = scheduler->checkNewMode();

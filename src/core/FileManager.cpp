@@ -145,11 +145,12 @@ void FileManager::writeToStringFile(std::string filePath, std::vector<std::strin
 	LockGuard l(lock);
 	LogTags tags;
 	tags += LogTag("Name", "FileManager");
-	Logger::Stream(LEVEL_INFO,tags) << "Writing string to /" << filePath;
+	Logger::Stream(LEVEL_WARN,tags) << "Writing string to " << filePath;
 	std::ofstream cmdFile(filePath.c_str(),std::ofstream::app);
 	std::vector<std::string>::iterator it;
 	for (it = buffer.begin(); it != buffer.end(); it++){
 		cmdFile << *(it);
+		Logger::Stream(LEVEL_DEBUG,tags) << "Wrote: " << *(it) << " to file";
 	}
 	cmdFile.close();
 }
