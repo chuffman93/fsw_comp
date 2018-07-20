@@ -203,7 +203,7 @@ GPSPositionTime GPS::getBestXYZI(){
 }
 
 uint64_t GPS::calcSleepTime(GPSPositionTime st){
-	float fkprop = 0;
+	float fkprop = getCurrentTime();
 	float eciPos[3];
 	float eciVel[3];
 	double rF[3] = {0};
@@ -211,6 +211,26 @@ uint64_t GPS::calcSleepTime(GPSPositionTime st){
 	double eiPos[3];
 	double eiVel[3];
 	double gpsTime[2] = {0};
+	Logger::Stream(LEVEL_DEBUG,tags)<<" lastLock.sysTime: " << lastLock.sysTime;
+	propagatePositionVelocity(lastLock.elements, fkprop, eciPos, eciVel);
+	st.posX = eciPos[0];
+	st.posY = eciPos[1];
+	st.posZ = eciPos[2];
+	st.velX = eciVel[0];
+	st.velY = eciVel[1];
+	st.velZ = eciVel[2];
+	gpsTime[1] = st.GPSSec;
+	gpsTime[0] = st.GPSWeek;
+	st.GPSSec = lastLock.GPSSec;
+	st.GPSWeek = lastLock.GPSWeek;
+	eiPos[0] = st.posX;
+	eiPos[1] = st.posY;
+	eiPos[2] = st.posZ;
+	eiVel[0] = st.velX;
+	eiVel[1] = st.velY;
+	eiVel[2] = st.velZ;
+	gcrf2wgs(eiPos,eiVel,gpsTime,rF,vF);
+	incrementGPSTime(st.GPSWeek, st.GPSSec, fkprop);
 	while(!((rF[0] > xlow  && rF[0] < xhigh) && (rF[1] > ylow && rF[1] < yhigh) && (rF[2] > zlow && rF[2] < zhigh ))){
 		if(fkprop > 86400){
 			Logger::Stream(LEVEL_DEBUG,tags) << "Time Out for Calc Sleep exceeded";
@@ -239,7 +259,8 @@ uint64_t GPS::calcSleepTime(GPSPositionTime st){
 				rF[1] << " z: " << rF[2] << " x: " << vF[0] << " y: " << vF[1] << " z: " << vF[2] << "\n" << st; // << "\nECI: " << st;
 		fkprop++;
 	}
-	uint32_t sleepTime = fkprop;
+	Logger::Stream(LEVEL_DEBUG,tags) << "fkProp: " << fkprop << " getCurrentTime(): " << getCurrentTime();
+	uint32_t sleepTime = fkprop - getCurrentTime();
 	return sleepTime;
 }
 

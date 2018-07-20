@@ -104,8 +104,11 @@ TEST_CASE("GPS time calculation until in range","[.][subsystem][gps][ttr]"){
 	Logger::setLevel(LEVEL_INFO);
 	Logger::registerFilter(LogTag("Name", "GPS"), LEVEL_DEBUG);
 	gps.initialize();
-	nm.setString(teststr);
 	gps.fetchNewGPS();
+	for(int i = 0; i < 15; i++){
+		gps.getBestXYZI();
+		sleep(1);
+	}
 	uint64_t tts = gps.calcSleepTime(gps.getBestXYZI());
 	cout << tts << endl;
 }
