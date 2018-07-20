@@ -35,6 +35,8 @@ typedef enum _FSWMode{
 	Trans_DetumbleToBus = 9,
 	Mode_Detumble = 10,
 	Mode_ADS = 11,
+	Trans_ADSToBus = 12,
+	Trans_BusToADS = 13,
 }FSWMode;
 
 struct ScheduleStruct {

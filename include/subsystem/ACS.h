@@ -60,6 +60,8 @@ public:
 	ACPPacket sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer);
 	bool isSuccess(ACSOpcode opSent, ACPPacket retPacket);
 	bool isSuccess(SubsystemOpcode opSent, ACPPacket retPacket);
+	bool isACSOn();
+
 
 	float getTimeSinceLock();
 	std::vector<float> getTargetMRP();
@@ -96,8 +98,6 @@ PRIVATE:
 	void updateCatalogID(std::vector<uint8_t> buffer);
 	void updateNumStarsFound(std::vector<uint8_t> buffer);
 
-
-
 	bool pointingValid;// = false;
 	float TimeSinceLock;
 	float starMRP;
@@ -109,6 +109,7 @@ PRIVATE:
 	uint8_t numStarsFound;
 	ACPInterface& acp;
 	SubPowerInterface& subPower;
+	bool isOn;
 	Lock lock;
 	LogTags tags;
 

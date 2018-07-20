@@ -173,6 +173,7 @@ void EPS::sendSleepTime(uint32_t time){
 	LockGuard l(lock);
 	ByteStream bs;
 	bs << time;
+	sleep(10);
 	ACPPacket retPacket = sendOpcode(OP_SLEEP,bs.vec());
 	if (!isSuccess(OP_SLEEP,retPacket)){
 		Logger::Stream(LEVEL_FATAL,tags) << "Time to sleep failed to send OpCode Returned: " << retPacket.opcode;

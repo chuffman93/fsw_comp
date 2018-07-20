@@ -49,6 +49,7 @@ GPS::GPS(NMEAInterface& nm, SubPowerInterface& pow):nm(nm), pow(pow){
 	zlow = 1400;
 	zhigh = 6000;
 	stcl = false;
+	toComMode = FileManager::checkExistance(COM_MODE);
 }
 
 
@@ -194,6 +195,9 @@ GPSPositionTime GPS::getBestXYZI(){
 		}else{
 			if(FileManager::checkExistance(BEACON)){
 				FileManager::deleteFile(BEACON);
+			}
+			if(toComMode){
+				FileManager::deleteFile(COM_MODE);
 			}
 			Logger::Stream(LEVEL_DEBUG,tags) << "Not within range of Ground Station";
 			beaconOut = false;

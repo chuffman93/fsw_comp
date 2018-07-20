@@ -91,7 +91,7 @@ private:
 	double yhigh;
 	double zlow;
 	double zhigh;
-
+	bool toComMode;
 	uint8_t bOut;
 
 	//! The UART connected to the physical GPS

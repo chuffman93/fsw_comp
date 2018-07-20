@@ -21,6 +21,7 @@ ACS::ACS(ACPInterface& acp, SubPowerInterface& subPower)
 	yPixel.assign(20,0);
 	catalogID.assign(20,0);
 	numStarsFound = 0;
+	isOn = false;
 
 }
 
@@ -30,8 +31,9 @@ ACS::~ACS(){}
 void ACS::initialize(){
 	//TODO: error handling
 	Logger::Stream(LEVEL_INFO,tags) << "Initializing ACS";
-	LockGuard l(lock);
+	//LockGuard l(lock);
 	subPower.powerOn();
+	isOn = true;
 
 	std::vector<uint8_t> buff;
 	ACPPacket retPacket1 = sendOpcode(OP_TESTALIVE,buff);
@@ -57,25 +59,34 @@ void ACS::initialize(){
  */
 void ACS::handleMode(FSWMode transition){
 	LockGuard l(lock);
+
 	bool success;
 	switch (transition){
 	case Mode_Reset:
 		success = resetACS();
 		break;
+	case Trans_BusToADS:
+		initialize();
+		break;
 	case Trans_BusToPayload:
-		success = pointNadir();
+		//success = pointNadir();
 		break;
 	case Trans_PayloadToBus:
-		success = pointSunSoak();
+		//success = pointSunSoak();
 		break;
 	case Trans_BusToCom:
-		success =  pointCOM();
+		//success =  pointCOM();
 		break;
 	case Trans_ComToBus:
-		success =  pointSunSoak();
+		//success =  pointSunSoak();
 		break;
 	case Trans_DetumbleToBus:
-		success = pointSunSoak();
+		//success = pointSunSoak();
+		break;
+	case Trans_ADSToBus:
+		subPower.powerOff();
+		FileManager::deleteFile(ADS_MODE);
+		isOn = false;
 		break;
 	default:
 		break;
@@ -125,21 +136,23 @@ void ACS::updateConfig(){
 //! Handles the capturing and storing of the health and status for a subsystem
 void ACS::getHealthStatus(){
 	LockGuard l(lock);
-	std::vector<uint8_t> buff;
-	ACPPacket acpReturn = sendOpcode(OP_HEALTHSTATUS,buff);
 
-	checkACSMode(acpReturn.message);
-	updateStarMRP(acpReturn.message);
-	updateTargetMRP(acpReturn.message);
-	updateActualMRP(acpReturn.message);
-	updateTimeSinceLock(acpReturn.message);
-	updateXPixel(acpReturn.message);
-	updateYPixel(acpReturn.message);
-	updateCatalogID(acpReturn.message);
-	updateNumStarsFound(acpReturn.message);
+	if (isACSOn()){
+		std::vector<uint8_t> buff;
+		ACPPacket acpReturn = sendOpcode(OP_HEALTHSTATUS,buff);
 
-	health.recordBytes(acpReturn.message);
+		checkACSMode(acpReturn.message);
+		updateStarMRP(acpReturn.message);
+		updateTargetMRP(acpReturn.message);
+		updateActualMRP(acpReturn.message);
+		updateTimeSinceLock(acpReturn.message);
+		updateXPixel(acpReturn.message);
+		updateYPixel(acpReturn.message);
+		updateCatalogID(acpReturn.message);
+		updateNumStarsFound(acpReturn.message);
 
+		health.recordBytes(acpReturn.message);
+	}
 }
 
 //! Change the current pointing target to Nadir
@@ -191,15 +204,19 @@ bool ACS::pointSunSoak(){
  */
 bool ACS::sendGPS(GPSPositionTime gps){
 	LockGuard l(lock);
-	Logger::Stream(LEVEL_DEBUG,tags) << gps;
-	SerializeGPS serGPS(gps);
-	std::vector<uint8_t> buffer = serGPS.serialize();
-	ACPPacket retPacket = sendOpcode(OP_SENDGPS, buffer);
-	if (!isSuccess(OP_SENDGPS,retPacket)){
-		Logger::Stream(LEVEL_FATAL,tags) << "Opcode send GPS: Unable to send GPS data to ACS. Opcode Received: " << retPacket.opcode;
-		return false;
+	if (isACSOn()){
+		Logger::Stream(LEVEL_DEBUG,tags) << gps;
+		SerializeGPS serGPS(gps);
+		std::vector<uint8_t> buffer = serGPS.serialize();
+		ACPPacket retPacket = sendOpcode(OP_SENDGPS, buffer);
+		if (!isSuccess(OP_SENDGPS,retPacket)){
+			Logger::Stream(LEVEL_FATAL,tags) << "Opcode send GPS: Unable to send GPS data to ACS. Opcode Received: " << retPacket.opcode;
+			return false;
+		}
+		return true;
+	}else{
+		return true;
 	}
-	return true;
 }
 
 //TODO: Do we need this?
@@ -381,5 +398,8 @@ void ACS::updateNumStarsFound(std::vector<uint8_t> buffer){
 	bs >> numStarsFound;
 }
 
+bool ACS::isACSOn(){
+	return isOn;
+}
 
 

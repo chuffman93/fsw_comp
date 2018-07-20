@@ -283,6 +283,12 @@ std::map<FSWMode, std::vector<SubsystemBase*> > Architecture::buildModeSequencin
 	(Trans_BusToCom, nominal));
 	sequences.insert(std::pair<FSWMode, std::vector<SubsystemBase*> >
 	(Trans_ComToBus, nominal));
+	sequences.insert(std::pair<FSWMode, std::vector<SubsystemBase*> >
+	(Trans_ADSToBus, nominal));
+	sequences.insert(std::pair<FSWMode, std::vector<SubsystemBase*> >
+	(Trans_BusToADS, nominal));
+	sequences.insert(std::pair<FSWMode, std::vector<SubsystemBase*> >
+	(Mode_ADS, nominal));
 
 	return sequences;
 }
@@ -310,7 +316,7 @@ std::vector<SubsystemBase*> Architecture::buildCFVector(){
 
 std::vector<SubsystemBase*> Architecture::buildInitVector(){
 	std::vector<SubsystemBase*> ret;
-	if(acs != NULL) ret.push_back(acs);
+	//if(acs != NULL) ret.push_back(acs);
 	if(cdh != NULL) ret.push_back(cdh);
 	if(com != NULL) ret.push_back(com);
 	if(eps != NULL) ret.push_back(eps);

@@ -164,7 +164,7 @@ void ScheduleManager::loadSchedule(std::string filePath){
  * \param Mode switching to
  */
 FSWMode ScheduleManager::handleModeChange(FSWMode current, FSWMode next){
-	Logger::Stream(LEVEL_DEBUG,tags) << "handleModeChange: current-" << current << " next-" << next;
+	Logger::Stream(LEVEL_DEBUG,tags) << "handleModeChange: current- " << current << " next- " << next;
 	switch(current){
 		case Trans_BusToPayload:
 			ScheduleQueue.pop();
@@ -182,6 +182,14 @@ FSWMode ScheduleManager::handleModeChange(FSWMode current, FSWMode next){
 			currentSchedule = ScheduleQueue.front();
 			return Mode_Bus;
 
+		case Trans_ADSToBus:
+			currentSchedule = ScheduleQueue.front();
+			return Mode_Bus;
+
+		case Trans_BusToADS:
+			ScheduleQueue.pop();
+			return Mode_ADS;
+
 		case Mode_Payload:
 			return Trans_PayloadToBus;
 
@@ -195,8 +203,9 @@ FSWMode ScheduleManager::handleModeChange(FSWMode current, FSWMode next){
 				return Trans_BusToCom;
 			}else if(next == Mode_Reset){
 				return Mode_Reset;
-			}
-			else{
+			}else if(next == Mode_ADS){
+				return Trans_BusToADS;
+			}else{
 				//error
 				currentSchedule = ScheduleQueue.front();
 				return Mode_Bus;
@@ -209,6 +218,9 @@ FSWMode ScheduleManager::handleModeChange(FSWMode current, FSWMode next){
 			ScheduleQueue.pop();
 			currentSchedule = ScheduleQueue.front();
 			return Mode_Reset;
+
+		case Mode_ADS:
+			return Trans_ADSToBus;
 
 		default:
 			return Mode_Bus;

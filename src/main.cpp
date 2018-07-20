@@ -26,19 +26,19 @@ int main() {
 	Logger::setMode(MODE_PRINT);
 	Logger::setLevel(LEVEL_INFO);
 	Logger::registerThread("MAIN");
-	Logger::registerFilter(LogTag("Name", "ScheduleManager"), LEVEL_DEBUG);Logger::registerFilter(LogTag("Name", "GPS"), LEVEL_DEBUG);
+	Logger::registerFilter(LogTag("Name", "ScheduleManager"), LEVEL_DEBUG); Logger::registerFilter(LogTag("Name", "GPS"), LEVEL_DEBUG);
 	Logger::log(LEVEL_INFO, "Entering Main");
 
 	//---------Step1: Build FSW---------------------------
 
 	// KEEP ACS OFF
 	Architecture::setInterfaceMode(SOFTWARE);
-	Architecture::buildACS();
 	Architecture::buildGPS();
 	// KEEP ACS OFF
 	Architecture::buildRAD();
 	Architecture::buildCOM();
 	Architecture::setInterfaceMode(HARDWARE);
+	Architecture::buildACS();
 	Architecture::buildCDH();
 	Architecture::buildEPS();
 

@@ -39,12 +39,11 @@ void * FSWThreads::HealthStatusThread(void * args) {
 				sch->scheduleEmpty() &&
 				(gps->getLockStatus() || !gps->isOn()) &&
 				!(FileManager::checkExistance(SCIENCE_MODE) || FileManager::checkExistance(COM_MODE) || FileManager::checkExistance(ADS_MODE))){
-//			if(!gps->getLockStatus() && !gps->isOn()){
-//				eps->sendSleepTime(14400);
-//			}else{
-//				eps->getSleepTime();
-//			}
-			eps->getSleepTime();
+			if(!gps->getLockStatus() && !gps->isOn()){
+				eps->sendSleepTime(14400);
+			}else{
+				eps->getSleepTime();
+			}
 
 		}
 	}
