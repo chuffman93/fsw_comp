@@ -4,6 +4,7 @@ import struct
 import os
 import time
 import numpy as np
+from subprocess import call
 
 class DITLSch:
 	def __init__(self,m,e,d):
@@ -39,26 +40,31 @@ def sendSOT():
 	buff = []
 	F.write(struct.pack('B',0))
 	F.close()
-	os.rename("SOT.txt","./opt/uplink/SOT.txt")
+	#os.rename("SOT.txt","./opt/uplink/SOT.txt")
+	call(["scp" , "SOT.txt", "root@10.14.134.204:/opt/uplink"])
 
 
 def sendIEF():
 	F = open("IEF.txt","w")
-	F.write("CMD,COM,191\nCMD,COM,71")
 	F.close();
-	os.rename("IEF.txt","./opt/uplink/IEF.txt")
+	# os.rename("IEF.txt","./opt/uplink/IEF.txt")
+	call(["scp" , "IEF.txt", "root@10.14.134.204:/opt/uplink"])
 
 def sendSchedule():
-	os.rename("SCH.bin","./opt/uplink/SCH.bin")
+	# os.rename("SCH.bin","./opt/uplink/SCH.bin")
+	call(["scp" , "SCH.bin","root@10.14.134.204:/opt/uplink"])
 
 def sendGPSConfig():
-	os.rename("ConfigUpGPS","./opt/uplink/ConfigUpGPS")
+	#os.rename("ConfigUpGPS","./opt/uplink/ConfigUpGPS")
+	call(["scp" , "ConfigUpGPS", "root@10.14.134.204:/opt/uplink"])
 
 def sendSCHConfig():
-	os.rename("ConfigUpSCH","./opt/uplink/ConfigUpSCH")
+	#os.rename("ConfigUpSCH","./opt/uplink/ConfigUpSCH")
+	call(["scp" , "ConfigUpSCH", "root@10.14.134.204:/opt/uplink"])
 
 def sendFMGConfig():
-	os.rename("ConfigUpFMG","./opt/uplink/ConfigUpFMG")
+	#os.rename("ConfigUpFMG","./opt/uplink/ConfigUpFMG")
+	call(["scp" , "ConfigUpFMG", "root@10.14.134.204:/opt/uplink"])
 
 
 
@@ -68,7 +74,7 @@ def sendFMGConfig():
 print("----------Running Integrated Software Ground Simulation----------")
 
 nextSchedule = []
-nextSchedule.append(DITLSch(2,20,20))
+nextSchedule.append(DITLSch(2,30,20))
 
 '''
 if not os.path.exists('./home/.uplink/DSCH'):
@@ -88,6 +94,8 @@ for i in nextSchedule:
 	print("Schedule is Mode: %u TSE: %u Duration: %u" %(struct.unpack(">B",i.mode)[0],struct.unpack(">I",i.epoch)[0],struct.unpack(">I",i.duration)[0]))
 createSchedule(nextSchedule)
 createIEF("")
+
+'''
 of = open("ConfigUpGPS",'wb')
 timeout = np.uint16(600)
 timein = np.uint16(7200)
@@ -108,13 +116,14 @@ timein = np.uint32(100000)
 of.write(timeout)
 of.write(timein)
 of.close()
+'''
 
 print("----------Sending Next Schedule for Payload Mode----------")
 sendSOT()
-time.sleep(5)
+time.sleep(20)
 sendSchedule()
-sendGPSConfig()
-sendSCHConfig()
-sendFMGConfig();
-time.sleep(10)
+#sendGPSConfig()
+#sendSCHConfig()
+#sendFMGConfig()
+time.sleep(15)
 sendIEF()
