@@ -191,6 +191,7 @@ GPSPositionTime GPS::getBestXYZI(){
 		//TODO: get values to put in.
 		if((rF[0] > xlow  && rF[0] < xhigh) && (rF[1] > ylow && rF[1] < yhigh) && (rF[2] > zlow && rF[2] < zhigh )){
 			Logger::Stream(LEVEL_DEBUG,tags) << "Within range of Ground Station";
+			Logger::Stream(LEVEL_DEBUG,tags) << rF[0] << " " << rF[1] << " " << rF[2] << " " << vF[0] << " " << vF[1] << " " << vF[2];
 			beaconOut = true;
 		}else{
 			if(FileManager::checkExistance(BEACON)){
