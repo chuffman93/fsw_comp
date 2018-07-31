@@ -9,11 +9,11 @@
 #define INCLUDE_UTIL_BEACONMANAGER_H_
 
 #include "test/mockhal/MockSPIManager.h"
+#include "subsystem/GPS.h"
 #include "subsystem/ACS.h"
 #include "subsystem/EPS.h"
 #include "subsystem/CDH.h"
 #include "subsystem/COM.h"
-#include "subsystem/GPS.h"
 #include "subsystem/RAD.h"
 #include "util/TimeKeeper.h"
 #include "util/ByteStream.h"

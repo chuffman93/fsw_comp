@@ -12,6 +12,7 @@
 #include "hal/UARTManager.h"
 #include "interfaces/SubPowerInterface.h"
 #include "interfaces/NMEAInterface.h"
+#include "core/Watchdog.h"
 #include "util/Logger.h"
 
 extern "C" {
@@ -74,6 +75,8 @@ public:
 	GPSPositionTime pt;
 	std::string sfFile;
 	void resetLock();
+	Watchdog *watchdog;
+
 
 
 

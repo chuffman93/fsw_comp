@@ -17,8 +17,8 @@
 
 
 
-EPS::EPS(ACPInterface& acp, SubPowerInterface& subPower, GPS* gps)
-: acp(acp), subPower(subPower), gps(gps){
+EPS::EPS(ACPInterface& acp, SubPowerInterface& subPower)
+: acp(acp), subPower(subPower){
 	tags += LogTag("Name", "EPS");
 	health.fileSize = FileManager::MAX_FILE_SIZE;
 	health.basePath = HEALTH_DIRECTORY EPS_PATH "/EPS";
@@ -146,28 +146,30 @@ uint16_t EPS::getBatteryStateOfCharge(){
 	return batteryCharge;
 }
 
-void EPS::getSleepTime(){
-	LockGuard l(lock);
-	GPSPositionTime st = gps->pt;
-	uint32_t sleepTime = gps->calcSleepTime(st);
-	if(sleepTime > 0){
-		std::string writeToFile = "COM_MODE!\n";
-		std::vector<std::string> buff;
-		buff.push_back(writeToFile);
-		FileManager::writeToStringFile(COM_MODE,buff);
-		//Do not remove this delay or else Corey and Alex will be ;(
-		sleep(10);
-		ByteStream bs;
-		bs << sleepTime;
-		ACPPacket retPacket = sendOpcode(OP_SLEEP,bs.vec());
-		if (!isSuccess(OP_SLEEP,retPacket)){
-			Logger::Stream(LEVEL_FATAL,tags) << "Time to sleep failed to send OpCode Returned: " << retPacket.opcode;
-		}
-		Logger::Stream(LEVEL_FATAL,tags) << "Sending Sleep Time";
-	}else{
-		Logger::Stream(LEVEL_INFO,tags) << "PolarCube is Within Range of Boulder and does not need to be sleeping";
-	}
-}
+//void EPS::getSleepTime(){
+//	GPSPositionTime st = gps->pt;
+//	uint32_t sleepTime = gps->calcSleepTime(st);
+//	if(sleepTime > 0){
+//		std::string writeToFile = "COM_MODE!\n";
+//		std::vector<std::string> buff;
+//		buff.push_back(writeToFile);
+//		FileManager::writeToStringFile(COM_MODE,buff);
+//		//Do not remove this delay or else Corey and Alex will be ;(
+//		sleep(10);
+//		ByteStream bs;
+//		bs << sleepTime;
+//		lock.lock();
+//		ACPPacket retPacket = sendOpcode(OP_SLEEP,bs.vec());
+//		lock.unlock();
+//		if (!isSuccess(OP_SLEEP,retPacket)){
+//			Logger::Stream(LEVEL_FATAL,tags) << "Time to sleep failed to send OpCode Returned: " << int(retPacket.opcode);
+//		}else{
+//			Logger::Stream(LEVEL_FATAL,tags) << "Sending Sleep Time: " << sleepTime;
+//		}
+//	}else{
+//		Logger::Stream(LEVEL_INFO,tags) << "PolarCube is Within Range of Boulder and does not need to be sleeping";
+//	}
+//}
 
 void EPS::sendSleepTime(uint32_t time){
 	LockGuard l(lock);
@@ -176,6 +178,8 @@ void EPS::sendSleepTime(uint32_t time){
 	sleep(10);
 	ACPPacket retPacket = sendOpcode(OP_SLEEP,bs.vec());
 	if (!isSuccess(OP_SLEEP,retPacket)){
-		Logger::Stream(LEVEL_FATAL,tags) << "Time to sleep failed to send OpCode Returned: " << retPacket.opcode;
+		Logger::Stream(LEVEL_FATAL,tags) << "Time to sleep failed to send OpCode Returned: " << int(retPacket.opcode);
+	}else{
+		Logger::Stream(LEVEL_FATAL,tags) << "Sending Sleep Time: " << time;
 	}
 }

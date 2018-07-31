@@ -23,10 +23,11 @@ using namespace std;
 int main() {
 	Architecture::buildTime();
 	FileManager::handleConfig();
-	Logger::setMode(MODE_PRINT);
+	Logger::setMode(MODE_PW);
 	Logger::setLevel(LEVEL_INFO);
 	Logger::registerThread("MAIN");
-	Logger::registerFilter(LogTag("Name", "ScheduleManager"), LEVEL_DEBUG); Logger::registerFilter(LogTag("Name", "GPS"), LEVEL_DEBUG);
+	// Logger::registerFilter(LogTag("Name", "ScheduleManager"), LEVEL_DEBUG);
+	// Logger::registerFilter(LogTag("Name", "GPS"), LEVEL_DEBUG);
 	Logger::log(LEVEL_INFO, "Entering Main");
 
 	//---------Step1: Build FSW---------------------------
@@ -35,13 +36,14 @@ int main() {
 	Architecture::setInterfaceMode(SOFTWARE);
 	Architecture::buildGPS();
 	// KEEP ACS OFF
-	Architecture::buildRAD();
-	Architecture::buildCOM();
+
 	Architecture::setInterfaceMode(HARDWARE);
+
 	Architecture::buildACS();
 	Architecture::buildCDH();
 	Architecture::buildEPS();
-
+	Architecture::buildCOM();
+	Architecture::buildRAD();
 	Architecture::buildScheduleManager();
 	Architecture::buildBeaconManager();
 	Architecture::buildGND();
@@ -65,6 +67,7 @@ int main() {
 	//---------Step4: Initialize Watchdog-----------------------
 	Watchdog watchdog(*(Architecture::getEPS()));
 	Architecture::getRAD()->watchdog = &watchdog;
+	Architecture::getGPS()->watchdog = &watchdog;
 
 	//---------Step5: Initialize HS Thread-----------------------
 	Thread hsThread;

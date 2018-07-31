@@ -85,6 +85,26 @@ void FileManager::writeToFile(std::string filePath, std::vector<uint8_t> &buffer
 
 }
 
+void FileManager::writeBeaconToFile(std::string filePath, std::vector<uint8_t> &buffer){
+	LockGuard l(lock);
+	LogTags tags;
+	tags += LogTag("Name", "FileManager");
+	if (filePath == ""){
+		Logger::Stream(LEVEL_ERROR,tags) << "Unable to write to file, empty file path";
+		return;
+	}
+	else{
+		Logger::Stream(LEVEL_INFO, tags) << "Writing " << buffer.size() << " bytes to \"" << filePath << "\"";
+		ofstream f(filePath.c_str(),ofstream::binary | ofstream::out);
+
+		for(std::vector<uint8_t>::const_iterator i = buffer.begin(); i != buffer.end(); ++i){
+			f << *i;
+		}
+		f.close();
+	}
+
+}
+
 /*!
  * Appends to a file
  * \param file path to file that is to be added to

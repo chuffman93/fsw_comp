@@ -82,9 +82,9 @@ void Architecture::buildEPS(){
 		//TODO Figurout EPS Sub power interface
 		int resetid = gpio->attachDevice('E', 10, GPIO_OUTPUT);
 		SubPowerInterface* sp = new SubPowerInterface(*gpio, -1, resetid, -1, "EPS");
-		eps = new EPS(*acp, *sp, gps);
+		eps = new EPS(*acp, *sp);
 	}else{
-		eps = new EPS(*(new MockACP("EPS")), *(new MockSubPower("EPS")),gps);
+		eps = new EPS(*(new MockACP("EPS")), *(new MockSubPower("EPS")));
 	}
 }
 

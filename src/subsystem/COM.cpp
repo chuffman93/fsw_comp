@@ -27,20 +27,20 @@ void COM::initialize(){
 
 	std::vector<uint8_t> buff;
 
-	ACPPacket retPacket1 = sendOpcode(OP_TESTALIVE,buff);
-	if (!isSuccess(OP_TESTALIVE,retPacket1)){
-		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Alive: COM is not alive. Opcode Received: " << retPacket1.opcode;
-	}
-
-	ACPPacket retPacket2 = sendOpcode(OP_TESTLED,buff);
-	if (!isSuccess(OP_TESTLED,retPacket2)){
-		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test LED: COM is not alive. Opcode Received: " << retPacket2.opcode;
-	}
-
-	ACPPacket retPacket3 = sendOpcode(OP_TESTCONFIG,buff);
-	if (!isSuccess(OP_TESTCONFIG,retPacket3)){
-		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Configurations: COM is not alive. Opcode Received: " << retPacket3.opcode;
-	}
+//	ACPPacket retPacket1 = sendOpcode(OP_TESTALIVE,buff);
+//	if (!isSuccess(OP_TESTALIVE,retPacket1)){
+//		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Alive: COM is not alive. Opcode Received: " << retPacket1.opcode;
+//	}
+//
+//	ACPPacket retPacket2 = sendOpcode(OP_TESTLED,buff);
+//	if (!isSuccess(OP_TESTLED,retPacket2)){
+//		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test LED: COM is not alive. Opcode Received: " << retPacket2.opcode;
+//	}
+//
+//	ACPPacket retPacket3 = sendOpcode(OP_TESTCONFIG,buff);
+//	if (!isSuccess(OP_TESTCONFIG,retPacket3)){
+//		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Test Configurations: COM is not alive. Opcode Received: " << retPacket3.opcode;
+//	}
 	launchDaemon();
 }
 
@@ -72,10 +72,10 @@ void COM::updateConfig(){}
 
 //! Handles the capturing and storing of the health and status for a subsystem
 void COM::getHealthStatus(){
-	LockGuard l(lock);
-	std::vector<uint8_t> buff;
-	ACPPacket acpReturn = sendOpcode(OP_HEALTHSTATUS, buff);
-	health.recordBytes(acpReturn.message);
+//	LockGuard l(lock);
+//	std::vector<uint8_t> buff;
+//	ACPPacket acpReturn = sendOpcode(OP_HEALTHSTATUS, buff);
+//	health.recordBytes(acpReturn.message);
 }
 
 //! Launches Com Daemon
@@ -97,26 +97,26 @@ void COM::sendBeacon(){}
 //! resets COM
 bool COM::resetCOM(){
 
-	Logger::Stream(LEVEL_INFO,tags) << "Preparing COM for Reset";
-
-	std::vector<uint8_t> buff;
-	ACPPacket retPacket = sendOpcode(OP_SUBSYSTEMRESET,buff);
-	if (!isSuccess(OP_SUBSYSTEMRESET,retPacket)){
-		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Subsystem Reset: Unable to reset subsystem. Opcode Received: " << retPacket.opcode;
-		return false;
-	}
-	return true;
+//	//Logger::Stream(LEVEL_INFO,tags) << "Preparing COM for Reset";
+//
+//	//std::vector<uint8_t> buff;
+//	//ACPPacket retPacket = sendOpcode(OP_SUBSYSTEMRESET,buff);
+//	//if (!isSuccess(OP_SUBSYSTEMRESET,retPacket)){
+//		Logger::Stream(LEVEL_FATAL,tags) << "Opcode Subsystem Reset: Unable to reset subsystem. Opcode Received: " << retPacket.opcode;
+//		return false;
+//	}
+//	return true;
 }
 
 //TODO: Do we need this?
 void COM::changeBaudRate(uint32_t baudRate){
 
-	Logger::Stream(LEVEL_INFO,tags) << "Changing COM Baud Rate to " << baudRate;
+	//Logger::Stream(LEVEL_INFO,tags) << "Changing COM Baud Rate to " << baudRate;
 
-	ByteStream bs;
-	bs << baudRate;
+	//ByteStream bs;
+	//bs << baudRate;
 
-	ACPPacket retPacket = sendOpcode(OP_HEALTHSTATUS, bs.vec());
+	//ACPPacket retPacket = sendOpcode(OP_HEALTHSTATUS, bs.vec());
 
 }
 

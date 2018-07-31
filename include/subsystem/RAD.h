@@ -24,7 +24,7 @@
 
 #include <stdio.h>
 
-#define RAD_CHUNK_SIZE		204800
+#define RAD_CHUNK_SIZE		50000
 #define CONFIG_MOTOR_SIZE	15
 #define CONFIG_DATA_SIZE	17
 

@@ -42,7 +42,15 @@ void * FSWThreads::HealthStatusThread(void * args) {
 			if(!gps->getLockStatus() && !gps->isOn()){
 				eps->sendSleepTime(14400);
 			}else{
-				eps->getSleepTime();
+				GPSPositionTime st = gps->pt;
+				uint32_t sleepTime = gps->calcSleepTime(st);
+				if(sleepTime > 0){
+					std::string writeToFile = "COM_MODE!\n";
+					std::vector<std::string> buff;
+					buff.push_back(writeToFile);
+					FileManager::writeToStringFile(COM_MODE,buff);
+					eps->sendSleepTime(sleepTime);
+				}
 			}
 
 		}
@@ -59,6 +67,9 @@ void * FSWThreads::ModeThread(void * args) {
 	FSWMode mode;
 	scheduler->checkForSchedule();
 	Logger::registerThread("Mode");
+	if(FileManager::checkExistance(ADS_MODE) || FileManager::checkExistance(SCIENCE_MODE)){
+		sleep(10);
+	}
 	Logger::log(LEVEL_INFO, "Starting Mode Thread");
 	while (1) {
 		watchdog->KickWatchdog();
@@ -124,7 +135,7 @@ void * FSWThreads::GPSThread(void * args) {
 			watchdog->KickWatchdog();
 			acs->sendGPS(gps->getBestXYZI());
 			mode = scheduler->getCurrentMode();
-			if(mode == Trans_BusToPayload && !(gps->stcl)){
+			if((mode == Trans_BusToPayload || mode == Mode_Payload) && !(gps->stcl)){
 				Logger::log(LEVEL_INFO,"Logging Start GPS Lock");
 				start = "Start: ";
 				ss << start << gps->getBestXYZI() << "\n";
@@ -133,7 +144,7 @@ void * FSWThreads::GPSThread(void * args) {
 				buff.clear();
 				ss.str("");
 				gps->stcl = true;
-			}else if(mode == Trans_PayloadToBus && gps->stcl){
+			}else if((mode == Trans_PayloadToBus || mode == Mode_Bus) && gps->stcl){
 				Logger::log(LEVEL_INFO,"Logging Finish GPS Lock");
 				finish = "Finish: ";
 				ss << finish << gps->getBestXYZI() << "\n";

@@ -190,7 +190,7 @@ GPSPositionTime GPS::getBestXYZI(){
 		gcrf2wgs(eiPos,eiVel,gpsTime,rF,vF);
 		//TODO: get values to put in.
 		if((rF[0] > xlow  && rF[0] < xhigh) && (rF[1] > ylow && rF[1] < yhigh) && (rF[2] > zlow && rF[2] < zhigh )){
-			Logger::Stream(LEVEL_DEBUG,tags) << "Within range of Ground Station";
+			Logger::Stream(LEVEL_INFO,tags) << "Within range of Ground Station";
 			Logger::Stream(LEVEL_DEBUG,tags) << rF[0] << " " << rF[1] << " " << rF[2] << " " << vF[0] << " " << vF[1] << " " << vF[2];
 			beaconOut = true;
 		}else{
@@ -199,8 +199,9 @@ GPSPositionTime GPS::getBestXYZI(){
 			}
 			if(toComMode){
 				FileManager::deleteFile(COM_MODE);
+				toComMode = false;
 			}
-			Logger::Stream(LEVEL_DEBUG,tags) << "Not within range of Ground Station";
+			Logger::Stream(LEVEL_INFO,tags) << "Not within range of Ground Station";
 			beaconOut = false;
 		}
 	}
@@ -239,7 +240,7 @@ uint64_t GPS::calcSleepTime(GPSPositionTime st){
 	while(!((rF[0] > xlow  && rF[0] < xhigh) && (rF[1] > ylow && rF[1] < yhigh) && (rF[2] > zlow && rF[2] < zhigh ))){
 		if(fkprop > 86400){
 			Logger::Stream(LEVEL_DEBUG,tags) << "Time Out for Calc Sleep exceeded";
-			return -1;
+			return 14400;
 		}
 		propagatePositionVelocity(lastLock.elements, fkprop, eciPos, eciVel);
 		st.posX = eciPos[0];
@@ -263,6 +264,7 @@ uint64_t GPS::calcSleepTime(GPSPositionTime st){
 		Logger::Stream(LEVEL_DEBUG,tags) << "prop: " << fkprop << "\nECEF x: "<< rF[0] << " y: " <<
 				rF[1] << " z: " << rF[2] << " x: " << vF[0] << " y: " << vF[1] << " z: " << vF[2] << "\n" << st; // << "\nECI: " << st;
 		fkprop++;
+		watchdog->KickWatchdog();
 	}
 	Logger::Stream(LEVEL_DEBUG,tags) << "fkProp: " << fkprop << " getCurrentTime(): " << getCurrentTime();
 	uint32_t sleepTime = fkprop - getCurrentTime();
