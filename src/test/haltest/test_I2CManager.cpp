@@ -63,9 +63,9 @@ TEST_CASE("I2CManager Test Hot Swaps", "[.][hardware][i2c]"){
 	HotSwapInterface hs4(i2c, i2c.attachDevice(0x86), 0.01,"ACS 3V3");
 	HotSwapInterface hs5(i2c, i2c.attachDevice(0x88), 0.01,"ACS VBAT");
 	HotSwapInterface hs6(i2c, i2c.attachDevice(0x8A), 0.015,"ACS 12V0");
-	HotSwapInterface hs7(i2c, i2c.attachDevice(0x8C), 0.01,"PROP 3V3");
-	HotSwapInterface hs8(i2c, i2c.attachDevice(0x8E), 0.01,"PROP VBAT");
-	HotSwapInterface hs9(i2c, i2c.attachDevice(0x90), 0.015,"PROP 12V0");
+	HotSwapInterface hs7(i2c, i2c.attachDevice(0x92), 0.01,"PLD 3V3");
+	HotSwapInterface hs8(i2c, i2c.attachDevice(0x94), 0.01,"PLD VBAT");
+	HotSwapInterface hs9(i2c, i2c.attachDevice(0x96), 0.015,"PLD 12V0");
 	HotSwapInterface hs10(i2c, i2c.attachDevice(0x98), 0.01,"GPS 3V3");
 	HotSwapInterface hs11(i2c, i2c.attachDevice(0x9A), 0.01,"GPS VBAT");
 	HotSwapInterface hs12(i2c, i2c.attachDevice(0x9C), 0.01,"AUXCOM 3V3");

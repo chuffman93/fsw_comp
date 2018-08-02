@@ -20,7 +20,6 @@ TEST_CASE("Testing for power budget","[.][epsBG]"){
 
 	for(int y = 0; y <= 60; y++){
 		eps->getHealthStatus();
-		sleep(1);
 	}
 
 }
@@ -48,6 +47,5 @@ TEST_CASE("Testing for sleep mode","[.][epsSL]"){
 	gps->fetchNewGPS();
 	gps->getBestXYZI();
 
-	eps->getSleepTime();
 
 }

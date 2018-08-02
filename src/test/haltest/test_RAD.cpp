@@ -6,7 +6,8 @@
  */
 #include "test/catch.hpp"
 #include "test/testmacros.h"
-
+#include "core/Architecture.h"
+#include "core/Watchdog.h"
 #include "util/Logger.h"
 #include "subsystem/RAD.h"
 #include "test/swintegration/MockSubPower.h"
@@ -14,12 +15,37 @@
 using namespace std;
 
 TEST_CASE("Test Data run with RAD", "[.][hardware][fullrad]"){
+	Architecture::buildTime();
+	Logger::setMode(MODE_PRINT);
+	Logger::setLevel(LEVEL_DEBUG);
+	Architecture::setInterfaceMode(HARDWARE);
+	Architecture::buildEPS();
+	Architecture::buildRAD();
+	Watchdog watchdog(*(Architecture::getEPS()));
+	watchdog.AddThread(Thread::GetMyThreadID());
+	Architecture::getRAD()->watchdog = &watchdog;
+	RAD* rad = Architecture::getRAD();
+
+	Logger::log(LEVEL_FATAL, "Initializing HAL");
+	vector<HardwareManager*> halinit = Architecture::buildHALInitVector();
+	for(vector<HardwareManager*>::iterator i = halinit.begin(); i != halinit.end(); i++){
+		(*i)->initialize();
+	}
+
+	rad->initialize();
+
+	rad->commandCollectionBegin();
+
+	sleep(15);
+
+	rad->commandCollectionEnd();
+
+}
+
+TEST_CASE("Ping RAD", "[.][hardware][radping]"){
 	INFO("Setting up Logger");
 	Logger::setMode(MODE_PRINT);
 	Logger::setLevel(LEVEL_DEBUG);
-
-	INFO("Set up reboot count");
-	FileManager::updateRebootCount();
 
 	INFO("Build HAL Layer");
 	int spiid, intrid, acpid;
@@ -47,23 +73,7 @@ TEST_CASE("Test Data run with RAD", "[.][hardware][fullrad]"){
 	sp.configDelay(100, 4000);
 	sp.powerOn();
 
-	MockSubPower sp2("RAD");
-
-	INFO("Create RAD Object");
-	RAD rad(acp, sp2);
-
-	INFO("Initialize RAD");
-	rad.initialize();
-
-	INFO("Start Science Collection");
-	PROMPT("Ready to start science collection:");
-	rad.handleMode(Trans_BusToPayload);
-
-	cout << "Beginning data collection from MiniRAD..." << endl;
-	PROMPT("Press enter to end:");
-
-	INFO("Shutting down Science Collection");
-	rad.handleMode(Trans_PayloadToBus);
+	system("ping 10.14.134.207");
 }
 
 

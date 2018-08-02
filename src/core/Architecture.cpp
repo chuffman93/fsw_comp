@@ -196,9 +196,9 @@ void Architecture::buildHotSwapInterfaces(){
 	hotswaps.push_back(new HotSwapInterface(*i2c, i2c->attachDevice(0x86), 0.01,"ACS 3V3"));
 	hotswaps.push_back(new HotSwapInterface(*i2c, i2c->attachDevice(0x88), 0.01,"ACS VBAT"));
 	hotswaps.push_back(new HotSwapInterface(*i2c, i2c->attachDevice(0x8A), 0.015,"ACS 12V0"));
-	hotswaps.push_back(new HotSwapInterface(*i2c, i2c->attachDevice(0x8C), 0.01,"PROP 3V3"));
-	hotswaps.push_back(new HotSwapInterface(*i2c, i2c->attachDevice(0x8E), 0.01,"PROP VBAT"));
-	hotswaps.push_back(new HotSwapInterface(*i2c, i2c->attachDevice(0x90), 0.015,"PROP 12V0"));
+	hotswaps.push_back(new HotSwapInterface(*i2c, i2c->attachDevice(0x92), 0.01,"PLD 3V3"));
+	hotswaps.push_back(new HotSwapInterface(*i2c, i2c->attachDevice(0x94), 0.01,"PLD VBAT"));
+	hotswaps.push_back(new HotSwapInterface(*i2c, i2c->attachDevice(0x96), 0.015,"PLD 12V0"));
 	hotswaps.push_back(new HotSwapInterface(*i2c, i2c->attachDevice(0x98), 0.01,"GPS 3V3"));
 	hotswaps.push_back(new HotSwapInterface(*i2c, i2c->attachDevice(0x9A), 0.01,"GPS VBAT"));
 	hotswaps.push_back(new HotSwapInterface(*i2c, i2c->attachDevice(0x9C), 0.01,"AUXCOM 3V3"));
