@@ -12,7 +12,7 @@ ACS::ACS(ACPInterface& acp, SubPowerInterface& subPower)
 	tags += LogTag("Name", "ACS");
 	health.fileSize = FileManager::MAX_FILE_SIZE;
 	health.basePath = HEALTH_DIRECTORY ACS_PATH "/ACS";
-	pointingValid = false;
+	pointingValid = false; // this should be removed
 	TimeSinceLock = -1;
 	starMRP = 0;
 	TargetMRP.assign(3,0);
@@ -27,7 +27,9 @@ ACS::ACS(ACPInterface& acp, SubPowerInterface& subPower)
 
 ACS::~ACS(){}
 
-//! Will set up the Gpio lines, acp devices, handle configs, and test alive
+/*
+ * Powers ACS on, sends Test Alive, Test LED and Test Config opcodes to ACS, handles ACS configurations
+ */
 void ACS::initialize(){
 	//TODO: error handling
 	Logger::Stream(LEVEL_INFO,tags) << "Initializing ACS";
@@ -56,6 +58,7 @@ void ACS::initialize(){
 /*!
  * Handles any mode transition needs as well as any needs for tasks to be done in a mode.
  * \param Mode that FSW is in
+ * Most of the transitions should be taken out since they are irrelevant
  */
 void ACS::handleMode(FSWMode transition){
 	LockGuard l(lock);
@@ -63,7 +66,7 @@ void ACS::handleMode(FSWMode transition){
 	bool success;
 	switch (transition){
 	case Mode_Reset:
-		success = resetACS();
+		success = resetACS(); //the return was going to be used for error handling, we should fix this since the returns are irrelevant
 		break;
 	case Trans_BusToADS:
 		initialize();
@@ -93,7 +96,9 @@ void ACS::handleMode(FSWMode transition){
 	}
 }
 
-//! Sends the configs to ACS
+/*
+ * Sends config to ACS
+ */
 void ACS::handleConfig(){
 	if(FileManager::checkExistance(ACS_CONFIG)){
 		std::vector<uint8_t> buff = FileManager::readFromFile(ACS_CONFIG);
@@ -133,7 +138,7 @@ void ACS::updateConfig(){
 }
 
 
-//! Handles the capturing and storing of the health and status for a subsystem
+//! Handles the capturing and storing of the health and status for ACS
 void ACS::getHealthStatus(){
 	LockGuard l(lock);
 
@@ -219,7 +224,7 @@ bool ACS::sendGPS(GPSPositionTime gps){
 	}
 }
 
-//TODO: Do we need this?
+//TODO: Do we need this? .. no .... this should be removed
 void ACS::configureGains(){}
 
 //! resets ACS
@@ -283,32 +288,49 @@ std::vector<float> ACS::getTargetMRP(){
 	return this->TargetMRP;
 }
 
+/*
+ * returns the actual MRP
+ */
 std::vector<float> ACS::getActualMRP(){
 	LockGuard l(lock);
 	return this->ActualMRP;
 }
 
-
+/*
+ * returns the star MRP
+ */
 float ACS::getStarMRP(){
 	LockGuard l(lock);
 	return this->starMRP;
 }
 
+/*
+ * returns X pixels
+ */
 std::vector<uint16_t> ACS::getXPixel(){
 	LockGuard l(lock);
 	return this->xPixel;
 }
 
+/*
+ * returns Y pixels
+ */
 std::vector<uint16_t> ACS::getYPixel(){
 	LockGuard l(lock);
 	return this->yPixel;
 }
 
+/*
+ * returns catalog ID
+ */
 std::vector<uint16_t> ACS::getCatalogID(){
 	LockGuard l(lock);
 	return this->catalogID;
 }
 
+/*
+ * returns the number of start found
+ */
 uint8_t ACS::getNumStarsFound(){
 	LockGuard l(lock);
 	return this->numStarsFound;
@@ -347,10 +369,14 @@ void ACS::updateActualMRP(std::vector<uint8_t> buffer){
 	bs >> ActualMRP[0] >> ActualMRP[1] >> ActualMRP[2];
 }
 
+/*
+ * Saves current ACS mode from health and status for the beacon
+ * \param ACS health and status buffer
+ */
 void ACS::checkACSMode(std::vector<uint8_t> buffer){
 	uint8_t modeACS;
 	ByteStream bs(buffer);
-	bs.seek(1);
+	bs.seek(1); //!!!!!!this or the star MRP is incorrect!!!!!!
 	bs >> modeACS;
 
 	Logger::Stream(LEVEL_DEBUG,tags) << "modeACS: " << (int)modeACS;
@@ -359,12 +385,20 @@ void ACS::checkACSMode(std::vector<uint8_t> buffer){
 	}
 }
 
+/*
+ * Saves current star MRP from health and status for the beacon
+ * \param ACS health and status buffer
+ */
 void ACS::updateStarMRP(std::vector<uint8_t> buffer){
 	ByteStream bs(buffer);
-	bs.seek(1);
+	bs.seek(1); //!!!!!!!!!!!this or the ACS mode is incorrect!!!!!!!!!!!
 	bs >> starMRP;
 }
 
+/*
+ * Saves current x pixels from health and status for the beacon
+ * \param ACS health and status buffer
+ */
 void ACS::updateXPixel(std::vector<uint8_t> buffer){
 	ByteStream bs(buffer);
 	bs.seek(161);
@@ -374,6 +408,10 @@ void ACS::updateXPixel(std::vector<uint8_t> buffer){
 	}
 }
 
+/*
+ * Saves current y pixels from health and status for the beacon
+ * \param ACS health and status buffer
+ */
 void ACS::updateYPixel(std::vector<uint8_t> buffer){
 	ByteStream bs(buffer);
 	bs.seek(201);
@@ -383,6 +421,10 @@ void ACS::updateYPixel(std::vector<uint8_t> buffer){
 	}
 }
 
+/*
+ * Saves current catalog ID from health and status for the beacon
+ * \param ACS health and status buffer
+ */
 void ACS::updateCatalogID(std::vector<uint8_t> buffer){
 	ByteStream bs(buffer);
 	bs.seek(241);
@@ -392,12 +434,19 @@ void ACS::updateCatalogID(std::vector<uint8_t> buffer){
 	}
 }
 
+/*
+ * Saves current number of stars found from health and status for the beacon
+ * \param ACS health and status buffer
+ */
 void ACS::updateNumStarsFound(std::vector<uint8_t> buffer){
 	ByteStream bs(buffer);
 	bs.seek(282);
 	bs >> numStarsFound;
 }
 
+/*
+ * Returns true if ACS is on
+ */
 bool ACS::isACSOn(){
 	return isOn;
 }
