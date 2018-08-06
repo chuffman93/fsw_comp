@@ -74,7 +74,7 @@ def sendFMGConfig():
 print("----------Running Integrated Software Ground Simulation----------")
 
 nextSchedule = []
-nextSchedule.append(DITLSch(2,30,20))
+nextSchedule.append(DITLSch(5,30,20))
 
 '''
 if not os.path.exists('./home/.uplink/DSCH'):
