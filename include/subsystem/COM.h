@@ -15,6 +15,7 @@
 #include "core/FileSystem.h"
 #include "core/Lock.h"
 
+// Opcodes specific to COM, these are irrelevant and should be deleted
 enum COMOpcode {
 	OP_COM_MIN = 32,
 	OP_SIMPLEX = OP_COM_MIN,
@@ -33,11 +34,8 @@ public:
 	COM(ACPInterface& acp, SubPowerInterface& subPower);
 	~COM();
 
-	//Will set up the Gpio lines and the acp devices
 	void initialize();
-	//Handles any mode transition needs as well as any needs for tasks to be done in a mode.
 	void handleMode(FSWMode transition);
-	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 	void getHealthStatus();
 	void handleConfig();
 	void updateConfig();
@@ -49,14 +47,13 @@ public:
 
 	HealthFileStruct health;
 private:
-	//Configure the lithium radio
-	bool killCom;
+
+	bool killCom; //used for during the com daemon off
 	void launchDaemon();
 	//Send the beacon
-	void sendBeacon();
-	//Need to figure out how the GND Communication stuff will work
-	bool resetCOM();
-	void changeBaudRate(uint32_t baudRate);
+	void sendBeacon(); //Should be deleted
+	bool resetCOM(); // Should be deleted
+	void changeBaudRate(uint32_t baudRate); //Should be deleted
 	ACPInterface& acp;
 	SubPowerInterface& subPower;
 	Lock lock;
