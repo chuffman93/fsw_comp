@@ -7,5 +7,5 @@ void HealthFileStruct::recordBytes(std::vector<uint8_t> message){
 		currentFile = FileManager::createFileName(basePath);
 		fileSize = message.size();
 	}
-	FileManager::writeToFile(currentFile, message);
+	FileManager::appendToFile(currentFile, message);
 }

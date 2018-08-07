@@ -17,7 +17,10 @@ COM::COM(ACPInterface& acp, SubPowerInterface& subPower)
 
 COM::~COM(){}
 
-//! Will set up the Gpio lines, the acp devices, and launch the com daemon
+/*
+ * Powers on com and launches the com daemon
+ * Should remove the commented sending of opcodes/ dead code
+ */
 void COM::initialize(){
 	//TODO: error handling
 	Logger::Stream(LEVEL_INFO,tags) << "Initializing COM";
@@ -44,13 +47,15 @@ void COM::initialize(){
 	launchDaemon();
 }
 
-//! Handles any mode transition needs as well as any needs for tasks to be done in a mode.
+/*
+ * Handles mode transitions
+ */
 void COM::handleMode(FSWMode transition){
 	LockGuard l(lock);
 	bool success;
 	switch (transition){
 	case Mode_Reset:
-		success = resetCOM();
+		success = resetCOM(); // we dont need this, this transition method should only need a lock
 		break;
 	default:
 		//TODO: error handling
@@ -58,8 +63,14 @@ void COM::handleMode(FSWMode transition){
 	}
 }
 
+/*
+ * Inherited function, irrelevant to COM
+ */
 void COM::handleConfig(){}
 
+/*
+ * Method used in terminating the com daemon
+ */
 void COM::setKillCom(bool toKill){
 	killCom = toKill;
 }
@@ -68,9 +79,15 @@ bool COM::getKillCom(){
 	return killCom;
 }
 
+/*
+ * Inherited function, irrelevant to COM
+ */
 void COM::updateConfig(){}
 
-//! Handles the capturing and storing of the health and status for a subsystem
+/*
+ * Inherited function, irrelevant to COM
+ * We should delete the dead code
+ */
 void COM::getHealthStatus(){
 //	LockGuard l(lock);
 //	std::vector<uint8_t> buff;
@@ -91,10 +108,10 @@ void COM::launchDaemon(){
 
 }
 
-//TODO: Do we need this?
+//TODO: Do we need this? .... we don't need this, should be deleted
 void COM::sendBeacon(){}
 
-//! resets COM
+//! This function should be deleted entirely
 bool COM::resetCOM(){
 
 //	//Logger::Stream(LEVEL_INFO,tags) << "Preparing COM for Reset";
@@ -108,7 +125,7 @@ bool COM::resetCOM(){
 //	return true;
 }
 
-//TODO: Do we need this?
+//TODO: Do we need this? ... no .. this should be removed
 void COM::changeBaudRate(uint32_t baudRate){
 
 	//Logger::Stream(LEVEL_INFO,tags) << "Changing COM Baud Rate to " << baudRate;
@@ -121,6 +138,8 @@ void COM::changeBaudRate(uint32_t baudRate){
 }
 
 /*!
+ * This function is inherited yet irrelevant (mostly), good to keep though because I don't know how removing it would
+ * effect everything if a COM opcode was accidently requested from the ground
  * Handles sending opcodes
  * \param opcode to be sent
  * \param buffer to be sent if need be
@@ -139,14 +158,23 @@ ACPPacket COM::sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer){
 	}
 }
 
-//! checks if the COM opcode was sent successfully
+/*
+ * This function is inherited yet irrelevant (mostly), good to keep though because I don't know how removing it would
+ * effect everything if a COM opcode was accidently requested from the ground
+ * checks if the COM opcode was sent successfully
+ */
+
 bool COM::isSuccess(COMOpcode opcode, ACPPacket retPacket){
 	if (opcode == retPacket.opcode){
 		return true;
 	}
 	return false;
 }
-//! check fi the subsystem opcode was sent successfully
+/*
+ * This function is inherited yet irrelevant (mostly), good to keep though because I don't know how removing it would
+ * effect everything if a COM opcode was accidently requested from the ground
+ * check if the subsystem opcode was sent successfully
+ */
 bool COM::isSuccess(SubsystemOpcode opcode, ACPPacket retPacket){
 	if (opcode == retPacket.opcode){
 		return true;

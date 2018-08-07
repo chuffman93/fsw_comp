@@ -15,6 +15,7 @@
 
 #include <stdio.h>
 
+// Opcodes specific to EPS
 enum EPSOpcode{
 	OP_EPS_MIN = 32,
 	OP_BATTERYCONFIG = OP_EPS_MIN,

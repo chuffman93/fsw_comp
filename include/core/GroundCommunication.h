@@ -24,6 +24,7 @@
 #include <string.h>
 #include <string>
 
+//FSW commands (from old FSW), these are unused and can be deleted
 typedef enum FSWCommandTypes {
 	FSW_CMD_REQUEST_RESET = 1,
 	FSW_CMD_HARD_SATELLITE_RESET,
@@ -44,12 +45,12 @@ public:
 	bool spinGround(Watchdog* watchdog);
 	void parseIEF();
 
-	bool stateDownlink;
-	bool statePostPass;
-	uint32_t ComStartTime;
-	uint32_t ComTimeout;
-	std::vector<std::string> CommandAcknowledgements;
-	std::deque<std::string> DownlinkQueue;
+	bool stateDownlink; // Flag that signifies we are downlinking files when true
+	bool statePostPass; // Flag that signifies that the com pass is over when true, performs post pass tasks
+	uint32_t ComStartTime; // Time stamp for beginning of com pass
+	uint32_t ComTimeout; // Max length for com pass (seconds)
+	std::vector<std::string> CommandAcknowledgements; //Queue containing all of the command acknowledgments (for current com pass)
+	std::deque<std::string> DownlinkQueue; // Queue containing all the requested downlink items (for current com pass)
 PRIVATE:
 	std::string trimNewline(std::string buffer);
 	void parseDownlinkRequest(std::string line);
@@ -59,7 +60,7 @@ PRIVATE:
 	void sendCommandAcknowledgements();
 	std::string grabFileName(std::string path);
 	std::vector<SubsystemBase*> subsystems;
-	bool firstFile;
+	bool firstFile; //Flag necessary for downlink logic, otherwise more than one file will be in an incorrect downlink order and incomplete downlink
 	BeaconManager& beacon;
 	COM* com;
 	LogTags tags;

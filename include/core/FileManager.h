@@ -33,7 +33,6 @@ public:
 	static std::vector<uint8_t> readFromFile(std::string filePath);
 	//for files that always need to be rewritten to (aka reboot file) or new files
 	static void writeToFile(std::string filePath, std::vector<uint8_t>& buffer);
-	static void writeBeaconToFile(std::string filePath, std::vector<uint8_t>& buffer);
 	//for file that need to be appended to or new files
 	static void appendToFile(std::string filePath, std::vector<uint8_t>& buffer);
 

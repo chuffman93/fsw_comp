@@ -27,7 +27,9 @@ EPS::EPS(ACPInterface& acp, SubPowerInterface& subPower)
 
 EPS::~EPS(){}
 
-//! Will set up the Gpio lines and the acp devices
+/*
+ * Sends Test Alive, Test LED and Test Config opcodes to EPS
+ */
 void EPS::initialize(){
 	//TODO: error handling
 
@@ -64,11 +66,17 @@ void EPS::handleMode(FSWMode transition){
 	}
 }
 
+/*
+ * Inherited function, irrelevant for EPS
+ */
 void EPS::handleConfig(){}
 
+/*
+ * Inherited function, irrelevant for EPS
+ */
 void EPS::updateConfig(){}
 
-//! Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
+//! Handles the capturing and storing of the health and status for a subsystem
 void EPS::getHealthStatus(){
 
 	LockGuard l(lock);
@@ -124,7 +132,7 @@ bool EPS::commandReset(){
 	//TODO: error handling
 	Logger::Stream(LEVEL_INFO,tags) << "Reseting EPS";
 	std::vector<uint8_t> buff;
-	//getHealthStatus();
+	//getHealthStatus(); dead code, should be removed
 
 
 	ACPPacket retPacket = sendOpcode(OP_SUBSYSTEMRESET,buff);
@@ -146,6 +154,9 @@ uint16_t EPS::getBatteryStateOfCharge(){
 	return batteryCharge;
 }
 
+/*
+ *  Dead code, should be removed
+ */
 //void EPS::getSleepTime(){
 //	GPSPositionTime st = gps->pt;
 //	uint32_t sleepTime = gps->calcSleepTime(st);
@@ -171,6 +182,9 @@ uint16_t EPS::getBatteryStateOfCharge(){
 //	}
 //}
 
+/*
+ * Sends sleep time to EPS
+ */
 void EPS::sendSleepTime(uint32_t time){
 	LockGuard l(lock);
 	ByteStream bs;

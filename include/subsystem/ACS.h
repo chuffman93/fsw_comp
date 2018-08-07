@@ -21,7 +21,7 @@
 
 #define ACS_CONFIG_SIZE 838
 
-
+// Opcodes specific to ACS
 enum ACSOpcode {
 	OP_ACS_MIN = 32,
 	OP_POINTNADIR = OP_ACS_MIN,
@@ -34,6 +34,7 @@ enum ACSOpcode {
 	OP_ACS_MAX,
 };
 
+// Serializes the gps data that is sent to ACS
 struct SerializeGPS {
 	SerializeGPS(GPSPositionTime gps):gps(gps){}
 	GPSPositionTime gps;
@@ -82,7 +83,6 @@ PRIVATE:
 	bool pointNadir();
 	bool pointCOM();
 	bool pointSunSoak();
-	//Update the GPS information on ACS
 
 	//Configure the gains on ACS
 	void configureGains();
@@ -98,7 +98,7 @@ PRIVATE:
 	void updateCatalogID(std::vector<uint8_t> buffer);
 	void updateNumStarsFound(std::vector<uint8_t> buffer);
 
-	bool pointingValid;// = false;
+	bool pointingValid;// this should be removed, not used
 	float TimeSinceLock;
 	float starMRP;
 	std::vector<float> TargetMRP;
@@ -109,7 +109,7 @@ PRIVATE:
 	uint8_t numStarsFound;
 	ACPInterface& acp;
 	SubPowerInterface& subPower;
-	bool isOn;
+	bool isOn; // Flag that signifies ACS is powered on when true
 	Lock lock;
 	LogTags tags;
 

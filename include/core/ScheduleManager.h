@@ -23,6 +23,7 @@
 
 #define CONFIG_SCH_SIZE 8
 
+// FSW Modes and transitions
 typedef enum _FSWMode{
 	Mode_Bus = 1,
 	Mode_Payload = 2,
@@ -40,9 +41,9 @@ typedef enum _FSWMode{
 }FSWMode;
 
 struct ScheduleStruct {
-	FSWMode mode;
-	uint32_t timeSinceEpoch;
-	uint32_t duration;
+	FSWMode mode; //fsw mode
+	uint32_t timeSinceEpoch; //time since boot up (seconds)
+	uint32_t duration; //duration of scheduled time (seconds)
 };
 
 class ScheduleManager
@@ -74,16 +75,16 @@ public:
 
 PRIVATE:
 	std::queue <ScheduleStruct> ScheduleQueue;
-	uint32_t REBOOT_TIME;
-	uint32_t modeEnterTime;
-	int ComPassCount;
+	uint32_t REBOOT_TIME; //system time of reboot
+	uint32_t modeEnterTime; // system time for when current mode was entered
+	int ComPassCount; // number of com passes since first start up
 
-	ScheduleStruct currentSchedule;
-	ScheduleStruct com;
+	ScheduleStruct currentSchedule; //SUPER confusing, this is the next scheduled item
+	ScheduleStruct com; //used for when we enter com mode
 
-	FSWMode CurrentMode;
+	FSWMode CurrentMode; // current FSW mode
 
-	bool acsDetumble;
+	bool acsDetumble; // Don't need this anymore since we are no longer concerned with detumbles
 
 	Lock lock;
 
