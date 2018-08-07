@@ -176,10 +176,9 @@ void EPS::sendSleepTime(uint32_t time){
 	ByteStream bs;
 	bs << time;
 	sleep(10);
+	Logger::Stream(LEVEL_FATAL,tags) << "Sending Sleep Time: " << time;
 	ACPPacket retPacket = sendOpcode(OP_SLEEP,bs.vec());
 	if (!isSuccess(OP_SLEEP,retPacket)){
 		Logger::Stream(LEVEL_FATAL,tags) << "Time to sleep failed to send OpCode Returned: " << int(retPacket.opcode);
-	}else{
-		Logger::Stream(LEVEL_FATAL,tags) << "Sending Sleep Time: " << time;
 	}
 }
