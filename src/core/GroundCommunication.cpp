@@ -16,13 +16,21 @@ GroundCommunication::GroundCommunication(std::vector<SubsystemBase*> subsystems,
 
 GroundCommunication::~GroundCommunication(){}
 
+/*
+ * This function should be called in SpinGround() whenever the stateDownlink flag is true
+ * Places requested downlink files in the downlink folder one by one
+ * Next file will be added to the folder when the previous file has been removed and downlinked by com system
+ * Front of the queue should be the file we are currently trying to downlink
+ */
 void GroundCommunication::downlinkFiles(){
-
+	// Continues downlink if the queue is not empty
 	if (!DownlinkQueue.empty()){
 		std::string file = DownlinkQueue.front();
+		// Place first file in downlink directory
 		if (firstFile == true){
 			Logger::Stream(LEVEL_INFO,tags) << "Downlinking First File" << grabFileName(file).c_str();
 			FileManager::copyFile(file, DOWNLINK_DIRECTORY + grabFileName(file));
+			// If the first file is not longer in the downlink directory, ERROR
 			if (!FileManager::checkExistance(DOWNLINK_DIRECTORY + grabFileName(file))){
 				Logger::Stream(LEVEL_DEBUG,tags) << "Error copying: " << file << "to " << DOWNLINK_DIRECTORY + grabFileName(file);
 			}
@@ -36,26 +44,40 @@ void GroundCommunication::downlinkFiles(){
 			}
 		}
 	}
+	// Concludes downlink if the queue is empty, should probably be an else statement
 	if (DownlinkQueue.empty()){
 		stateDownlink = false;
-		statePostPass = true;
-		firstFile = true;
+		statePostPass = true; // downlinking is always the last task in a com pass, so we must trigger post pass tasks
+		firstFile = true; // resets flag for next time we downlink
 		Logger::Stream(LEVEL_INFO,tags) << "Completed Downlink of All Files";
 	}
 }
 
+/*
+ * Clears the downlink queue
+ * Should be called when the communication pass is over
+ */
 void GroundCommunication::clearDownlink(){
 	Logger::Stream(LEVEL_INFO,tags) << "Communication Pass over, clearing downlink queue";
 	DownlinkQueue.clear();
 	firstFile = true;
 }
 
+/*
+ * Helpful function for removing the newline in a string
+ * Used when parsing the ground files
+ */
 std::string GroundCommunication::trimNewline(std::string buffer){
 	  // Remove the newline at the end of a string
 	buffer.erase(std::remove(buffer.begin(), buffer.end(), '\n'), buffer.end());
 	return buffer;
 }
 
+/*
+ * Method for parsing and handling the ground downlink requests
+ * Parameters: F (single file), R (entire regex), RB (regex before specified com pass), RA (regex after specified com pass)
+ * Adds files to downlink queue in the order that it appears in the ground file
+ */
 void GroundCommunication::parseDownlinkRequest(std::string line){
 	char downlinkRequest[100];
 	strcpy(downlinkRequest, line.c_str());
@@ -111,6 +133,10 @@ void GroundCommunication::parseDownlinkRequest(std::string line){
 	}
 }
 
+/*
+ * Method for parsing and handling deletion requests
+ * Parameters: F (single file), R (entire regex), RB (regex before specified com pass), RA (regex after specified com pass)
+ */
 void GroundCommunication::parseDeletionRequest(std::string line){
 	char deleteRequest[100];
 	strcpy(deleteRequest, line.c_str());
@@ -147,6 +173,11 @@ void GroundCommunication::parseDeletionRequest(std::string line){
 	}
 }
 
+/*
+ * Method for parsing and executing ground requests
+ * Parameters: SYS (system/run through the CDH command line), ACS (opcode), COM (opcode), EPS (opcode), RAD (opcode)
+ * Adds command acknowledgment to the queue, either S for success or F for failure
+ */
 void GroundCommunication::parseCommandRequest(std::string line){
 	//TODO: error handling for opcodes numbers in between min and max that don't exist
 	char commandRequest[100];
@@ -199,6 +230,7 @@ void GroundCommunication::parseCommandRequest(std::string line){
 	}else if (strcmp(sys, "COM") == 0){
 		std::string tempCmd = trimNewline(std::string(command));
 		uint8_t cmd = (uint8_t)atoi((char*)tempCmd.c_str());
+		//SHHHHHHH... secret things
 		if (cmd == OP_TX_ARM){
 			Logger::Stream(LEVEL_INFO,tags) << "Executing COM command: ARMING KILL COMMAND";
 			com->setKillCom(true);
@@ -268,6 +300,10 @@ void GroundCommunication::parseCommandRequest(std::string line){
 	}
 }
 
+/*
+ * Method for parsing and handling the file list requests
+ * Must be given and directory path
+ */
 void GroundCommunication::parseFileListRequest(std::string line){
 	char downlinkRequest[100];
 	strcpy(downlinkRequest, line.c_str());
@@ -286,6 +322,10 @@ void GroundCommunication::parseFileListRequest(std::string line){
 	DownlinkQueue.push_back(DFL_PATH);
 }
 
+/*
+ * Adds command acknowledgments to the front of the downlink queue since they have priority over all other files
+ * This should be called after the IEF has been parsed
+ */
 void GroundCommunication::sendCommandAcknowledgements(){
 	std::string filePath = FileManager::createFileName(COMMAND_DIRECTORY);
 	FileManager::writeToStringFile(filePath,CommandAcknowledgements);
@@ -294,7 +334,10 @@ void GroundCommunication::sendCommandAcknowledgements(){
 	CommandAcknowledgements.clear();
 }
 
-
+/*
+ * Helpful method for downlinking files
+ * Splits the file name from the entire path so it can be moved to the downlink directory
+ */
 std::string GroundCommunication::grabFileName(std::string path){
 	int i = path.length()-1;
 	std::string filename = "";
@@ -307,7 +350,10 @@ std::string GroundCommunication::grabFileName(std::string path){
 }
 
 
-
+/*
+ * Method for handling IEF requests
+ * Parameters: CMD (system/subsytem commands), DWL (file/regex downlinks), DLT (file/regex deletions), DFL (downlink list of files within a directory)
+ */
 void GroundCommunication::parseIEF(){
 	std::vector<std::string> requests = FileManager::parseGroundFile(IEF_PATH);
 	char line[100];
@@ -330,6 +376,7 @@ void GroundCommunication::parseIEF(){
 			parseFileListRequest((*it).c_str());
 		}
 	}
+	//Adds command acknowledgments to the front of the downlink queue post IEF processing
 	if (!CommandAcknowledgements.empty()){
 		sendCommandAcknowledgements();
 	}
@@ -344,6 +391,7 @@ void GroundCommunication::parseIEF(){
  */
 bool GroundCommunication::spinGround(Watchdog* watchdog){
 
+	// Send the beacon, no communication has been established with the ground
 	if (!FileManager::checkExistance(SOT_PATH)){
 		Logger::Stream(LEVEL_INFO,tags) << "Sending beacon...";
 		beacon.sendBeacon();
@@ -354,17 +402,15 @@ bool GroundCommunication::spinGround(Watchdog* watchdog){
 			sleep(1);
 		}
 		return false;
-
+	// Ground has communicated with the satellite to begin communication pass
 	}else{
 		if (ComStartTime == 0){
 			Logger::Stream(LEVEL_INFO,tags) << "Beginning Communication Pass Timer";
 			ComStartTime = getCurrentTime();
 			return true;
-
-
 		}
 		Logger::Stream(LEVEL_DEBUG,tags) << "Start Time: " << ComStartTime << " ComTimeOut: " << ComTimeout+ComStartTime << " Current Time: " << getCurrentTime();
-		//check if the communication pass has exceeded
+		//check if the communication pass has exceeded its time limit
 		if ((ComStartTime + ComTimeout) < getCurrentTime()){
 			Logger::Stream(LEVEL_INFO,tags) << "Communication Pass Timeout";
 			if (FileManager::checkExistance(IEF_PATH)){

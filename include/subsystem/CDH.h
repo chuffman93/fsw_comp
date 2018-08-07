@@ -13,7 +13,6 @@
 #include "interfaces/TempInterface.h"
 #include "interfaces/PowerMonitorInterface.h"
 #include <sys/sysinfo.h>
-//#include <vector>
 
 struct CDHState {
 	unsigned long cpu1;
@@ -27,11 +26,8 @@ public:
 	CDH(std::vector<HotSwapInterface*> * hotswaps, std::vector<PowerMonitorInterface*> * powermonitors, std::vector<TempInterface*> * thermalsensors, OneWireManager* onewire);
 	~CDH();
 
-	//Will set up the Gpio lines and the acp devices
 	void initialize();
-	//Handles any mode transition needs as well as any needs for tasks to be done in a mode.
 	void handleMode(FSWMode transition);
-	//Handles the capturing and storing of the health and status for a subsystem (Maybe find someway to implement the autocoding stuff?)
 	void getHealthStatus();
 	ACPPacket sendOpcode(uint8_t opcode, std::vector<uint8_t> buffer);
 	void handleConfig();
@@ -40,7 +36,6 @@ public:
 	HealthFileStruct health;
 
 	private:
-	//Various methods for data collection
 	std::vector<HotSwapData> collectHotswap();
 	std::vector<PowerMonitorData> collectPowermon();
 	std::vector<float> collectTherm();
@@ -50,7 +45,7 @@ public:
 	std::vector<TempInterface*> * ThermalSensors;
 	OneWireManager * OneWireMan;
 
-	CDHState state;
+	CDHState state; //for the bacon
 
 	Lock lock;
 	LogTags tags;

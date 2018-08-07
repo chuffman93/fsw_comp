@@ -17,7 +17,10 @@ CDH::~CDH(){
 
 }
 
-//! Will set up the Gpio lines, acp devices, and handles the configs
+/*
+ * Initializes hot swaps, power monitors, and temperature monitors
+ * Handles CDH configurations
+ */
 void CDH::initialize(){
 
 	std::vector<HotSwapInterface*>::iterator it1;
@@ -38,10 +41,19 @@ void CDH::initialize(){
 
 }
 
+/*
+ * Inherited function, irrelevant for CDH
+ */
 void CDH::handleMode(FSWMode transition){}
 
+/*
+ * Inherited function, irrelevant for CDH
+ */
 void CDH::handleConfig(){}
 
+/*
+ * Inherited function, irrelevant for CDH
+ */
 void CDH::updateConfig(){}
 
 CDHState CDH::getCDHState(){
@@ -49,7 +61,9 @@ CDHState CDH::getCDHState(){
 }
 
 
-//! Handles the capturing and storing of the health and status for a subsystem
+/*
+ * Handles CDH health and status data acquisition and storing
+ */
 void CDH::getHealthStatus(){
 	std::vector<HotSwapData> HSHealth = collectHotswap();
 	std::vector<PowerMonitorData> PMHealth = collectPowermon();
@@ -95,8 +109,9 @@ void CDH::getHealthStatus(){
 
 }
 
-/*!
- * Handles sendig opCodes
+/*
+ * Inherited function, Irrelevant for CDH
+ * Handles sending opCodes
  * \param opcode to be sent
  * \param buffer to be sent if needed
  */
@@ -118,7 +133,7 @@ std::vector<HotSwapData> CDH::collectHotswap(){
 	return data;
 }
 
-//! Handles collecting Power data
+//! Handles collecting Power Monitors
 std::vector<PowerMonitorData> CDH::collectPowermon(){
 	std::vector<PowerMonitorInterface*>::iterator it;
 	std::vector<PowerMonitorData> data;
@@ -131,7 +146,7 @@ std::vector<PowerMonitorData> CDH::collectPowermon(){
 
 }
 
-//! Handles collecting Temp Data
+//! Handles collecting Temperature Monitors
 std::vector<float> CDH::collectTherm(){
 	std::vector<TempInterface*>::iterator it;
 	std::vector<float> data;

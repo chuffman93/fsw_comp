@@ -5,6 +5,8 @@
  *  Created on: Dec 22, 2017
  *      Author: alex and robo
  *      Edited on: January 9th 2018 by Alex
+ *
+ *	-Ready for Code Review
  */
 
 #include "core/FileManager.h"
@@ -75,26 +77,6 @@ void FileManager::writeToFile(std::string filePath, std::vector<uint8_t> &buffer
 	}
 	else{
 		Logger::Stream(LEVEL_INFO, tags) << "Writing " << buffer.size() << " bytes to \"" << filePath << "\"";
-		ofstream f(filePath.c_str(),ofstream::binary | ofstream::app);
-
-		for(std::vector<uint8_t>::const_iterator i = buffer.begin(); i != buffer.end(); ++i){
-			f << *i;
-		}
-		f.close();
-	}
-
-}
-
-void FileManager::writeBeaconToFile(std::string filePath, std::vector<uint8_t> &buffer){
-	LockGuard l(lock);
-	LogTags tags;
-	tags += LogTag("Name", "FileManager");
-	if (filePath == ""){
-		Logger::Stream(LEVEL_ERROR,tags) << "Unable to write to file, empty file path";
-		return;
-	}
-	else{
-		Logger::Stream(LEVEL_INFO, tags) << "Writing " << buffer.size() << " bytes to \"" << filePath << "\"";
 		ofstream f(filePath.c_str(),ofstream::binary | ofstream::out);
 
 		for(std::vector<uint8_t>::const_iterator i = buffer.begin(); i != buffer.end(); ++i){
@@ -115,21 +97,18 @@ void FileManager::appendToFile(std::string filePath, std::vector<uint8_t>& buffe
 	LogTags tags;
 	tags += LogTag("Name", "FileManager");
 	if (filePath == ""){
-		Logger::Stream(LEVEL_ERROR,tags) << "Unable to append to file, empty file path";
+		Logger::Stream(LEVEL_ERROR,tags) << "Unable to write to file, empty file path";
 		return;
 	}
-	if (buffer.size() == 0){
-		Logger::Stream(LEVEL_ERROR,tags) << "Unable to append to file, empty buffer: " << filePath;
-		return;
+	else{
+		Logger::Stream(LEVEL_INFO, tags) << "Writing " << buffer.size() << " bytes to \"" << filePath << "\"";
+		ofstream f(filePath.c_str(),ofstream::binary | ofstream::app);
+
+		for(std::vector<uint8_t>::const_iterator i = buffer.begin(); i != buffer.end(); ++i){
+			f << *i;
+		}
+		f.close();
 	}
-	int fileID = open(filePath.c_str(),O_APPEND);
-	if (fileID == -1){
-		Logger::Stream(LEVEL_ERROR,tags) << "Unable to append to file, file path does not exist: " << filePath;
-		return;
-	}
-	write(fileID, &buffer, buffer.size());
-	close(fileID);
-	Logger::Stream(LEVEL_INFO,tags) << "Appending " << buffer.size() << "bytes to " << filePath;
 }
 
 /*!
@@ -137,9 +116,7 @@ void FileManager::appendToFile(std::string filePath, std::vector<uint8_t>& buffe
  * \param path to either a file or a directory
  */
 void FileManager::deleteFile(std::string filePath){
-	//remove(filePath.c_str());
 	if(filePath != NEW_SCH || filePath != SOT_PATH || filePath != IEF_PATH || filePath!=PPE_PATH)LockGuard l(lock);
-
 	struct stat s;
 	LogTags tags;
 	tags += LogTag("Name", "FileManager");
@@ -161,6 +138,11 @@ void FileManager::deleteFile(std::string filePath){
 
 }
 
+/*!
+ * Writes a string to a file
+ * \param Path to file to be written to
+ * \param string vector that is to be written
+ */
 void FileManager::writeToStringFile(std::string filePath, std::vector<std::string>& buffer){
 	LockGuard l(lock);
 	LogTags tags;
@@ -225,7 +207,6 @@ std::string FileManager::createFileName(std::string basePath){
  * \param file path to the desired location
  */
 void FileManager::copyFile(std::string filePath, std::string newfilePath){
-	//TODO: dont use system call
 	LogTag tags;
 	Logger::Stream(LEVEL_INFO,tags) << "Copying " << filePath.c_str() << " to " << newfilePath.c_str();
 	if (FileManager::checkExistance(filePath)){
@@ -233,9 +214,6 @@ void FileManager::copyFile(std::string filePath, std::string newfilePath){
 		char*sh_cp[] = {(char*)"/bin/cp",(char*)filePath.c_str(),(char*)newfilePath.c_str(),NULL};
 		cp.launchProcess(sh_cp);
 		Logger::Stream(LEVEL_INFO,tags) << "Copied " << filePath.c_str() << " to " << newfilePath.c_str();
-
-//		std::string command = "cp " + filePath+ " " + newfilePath;
-//		system(command.c_str());
 	}
 }
 
@@ -246,18 +224,17 @@ int FileManager::updateRebootCount(){
 	LogTags tags;
 	tags += LogTag("Name", "FileManager");
 	int RebootCount;
-
 	if (checkExistance(REBOOT_FILE)){
 		lock.lock();
 		//read boot number from file
 		std::ifstream rebootFile(REBOOT_FILE);
 		rebootFile >> RebootCount;
 		rebootFile.close();
-		lock.unlock();
 		//write boot count +1 to file
 		std::ofstream out(REBOOT_FILE);
 		out << ++RebootCount;
 		out.close();
+		lock.unlock();
 	}else {
 		//this is the first time the boot count has been incremented, write initial boot count to file
 		RebootCount = 1;
@@ -287,11 +264,11 @@ int FileManager::updateComPassCount(){
 		std::ifstream ComPassCountFile(COM_PASS_COUNT);
 		ComPassCountFile >> ComPassCount;
 		ComPassCountFile.close();
-		lock.unlock();
 		//write boot count +1 to file
 		std::ofstream out(COM_PASS_COUNT);
 		out << ++ComPassCount;
 		out.close();
+		lock.unlock();
 	}else {
 		//this is the first time the boot count has been incremented, write initial boot count to file
 		ComPassCount = 1;
@@ -321,15 +298,15 @@ int FileManager::getComPassCount(){
 		ComPassCountFile.close();
 		lock.unlock();
 	}else {
-		//this is the first time the boot count has been incremented, write initial boot count to file
 		ComPassCount = 0;
+		Logger::Stream(LEVEL_ERROR,tags) << "No Com Pass File";
 	}
 	Logger::Stream(LEVEL_INFO,tags) << "Loaded ComPass Count: " << ComPassCount;
 	return ComPassCount;
 }
 
 /*!
- * Creates a tarball with a given regex
+ * Creates a tarball with a given regex, not actually regex...
  * \param file path to the files to be brought together (e.g. /home/EPS_92 would collect all files with EPS_92 in the front of their name)
  * \param R indicates if it is to be: R = the regex itself, RB = before regex, and RA = after regex, which is indicated by the reboot count of the file name
  */
@@ -338,80 +315,103 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 	LogTags tags;
 	tags += LogTag("Name", "FileManager");
 
-	// TODO: size checks and error handling
-
 	FILE *fd = NULL;
 	char sh_cmd[256];
 	vector<std::string> Files;
 	// manage fullfilepath + regex manipulation
 	// if one is created .tar = filePath + regex.tar
 
+	// Looking for the one epoch number
 	if(R == "R"){
+		// iterator location
 		int i = dest.length()-1;
 		std::string regex = "";
+		// get the string to search for
 		while(dest[i]!='/'){
 			regex = dest[i]+regex;
 			i--;
 		}
+		// set the a new string based on the regex used for finding the location
 		const std::string ext(regex);
+		// check to make sure the ext is not the dest
 		if(dest != ext && dest.size() > ext.size() && (dest.substr((dest.size() - ext.size())) == regex)){
+			// if not set the dest to the file path up to the "regex" string
 			dest = dest.substr(0,dest.size()-ext.size());
 		}
+		//create a .tar location for collecting all files under the condition
 		std::string newDest = dest + regex + ".tar";
 		Logger::Stream(LEVEL_DEBUG,tags) << "Packaging " << dest.c_str() << " into " << newDest.c_str() << " with regex " << R.c_str();
 		regex = regex+"_";
-		sprintf(sh_cmd, "tar -czf %s -C %s `ls -lr %s | grep ^- | awk '{print $9}' | grep \"%s\" | head -%d`>/dev/null 2>&1", (char*)newDest.c_str(), (char*)dest.c_str(), (char*)dest.c_str(), (char*)regex.c_str(), 50);
+		// tar all files together for the first 50 files with the matching string
+		sprintf(sh_cmd, "tar -czf %s -C %s `ls -lr %s | grep ^- | awk '{print $9}' | grep \"%s\" | head -%d`>/dev/null 2>&1",
+				(char*)newDest.c_str(), (char*)dest.c_str(), (char*)dest.c_str(), (char*)regex.c_str(), 50);
 		Logger::Stream(LEVEL_INFO,tags) << "Created tar file for regex: " << newDest.c_str();
+		// used a pipe call to run the tarballing
 		if(!(fd = popen(sh_cmd, "r"))){
 			Logger::Stream(LEVEL_ERROR, tags) << "Tar creation failed.";
 		}
 		if(pclose(fd) == -1){
 			Logger::Stream(LEVEL_ERROR, tags) << "Tar pipe could not be closed.";
 		}else{
+			// Check to make sure the tar file was created properly
 			struct stat st;
 			int success = lstat(newDest.c_str(), &st);
 			if(success == -1){
 				Logger::Stream(LEVEL_ERROR,tags) << "Stat of file could not be found.";
 				return Files;
 			}
+			// check to make sure the file is under the max downlink size
 			if (st.st_size > FileManager::MAX_DOWN_SIZE){
+				// if not split it into smaller files
 				Logger::Stream(LEVEL_INFO,tags) << "Tar size of: " << st.st_size << " is too large for a max downlink size of " << MAX_DOWN_SIZE << ", splitting into " << st.st_size/MAX_DOWN_SIZE << " archives";
 				vector<std::string> tmp = FileManager::splitFile(newDest);
+				// insert the names into the vector of files
 				Files.insert(Files.end(),tmp.begin(),tmp.end());
 			}else if(st.st_size < 0){
 				Logger::Stream(LEVEL_ERROR,tags) << "Invalid file size for: " << newDest.c_str();
 			}else{
+				// If it is not invalid or too big add it to the new
 				Files.push_back(newDest);
 			}
 		}
 
-
+	// used for checking for specific files prior to an epoch
 	}else if(R == "RB"){
 		int i = dest.length()-1;
 		std::string regex = "";
 		std::string num = "";
+		// first get the epic number
 		while(dest[i]!='_'){
 			num = dest[i]+num;
 			i--;
 		}
+		// save it
 		int EN = atoi(num.c_str());
+		// save the ending string
 		std::string end = "_"+num;
 		i = dest.length()-1;
+		// find the new file name
 		while(dest[i]!='/'){
 			regex = dest[i]+regex;
 			i--;
 		}
+		// set the file name to a holder string
 		std::string nRegex = regex.substr(0,regex.size() - end.size());
+		// create the array to hold the file names of the file names from 1 -> the requested
+		// epoch number
 		std::string pastReg[EN];
-		for(int x = 0; x < EN ; x++){
+		// get the names of the files ("name_num")
+		for(int x = 1; x < EN ; x++){
 			std::ostringstream oss;
 			oss << x;
-			pastReg[x] = nRegex+"_"+oss.str();
+			pastReg[x-1] = nRegex+"_"+oss.str();
 		}
 		const std::string ext(regex);
 		if(dest != ext && dest.size() > ext.size() && (dest.substr((dest.size() - ext.size())) == regex)){
 			dest = dest.substr(0,dest.size()-ext.size());
 		}
+		// iterate through the array and repeat the process of tarballing the various collections and add them to the
+		// vector to be passed on
 		for(int y = 0; y < EN; y++){
 			std::string newDest = dest + pastReg[y] + ".tar";
 			pastReg[y] = pastReg[y] + "_";
@@ -444,35 +444,46 @@ vector<std::string> FileManager::packageFiles(std::string dest, std::string R){
 			}
 			Logger::Stream(LEVEL_INFO,tags) << "Created tar file for regex: " << newDest;
 		}
+	// Used to find files after a give epoch number
 	}else if(R == "RA"){
 		int i = dest.length()-1;
 		std::string regex = "";
 		std::string num = "";
+		// get the number passed in
 		while(dest[i]!='_'){
 			num = dest[i]+num;
 			i--;
 		}
+		// save it
 		int EN = atoi(num.c_str());
 		std::string end = "_"+num;
 		i = dest.length()-1;
+		// get the name of the file to be searched for
 		while(dest[i]!='/'){
 			regex = dest[i]+regex;
 			i--;
 		}
 		std::string nRegex = regex.substr(0,regex.size() - end.size());
+		// get the rebootnumber count
 		int intCount = Reboot_num;
+		// calculate how many epochs have happened
 		int itr = intCount - EN;
+		// create an array to hold all of the file names
 		std::string pastReg[itr+1];
+		// run from the requested epoch to the current epoch
 		for(int x = 0; x < itr+1; x++){
 			std::ostringstream oss;
 			oss << EN;
 			pastReg[x] = nRegex+"_"+oss.str();
 			EN++;
 		}
+		// get the file destination
 		const std::string ext(regex);
 		if(dest != ext && dest.size() > ext.size() && (dest.substr((dest.size() - ext.size())) == regex)){
 			dest = dest.substr(0,dest.size()-ext.size());
 		}
+		// run through the array tarbaling all matching files+epoch number combinations
+		// adding them to the vector to be passed on
 		for(int y = 0; y < itr+1; y++){
 			std::string newDest = dest + pastReg[y] + ".tar";
 			pastReg[y] = pastReg[y] + "_";
@@ -523,21 +534,22 @@ void FileManager::generateFilesList(std::string dir){
 	// TODO: Error handling, decide on more cases
 	DIR *dp;
 	struct dirent *entry;
-	int count;
 	lock.lock();
 	Logger::Stream(LEVEL_DEBUG,tags) << "Parsing directory: " << dir;
+	// Open Directory
 	dp = opendir(dir.c_str());
+	// Error Check
 	if(dp == NULL){
 		Logger::Stream(LEVEL_ERROR, tags) << "Directory could not be found.";
 		lock.unlock();
 		return;
 	}
 	Logger::Stream(LEVEL_DEBUG,tags) << "Directory to get list from: " << dir.c_str();
-	count = 0;
 	// add full path
 	FILE * dwlkDFL = fopen(DFL_PATH,"a+");
 	fwrite(dir.c_str(),strlen(dir.c_str()),1,dwlkDFL);
 	fwrite("\n",strlen("\n"),1,dwlkDFL);
+	// Read in contents of directory and write them to a file
 	while((entry = readdir(dp))!= NULL){
 		if ( entry->d_name[0] != '.'){
 			fwrite(entry->d_name,strlen(entry->d_name),1,dwlkDFL);
@@ -546,6 +558,7 @@ void FileManager::generateFilesList(std::string dir){
 			Logger::Stream(LEVEL_DEBUG,tags) << "Generate file list entry: " << entry->d_name;
 		}
 	}
+	// add an end line to the end of the file for a space between directorys
 	fwrite("\n",strlen("\n"),1,dwlkDFL);
 	closedir(dp);
 	fclose(dwlkDFL);
@@ -557,6 +570,8 @@ void FileManager::generateFilesList(std::string dir){
  * Deletes a group of files with a given regex
  * \param file path to the files to be delete (e.g. /home/EPS_92 would collect all files with EPS_92 in the front of their name)
  * \param R indicates if it is to be: R = the regex itself, RB = before regex, and RA = after regex, which is indicated by the reboot count of the file name
+ *
+ * Ran the same as the Package files function, with the exception of the rm command as opposed to the tar command
  */
 int FileManager::regexDelete(std::string dest,std::string R){
 
@@ -620,7 +635,8 @@ int FileManager::regexDelete(std::string dest,std::string R){
 			}
 			lock.lock();
 			for(int y = 0; y < EN; y++){
-				sprintf(sh_cmd, "rm -rf `ls -l %s | grep ^- | awk '{print \"%s\" \"/\" $9}' | grep \"%s\"`", (char*)dest.c_str(), (char*)dest.c_str(), (char*)pastReg[y].c_str());;
+				sprintf(sh_cmd, "rm -rf `ls -l %s | grep ^- | awk '{print \"%s\" \"/\" $9}' | grep \"%s\"`",
+						(char*)dest.c_str(), (char*)dest.c_str(), (char*)pastReg[y].c_str());;
 				if(!(fd = popen(sh_cmd, "r"))){
 					Logger::Stream(LEVEL_ERROR, tags) << "Regex files could not be deleted.";
 					pclose(fd);
@@ -664,7 +680,8 @@ int FileManager::regexDelete(std::string dest,std::string R){
 				dest = dest.substr(0,dest.size()-ext.size());
 			}
 			for(int y = 0; y < itr+1; y++){
-				sprintf(sh_cmd, "rm -rf `ls -l %s | grep ^- | awk '{print \"%s\" \"/\" $9}' | grep \"%s\"`", (char*)dest.c_str(), (char*)dest.c_str(), (char*)pastReg[y].c_str());;
+				sprintf(sh_cmd, "rm -rf `ls -l %s | grep ^- | awk '{print \"%s\" \"/\" $9}' | grep \"%s\"`",
+						(char*)dest.c_str(), (char*)dest.c_str(), (char*)pastReg[y].c_str());;
 				if(!(fd = popen(sh_cmd, "r"))){
 					Logger::Stream(LEVEL_ERROR, tags) << "Regex files could not be deleted.";
 					pclose(fd);
@@ -746,6 +763,7 @@ void FileManager::handleConfig(){
 		Logger::Stream(LEVEL_INFO,tags) << " Setting max file size to " << FileManager::MAX_FILE_SIZE << " Bytes" <<
 				"Setting max downlink size to " << FileManager::MAX_DOWN_SIZE << " bytes.";
 	}else{
+		// default configs
 		FileManager::MAX_FILE_SIZE = 5000;
 		FileManager::MAX_DOWN_SIZE = 100000;
 		Logger::Stream(LEVEL_WARN,tags) << "No File Manager configs found";

@@ -14,14 +14,14 @@
 ScheduleManager::ScheduleManager()
  :CurrentMode(Mode_Bus)
  {
-	com.mode = Mode_Com;
-	com.duration = 720;
+	com.mode = Mode_Com; //for com mode
+	com.duration = 720; //for com mode
 	modeEnterTime = getCurrentTime();
 	ComPassCount = FileManager::getComPassCount();
 	REBOOT_TIME = 86400;
-	com.duration = 0;
-	acsDetumble = false;
-	handleConfig();
+	com.duration = 0; // for com mode, we should not have two of these .... duration should be max allowable duration for robustness
+	acsDetumble = false; // this should probably be taken out completely, but simple way for ignoring detumble
+	handleConfig(); // handles schedule manager configurations
 	tags += LogTag("Name", "ScheduleManager");
  }
 ScheduleManager::~ScheduleManager(){};
@@ -42,7 +42,7 @@ FSWMode ScheduleManager::checkNewMode(){
 		CurrentMode = tmp;
 		Logger::Stream(LEVEL_INFO, tags) << "Setting Mode to Reset";
 	}
-
+	// This is now irrelevant, mode will never be detumble
 	else if (CurrentMode == Mode_Detumble){
 			if (!acsDetumble){
 				FSWMode tmp = handleModeChange(CurrentMode,Mode_Bus);

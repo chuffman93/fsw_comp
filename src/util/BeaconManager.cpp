@@ -18,6 +18,8 @@ BeaconManager::~BeaconManager(){}
 void BeaconManager::sendBeacon(){
 	LogTags tags;
 	tags += LogTag("Name", "BeaconManager");
+	uint8_t baconFlag = 0x69;
+	uint8_t FSWFlag = 0;
 	//TODO::add GPS and CDH fields
 	if(gps->beaconOut){
 		Beacon b;
@@ -57,7 +59,7 @@ void BeaconManager::sendBeacon(){
 		b.gpsSecond = (gps->getPositionTime()).GPSSec;
 		b.radNumber = rad->RADDataNum;
 		ByteStream bs;
-		bs << b.epochTime << b.systemTime <<b.rebootCount << b.satelliteMode << b.currentModeEnterTime << b.comPassCount; // << b.timeSinceStarLock << b.numStarsFound;
+		bs << baconFlag << FSWFlag << b.epochTime << b.systemTime <<b.rebootCount << b.satelliteMode << b.currentModeEnterTime << b.comPassCount; // << b.timeSinceStarLock << b.numStarsFound;
 //		bs << b.targetMRP[0] << b.targetMRP[1] << b.targetMRP[2];
 //		bs << b.actualMRP[0] << b.actualMRP[1] << b.actualMRP[2];
 //		for (int i=0; i<20; i++){
@@ -75,7 +77,7 @@ void BeaconManager::sendBeacon(){
 		bs << b.gpsWeek << b.gpsSecond << b.radNumber;
 		std::vector<uint8_t> buff = bs.vec();
 		//TODO: figure out naming convention... do we want to include timestamp and reboot count?
-		FileManager::writeBeaconToFile(BEACON,buff);
+		FileManager::writeToFile(BEACON,buff);
 	}
 
 
