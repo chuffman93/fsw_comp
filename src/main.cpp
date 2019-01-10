@@ -23,17 +23,18 @@ using namespace std;
 int main() {
 	Architecture::buildTime();
 	FileManager::handleConfig();
-	Logger::setMode(MODE_PW);
+	Logger::setMode(MODE_PRINT);
 	Logger::setLevel(LEVEL_INFO);
 	Logger::registerThread("MAIN");
 	Logger::log(LEVEL_INFO, "Entering Main");
 
 	//---------Step1: Build FSW---------------------------
+	Architecture::setInterfaceMode(HARDWARE);
+	Architecture::buildEPS();
+	Architecture::buildCDH();
 	Architecture::setInterfaceMode(SOFTWARE);
 	Architecture::buildGPS();
-	Architecture::setInterfaceMode(HARDWARE);
 	Architecture::buildACS();
-	Architecture::buildCDH();
 	Architecture::buildEPS();
 	Architecture::buildCOM();
 	Architecture::buildRAD();
